@@ -1,7 +1,12 @@
-![rlxf image](docs/rlxf.png)
-# rlxf for automatically building preference datasets
+<h1 align="center">
+  <a href=""><img src="docs/rlxf.png" alt="rlxf image" width="30%"></a>
+  <br>
+  ✨ RLxF for building preference datasets ✨
+  <br>
+</h1>
 
-Open-source framework for building preference datasets and models for LLM alignment.
+## What's RLxF
+An open-source framework for building preference datasets for LLM alignment.
 
 ## Usage
 
