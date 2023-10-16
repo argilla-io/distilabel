@@ -1,4 +1,4 @@
-# rlaif
+# rlxf for automatically building preference datasets
 
 Open-source framework for building preference datasets and models for LLM alignment.
 
