@@ -9,19 +9,24 @@ import os
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+# Setup openai api key to use GPT4 Rating Model
+os.environ['OPENAI_API_KEY'] = 'sk-***'
+
 # Instantiate the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
 model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2")
 
 # Create a dataset
-dataset = Dataset.from_dict({"text": ["My name is Daniel Vila Suero", "Please send me an email"]})
+dataset = Dataset.from_dict(
+    {"text": ["Write an email for marketing: ##EMAIL: ", "What is the name of Colon? ## NAME: "]}
+)
 
 # Configure the RatingModel
-rating_model_config = RatingModelConfig(openai_api_key="sk---")
-rating_model = RatingModel(rating_model_config)
+rating_model = RatingModel()
 
 # Configure the PreferenceDataset
-preference_dataset = PreferenceDataset(dataset, model, tokenizer, rating_model)
+config = PreferenceDatasetConfig(num_responses=2, temperature=0.8)
+preference_dataset = PreferenceDataset(dataset, model, tokenizer, rating_model, config)
 
 # Execute methods for the PreferenceDataset
 dry_run_output = preference_dataset.dry_run()
