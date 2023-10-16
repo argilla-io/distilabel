@@ -25,7 +25,7 @@ class RatingModel:
             text_sections_annotation="\n".join(f"<text {i + 1}> {text}" for i, text in enumerate(response_texts)),
             instruction=input_text,
         )
-        print(user_prompt)
+        
         openai.api_key = self.openai_api_key
         try:
             response = openai.ChatCompletion.create(
