@@ -34,3 +34,18 @@ print(dry_run_output)
 print(generated_data)
 print(summary_info)
 ```
+
+## TODOS
+
+- [ ] Separate target model inference (the model used to generate responses
+- [ ] Make inference to generate responses more efficient (make using Mistral possible)
+- [ ] Enable using inference endpoints instead of local model (nice to have)
+- [ ] Make gpt rating more efficient (can we parallelize this)
+- [ ] Can we start rating without waiting for all responses to be generated (nice to have)
+- [ ] Add Ranking Model (do ranking instead of rating) (nice to have)
+- [ ] Add to_argilla method 
+- [ ] Allow passing a dataset with generated responses and skip the generate responses step
+- [ ] Cleanup, refactor code
+- [ ] add tests
+- [ ] show full example from generate to Argilla to DPO 
+- [ ] final readme 
