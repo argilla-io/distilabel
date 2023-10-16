@@ -1,5 +1,9 @@
+from typing import List, Dict
+
+from rlxf.rating_model import RatingModel
+
 class PreferenceDataset:
-    def __init__(self, dataset, model, tokenizer, rating_model, config=None):
+    def __init__(self, dataset, model, tokenizer, rating_model: RatingModel, config=None):
         self.dataset = dataset
         self.model = model
         self.tokenizer = tokenizer
@@ -7,18 +11,18 @@ class PreferenceDataset:
         self.rating_model = rating_model  
         self.validate_dataset()
 
-    def validate_dataset(self):
+    def validate_dataset(self) -> None:
         if len(self.dataset) == 0:
             raise ValueError("The dataset is empty. Please provide a non-empty dataset.")
         if self.config.column_name not in self.dataset.column_names:
             raise ValueError(f"The required column '{self.config.column_name}' is not found in the dataset. "
                              f"Available columns: {self.dataset.column_names}")
 
-    def _validate_input(self, text):
+    def _validate_input(self, text: str) -> None:
         if not isinstance(text, str):
             raise ValueError(f"Input text must be a string, got {type(text)}")
 
-    def _generate_responses(self, text):
+    def _generate_responses(self, text: str) -> List[str]:
         self._validate_input(text)
         inputs = self.tokenizer(text, return_tensors="pt")
         outputs = self.model.generate(
@@ -36,7 +40,7 @@ class PreferenceDataset:
         responses = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
         return responses
 
-    def dry_run(self):
+    def dry_run(self) -> Dict[str, List[str]]:
         # Create a subset of the dataset with 1 or 2 records
         test_dataset = self.dataset.select(range(1))  # Adjust the range as needed
         
@@ -53,9 +57,8 @@ class PreferenceDataset:
         
         return generated_data
 
-
-    def generate(self):
-        def generate_responses(records):
+    def generate(self) -> Dict[str, List[str]]:
+        def generate_responses(records) -> Dict[str, List[str]]:
             responses = self._generate_responses(records[self.config.column_name])
             return {"responses": responses}
 
@@ -68,10 +71,11 @@ class PreferenceDataset:
 
         return rated_data
 
-    def estimate_cost(self):
+    def estimate_cost(self) -> Dict[str, int]:
+        n = len(self.dataset)
         return {"num_data_points": n, "num_tokens": 111, "estimated_cost": 111}
 
-    def summary(self):
+    def summary(self) -> Dict[str, int]:
         summary_info = {
             "Dataset Size": len(self.dataset),
             "Number of Responses": self.config.num_responses,
@@ -80,8 +84,8 @@ class PreferenceDataset:
         }
         return summary_info
 
-    def _generate_ratings(self, record):
-        return self.rating_model.rate_responses(record["responses"])  
+    def _generate_ratings(self, record: Dict[str, List[str]]) -> Dict[str, List[float]]:
+        return self.rating_model.rate_responses(record["responses"], record[self.config.column_name])  
 
 class PreferenceDatasetConfig:
     def __init__(self, num_responses=2, temperature=0.7, column_name="text", max_length=50,
@@ -95,12 +99,3 @@ class PreferenceDatasetConfig:
         self.repetition_penalty = repetition_penalty
         self.no_repeat_ngram_size = no_repeat_ngram_size
         self.extra_args = kwargs  # For any extra arguments
-
-# Usage:
-# rating_model_config = RatingModelConfig()
-# rating_model = RatingModel(rating_model_config)
-# config = PreferenceDatasetConfig(num_responses=3, temperature=0.8)
-# preference_dataset = PreferenceDataset(dataset, model, tokenizer, rating_model, config)
-# dry_run_output = preference_dataset.dry_run()
-# generated_data = preference_dataset.generate()
-# summary_info = preference_dataset.summary()

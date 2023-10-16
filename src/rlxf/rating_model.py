@@ -1,10 +1,8 @@
+import os
 import openai
 
-from src.rlxf.utils import Utils
-
 class RatingModelConfig:
-    def __init__(self, openai_api_key=None, model="gpt-4", num_responses=2, max_tokens=150, top_p=0.6, presence_penalty=0, **kwargs):
-        self.openai_api_key = openai_api_key or os.environ.get('OPENAI_API_KEY')
+    def __init__(self, model="gpt-4", num_responses=2, max_tokens=150, top_p=0.6, presence_penalty=0, **kwargs):
         self.model = model
         self.max_tokens = max_tokens
         self.top_p = top_p
@@ -12,20 +10,23 @@ class RatingModelConfig:
         self.num_responses = num_responses
         self.extra_args = kwargs  
 
+class RatingModel:
+    def __init__(self, config=None, rating_prompt=None, openai_api_key=None):
+        self.openai_api_key = openai_api_key or os.environ.get('OPENAI_API_KEY')
         if self.openai_api_key is None:
             raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
 
-class RatingModel:
-    def __init__(self, config, rating_prompt=None):
-        self.config = config
+        self.config = config or RatingModelConfig()
         self.rating_prompt = rating_prompt or RatingPrompt()
         self.system_prompt = self.rating_prompt.system_prompt
 
-    def rate_responses(self, response_texts):
+    def rate_responses(self, response_texts, input_text):
         user_prompt = self.rating_prompt.user_prompt.format(
-            text_sections_annotation="\n".join(f"<text {i + 1}> {text}" for i, text in enumerate(response_texts))
+            text_sections_annotation="\n".join(f"<text {i + 1}> {text}" for i, text in enumerate(response_texts)),
+            instruction=input_text,
         )
-        openai.api_key = self.config.openai_api_key
+        print(user_prompt)
+        openai.api_key = self.openai_api_key
         try:
             response = openai.ChatCompletion.create(
                 model=self.config.model, 

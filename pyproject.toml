@@ -1,19 +1,22 @@
 [tool.poetry]
 name = "rlxf"
 version = "0.1.0"
-description = "Open-source framework for building preference datasets and models for LLM alignment"
+description = "Framework to automatically build preference datasets for LLM alignment"
 authors = ["Argilla <admin@argilla.io>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-torch = "^1.9.0"
-openai = "^0.11.2"
+python = ">=3.9,<3.12"
+torch = "^2.1.0"
+openai = "^0.28.1"
 argilla = "^1.16.0"
-transformers = "^4.11.3"
-datasets = "^1.14.0"
+transformers = "^4.34.0"
+datasets = "^2.14.5"
 
 [tool.poetry.dev-dependencies]
 # List your project's development dependencies here
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -25,22 +28,3 @@ rlxf = "rlxf.cli:main"
 [tool.poetry.extras]
 dev = ["pytest", "black", "flake8", "mypy"]
 
-[tool.poetry]
-name = "rlxf"
-version = "0.1.0"
-description = "Open-source framework for building preference datasets and models for LLM alignment"
-authors = ["Argilla <admin@argilla.io>"]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-openai = "^0.11.2"
-argilla = "^1.16.0"
-transformers = "^4.11.3"
-datasets = "^1.14.0"
-
-[tool.poetry.dev-dependencies]
-# List your project's development dependencies here
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"

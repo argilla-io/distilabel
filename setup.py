@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='rlxf',
     version='0.1.0',
-    description='Open-source framework for building preference datasets and models for LLMs',
+    description='Framework to automatically build preference datasets for LLM alignment',
     author='Argilla Team',
     author_email='admin@argilla.io',
     url='https://github.com/argilla-io/rlxf',
