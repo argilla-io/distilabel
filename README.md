@@ -1,3 +1,4 @@
+![rlxf image](docs/rlxf.png)
 # rlxf for automatically building preference datasets
 
 Open-source framework for building preference datasets and models for LLM alignment.
@@ -31,6 +32,7 @@ rating_model = RatingModel()
 
 # Configure the LLM
 llm = LLM(model=model, tokenizer=tokenizer, num_responses=2)
+
 preference_dataset = PreferenceDataset(
     dataset, 
     llm=llm, 
