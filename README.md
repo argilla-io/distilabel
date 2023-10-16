@@ -1,4 +1,4 @@
-# rlxf
+# rlaif
 
 Open-source framework for building preference datasets and models for LLM alignment.
 
@@ -21,14 +21,13 @@ rating_model_config = RatingModelConfig(openai_api_key="sk---")
 rating_model = RatingModel(rating_model_config)
 
 # Configure the PreferenceDataset
-config = PreferenceDatasetConfig(num_responses=2, temperature=0.8)
-preference_dataset = PreferenceDataset(dataset, model, tokenizer, rating_model, config)
+preference_dataset = PreferenceDataset(dataset, model, tokenizer, rating_model)
 
 # Execute methods for the PreferenceDataset
 dry_run_output = preference_dataset.dry_run()
 generated_data = preference_dataset.generate()
 summary_info = preference_dataset.summary()
-
+rg_dataset = preference_dataset.to_argilla()
 # Print or utilize the outputs as needed
 print(dry_run_output)
 print(generated_data)
