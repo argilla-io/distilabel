@@ -17,7 +17,7 @@ class RatingModel:
             raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
 
         self.config = config or RatingModelConfig()
-        self.rating_prompt = rating_prompt or RatingPrompt()
+        self.rating_prompt = rating_prompt or RatingPrompt(self.config.num_responses)
         self.system_prompt = self.rating_prompt.system_prompt
 
     def rate_responses(self, response_texts, input_text):

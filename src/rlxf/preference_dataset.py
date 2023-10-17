@@ -43,10 +43,14 @@ class PreferenceDataset:
             self._generate_ratings,
         )
 
-        # Update the dataset with the generated data
-        self.dataset = rated_data
+        ranked_data = rated_data.map(
+            self._generate_rankings
+        )
 
-        return rated_data
+        # Update the dataset with the generated data
+        self.dataset = ranked_data
+
+        return ranked_data
 
     def dry_run(self) -> Dict[str, List[str]]:
         # Create a subset of the dataset with 1 or 2 records
@@ -143,5 +147,23 @@ class PreferenceDataset:
         }
         return summary_info
 
-    def _generate_ratings(self, record: Dict[str, List[str]]) -> Dict[str, List[float]]:
-        return self.rating_model.rate_responses(record["responses"], record[self.column_name])  
+    def _generate_ratings(self, record):
+        return self.rating_model.rate_responses(record["responses"], record[self.column_name]) 
+    
+    def _generate_rankings(self, record):
+        # Combine the two lists into a list of tuples and sort by rating in descending order
+        combined = sorted([(d['rating'], i) for i, d in enumerate(record["rating"])], key=lambda x: x[0], reverse=True)
+
+        # Generate the ranking string
+        ranking = []
+        prev_rating = None
+        for i, (rating, index) in enumerate(combined):
+            if prev_rating == rating:
+                ranking.append(f"={index+1}")
+            else:
+                ranking.append(f">{index+1}")
+            prev_rating = rating
+
+        # Remove the first '>' symbol from the ranking string
+        ranking[0] = ranking[0][1:]
+        return {"ranking": ''.join(ranking)}
