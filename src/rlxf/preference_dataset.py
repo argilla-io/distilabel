@@ -5,16 +5,21 @@ from rlxf.llm import LLM
 
 from datasets import Dataset
 
+import argilla as rg
+
 class PreferenceDataset:
     def __init__(self, dataset:Dataset, rating_model: RatingModel=None, llm:LLM=None, column_name="text", num_responses=2):
-        if llm is None and "responses" not in dataset.column_names:
-            raise ValueError("If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated.")
         self.dataset = dataset
+        if llm is None and not self._dataset_has_responses():
+            raise ValueError("If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated.")
         self.llm = llm
         self.rating_model = rating_model or RatingModel()
         self.column_name = column_name
         self.num_responses = num_responses 
         self.validate_dataset()
+
+    def _dataset_has_responses(self):
+        return "responses" in self.dataset.column_names
 
     def validate_dataset(self) -> None:
         if len(self.dataset) == 0:
@@ -36,6 +41,10 @@ class PreferenceDataset:
         rated_data = generated_data.map(
             self._generate_ratings,
         )
+
+        # Update the dataset with the generated data
+        self.dataset = rated_data
+
         return rated_data
 
     def dry_run(self) -> Dict[str, List[str]]:
@@ -54,6 +63,71 @@ class PreferenceDataset:
             self.dataset = original_dataset
         
         return generated_data
+    
+    def to_argilla(self) -> rg.FeedbackDataset:
+        if not self._dataset_has_responses():
+            raise ValueError("To convert to Argilla, the dataset must contain a column named 'responses'")
+        # Configure input and response fields
+        fields = [rg.TextField(name="input")]
+        response_fields = [
+            rg.TextField(name=f"response_{i}", use_markdown=True)
+            for i in range(self.num_responses)
+        ]
+        fields.extend(response_fields)
+
+        # Configure questions
+        questions = []
+        for i in range(self.num_responses):
+            questions.extend([
+                rg.RatingQuestion(
+                    name=f"rating_{i}",
+                    title=f"Rate the response_{i}?",
+                    values=[1,2,3,4,5],
+                ),
+                rg.TextQuestion(
+                    name=f"rationale_{i}",
+                    title=f"Rationale behind response_{i}'s rating?",
+                )
+            ])
+        # TODO: Configure metadata
+        # add llm config, rating model config, text descriptives, rating average, etc.
+
+        rg_dataset = rg.FeedbackDataset(
+            fields=fields,
+            questions=questions,
+            #guidelines="", TODO: Define general guidelines template we can add here
+        )
+
+        # add records
+        records = [
+            self._build_argilla_record(example)
+            for example in self.dataset
+        ]
+        rg_dataset.add_records(records)
+        return rg_dataset
+
+    def _build_argilla_record(self, example):
+        # add field values for responses
+        fields= {
+            f"response_{i}": r
+            for i,r in enumerate(example["responses"])
+        }
+        # add field value for input
+        fields["input"] = example[self.column_name]
+
+        # add suggestions
+        suggestions = []
+        for i,feedback in enumerate(example["rating"]):
+            suggestions.extend([
+                { "question_name": f"rating_{i}", "value": int(feedback["rating"]), "agent": self.rating_model.config.model},
+                { "question_name": f"rationale_{i}", "value": feedback["rationale"], "agent": self.rating_model.config.model},
+            ])
+        print(suggestions)
+        record = rg.FeedbackRecord(
+            fields=fields,
+            suggestions=suggestions
+        )
+        return record
 
     def estimate_cost(self) -> Dict[str, int]:
         n = len(self.dataset)

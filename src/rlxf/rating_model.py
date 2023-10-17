@@ -54,7 +54,7 @@ class RatingModel:
             rationale = rationale_line.split(": ")[1]
             parsed_output.append({"rating": rating, "rationale": rationale})
 
-        return {"rated_responses": parsed_output}
+        return {"rating": parsed_output}
     
 class RatingPrompt:
 
