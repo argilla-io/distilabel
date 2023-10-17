@@ -28,12 +28,13 @@ class PreferenceDataset:
             raise ValueError(f"The required column '{self.column_name}' is not found in the dataset. "
                              f"Available columns: {self.dataset.column_names}")
         
-    def generate(self) -> Dict[str, List[str]]:
+    def generate(self, batch_size=1) -> Dict[str, List[str]]:
         def generate_responses(records) -> Dict[str, List[str]]:
             responses = self.llm.generate_responses(records[self.column_name])
             return {"responses": responses}
         if self.llm:
-            generated_data = self.dataset.map(generate_responses)
+            # TODO: Improve batch processing
+            generated_data = self.dataset.map(generate_responses, batched=True, batch_size=batch_size)
         else:
             generated_data = self.dataset
 
@@ -74,8 +75,6 @@ class PreferenceDataset:
             for i in range(self.num_responses)
         ]
         fields.extend(response_fields)
-        
-        print(fields)
 
         # Configure questions
         questions = []
@@ -109,13 +108,12 @@ class PreferenceDataset:
         return rg_dataset
 
     def _build_argilla_record(self, example):
-        # add field values for responses
-        fields= {
-            f"response_{i}": r
-            for i,r in enumerate(example["responses"])
-        }
         # add field value for input
-        fields["input"] = example[self.column_name]
+        fields = {"input": example[self.column_name]}
+
+        # add field values for responses
+        for i,r in enumerate(example["responses"]):
+            fields[f"response_{i}"] = r
 
         # add suggestions
         suggestions = []

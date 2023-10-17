@@ -21,28 +21,30 @@ class LLM:
             raise ValueError(f"Input text must be a string, got {type(text)}")
         
     # TODO:Exclude input text from outputs
-    def generate_responses(self, text: str) -> List[str]:
-        self._validate_input(text)
-        inputs = self.tokenizer(text, return_tensors="pt")
-        outputs = self.model.generate(
-            inputs["input_ids"],
-            max_length=self.max_length,
-            num_return_sequences=self.num_responses,
-            num_beams=max(2, self.num_responses),
-            temperature=self.temperature,
-            do_sample=True,
-            top_k=self.top_k,
-            top_p=self.top_p,
-            repetition_penalty=self.repetition_penalty,
-            no_repeat_ngram_size=self.no_repeat_ngram_size,
-        )
-        responses = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
-        return responses
+    def generate_responses(self, texts: List[str]) -> List[str]:
+        batched_responses = []
+        for text in texts:
+            inputs = self.tokenizer(text, return_tensors="pt")
+            outputs = self.model.generate(
+                inputs["input_ids"],
+                max_length=self.max_length,
+                num_return_sequences=self.num_responses,
+                num_beams=max(2, self.num_responses),
+                temperature=self.temperature,
+                do_sample=True,
+                top_k=self.top_k,
+                top_p=self.top_p,
+                repetition_penalty=self.repetition_penalty,
+                no_repeat_ngram_size=self.no_repeat_ngram_size,
+            )
+            responses = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
+            batched_responses.append(responses)
+        return batched_responses
 
 class LLMInferenceEndpoint:
-    def __init__(self, client: InferenceClient, num_responses=2, system_prompt=None, base_prompt=None, temperature=1.0, max_length=256, max_new_tokens=512,
+    def __init__(self, client: InferenceClient, num_responses=2, system_prompt=None, base_prompt=None, temperature=1.0, max_length=128, max_new_tokens=512,
                  top_k=50, top_p=0.95, repetition_penalty=1.2, no_repeat_ngram_size=2, **kwargs):
-        # TODO: Move this to a right place
+        # TODO: Move this to a better place
         default_system_prompt = (
             "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
             " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"
@@ -65,18 +67,16 @@ class LLMInferenceEndpoint:
         self.system_prompt = system_prompt or default_system_prompt
         self.base_prompt = base_prompt or default_base_prompt
 
-    def _validate_input(self, text: str) -> None:
-        if not isinstance(text, str):
-            raise ValueError(f"Input text must be a string, got {type(text)}")
-        
-    def generate_responses(self, text: str) -> List[str]:
-        self._validate_input(text)
-        prompt = self.base_prompt.format(system_prompt=self.system_prompt, prompt=text)
-        responses = [
-            self.client.text_generation(
-                prompt, details=True, max_new_tokens=self.max_new_tokens, top_k=self.top_k, top_p=self.top_p,
-                temperature=self.temperature, repetition_penalty=self.repetition_penalty, stop_sequences=["</s>"],
-            ).generated_text
-            for i in range(self.num_responses)
-        ]
-        return responses
+    def generate_responses(self, texts: List[str]) -> List[str]:
+        batch_responses = []
+        for text in texts:
+            prompt = self.base_prompt.format(system_prompt=self.system_prompt, prompt=text)
+            responses = [
+                self.client.text_generation(
+                    prompt, details=True, max_new_tokens=self.max_new_tokens, top_k=self.top_k, top_p=self.top_p,
+                    temperature=self.temperature, repetition_penalty=self.repetition_penalty, stop_sequences=["</s>"],
+                ).generated_text
+                for i in range(self.num_responses)
+            ]
+            batch_responses.append(responses)
+        return batch_responses
