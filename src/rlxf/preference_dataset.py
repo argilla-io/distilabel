@@ -74,6 +74,8 @@ class PreferenceDataset:
             for i in range(self.num_responses)
         ]
         fields.extend(response_fields)
+        
+        print(fields)
 
         # Configure questions
         questions = []
@@ -117,12 +119,13 @@ class PreferenceDataset:
 
         # add suggestions
         suggestions = []
+        # TODO: The name of the column for rating should be a constant defined for the whole project (it's created by the preference model)
         for i,feedback in enumerate(example["rating"]):
             suggestions.extend([
                 { "question_name": f"rating_{i}", "value": int(feedback["rating"]), "agent": self.rating_model.config.model},
                 { "question_name": f"rationale_{i}", "value": feedback["rationale"], "agent": self.rating_model.config.model},
             ])
-        print(suggestions)
+        
         record = rg.FeedbackRecord(
             fields=fields,
             suggestions=suggestions
