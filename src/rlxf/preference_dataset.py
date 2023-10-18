@@ -5,7 +5,16 @@ from rlxf.llm import HuggingFaceLLM as LLM
 
 from datasets import Dataset
 
-import argilla as rg
+try:
+    import argilla as rg
+    _argilla_installed = True
+except ImportError:
+    _argilla_installed = False
+
+
+if TYPE_CHECKING and _argilla_installed:
+    from argilla import FeedbackDataset
+
 
 class PreferenceDataset:
     def __init__(self, dataset: Dataset, rating_model: Optional[RatingModel] = None, llm: Optional[LLM] = None, column_name: str = "text", num_responses: int = 2) -> None:
@@ -69,7 +78,12 @@ class PreferenceDataset:
         
         return generated_data
     
-    def to_argilla(self) -> rg.FeedbackDataset:
+    def to_argilla(self) -> "FeedbackDataset":
+        if not _argilla_installed:
+            raise ImportError(
+                "In order to use the `to_argilla` method, you need to install Argilla via"
+                " `pip install argilla` or `pip install rlxf[argilla]`."
+            )
         if not self._dataset_has_responses():
             raise ValueError("To convert to Argilla, the dataset must contain a column named 'responses'")
         # Configure input and response fields
