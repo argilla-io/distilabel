@@ -10,6 +10,25 @@ An open-source framework for building preference datasets for LLM alignment.
 
 ## Usage
 
+## With a dataset containing responses
+
+```python
+from rlxf.preference_dataset import PreferenceDataset
+from datasets import load_dataset
+
+# Setup openai api key to use GPT4 Rating Model
+os.environ['OPENAI_API_KEY'] = 'sk-***'
+
+dataset = load_dataset("argilla/mistral_vs_llama2", split="train")
+
+pd = PreferenceDataset(
+    dataset=dataset,
+    num_responses=2
+)
+
+pd.generate()
+```
+
 ## Local model with `transformers`
 ```python
 import os
