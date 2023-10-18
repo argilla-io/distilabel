@@ -1,82 +1,74 @@
-from typing import List
+from typing import Union
+from functools import cached_property
 
-from huggingface_hub import InferenceClient
+import torch
+from transformers import PreTrainedModel, PreTrainedTokenizer, PreTrainedTokenizerFast
+from llama_cpp import Llama
+from rlxf.prompts.llama2 import Llama2Prompt
 
-class LLM:
-    def __init__(self, model, tokenizer,num_responses=2, temperature=1.0, max_length=256,
-                 top_k=50, top_p=0.95, repetition_penalty=1.2, no_repeat_ngram_size=2, **kwargs):
-        self.model = model
+
+class HuggingFaceLLM:
+    """
+    Examples:
+        >>> from transformers import AutoModelForCausalLM, AutoTokenizer
+        >>> tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
+        >>> model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2")
+        >>> llm = HuggingFaceLLM(model=model, tokenizer=tokenizer)
+        >>> llm.batch_generate(["What is the name of the capital of France?"])
+    """
+    def __init__(
+        self,
+        model: PreTrainedModel,
+        tokenizer: Union[PreTrainedTokenizer, PreTrainedTokenizerFast],
+        max_new_tokens: int = 128,
+        temperature: float = 1.0,
+        num_return_sequences: int = 1,
+    ) -> None:
+        self.model = model.to(self.device)
         self.tokenizer = tokenizer
-        self.num_responses = num_responses
-        self.temperature = temperature
-        self.max_length = max_length
-        self.top_k = top_k
-        self.top_p = top_p
-        self.repetition_penalty = repetition_penalty
-        self.no_repeat_ngram_size = no_repeat_ngram_size
-        self.extra_args = kwargs  # For any extra arguments
-    
-    def _validate_input(self, text: str) -> None:
-        if not isinstance(text, str):
-            raise ValueError(f"Input text must be a string, got {type(text)}")
+
+        self.tokenizer.padding_side = "left"
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         
-    # TODO:Exclude input text from outputs
-    def generate_responses(self, texts: List[str]) -> List[str]:
-        batched_responses = []
-        for text in texts:
-            inputs = self.tokenizer(text, return_tensors="pt")
-            outputs = self.model.generate(
-                inputs["input_ids"],
-                max_length=self.max_length,
-                num_return_sequences=self.num_responses,
-                num_beams=max(2, self.num_responses),
-                temperature=self.temperature,
-                do_sample=True,
-                top_k=self.top_k,
-                top_p=self.top_p,
-                repetition_penalty=self.repetition_penalty,
-                no_repeat_ngram_size=self.no_repeat_ngram_size,
-            )
-            responses = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
-            batched_responses.append(responses)
-        return batched_responses
+        self.generate_kwargs = {
+            "max_new_tokens": max_new_tokens,
+            "temperature": temperature,
+            "num_return_sequences": num_return_sequences,
+            "num_beams": num_return_sequences or 1,
+        }
 
-class LLMInferenceEndpoint:
-    def __init__(self, client: InferenceClient, num_responses=2, system_prompt=None, base_prompt=None, temperature=1.0, max_length=128, max_new_tokens=512,
-                 top_k=50, top_p=0.95, repetition_penalty=1.2, no_repeat_ngram_size=2, **kwargs):
-        # TODO: Move this to a better place
-        default_system_prompt = (
-            "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
-            " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"
-            " toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased"
-            " and positive in nature.\nIf a question does not make any sense, or is not factually coherent,"
-            " explain why instead of answering something not correct. If you don't know the answer to a"
-            " question, please don't share false information."
+    @cached_property
+    def device(self) -> torch.device:
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
+            return torch.device("mps")
+        else:
+            return torch.device("cpu")
+
+    def batch_generate(self, texts: list[str]) -> list[str]:
+        batch_encoding = self.tokenizer(text=texts, padding=True, return_tensors="pt")
+        if self.device != "cpu":
+            batch_encoding = batch_encoding.to(self.device)
+        with torch.inference_mode():
+            generated_ids = self.model.generate(**batch_encoding, **self.generate_kwargs)
+        return self.tokenizer.batch_decode(
+            generated_ids[:, -(batch_encoding.input_ids.shape[1]) :],
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=True,
         )
-        default_base_prompt = "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]"
-        self.num_responses = num_responses
-        self.client = client
-        self.temperature = temperature
-        self.max_length = max_length
-        self.top_k = top_k
-        self.top_p = top_p
-        self.repetition_penalty = repetition_penalty
-        self.no_repeat_ngram_size = no_repeat_ngram_size
-        self.extra_args = kwargs  # For any extra arguments
-        self.max_new_tokens = max_new_tokens
-        self.system_prompt = system_prompt or default_system_prompt
-        self.base_prompt = base_prompt or default_base_prompt
 
-    def generate_responses(self, texts: List[str]) -> List[str]:
-        batch_responses = []
-        for text in texts:
-            prompt = self.base_prompt.format(system_prompt=self.system_prompt, prompt=text)
-            responses = [
-                self.client.text_generation(
-                    prompt, details=True, max_new_tokens=self.max_new_tokens, top_k=self.top_k, top_p=self.top_p,
-                    temperature=self.temperature, repetition_penalty=self.repetition_penalty, stop_sequences=["</s>"],
-                ).generated_text
-                for i in range(self.num_responses)
-            ]
-            batch_responses.append(responses)
-        return batch_responses
+
+class Llama2CppLLM:
+    """
+    Examples:
+        >>> from llama_cpp import Llama
+        >>> llm = Llama2CppLLM(model_file="./llama-2-7b-chat.Q4_0.gguf")
+        >>> llm.batch_generate(["What is the name of the capital of France?"])
+    """
+    def __init__(self, model_file: str) -> None:
+        self.model = Llama(model_path=model_file, n_gpu_layers=1)
+
+    def batch_generate(self, texts: list[str]) -> list[str]:
+        return [self.model.create_completion(Llama2Prompt.chat_format(text), max_tokens=32, temperature=0.0) for text in texts]
