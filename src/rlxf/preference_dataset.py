@@ -11,7 +11,7 @@ class PreferenceDataset:
     def __init__(self, dataset:Dataset, rating_model: RatingModel=None, llm:LLM=None, column_name="text", num_responses=2):
         self.dataset = dataset
 
-        if llm is None and not self._dataset_has_responses():
+        if llm is None and not self._dataset_has_column("responses"):
             raise ValueError("If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated.")
         self.llm = llm
 
