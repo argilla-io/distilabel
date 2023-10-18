@@ -17,6 +17,7 @@ class RatingModel:
             raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
 
         self.config = config or RatingModelConfig()
+        # TODO: Passing the num responses around is messy. We could compute this directly using the values of the responses column
         self.rating_prompt = rating_prompt or RatingPrompt(self.config.num_responses)
         self.system_prompt = self.rating_prompt.system_prompt
 
@@ -48,8 +49,7 @@ class RatingModel:
         sections = rating_output.split("#### Output for Text ")[1:]  # Ignore any content before the first header
         parsed_output = []
         for section in sections:
-            header, rating_line, rationale_line = section.strip().split('\n', 2)
-            text_num = int(header.split()[-1])  # This is the number following "Output for Text "
+            _, rating_line, rationale_line = section.strip().split('\n', 2)
             rating = rating_line.split(": ")[1]
             rationale = rationale_line.split(": ")[1]
             parsed_output.append({"rating": rating, "rationale": rationale})
