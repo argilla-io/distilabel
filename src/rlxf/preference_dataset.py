@@ -207,8 +207,9 @@ class PreferenceDataset:
         return self.rating_model.rate_responses(record["responses"], record[self.column_name]) 
     
     def _generate_rankings(self, record):
-        # Combine the two lists into a list of tuples and sort by rating in descending order
-        combined = sorted([(d['rating'], i) for i, d in enumerate(record["rating"])], key=lambda x: x[0], reverse=True)
+        # Convert ratings to integers and combine the two lists into a list of tuples.
+        # Then sort by rating in descending order.
+        combined = sorted([(int(d['rating']), i) for i, d in enumerate(record["rating"])], key=lambda x: x[0], reverse=True)
 
         # Generate the ranking string
         ranking = []

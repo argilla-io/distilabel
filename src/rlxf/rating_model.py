@@ -11,7 +11,7 @@ class RatingModelConfig:
         self.extra_args = kwargs  
 
 class RatingModel:
-    def __init__(self, model="gpt-4", num_responses=2, rating_prompt=None, openai_api_key=None, max_tokens=150, top_p=0.6, presence_penalty=0):
+    def __init__(self, model="gpt-4", num_responses=2, rating_prompt=None, openai_api_key=None, max_tokens=512, top_p=0.6, presence_penalty=0):
         self.openai_api_key = openai_api_key or os.environ.get('OPENAI_API_KEY')
         if self.openai_api_key is None:
             raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
@@ -31,6 +31,8 @@ class RatingModel:
             text_sections_annotation="\n".join(f"<text {i + 1}> {text}" for i, text in enumerate(response_texts)),
             instruction=input_text,
         )
+
+        print(user_prompt)
         
         openai.api_key = self.openai_api_key
         try:
@@ -50,6 +52,8 @@ class RatingModel:
         
         # Extract the rating and rationale from the response
         rating_output = response['choices'][0]['message']["content"].strip()
+
+        print(rating_output)
         
         sections = rating_output.split("#### Output for Text ")[1:]  # Ignore any content before the first header
         parsed_output = []
