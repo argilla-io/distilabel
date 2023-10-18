@@ -32,7 +32,6 @@ class RatingModel:
             instruction=input_text,
         )
 
-        print(user_prompt)
         
         openai.api_key = self.openai_api_key
         try:
@@ -52,8 +51,6 @@ class RatingModel:
         
         # Extract the rating and rationale from the response
         rating_output = response['choices'][0]['message']["content"].strip()
-
-        print(rating_output)
         
         sections = rating_output.split("#### Output for Text ")[1:]  # Ignore any content before the first header
         parsed_output = []
