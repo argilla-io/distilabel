@@ -52,11 +52,6 @@ pd.dry_run()
 pd.generate()
 ```
 
-client = InferenceClient(
-    "https://tyu2f9cnb9tu0yio.us-east-1.aws.endpoints.huggingface.cloud", 
-    token="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"
-)
-
 ## Using Inference endpoints
 
 ```python
