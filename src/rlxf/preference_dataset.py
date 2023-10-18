@@ -19,16 +19,25 @@ if TYPE_CHECKING and _argilla_installed:
 class PreferenceDataset:
     def __init__(self, dataset: Dataset, rating_model: Optional[RatingModel] = None, llm: Optional[LLM] = None, column_name: str = "text", num_responses: int = 2) -> None:
         self.dataset = dataset
-        if llm is None and not self._dataset_has_responses():
+
+        if llm is None and not self._dataset_has_column("responses"):
             raise ValueError("If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated.")
         self.llm = llm
-        self.rating_model = rating_model or RatingModel()
+
+        # TODO: there should be better ways to align this (see the todo in the RatingModel class)
+        if llm and num_responses != self.llm.num_responses:
+            raise ValueError(f"The number of responses must match the number of responses expected by the LLM model: {self.llm.num_responses}")
+        
+        self.rating_model = rating_model or RatingModel(num_responses=num_responses)
+        if num_responses != self.rating_model.num_responses:
+            raise ValueError(f"The number of responses must match the number of responses expected by the rating model: {self.rating_model.num_responses}")
+        
         self.column_name = column_name
         self.num_responses = num_responses 
         self.validate_dataset()
 
-    def _dataset_has_responses(self):
-        return "responses" in self.dataset.column_names
+    def _dataset_has_column(self, column_name):
+        return column_name in self.dataset.column_names
 
     def validate_dataset(self) -> None:
         if len(self.dataset) == 0:
@@ -77,37 +86,50 @@ class PreferenceDataset:
             self.dataset = original_dataset
         
         return generated_data
-    
-    def to_argilla(self) -> "FeedbackDataset":
+
+    def to_argilla(self, use_ranking: bool = False) -> "FeedbackDataset":
         if not _argilla_installed:
             raise ImportError(
                 "In order to use the `to_argilla` method, you need to install Argilla via"
                 " `pip install argilla` or `pip install rlxf[argilla]`."
             )
-        if not self._dataset_has_responses():
-            raise ValueError("To convert to Argilla, the dataset must contain a column named 'responses'")
+        if not self._dataset_has_column("responses") or not self._dataset_has_column("rating"):
+            raise ValueError(f"To convert to Argilla, the dataset must contain at least 'responses' and 'rating' columns. Current columns: {self.dataset.column_names}")
+        
         # Configure input and response fields
         fields = [rg.TextField(name="input")]
         response_fields = [
             rg.TextField(name=f"response_{i}", use_markdown=True)
-            for i in range(self.num_responses)
+            for i in range(1, self.num_responses+1)
         ]
         fields.extend(response_fields)
 
         # Configure questions
         questions = []
-        for i in range(self.num_responses):
-            questions.extend([
-                rg.RatingQuestion(
-                    name=f"rating_{i}",
-                    title=f"Rate the response_{i}?",
-                    values=[1,2,3,4,5],
-                ),
-                rg.TextQuestion(
-                    name=f"rationale_{i}",
-                    title=f"Rationale behind response_{i}'s rating?",
-                )
-            ])
+        if use_ranking:
+            # for ranking we define just one question
+            preference_question = rg.RankingQuestion(
+                    name=f"ranking",
+                    title=f"Rank the responses",
+                    values=[f"response_{i}" for i in range(1, self.num_responses+1)],
+            )
+            questions.append(preference_question)
+            for i in range(1, self.num_responses+1):
+                questions.extend([
+                    self._build_rationale_question(i)
+                ])
+        else:
+            for i in range(1, self.num_responses+1):
+                # for rating we need one rating per response
+                questions.extend([
+                    rg.RatingQuestion(
+                        name=f"rating_{i}",
+                        title=f"Rate the response_{i}?",
+                        values=[1,2,3,4,5]
+                    ),
+                    self._build_rationale_question(i)
+                ])
+            
         # TODO: Configure metadata
         # add llm config, rating model config, text descriptives, rating average, etc.
 
@@ -119,36 +141,70 @@ class PreferenceDataset:
 
         # add records
         records = [
-            self._build_argilla_record(example)
+            self._build_argilla_record(example, use_ranking=use_ranking)
             for example in self.dataset
         ]
         rg_dataset.add_records(records)
         return rg_dataset
 
-    def _build_argilla_record(self, example):
+    def _build_rationale_question(self, i):
+        return rg.TextQuestion(
+                        name=f"rationale_{i}",
+                        title=f"Rationale behind response_{i}'s ranking?",
+                    )
+
+    def _build_argilla_record(self, example, use_ranking):
         # add field value for input
         fields = {"input": example[self.column_name]}
 
         # add field values for responses
         for i,r in enumerate(example["responses"]):
-            fields[f"response_{i}"] = r
+            fields[f"response_{i+1}"] = r
 
-        # add suggestions
+        # Add suggestions for ranking or rating
+        # TODO: The name of the columns rating/ranking should be a constant defined for the whole project (it's created by the preference model)
+
         suggestions = []
-        # TODO: The name of the column for rating should be a constant defined for the whole project (it's created by the preference model)
-        for i,feedback in enumerate(example["rating"]):
-            suggestions.extend([
-                { "question_name": f"rating_{i}", "value": int(feedback["rating"]), "agent": self.rating_model.config.model},
-                { "question_name": f"rationale_{i}", "value": feedback["rationale"], "agent": self.rating_model.config.model},
-            ])
-        
+        if use_ranking:
+            suggestions.append(self._build_ranking_suggestion(example["ranking"]))
+            for i,feedback in enumerate(example["rating"]):
+                suggestions.extend([
+                    self._build_rationale_suggestions(i+1, feedback),
+                ])
+        else:
+            for i,feedback in enumerate(example["rating"]):
+                suggestions.extend([
+                    {"question_name": f"rating_{i+1}", "value": int(feedback["rating"]), "agent": self.rating_model.model},
+                    self._build_rationale_suggestions(i+1, feedback)
+                ])
+
+        # then add suggestions
         record = rg.FeedbackRecord(
             fields=fields,
             suggestions=suggestions
         )
         return record
 
+    def _build_rationale_suggestions(self, i, feedback):
+        return { "question_name": f"rationale_{i}", "value": feedback["rationale"], "agent": self.rating_model.model}
+
+        
+    def _build_ranking_suggestion(self, ranking_str):
+        parts = ranking_str.split('>')
+        rank_values = []
+        rank = 1
+
+        for part in parts:
+            tied_indices = [int(i) for i in part.split('=')]
+            for i in tied_indices:
+                rank_values.append({"rank": rank, "value": f"response_{i}"})
+
+            rank += 1
+
+        return {"question_name": "ranking", "value": rank_values}
+
     def estimate_cost(self) -> Dict[str, int]:
+        # TODO: Estimate OpenAI API costs
         n = len(self.dataset)
         return {"num_data_points": n, "num_tokens": 111, "estimated_cost": 111}
 
@@ -165,13 +221,14 @@ class PreferenceDataset:
         return self.rating_model.rate_responses(record["responses"], record[self.column_name]) 
     
     def _generate_rankings(self, record):
-        # Combine the two lists into a list of tuples and sort by rating in descending order
-        combined = sorted([(d['rating'], i) for i, d in enumerate(record["rating"])], key=lambda x: x[0], reverse=True)
+        # Convert ratings to integers and combine the two lists into a list of tuples.
+        # Then sort by rating in descending order.
+        combined = sorted([(int(d['rating']), i) for i, d in enumerate(record["rating"])], key=lambda x: x[0], reverse=True)
 
         # Generate the ranking string
         ranking = []
         prev_rating = None
-        for i, (rating, index) in enumerate(combined):
+        for _, (rating, index) in enumerate(combined):
             if prev_rating == rating:
                 ranking.append(f"={index+1}")
             else:

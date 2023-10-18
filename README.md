@@ -10,15 +10,34 @@ An open-source framework for building preference datasets for LLM alignment.
 
 ## Usage
 
+## With a dataset containing responses
+
+```python
+from rlxf.preference_dataset import PreferenceDataset
+from datasets import load_dataset
+
+# Setup openai api key to use GPT4 Rating Model
+os.environ['OPENAI_API_KEY'] = 'sk-***'
+
+dataset = load_dataset("argilla/mistral_vs_llama2", split="train")
+
+pd = PreferenceDataset(
+    dataset=dataset,
+    num_responses=2
+)
+
+pd.generate()
+```
+
+## Local model with `transformers`
 ```python
 import os
 
 from rlxf.preference_dataset import PreferenceDataset
-from rlxf.llm import LLM, LLMInferenceEndpoint
+from rlxf.llm import LLM
 
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from huggingface_hub import InferenceClient
 
 # Setup openai api key to use GPT4 Rating Model
 os.environ['OPENAI_API_KEY'] = 'sk-***'
@@ -29,7 +48,7 @@ model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2")
 #tokenizer = AutoTokenizer.from_pretrained("PY007/TinyLlama-1.1B-Chat-v0.3")
 #model = AutoModelForCausalLM.from_pretrained("PY007/TinyLlama-1.1B-Chat-v0.3")
 
-# Create a dataset
+# Read or create source dataset
 dataset = Dataset.from_dict(
     {"text": [
         "Write an email for B2B marketing: ##EMAIL: ", 
@@ -37,31 +56,72 @@ dataset = Dataset.from_dict(
     ]}
 )
 
-# Configure the RatingModel
-rating_model = RatingModel()
-
 # Configure local LLM using Transformers
-llm = LLM(model=model, tokenizer=tokenizer, num_responses=2)
+llm = LLM(model=model, tokenizer=tokenizer, num_responses=4)
 
-# or using HF Inference endpoints
-# client = InferenceClient( "<HF_IE_URL>",  token="<HF_TOKEN>") 
-# llm = LLMInferenceEndpoint(client=client, num_responses=4)
-
-preference_dataset = PreferenceDataset(
+pd = PreferenceDataset(
     dataset, 
-    llm=llm
+    llm=llm,
+    num_responses=4
 )
 
-# Methods
-dry_run_output = preference_dataset.dry_run()
-generated_data = preference_dataset.generate()
-summary_info = preference_dataset.summary()
-rg_dataset = preference_dataset.to_argilla()
+# make sure everything is working
+pd.dry_run()
 
-# Print or utilize the outputs as needed
-print(dry_run_output)
-print(generated_data)
-print(summary_info)
+pd.generate()
+```
+
+## Using Inference endpoints
+
+```python
+import os
+
+from rlxf.preference_dataset import PreferenceDataset
+from rlxf.llm import LLM
+
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# Setup openai api key to use GPT4 Rating Model
+os.environ['OPENAI_API_KEY'] = 'sk-***'
+
+# Setup hf ie client
+client = InferenceClient(
+    "<HF URL>", 
+    token="<HF_API>"
+)
+
+llm = LLMInferenceEndpoint(client=client, num_responses=4)
+
+# Read or create source dataset
+dataset = Dataset.from_dict(
+    {"text": [
+        "Write an email for B2B marketing: ##EMAIL: ", 
+        "What is the name of the capital of France? ",
+    ]}
+)
+
+pd = PreferenceDataset(
+    dataset, 
+    llm=llm,
+    num_responses=4
+)
+
+# make sure everything is working
+pd.dry_run()
+
+# generate preference dataset
+pd.generate()
+```
+
+## Load dataset into Argilla
+
+```python
+
+# set use_ranking to false to use rating for each response instead of ranking
+dataset = pd.to_argilla(use_ranking=True)
+dataset.push_to_argilla(name="mistral_preference_dataset", workspace="admin")
+
 ```
 
 ## TODOS
