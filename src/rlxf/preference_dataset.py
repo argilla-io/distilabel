@@ -1,14 +1,14 @@
-from typing import List, Dict
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 from rlxf.rating_model import RatingModel
-from rlxf.llm import LLM
+from rlxf.llm import HuggingFaceLLM as LLM
 
 from datasets import Dataset
 
 import argilla as rg
 
 class PreferenceDataset:
-    def __init__(self, dataset:Dataset, rating_model: RatingModel=None, llm:LLM=None, column_name="text", num_responses=2):
+    def __init__(self, dataset: Dataset, rating_model: Optional[RatingModel] = None, llm: Optional[LLM] = None, column_name: str = "text", num_responses: int = 2) -> None:
         self.dataset = dataset
         if llm is None and not self._dataset_has_responses():
             raise ValueError("If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated.")
@@ -30,7 +30,7 @@ class PreferenceDataset:
         
     def generate(self, batch_size=1) -> Dict[str, List[str]]:
         def generate_responses(records) -> Dict[str, List[str]]:
-            responses = self.llm.generate_responses(records[self.column_name])
+            responses = self.llm.batch_generate(records[self.column_name])
             return {"responses": responses}
         if self.llm:
             # TODO: Improve batch processing
