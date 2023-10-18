@@ -11,15 +11,20 @@ class RatingModelConfig:
         self.extra_args = kwargs  
 
 class RatingModel:
-    def __init__(self, config=None, rating_prompt=None, openai_api_key=None):
+    def __init__(self, model="gpt-4", num_responses=2, rating_prompt=None, openai_api_key=None, max_tokens=150, top_p=0.6, presence_penalty=0):
         self.openai_api_key = openai_api_key or os.environ.get('OPENAI_API_KEY')
         if self.openai_api_key is None:
             raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
-
-        self.config = config or RatingModelConfig()
+        self.num_responses = num_responses
         # TODO: Passing the num responses around is messy. We could compute this directly using the values of the responses column
-        self.rating_prompt = rating_prompt or RatingPrompt(self.config.num_responses)
+        self.rating_prompt = rating_prompt or RatingPrompt(self.num_responses)
         self.system_prompt = self.rating_prompt.system_prompt
+
+        self.model = model
+        self.max_tokens = max_tokens
+        self.top_p = top_p
+        self.presence_penalty = presence_penalty
+        
 
     def rate_responses(self, response_texts, input_text):
         user_prompt = self.rating_prompt.user_prompt.format(
@@ -30,15 +35,15 @@ class RatingModel:
         openai.api_key = self.openai_api_key
         try:
             response = openai.ChatCompletion.create(
-                model=self.config.model, 
+                model=self.model, 
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0,
-                max_tokens=self.config.max_tokens,
-                top_p=self.config.top_p,
-                presence_penalty=self.config.presence_penalty,
+                max_tokens=self.max_tokens,
+                top_p=self.top_p,
+                presence_penalty=self.presence_penalty,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to generate rating: {e}")
