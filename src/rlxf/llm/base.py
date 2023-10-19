@@ -6,7 +6,7 @@ class LLM(ABC):
     @abstractmethod
     def batch_generate(
         self, prompts: list[str], responses: list[list[str]] | None = None
-    ) -> Generator[str, None, None]:
+    ) -> Generator[list[str], None, None]:
         pass
 
     @classmethod
@@ -20,7 +20,7 @@ class LLM(ABC):
         pass
 
     def _batch_iterator(
-        self, prompts: list[str], responses: list[list[str]]
+        self, prompts: list[str], responses: list[list[str]] | None = None
     ) -> Generator[tuple[str, int | list[str]], None, None]:
         yield from zip(
             prompts, responses if responses is not None else range(len(prompts))
