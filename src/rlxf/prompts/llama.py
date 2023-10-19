@@ -1,7 +1,8 @@
 from typing import Any, List
+from rlxf.prompts.base import Prompt
 
 
-class Llama2Prompt:
+class Llama2Prompt(Prompt):
     @staticmethod
     def chat_format(instruction: str, *args: Any, **kwargs: Any) -> str:
         system_prompt: str = (
