@@ -6,10 +6,10 @@ authors = ["Argilla <admin@argilla.io>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-torch = "^1.13.1"
+torch = "^2.0"
 openai = "^0.28.1"
 argilla = "^1.16.0"
-transformers = "^4.30.0"
+transformers = "^4.34.0"
 datasets = "^2.14.5"
 
 [tool.poetry.dev-dependencies]
@@ -27,4 +27,3 @@ rlxf = "rlxf.cli:main"
 
 [tool.poetry.extras]
 dev = ["pytest", "black", "flake8", "mypy"]
-
