@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from datasets import Dataset
 
-from rlxf.llm import HuggingFaceLLM as LLM
 from rlxf.rating_model import RatingModel
+
+if TYPE_CHECKING:
+    from rlxf.llm.base import LLM
 
 try:
     import argilla as rg
@@ -33,12 +37,6 @@ class PreferenceDataset:
                 "If you don't pass an LLM, the dataset must contain a column named 'responses' containing the responses to be rated."
             )
         self.llm = llm
-
-        # TODO: there should be better ways to align this (see the todo in the RatingModel class)
-        if llm and num_responses != self.llm.num_responses:
-            raise ValueError(
-                f"The number of responses must match the number of responses expected by the LLM model: {self.llm.num_responses}"
-            )
 
         self.rating_model = rating_model or RatingModel(num_responses=num_responses)
         if num_responses != self.rating_model.num_responses:
