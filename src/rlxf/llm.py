@@ -1,4 +1,5 @@
-from typing import Union
+from __future__ import annotations
+from typing import Callable, Union, Optional, Generator, List
 from functools import cached_property
 
 import torch
@@ -24,7 +25,9 @@ class HuggingFaceLLM:
         temperature: float = 1.0,
         num_return_sequences: int = 1,
     ) -> None:
-        self.model = model.to(self.device)
+        self.model = model
+        if self.device != "cpu":
+            self.model.to(self.device)
         self.tokenizer = tokenizer
 
         self.tokenizer.padding_side = "left"
@@ -60,15 +63,55 @@ class HuggingFaceLLM:
         )
 
 
-class Llama2CppLLM:
+class LlamaCppLLM:
     """
     Examples:
         >>> from llama_cpp import Llama
-        >>> llm = Llama2CppLLM(model_file="./llama-2-7b-chat.Q4_0.gguf")
+        >>> model = Llama(model_path="./llama-2-7b-chat.Q4_0.gguf", n_gpu_layers=1)
+        >>> llm = LlamaCppLLM(model=model)
         >>> llm.batch_generate(["What is the name of the capital of France?"])
     """
-    def __init__(self, model_file: str) -> None:
-        self.model = Llama(model_path=model_file, n_gpu_layers=1)
+    def __init__(self, model: Llama, prompt_formatting_fn: Optional[Callable] = None) -> None:
+        self.model = model
+        self.prompt_formatting_fn = prompt_formatting_fn
 
-    def batch_generate(self, texts: list[str]) -> list[str]:
-        return [self.model.create_completion(Llama2Prompt.chat_format(text), max_tokens=32, temperature=0.0) for text in texts]
+    def batch_generate(self, prompts: List[str], responses: List[List[str]] | None = None) -> Generator[str, None, None]:
+        """
+        Note:
+            The completion in `llama-cpp-python` may eventually contain the input prompt,
+            but it does not remove that consistently, so we may need to develop something
+            on top to fix it.
+        """
+        if self.prompt_formatting_fn is not None:
+            for prompt, responses_ in zip(prompts, responses if responses is not None else range(len(prompts))):
+                text = self.prompt_formatting_fn(prompt, responses_)
+                yield self.model.create_completion(text, max_tokens=32, temperature=0.0, echo=False)["choices"][0]["text"]
+
+    @classmethod
+    def as_generator(cls, model: Llama) -> "LlamaCppLLM":
+        """Classmethod with some helper defaults to act as a response generator for any
+        given prompt.
+        """
+        return cls(
+            model=model,
+            prompt_formatting_fn=Llama2Prompt.chat_format,
+        )
+    
+    @classmethod
+    def as_ranker(cls, model: Llama) -> "LlamaCppLLM":
+        """Classmethod with some helper defaults to act as a response ranker for any
+        given collection of responses.
+
+        Examples:
+            >>> model = Llama(model_path="./llama-2-7b-chat.Q4_0.gguf", n_gpu_layers=1, verbose=False)
+            >>> ranker = LlamaCppLLM.as_ranker(model=model)
+            >>> output = ranker.batch_generate(prompts=["What is the capital city of Spain?"], responses=[["Madrid", "Barcelona", "Seville", "Valencia"]])
+            >>> def parse_rank_output(output: str) -> List[str]:
+            ...     return [["Madrid", "Barcelona", "Seville", "Valencia"][int(rank) - 1] for rank in output["choices"][0]["text"].split(">")]
+            >>> print(parse_rank_output(output))
+            ['Madrid', 'Barcelona', 'Seville', 'Valencia']
+        """
+        return cls(
+            model=model,
+            prompt_formatting_fn=Llama2Prompt.rank_format,
+        )
