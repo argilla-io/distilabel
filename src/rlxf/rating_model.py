@@ -1,20 +1,42 @@
 import os
+
 import openai
 
+
 class RatingModelConfig:
-    def __init__(self, model="gpt-4", num_responses=2, max_tokens=150, top_p=0.6, presence_penalty=0, **kwargs):
+    def __init__(
+        self,
+        model="gpt-4",
+        num_responses=2,
+        max_tokens=150,
+        top_p=0.6,
+        presence_penalty=0,
+        **kwargs,
+    ):
         self.model = model
         self.max_tokens = max_tokens
         self.top_p = top_p
         self.presence_penalty = presence_penalty
         self.num_responses = num_responses
-        self.extra_args = kwargs  
+        self.extra_args = kwargs
+
 
 class RatingModel:
-    def __init__(self, model="gpt-4", num_responses=2, rating_prompt=None, openai_api_key=None, max_tokens=512, top_p=0.6, presence_penalty=0):
-        self.openai_api_key = openai_api_key or os.environ.get('OPENAI_API_KEY')
+    def __init__(
+        self,
+        model="gpt-4",
+        num_responses=2,
+        rating_prompt=None,
+        openai_api_key=None,
+        max_tokens=512,
+        top_p=0.6,
+        presence_penalty=0,
+    ):
+        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         if self.openai_api_key is None:
-            raise ValueError("The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable.")
+            raise ValueError(
+                "The OpenAI API key must be provided either as an argument or as the OPENAI_API_KEY environment variable."
+            )
         self.num_responses = num_responses
         # TODO: Passing the num responses around is messy. We could compute this directly using the values of the responses column
         self.rating_prompt = rating_prompt or RatingPrompt(self.num_responses)
@@ -24,22 +46,22 @@ class RatingModel:
         self.max_tokens = max_tokens
         self.top_p = top_p
         self.presence_penalty = presence_penalty
-        
 
     def rate_responses(self, response_texts, input_text):
         user_prompt = self.rating_prompt.user_prompt.format(
-            text_sections_annotation="\n".join(f"<text {i + 1}> {text}" for i, text in enumerate(response_texts)),
+            text_sections_annotation="\n".join(
+                f"<text {i + 1}> {text}" for i, text in enumerate(response_texts)
+            ),
             instruction=input_text,
         )
 
-        
         openai.api_key = self.openai_api_key
         try:
             response = openai.ChatCompletion.create(
-                model=self.model, 
+                model=self.model,
                 messages=[
                     {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
                 temperature=0,
                 max_tokens=self.max_tokens,
@@ -47,24 +69,28 @@ class RatingModel:
                 presence_penalty=self.presence_penalty,
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to generate rating: {e}")
-        
+            raise RuntimeError(f"Failed to generate rating: {e}") from e
+
         # Extract the rating and rationale from the response
-        rating_output = response['choices'][0]['message']["content"].strip()
-        
-        sections = rating_output.split("#### Output for Text ")[1:]  # Ignore any content before the first header
+        rating_output = response["choices"][0]["message"]["content"].strip()
+
+        sections = rating_output.split("#### Output for Text ")[
+            1:
+        ]  # Ignore any content before the first header
         parsed_output = []
         for section in sections:
-            _, rating_line, rationale_line = section.strip().split('\n', 2)
+            _, rating_line, rationale_line = section.strip().split("\n", 2)
             rating = rating_line.split(": ")[1]
             rationale = rationale_line.split(": ")[1]
             parsed_output.append({"rating": rating, "rationale": rationale})
 
         return {"rating": parsed_output}
-    
-class RatingPrompt:
 
-    default_system_prompt = "Your role is to evaluate text quality based on given criteria."
+
+class RatingPrompt:
+    default_system_prompt = (
+        "Your role is to evaluate text quality based on given criteria."
+    )
 
     default_template = """
     # Informativeness / Helpfulness Assessment
@@ -112,17 +138,27 @@ class RatingPrompt:
         self.num_responses = num_responses
         self.template = template or self.default_template
         self.system_prompt = system_prompt or self.default_system_prompt
-        self.user_prompt = self._generate_final_prompt()  # Generate the final template during initialization
+        self.user_prompt = (
+            self._generate_final_prompt()
+        )  # Generate the final template during initialization
 
     def generate_text_sections(self):
-        text_sections_input = "\n".join(f"<text {i + 1}> [Text {i + 1}]" for i in range(self.num_responses))
-        text_sections_output = "\n\n".join(f"""
+        text_sections_input = "\n".join(
+            f"<text {i + 1}> [Text {i + 1}]" for i in range(self.num_responses)
+        )
+        text_sections_output = "\n\n".join(
+            f"""
     #### Output for Text {i + 1}
     Rating: [Rating for text {i + 1}]
     Rationale: [Rationale for the rating in short sentences]
-    """ for i in range(self.num_responses))
+    """
+            for i in range(self.num_responses)
+        )
         return text_sections_input, text_sections_output
-    
+
     def _generate_final_prompt(self):
         text_sections_input, text_sections_output = self.generate_text_sections()
-        return self.template.format(text_sections_input=text_sections_input, text_sections_output=text_sections_output)
+        return self.template.format(
+            text_sections_input=text_sections_input,
+            text_sections_output=text_sections_output,
+        )

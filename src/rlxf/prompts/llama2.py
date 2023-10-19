@@ -1,8 +1,9 @@
 from typing import Any, List
 
+
 class Llama2Prompt:
     @staticmethod
-    def chat_format(instruction: str, **kwargs: Any) -> str:
+    def chat_format(instruction: str, *args: Any, **kwargs: Any) -> str:
         system_prompt: str = (
             "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
             " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"
@@ -11,7 +12,9 @@ class Llama2Prompt:
             " explain why instead of answering something not correct. If you don't know the answer to a"
             " question, please don't share false information."
         )
-        return "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{instruction} [/INST]".format(system_prompt=system_prompt, instruction=instruction)
+        return "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{instruction} [/INST]".format(
+            system_prompt=system_prompt, instruction=instruction
+        )
 
     @staticmethod
     def rank_format(prompt: str, responses: List[str]) -> str:
@@ -27,4 +30,6 @@ class Llama2Prompt:
             " should look like assuming 1 is the most helpful/accurate and N is the worst: 1>2>...>N \n\n"
             f" The prompt was {prompt}, and the generated respones were: {responses}"
         )
-        return "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{instruction} [/INST] The ranking is: ".format(system_prompt=system_prompt, instruction=instruction)
+        return "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{instruction} [/INST] The ranking is: ".format(
+            system_prompt=system_prompt, instruction=instruction
+        )
