@@ -1,5 +1,5 @@
-from typing import Any, List
 from textwrap import dedent
+from typing import Any, Dict, List, Literal
 
 from rlxf.prompts.base import Prompt
 
@@ -7,15 +7,19 @@ from rlxf.prompts.base import Prompt
 class GPT4Prompt(Prompt):
     @staticmethod
     def chat_format(instruction: str, *args: Any, **kwargs: Any) -> str:
-        pass
+        raise NotImplementedError(
+            "`chat_format` is not implemented yet for `GPT4Prompt`"
+        )
 
     @staticmethod
-    def rank_format(prompt: str, responses: List[str]) -> str:
+    def rank_format(
+        prompt: str, responses: List[str]
+    ) -> List[Dict[Literal["role", "content"], str]]:
         system_prompt: str = (
-            "You are a helpful, respectful, and honest assistant. Your role is to evaluate"
-            " text quality based on given criteria."
+            "Your role is to evaluate text quality based on given criteria."
         )
-        instruction: str = dedent("""
+        instruction: str = dedent(
+            """
             # Informativeness / Helpfulness Assessment
 
             Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
@@ -55,9 +59,12 @@ class GPT4Prompt(Prompt):
             {{text_sections_annotation}}
 
             ### Output
-        """)
+        """
+        )
         formatted_instruction = instruction.format(
-            text_sections_input="\n".join(f"<text {i + 1}> [Text {i + 1}]" for i in range(len(responses))),
+            text_sections_input="\n".join(
+                f"<text {i + 1}> [Text {i + 1}]" for i in range(len(responses))
+            ),
             text_sections_output="\n\n".join(
                 dedent(
                     f"""
@@ -69,4 +76,15 @@ class GPT4Prompt(Prompt):
                 for i in range(len(responses))
             ),
         )
-        return f"{system_prompt}\n\n{formatted_instruction}"
+        return [
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": formatted_instruction.format(
+                    instruction=instruction,
+                    text_sections_annotation="\n".join(
+                        f"<text {i + 1}> {text}" for i, text in enumerate(responses)
+                    ),
+                ),
+            },
+        ]
