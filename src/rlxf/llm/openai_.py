@@ -49,8 +49,3 @@ class OpenAILLM:
         )
         output = response["choices"][0]["message"]["content"].strip()
         return prompt_template.process_output(output)
-
-
-if __name__ == "__main__":
-    llm = LLM(model="gpt-4", openai_api_key="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")
-    print(llm.generate(prompt="What's the capital of Spain?", responses=["Madrid"]))
