@@ -1,0 +1,33 @@
+{{ system_prompt }}
+
+{{ task_description }}
+
+{{ ranks_description }}
+{%- for rank in ranks %}
+* {{ rank.rank }}: {{ rank.description }}
+{%- endfor %}
+
+---
+
+## Format
+
+### Input
+Instruction: [Specify task goal and restrictions]
+
+Texts:
+{{ instruction }}
+
+### Output
+{{ repsonse }}
+
+---
+
+## Annotation
+
+### Input
+Instruction: {{instruction}}
+
+Texts:
+{{text_sections_annotation}}
+
+### Output
