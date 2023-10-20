@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable, Generator, Optional
 
 from rlxf.llm.base import LLM
-from rlxf.prompts.llama2 import Llama2Prompt
+from rlxf.prompts.llama import Llama2Prompt
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
