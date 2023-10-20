@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, List, TypedDict
+from typing import Any, List
+from typing_extensions import TypedDict
 
 from rlxf.prompts.base import PromptTemplate
 
@@ -15,8 +15,8 @@ class RankOutput(TypedDict):
     rationale: str
 
 
-@dataclass
-class RankingPromptTemplate(PromptTemplate, ABC):
+class ResponseRankingPromptTemplate(PromptTemplate, ABC):
+    task_description: str
     ranks: List[Rank]
     ranks_description: str
 
@@ -26,5 +26,6 @@ class RankingPromptTemplate(PromptTemplate, ABC):
     def generate_prompt(self, **kwargs: Any) -> str:
         ...
 
-    def parse_output(self, output: str) -> RankOutput:
+    @abstractmethod
+    def parse_output(self, output: str) -> RankOutput | List[RankOutput]:
         ...
