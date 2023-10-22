@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Any
 
 
-@dataclass
-class PromptTemplate(ABC):
+class PromptTemplate(BaseModel, ABC):
     system_prompt: str
 
     @abstractmethod

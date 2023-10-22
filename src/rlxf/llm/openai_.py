@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Generator, List, Literal, Optional
+from typing import Any, List, Literal, Optional
 
 import openai
 
-from rlxf.prompts.ranking import RankingPromptTemplate, Task, Rank
+from rlxf.prompts.response_ranking import Rank
+from rlxf.prompts.templates.openai_ import GPT4ResponseRankingPrompt
 
 
 class OpenAILLM:
@@ -30,22 +31,22 @@ class OpenAILLM:
             openai.api_key is not None
         ), "Either the `openai_api_key` arg or the `OPENAI_API_KEY` environment variable must be set to use the OpenAI API."
 
-    def generate(self, prompt: str, responses: List[str]) -> str:
-        prompt_template = RankingPromptTemplate(
-            task=Task.QUESTION_ANSWERING,
+    def generate(self, prompt: str, responses: List[str]) -> Any:
+        prompt_template = GPT4ResponseRankingPrompt(
             ranks=[
                 Rank(rank=1, description="Correct"),
                 Rank(rank=2, description="Incorrect"),
             ],
             ranks_description="The ranking should be based on the correctness of the answer.",
+        )
+        generated_prompt = prompt_template.generate_prompt(
             instruction=prompt,
             responses=responses,
+            for_chat=True,
         )
         response = openai.ChatCompletion.create(
             model=self.model,
-            messages=[
-                {"role": "user", "content": str(prompt_template)},
-            ],
+            messages=generated_prompt,
         )
         output = response["choices"][0]["message"]["content"].strip()
-        return prompt_template.process_output(output)
+        return prompt_template.parse_output(output)

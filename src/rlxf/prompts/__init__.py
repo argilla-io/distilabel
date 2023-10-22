@@ -1,9 +1,7 @@
 from rlxf.prompts.base import PromptTemplate
-from rlxf.prompts.ranking import RankingPromptTemplate
-from rlxf.prompts.templates.openai_ import GPT4RankingPromptTemplate
+from rlxf.prompts.templates.openai_ import GPT4ResponseRankingPrompt
 
 __all__ = [
-    "GPT4RankingPromptTemplate",
+    "GPT4ResponseRankingPrompt",
     "PromptTemplate",
-    "RankingPromptTemplate",
 ]

@@ -1,49 +1,65 @@
-from dataclasses import dataclass
-from typing import List
+from typing import List, Literal
+from typing_extensions import TypedDict
+
+from textwrap import dedent
 
 import jinja2
-import pkg_resources  # https://setuptools.pypa.io/en/latest/pkg_resources.html
 
-from rlxf.prompts.ranking import RankingPromptTemplate, RankOutput
+from rlxf.prompts.response_ranking import ResponseRankingPromptTemplate, RankOutput
 
-_GPT4_RANKING_TEMPLATE = pkg_resources.resource_filename(
-    # "rlxf", "prompts/templates/files/gpt4/ranking.jinja2"
-    "rlxf",
-    "prompts/templates/files/prometheus.jinja2",
-)
+import importlib.resources as importlib_resources
+
+_GPT4_RANKING_TEMPLATE = importlib_resources.files("rlxf") / "prompts/templates/files/gpt4/response-ranking.jinja2"
+
+class ChatCompletion(TypedDict):
+    role: Literal["system", "user", "assistant"]
+    content: str
 
 
-@dataclass
-class GPT4RankingPromptTemplate(RankingPromptTemplate):
+class GPT4ResponseRankingPrompt(ResponseRankingPromptTemplate):
     __jinja2_template__: str = _GPT4_RANKING_TEMPLATE
 
-    def generate_prompt(self, instruction: str, responses: List[str]) -> str:
+    system_prompt: str = "Your role is to evaluate text quality based on given criteria."
+    task_description: str = dedent("""
+        # Informativeness / Helpfulness Assessment
+
+        Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
+
+        Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
+
+        **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
+    """)
+
+    def generate_prompt(self, instruction: str, responses: List[str], for_chat: bool = True) -> str | List[ChatCompletion]:
         template = jinja2.Template(open(self.__jinja2_template__).read())
-        return template.render(
-            system_prompt=self.system_prompt,
-            ranks=self.ranks,
-            ranks_description=self.ranks_description,
-            instruction=instruction,
-            response=responses[0],
-        )
+        render_kwargs = {
+            "task_description": self.task_description,
+            "ranks": self.ranks,
+            "ranks_description": self.ranks_description,
+            "instruction": instruction,
+            "responses": responses,
+        }
+        if not for_chat:
+            render_kwargs["system_prompt"] = self.system_prompt
+        generated_prompt = template.render(render_kwargs)
+        if not for_chat:
+            return generated_prompt
+        return [
+            ChatCompletion(
+                role="system",
+                content=self.system_prompt,
+            ),
+            ChatCompletion(
+                role="user",
+                content=generated_prompt.replace("\{\{ system_prompt \}\}", "").lstrip(),
+            ),
+        ]
 
-    def parse_output(self, output: str) -> RankOutput:
-        parts = output.split("[RESULT]")
-        return RankOutput(score=int(parts[0].strip()), rationale=parts[1].strip())
-
-
-if __name__ == "__main__":
-    prompt_template = GPT4RankingPromptTemplate(
-        system_prompt="You are a teacher grading a student's answer.",
-        ranks=[
-            {"rank": 1, "description": "Incorrect"},
-            {"rank": 2, "description": "Partially correct"},
-            {"rank": 3, "description": "Correct"},
-        ],
-        ranks_description="Rank the following answers from best to worst.",
-    )
-    prompt = prompt_template.generate_prompt(
-        instruction="What's the capital city of France?",
-        responses=["Paris", "London", "New York"],
-    )
-    print(prompt)
+    def parse_output(self, output: str) -> List[RankOutput]:
+        parsed_output = []
+        for section in output.split("#### Output for Text ")[1:]:
+            rating, rationale = section.split("\n")[1:3]
+            rating = int(rating.split(": ")[1])
+            rationale = rationale.split(": ")[1]
+            parsed_output.append(RankOutput(score=rating, rationale=rationale))
+        return parsed_output
