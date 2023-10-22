@@ -7,9 +7,9 @@ from typing_extensions import TypedDict
 
 from rlxf.prompts.base import PromptTemplate
 
-_GPT4_RANKING_TEMPLATE = (
+_GPT4_RANKING_TEMPLATE = str(
     importlib_resources.files("rlxf")
-    / "prompts/templates/files/gpt4/response-ranking.jinja2"
+    / "prompts/templates/gpt4-response-ranking.jinja2"
 )
 
 
@@ -29,7 +29,6 @@ class ChatCompletion(TypedDict):
 
 
 class OpenAIResponseRanking(PromptTemplate):
-    task_description: str
     ranks: List[Rank]
     ranks_description: str
 
