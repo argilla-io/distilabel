@@ -24,9 +24,9 @@ class LlamaCppLLM(LLM):
         self.max_new_tokens = max_new_tokens
         self.temperature = temperature
 
-    def generate(self, prompts: list[dict[str, Any]], num_generations: int = 1) -> Any:
+    def generate(self, inputs: list[dict[str, Any]], num_generations: int = 1) -> Any:
         generations = []
-        for prompt in prompts:
+        for prompt in inputs:
             prompt = self.prompt_template.generate_prompt(**prompt)
             prompt_generations = []
             for _ in range(num_generations):

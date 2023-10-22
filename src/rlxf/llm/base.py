@@ -12,5 +12,5 @@ class LLM(ABC):
         self.prompt_template = prompt_template
 
     @abstractmethod
-    def generate(self, prompts: list[dict[str, Any]], num_generations: int = 1) -> Any:
+    def generate(self, inputs: list[dict[str, Any]], num_generations: int = 1) -> Any:
         pass
