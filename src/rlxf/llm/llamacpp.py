@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from rlxf.llm.base import LLM
+from rlxf.utils import combine_dicts
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
@@ -24,16 +25,18 @@ class LlamaCppLLM(LLM):
         self.max_new_tokens = max_new_tokens
         self.temperature = temperature
 
-    def generate(self, inputs: list[dict[str, Any]], num_generations: int = 1) -> Any:
+    def generate(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[Dict[str, Any]]:
         generations = []
-        for prompt in inputs:
-            prompt = self.prompt_template.generate_prompt(**prompt)
-            prompt_generations = []
+        for input in inputs:
+            input = self.prompt_template.generate_prompt(**input)
+            input_generations = []
             for _ in range(num_generations):
                 output = self.model.create_completion(
-                    prompt, max_tokens=self.max_new_tokens, temperature=self.temperature
+                    input, max_tokens=self.max_new_tokens, temperature=self.temperature
                 )["choices"][0]["text"].strip()
                 output = self.prompt_template.parse_output(output)
-                prompt_generations.append(output)
-            generations.append(prompt_generations)
+                input_generations.append(output)
+            generations.append(combine_dicts(*input_generations))
         return generations

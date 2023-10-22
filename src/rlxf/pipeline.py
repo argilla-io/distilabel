@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from rlxf.utils import combine_dicts
+
 if TYPE_CHECKING:
     from datasets import Dataset
 
@@ -13,9 +15,19 @@ class Pipeline:
         self.generation_llm = generation_llm
         self.labelling_llm = labelling_llm
 
+    def _validate_dataset(self, dataset: Dataset) -> None:
+        for input_arg_name in self.generation_llm.prompt_template.input_args_names:
+            if input_arg_name not in dataset.column_names:
+                raise ValueError(
+                    f"Generation LLM expects a column named '{input_arg_name}' in the"
+                    "provided dataset, but it was not found."
+                )
+
     def generate(
         self, dataset: Dataset, num_generations: int = 1, batch_size: int = 1
     ) -> Dataset:
+        self._validate_dataset(dataset)
+
         generations = []
         labels = []
 
@@ -29,12 +41,24 @@ class Pipeline:
             )
             generations.extend(batch_generations)
 
-            for input, generations in zip(inputs, batch_generations):
-                input["responses"] = generations
+            for input, generations_ in zip(inputs, batch_generations):
+                input.update(generations_)
 
             batch_labels = self.labelling_llm.generate(inputs)
-            labels.extend(batch_labels)
+            # TODO: define where to place the batching logic, ideally in `Pipeline`
+            labels_ = []
+            for batch in batch_labels:
+                labels_.append(combine_dicts(*batch))
+            labels.extend(labels_)
 
-        dataset = dataset.add_column("generation", generations).add_column("labels", labels)
+        for output_name in self.generation_llm.prompt_template.output_args_names:
+            dataset = dataset.add_column(
+                output_name, [row[output_name] for row in generations]
+            )
+
+        for output_name in self.labelling_llm.prompt_template.output_args_names:
+            dataset = dataset.add_column(
+                output_name, [row[output_name] for row in labels]
+            )
 
         return dataset

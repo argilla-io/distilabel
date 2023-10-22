@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
     from rlxf.prompts.base import PromptTemplate
@@ -12,5 +12,7 @@ class LLM(ABC):
         self.prompt_template = prompt_template
 
     @abstractmethod
-    def generate(self, inputs: list[dict[str, Any]], num_generations: int = 1) -> Any:
+    def generate(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[Dict[str, Any]]:
         pass

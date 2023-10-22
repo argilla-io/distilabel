@@ -1,6 +1,6 @@
 import importlib.resources as importlib_resources
 from textwrap import dedent
-from typing import List, Literal
+from typing import List, Literal, Union
 
 import jinja2
 from typing_extensions import TypedDict
@@ -8,8 +8,7 @@ from typing_extensions import TypedDict
 from rlxf.prompts.base import PromptTemplate
 
 _GPT4_RANKING_TEMPLATE = str(
-    importlib_resources.files("rlxf")
-    / "prompts/templates/gpt4-response-ranking.jinja2"
+    importlib_resources.files("rlxf") / "prompts/templates/gpt4-response-ranking.jinja2"
 )
 
 
@@ -51,15 +50,15 @@ class OpenAIResponseRanking(PromptTemplate):
     )
 
     def generate_prompt(
-        self, instruction: str, responses: List[str], for_chat: bool = True
-    ) -> str | List[ChatCompletion]:
+        self, instruction: str, generations: List[str], for_chat: bool = True
+    ) -> Union[str, List[ChatCompletion]]:
         template = jinja2.Template(open(self.__jinja2_template__).read())
         render_kwargs = {
             "task_description": self.task_description,
             "ranks": self.ranks,
             "ranks_description": self.ranks_description,
             "instruction": instruction,
-            "responses": responses,
+            "responses": generations,
         }
         if not for_chat:
             render_kwargs["system_prompt"] = self.system_prompt
@@ -87,3 +86,11 @@ class OpenAIResponseRanking(PromptTemplate):
             rationale = rationale.split(": ")[1]
             parsed_output.append(RankOutput(score=rating, rationale=rationale))
         return parsed_output
+
+    @property
+    def input_args_names(self) -> List[str]:
+        return ["instruction", "generations"]
+
+    @property
+    def output_args_names(self) -> List[str]:
+        return ["score", "rationale"]

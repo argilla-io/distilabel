@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
 from typing import Any
+
+from pydantic import BaseModel
 
 
 class PromptTemplate(BaseModel, ABC):
@@ -12,4 +13,14 @@ class PromptTemplate(BaseModel, ABC):
 
     @abstractmethod
     def parse_output(self, output: str) -> Any:
+        pass
+
+    @property
+    @abstractmethod
+    def input_args_names(self) -> list[str]:
+        pass
+
+    @property
+    @abstractmethod
+    def output_args_names(self) -> list[str]:
         pass
