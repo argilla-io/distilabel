@@ -1,7 +1,8 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import torch
+from huggingface_hub import InferenceClient
 from transformers import PreTrainedModel, PreTrainedTokenizer
 
 from rlxf.llm.base import LLM
@@ -60,3 +61,24 @@ class TransformersLLM(LLM):
             self.prompt_template.parse_output(decoded_output)
             for decoded_output in decoded_outputs
         ]
+
+
+class InferenceEndpointsLLM(LLM):
+    def __init__(
+        self,
+        endpoint_url: str,
+        prompt_template: "PromptTemplate",
+        token: Union[str, None] = None,
+    ) -> None:
+        super().__init__(prompt_template=prompt_template)
+
+        self.client = InferenceClient(model=endpoint_url, token=token)
+
+    def generate(self, inputs: List[Dict[str, Any]]) -> Any:
+        # TODO(alvarobartt): add `generation_kwargs`
+        generations = []
+        for input in inputs:
+            prompt = self.prompt_template.generate_prompt(**input)
+            generation = self.client.text_generation(prompt)
+            generations.append(self.prompt_template.parse_output(generation))
+        return generations
