@@ -52,8 +52,10 @@ class Pipeline:
             batch_generations = self.generation_llm.generate(
                 inputs, num_generations=num_generations
             )
-
-            generations.extend(batch_generations)
+            generations.extend(
+                combine_dicts(*input_generation)
+                for input_generation in batch_generations
+            )
 
             for input, generations_ in zip(inputs, batch_generations):
                 input.update(generations_)
