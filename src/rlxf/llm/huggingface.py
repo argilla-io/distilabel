@@ -79,6 +79,6 @@ class InferenceEndpointsLLM(LLM):
         generations = []
         for input in inputs:
             prompt = self.prompt_template.generate_prompt(**input)
-            generation = self.client.text_generation(prompt).generated_text
-            generations.append(generation)
+            generation = self.client.text_generation(prompt)
+            generations.append(self.prompt_template.parse_output(generation))
         return generations
