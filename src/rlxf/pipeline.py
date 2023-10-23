@@ -23,6 +23,19 @@ class Pipeline:
                     "provided dataset, but it was not found."
                 )
 
+    def _add_columns_to_dataset(self, dataset: Dataset, generations, labels) -> Dataset:
+        for output_name in self.generation_llm.prompt_template.output_args_names:
+            dataset = dataset.add_column(
+                output_name, [row[output_name] for row in generations]
+            )
+
+        for output_name in self.labelling_llm.prompt_template.output_args_names:
+            dataset = dataset.add_column(
+                output_name, [row[output_name] for row in labels]
+            )
+
+        return dataset
+
     def generate(
         self, dataset: Dataset, num_generations: int = 1, batch_size: int = 1
     ) -> Dataset:
@@ -39,26 +52,18 @@ class Pipeline:
             batch_generations = self.generation_llm.generate(
                 inputs, num_generations=num_generations
             )
+
             generations.extend(batch_generations)
 
             for input, generations_ in zip(inputs, batch_generations):
                 input.update(generations_)
 
             batch_labels = self.labelling_llm.generate(inputs)
-            # TODO: define where to place the batching logic, ideally in `Pipeline`
-            labels_ = []
-            for batch in batch_labels:
-                labels_.append(combine_dicts(*batch))
-            labels.extend(labels_)
+            labels.extend(batch_labels)
 
-        for output_name in self.generation_llm.prompt_template.output_args_names:
-            dataset = dataset.add_column(
-                output_name, [row[output_name] for row in generations]
-            )
+        # If the LLM returns futures, we need to wait for them to finish
+        if self.labelling_llm.return_futures:
+            labels = [future.result() for future in labels]
+        labels = [combine_dicts(*batch_labels) for batch_labels in labels]
 
-        for output_name in self.labelling_llm.prompt_template.output_args_names:
-            dataset = dataset.add_column(
-                output_name, [row[output_name] for row in labels]
-            )
-
-        return dataset
+        return self._add_columns_to_dataset(dataset, generations, labels)
