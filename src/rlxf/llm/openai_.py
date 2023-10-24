@@ -44,12 +44,13 @@ class OpenAILLM(LLM):
             temperature=temperature,
             num_threads=num_threads,
         )
+
+        openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
             model in self.available_models
         ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
         self.model = model
 
-        openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
             openai.api_key is not None
         ), "Either the `openai_api_key` arg or the `OPENAI_API_KEY` environment variable must be set to use the OpenAI API."
