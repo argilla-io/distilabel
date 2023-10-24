@@ -77,4 +77,4 @@ if __name__ == "__main__":
         openai_api_key="<YOUR_OPENAI_API_KEY>",
     )
     print(llm.generate(inputs=[{"text": "Messi scored 3 goals yesterday!"}]))
-    # Output: [["Sports"]]
+    # Output: [[["Sports"]]]
