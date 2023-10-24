@@ -1,5 +1,6 @@
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import openai
 from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
@@ -30,16 +31,7 @@ _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 class OpenAILLM(LLM):
     def __init__(
         self,
-        model: Literal[
-            "gpt-4",
-            "gpt-4-0613",
-            "gpt-4-32k",
-            "gpt-4-32k-0613",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-0613",
-            "gpt-3.5-turbo-16k",
-            "gpt-3.5-turbo-16k-0613",
-        ],
+        model: str,
         prompt_template: "PromptTemplate",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
@@ -52,12 +44,23 @@ class OpenAILLM(LLM):
             temperature=temperature,
             num_threads=num_threads,
         )
-
+        assert (
+            model in self.available_models
+        ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
         self.model = model
+
         openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
             openai.api_key is not None
         ), "Either the `openai_api_key` arg or the `OPENAI_API_KEY` environment variable must be set to use the OpenAI API."
+
+    @cached_property
+    def available_models(self) -> List[str]:
+        return [
+            model["id"]
+            for model in openai.Model.list().get("data", [])
+            if model.get("id") is not None
+        ]
 
     @retry(
         retry=retry_if_exception_type(_OPENAI_API_RETRY_ON_EXCEPTIONS),
