@@ -1,12 +1,11 @@
 <h1 align="center">
-  <a href=""><img src="docs/rlxf.png" alt="rlxf image" width="30%"></a>
+  <a href=""><img src="docs/ultralabel.png" alt="rlxf image" width="100%"></a>
   <br>
-  ✨ RLxF for building preference datasets ✨
+  Ultralabel for building datasets with LLMs
   <br>
 </h1>
 
-## What's RLxF
-An open-source framework for building preference datasets for LLM alignment.
+## What's Ultralabel
 
 ## Usage
 
