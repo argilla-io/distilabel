@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List
+from typing import Any, List
 
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    pass
 
 
 class PromptTemplate(BaseModel, ABC):
