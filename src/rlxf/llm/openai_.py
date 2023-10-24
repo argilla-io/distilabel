@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 import os
-from typing import TYPE_CHECKING, Any, Literal
+from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
 
 import openai
+from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -16,7 +16,6 @@ from rlxf.llm.base import LLM
 if TYPE_CHECKING:
     from rlxf.prompts.base import PromptTemplate
 
-from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
 
 _OPENAI_API_RETRY_ON_EXCEPTIONS = (
     APIError,
@@ -43,7 +42,8 @@ class OpenAILLM(LLM):
             "gpt-3.5-turbo-16k-0613",
         ],
         prompt_template: "PromptTemplate",
-        openai_api_key: str | None = None,
+        openai_api_key: Union[str, None] = None,
+        num_threads: Union[int, None] = None,
     ) -> None:
         super().__init__(prompt_template)
 
@@ -52,6 +52,16 @@ class OpenAILLM(LLM):
         assert (
             openai.api_key is not None
         ), "Either the `openai_api_key` arg or the `OPENAI_API_KEY` environment variable must be set to use the OpenAI API."
+
+        self.thread_pool_executor = (
+            ThreadPoolExecutor(max_workers=num_threads)
+            if num_threads is not None
+            else None
+        )
+
+    def __del__(self) -> None:
+        if self.thread_pool_executor is not None:
+            self.thread_pool_executor.shutdown()
 
     @retry(
         retry=retry_if_exception_type(_OPENAI_API_RETRY_ON_EXCEPTIONS),
@@ -64,14 +74,29 @@ class OpenAILLM(LLM):
     def _chat_completion_with_backoff(self, **kwargs: Any) -> Any:
         return openai.ChatCompletion.create(**kwargs)
 
-    def generate(self, inputs: list[dict[str, Any]]) -> Any:
+    def _generate(self, input: Dict[str, Any], num_generations: int = 1):
+        prompt = self.prompt_template.generate_prompt(**input)
+        response = self._chat_completion_with_backoff(
+            model=self.model, messages=prompt, n=num_generations
+        )
+        return [
+            self.prompt_template.parse_output(choice["message"]["content"].strip())
+            for choice in response["choices"]
+        ]
+
+    def generate(self, inputs: List[Dict[str, Any]], num_generations: int = 1) -> Any:
+        if self.thread_pool_executor is not None:
+            return [
+                self.thread_pool_executor.submit(self._generate, input, num_generations)
+                for input in inputs
+            ]
+
         generations = []
-        for prompt in inputs:
-            prompt = self.prompt_template.generate_prompt(**prompt)
-            response = self._chat_completion_with_backoff(
-                model=self.model, messages=prompt
-            )
-            output = response["choices"][0]["message"]["content"].strip()
-            output = self.prompt_template.parse_output(output)
+        for input in inputs:
+            output = self._generate(input, num_generations)
             generations.append(output)
         return generations
+
+    @property
+    def return_futures(self) -> bool:
+        return self.thread_pool_executor is not None

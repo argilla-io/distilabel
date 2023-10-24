@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from rlxf.llm.base import LLM
-from rlxf.utils import combine_dicts
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
@@ -38,5 +37,9 @@ class LlamaCppLLM(LLM):
                 )["choices"][0]["text"].strip()
                 output = self.prompt_template.parse_output(output)
                 input_generations.append(output)
-            generations.append(combine_dicts(*input_generations))
+            generations.append(input_generations)
         return generations
+
+    @property
+    def return_futures(self) -> bool:
+        return False

@@ -16,3 +16,8 @@ class LLM(ABC):
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[Dict[str, Any]]:
         pass
+
+    @property
+    @abstractmethod
+    def return_futures(self) -> bool:
+        pass
