@@ -1,7 +1,7 @@
 <h1 align="center">
   <a href=""><img src="docs/ultralabel.png" alt="rlxf image" width="100%"></a>
   <br>
-  Ultralabel for building datasets with LLMs
+  Ultralabel: your AI labeller for LLMs
   <br>
 </h1>
 
