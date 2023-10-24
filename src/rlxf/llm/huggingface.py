@@ -14,7 +14,7 @@ from tenacity import (
     stop_after_attempt,
     wait_random_exponential,
 )
-from transformers import PreTrainedModel, PreTrainedTokenizer
+from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 from rlxf.llm.base import LLM
 
@@ -58,12 +58,6 @@ class TransformersLLM(LLM):
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
-        self.generate_kwargs = {
-            "max_new_tokens": 128,
-            "temperature": 0.7,
-            "num_return_sequences": 1,
-        }
-
     @cached_property
     def device(self) -> torch.device:
         if torch.cuda.is_available():
@@ -72,17 +66,22 @@ class TransformersLLM(LLM):
             return torch.device("mps")
         return torch.device("cpu")
 
-    def generate(self, inputs: List[Dict[str, Any]]) -> Any:
-        prompts = [self.prompt_template.generate_prompt(**input) for input in inputs]
-        batch_encoding = self.tokenizer(text=prompts, padding=True, return_tensors="pt")
+    def _generate(self, input: Dict[str, Any], num_generations: int = 1) -> Any:
+        prompt = self.prompt_template.generate_prompt(**input)
+        encoding = self.tokenizer(text=prompt, padding=True, return_tensors="pt")
         if self.device != "cpu":
-            batch_encoding = batch_encoding.to(self.device)
+            encoding = encoding.to(self.device)
         with torch.inference_mode():
             generated_ids = self.model.generate(
-                **batch_encoding, **self.generate_kwargs
+                **encoding,
+                generation_config=GenerationConfig(
+                    temperature=self.temperature,
+                    max_new_tokens=self.max_new_tokens,
+                    num_generations=num_generations,
+                ),
             )
         decoded_outputs = self.tokenizer.batch_decode(
-            generated_ids[:, -(batch_encoding.input_ids.shape[1]) :],
+            generated_ids[:, -(encoding.input_ids.shape[1]) :],
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )
