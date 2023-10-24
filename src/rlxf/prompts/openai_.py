@@ -10,6 +10,9 @@ from rlxf.prompts.base import PromptTemplate
 _GPT4_RANKING_TEMPLATE = str(
     importlib_resources.files("rlxf") / "prompts/templates/gpt4-response-ranking.jinja2"
 )
+_GPT_TEXT_GENERATION_TEMPLATE = str(
+    importlib_resources.files("rlxf") / "prompts/templates/gpt-text-generation.jinja2"
+)
 
 
 class Rank(TypedDict):
@@ -50,7 +53,7 @@ class OpenAIResponseRanking(PromptTemplate):
     )
 
     def generate_prompt(
-        self, instruction: str, generations: List[str], for_chat: bool = True
+        self, instruction: str, generations: List[str]
     ) -> Union[str, List[ChatCompletion]]:
         template = jinja2.Template(open(self.__jinja2_template__).read())
         render_kwargs = {
@@ -60,22 +63,13 @@ class OpenAIResponseRanking(PromptTemplate):
             "instruction": instruction,
             "responses": generations,
         }
-        if not for_chat:
-            render_kwargs["system_prompt"] = self.system_prompt
         generated_prompt = template.render(render_kwargs)
-        if not for_chat:
-            return generated_prompt
         return [
             ChatCompletion(
                 role="system",
                 content=self.system_prompt,
             ),
-            ChatCompletion(
-                role="user",
-                content=generated_prompt.replace(
-                    r"\{\{ system_prompt \}\}", ""
-                ).lstrip(),
-            ),
+            ChatCompletion(role="user", content=generated_prompt),
         ]
 
     def parse_output(self, output: str) -> List[RankOutput]:
@@ -94,3 +88,40 @@ class OpenAIResponseRanking(PromptTemplate):
     @property
     def output_args_names(self) -> List[str]:
         return ["score", "rationale"]
+
+
+class OpenAITextGenerationPromptTemplate(PromptTemplate):
+    __jinja2_template__: str = _GPT_TEXT_GENERATION_TEMPLATE
+
+    system_prompt: str = (
+        "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
+        " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"
+        " toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased"
+        " and positive in nature.\nIf a question does not make any sense, or is not factually coherent,"
+        " explain why instead of answering something not correct. If you don't know the answer to a"
+        " question, please don't share false information."
+    )
+
+    def generate_prompt(self, instruction: str) -> Union[str, List[ChatCompletion]]:
+        template = jinja2.Template(open(self.__jinja2_template__).read())
+        generated_prompt = template.render(
+            system_prompt=self.system_prompt, instruction=instruction
+        )
+        return [
+            ChatCompletion(
+                role="system",
+                content=self.system_prompt,
+            ),
+            ChatCompletion(role="user", content=generated_prompt),
+        ]
+
+    def parse_output(self, output: str) -> str:
+        return {"generations": output}
+
+    @property
+    def input_args_names(self) -> List[str]:
+        return ["instruction"]
+
+    @property
+    def output_args_names(self) -> List[str]:
+        return ["generations"]
