@@ -74,22 +74,26 @@ class OpenAILLM(LLM):
     def _chat_completion_with_backoff(self, **kwargs: Any) -> Any:
         return openai.ChatCompletion.create(**kwargs)
 
-    def _generate(self, input: Dict[str, Any]):
+    def _generate(self, input: Dict[str, Any], num_generations: int = 1):
         prompt = self.prompt_template.generate_prompt(**input)
-        response = self._chat_completion_with_backoff(model=self.model, messages=prompt)
-        output = response["choices"][0]["message"]["content"].strip()
-        return self.prompt_template.parse_output(output)
+        response = self._chat_completion_with_backoff(
+            model=self.model, messages=prompt, n=num_generations
+        )
+        return [
+            self.prompt_template.parse_output(choice["message"]["content"].strip())
+            for choice in response["choices"]
+        ]
 
-    def generate(self, inputs: List[Dict[str, Any]]) -> Any:
+    def generate(self, inputs: List[Dict[str, Any]], num_generations: int = 1) -> Any:
         if self.thread_pool_executor is not None:
             return [
-                self.thread_pool_executor.submit(self._generate, input)
+                self.thread_pool_executor.submit(self._generate, input, num_generations)
                 for input in inputs
             ]
 
         generations = []
         for input in inputs:
-            output = self._generate(input)
+            output = self._generate(input, num_generations)
             generations.append(output)
         return generations
 

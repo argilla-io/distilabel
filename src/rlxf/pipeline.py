@@ -52,10 +52,16 @@ class Pipeline:
             batch_generations = self.generation_llm.generate(
                 inputs, num_generations=num_generations
             )
-            generations.extend(
+
+            if self.generation_llm.return_futures:
+                batch_generations = [future.result() for future in batch_generations]
+
+            batch_generations = [
                 combine_dicts(*input_generation)
                 for input_generation in batch_generations
-            )
+            ]
+
+            generations.extend(batch_generations)
 
             for input, generations_ in zip(inputs, batch_generations):
                 input.update(generations_)
@@ -66,6 +72,8 @@ class Pipeline:
         # If the LLM returns futures, we need to wait for them to finish
         if self.labelling_llm.return_futures:
             labels = [future.result() for future in labels]
-        labels = [combine_dicts(*batch_labels) for batch_labels in labels]
+        labels = [
+            combine_dicts(*label) for batch_labels in labels for label in batch_labels
+        ]
 
         return self._add_columns_to_dataset(dataset, generations, labels)
