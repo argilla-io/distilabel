@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 from pydantic import BaseModel
 
@@ -24,3 +24,11 @@ class PromptTemplate(BaseModel, ABC):
     @abstractmethod
     def output_args_names(self) -> list[str]:
         pass
+
+    def validate_dataset(self, columns_in_dataset: List[str]) -> None:
+        for input_arg_name in self.input_args_names:
+            if input_arg_name not in columns_in_dataset:
+                raise KeyError(
+                    f"LLM expects a column named '{input_arg_name}' in the provided"
+                    " dataset, but it was not found."
+                )
