@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -39,8 +38,16 @@ class TransformersLLM(LLM):
         model: PreTrainedModel,
         tokenizer: PreTrainedTokenizer,
         prompt_template: "PromptTemplate",
+        max_new_tokens: int = 128,
+        temperature: float = 0.7,
+        num_threads: Union[int, None] = None,
     ) -> None:
-        super().__init__(prompt_template=prompt_template)
+        super().__init__(
+            prompt_template=prompt_template,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            num_threads=num_threads,
+        )
 
         self.model = model
         if self.device != "cpu":
@@ -95,22 +102,14 @@ class InferenceEndpointsLLM(LLM):
         temperature: float = 1.0,
         num_threads: Union[int, None] = None,
     ) -> None:
-        super().__init__(prompt_template=prompt_template)
-
-        self.client = InferenceClient(model=endpoint_url, token=token)
-        self.max_new_tokens = max_new_tokens
-        self.temperature = temperature
-
-        # TODO(alvarobartt,gabrielmbmb): move to `LLM` base class defintion
-        self.thread_pool_executor = (
-            ThreadPoolExecutor(max_workers=num_threads)
-            if num_threads is not None
-            else None
+        super().__init__(
+            prompt_template=prompt_template,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            num_threads=num_threads,
         )
 
-    def __del__(self) -> None:
-        if self.thread_pool_executor is not None:
-            self.thread_pool_executor.shutdown()
+        self.client = InferenceClient(model=endpoint_url, token=token)
 
     @retry(
         retry=retry_if_exception_type(_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS),
@@ -134,19 +133,3 @@ class InferenceEndpointsLLM(LLM):
             for _ in range(num_generations)
         ]
         return [self.prompt_template.parse_output(response) for response in responses]
-
-    def generate(self, inputs: List[Dict[str, Any]], num_generations: int = 1) -> Any:
-        if self.thread_pool_executor is not None:
-            return [
-                self.thread_pool_executor.submit(self._generate, input, num_generations)
-                for input in inputs
-            ]
-        generations = []
-        for input in inputs:
-            output = self._generate(input, num_generations)
-            generations.append(output)
-        return generations
-
-    @property
-    def return_futures(self) -> bool:
-        return self.thread_pool_executor is not None
