@@ -17,6 +17,9 @@ class Pipeline:
         self.generation_llm = generation_llm
         self.labelling_llm = labelling_llm
 
+        if self.generation_llm is None and self.labelling_llm is None:
+            raise ValueError("At least one LLM has to be provided to the pipeline")
+
     def _validate_dataset(self, dataset: "Dataset") -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
