@@ -37,9 +37,9 @@ class OpenAIResponseRanking(PromptTemplate):
     __type__: str = "ranking"
     __jinja2_template__: str = _GPT4_RANKING_TEMPLATE
 
-    system_prompt: str = (
-        "Your role is to evaluate text quality based on given criteria."
-    )
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
     task_description: str = dedent(
         """
         # Informativeness / Helpfulness Assessment
@@ -72,7 +72,7 @@ class OpenAIResponseRanking(PromptTemplate):
             ChatCompletion(role="user", content=generated_prompt),
         ]
 
-    def parse_output(self, output: str) -> List[RankOutput]:
+    def _parse_output(self, output: str) -> List[RankOutput]:
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
