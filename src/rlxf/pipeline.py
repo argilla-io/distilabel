@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
+from rlxf.dataset import CustomDataset
 from rlxf.utils import combine_dicts
 
 if TYPE_CHECKING:
@@ -19,6 +20,11 @@ class Pipeline:
 
         if self.generation_llm is None and self.labelling_llm is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
+
+    def _remap_dataset(self, dataset: "Dataset") -> CustomDataset:
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset`
+        dataset.__class__ = CustomDataset
+        return dataset  # type: ignore
 
     def _validate_dataset(self, dataset: "Dataset") -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -105,7 +111,7 @@ class Pipeline:
 
     def generate(
         self, dataset: "Dataset", num_generations: int = 1, batch_size: int = 1
-    ) -> "Dataset":
+    ) -> CustomDataset:
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -136,4 +142,5 @@ class Pipeline:
                 for label in batch_labels
             ]
 
-        return self._add_columns_to_dataset(dataset, generations, labels)
+        dataset = self._add_columns_to_dataset(dataset, generations, labels)
+        return self._remap_dataset(dataset)
