@@ -1,11 +1,29 @@
+import importlib.resources as importlib_resources
 from abc import ABC, abstractmethod
-from typing import Any, List
+from functools import cached_property
+from typing import Any, List, Union
 
+from jinja2 import Template
 from pydantic import BaseModel
+
+
+def get_template(template_name: str) -> str:
+    return str(importlib_resources.files("rlxf") / "prompts/templates" / template_name)
 
 
 class PromptTemplate(BaseModel, ABC):
     system_prompt: str
+
+    __jinja2_template__: Union[str, None] = None
+
+    @cached_property
+    def template(self) -> "Template":
+        if self.__jinja2_template__ is None:
+            raise ValueError(
+                "You must provide a `__jinja2_template__` attribute to your PromptTemplate subclass."
+            )
+
+        return Template(open(self.__jinja2_template__).read())
 
     @abstractmethod
     def generate_prompt(self, **kwargs: Any) -> str:
