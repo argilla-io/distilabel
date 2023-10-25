@@ -31,7 +31,7 @@ class LLM(ABC):
             self.thread_pool_executor.shutdown()
 
     @abstractmethod
-    def _generate(self, **kwargs) -> Any:
+    def _generate(self, **kwargs: Any) -> Any:
         pass
 
     def generate(self, inputs: List[Dict[str, Any]], num_generations: int = 1) -> Any:

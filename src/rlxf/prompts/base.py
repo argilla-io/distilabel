@@ -12,8 +12,14 @@ class PromptTemplate(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def parse_output(self, output: str) -> Any:
+    def _parse_output(self, output: str) -> Any:
         pass
+
+    def parse_output(self, output: str) -> Any:
+        try:
+            return self._parse_output(output)
+        except Exception:
+            return {}
 
     @property
     @abstractmethod

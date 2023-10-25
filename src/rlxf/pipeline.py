@@ -66,19 +66,19 @@ class Pipeline:
         if self.generation_llm is not None:
             for output_name in self.generation_llm.prompt_template.output_args_names:
                 dataset = dataset.add_column(
-                    output_name, [row[output_name] for row in generations]
+                    output_name, [row.get(output_name, None) for row in generations]
                 )
 
         if self.labelling_llm is not None:
             for output_name in self.labelling_llm.prompt_template.output_args_names:
                 dataset = dataset.add_column(
-                    output_name, [row[output_name] for row in labels]
+                    output_name, [row.get(output_name, None) for row in labels]
                 )
 
         return dataset
 
     def _get_batch_generations(
-        self, inputs, num_generations: int
+        self, inputs: List[Dict[str, Any]], num_generations: int
     ) -> List[Dict[str, Any]]:
         batch_generations = self.generation_llm.generate(
             inputs, num_generations=num_generations
