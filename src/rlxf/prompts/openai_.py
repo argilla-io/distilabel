@@ -21,7 +21,7 @@ class Rank(TypedDict):
 
 
 class RankOutput(TypedDict):
-    score: int
+    rating: int
     rationale: str
 
 
@@ -49,7 +49,7 @@ class OpenAIResponseRanking(PromptTemplate):
         Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
 
         **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
-    """
+        """
     )
 
     def generate_prompt(
@@ -78,7 +78,7 @@ class OpenAIResponseRanking(PromptTemplate):
             rating, rationale = section.split("\n")[1:3]
             rating = int(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
-            parsed_output.append(RankOutput(score=rating, rationale=rationale))
+            parsed_output.append(RankOutput(rating=rating, rationale=rationale))
         return parsed_output
 
     @property
@@ -87,7 +87,7 @@ class OpenAIResponseRanking(PromptTemplate):
 
     @property
     def output_args_names(self) -> List[str]:
-        return ["score", "rationale"]
+        return ["rating", "rationale"]
 
 
 class OpenAITextGenerationPromptTemplate(PromptTemplate):
