@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Type, Union
 from typing_extensions import TypedDict
 
 from rlxf.prompts.base import PromptTemplate, get_template
+from rlxf.prompts.integrations import ArgillaTemplate
 
 try:
     import argilla as rg
@@ -38,7 +39,7 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-class OpenAIResponseRanking(PromptTemplate):
+class OpenAIResponseRanking(PromptTemplate, ArgillaTemplate):
     ranks: List[Rank]
     ranks_description: str
 
