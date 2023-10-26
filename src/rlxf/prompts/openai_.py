@@ -113,7 +113,11 @@ class OpenAIResponseRanking(PromptTemplate):
                 )
             if arg_type is list and isinstance(dataset_row[arg_name], list):
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    argilla_fields.append(rg.TextField(name=f"{arg_name}-{idx}"))
+                    argilla_fields.append(
+                        rg.TextField(
+                            name=f"{arg_name}-{idx}", title=f"OpenAI Generation - {idx}"
+                        )
+                    )
             elif arg_type is str:
                 argilla_fields.append(rg.TextField(name=arg_name))
             else:
@@ -141,12 +145,12 @@ class OpenAIResponseRanking(PromptTemplate):
                         [
                             rg.RatingQuestion(
                                 name=f"generations-{idx}-rating",
-                                title=f"Whats's the rating for generations-{idx}?",
+                                title=f"Whats's the rating for the Generation - {idx}?",
                                 values=list(range(1, len(self.ranks) + 1)),
                             ),
                             rg.TextQuestion(
                                 name=f"generations-{idx}-rationale",
-                                title=f"Whats's the rationale behind generations-{idx}'s rating?",
+                                title=f"Whats's the rationale behind Generation - {idx} rating?",
                             ),
                         ]
                     )
