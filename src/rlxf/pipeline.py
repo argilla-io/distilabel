@@ -170,5 +170,5 @@ class Pipeline:
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
-        dataset.prompt_template = self.labeling_llm.prompt_template
+        dataset.prompt_template = self.labelling_llm.prompt_template
         return dataset
