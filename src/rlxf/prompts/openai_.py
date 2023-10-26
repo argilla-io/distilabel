@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Type, Union
 from typing_extensions import TypedDict
 
 from rlxf.prompts.base import PromptTemplate, get_template
-from rlxf.prompts.integrations import ArgillaTemplate
+from rlxf.prompts.integrations.argilla import ArgillaTemplate
 
 try:
     import argilla as rg
@@ -147,7 +147,7 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
                             rg.RatingQuestion(
                                 name=f"generations-{idx}-rating",
                                 title=f"Whats's the rating for the Generation - {idx}?",
-                                values=list(range(1, len(self.ranks) + 1)),
+                                values=list(range(1, len(self.ratings) + 1)),
                             ),
                             rg.TextQuestion(
                                 name=f"generations-{idx}-rationale",
