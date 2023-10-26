@@ -177,7 +177,7 @@ class OpenAITextGenerationPromptTemplate(PromptTemplate):
             ChatCompletion(role="user", content=generated_prompt),
         ]
 
-    def parse_output(self, output: str) -> str:
+    def parse_output(self, output: str) -> Dict[str, str]:
         return {"generations": output}
 
     @property
