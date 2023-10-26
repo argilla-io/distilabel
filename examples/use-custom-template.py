@@ -43,7 +43,7 @@ class TextClassificationPrompt(PromptTemplate):
             {"role": "assistant", "content": "[LABELS]"},
         ]
 
-    def parse_output(self, output: str) -> List[str]:
+    def _parse_output(self, output: str) -> List[str]:
         return output.split("[/LABELS]")[0].split(",")
 
     @property
