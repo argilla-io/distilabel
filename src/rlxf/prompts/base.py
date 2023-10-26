@@ -41,12 +41,12 @@ class PromptTemplate(BaseModel, ABC):
 
     @property
     @abstractmethod
-    def input_args_names(self) -> list[str]:
+    def input_args_names(self) -> List[str]:
         pass
 
     @property
     @abstractmethod
-    def output_args_names(self) -> list[str]:
+    def output_args_names(self) -> List[str]:
         pass
 
     def validate_dataset(self, columns_in_dataset: List[str]) -> None:
