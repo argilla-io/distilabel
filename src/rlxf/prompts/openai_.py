@@ -20,16 +20,16 @@ if TYPE_CHECKING:
         AllowedQuestionTypes,
     )
 
-_GPT4_RANKING_TEMPLATE = get_template("gpt4-response-ranking.jinja2")
+_GPT4_RATING_TEMPLATE = get_template("gpt4-response-rating.jinja2")
 _GPT_TEXT_GENERATION_TEMPLATE = get_template("gpt-text-generation.jinja2")
 
 
-class Rank(TypedDict):
-    rank: int
+class Rating(TypedDict):
+    value: int
     description: str
 
 
-class RankOutput(TypedDict):
+class RatingOutput(TypedDict):
     rating: int
     rationale: str
 
@@ -39,12 +39,12 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-class OpenAIResponseRanking(PromptTemplate, ArgillaTemplate):
-    ranks: List[Rank]
-    ranks_description: str
+class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
+    ratings: List[Rating]
+    ratings_description: str
 
-    __type__: str = "ranking"
-    __jinja2_template__: str = _GPT4_RANKING_TEMPLATE
+    __type__: str = "rating"
+    __jinja2_template__: str = _GPT4_RATING_TEMPLATE
 
     system_prompt: str = (
         "Your role is to evaluate text quality based on given criteria."
@@ -66,8 +66,8 @@ class OpenAIResponseRanking(PromptTemplate, ArgillaTemplate):
     ) -> Union[str, List[ChatCompletion]]:
         render_kwargs = {
             "task_description": self.task_description,
-            "ranks": self.ranks,
-            "ranks_description": self.ranks_description,
+            "ratings": self.ratings,
+            "ratings_description": self.ratings_description,
             "instruction": instruction,
             "responses": generations,
         }
@@ -80,13 +80,13 @@ class OpenAIResponseRanking(PromptTemplate, ArgillaTemplate):
             ChatCompletion(role="user", content=generated_prompt),
         ]
 
-    def _parse_output(self, output: str) -> List[RankOutput]:
+    def _parse_output(self, output: str) -> List[RatingOutput]:
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
             rating = int(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
-            parsed_output.append(RankOutput(rating=rating, rationale=rationale))
+            parsed_output.append(RatingOutput(rating=rating, rationale=rationale))
         return parsed_output
 
     @property
