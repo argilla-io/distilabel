@@ -13,6 +13,7 @@ except ImportError:
     _argilla_installed = False
 
 if TYPE_CHECKING:
+    from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
         AllowedFieldTypes,
         AllowedQuestionTypes,
@@ -44,9 +45,9 @@ class OpenAIResponseRanking(PromptTemplate):
     __type__: str = "ranking"
     __jinja2_template__: str = _GPT4_RANKING_TEMPLATE
 
-    system_prompt: (
-        str
-    ) = "Your role is to evaluate text quality based on given criteria."
+    system_prompt: str = (
+        "Your role is to evaluate text quality based on given criteria."
+    )
     task_description: str = dedent(
         """
         # Informativeness / Helpfulness Assessment
@@ -101,7 +102,9 @@ class OpenAIResponseRanking(PromptTemplate):
         # appending an integer from 1 to N e.g. `generations` -> `generations-1`, `generations-2`, etc.
         return {"instruction": str, "generations": list}
 
-    def to_argilla_fields(self, dataset_row: Dict[str, Any]) -> List["AllowedFieldTypes"]:
+    def to_argilla_fields(
+        self, dataset_row: Dict[str, Any]
+    ) -> List["AllowedFieldTypes"]:
         argilla_fields = []
         for arg_name, arg_type in self.argilla_fields_typedargs.items():
             if arg_name not in dataset_row:
@@ -117,40 +120,55 @@ class OpenAIResponseRanking(PromptTemplate):
                 raise ValueError(f"Type {arg_type} is not supported.")
         return argilla_fields
 
-    def to_argilla_questions(self, dataset_row: Dict[str, Any]) -> List["AllowedQuestionTypes"]:
+    @property
+    def argilla_questions_typedargs(self) -> Dict[str, Type[list]]:
+        return {"generations": list}
+
+    def to_argilla_questions(
+        self, dataset_row: Dict[str, Any]
+    ) -> List["AllowedQuestionTypes"]:
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
         argilla_questions = []
-        for idx in range(1, len(dataset_row["generations"]) + 1):
-            argilla_questions.extend(
-                [
-                    rg.RatingQuestion(
-                        name=f"generations-{idx}-rating",
-                        title=f"Whats's the rating for generations-{idx}?",
-                        values=list(range(1, len(self.ranks) + 1)),
-                    ),
-                    rg.TextQuestion(
-                        name=f"generations-{idx}-rationale",
-                        title=f"Whats's the rationale behind generations-{idx}'s rating?",
-                    ),
-                ]
-            )
+        for arg_name, arg_type in self.argilla_questions_typedargs.items():
+            if arg_name not in dataset_row:
+                raise ValueError(
+                    f"Dataset row does not contain the required field '{arg_name}'."
+                )
+            if arg_type is list and isinstance(dataset_row[arg_name], list):
+                for idx in range(1, len(dataset_row[arg_name]) + 1):
+                    argilla_questions.extend(
+                        [
+                            rg.RatingQuestion(
+                                name=f"generations-{idx}-rating",
+                                title=f"Whats's the rating for generations-{idx}?",
+                                values=list(range(1, len(self.ranks) + 1)),
+                            ),
+                            rg.TextQuestion(
+                                name=f"generations-{idx}-rationale",
+                                title=f"Whats's the rationale behind generations-{idx}'s rating?",
+                            ),
+                        ]
+                    )
         return argilla_questions
 
-    def to_argilla_record(self, dataset_row: Dict[str, Any]) -> rg.FeedbackRecord:
+    def to_argilla_record(self, dataset_row: Dict[str, Any]) -> "FeedbackRecord":
         fields = {}
         for input_arg_key, input_arg_value in self.argilla_fields_typedargs.items():
             if input_arg_value is list:
                 for idx in range(1, len(dataset_row[input_arg_key]) + 1):
-                    fields.update({f"{input_arg_key}-{idx}": dataset_row[input_arg_key][idx - 1]})
+                    fields.update(
+                        {f"{input_arg_key}-{idx}": dataset_row[input_arg_key][idx - 1]}
+                    )
             else:
                 fields.update({input_arg_key: dataset_row[input_arg_key]})
         response = {"values": {}, "status": "submitted"}
         for output_arg_name in self.output_args_names:
             for idx, value in enumerate(dataset_row[output_arg_name]):
-                response["values"].update({f"generations-{idx}-{output_arg_name}": {"value": value}})
+                response["values"].update(
+                    {f"generations-{idx}-{output_arg_name}": {"value": value}}
+                )
         return rg.FeedbackRecord(fields=fields, responses=[response])
-
 
 
 class OpenAITextGenerationPromptTemplate(PromptTemplate):
