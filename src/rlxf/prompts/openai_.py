@@ -115,9 +115,7 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
             if arg_type is list and isinstance(dataset_row[arg_name], list):
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
                     argilla_fields.append(
-                        rg.TextField(
-                            name=f"{arg_name}-{idx}", title=f"OpenAI Generation - {idx}"
-                        )
+                        rg.TextField(name=f"{arg_name}-{idx}", title=f"Response {idx}")
                     )
             elif arg_type is str:
                 argilla_fields.append(rg.TextField(name=arg_name))
@@ -146,12 +144,12 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
                         [
                             rg.RatingQuestion(
                                 name=f"generations-{idx}-rating",
-                                title=f"Whats's the rating for the Generation - {idx}?",
+                                title=f"Whats's the rating for the Response {idx}?",
                                 values=list(range(1, len(self.ratings) + 1)),
                             ),
                             rg.TextQuestion(
                                 name=f"generations-{idx}-rationale",
-                                title=f"Whats's the rationale behind Generation - {idx} rating?",
+                                title=f"Whats's the rationale behind the rating for Response {idx}?",
                             ),
                         ]
                     )
@@ -171,17 +169,16 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
                     )
             else:
                 fields.update({input_arg_key: dataset_row[input_arg_key]})
-        response = {"values": {}, "status": "submitted"}
+        suggestions = []
         for output_arg_name in self.output_args_names:
             for idx, value in enumerate(dataset_row[output_arg_name], start=1):
-                response["values"].update(
+                suggestions.append(
                     {
-                        f"generations-{idx}-{output_arg_name}": {
-                            "value": value.strip() if isinstance(value, str) else value
-                        }
+                        "question_name": f"generations-{idx}-{output_arg_name}",
+                        "value": value.strip() if isinstance(value, str) else value,
                     }
                 )
-        return rg.FeedbackRecord(fields=fields, responses=[response])
+        return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
 
 
 class OpenAITextGenerationPromptTemplate(PromptTemplate):
