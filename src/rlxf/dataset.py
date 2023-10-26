@@ -12,7 +12,7 @@ class CustomDataset(Dataset):
     argilla_fields: list
     argilla_input_args: dict  # TODO: mapping from HF rows to Argilla fields
     argilla_questions: list
-    # argilla_output_args: list #TODO: from HF row values with index to responses (questions in argilla)
+    argilla_output_args: list  # TODO: from HF row values with index to responses (questions in argilla)
 
     def to_argilla(self) -> None:
         if _argilla_installed is False:
@@ -35,5 +35,22 @@ class CustomDataset(Dataset):
                         fields.update(
                             {input_arg_subvalue: item[input_arg_key][input_arg_subkey]}
                         )
-            rg_dataset.add_records([rg.FeedbackRecord(fields=fields)])
+            response_values = {}
+            for output_arg_key, output_arg_value in self.argilla_output_args.items():
+                for output_arg_subkey, output_arg_subvalue in output_arg_value.items():
+                    response_values.update(
+                        {
+                            output_arg_subvalue: {
+                                "value": item[output_arg_key][output_arg_subkey]
+                            }
+                        }
+                    )
+            rg_dataset.add_records(
+                [
+                    rg.FeedbackRecord(
+                        fields=fields,
+                        responses=[{"values": response_values, "status": "submitted"}],
+                    )
+                ]
+            )
         return rg_dataset

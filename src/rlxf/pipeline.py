@@ -109,8 +109,11 @@ class Pipeline:
 
         return inputs
 
-    def generate(
-        self, dataset: "Dataset", num_generations: int = 1, batch_size: int = 1
+    def generate(  # noqa: C901
+        self,
+        dataset: "Dataset",
+        num_generations: int = 1,
+        batch_size: int = 1,
     ) -> CustomDataset:
         self._validate_dataset(dataset)
 
@@ -137,7 +140,6 @@ class Pipeline:
             # If the LLM returns futures, we need to wait for them to finish
             if self.labelling_llm.return_futures:
                 labels = [future.result() for future in labels]
-
             labels = [
                 combine_dicts(*label)
                 for batch_labels in labels
@@ -145,4 +147,65 @@ class Pipeline:
             ]
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
-        return self._remap_dataset(dataset)
+        dataset = self._remap_dataset(dataset)
+        # TODO: remove once it's properly pre-defined
+        # List of things we need to know in advance:
+        # * Which are the fields for the `FeedbackDataset` and how can those be mapped with the LLM inputs?
+        # * Which are the questions for the `FeedbackDataset` and how can those be mapped with the LLM outputs?
+        # * At least one sample input and one sample output
+        import argilla as rg
+
+        # TODO: as there's just one field type i.e. `text`, these can be easily inferred from `input_args_names`
+        fields = []
+        # TODO: there's no way to infer those, unless those are pre-defined at `prompt_template` level [PROBLEMATIC]
+        questions = []
+        # TODO: `input_args` can be easily inferred from `input_args_names`
+        input_args = {}
+        # TODO: `output_args` can be easily inferred from the pre-defined questions
+        output_args = {}
+        for input_arg_name in self.labelling_llm.prompt_template.input_args_names:
+            if isinstance(inputs[0][input_arg_name], list):
+                for idx in range(1, len(inputs[0][input_arg_name]) + 1):
+                    fields.append(rg.TextField(name=f"{input_arg_name}-{idx}"))
+                    if input_arg_name not in input_args:
+                        input_args[input_arg_name] = {}
+                    input_args[input_arg_name].update(
+                        {idx - 1: f"{input_arg_name}-{idx}"}
+                    )
+                    for (
+                        output_arg_name
+                    ) in self.labelling_llm.prompt_template.output_args_names:
+                        if output_arg_name not in output_args:
+                            output_args[output_arg_name] = {}
+                        output_args[output_arg_name].update(
+                            {idx - 1: f"{input_arg_name}-{idx}-{output_arg_name}"}
+                        )
+                    questions.extend(
+                        [
+                            rg.RatingQuestion(
+                                name=f"{input_arg_name}-{idx}-rating",
+                                title=f"Whats's the rating for {input_arg_name}-{idx}?",
+                                values=list(
+                                    range(
+                                        1,
+                                        len(self.labelling_llm.prompt_template.ranks)
+                                        + 1,
+                                    )
+                                ),
+                            ),
+                            rg.TextQuestion(
+                                name=f"{input_arg_name}-{idx}-rationale",
+                                title=f"Whats's the rationale behind {input_arg_name}-{idx}'s rating?",
+                            ),
+                        ]
+                    )
+            else:
+                # TODO: how do we define what's in and what's out of the questions?
+                fields.append(rg.TextField(name=input_arg_name))
+                input_args[input_arg_name] = input_arg_name
+
+        dataset.argilla_fields = fields
+        dataset.argilla_questions = questions
+        dataset.argilla_input_args = input_args
+        dataset.argilla_output_args = output_args
+        return dataset
