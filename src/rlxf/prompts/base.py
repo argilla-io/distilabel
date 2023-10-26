@@ -1,6 +1,5 @@
 import importlib.resources as importlib_resources
 from abc import ABC, abstractmethod
-from functools import cached_property
 from typing import Any, List, Union
 
 from jinja2 import Template
@@ -16,7 +15,7 @@ class PromptTemplate(BaseModel, ABC):
 
     __jinja2_template__: Union[str, None] = None
 
-    @cached_property
+    @property
     def template(self) -> "Template":
         if self.__jinja2_template__ is None:
             raise ValueError(
@@ -41,12 +40,12 @@ class PromptTemplate(BaseModel, ABC):
 
     @property
     @abstractmethod
-    def input_args_names(self) -> list[str]:
+    def input_args_names(self) -> List[str]:
         pass
 
     @property
     @abstractmethod
-    def output_args_names(self) -> list[str]:
+    def output_args_names(self) -> List[str]:
         pass
 
     def validate_dataset(self, columns_in_dataset: List[str]) -> None:

@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
+from rlxf.dataset import CustomDataset
 from rlxf.progress_bar import get_progress_bars_for_pipeline
 from rlxf.utils import combine_dicts
 
@@ -20,6 +21,11 @@ class Pipeline:
 
         if self.generation_llm is None and self.labelling_llm is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
+
+    def _remap_dataset(self, dataset: "Dataset") -> CustomDataset:
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset`
+        dataset.__class__ = CustomDataset
+        return dataset  # type: ignore
 
     def _validate_dataset(self, dataset: "Dataset") -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -109,13 +115,13 @@ class Pipeline:
 
         return inputs
 
-    def generate(
+    def generate(  # noqa: C901
         self,
         dataset: "Dataset",
         num_generations: int = 1,
         batch_size: int = 1,
         display_progress_bar: bool = False,
-    ) -> "Dataset":
+    ) -> CustomDataset:
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -143,8 +149,12 @@ class Pipeline:
                     input.update(generations_)
 
             if self.labelling_llm is not None:
+                # `num_generations` is always 1 because labelling the same input multiple times
+                # using the same LLM may not make sense
                 batch_labels = self.labelling_llm.generate(
-                    inputs=inputs, progress_callback_func=labelling_progress_bar
+                    inputs=inputs,
+                    num_generations=1,
+                    progress_callback_func=labelling_progress_bar,
                 )
                 labels.extend(batch_labels)
 
@@ -152,11 +162,13 @@ class Pipeline:
             # If the LLM returns futures, we need to wait for them to finish
             if self.labelling_llm.return_futures:
                 labels = [future.result() for future in labels]
-
             labels = [
                 combine_dicts(*label)
                 for batch_labels in labels
                 for label in batch_labels
             ]
 
-        return self._add_columns_to_dataset(dataset, generations, labels)
+        dataset = self._add_columns_to_dataset(dataset, generations, labels)
+        dataset = self._remap_dataset(dataset)
+        dataset.prompt_template = self.labelling_llm.prompt_template
+        return dataset

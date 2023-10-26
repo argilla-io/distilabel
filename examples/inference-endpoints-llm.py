@@ -10,7 +10,7 @@ class Llama2Prompt(PromptTemplate):
             )
         )
 
-    def parse_output(self, output: str) -> str:
+    def _parse_output(self, output: str) -> str:
         return output.split("[ANSWER]")[1].split("[/ANSWER]")[0].strip()
 
     def input_args_names(self) -> list[str]:
