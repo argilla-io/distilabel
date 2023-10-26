@@ -163,15 +163,23 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
             if input_arg_value is list:
                 for idx in range(1, len(dataset_row[input_arg_key]) + 1):
                     fields.update(
-                        {f"{input_arg_key}-{idx}": dataset_row[input_arg_key][idx - 1]}
+                        {
+                            f"{input_arg_key}-{idx}": dataset_row[input_arg_key][
+                                idx - 1
+                            ].strip()
+                        }
                     )
             else:
                 fields.update({input_arg_key: dataset_row[input_arg_key]})
         response = {"values": {}, "status": "submitted"}
         for output_arg_name in self.output_args_names:
-            for idx, value in enumerate(dataset_row[output_arg_name]):
+            for idx, value in enumerate(dataset_row[output_arg_name], start=1):
                 response["values"].update(
-                    {f"generations-{idx}-{output_arg_name}": {"value": value}}
+                    {
+                        f"generations-{idx}-{output_arg_name}": {
+                            "value": value.strip() if isinstance(value, str) else value
+                        }
+                    }
                 )
         return rg.FeedbackRecord(fields=fields, responses=[response])
 
