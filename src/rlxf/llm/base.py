@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 if TYPE_CHECKING:
     from rlxf.prompts.base import PromptTemplate
@@ -31,18 +31,33 @@ class LLM(ABC):
             self.thread_pool_executor.shutdown()
 
     @abstractmethod
-    def _generate(self, **kwargs) -> Any:
+    def _generate(self, **kwargs: Any) -> Any:
         pass
 
-    def generate(self, inputs: List[Dict[str, Any]], num_generations: int = 1) -> Any:
+    def generate(
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> Any:
+        def _progress():
+            if progress_callback_func is not None:
+                progress_callback_func()
+
         if self.thread_pool_executor is not None:
-            return [
-                self.thread_pool_executor.submit(self._generate, input, num_generations)
-                for input in inputs
-            ]
+            futures = []
+            for input in inputs:
+                future = self.thread_pool_executor.submit(
+                    self._generate, input, num_generations
+                )
+                future.add_done_callback(lambda future: _progress())
+                futures.append(future)
+            return futures
+
         generations = []
         for input in inputs:
             generations.append(self._generate(input, num_generations))
+            _progress()
         return generations
 
     @property

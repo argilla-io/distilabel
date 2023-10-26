@@ -2,12 +2,8 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import torch
-from huggingface_hub import (
-    InferenceClient,
-    InferenceTimeoutError,
-    RateLimitError,
-    ServiceUnavailableError,
-)
+from huggingface_hub import InferenceClient, InferenceTimeoutError
+from huggingface_hub.inference._text_generation import TextGenerationError
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -24,8 +20,7 @@ if TYPE_CHECKING:
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
     InferenceTimeoutError,
-    RateLimitError,
-    ServiceUnavailableError,
+    TextGenerationError,
 )
 _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1

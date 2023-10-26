@@ -20,18 +20,19 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["datasets >=2.14.0"]
+dependencies = ["datasets >=2.14.0", "pydantic >=2.4.2", "Jinja2 >=3.1.2"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = ["black ==23.10.0", "ruff ==0.1.0", "pre-commit >=3.5.0"]
+huggingface = ["transformers >=4.34.1", "tenacity >=8"]
 openai = ["openai >=0.28.1", "tenacity >=8"]
 argilla = ["argilla >=1.16.0"]
 
 [project.urls]
-Documentation = "https://github.com/argilla/rlxf#readme"
-Issues = "https://github.com/argilla/rlxf/issues"
-Source = "https://github.com/argilla/rlxf"
+Documentation = "https://github.com/argilla/ultralabel#readme"
+Issues = "https://github.com/argilla/ultralabel/issues"
+Source = "https://github.com/argilla/ultralabel"
 
 [tool.hatch.version]
 path = "src/rlxf/__init__.py"
