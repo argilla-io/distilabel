@@ -128,7 +128,9 @@ class Pipeline:
                     input.update(generations_)
 
             if self.labelling_llm is not None:
-                batch_labels = self.labelling_llm.generate(inputs)
+                # `num_generations` is always 1 because labelling the same input multiple times
+                # using the same LLM may not make sense
+                batch_labels = self.labelling_llm.generate(inputs, num_generations=1)
                 labels.extend(batch_labels)
 
         if self.labelling_llm is not None:
