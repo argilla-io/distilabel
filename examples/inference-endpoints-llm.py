@@ -1,5 +1,5 @@
-from rlxf.llm.huggingface import InferenceEndpointsLLM
-from rlxf.prompts.base import PromptTemplate
+from ultralabel.llm.huggingface import InferenceEndpointsLLM
+from ultralabel.prompts.base import PromptTemplate
 
 
 class Llama2Prompt(PromptTemplate):

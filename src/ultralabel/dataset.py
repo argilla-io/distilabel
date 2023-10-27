@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Union
 from datasets import Dataset
 
 if TYPE_CHECKING:
-    from rlxf.prompts.integrations.argilla import ArgillaTemplate
+    from ultralabel.prompts.integrations.argilla import ArgillaTemplate
 
 try:
     import argilla as rg

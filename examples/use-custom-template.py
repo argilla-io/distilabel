@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from rlxf.prompts import PromptTemplate
 from typing_extensions import TypedDict
+from ultralabel.prompts import PromptTemplate
 
 
 class Label(TypedDict):
@@ -56,7 +56,7 @@ class TextClassificationPrompt(PromptTemplate):
 
 
 if __name__ == "__main__":
-    from rlxf.llm.openai_ import OpenAILLM
+    from ultralabel.llm.openai_ import OpenAILLM
 
     prompt_template = TextClassificationPrompt(
         labels=[

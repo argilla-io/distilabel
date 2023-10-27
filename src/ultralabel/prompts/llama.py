@@ -1,4 +1,4 @@
-from rlxf.prompts.base import PromptTemplate, get_template
+from ultralabel.prompts.base import PromptTemplate, get_template
 
 _LLAMA2_TEXT_GENERATION_TEMPLATE = get_template("llama2-generation.jinja2")
 
