@@ -1,3 +1,4 @@
+import os
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -102,6 +103,11 @@ class InferenceEndpointsLLM(LLM):
             temperature=temperature,
             num_threads=num_threads,
         )
+
+        token = token or os.environ.get("HF_TOKEN")
+        assert (
+           token is not None
+        ), "Either the `token` arg or the `HF_TOKEN` environment variable must be set to use HF Inference Endpoints."
 
         self.client = InferenceClient(model=endpoint_url, token=token)
 
