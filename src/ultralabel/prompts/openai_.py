@@ -40,8 +40,29 @@ class ChatCompletion(TypedDict):
 
 
 class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
-    ratings: List[Rating]
-    ratings_description: str
+    ratings: List[Rating] = [
+        Rating(
+            value=1,
+            description="**Severely Incorrect**: Contains significant inaccuracies or fabricated content, even if comprehensive information is provided.",
+        ),
+        Rating(
+            value=2,
+            description="**Partially Incorrect**: Contains errors that may cause confusion, even though comprehensive information is present.",
+        ),
+        Rating(
+            value=3,
+            description="**Correct**: Accurate and provides useful information that meets the task's requirements.",
+        ),
+        Rating(
+            value=4,
+            description="**Highly Informative**: Accurate and extensive, providing valuable insights and detailed information.",
+        ),
+        Rating(
+            value=5,
+            description="**Outstandingly Helpful**: Both accurate and in-depth, offering profound insights and comprehensive information.",
+        ),
+    ]
+    ratings_description: str = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
 
     __type__: str = "rating"
     __jinja2_template__: str = _GPT4_RATING_TEMPLATE
