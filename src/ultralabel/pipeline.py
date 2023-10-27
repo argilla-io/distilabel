@@ -198,6 +198,7 @@ def pipeline(
     **kwargs,
 ) -> "Pipeline":
     if task == "preference":
+        from ultralabel.dataset import PreferenceDataset
         from ultralabel.llm.openai_ import OpenAILLM
         from ultralabel.prompts.openai_ import OpenAIResponseRating
 
@@ -220,6 +221,13 @@ def pipeline(
             openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
             temperature=kwargs.get("temperature") or 0.3,
         )
+        dataset_cls = PreferenceDataset
     else:
         raise ValueError(f"Invalid task: {task}")
-    return Pipeline(generation_llm=llm, labelling_llm=labelling_llm)
+
+    class CustomPipeline(Pipeline[dataset_cls]):
+        pass
+
+    CustomPipeline.dataset_cls = dataset_cls
+
+    return CustomPipeline(generation_llm=llm, labelling_llm=labelling_llm)
