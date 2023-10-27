@@ -8,6 +8,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    Type,
     TypeVar,
     Union,
 )
@@ -26,7 +27,7 @@ T = TypeVar("T", bound="Dataset")
 
 
 class Pipeline(Generic[T]):
-    dataset_cls: type = CustomDataset
+    dataset_cls: Type[T] = CustomDataset
 
     def __init__(
         self,
