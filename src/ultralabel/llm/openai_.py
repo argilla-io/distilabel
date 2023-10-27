@@ -31,8 +31,8 @@ _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 class OpenAILLM(LLM):
     def __init__(
         self,
-        model: str,
         prompt_template: "PromptTemplate",
+        model: str = "gpt-3.5-turbo",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         temperature: float = 0.7,

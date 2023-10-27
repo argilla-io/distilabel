@@ -17,7 +17,10 @@ class ArgillaTemplate(ABC):
 
     @abstractmethod
     def to_argilla_fields(
-        self, dataset_row: Dict[str, Any]
+        self,
+        dataset_row: Dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedFieldTypes"]:
         pass
 
@@ -28,10 +31,15 @@ class ArgillaTemplate(ABC):
 
     @abstractmethod
     def to_argilla_questions(
-        self, dataset_row: Dict[str, Any]
+        self,
+        dataset_row: Dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedQuestionTypes"]:
         pass
 
     @abstractmethod
-    def to_argilla_record(self, dataset_row: Dict[str, Any]) -> "FeedbackRecord":
+    def to_argilla_record(
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+    ) -> "FeedbackRecord":
         pass

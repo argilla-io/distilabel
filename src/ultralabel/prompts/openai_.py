@@ -40,8 +40,29 @@ class ChatCompletion(TypedDict):
 
 
 class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
-    ratings: List[Rating]
-    ratings_description: str
+    ratings: List[Rating] = [
+        Rating(
+            value=1,
+            description="**Severely Incorrect**: Contains significant inaccuracies or fabricated content, even if comprehensive information is provided.",
+        ),
+        Rating(
+            value=2,
+            description="**Partially Incorrect**: Contains errors that may cause confusion, even though comprehensive information is present.",
+        ),
+        Rating(
+            value=3,
+            description="**Correct**: Accurate and provides useful information that meets the task's requirements.",
+        ),
+        Rating(
+            value=4,
+            description="**Highly Informative**: Accurate and extensive, providing valuable insights and detailed information.",
+        ),
+        Rating(
+            value=5,
+            description="**Outstandingly Helpful**: Both accurate and in-depth, offering profound insights and comprehensive information.",
+        ),
+    ]
+    ratings_description: str = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
 
     __type__: str = "rating"
     __jinja2_template__: str = _GPT4_RATING_TEMPLATE
@@ -128,7 +149,9 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
         return {"generations": list}
 
     def to_argilla_questions(
-        self, dataset_row: Dict[str, Any]
+        self,
+        dataset_row: Dict[str, Any],
+        group_ratings_as_ranking: bool = False,
     ) -> List["AllowedQuestionTypes"]:
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
@@ -139,23 +162,39 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
                     f"Dataset row does not contain the required field '{arg_name}'."
                 )
             if arg_type is list and isinstance(dataset_row[arg_name], list):
+                # If `group_ratings_as_ranking` is True, then we group all the ratings into a ranking
+                if group_ratings_as_ranking:
+                    argilla_questions.append(
+                        rg.RankingQuestion(
+                            name=f"{arg_name}-ranking",
+                            title="Rank the responses from best to worst.",
+                            values=[
+                                f"generations-{idx}"
+                                for idx in range(1, len(dataset_row[arg_name]) + 1)
+                            ],
+                        )
+                    )
+                # Otherwise, we ask for each rating individually, but we still add the rationale
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    argilla_questions.extend(
-                        [
+                    if not group_ratings_as_ranking:
+                        argilla_questions.append(
                             rg.RatingQuestion(
                                 name=f"generations-{idx}-rating",
                                 title=f"Whats's the rating for the Response {idx}?",
                                 values=list(range(1, len(self.ratings) + 1)),
                             ),
-                            rg.TextQuestion(
-                                name=f"generations-{idx}-rationale",
-                                title=f"Whats's the rationale behind the rating for Response {idx}?",
-                            ),
-                        ]
+                        )
+                    argilla_questions.append(
+                        rg.TextQuestion(
+                            name=f"generations-{idx}-rationale",
+                            title=f"Whats's the rationale behind the rating for Response {idx}?",
+                        ),
                     )
         return argilla_questions
 
-    def to_argilla_record(self, dataset_row: Dict[str, Any]) -> "FeedbackRecord":
+    def to_argilla_record(
+        self, dataset_row: Dict[str, Any], group_ratings_as_ranking: bool = False
+    ) -> "FeedbackRecord":
         fields = {}
         for input_arg_key, input_arg_value in self.argilla_fields_typedargs.items():
             if input_arg_value is list:
@@ -171,6 +210,32 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
                 fields.update({input_arg_key: dataset_row[input_arg_key]})
         suggestions = []
         for output_arg_name in self.output_args_names:
+            if output_arg_name == "rating" and group_ratings_as_ranking:
+
+                def ratings_as_ranking_value(ratings: List[int]):
+                    indexed_ratings = list(enumerate(ratings, start=1))
+                    sorted_ratings = sorted(
+                        indexed_ratings, key=lambda x: x[1], reverse=True
+                    )
+
+                    ranked_fields = []
+                    current_rank = 1
+                    for i, (index, rating) in enumerate(sorted_ratings):
+                        if i > 0 and rating < sorted_ratings[i - 1][1]:
+                            current_rank = i + 1
+                        ranked_fields.append(
+                            {"rank": current_rank, "value": f"generations-{index}"}
+                        )
+
+                    return ranked_fields
+
+                suggestions.append(
+                    {
+                        "question_name": "generations-ranking",
+                        "value": ratings_as_ranking_value(dataset_row[output_arg_name]),
+                    }
+                )
+                continue
             for idx, value in enumerate(dataset_row[output_arg_name], start=1):
                 suggestions.append(
                     {
