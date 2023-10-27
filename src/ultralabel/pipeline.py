@@ -1,4 +1,16 @@
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+import os
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Literal,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from ultralabel.dataset import CustomDataset
 from ultralabel.progress_bar import get_progress_bars_for_pipeline
@@ -10,7 +22,12 @@ if TYPE_CHECKING:
     from ultralabel.llm.base import LLM
 
 
-class Pipeline:
+T = TypeVar("T", bound="Dataset")
+
+
+class Pipeline(Generic[T]):
+    dataset_cls: type = CustomDataset
+
     def __init__(
         self,
         generation_llm: Union["LLM", None] = None,
@@ -22,9 +39,9 @@ class Pipeline:
         if self.generation_llm is None and self.labelling_llm is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _remap_dataset(self, dataset: "Dataset") -> CustomDataset:
-        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset`
-        dataset.__class__ = CustomDataset
+    def _remap_dataset(self, dataset: "Dataset") -> T:
+        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
+        dataset.__class__ = self.dataset_cls
         return dataset  # type: ignore
 
     def _validate_dataset(self, dataset: "Dataset") -> None:
@@ -121,7 +138,7 @@ class Pipeline:
         num_generations: int = 1,
         batch_size: int = 1,
         display_progress_bar: bool = False,
-    ) -> CustomDataset:
+    ) -> T:
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -172,3 +189,37 @@ class Pipeline:
         dataset = self._remap_dataset(dataset)
         dataset.prompt_template = self.labelling_llm.prompt_template
         return dataset
+
+
+def pipeline(
+    task: Literal["preference"],
+    llm: Optional["LLM"] = None,
+    openai_api_key: Optional[str] = None,
+    **kwargs,
+) -> "Pipeline":
+    if task == "preference":
+        from ultralabel.llm.openai_ import OpenAILLM
+        from ultralabel.prompts.openai_ import OpenAIResponseRating
+
+        labelling_llm = OpenAILLM(
+            model="gpt-3.5-turbo",
+            prompt_template=OpenAIResponseRating(
+                ratings_description=kwargs.get("ratings_description")
+                or "Please rate the quality of the following responses. Use integer numbers.",
+                ratings=kwargs.get("ratings")
+                or [
+                    {"value": 1, "description": "Very bad"},
+                    {"value": 2, "description": "Bad"},
+                    {"value": 3, "description": "Neutral"},
+                    {"value": 4, "description": "Good"},
+                    {"value": 5, "description": "Very good"},
+                ],
+            ),
+            max_new_tokens=kwargs.get("max_new_tokens") or 256,
+            num_threads=kwargs.get("num_threads") or 4,
+            openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
+            temperature=kwargs.get("temperature") or 0.3,
+        )
+    else:
+        raise ValueError(f"Invalid task: {task}")
+    return Pipeline(generation_llm=llm, labelling_llm=labelling_llm)
