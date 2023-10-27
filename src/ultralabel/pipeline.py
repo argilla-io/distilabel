@@ -202,24 +202,18 @@ def pipeline(
         from ultralabel.llm.openai_ import OpenAILLM
         from ultralabel.prompts.openai_ import OpenAIResponseRating
 
+        prompt_template_kwargs = {
+            key: kwargs.get(key)
+            for key in OpenAIResponseRating.__fields__.keys()
+            if key in kwargs
+        }
         labelling_llm = OpenAILLM(
-            model="gpt-3.5-turbo",
-            prompt_template=OpenAIResponseRating(
-                ratings_description=kwargs.get("ratings_description")
-                or "Please rate the quality of the following responses. Use integer numbers.",
-                ratings=kwargs.get("ratings")
-                or [
-                    {"value": 1, "description": "Very bad"},
-                    {"value": 2, "description": "Bad"},
-                    {"value": 3, "description": "Neutral"},
-                    {"value": 4, "description": "Good"},
-                    {"value": 5, "description": "Very good"},
-                ],
-            ),
+            model=kwargs.get("openai_model") or "gpt-3.5-turbo",
+            prompt_template=OpenAIResponseRating(**prompt_template_kwargs),
             max_new_tokens=kwargs.get("max_new_tokens") or 256,
             num_threads=kwargs.get("num_threads") or 4,
             openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
-            temperature=kwargs.get("temperature") or 0.3,
+            temperature=kwargs.get("temperature") or 0.0,
         )
         dataset_cls = PreferenceDataset
     else:
