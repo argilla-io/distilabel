@@ -2,9 +2,6 @@ from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
 
-if TYPE_CHECKING:
-    from ultralabel.prompts.integrations.argilla import ArgillaTemplate
-
 try:
     import argilla as rg
 
@@ -13,10 +10,16 @@ except ImportError:
     _argilla_installed = False
 
 
+if TYPE_CHECKING:
+    from argilla import FeedbackDataset
+
+    from ultralabel.prompts.integrations.argilla import ArgillaTemplate
+
+
 class CustomDataset(Dataset):
     prompt_template: Union["ArgillaTemplate", None] = None
 
-    def to_argilla(self) -> None:
+    def to_argilla(self) -> "FeedbackDataset":
         if _argilla_installed is False:
             raise ImportError(
                 "The argilla library is not installed. Please install it with `pip install argilla`."
