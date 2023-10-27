@@ -195,27 +195,35 @@ class Pipeline(Generic[T]):
 def pipeline(
     task: Literal["preference"],
     llm: Optional["LLM"] = None,
+    labelling_llm: Optional["LLM"] = None,
     openai_api_key: Optional[str] = None,
     **kwargs,
 ) -> "Pipeline":
     if task == "preference":
         from ultralabel.dataset import PreferenceDataset
         from ultralabel.llm.openai_ import OpenAILLM
-        from ultralabel.prompts.openai_ import OpenAIResponseRating
+        from ultralabel.prompts.openai_ import OpenAIPreferenceRating
 
-        prompt_template_kwargs = {
-            key: kwargs.get(key)
-            for key in OpenAIResponseRating.__fields__.keys()
-            if key in kwargs
-        }
-        labelling_llm = OpenAILLM(
-            model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-            prompt_template=OpenAIResponseRating(**prompt_template_kwargs),
-            max_new_tokens=kwargs.get("max_new_tokens") or 256,
-            num_threads=kwargs.get("num_threads") or 4,
-            openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
-            temperature=kwargs.get("temperature") or 0.0,
-        )
+        # TODO: make this cleaner.
+        if labelling_llm is None:
+            prompt_template_kwargs = {
+                key: kwargs.get(key)
+                for key in OpenAIPreferenceRating.__fields__.keys()
+                if key in kwargs
+            }
+            labelling_llm = OpenAILLM(
+                model=kwargs.get("openai_model") or "gpt-3.5-turbo",
+                prompt_template=OpenAIPreferenceRating(**prompt_template_kwargs),
+                max_new_tokens=kwargs.get("max_new_tokens") or 256,
+                num_threads=kwargs.get("num_threads") or 4,
+                openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
+                temperature=kwargs.get("temperature") or 0.0,
+            )
+        else:
+            assert (
+             getattr(labelling_llm.prompt_template, '__type__', None) == "preference"
+            ), f"Your provided labelling LLM is not a preference LLM. It uses the wrong prompt template type: {labelling_llm.prompt_template.__type__}"
+
         dataset_cls = PreferenceDataset
     else:
         raise ValueError(f"Invalid task: {task}")

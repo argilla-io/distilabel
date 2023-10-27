@@ -39,7 +39,7 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
+class OpenAIPreferenceRating(PromptTemplate, ArgillaTemplate):
     ratings: List[Rating] = [
         Rating(
             value=1,
@@ -64,7 +64,7 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
     ]
     ratings_description: str = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
 
-    __type__: str = "rating"
+    __type__: str = "preference"
     __jinja2_template__: str = _GPT4_RATING_TEMPLATE
 
     system_prompt: str = (

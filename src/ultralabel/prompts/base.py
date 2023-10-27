@@ -16,6 +16,7 @@ class PromptTemplate(BaseModel, ABC):
     system_prompt: str
 
     __jinja2_template__: Union[str, None] = None
+    __type__: str = "generation"
 
     @property
     def template(self) -> "Template":

@@ -109,6 +109,7 @@ class InferenceEndpointsLLM(LLM):
            token is not None
         ), "Either the `token` arg or the `HF_TOKEN` environment variable must be set to use HF Inference Endpoints."
 
+
         self.client = InferenceClient(model=endpoint_url, token=token)
 
     @retry(
