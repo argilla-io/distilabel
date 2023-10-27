@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "rlxf"
+name = "ultralabel"
 description = "Automatic build of preference datasets for LLM alignment"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -35,7 +35,7 @@ Issues = "https://github.com/argilla/ultralabel/issues"
 Source = "https://github.com/argilla/ultralabel"
 
 [tool.hatch.version]
-path = "src/rlxf/__init__.py"
+path = "src/ultralabel/__init__.py"
 
 [tool.ruff]
 line-length = 88

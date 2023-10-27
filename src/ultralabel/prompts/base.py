@@ -7,7 +7,9 @@ from pydantic import BaseModel
 
 
 def get_template(template_name: str) -> str:
-    return str(importlib_resources.files("rlxf") / "prompts/templates" / template_name)
+    return str(
+        importlib_resources.files("ultralabel") / "prompts/templates" / template_name
+    )
 
 
 class PromptTemplate(BaseModel, ABC):

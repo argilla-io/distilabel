@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
-from rlxf.dataset import CustomDataset
-from rlxf.progress_bar import get_progress_bars_for_pipeline
-from rlxf.utils import combine_dicts
+from ultralabel.dataset import CustomDataset
+from ultralabel.progress_bar import get_progress_bars_for_pipeline
+from ultralabel.utils import combine_dicts
 
 if TYPE_CHECKING:
     from datasets import Dataset
 
-    from rlxf.llm.base import LLM
+    from ultralabel.llm.base import LLM
 
 
 class Pipeline:

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from rlxf.llm.base import LLM
+from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
 
-    from rlxf.prompts.base import PromptTemplate
+    from ultralabel.prompts.base import PromptTemplate
 
 
 class LlamaCppLLM(LLM):

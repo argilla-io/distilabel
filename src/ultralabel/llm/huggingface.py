@@ -12,10 +12,10 @@ from tenacity import (
 )
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
-from rlxf.llm.base import LLM
+from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from rlxf.prompts.base import PromptTemplate
+    from ultralabel.prompts.base import PromptTemplate
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
