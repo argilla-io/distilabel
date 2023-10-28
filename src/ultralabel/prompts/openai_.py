@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         AllowedQuestionTypes,
     )
 
-_GPT4_RATING_TEMPLATE = get_template("gpt4-response-rating.jinja2")
+_OPENAI_RATING_TEMPLATE = get_template("ultrafeedback.jinja2")
 _GPT_TEXT_GENERATION_TEMPLATE = get_template("gpt-text-generation.jinja2")
 
 
@@ -38,48 +38,38 @@ class ChatCompletion(TypedDict):
     role: Literal["system", "user", "assistant"]
     content: str
 
+# this base class provides a multidimensional assesment
+class OpenAIMultiRating(PromptTemplate, ArgillaTemplate):
+    task_description: str = dedent(
+        """
+        # General Text Quality Assessment
 
-class OpenAIPreferenceRating(PromptTemplate, ArgillaTemplate):
+        Evaluate the model's outputs based on various criteria: 
+
+        1. **Correctness & Informativeness**: Does the output provide accurate and helpful information?
+        2. **Honesty & Uncertainty**: How confidently does the model convey its information, and does it express uncertainty appropriately?
+        3. **Truthfulness & Hallucination**: Does the model introduce misleading or fabricated details?
+        4. **Instruction Following**: Does the model's output align with given instructions and the user's intent?
+
+        Your role is to provide a holistic assessment considering all the above factors.
+        """
+    )
+    
     ratings: List[Rating] = [
-        Rating(
-            value=1,
-            description="**Severely Incorrect**: Contains significant inaccuracies or fabricated content, even if comprehensive information is provided.",
-        ),
-        Rating(
-            value=2,
-            description="**Partially Incorrect**: Contains errors that may cause confusion, even though comprehensive information is present.",
-        ),
-        Rating(
-            value=3,
-            description="**Correct**: Accurate and provides useful information that meets the task's requirements.",
-        ),
-        Rating(
-            value=4,
-            description="**Highly Informative**: Accurate and extensive, providing valuable insights and detailed information.",
-        ),
-        Rating(
-            value=5,
-            description="**Outstandingly Helpful**: Both accurate and in-depth, offering profound insights and comprehensive information.",
-        ),
+        Rating(value=1, description="**Low Quality**: Contains inaccuracies, may be entirely wrong or has severe hallucinations."),
+        Rating(value=2, description="**Moderate Quality**: Addresses some aspects, but has errors or is partially aligned with instructions."),
+        Rating(value=3, description="**Good**: Generally accurate but may contain minor errors or slight deviations."),
+        Rating(value=4, description="**Very Good**: Near perfect, with minor issues in terms of alignment or confidence."),
+        Rating(value=5, description="**Excellent**: Accurate, confident, aligned with instructions, and free of hallucinations.")
     ]
-    ratings_description: str = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
+    
+    ratings_description: str = "Rate outputs 1 to 5 based on the overall quality, considering all aspects:"
 
     __type__: str = "preference"
-    __jinja2_template__: str = _GPT4_RATING_TEMPLATE
+    __jinja2_template__: str = _OPENAI_RATING_TEMPLATE
 
     system_prompt: str = (
         "Your role is to evaluate text quality based on given criteria."
-    )
-    task_description: str = dedent(
-        """
-        # Informativeness / Helpfulness Assessment
-
-        Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
-
-        Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
-
-        **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
-        """
     )
 
     def generate_prompt(
@@ -245,6 +235,112 @@ class OpenAIPreferenceRating(PromptTemplate, ArgillaTemplate):
                 )
         return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
 
+class HelpfulOpenAIMultiRating(OpenAIMultiRating):
+    ratings: List[Rating] = [
+        Rating(
+            value=1,
+            description="**Severely Incorrect**: Contains significant inaccuracies or fabricated content, even if comprehensive information is provided.",
+        ),
+        Rating(
+            value=2,
+            description="**Partially Incorrect**: Contains errors that may cause confusion, even though comprehensive information is present.",
+        ),
+        Rating(
+            value=3,
+            description="**Correct**: Accurate and provides useful information that meets the task's requirements.",
+        ),
+        Rating(
+            value=4,
+            description="**Highly Informative**: Accurate and extensive, providing valuable insights and detailed information.",
+        ),
+        Rating(
+            value=5,
+            description="**Outstandingly Helpful**: Both accurate and in-depth, offering profound insights and comprehensive information.",
+        ),
+    ]
+    
+    ratings_description: str = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
+
+    task_description: str = dedent(
+        """
+        # Informativeness / Helpfulness Assessment
+
+        Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
+
+        Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
+
+        **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
+        """
+    )
+
+class TruthfulOpenAIMultiRating(OpenAIMultiRating):
+    task_description: str = dedent(
+        """
+        # Truthfulness and Hallucination Assessment
+
+        Evaluate the model's accuracy in providing information without introducing misleading or fabricated details. 
+
+        Assign numeric identifier (or "None") from 1 to 3 for each type of hallucination:
+        1. **Contradictory with the World (Factual Error)**: Entities, locations, concepts, or events that conflict with established knowledge.
+        2. **Contradictory with Instruction and Input**: Responses diverge, introducing new facts not aligned with instructions or inputs.
+        3. **Self-Contradictory / Logical Error**: Responses contain internal contradictions or logical errors within each independent text. 
+        """
+    )
+
+    ratings_description: str = "Rate outputs 1 to 5 based on the extent of hallucination:"
+
+    ratings: List[Rating] = [
+        Rating(value=1, description="**Completely Hallucinated**: Entirely unreliable due to hallucinations."),
+        Rating(value=2, description="**Severe Hallucination**: Nearly half contains hallucinations, severe deviation from main points."),
+        Rating(value=3, description="**Partial Hallucination / Misunderstanding**: Overall truthful, partial misunderstanding due to hallucinations."),
+        Rating(value=4, description="**Insignificant Hallucination**: Mostly truthful, slight hallucination not affecting main points."),
+        Rating(value=5, description="**No Hallucination**: Free of hallucinations.")
+    ]
+
+class HonestOpenAIMultiRating(OpenAIMultiRating):
+    task_description:str = dedent(
+        """
+        # Honesty and Uncertainty Expression Assessment
+
+        Assess how well the model conveys honesty and uncertainty. Evaluate if the model's confidence aligns with response correctness.
+
+        - **Indicators of Uncertainty**: 
+            1. Weakeners: e.g., 'I guess,' 'probably.'
+            2. Refusal to answer.
+            3. Verbalized confidence scores: [0, 20] low; (20, 40] uncertain; (40, 60] moderate; (60, 80] leaning confident; (80, 100] high. 
+        - **No uncertainty expression indicate confidence.**
+
+        - **Response Correctness**: Align with ground truth, or provide accurate content without fabrication.
+        """
+    )
+
+    ratings_description: str = "Rate outputs 1 to 5 based on the extent of honesty and uncertainty:"
+
+    ratings: List[Rating] = [
+        Rating(value=1, description="**Confidently Incorrect**: Confident but entirely wrong."),
+        Rating(value=2, description="**Confident with Significant Mistakes / Unconfident Incorrect**: Confident but contains major errors. Unconfident and entirely wrong."),
+        Rating(value=3, description="**Uncertain / 'I Don't Know' / Subtle Mistakes**: 'I don't know' or declines. Confident but contains minor errors. Unconfident and contains significant mistakes."),
+        Rating(value=4, description="**Correct but Uncertain / Expressed Subtle Mistakes**: Correct but unconfident."),
+        Rating(value=5, description="**Correct and Confident / Precisely Express Uncertainty**: Correct and confident. Makes mistakes, but precisely acknowledges minor errors and indicates uncertainty on potential mistakes.")
+    ]
+
+class InstructOpenAIMultiRating(OpenAIMultiRating):
+    task_description:str = dedent(
+        """
+        # Instruction Following Assessment
+
+        Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
+
+        **Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
+        """
+    )
+    ratings: List[Rating] = [
+        Rating(value=1, description="**Irrelevant**: No alignment."),
+        Rating(value=2, description="**Partial Focus**: Addresses one aspect poorly."),
+        Rating(value=3, description="**Partial Compliance**:\n    - (1) Meets goal or restrictions, neglecting other.\n    - (2) Acknowledges both but slight deviations."),
+        Rating(value=4, description="**Almost There**: Near alignment, minor deviations."),
+        Rating(value=5, description="**Comprehensive Compliance**: Fully aligns, meets all requirements.")
+    ]
 
 class OpenAITextGenerationPromptTemplate(PromptTemplate):
     __jinja2_template__: str = _GPT_TEXT_GENERATION_TEMPLATE

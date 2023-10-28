@@ -202,18 +202,18 @@ def pipeline(
     if task == "preference":
         from ultralabel.dataset import PreferenceDataset
         from ultralabel.llm.openai_ import OpenAILLM
-        from ultralabel.prompts.openai_ import OpenAIPreferenceRating
+        from ultralabel.prompts.openai_ import OpenAIMultiRating
 
         # TODO: make this cleaner.
         if labelling_llm is None:
             prompt_template_kwargs = {
                 key: kwargs.get(key)
-                for key in OpenAIPreferenceRating.__fields__.keys()
+                for key in OpenAIMultiRating.__fields__.keys()
                 if key in kwargs
             }
             labelling_llm = OpenAILLM(
                 model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-                prompt_template=OpenAIPreferenceRating(**prompt_template_kwargs),
+                prompt_template=OpenAIMultiRating(**prompt_template_kwargs),
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
                 num_threads=kwargs.get("num_threads") or 4,
                 openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
