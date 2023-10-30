@@ -58,6 +58,7 @@ class Argilla:
 
 class Task(BaseModel, ABC, Argilla):
     system_prompt: str
+    task_description: Union[str, None] = None
 
     __jinja2_template__: Union[str, None] = None
 
