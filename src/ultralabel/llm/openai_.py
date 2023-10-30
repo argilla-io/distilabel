@@ -14,7 +14,7 @@ from tenacity import (
 from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import PromptTemplate
 
 
 _OPENAI_API_RETRY_ON_EXCEPTIONS = (

@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 if TYPE_CHECKING:
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import PromptTemplate
 
 
 class LLM(ABC):

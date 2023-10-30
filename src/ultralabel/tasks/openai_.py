@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Type, Union
 
 from typing_extensions import TypedDict
 
-from ultralabel.prompts.base import PromptTemplate, get_template
-from ultralabel.prompts.integrations.argilla import ArgillaTemplate
+from ultralabel.tasks.base import PromptTemplate, get_template
+from ultralabel.tasks.integrations.argilla import ArgillaTemplate
 
 try:
     import argilla as rg

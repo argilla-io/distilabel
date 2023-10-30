@@ -201,7 +201,7 @@ def pipeline(
     if task == "preference":
         from ultralabel.dataset import PreferenceDataset
         from ultralabel.llm.openai_ import OpenAILLM
-        from ultralabel.prompts.openai_ import OpenAIResponseRating
+        from ultralabel.tasks.openai_ import OpenAIResponseRating
 
         prompt_template_kwargs = {
             key: kwargs.get(key)

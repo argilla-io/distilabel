@@ -7,7 +7,7 @@ from ultralabel.llm.base import LLM
 if TYPE_CHECKING:
     from llama_cpp import Llama
 
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import PromptTemplate
 
 
 class LlamaCppLLM(LLM):

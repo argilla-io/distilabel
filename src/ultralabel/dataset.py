@@ -13,7 +13,7 @@ except ImportError:
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
 
-    from ultralabel.prompts.integrations.argilla import ArgillaTemplate
+    from ultralabel.tasks.integrations.argilla import ArgillaTemplate
 
 
 class CustomDataset(Dataset):
