@@ -93,7 +93,7 @@ class InferenceEndpointsLLM(LLM):
         prompt_template: "PromptTemplate",
         token: Union[str, None] = None,
         max_new_tokens: int = 128,
-        temperature: float = 1.0,
+        temperature: float = 0.7,
         num_threads: Union[int, None] = None,
     ) -> None:
         super().__init__(
