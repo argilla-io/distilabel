@@ -16,7 +16,7 @@ class LlamaCppLLM(LLM):
         model: Llama,
         prompt_template: "PromptTemplate",
         max_new_tokens: int = 128,
-        temperature: float = 1.0,
+        temperature: float = 0.7,
     ) -> None:
         super().__init__(
             prompt_template=prompt_template,
