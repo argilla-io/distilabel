@@ -14,7 +14,7 @@ from tenacity import (
 from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 _OPENAI_API_RETRY_ON_EXCEPTIONS = (
@@ -31,7 +31,7 @@ _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 class OpenAILLM(LLM):
     def __init__(
         self,
-        prompt_template: "PromptTemplate",
+        prompt_template: "Task",
         model: str = "gpt-3.5-turbo",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,

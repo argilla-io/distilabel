@@ -1,3 +1,3 @@
-from ultralabel.tasks.base import PromptTemplate
+from ultralabel.tasks.base import Task
 
-__all__ = ["PromptTemplate"]
+__all__ = ["Task"]

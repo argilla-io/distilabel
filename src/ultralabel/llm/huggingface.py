@@ -16,7 +16,7 @@ from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
@@ -33,7 +33,7 @@ class TransformersLLM(LLM):
         self,
         model: PreTrainedModel,
         tokenizer: PreTrainedTokenizer,
-        prompt_template: "PromptTemplate",
+        prompt_template: "Task",
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
@@ -101,7 +101,7 @@ class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
         endpoint_url: str,
-        prompt_template: "PromptTemplate",
+        prompt_template: "Task",
         token: Union[str, None] = None,
         max_new_tokens: int = 128,
         temperature: float = 0.7,

@@ -7,14 +7,14 @@ from ultralabel.llm.base import LLM
 if TYPE_CHECKING:
     from llama_cpp import Llama
 
-    from ultralabel.tasks.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 class LlamaCppLLM(LLM):
     def __init__(
         self,
         model: Llama,
-        prompt_template: "PromptTemplate",
+        prompt_template: "Task",
         max_new_tokens: int = 128,
         temperature: float = 0.7,
     ) -> None:
