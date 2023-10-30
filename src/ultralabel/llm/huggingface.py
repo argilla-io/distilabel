@@ -16,7 +16,7 @@ from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
@@ -33,13 +33,13 @@ class TransformersLLM(LLM):
         self,
         model: PreTrainedModel,
         tokenizer: PreTrainedTokenizer,
-        prompt_template: "PromptTemplate",
+        task: "Task",
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
     ) -> None:
         super().__init__(
-            prompt_template=prompt_template,
+            task=task,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             num_threads=num_threads,
@@ -59,7 +59,7 @@ class TransformersLLM(LLM):
         ):
             # The `tokenizer` also has a method named `apply_chat_template` that expects a `Conversation` as OpenAI does with the ChatML format
             warnings.warn(
-                "The provided `tokenizer` has `use_default_system_prompt=True` which means that the default system prompt will be used, which may collide with the `prompt_template` provided as an arg to this class.",
+                "The provided `tokenizer` has `use_default_system_prompt=True` which means that the default system prompt will be used, which may collide with the `task` provided as an arg to this class.",
                 UserWarning,
                 stacklevel=2,
             )
@@ -73,7 +73,7 @@ class TransformersLLM(LLM):
         return torch.device("cpu")
 
     def _generate(self, input: Dict[str, Any], num_generations: int = 1) -> Any:
-        prompt = self.prompt_template.generate_prompt(**input)
+        prompt = self.task.generate_prompt(**input)
         encoding = self.tokenizer(text=prompt, padding=True, return_tensors="pt")
         if self.device != "cpu":
             encoding = encoding.to(self.device)
@@ -92,8 +92,7 @@ class TransformersLLM(LLM):
             clean_up_tokenization_spaces=True,
         )
         return [
-            self.prompt_template.parse_output(decoded_output)
-            for decoded_output in decoded_outputs
+            self.task.parse_output(decoded_output) for decoded_output in decoded_outputs
         ]
 
 
@@ -101,14 +100,14 @@ class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
         endpoint_url: str,
-        prompt_template: "PromptTemplate",
+        task: "Task",
         token: Union[str, None] = None,
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
     ) -> None:
         super().__init__(
-            prompt_template=prompt_template,
+            task=task,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             num_threads=num_threads,
@@ -132,9 +131,9 @@ class InferenceEndpointsLLM(LLM):
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
     ) -> List[Dict[str, Any]]:
-        prompt = self.prompt_template.generate_prompt(**input)
+        prompt = self.task.generate_prompt(**input)
         responses = [
             self._text_generation_with_backoff(prompt=prompt)
             for _ in range(num_generations)
         ]
-        return [self.prompt_template.parse_output(response) for response in responses]
+        return [self.task.parse_output(response) for response in responses]

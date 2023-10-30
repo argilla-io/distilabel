@@ -14,7 +14,7 @@ from tenacity import (
 from ultralabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 _OPENAI_API_RETRY_ON_EXCEPTIONS = (
@@ -31,7 +31,7 @@ _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 class OpenAILLM(LLM):
     def __init__(
         self,
-        prompt_template: "PromptTemplate",
+        task: "Task",
         model: str = "gpt-3.5-turbo",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
@@ -39,7 +39,7 @@ class OpenAILLM(LLM):
         num_threads: Union[int, None] = None,
     ) -> None:
         super().__init__(
-            prompt_template=prompt_template,
+            task=task,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             num_threads=num_threads,
@@ -75,7 +75,7 @@ class OpenAILLM(LLM):
         return openai.ChatCompletion.create(**kwargs)
 
     def _generate(self, input: Dict[str, Any], num_generations: int = 1) -> List[Any]:
-        prompt = self.prompt_template.generate_prompt(**input)
+        prompt = self.task.generate_prompt(**input)
         response = self._chat_completion_with_backoff(
             model=self.model,
             messages=prompt,
@@ -84,6 +84,6 @@ class OpenAILLM(LLM):
             max_tokens=self.max_new_tokens,
         )
         return [
-            self.prompt_template.parse_output(choice["message"]["content"].strip())
+            self.task.parse_output(choice["message"]["content"].strip())
             for choice in response["choices"]
         ]

@@ -1,9 +1,9 @@
-from ultralabel.prompts.base import PromptTemplate, get_template
+from ultralabel.tasks.base import Task, get_template
 
 _LLAMA2_TEXT_GENERATION_TEMPLATE = get_template("llama2-generation.jinja2")
 
 
-class Llama2GenerationPromptTemplate(PromptTemplate):
+class Llama2GenerationTask(Task):
     system_prompt: str = (
         "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
         " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"

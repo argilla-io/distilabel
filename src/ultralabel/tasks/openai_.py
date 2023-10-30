@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Type, Union
 
 from typing_extensions import TypedDict
 
-from ultralabel.prompts.base import PromptTemplate, get_template
-from ultralabel.prompts.integrations.argilla import ArgillaTemplate
+from ultralabel.tasks.base import Task, get_template
 
 try:
     import argilla as rg
@@ -39,7 +38,7 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
+class OpenAIResponseRating(Task):
     ratings: List[Rating] = [
         Rating(
             value=1,
@@ -246,7 +245,7 @@ class OpenAIResponseRating(PromptTemplate, ArgillaTemplate):
         return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
 
 
-class OpenAITextGenerationPromptTemplate(PromptTemplate):
+class OpenAITextGenerationTask(Task):
     __jinja2_template__: str = _GPT_TEXT_GENERATION_TEMPLATE
 
     system_prompt: str = (

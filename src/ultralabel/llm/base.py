@@ -5,18 +5,18 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 if TYPE_CHECKING:
-    from ultralabel.prompts.base import PromptTemplate
+    from ultralabel.tasks.base import Task
 
 
 class LLM(ABC):
     def __init__(
         self,
-        prompt_template: PromptTemplate,
+        task: Task,
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
     ) -> None:
-        self.prompt_template = prompt_template
+        self.task = task
         self.max_new_tokens = max_new_tokens
         self.temperature = temperature
 
