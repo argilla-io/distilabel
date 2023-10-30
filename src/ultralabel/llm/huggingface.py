@@ -1,3 +1,4 @@
+import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -52,6 +53,16 @@ class TransformersLLM(LLM):
         self.tokenizer.padding_side = "left"
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+        if (
+            hasattr(self.tokenizer, "use_default_system_prompt")
+            and self.tokenizer.use_default_system_prompt
+        ):
+            # The `tokenizer` also has a method named `apply_chat_template` that expects a `Conversation` as OpenAI does with the ChatML format
+            warnings.warn(
+                "The provided `tokenizer` has `use_default_system_prompt=True` which means that the default system prompt will be used, which may collide with the `prompt_template` provided as an arg to this class.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     @cached_property
     def device(self) -> torch.device:
