@@ -51,22 +51,17 @@ class Pipeline(Generic[T]):
         if self.labelling_llm is not None:
             if self.generation_llm is None:
                 try:
-                    self.labelling_llm.prompt_template.validate_dataset(
-                        dataset.column_names
-                    )
+                    self.labelling_llm.task.validate_dataset(dataset.column_names)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects a dataset with the following columns: {self.labelling_llm.prompt_template.input_args_names}"
+                        f"Labelling LLM expects a dataset with the following columns: {self.labelling_llm.task.input_args_names}"
                     ) from err
             else:
                 expected_columns = (
-                    dataset.column_names
-                    + self.generation_llm.prompt_template.output_args_names
+                    dataset.column_names + self.generation_llm.task.output_args_names
                 )
                 try:
-                    self.labelling_llm.prompt_template.validate_dataset(
-                        expected_columns
-                    )
+                    self.labelling_llm.task.validate_dataset(expected_columns)
                 except KeyError as err:
                     raise KeyError(
                         f"Labelling LLM expects to receive the following columns after the generation process: {expected_columns}"
@@ -74,12 +69,10 @@ class Pipeline(Generic[T]):
 
         if self.generation_llm is not None:
             try:
-                self.generation_llm.prompt_template.validate_dataset(
-                    dataset.column_names
-                )
+                self.generation_llm.task.validate_dataset(dataset.column_names)
             except KeyError as err:
                 raise KeyError(
-                    f"Generation LLM expects a dataset with the following columns: {self.generation_llm.prompt_template.input_args_names}"
+                    f"Generation LLM expects a dataset with the following columns: {self.generation_llm.task.input_args_names}"
                 ) from err
 
     def _add_columns_to_dataset(
@@ -89,13 +82,13 @@ class Pipeline(Generic[T]):
         labels: List[Dict[str, Any]],
     ) -> "Dataset":
         if self.generation_llm is not None:
-            for output_name in self.generation_llm.prompt_template.output_args_names:
+            for output_name in self.generation_llm.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in generations]
                 )
 
         if self.labelling_llm is not None:
-            for output_name in self.labelling_llm.prompt_template.output_args_names:
+            for output_name in self.labelling_llm.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in labels]
                 )
@@ -188,7 +181,7 @@ class Pipeline(Generic[T]):
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
-        dataset.prompt_template = self.labelling_llm.prompt_template
+        dataset.task = self.labelling_llm.task
         return dataset
 
 
@@ -203,14 +196,14 @@ def pipeline(
         from ultralabel.llm.openai_ import OpenAILLM
         from ultralabel.tasks.openai_ import OpenAIResponseRating
 
-        prompt_template_kwargs = {
+        task_kwargs = {
             key: kwargs.get(key)
             for key in OpenAIResponseRating.__fields__.keys()
             if key in kwargs
         }
         labelling_llm = OpenAILLM(
             model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-            prompt_template=OpenAIResponseRating(**prompt_template_kwargs),
+            task=OpenAIResponseRating(**task_kwargs),
             max_new_tokens=kwargs.get("max_new_tokens") or 256,
             num_threads=kwargs.get("num_threads") or 4,
             openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),

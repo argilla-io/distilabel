@@ -11,12 +11,12 @@ if TYPE_CHECKING:
 class LLM(ABC):
     def __init__(
         self,
-        prompt_template: Task,
+        task: Task,
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
     ) -> None:
-        self.prompt_template = prompt_template
+        self.task = task
         self.max_new_tokens = max_new_tokens
         self.temperature = temperature
 

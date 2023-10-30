@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Type, Union
 from typing_extensions import TypedDict
 
 from ultralabel.tasks.base import Task, get_template
-from ultralabel.tasks.integrations.argilla import ArgillaTemplate
 
 try:
     import argilla as rg
@@ -39,7 +38,7 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-class OpenAIResponseRating(Task, ArgillaTemplate):
+class OpenAIResponseRating(Task):
     ratings: List[Rating] = [
         Rating(
             value=1,
