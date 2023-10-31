@@ -40,6 +40,10 @@ class MultiRatingTask(Task):
     __type__: str = "rating"
     __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
 
+    system_prompt: str = (
+        "Your role is to evaluate text quality based on given criteria."
+    )
+
     def generate_prompt(
         self, instruction: str, generations: List[str]
     ) -> Union[str, List[ChatCompletion]]:
@@ -138,14 +142,14 @@ class MultiRatingTask(Task):
                         argilla_questions.append(
                             rg.RatingQuestion(
                                 name=f"generations-{idx}-rating",
-                                title=f"Whats's the rating for the Response {idx}?",
+                                title=f"What's the rating for the Response {idx}?",
                                 values=list(range(1, len(self.ratings) + 1)),
                             ),
                         )
                     argilla_questions.append(
                         rg.TextQuestion(
                             name=f"generations-{idx}-rationale",
-                            title=f"Whats's the rationale behind the rating for Response {idx}?",
+                            title=f"What's the rationale behind the rating for Response {idx}?",
                         ),
                     )
         return argilla_questions
