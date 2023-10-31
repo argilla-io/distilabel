@@ -6,7 +6,7 @@
  </div>
 
 ## What's distilabel
-distilabel is a framework for building datasets and labelers powered by LLMs.
+distilabel is a framework for building datasets and labelers with LLMs.
 
 
 ## TODOS
