@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union
 from typing_extensions import TypedDict
 
 from ultralabel.tasks.base import Task, get_template
-from ultralabel.tasks.utils import ChatCompletion
+from ultralabel.tasks.utils import Prompt
 
 try:
     import argilla as rg
@@ -44,9 +44,7 @@ class MultiRatingTask(Task):
         "Your role is to evaluate text quality based on given criteria."
     )
 
-    def generate_prompt(
-        self, instruction: str, generations: List[str]
-    ) -> Union[str, List[ChatCompletion]]:
+    def generate_prompt(self, instruction: str, generations: List[str]) -> Prompt:
         render_kwargs = {
             "task_description": self.task_description,
             "ratings": self.ratings,
@@ -54,14 +52,10 @@ class MultiRatingTask(Task):
             "instruction": instruction,
             "responses": generations,
         }
-        generated_prompt = self.template.render(render_kwargs)
-        return [
-            ChatCompletion(
-                role="system",
-                content=self.system_prompt,
-            ),
-            ChatCompletion(role="user", content=generated_prompt),
-        ]
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt=self.template.render(**render_kwargs),
+        )
 
     def parse_output(self, output: str) -> List[RatingOutput]:
         parsed_output = []
