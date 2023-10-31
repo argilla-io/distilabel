@@ -27,7 +27,7 @@ pipeline = Pipeline(
         model="gpt-3.5-turbo",
         task=MultiRatingTask.for_text_quality(),
         max_new_tokens=128,
-        num_threads=4,
+        num_threads=2,
         openai_api_key="<OPENAI_API_KEY>",
         temperature=0.0,
     ),
@@ -38,10 +38,12 @@ dataset = pipeline.generate(
     dataset, num_generations=2, batch_size=1, display_progress_bar=True
 )
 end = time.time()
-
 print("Elapsed", end - start)
 
-rg.init(api_url="<ARGILLA_API_URL>", api_key="<ARGILLA_API_KEY>")
+# Push to the HuggingFace Hub
+dataset.push_to_hub("<REPO_ID>", split="train", private=True)
 
+# Convert into an Argilla dataset and push it to Argilla
+rg.init(api_url="<ARGILLA_API_URL>", api_key="<ARGILLA_API_KEY>")
 rg_dataset = dataset.to_argilla()
 rg_dataset.push_to_argilla(name=f"my-dataset-{uuid4()}", workspace="admin")
