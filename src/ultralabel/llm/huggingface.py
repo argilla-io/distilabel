@@ -1,6 +1,6 @@
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
 
 import torch
 from huggingface_hub import InferenceClient, InferenceTimeoutError
@@ -37,12 +37,14 @@ class TransformersLLM(LLM):
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
+        formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             num_threads=num_threads,
+            formatting_fn=formatting_fn,
         )
 
         self.model = model
@@ -72,8 +74,12 @@ class TransformersLLM(LLM):
             return torch.device("mps")
         return torch.device("cpu")
 
-    def _generate(self, input: Dict[str, Any], num_generations: int = 1) -> Any:
+    def _generate(
+        self, input: Dict[str, Any], num_generations: int = 1
+    ) -> Tuple[Any, List[Any]]:
         prompt = self.task.generate_prompt(**input)
+        if self.formatting_fn is not None:
+            prompt = self.formatting_fn(prompt)
         encoding = self.tokenizer(text=prompt, padding=True, return_tensors="pt")
         if self.device != "cpu":
             encoding = encoding.to(self.device)
@@ -86,14 +92,22 @@ class TransformersLLM(LLM):
                     num_generations=num_generations,
                 ),
             )
-        decoded_outputs = self.tokenizer.batch_decode(
+        raw_outputs = self.tokenizer.batch_decode(
             generated_ids[:, -(encoding.input_ids.shape[1]) :],
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )
-        return [
-            self.task.parse_output(decoded_output) for decoded_output in decoded_outputs
-        ]
+        parsed_outputs = []
+        for raw_output in raw_outputs:
+            try:
+                parsed_output = self.task.parse_output(raw_output)
+            except Exception as e:
+                warnings.warn(
+                    f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
+                )
+                parsed_output = {}
+            parsed_outputs.append(parsed_output)
+        return raw_outputs, parsed_outputs
 
 
 class InferenceEndpointsLLM(LLM):
@@ -105,12 +119,14 @@ class InferenceEndpointsLLM(LLM):
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
+        formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             num_threads=num_threads,
+            formatting_fn=formatting_fn,
         )
 
         self.client = InferenceClient(model=endpoint_url, token=token)
@@ -130,10 +146,24 @@ class InferenceEndpointsLLM(LLM):
 
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[Dict[str, Any]]:
+    ) -> Tuple[Any, List[Dict[str, Any]]]:
         prompt = self.task.generate_prompt(**input)
-        responses = [
+        if self.formatting_fn is not None:
+            prompt = self.formatting_fn(prompt)
+        raw_responses = [
             self._text_generation_with_backoff(prompt=prompt)
             for _ in range(num_generations)
         ]
-        return [self.task.parse_output(response) for response in responses]
+        parsed_responses = []
+        for response in raw_responses:
+            try:
+                parsed_response = self.task.parse_output(response)
+            except Exception as e:
+                warnings.warn(
+                    f"Error parsing Inference Endpoints output: {e}",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                parsed_response = {}
+            parsed_responses.append(parsed_response)
+        return raw_responses, parsed_responses
