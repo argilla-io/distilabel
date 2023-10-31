@@ -100,7 +100,7 @@ class Pipeline(Generic[T]):
 
             dataset = dataset.add_column(
                 "raw_labelling_response",
-                [row.get("raw_labelling_response", None) for row in generations],
+                [row.get("raw_labelling_response", None) for row in labels],
             )
 
         return dataset
