@@ -1,11 +1,14 @@
+import logging
 import os
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Tuple, Union
 
 import openai
 from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
 from tenacity import (
+    after_log,
+    before_sleep_log,
     retry,
     retry_if_exception_type,
     stop_after_attempt,
@@ -28,6 +31,9 @@ _OPENAI_API_RETRY_ON_EXCEPTIONS = (
 _OPENAI_API_STOP_AFTER_ATTEMPT = 6
 _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
+
+logger: Final = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class OpenAILLM(LLM):
@@ -74,6 +80,8 @@ class OpenAILLM(LLM):
             multiplier=_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
             max=_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
         ),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+        after=after_log(logger, logging.INFO),
     )
     def _chat_completion_with_backoff(self, **kwargs: Any) -> Any:
         return openai.ChatCompletion.create(**kwargs)
