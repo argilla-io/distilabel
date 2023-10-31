@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 from jinja2 import Template
 from pydantic import BaseModel
 
+from ultralabel.tasks.utils import Prompt
+
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
@@ -72,18 +74,12 @@ class Task(BaseModel, ABC, Argilla):
         return Template(open(self.__jinja2_template__).read())
 
     @abstractmethod
-    def generate_prompt(self, **kwargs: Any) -> str:
+    def generate_prompt(self, **kwargs: Any) -> Union[Prompt, Any]:
         pass
 
     @abstractmethod
-    def _parse_output(self, output: str) -> Any:
-        pass
-
     def parse_output(self, output: str) -> Any:
-        try:
-            return self._parse_output(output)
-        except Exception:
-            return {}
+        pass
 
     @property
     @abstractmethod

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
 
 if TYPE_CHECKING:
     from ultralabel.tasks.base import Task
@@ -15,6 +15,7 @@ class LLM(ABC):
         max_new_tokens: int = 128,
         temperature: float = 0.7,
         num_threads: Union[int, None] = None,
+        formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
         self.max_new_tokens = max_new_tokens
@@ -26,12 +27,14 @@ class LLM(ABC):
             else None
         )
 
+        self.formatting_fn = formatting_fn
+
     def __del__(self) -> None:
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
     @abstractmethod
-    def _generate(self, **kwargs: Any) -> Any:
+    def _generate(self, **kwargs: Any) -> Tuple[Any, List[Any]]:
         pass
 
     def generate(

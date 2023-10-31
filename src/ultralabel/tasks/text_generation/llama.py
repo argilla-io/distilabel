@@ -20,7 +20,7 @@ class Llama2GenerationTask(Task):
             system_prompt=self.system_prompt, instruction=instruction
         )
 
-    def _parse_output(self, output: str) -> dict[str, str]:
+    def parse_output(self, output: str) -> dict[str, str]:
         return {"generations": output}
 
     @property
