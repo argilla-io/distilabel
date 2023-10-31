@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 def get_template(template_name: str) -> str:
     return str(
-        importlib_resources.files("ultralabel") / "tasks/templates" / template_name
+        importlib_resources.files("ultralabel") / "tasks/_templates" / template_name
     )
 
 
@@ -58,6 +58,7 @@ class Argilla:
 
 class Task(BaseModel, ABC, Argilla):
     system_prompt: str
+    task_description: Union[str, None] = None
 
     __jinja2_template__: Union[str, None] = None
 

@@ -1,0 +1,41 @@
+{{ task_description }}
+
+**Scoring**: {{ ranks_description }}
+{%- for rank in ranks %}
+{{ rank.rank }}. {{ rank.description }}
+{%- endfor %}
+
+---
+
+## Format
+
+### Input
+Instruction: [Specify task goal and restrictions]
+
+Texts:
+{% for index in range(responses|length) %}
+<text {{ index + 1}}> [Text {{ index + 1}}]
+{%- endfor %}
+
+### Output
+{%- for index in range(responses|length) %}
+
+#### Output for Text {{ index + 1}}
+Rating: [Rating for text {{ index + 1}}]
+Rationale: [Rationale for the rating in short sentences]
+
+{%- endfor %}
+
+---
+
+## Annotation
+
+### Input
+Instruction: {{ instruction }}
+
+Texts:
+{% for response in responses %}
+<text {{ loop.index }}> {{ response }}
+{%- endfor %}
+
+### Output 
