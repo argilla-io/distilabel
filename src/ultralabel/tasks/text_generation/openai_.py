@@ -1,8 +1,10 @@
-from typing import Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List
 
-from ultralabel.tasks.utils import ChatCompletion
 from ultralabel.tasks.base import Task
+from ultralabel.tasks.utils import Prompt
 
+if TYPE_CHECKING:
+    from ultralabel.tasks.utils import ChatCompletion
 
 
 class OpenAITextGenerationTask(Task):
@@ -15,17 +17,11 @@ class OpenAITextGenerationTask(Task):
         " question, please don't share false information."
     )
 
-    def generate_prompt(self, instruction: str) -> Union[str, List[ChatCompletion]]:
-        generated_prompt = self.template.render(
-            system_prompt=self.system_prompt, instruction=instruction
-        )
-        return [
-            ChatCompletion(
-                role="system",
-                content=self.system_prompt,
-            ),
-            ChatCompletion(role="user", content=generated_prompt),
-        ]
+    def generate_prompt(self, instruction: str) -> List["ChatCompletion"]:
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt=instruction,
+        ).format_as("openai")
 
     def parse_output(self, output: str) -> Dict[str, str]:
         return {"generations": output}
