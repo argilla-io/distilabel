@@ -63,7 +63,7 @@ class MultiRatingTask(Task):
             ChatCompletion(role="user", content=generated_prompt),
         ]
 
-    def _parse_output(self, output: str) -> List[RatingOutput]:
+    def parse_output(self, output: str) -> List[RatingOutput]:
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
