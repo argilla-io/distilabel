@@ -40,6 +40,10 @@ class MultiRatingTask(Task):
     __type__: str = "rating"
     __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
 
+    system_prompt: str = (
+        "Your role is to evaluate text quality based on given criteria."
+    )
+
     def generate_prompt(
         self, instruction: str, generations: List[str]
     ) -> Union[str, List[ChatCompletion]]:
