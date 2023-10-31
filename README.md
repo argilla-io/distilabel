@@ -1,9 +1,9 @@
-<h1 align="center">
-  <a href=""><img src="docs/ultralabel.png" alt="rlxf image" width="100%"></a>
-  <br>
-  Ultralabel: your AI labeller for LLMs
-  <br>
-</h1>
+ <div align="center">
+   <h1>⚗️ distilabel</h1>
+   <p>
+     <em>Framework for distilling datasets with LLMs</em>
+   </p>
+ </div>
 
 ## What's Ultralabel
 
