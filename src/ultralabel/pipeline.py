@@ -13,17 +13,17 @@ from typing import (
     Union,
 )
 
+from datasets import Dataset
+
 from ultralabel.dataset import CustomDataset
 from ultralabel.progress_bar import get_progress_bars_for_pipeline
 from ultralabel.utils import combine_dicts
 
 if TYPE_CHECKING:
-    from datasets import Dataset
-
     from ultralabel.llm.base import LLM
 
 
-T = TypeVar("T", bound="Dataset")
+T = TypeVar("T", bound=Dataset)
 
 
 class Pipeline(Generic[T]):
@@ -40,12 +40,12 @@ class Pipeline(Generic[T]):
         if self.generation_llm is None and self.labelling_llm is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _remap_dataset(self, dataset: "Dataset") -> T:
+    def _remap_dataset(self, dataset: Dataset) -> T:
         # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
         dataset.__class__ = self.dataset_cls
         return dataset  # type: ignore
 
-    def _validate_dataset(self, dataset: "Dataset") -> None:
+    def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
         if self.labelling_llm is not None:
@@ -77,21 +77,31 @@ class Pipeline(Generic[T]):
 
     def _add_columns_to_dataset(
         self,
-        dataset: "Dataset",
+        dataset: Dataset,
         generations: List[Dict[str, Any]],
         labels: List[Dict[str, Any]],
-    ) -> "Dataset":
+    ) -> Dataset:
         if self.generation_llm is not None:
             for output_name in self.generation_llm.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in generations]
                 )
 
+            dataset = dataset.add_column(
+                "raw_generation_response",
+                [row.get("raw_generation_response", None) for row in generations],
+            )
+
         if self.labelling_llm is not None:
             for output_name in self.labelling_llm.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in labels]
                 )
+
+            dataset = dataset.add_column(
+                "raw_labelling_response",
+                [row.get("raw_labelling_response", None) for row in generations],
+            )
 
         return dataset
 
@@ -110,8 +120,13 @@ class Pipeline(Generic[T]):
         if self.generation_llm.return_futures:
             batch_generations = [future.result() for future in batch_generations]
 
+        # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
         return [
-            combine_dicts(*input_generation) for input_generation in batch_generations
+            {
+                "raw_generation_response": raw_responses,
+                **combine_dicts(*parsed_responses),
+            }
+            for raw_responses, parsed_responses in batch_generations
         ]
 
     def _transform_dataset_to_expected_format(
@@ -128,11 +143,14 @@ class Pipeline(Generic[T]):
 
     def generate(  # noqa: C901
         self,
-        dataset: "Dataset",
+        dataset: Dataset,
         num_generations: int = 1,
         batch_size: int = 1,
         display_progress_bar: bool = False,
     ) -> T:
+        # We need to convert the dataset to a dict and then back to a dataset
+        # as we just want to keep the dataset content, not its metadata
+        dataset = Dataset.from_dict(dataset.to_dict())
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -157,7 +175,14 @@ class Pipeline(Generic[T]):
                 generations.extend(batch_generations)
 
                 for input, generations_ in zip(inputs, batch_generations):
-                    input.update(generations_)
+                    # Skip the `raw_generation_response` key as not used by the labelling LLM
+                    input.update(
+                        {
+                            k: v
+                            for k, v in generations_.items()
+                            if k != "raw_generation_response"
+                        }
+                    )
 
             if self.labelling_llm is not None:
                 # `num_generations` is always 1 because labelling the same input multiple times
@@ -173,10 +198,14 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labelling_llm.return_futures:
                 labels = [future.result() for future in labels]
+            # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
             labels = [
-                combine_dicts(*label)
-                for batch_labels in labels
-                for label in batch_labels
+                {
+                    "raw_labelling_response": raw_response,
+                    **combine_dicts(*parsed_response),
+                }
+                for raw_response, parsed_responses in labels
+                for parsed_response in parsed_responses
             ]
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
