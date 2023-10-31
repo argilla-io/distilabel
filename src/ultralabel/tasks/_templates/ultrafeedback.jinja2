@@ -1,8 +1,8 @@
 {{ task_description }}
 
-**Scoring**: {{ ranks_description }}
-{%- for rank in ranks %}
-{{ rank.rank }}. {{ rank.description }}
+**Scoring**: {{ ratings_description }}
+{%- for rating in ratings %}
+{{ rating.value }}. {{ rating.description }}
 {%- endfor %}
 
 ---
