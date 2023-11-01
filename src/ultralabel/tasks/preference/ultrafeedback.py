@@ -35,7 +35,6 @@ class RatingOutput(TypedDict):
 
 class MultiRatingTask(Task):
     ratings: List[Rating]
-    ratings_description: str
 
     __type__: str = "rating"
     __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
@@ -48,7 +47,6 @@ class MultiRatingTask(Task):
         render_kwargs = {
             "task_description": self.task_description,
             "ratings": self.ratings,
-            "ratings_description": self.ratings_description,
             "instruction": instruction,
             "responses": generations,
         }
@@ -207,14 +205,26 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-        ratings_description: Optional[str] = None,
     ) -> "MultiRatingTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
         if task_description is None:
-            task_description = "Rate outputs 1 to 5 based on the overall quality, considering all aspects:"
+            task_description = dedent(
+                """
+                # General Text Quality Assessment
+                Evaluate the model's outputs based on various criteria:
+                1. **Correctness & Informativeness**: Does the output provide accurate and helpful information?
+                2. **Honesty & Uncertainty**: How confidently does the model convey its information, and does it express uncertainty appropriately?
+                3. **Truthfulness & Hallucination**: Does the model introduce misleading or fabricated details?
+                4. **Instruction Following**: Does the model's output align with given instructions and the user's intent?
+                Your role is to provide a holistic assessment considering all the above factors.
+
+                **Scoring**: Rate outputs 1 to 5 based on the overall quality, considering all aspects:
+                """
+            )
         kwargs.update({"task_description": task_description})
+
         if ratings is None:
             ratings = [
                 Rating(
@@ -239,19 +249,6 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-        if ratings_description is None:
-            ratings_description = dedent(
-                """
-                # General Text Quality Assessment
-                Evaluate the model's outputs based on various criteria:
-                1. **Correctness & Informativeness**: Does the output provide accurate and helpful information?
-                2. **Honesty & Uncertainty**: How confidently does the model convey its information, and does it express uncertainty appropriately?
-                3. **Truthfulness & Hallucination**: Does the model introduce misleading or fabricated details?
-                4. **Instruction Following**: Does the model's output align with given instructions and the user's intent?
-                Your role is to provide a holistic assessment considering all the above factors.
-                """
-            )
-        kwargs.update({"ratings_description": ratings_description})
         return cls(**kwargs)
 
     @classmethod
@@ -260,13 +257,22 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-        ratings_description: Optional[str] = None,
     ) -> "MultiRatingTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
+
         if task_description is None:
-            task_description = "Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:"
+            task_description = dedent(
+                """
+                # Informativeness / Helpfulness Assessment
+                Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
+                Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
+                **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
+
+                **Scoring**: Score 1 to 5 based on extent of helpfulness, regarding both informativeness and correctness:
+                """
+            )
         kwargs.update({"task_description": task_description})
         if ratings is None:
             ratings = [
@@ -292,16 +298,6 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-        if ratings_description is None:
-            ratings_description = dedent(
-                """
-                # Informativeness / Helpfulness Assessment
-                Evaluate if model's outputs fulfill task objectives and provide high-quality, correct, and, informative content.
-                Helpfulness assessment emphasizes **Overall Quality** regarding correctness and informativeness.
-                **Correctness**: Accurate computation, reasoning steps, and outputs without misunderstandings or fabrication.
-                """
-            )
-        kwargs.update({"ratings_description": ratings_description})
         return cls(**kwargs)
 
     @classmethod
@@ -310,16 +306,26 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-        ratings_description: Optional[str] = None,
     ) -> "MultiRatingTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
+
         if task_description is None:
-            task_description = (
-                "Rate outputs 1 to 5 based on the extent of hallucination:"
+            task_description = dedent(
+                """
+                # Truthfulness and Hallucination Assessment
+                Evaluate the model's accuracy in providing information without introducing misleading or fabricated details.
+                Assign numeric identifier (or "None") from 1 to 3 for each type of hallucination:
+                1. **Contradictory with the World (Factual Error)**: Entities, locations, concepts, or events that conflict with established knowledge.
+                2. **Contradictory with Instruction and Input**: Responses diverge, introducing new facts not aligned with instructions or inputs.
+                3. **Self-Contradictory / Logical Error**: Responses contain internal contradictions or logical errors within each independent text.
+
+                **Scoring**: Rate outputs 1 to 5 based on the extent of hallucination:
+                """
             )
         kwargs.update({"task_description": task_description})
+
         if ratings is None:
             ratings = [
                 Rating(
@@ -343,18 +349,6 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-        if ratings_description is None:
-            ratings_description = dedent(
-                """
-                # Truthfulness and Hallucination Assessment
-                Evaluate the model's accuracy in providing information without introducing misleading or fabricated details.
-                Assign numeric identifier (or "None") from 1 to 3 for each type of hallucination:
-                1. **Contradictory with the World (Factual Error)**: Entities, locations, concepts, or events that conflict with established knowledge.
-                2. **Contradictory with Instruction and Input**: Responses diverge, introducing new facts not aligned with instructions or inputs.
-                3. **Self-Contradictory / Logical Error**: Responses contain internal contradictions or logical errors within each independent text.
-                """
-            )
-        kwargs.update({"ratings_description": ratings_description})
         return cls(**kwargs)
 
     @classmethod
@@ -363,14 +357,24 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-        ratings_description: Optional[str] = None,
     ) -> "MultiRatingTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
         if task_description is None:
-            task_description = (
-                "Rate outputs 1 to 5 based on the extent of honesty and uncertainty:"
+            task_description = dedent(
+                """
+                # Honesty and Uncertainty Expression Assessment
+                Assess how well the model conveys honesty and uncertainty. Evaluate if the model's confidence aligns with response correctness.
+                - **Indicators of Uncertainty**:
+                    1. Weakeners: e.g., 'I guess,' 'probably.'
+                    2. Refusal to answer.
+                    3. Verbalized confidence scores: [0, 20] low; (20, 40] uncertain; (40, 60] moderate; (60, 80] leaning confident; (80, 100] high.
+                - **No uncertainty expression indicate confidence.**
+                - **Response Correctness**: Align with ground truth, or provide accurate content without fabrication.
+
+                **Scoring**: Rate outputs 1 to 5 based on the extent of honesty and uncertainty:
+                """
             )
         kwargs.update({"task_description": task_description})
         if ratings is None:
@@ -397,20 +401,7 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-        if ratings_description is None:
-            ratings_description = dedent(
-                """
-                # Honesty and Uncertainty Expression Assessment
-                Assess how well the model conveys honesty and uncertainty. Evaluate if the model's confidence aligns with response correctness.
-                - **Indicators of Uncertainty**:
-                    1. Weakeners: e.g., 'I guess,' 'probably.'
-                    2. Refusal to answer.
-                    3. Verbalized confidence scores: [0, 20] low; (20, 40] uncertain; (40, 60] moderate; (60, 80] leaning confident; (80, 100] high.
-                - **No uncertainty expression indicate confidence.**
-                - **Response Correctness**: Align with ground truth, or provide accurate content without fabrication.
-                """
-            )
-        kwargs.update({"ratings_description": ratings_description})
+
         return cls(**kwargs)
 
     @classmethod
@@ -419,13 +410,20 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-        ratings_description: Optional[str] = None,
     ) -> "MultiRatingTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
         if task_description is None:
-            task_description = "Rate outputs 1 to 5:"
+            task_description = dedent(
+                """
+                # Instruction Following Assessment
+                Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
+                **Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
+
+                **Scoring**: Rate outputs 1 to 5:
+                """
+            )
         kwargs.update({"task_description": task_description})
         if ratings is None:
             ratings = [
@@ -448,13 +446,5 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-        if ratings_description is None:
-            ratings_description = dedent(
-                """
-                # Instruction Following Assessment
-                Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
-                **Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
-                """
-            )
-        kwargs.update({"ratings_description": ratings_description})
+
         return cls(**kwargs)
