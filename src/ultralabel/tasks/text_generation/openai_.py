@@ -59,7 +59,7 @@ class SelfInstructTask(OpenAITextGenerationTask):
             formatted_prompt=self.template.render(**render_kwargs),
         )
 
-    def parse_output(self, output: str) -> Dict[str, str]:
+    def parse_output(self, output: str) -> Dict[str, List[str]]:
         parsed_output = output.split("\n")
         return {"generations": parsed_output}
 
