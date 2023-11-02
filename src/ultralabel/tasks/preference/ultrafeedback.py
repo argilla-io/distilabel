@@ -33,18 +33,12 @@ class RatingOutput(TypedDict):
     rationale: str
 
 
-class MultiRatingTask(Task):
+class PreferenceTask(Task):
     ratings: List[Rating]
+    ratings_description: str
 
     __type__: str = "rating"
     __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
-    __subtasks__: List[str] = [
-        "text-quality",
-        "helpfulness",
-        "truthfulness",
-        "honesty",
-        "instruction-following",
-    ]
 
     system_prompt: str = (
         "Your role is to evaluate text quality based on given criteria."
@@ -54,6 +48,7 @@ class MultiRatingTask(Task):
         render_kwargs = {
             "task_description": self.task_description,
             "ratings": self.ratings,
+            "ratings_description": self.ratings_description,
             "instruction": instruction,
             "responses": generations,
         }
@@ -212,7 +207,8 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+        ratings_description: Optional[str] = None,
+    ) -> "PreferenceTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -264,7 +260,8 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+        ratings_description: Optional[str] = None,
+    ) -> "PreferenceTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -313,7 +310,8 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+        ratings_description: Optional[str] = None,
+    ) -> "PreferenceTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -364,7 +362,8 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+        ratings_description: Optional[str] = None,
+    ) -> "PreferenceTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -379,7 +378,6 @@ class MultiRatingTask(Task):
                     3. Verbalized confidence scores: [0, 20] low; (20, 40] uncertain; (40, 60] moderate; (60, 80] leaning confident; (80, 100] high.
                 - **No uncertainty expression indicate confidence.**
                 - **Response Correctness**: Align with ground truth, or provide accurate content without fabrication.
-
                 **Scoring**: Rate outputs 1 to 5 based on the extent of honesty and uncertainty:
                 """
             )
@@ -417,20 +415,13 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+        ratings_description: Optional[str] = None,
+    ) -> "PreferenceTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
         if task_description is None:
-            task_description = dedent(
-                """
-                # Instruction Following Assessment
-                Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
-                **Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
-
-                **Scoring**: Rate outputs 1 to 5:
-                """
-            )
+            task_description = "Rate outputs 1 to 5:"
         kwargs.update({"task_description": task_description})
         if ratings is None:
             ratings = [
@@ -453,5 +444,13 @@ class MultiRatingTask(Task):
                 ),
             ]
         kwargs.update({"ratings": ratings})
-
+        if ratings_description is None:
+            ratings_description = dedent(
+                """
+                # Instruction Following Assessment
+                Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
+                **Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
+                """
+            )
+        kwargs.update({"ratings_description": ratings_description})
         return cls(**kwargs)

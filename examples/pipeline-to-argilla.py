@@ -6,7 +6,7 @@ from datasets import load_dataset
 from ultralabel.llm.huggingface import InferenceEndpointsLLM
 from ultralabel.llm.openai_ import OpenAILLM
 from ultralabel.pipeline import Pipeline
-from ultralabel.tasks.preference.ultrafeedback import MultiRatingTask
+from ultralabel.tasks.preference.ultrafeedback import PreferenceTask
 from ultralabel.tasks.text_generation.llama import Llama2GenerationTask
 
 dataset = (
@@ -25,7 +25,7 @@ pipeline = Pipeline(
     ),
     labelling_llm=OpenAILLM(
         model="gpt-3.5-turbo",
-        task=MultiRatingTask.for_text_quality(),
+        task=PreferenceTask.for_text_quality(),
         max_new_tokens=128,
         num_threads=2,
         openai_api_key="<OPENAI_API_KEY>",

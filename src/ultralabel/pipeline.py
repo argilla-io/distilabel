@@ -227,28 +227,28 @@ def pipeline(
         if labeller is None:
             from ultralabel.dataset import PreferenceDataset
             from ultralabel.llm.openai_ import OpenAILLM
-            from ultralabel.tasks.preference.ultrafeedback import MultiRatingTask
+            from ultralabel.tasks.preference.ultrafeedback import PreferenceTask
 
             task_kwargs = {
                 key: kwargs.get(key)
-                for key in MultiRatingTask.__fields__.keys()
+                for key in PreferenceTask.__fields__.keys()
                 if key in kwargs and not key.startswith("__")
             }
 
             # Dynamically call the appropriate classmethod using getattr
             if subtask is not None:
-                if subtask not in MultiRatingTask.__subtasks__:
+                if subtask not in PreferenceTask.__subtasks__:
                     raise ValueError(
-                        f"Invalid subtask: {subtask}, available subtasks are {MultiRatingTask.__subtasks__}"
+                        f"Invalid subtask: {subtask}, available subtasks are {PreferenceTask.__subtasks__}"
                     )
                 classmethod_name = f"for_{subtask.lower().replace('-', '_')}"
-                if hasattr(MultiRatingTask, classmethod_name):
-                    classmethod = getattr(MultiRatingTask, classmethod_name)
+                if hasattr(PreferenceTask, classmethod_name):
+                    classmethod = getattr(PreferenceTask, classmethod_name)
 
             # TODO: add a logging.info message to inform the user that `OpenAILLM` is being used by default?
             labeller = OpenAILLM(
                 model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-                task=MultiRatingTask(**task_kwargs)
+                task=PreferenceTask(**task_kwargs)
                 if subtask is None
                 else classmethod(**task_kwargs),
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
@@ -258,10 +258,10 @@ def pipeline(
                 temperature=kwargs.get("temperature") or 0.0,
             )
         else:
-            if not isinstance(labeller.task, MultiRatingTask):
+            if not isinstance(labeller.task, PreferenceTask):
                 warnings.warn(
-                    f"The `labeller` task for `preference` must be an instance of `MultiRatingTask`, got {labeller.task.__class__.__name__}."
-                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `MultiRatingTask` is supported at the moment.",
+                    f"The `labeller` task for `preference` must be an instance of `PreferenceTask`, got {labeller.task.__class__.__name__}."
+                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `PreferenceTask` is supported at the moment.",
                     UserWarning,
                     stacklevel=2,
                 )
