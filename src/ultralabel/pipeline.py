@@ -1,4 +1,5 @@
 import os
+import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -31,13 +32,13 @@ class Pipeline(Generic[T]):
 
     def __init__(
         self,
-        generation_llm: Union["LLM", None] = None,
-        labelling_llm: Union["LLM", None] = None,
+        generator: Union["LLM", None] = None,
+        labeller: Union["LLM", None] = None,
     ) -> None:
-        self.generation_llm = generation_llm
-        self.labelling_llm = labelling_llm
+        self.generator = generator
+        self.labeller = labeller
 
-        if self.generation_llm is None and self.labelling_llm is None:
+        if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
     def _remap_dataset(self, dataset: Dataset) -> T:
@@ -48,31 +49,31 @@ class Pipeline(Generic[T]):
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
-        if self.labelling_llm is not None:
-            if self.generation_llm is None:
+        if self.labeller is not None:
+            if self.generator is None:
                 try:
-                    self.labelling_llm.task.validate_dataset(dataset.column_names)
+                    self.labeller.task.validate_dataset(dataset.column_names)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects a dataset with the following columns: {self.labelling_llm.task.input_args_names}"
+                        f"Labelling LLM expects a dataset with the following columns: {self.labeller.task.input_args_names}"
                     ) from err
             else:
                 expected_columns = (
-                    dataset.column_names + self.generation_llm.task.output_args_names
+                    dataset.column_names + self.generator.task.output_args_names
                 )
                 try:
-                    self.labelling_llm.task.validate_dataset(expected_columns)
+                    self.labeller.task.validate_dataset(expected_columns)
                 except KeyError as err:
                     raise KeyError(
                         f"Labelling LLM expects to receive the following columns after the generation process: {expected_columns}"
                     ) from err
 
-        if self.generation_llm is not None:
+        if self.generator is not None:
             try:
-                self.generation_llm.task.validate_dataset(dataset.column_names)
+                self.generator.task.validate_dataset(dataset.column_names)
             except KeyError as err:
                 raise KeyError(
-                    f"Generation LLM expects a dataset with the following columns: {self.generation_llm.task.input_args_names}"
+                    f"Generation LLM expects a dataset with the following columns: {self.generator.task.input_args_names}"
                 ) from err
 
     def _add_columns_to_dataset(
@@ -81,8 +82,8 @@ class Pipeline(Generic[T]):
         generations: List[Dict[str, Any]],
         labels: List[Dict[str, Any]],
     ) -> Dataset:
-        if self.generation_llm is not None:
-            for output_name in self.generation_llm.task.output_args_names:
+        if self.generator is not None:
+            for output_name in self.generator.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in generations]
                 )
@@ -92,8 +93,8 @@ class Pipeline(Generic[T]):
                 [row.get("raw_generation_response", None) for row in generations],
             )
 
-        if self.labelling_llm is not None:
-            for output_name in self.labelling_llm.task.output_args_names:
+        if self.labeller is not None:
+            for output_name in self.labeller.task.output_args_names:
                 dataset = dataset.add_column(
                     output_name, [row.get(output_name, None) for row in labels]
                 )
@@ -111,13 +112,13 @@ class Pipeline(Generic[T]):
         num_generations: int,
         progress_callback_func: Union[Callable, None] = None,
     ) -> List[Dict[str, Any]]:
-        batch_generations = self.generation_llm.generate(
+        batch_generations = self.generator.generate(
             inputs=inputs,
             num_generations=num_generations,
             progress_callback_func=progress_callback_func,
         )
 
-        if self.generation_llm.return_futures:
+        if self.generator.return_futures:
             batch_generations = [future.result() for future in batch_generations]
 
         # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
@@ -168,7 +169,7 @@ class Pipeline(Generic[T]):
         for rows in dataset.iter(batch_size=batch_size):
             inputs = self._transform_dataset_to_expected_format(rows)
 
-            if self.generation_llm is not None:
+            if self.generator is not None:
                 batch_generations = self._get_batch_generations(
                     inputs, num_generations, generation_progress_func
                 )
@@ -184,19 +185,19 @@ class Pipeline(Generic[T]):
                         }
                     )
 
-            if self.labelling_llm is not None:
+            if self.labeller is not None:
                 # `num_generations` is always 1 because labelling the same input multiple times
                 # using the same LLM may not make sense
-                batch_labels = self.labelling_llm.generate(
+                batch_labels = self.labeller.generate(
                     inputs=inputs,
                     num_generations=1,
                     progress_callback_func=labelling_progress_bar,
                 )
                 labels.extend(batch_labels)
 
-        if self.labelling_llm is not None:
+        if self.labeller is not None:
             # If the LLM returns futures, we need to wait for them to finish
-            if self.labelling_llm.return_futures:
+            if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
             # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
             labels = [
@@ -210,35 +211,73 @@ class Pipeline(Generic[T]):
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
-        dataset.task = self.labelling_llm.task
+        dataset.task = self.labeller.task
         return dataset
 
 
 def pipeline(
-    task: Literal["preference"],
-    llm: Optional["LLM"] = None,
-    openai_api_key: Optional[str] = None,
+    task: Literal["preference", "critique"],
+    subtask: Optional[str] = None,
+    *,
+    generator: Optional["LLM"] = None,
+    labeller: Optional["LLM"] = None,
     **kwargs,
 ) -> "Pipeline":
     if task == "preference":
-        from ultralabel.dataset import PreferenceDataset
-        from ultralabel.llm.openai_ import OpenAILLM
-        from ultralabel.tasks.openai_ import OpenAIResponseRating
+        if labeller is None:
+            from ultralabel.dataset import PreferenceDataset
+            from ultralabel.llm.openai_ import OpenAILLM
+            from ultralabel.tasks.preference.ultrafeedback import MultiRatingTask
 
-        task_kwargs = {
-            key: kwargs.get(key)
-            for key in OpenAIResponseRating.__fields__.keys()
-            if key in kwargs
-        }
-        labelling_llm = OpenAILLM(
-            model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-            task=OpenAIResponseRating(**task_kwargs),
-            max_new_tokens=kwargs.get("max_new_tokens") or 256,
-            num_threads=kwargs.get("num_threads") or 4,
-            openai_api_key=openai_api_key or os.getenv("OPENAI_API_KEY"),
-            temperature=kwargs.get("temperature") or 0.0,
-        )
+            task_kwargs = {
+                key: kwargs.get(key)
+                for key in MultiRatingTask.__fields__.keys()
+                if key in kwargs and not key.startswith("__")
+            }
+
+            # Dynamically call the appropriate classmethod using getattr
+            if subtask is not None:
+                if subtask not in MultiRatingTask.__subtasks__:
+                    raise ValueError(
+                        f"Invalid subtask: {subtask}, available subtasks are {MultiRatingTask.__subtasks__}"
+                    )
+                classmethod_name = f"for_{subtask.lower().replace('-', '_')}"
+                if hasattr(MultiRatingTask, classmethod_name):
+                    classmethod = getattr(MultiRatingTask, classmethod_name)
+
+            # TODO: add a logging.info message to inform the user that `OpenAILLM` is being used by default?
+            labeller = OpenAILLM(
+                model=kwargs.get("openai_model") or "gpt-3.5-turbo",
+                task=MultiRatingTask(**task_kwargs)
+                if subtask is None
+                else classmethod(**task_kwargs),
+                max_new_tokens=kwargs.get("max_new_tokens") or 256,
+                num_threads=kwargs.get("num_threads") or 4,
+                openai_api_key=kwargs.get("openai_api_key")
+                or os.getenv("OPENAI_API_KEY"),
+                temperature=kwargs.get("temperature") or 0.0,
+            )
+        else:
+            if not isinstance(labeller.task, MultiRatingTask):
+                warnings.warn(
+                    f"The `labeller` task for `preference` must be an instance of `MultiRatingTask`, got {labeller.task.__class__.__name__}."
+                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `MultiRatingTask` is supported at the moment.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+
+        if generator is not None:
+            assert (
+                generator.task.input_args_names + generator.task.output_args_names
+                == labeller.task.input_args_names
+            ), (
+                f"`generator` outputs do not match `labeller` inputs: "
+                f"{generator.task.input_args_names + generator.task.output_args_names} != {labeller.task.input_args_names}"
+            )
+
         dataset_cls = PreferenceDataset
+    elif task == "critique":
+        raise NotImplementedError("Critique task is not implemented yet")
     else:
         raise ValueError(f"Invalid task: {task}")
 
@@ -247,4 +286,4 @@ def pipeline(
 
     CustomPipeline.dataset_cls = dataset_cls
 
-    return CustomPipeline(generation_llm=llm, labelling_llm=labelling_llm)
+    return CustomPipeline(generator=generator, labeller=labeller)
