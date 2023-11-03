@@ -26,7 +26,7 @@ class CustomDataset(Dataset):
             )
         if self.task is None:
             raise ValueError(
-                "The prompt template is not set. Please set it with `dataset.task = <task>`."
+                "The task is not set. Please set it with `dataset.task = <task>`."
             )
 
         rg_dataset = rg.FeedbackDataset(

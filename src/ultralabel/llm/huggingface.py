@@ -1,11 +1,14 @@
+import logging
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Tuple, Union
 
 import torch
 from huggingface_hub import InferenceClient, InferenceTimeoutError
 from huggingface_hub.inference._text_generation import TextGenerationError
 from tenacity import (
+    after_log,
+    before_sleep_log,
     retry,
     retry_if_exception_type,
     stop_after_attempt,
@@ -26,6 +29,9 @@ _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
 _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
+
+logger: Final = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class TransformersLLM(LLM):
@@ -138,6 +144,8 @@ class InferenceEndpointsLLM(LLM):
             multiplier=_INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
             max=_INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX,
         ),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+        after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
         return self.client.text_generation(

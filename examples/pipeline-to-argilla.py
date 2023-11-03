@@ -6,7 +6,7 @@ from datasets import load_dataset
 from ultralabel.llm.huggingface import InferenceEndpointsLLM
 from ultralabel.llm.openai_ import OpenAILLM
 from ultralabel.pipeline import Pipeline
-from ultralabel.tasks.preference.ultrafeedback import MultiRatingTask
+from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from ultralabel.tasks.text_generation.llama import Llama2GenerationTask
 
 dataset = (
@@ -16,16 +16,16 @@ dataset = (
 )
 
 pipeline = Pipeline(
-    generation_llm=InferenceEndpointsLLM(
+    generator=InferenceEndpointsLLM(
         endpoint_url="<INFERENCE_ENDPOINT_URL>",
         task=Llama2GenerationTask(),
         max_new_tokens=128,
         num_threads=4,
         temperature=0.3,
     ),
-    labelling_llm=OpenAILLM(
+    labeller=OpenAILLM(
         model="gpt-3.5-turbo",
-        task=MultiRatingTask.for_text_quality(),
+        task=UltraFeedbackTask.for_text_quality(),
         max_new_tokens=128,
         num_threads=2,
         openai_api_key="<OPENAI_API_KEY>",

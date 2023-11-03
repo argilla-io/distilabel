@@ -199,22 +199,36 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-            # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
-            labels = [
-                {
-                    "raw_labelling_response": raw_response,
-                    **combine_dicts(*parsed_response),
-                }
-                for raw_response, parsed_responses in labels
-                for parsed_response in parsed_responses
-            ]
+            # TODO: implement fallback mechanism if `combine_dicts` fails
+            formatted_labels = []
+            for raw_response, parsed_responses in labels:
+                # It is always going to be a list of dicts or lists of dicts
+                # TODO: we need to add that to the base definition)
+                for parsed_response in parsed_responses:
+                    if isinstance(parsed_response, list):
+                        formatted_labels.append(
+                            {
+                                "raw_labelling_response": raw_response,
+                                **combine_dicts(*parsed_response),
+                            }
+                        )
+                    elif isinstance(parsed_response, dict):
+                        formatted_labels.append(
+                            {"raw_labelling_response": raw_response, **parsed_response}
+                        )
+                    else:
+                        raise ValueError(f"Unsupported type: {type(parsed_response)}")
 
-        dataset = self._add_columns_to_dataset(dataset, generations, labels)
+        dataset = self._add_columns_to_dataset(dataset, generations, formatted_labels)
         dataset = self._remap_dataset(dataset)
-        dataset.task = self.labeller.task if self.labeller else None
+        # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
+        #   that would imply not passing the `task` but just returning the remapped dataset
+        if self.labeller is not None:
+            dataset.task = self.labeller.task
         return dataset
 
 
+# TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
     task: Literal["preference", "critique"],
     subtask: Optional[str] = None,
@@ -225,30 +239,29 @@ def pipeline(
 ) -> "Pipeline":
     if task == "preference":
         if labeller is None:
-            from ultralabel.dataset import PreferenceDataset
             from ultralabel.llm.openai_ import OpenAILLM
-            from ultralabel.tasks.preference.ultrafeedback import MultiRatingTask
+            from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
             task_kwargs = {
                 key: kwargs.get(key)
-                for key in MultiRatingTask.__fields__.keys()
+                for key in UltraFeedbackTask.__fields__.keys()  # TODO: update when `pydantic` dependency is removed
                 if key in kwargs and not key.startswith("__")
             }
 
             # Dynamically call the appropriate classmethod using getattr
             if subtask is not None:
-                if subtask not in MultiRatingTask.__subtasks__:
+                if subtask not in UltraFeedbackTask.__subtasks__:
                     raise ValueError(
-                        f"Invalid subtask: {subtask}, available subtasks are {MultiRatingTask.__subtasks__}"
+                        f"Invalid subtask: {subtask}, available subtasks are {UltraFeedbackTask.__subtasks__}"
                     )
                 classmethod_name = f"for_{subtask.lower().replace('-', '_')}"
-                if hasattr(MultiRatingTask, classmethod_name):
-                    classmethod = getattr(MultiRatingTask, classmethod_name)
+                if hasattr(UltraFeedbackTask, classmethod_name):
+                    classmethod = getattr(UltraFeedbackTask, classmethod_name)
 
             # TODO: add a logging.info message to inform the user that `OpenAILLM` is being used by default?
             labeller = OpenAILLM(
                 model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-                task=MultiRatingTask(**task_kwargs)
+                task=UltraFeedbackTask(**task_kwargs)
                 if subtask is None
                 else classmethod(**task_kwargs),
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
@@ -258,10 +271,13 @@ def pipeline(
                 temperature=kwargs.get("temperature") or 0.0,
             )
         else:
-            if not isinstance(labeller.task, MultiRatingTask):
+            from ultralabel.tasks.preference.judgelm import JudgeLMTask
+            from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+
+            if not isinstance(labeller.task, (UltraFeedbackTask, JudgeLMTask)):
                 warnings.warn(
-                    f"The `labeller` task for `preference` must be an instance of `MultiRatingTask`, got {labeller.task.__class__.__name__}."
-                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `MultiRatingTask` is supported at the moment.",
+                    f"The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`, got {labeller.task.__class__.__name__}."
+                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `UltraFeedbackTask` is supported at the moment.",
                     UserWarning,
                     stacklevel=2,
                 )
@@ -274,6 +290,7 @@ def pipeline(
                 f"`generator` outputs do not match `labeller` inputs: "
                 f"{generator.task.input_args_names + generator.task.output_args_names} != {labeller.task.input_args_names}"
             )
+        from ultralabel.dataset import PreferenceDataset
 
         dataset_cls = PreferenceDataset
     elif task == "critique":
