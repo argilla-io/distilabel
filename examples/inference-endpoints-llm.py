@@ -1,8 +1,10 @@
+from typing import Dict
+
 from ultralabel.llm.huggingface import InferenceEndpointsLLM
-from ultralabel.prompts.base import PromptTemplate
+from ultralabel.tasks.base import Task
 
 
-class Llama2Prompt(PromptTemplate):
+class Llama2TextGenerationTask(Task):
     def generate_prompt(self, question: str) -> str:
         return (
             "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]".format(
@@ -10,8 +12,8 @@ class Llama2Prompt(PromptTemplate):
             )
         )
 
-    def _parse_output(self, output: str) -> str:
-        return output.split("[ANSWER]")[1].split("[/ANSWER]")[0].strip()
+    def parse_output(self, output: str) -> Dict[str, str]:
+        return {"answer": output.split("[ANSWER]")[1].split("[/ANSWER]")[0].strip()}
 
     def input_args_names(self) -> list[str]:
         return ["question"]
@@ -20,7 +22,7 @@ class Llama2Prompt(PromptTemplate):
         return ["answer"]
 
 
-prompt_template = Llama2Prompt(
+task = Llama2TextGenerationTask(
     system_prompt=(
         "You are a helpful and honest assistant and you have beed asked to"
         " answer faithfully, and with a direct response. You will be provided"
@@ -30,8 +32,8 @@ prompt_template = Llama2Prompt(
 )
 llm = InferenceEndpointsLLM(
     endpoint_url="<HUGGING_FACE_INFERENCE_ENDPOINT_URL>",
-    prompt_template=prompt_template,
+    task=task,
     token="<HUGGING_FACE_TOKEN>",
 )
 print(llm.generate([{"question": "What's the capital of Spain?"}]))
-# Output: ["The capital of Spain is Madrid."]
+# Output: [{"answer": "The capital of Spain is Madrid."}]
