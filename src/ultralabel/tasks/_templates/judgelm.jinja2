@@ -1,0 +1,11 @@
+[Question]
+{{ instruction }}
+
+{% for response in responses %}
+[The Start of Assistant {{ loop.index }}'s Answer>
+{{ response }}
+[The End of Assistant {{ loop.index }}'s Answer>
+{%- endfor %}
+
+[System]
+{{task_description}}
