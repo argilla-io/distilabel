@@ -221,7 +221,7 @@ class Pipeline(Generic[T]):
 
         dataset = self._add_columns_to_dataset(dataset, generations, formatted_labels)
         dataset = self._remap_dataset(dataset)
-        # TODO(alvarobartt): before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
+        # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
         #   that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
             dataset.task = self.labeller.task
