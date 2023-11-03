@@ -211,7 +211,7 @@ class Pipeline(Generic[T]):
 
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
-        dataset.task = self.labeller.task
+        dataset.task = self.labeller.task if self.labeller else None
         return dataset
 
 
