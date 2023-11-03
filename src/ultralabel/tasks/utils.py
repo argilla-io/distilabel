@@ -9,6 +9,8 @@ class ChatCompletion(TypedDict):
     content: str
 
 
+# TODO: add more output formats
+# TODO: move this file outside as `prompt.py` or something more meaningful
 class Prompt(BaseModel):
     system_prompt: str
     formatted_prompt: str

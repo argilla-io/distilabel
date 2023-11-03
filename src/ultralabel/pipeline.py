@@ -228,6 +228,7 @@ class Pipeline(Generic[T]):
         return dataset
 
 
+# TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
     task: Literal["preference", "critique"],
     subtask: Optional[str] = None,
@@ -243,7 +244,7 @@ def pipeline(
 
             task_kwargs = {
                 key: kwargs.get(key)
-                for key in UltraFeedbackTask.__fields__.keys()
+                for key in UltraFeedbackTask.__fields__.keys()  # TODO: update when `pydantic` dependency is removed
                 if key in kwargs and not key.startswith("__")
             }
 

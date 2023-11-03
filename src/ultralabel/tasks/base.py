@@ -50,6 +50,7 @@ class Argilla:
         )
 
 
+# TODO: `pydantic` dependency is not needed, we are safe to remove it
 class Task(BaseModel, ABC, Argilla):
     system_prompt: str
     task_description: Union[str, None] = None
