@@ -1,5 +1,5 @@
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
@@ -28,15 +28,14 @@ class Rating(TypedDict):
     description: str
 
 
-class RatingOutput(TypedDict):
+class UltraFeedbackOutput(TypedDict):
     rating: int
     rationale: str
 
 
-class MultiRatingTask(Task):
+class UltraFeedbackTask(Task):
     ratings: List[Rating]
 
-    __type__: str = "rating"
     __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
     __subtasks__: List[str] = [
         "text-quality",
@@ -50,6 +49,14 @@ class MultiRatingTask(Task):
         "Your role is to evaluate text quality based on given criteria."
     )
 
+    @property
+    def input_args_names(self) -> List[str]:
+        return ["instruction", "generations"]
+
+    @property
+    def output_args_names(self) -> List[str]:
+        return ["rating", "rationale"]
+
     def generate_prompt(self, instruction: str, generations: List[str]) -> Prompt:
         render_kwargs = {
             "task_description": self.task_description,
@@ -62,52 +69,38 @@ class MultiRatingTask(Task):
             formatted_prompt=self.template.render(**render_kwargs),
         )
 
-    def parse_output(self, output: str) -> List[RatingOutput]:
+    def parse_output(self, output: str) -> List[UltraFeedbackOutput]:
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
             rating = int(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
-            parsed_output.append(RatingOutput(rating=rating, rationale=rationale))
+            parsed_output.append(
+                UltraFeedbackOutput(rating=rating, rationale=rationale)
+            )
         return parsed_output
-
-    @property
-    def input_args_names(self) -> List[str]:
-        return ["instruction", "generations"]
-
-    @property
-    def output_args_names(self) -> List[str]:
-        return ["rating", "rationale"]
-
-    @property
-    def argilla_fields_typedargs(self) -> Dict[str, Union[Type[str], Type[list]]]:
-        # If a `List[str]` is provided, then it means that the field will be generated
-        # appending an integer from 1 to N e.g. `generations` -> `generations-1`, `generations-2`, etc.
-        return {"instruction": str, "generations": list}
 
     def to_argilla_fields(
         self, dataset_row: Dict[str, Any]
     ) -> List["AllowedFieldTypes"]:
+        if not _argilla_installed:
+            raise ImportError("The argilla library is not installed.")
         argilla_fields = []
-        for arg_name, arg_type in self.argilla_fields_typedargs.items():
+        for arg_name in self.input_args_names:
             if arg_name not in dataset_row:
                 raise ValueError(
                     f"Dataset row does not contain the required field '{arg_name}'."
                 )
-            if arg_type is list and isinstance(dataset_row[arg_name], list):
+            if isinstance(dataset_row[arg_name], list):
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    argilla_fields.append(
-                        rg.TextField(name=f"{arg_name}-{idx}", title=f"Response {idx}")
-                    )
-            elif arg_type is str:
+                    argilla_fields.append(rg.TextField(name=f"{arg_name}-{idx}"))
+            elif isinstance(dataset_row[arg_name], str):
                 argilla_fields.append(rg.TextField(name=arg_name))
             else:
-                raise ValueError(f"Type {arg_type} is not supported.")
+                raise ValueError(
+                    f"Type {type(dataset_row[arg_name])} is not supported."
+                )
         return argilla_fields
-
-    @property
-    def argilla_questions_typedargs(self) -> Dict[str, Type[list]]:
-        return {"generations": list}
 
     def to_argilla_questions(
         self,
@@ -117,20 +110,20 @@ class MultiRatingTask(Task):
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
         argilla_questions = []
-        for arg_name, arg_type in self.argilla_questions_typedargs.items():
+        for arg_name in ["generations"]:
             if arg_name not in dataset_row:
                 raise ValueError(
                     f"Dataset row does not contain the required field '{arg_name}'."
                 )
-            if arg_type is list and isinstance(dataset_row[arg_name], list):
+            if isinstance(dataset_row[arg_name], list):
                 # If `group_ratings_as_ranking` is True, then we group all the ratings into a ranking
                 if group_ratings_as_ranking:
                     argilla_questions.append(
                         rg.RankingQuestion(
                             name=f"{arg_name}-ranking",
-                            title="Rank the responses from best to worst.",
+                            title=f"Rank the {arg_name} from best to worst.",
                             values=[
-                                f"generations-{idx}"
+                                f"{arg_name}-{idx}"
                                 for idx in range(1, len(dataset_row[arg_name]) + 1)
                             ],
                         )
@@ -140,35 +133,37 @@ class MultiRatingTask(Task):
                     if not group_ratings_as_ranking:
                         argilla_questions.append(
                             rg.RatingQuestion(
-                                name=f"generations-{idx}-rating",
-                                title=f"What's the rating for the Response {idx}?",
+                                name=f"{arg_name}-{idx}-rating",
+                                title=f"What's the rating for {arg_name}-{idx}?",
                                 values=list(range(1, len(self.ratings) + 1)),
                             ),
                         )
                     argilla_questions.append(
                         rg.TextQuestion(
-                            name=f"generations-{idx}-rationale",
-                            title=f"What's the rationale behind the rating for Response {idx}?",
+                            name=f"{arg_name}-{idx}-rationale",
+                            title=f"What's the rationale behind the rating for {arg_name}-{idx}?",
                         ),
                     )
         return argilla_questions
 
-    def to_argilla_record(
+    def to_argilla_record(  # noqa: C901
         self, dataset_row: Dict[str, Any], group_ratings_as_ranking: bool = False
     ) -> "FeedbackRecord":
+        if not _argilla_installed:
+            raise ImportError("The argilla library is not installed.")
         fields = {}
-        for input_arg_key, input_arg_value in self.argilla_fields_typedargs.items():
-            if input_arg_value is list:
-                for idx in range(1, len(dataset_row[input_arg_key]) + 1):
+        for input_arg_name in self.input_args_names:
+            if isinstance(dataset_row[input_arg_name], list):
+                for idx in range(1, len(dataset_row[input_arg_name]) + 1):
                     fields.update(
                         {
-                            f"{input_arg_key}-{idx}": dataset_row[input_arg_key][
+                            f"{input_arg_name}-{idx}": dataset_row[input_arg_name][
                                 idx - 1
                             ].strip()
                         }
                     )
             else:
-                fields.update({input_arg_key: dataset_row[input_arg_key]})
+                fields.update({input_arg_name: dataset_row[input_arg_name]})
         suggestions = []
         for output_arg_name in self.output_args_names:
             if output_arg_name == "rating" and group_ratings_as_ranking:
@@ -212,7 +207,7 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+    ) -> "UltraFeedbackTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -264,7 +259,7 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+    ) -> "UltraFeedbackTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -313,7 +308,7 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+    ) -> "UltraFeedbackTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -364,7 +359,7 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+    ) -> "UltraFeedbackTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
@@ -417,7 +412,7 @@ class MultiRatingTask(Task):
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
-    ) -> "MultiRatingTask":
+    ) -> "UltraFeedbackTask":
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
