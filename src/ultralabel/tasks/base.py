@@ -1,6 +1,6 @@
 import importlib.resources as importlib_resources
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
 from pydantic import BaseModel
@@ -22,10 +22,6 @@ def get_template(template_name: str) -> str:
 
 
 class Argilla:
-    @property
-    def argilla_fields_typedargs(self) -> Dict[str, Union[Type[str], Type[list]]]:
-        pass
-
     def to_argilla_fields(
         self,
         dataset_row: Dict[str, Any],
@@ -35,10 +31,6 @@ class Argilla:
         raise NotImplementedError(
             "`to_argilla_fields` is not implemented, if you want to export your dataset as an Argilla dataset you will need to implement this method."
         )
-
-    @property
-    def argilla_questions_typedargs(self) -> Dict[str, Type[list]]:
-        pass
 
     def to_argilla_questions(
         self,
