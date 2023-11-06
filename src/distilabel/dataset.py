@@ -27,7 +27,7 @@ except ImportError:
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
 
-    from ultralabel.tasks.base import Task
+    from distilabel.tasks.base import Task
 
 
 class CustomDataset(Dataset):

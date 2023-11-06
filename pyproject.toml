@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ultralabel"
+name = "distilabel"
 description = "Automatic build of preference datasets for LLM alignment"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -30,12 +30,12 @@ openai = ["openai >=0.28.1", "tenacity >=8"]
 argilla = ["argilla >=1.16.0"]
 
 [project.urls]
-Documentation = "https://github.com/argilla/ultralabel#readme"
-Issues = "https://github.com/argilla/ultralabel/issues"
-Source = "https://github.com/argilla/ultralabel"
+Documentation = "https://github.com/argilla/distilabel#readme"
+Issues = "https://github.com/argilla/distilabel/issues"
+Source = "https://github.com/argilla/distilabel"
 
 [tool.hatch.version]
-path = "src/ultralabel/__init__.py"
+path = "src/distilabel/__init__.py"
 
 [tool.ruff]
 line-length = 88

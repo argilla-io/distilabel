@@ -1,23 +1,25 @@
+import os
 import time
-from uuid import uuid4
 
-import argilla as rg
 from datasets import load_dataset
-from ultralabel.llm.huggingface import InferenceEndpointsLLM
-from ultralabel.llm.openai_ import OpenAILLM
-from ultralabel.pipeline import Pipeline
-from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
-from ultralabel.tasks.text_generation.llama import Llama2GenerationTask
+from distilabel.llm.huggingface import InferenceEndpointsLLM
+from distilabel.llm.openai_ import OpenAILLM
+from distilabel.pipeline import Pipeline
+from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+from distilabel.tasks.text_generation.llama import Llama2GenerationTask
+
+url = "..."
 
 dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:1]")
     .remove_columns(["completion", "meta"])
-    .rename_column("prompt", "instruction")
+    .rename_column("prompt", "input")
 )
 
 pipeline = Pipeline(
     generator=InferenceEndpointsLLM(
-        endpoint_url="<INFERENCE_ENDPOINT_URL>",
+        endpoint_url=url,
+        token=os.environ["HF_TOKEN"],
         task=Llama2GenerationTask(),
         max_new_tokens=128,
         num_threads=4,
@@ -28,7 +30,7 @@ pipeline = Pipeline(
         task=UltraFeedbackTask.for_text_quality(),
         max_new_tokens=128,
         num_threads=2,
-        openai_api_key="<OPENAI_API_KEY>",
+        # openai_api_key="<OPENAI_API_KEY>",
         temperature=0.0,
     ),
 )
@@ -41,9 +43,10 @@ end = time.time()
 print("Elapsed", end - start)
 
 # Push to the HuggingFace Hub
-dataset.push_to_hub("<REPO_ID>", split="train", private=True)
+# dataset.push_to_hub("<REPO_ID>", split="train", private=True)
 
 # Convert into an Argilla dataset and push it to Argilla
-rg.init(api_url="<ARGILLA_API_URL>", api_key="<ARGILLA_API_KEY>")
-rg_dataset = dataset.to_argilla()
-rg_dataset.push_to_argilla(name=f"my-dataset-{uuid4()}", workspace="admin")
+# rg.init(api_url="<ARGILLA_API_URL>", api_key="<ARGILLA_API_KEY>")
+# rg_dataset = dataset.to_argilla()
+# print(rg_dataset)
+# rg_dataset.push_to_argilla(name=f"my-dataset-{uuid4()}", workspace="admin")

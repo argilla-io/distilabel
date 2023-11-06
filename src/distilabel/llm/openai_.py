@@ -29,11 +29,11 @@ from tenacity import (
     wait_random_exponential,
 )
 
-from ultralabel.llm.base import LLM
-from ultralabel.tasks.utils import Prompt
+from distilabel.llm.base import LLM
+from distilabel.tasks.utils import Prompt
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.base import Task
+    from distilabel.tasks.base import Task
 
 
 _OPENAI_API_RETRY_ON_EXCEPTIONS = (

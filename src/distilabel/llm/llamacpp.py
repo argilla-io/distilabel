@@ -17,12 +17,12 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
 
-from ultralabel.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
 
-    from ultralabel.tasks.base import Task
+    from distilabel.tasks.base import Task
 
 
 class LlamaCppLLM(LLM):

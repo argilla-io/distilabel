@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ultralabel.tasks.base import Task, get_template
+from distilabel.tasks.base import Task, get_template
 
 _LLAMA2_TEXT_GENERATION_TEMPLATE = get_template("llama2-generation.jinja2")
 
@@ -29,17 +29,15 @@ class Llama2GenerationTask(Task):
 
     __jinja2_template__: str = _LLAMA2_TEXT_GENERATION_TEMPLATE
 
-    def generate_prompt(self, instruction: str) -> str:
-        return self.template.render(
-            system_prompt=self.system_prompt, instruction=instruction
-        )
+    def generate_prompt(self, input: str) -> str:
+        return self.template.render(system_prompt=self.system_prompt, input=input)
 
     def parse_output(self, output: str) -> dict[str, str]:
         return {"generations": output}
 
     @property
     def input_args_names(self) -> list[str]:
-        return ["instruction"]
+        return ["input"]
 
     @property
     def output_args_names(self) -> list[str]:
