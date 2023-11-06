@@ -36,6 +36,7 @@ from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM
+    from distilabel.llm.utils import LLMOutput
 
 
 T = TypeVar("T", bound=Dataset)
@@ -125,7 +126,7 @@ class Pipeline(Generic[T]):
         inputs: List[Dict[str, Any]],
         num_generations: int,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> List["LLMOutput"]:
         batch_generations = self.generator.generate(
             inputs=inputs,
             num_generations=num_generations,
@@ -135,14 +136,68 @@ class Pipeline(Generic[T]):
         if self.generator.return_futures:
             batch_generations = [future.result() for future in batch_generations]
 
-        # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
-        return [
-            {
-                "raw_generation_response": raw_responses,
-                **combine_dicts(*parsed_responses),
+        return self._process_batch_generations(batch_generations=batch_generations)
+
+    def _process_batch_generations(
+        self,
+        batch_generations: List[List["LLMOutput"]],
+    ) -> List[Dict[str, Any]]:
+        processed_generations = []
+        for generations in batch_generations:
+            processed_generation = {
+                "raw_generation_response": [
+                    generation["raw"] for generation in generations
+                ]
             }
-            for raw_responses, parsed_responses in batch_generations
-        ]
+            try:
+                processed_generation.update(
+                    **combine_dicts(
+                        *[generation["parsed"] for generation in generations]
+                    )
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Generation processing step failed when combining dicts: {e}",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            processed_generations.append(processed_generation)
+        return processed_generations
+
+    def _process_batch_labels(
+        self, batch_labels: List[List["LLMOutput"]]
+    ) -> List[Dict[str, Any]]:
+        processed_labels = []
+        empty_default = {}
+        for labels in batch_labels:
+            for label in labels:
+                if not isinstance(label["parsed"], (list, dict)):
+                    raise ValueError(f"Unsupported type: {type(label['parsed'])}")
+
+                processed_label = {"raw_generation_response": label["raw"]}
+                try:
+                    if isinstance(label["parsed"], list):
+                        processed_label.update(**combine_dicts(*label["parsed"]))
+                    elif isinstance(label["parsed"], dict):
+                        processed_label.update(**label["parsed"])
+                except Exception as e:
+                    warnings.warn(
+                        f"Label processing step failed when combining dicts: {e}",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                    if not empty_default:
+                        if isinstance(label["parsed"], list):
+                            empty_default = {
+                                key: None for key, _ in label["parsed"][0].items()
+                            }
+                        elif isinstance(label["parsed"], dict):
+                            empty_default = {
+                                key: None for key, _ in label["parsed"].items()
+                            }
+                    processed_label.update(**empty_default)
+                processed_labels.append(processed_label)
+        return processed_labels
 
     def _transform_dataset_to_expected_format(
         self, rows: Dict[str, List[Any]]
@@ -214,27 +269,10 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-            # TODO: implement fallback mechanism if `combine_dicts` fails
-            formatted_labels = []
-            for raw_response, parsed_responses in labels:
-                # It is always going to be a list of dicts or lists of dicts
-                # TODO: we need to add that to the base definition)
-                for parsed_response in parsed_responses:
-                    if isinstance(parsed_response, list):
-                        formatted_labels.append(
-                            {
-                                "raw_labelling_response": raw_response,
-                                **combine_dicts(*parsed_response),
-                            }
-                        )
-                    elif isinstance(parsed_response, dict):
-                        formatted_labels.append(
-                            {"raw_labelling_response": raw_response, **parsed_response}
-                        )
-                    else:
-                        raise ValueError(f"Unsupported type: {type(parsed_response)}")
 
-        dataset = self._add_columns_to_dataset(dataset, generations, formatted_labels)
+            labels = self._process_batch_labels(batch_labels=labels)
+
+        dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
         #   that would imply not passing the `task` but just returning the remapped dataset
