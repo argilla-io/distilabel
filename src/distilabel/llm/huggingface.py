@@ -127,7 +127,12 @@ class TransformersLLM(LLM):
                     f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
                 )
                 parsed_output = {}
-            outputs.append(LLMOutput(raw=raw_output, parsed=parsed_output))
+            outputs.append(
+                LLMOutput(
+                    raw_output=raw_output,
+                    parsed_output=parsed_output,
+                )
+            )
         return outputs
 
 
@@ -188,5 +193,10 @@ class InferenceEndpointsLLM(LLM):
                     stacklevel=2,
                 )
                 parsed_response = {}
-            outputs.append(LLMOutput(raw=raw_response, parsed=parsed_response))
+            outputs.append(
+                LLMOutput(
+                    raw_output=raw_response,
+                    parsed_output=parsed_response,
+                )
+            )
         return outputs

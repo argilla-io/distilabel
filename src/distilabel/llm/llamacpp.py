@@ -64,5 +64,10 @@ class LlamaCppLLM(LLM):
                     f"Error parsing llama-cpp output: {e}", UserWarning, stacklevel=2
                 )
                 parsed_output = {}
-            outputs.append(LLMOutput(raw=raw_output, parsed=parsed_output))
+            outputs.append(
+                LLMOutput(
+                    raw_output=raw_output,
+                    parsed_output=parsed_output,
+                )
+            )
         return outputs

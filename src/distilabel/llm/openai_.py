@@ -106,7 +106,6 @@ class OpenAILLM(LLM):
         input: Dict[str, Any],
         num_generations: int = 1,
     ) -> List[LLMOutput]:
-        # TODO: move this responsibility to the `Task` class?
         prompt = self.task.generate_prompt(**input)
         if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
             warnings.warn(
@@ -141,5 +140,10 @@ class OpenAILLM(LLM):
                     f"Error parsing OpenAI response: {e}", UserWarning, stacklevel=2
                 )
                 parsed_response = {}
-            outputs.append(LLMOutput(raw=str(raw_responses), parsed=parsed_response))
+            outputs.append(
+                LLMOutput(
+                    raw_output=raw_responses,
+                    parsed_output=parsed_response,
+                )
+            )
         return outputs

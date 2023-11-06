@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from typing_extensions import TypedDict
 
 
 class LLMOutput(TypedDict):
-    raw: str
-    parsed: Union[List[Dict[str, Any]], Dict[str, Any]]
+    raw_output: Any
+    parsed_output: Any

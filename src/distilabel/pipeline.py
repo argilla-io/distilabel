@@ -146,13 +146,13 @@ class Pipeline(Generic[T]):
         for generations in batch_generations:
             processed_generation = {
                 "raw_generation_response": [
-                    generation["raw"] for generation in generations
-                ]
+                    generation["raw_output"] for generation in generations
+                ],
             }
             try:
                 processed_generation.update(
                     **combine_dicts(
-                        *[generation["parsed"] for generation in generations]
+                        *[generation["parsed_output"] for generation in generations]
                     )
                 )
             except Exception as e:
@@ -170,15 +170,19 @@ class Pipeline(Generic[T]):
         processed_labels = []
         for labels in batch_labels:
             for label in labels:
-                if not isinstance(label["parsed"], (list, dict)):
-                    raise ValueError(f"Unsupported type: {type(label['parsed'])}")
+                if not isinstance(label["parsed_output"], (list, dict)):
+                    raise ValueError(
+                        f"Unsupported type: {type(label['parsed_output'])}"
+                    )
 
-                processed_label = {"raw_generation_response": label["raw"]}
+                processed_label = {
+                    "raw_labelling_response": label["raw_output"],
+                }
                 try:
-                    if isinstance(label["parsed"], list):
-                        processed_label.update(**combine_dicts(*label["parsed"]))
-                    elif isinstance(label["parsed"], dict):
-                        processed_label.update(**label["parsed"])
+                    if isinstance(label["parsed_output"], list):
+                        processed_label.update(**combine_dicts(*label["parsed_output"]))
+                    elif isinstance(label["parsed_output"], dict):
+                        processed_label.update(**label["parsed_output"])
                 except Exception as e:
                     warnings.warn(
                         f"Label processing step failed when combining dicts: {e}",
