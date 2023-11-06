@@ -168,7 +168,6 @@ class Pipeline(Generic[T]):
         self, batch_labels: List[List["LLMOutput"]]
     ) -> List[Dict[str, Any]]:
         processed_labels = []
-        empty_default = {}
         for labels in batch_labels:
             for label in labels:
                 if not isinstance(label["parsed"], (list, dict)):
@@ -186,16 +185,6 @@ class Pipeline(Generic[T]):
                         UserWarning,
                         stacklevel=2,
                     )
-                    if not empty_default:
-                        if isinstance(label["parsed"], list):
-                            empty_default = {
-                                key: None for key, _ in label["parsed"][0].items()
-                            }
-                        elif isinstance(label["parsed"], dict):
-                            empty_default = {
-                                key: None for key, _ in label["parsed"].items()
-                            }
-                    processed_label.update(**empty_default)
                 processed_labels.append(processed_label)
         return processed_labels
 
