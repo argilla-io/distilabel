@@ -142,6 +142,7 @@ class OpenAILLM(LLM):
                 parsed_response = {}
             outputs.append(
                 LLMOutput(
+                    prompt_used=prompt,
                     raw_output=raw_responses,
                     parsed_output=parsed_response,
                 )

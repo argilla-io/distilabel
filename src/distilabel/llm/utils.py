@@ -18,5 +18,6 @@ from typing_extensions import TypedDict
 
 
 class LLMOutput(TypedDict):
+    prompt_used: Any
     raw_output: Any
     parsed_output: Any

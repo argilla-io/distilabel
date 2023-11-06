@@ -148,6 +148,9 @@ class Pipeline(Generic[T]):
                 "raw_generation_response": [
                     generation["raw_output"] for generation in generations
                 ],
+                "generation_prompt": [
+                    generation["prompt_used"] for generation in generations
+                ],
             }
             try:
                 processed_generation.update(
@@ -177,6 +180,7 @@ class Pipeline(Generic[T]):
 
                 processed_label = {
                     "raw_labelling_response": label["raw_output"],
+                    "labelling_prompt": label["prompt_used"],
                 }
                 try:
                     if isinstance(label["parsed_output"], list):

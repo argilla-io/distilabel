@@ -66,6 +66,7 @@ class LlamaCppLLM(LLM):
                 parsed_output = {}
             outputs.append(
                 LLMOutput(
+                    prompt_used=prompt,
                     raw_output=raw_output,
                     parsed_output=parsed_output,
                 )
