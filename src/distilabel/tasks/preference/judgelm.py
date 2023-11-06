@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import TypedDict
 
-from ultralabel.tasks.base import Task, get_template
-from ultralabel.tasks.utils import Prompt
+from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.utils import Prompt
 
 try:
     import argilla as rg
@@ -58,15 +58,15 @@ class JudgeLMTask(Task):
 
     @property
     def input_args_names(self) -> List[str]:
-        return ["instruction", "generations"]
+        return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
         return ["ratings", "rationale"]
 
-    def generate_prompt(self, instruction: str, generations: List[str]) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         render_kwargs = {
-            "instruction": instruction,
+            "input": input,
             "responses": generations,
             "task_description": self.task_description.format(
                 num_responses=len(generations)

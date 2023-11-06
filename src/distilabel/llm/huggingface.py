@@ -30,10 +30,10 @@ from tenacity import (
 )
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
-from ultralabel.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.base import Task
+    from distilabel.tasks.base import Task
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (

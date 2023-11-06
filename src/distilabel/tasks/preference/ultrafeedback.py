@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
-from ultralabel.tasks.base import Task, get_template
-from ultralabel.tasks.utils import Prompt
+from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.utils import Prompt
 
 try:
     import argilla as rg
@@ -65,17 +65,17 @@ class UltraFeedbackTask(Task):
 
     @property
     def input_args_names(self) -> List[str]:
-        return ["instruction", "generations"]
+        return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
         return ["rating", "rationale"]
 
-    def generate_prompt(self, instruction: str, generations: List[str]) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         render_kwargs = {
             "task_description": self.task_description,
             "ratings": self.ratings,
-            "instruction": instruction,
+            "input": input,
             "responses": generations,
         }
         return Prompt(

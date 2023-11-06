@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from jinja2 import Template
 from pydantic import BaseModel
 
-from ultralabel.tasks.utils import Prompt
+from distilabel.tasks.utils import Prompt
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 def get_template(template_name: str) -> str:
     return str(
-        importlib_resources.files("ultralabel") / "tasks/_templates" / template_name
+        importlib_resources.files("distilabel") / "tasks/_templates" / template_name
     )
 
 

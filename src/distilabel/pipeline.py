@@ -30,12 +30,12 @@ from typing import (
 
 from datasets import Dataset
 
-from ultralabel.dataset import CustomDataset
-from ultralabel.progress_bar import get_progress_bars_for_pipeline
-from ultralabel.utils import combine_dicts
+from distilabel.dataset import CustomDataset
+from distilabel.progress_bar import get_progress_bars_for_pipeline
+from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
-    from ultralabel.llm.base import LLM
+    from distilabel.llm.base import LLM
 
 
 T = TypeVar("T", bound=Dataset)
@@ -253,8 +253,8 @@ def pipeline(
 ) -> "Pipeline":
     if task == "preference":
         if labeller is None:
-            from ultralabel.llm.openai_ import OpenAILLM
-            from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            from distilabel.llm.openai_ import OpenAILLM
+            from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
             task_kwargs = {
                 key: kwargs.get(key)
@@ -285,8 +285,8 @@ def pipeline(
                 temperature=kwargs.get("temperature") or 0.0,
             )
         else:
-            from ultralabel.tasks.preference.judgelm import JudgeLMTask
-            from ultralabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            from distilabel.tasks.preference.judgelm import JudgeLMTask
+            from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
             if not isinstance(labeller.task, (UltraFeedbackTask, JudgeLMTask)):
                 warnings.warn(
@@ -304,7 +304,7 @@ def pipeline(
                 f"`generator` outputs do not match `labeller` inputs: "
                 f"{generator.task.input_args_names + generator.task.output_args_names} != {labeller.task.input_args_names}"
             )
-        from ultralabel.dataset import PreferenceDataset
+        from distilabel.dataset import PreferenceDataset
 
         dataset_cls = PreferenceDataset
     elif task == "critique":

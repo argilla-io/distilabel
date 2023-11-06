@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.base import Task
+    from distilabel.tasks.base import Task
 
 
 class LLM(ABC):

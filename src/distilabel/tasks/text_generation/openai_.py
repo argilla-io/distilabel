@@ -14,11 +14,11 @@
 
 from typing import TYPE_CHECKING, Dict, List
 
-from ultralabel.tasks.base import Task, get_template
-from ultralabel.tasks.utils import Prompt
+from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.utils import Prompt
 
 if TYPE_CHECKING:
-    from ultralabel.tasks.utils import ChatCompletion
+    from distilabel.tasks.utils import ChatCompletion
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 
@@ -33,10 +33,10 @@ class OpenAITextGenerationTask(Task):
         " question, please don't share false information."
     )
 
-    def generate_prompt(self, instruction: str) -> List["ChatCompletion"]:
+    def generate_prompt(self, input: str) -> List["ChatCompletion"]:
         return Prompt(
             system_prompt=self.system_prompt,
-            formatted_prompt=instruction,
+            formatted_prompt=input,
         ).format_as("openai")
 
     def parse_output(self, output: str) -> Dict[str, str]:
@@ -44,7 +44,7 @@ class OpenAITextGenerationTask(Task):
 
     @property
     def input_args_names(self) -> List[str]:
-        return ["instruction"]
+        return ["input"]
 
     @property
     def output_args_names(self) -> List[str]:
@@ -62,11 +62,11 @@ class SelfInstructTask(OpenAITextGenerationTask):
 
     num_instructions: int = 5
 
-    def generate_prompt(self, instruction: str) -> Prompt:
+    def generate_prompt(self, input: str) -> Prompt:
         render_kwargs = {
             "application_description": self.application_description,
             "num_instructions": self.num_instructions,
-            "instruction": instruction,
+            "input": input,
         }
         return Prompt(
             system_prompt=self.system_prompt,
@@ -79,7 +79,7 @@ class SelfInstructTask(OpenAITextGenerationTask):
 
     @property
     def input_args_names(self) -> List[str]:
-        return ["instruction"]
+        return ["input"]
 
     @property
     def output_args_names(self) -> List[str]:
