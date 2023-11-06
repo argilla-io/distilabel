@@ -127,7 +127,9 @@ class OpenAILLM(LLM):
             n=num_generations,
             temperature=self.temperature,
             max_tokens=self.max_new_tokens,
-        ).to_dict_recursive()
+        )
+        raw_responses = raw_responses.to_dict_recursive()
+
         outputs = []
         for raw_response in raw_responses["choices"]:
             try:
