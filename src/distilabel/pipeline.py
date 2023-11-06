@@ -195,7 +195,8 @@ class Pipeline(Generic[T]):
                         {
                             k: v
                             for k, v in generations_.items()
-                            if k != "raw_generation_response"
+                            if self.labeller is not None
+                            and k in self.labeller.task.input_args_names
                         }
                     )
 
