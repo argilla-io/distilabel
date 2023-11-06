@@ -8,7 +8,7 @@ from distilabel.pipeline import Pipeline
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.text_generation.llama import Llama2GenerationTask
 
-url = "https://mxstqkfo43wgmmge.eu-west-1.aws.endpoints.huggingface.cloud"
+url = "..."
 
 dataset = (
     load_dataset("HuggingFaceH4/instruction-dataset", split="test[:1]")
