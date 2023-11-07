@@ -209,12 +209,12 @@ class Pipeline(Generic[T]):
                 )
                 labels.extend(batch_labels)
 
+        # TODO: implement fallback mechanism if `combine_dicts` fails
+        formatted_labels = []
         if self.labeller is not None:
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-            # TODO: implement fallback mechanism if `combine_dicts` fails
-            formatted_labels = []
             for raw_response, parsed_responses in labels:
                 # It is always going to be a list of dicts or lists of dicts
                 # TODO: we need to add that to the base definition)
