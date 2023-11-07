@@ -218,6 +218,17 @@ class Pipeline(Generic[T]):
         batch_size: int = 1,
         display_progress_bar: bool = False,
     ) -> T:
+        if (
+            self.labeller is not None
+            and self.generator is not None
+            and num_generations < 2
+        ):
+            warnings.warn(
+                f"Provided `num_generations={num_generations}` which implies that the `generator` LLM will just run once, while the `labelling` LLM expects to recieve a list of N inputs to label, where N is > 1. If this is not intended, make sure to set `num_generations` to a value higher or equal to 2.",
+                UserWarning,
+                stacklevel=2,
+            )
+
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -273,7 +284,7 @@ class Pipeline(Generic[T]):
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
-        #   that would imply not passing the `task` but just returning the remapped dataset
+        # that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
             dataset.task = self.labeller.task
         return dataset
