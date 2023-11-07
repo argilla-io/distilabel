@@ -28,7 +28,7 @@ from typing import (
     Union,
 )
 
-from datasets import Dataset
+from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
 from distilabel.progress_bar import get_progress_bars_for_pipeline
@@ -208,6 +208,9 @@ class Pipeline(Generic[T]):
 
         return inputs
 
+    def _reset_dataset(self, dataset: Dataset) -> Dataset:
+        return Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
@@ -215,9 +218,6 @@ class Pipeline(Generic[T]):
         batch_size: int = 1,
         display_progress_bar: bool = False,
     ) -> T:
-        # We need to convert the dataset to a dict and then back to a dataset
-        # as we just want to keep the dataset content, not its metadata
-        dataset = Dataset.from_dict(dataset.to_dict())
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
@@ -269,6 +269,7 @@ class Pipeline(Generic[T]):
 
             labels = self._process_batch_labels(batch_labels=labels)
 
+        dataset = self._reset_dataset(dataset)
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
         dataset = self._remap_dataset(dataset)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
