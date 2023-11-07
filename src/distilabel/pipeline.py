@@ -103,10 +103,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in generations]
                 )
 
-            dataset = dataset.add_column(
-                "raw_generation_response",
-                [row.get("raw_generation_response", None) for row in generations],
-            )
+            for column_name in ["generation_prompt", "raw_generation_responses"]:
+                dataset = dataset.add_column(
+                    column_name,
+                    [row.get(column_name, None) for row in generations],
+                )
 
         if self.labeller is not None:
             for output_name in self.labeller.task.output_args_names:
@@ -114,10 +115,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in labels]
                 )
 
-            dataset = dataset.add_column(
-                "raw_labelling_response",
-                [row.get("raw_labelling_response", None) for row in labels],
-            )
+            for column_name in ["labelling_prompt", "raw_labelling_response"]:
+                dataset = dataset.add_column(
+                    column_name,
+                    [row.get(column_name, None) for row in labels],
+                )
 
         return dataset
 
@@ -145,11 +147,9 @@ class Pipeline(Generic[T]):
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
-                "raw_generation_response": [
+                "generation_prompt": generations[0]["prompt_used"],
+                "raw_generation_responses": [
                     generation["raw_output"] for generation in generations
-                ],
-                "generation_prompt": [
-                    generation["prompt_used"] for generation in generations
                 ],
             }
             try:
@@ -179,8 +179,8 @@ class Pipeline(Generic[T]):
                     )
 
                 processed_label = {
-                    "raw_labelling_response": label["raw_output"],
                     "labelling_prompt": label["prompt_used"],
+                    "raw_labelling_response": label["raw_output"],
                 }
                 try:
                     if isinstance(label["parsed_output"], list):
