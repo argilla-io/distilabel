@@ -56,7 +56,7 @@ class CustomDataset(Dataset):
         return rg_dataset
 
 
-class PreferenceDataset(Dataset):
+class PreferenceDataset(CustomDataset):
     task: Union["Task", None] = None
 
     def to_argilla(self, group_ratings_as_ranking: bool = False) -> "FeedbackDataset":

@@ -29,8 +29,10 @@ from typing import (
 )
 
 from datasets import Dataset
+from datasets.arrow_reader import math
 
 from distilabel.dataset import CustomDataset
+from distilabel.logger import get_logger
 from distilabel.progress_bar import get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
 
@@ -38,7 +40,42 @@ if TYPE_CHECKING:
     from distilabel.llm.base import LLM
 
 
-T = TypeVar("T", bound=Dataset)
+T = TypeVar("T", bound=CustomDataset)
+
+logger = get_logger()
+
+
+def _include_generator_outputs_as_inputs(
+    inputs: List[Dict[str, Any]], outputs: List[Dict[str, Any]]
+) -> None:
+    for input, generations_ in zip(inputs, outputs):
+        # Skip the `raw_generation_response` key as not used by the labelling LLM
+        input.update(
+            {k: v for k, v in generations_.items() if k != "raw_generation_response"}
+        )
+
+
+def _get_formatted_labels(labels) -> List[Dict[str, Any]]:
+    # TODO: implement fallback mechanism if `combine_dicts` fails
+    formatted_labels = []
+    for raw_response, parsed_responses in labels:
+        # It is always going to be a list of dicts or lists of dicts
+        # TODO: we need to add that to the base definition)
+        for parsed_response in parsed_responses:
+            if isinstance(parsed_response, list):
+                formatted_labels.append(
+                    {
+                        "raw_labelling_response": raw_response,
+                        **combine_dicts(*parsed_response),
+                    }
+                )
+            elif isinstance(parsed_response, dict):
+                formatted_labels.append(
+                    {"raw_labelling_response": raw_response, **parsed_response}
+                )
+            else:
+                raise ValueError(f"Unsupported type: {type(parsed_response)}")
+    return formatted_labels
 
 
 class Pipeline(Generic[T]):
@@ -56,9 +93,7 @@ class Pipeline(Generic[T]):
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
     def _remap_dataset(self, dataset: Dataset) -> T:
-        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
-        dataset.__class__ = self.dataset_cls
-        return dataset  # type: ignore
+        return self.dataset_cls.from_dict(dataset.to_dict())  # type: ignore
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -92,10 +127,10 @@ class Pipeline(Generic[T]):
 
     def _add_columns_to_dataset(
         self,
-        dataset: Dataset,
+        dataset: T,
         generations: List[Dict[str, Any]],
         labels: List[Dict[str, Any]],
-    ) -> Dataset:
+    ) -> T:
         if self.generator is not None:
             for output_name in self.generator.task.output_args_names:
                 dataset = dataset.add_column(
@@ -132,7 +167,7 @@ class Pipeline(Generic[T]):
             progress_callback_func=progress_callback_func,
         )
 
-        if self.generator.return_futures:
+        if self.generator.return_futures:  # type: ignore
             batch_generations = [future.result() for future in batch_generations]
 
         # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
@@ -165,81 +200,59 @@ class Pipeline(Generic[T]):
     ) -> T:
         # We need to convert the dataset to a dict and then back to a dataset
         # as we just want to keep the dataset content, not its metadata
-        dataset = Dataset.from_dict(dataset.to_dict())
-        self._validate_dataset(dataset)
+        _dataset = self._remap_dataset(dataset)
+        self._validate_dataset(_dataset)
 
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
 
         (
             generation_progress_func,
-            labelling_progress_bar,
+            labelling_progress_func,
         ) = get_progress_bars_for_pipeline(
-            num_rows=len(dataset),
+            num_rows=len(_dataset),
             num_generations=num_generations,
             display_progress_bar=display_progress_bar,
         )
 
-        for rows in dataset.iter(batch_size=batch_size):
+        num_batches = math.ceil(len(_dataset) / batch_size)
+
+        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size)):
+            logger.info(f"Processing batch {batch_i} of {num_batches}...")
             inputs = self._transform_dataset_to_expected_format(rows)
 
             if self.generator is not None:
+                logger.info(f"Calling generator for batch {batch_i}...")
                 batch_generations = self._get_batch_generations(
                     inputs, num_generations, generation_progress_func
                 )
                 generations.extend(batch_generations)
-
-                for input, generations_ in zip(inputs, batch_generations):
-                    # Skip the `raw_generation_response` key as not used by the labelling LLM
-                    input.update(
-                        {
-                            k: v
-                            for k, v in generations_.items()
-                            if k != "raw_generation_response"
-                        }
-                    )
+                _include_generator_outputs_as_inputs(inputs, batch_generations)
 
             if self.labeller is not None:
                 # `num_generations` is always 1 because labelling the same input multiple times
                 # using the same LLM may not make sense
+                logger.info(f"Calling labeller for batch {batch_i}...")
                 batch_labels = self.labeller.generate(
                     inputs=inputs,
                     num_generations=1,
-                    progress_callback_func=labelling_progress_bar,
+                    progress_callback_func=labelling_progress_func,
                 )
                 labels.extend(batch_labels)
 
+        formatted_labels = []
         if self.labeller is not None:
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-            # TODO: implement fallback mechanism if `combine_dicts` fails
-            formatted_labels = []
-            for raw_response, parsed_responses in labels:
-                # It is always going to be a list of dicts or lists of dicts
-                # TODO: we need to add that to the base definition)
-                for parsed_response in parsed_responses:
-                    if isinstance(parsed_response, list):
-                        formatted_labels.append(
-                            {
-                                "raw_labelling_response": raw_response,
-                                **combine_dicts(*parsed_response),
-                            }
-                        )
-                    elif isinstance(parsed_response, dict):
-                        formatted_labels.append(
-                            {"raw_labelling_response": raw_response, **parsed_response}
-                        )
-                    else:
-                        raise ValueError(f"Unsupported type: {type(parsed_response)}")
+            formatted_labels = _get_formatted_labels(labels)
 
-        dataset = self._add_columns_to_dataset(dataset, generations, formatted_labels)
-        dataset = self._remap_dataset(dataset)
+        _dataset = self._add_columns_to_dataset(_dataset, generations, formatted_labels)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
         #   that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
-            dataset.task = self.labeller.task
-        return dataset
+            _dataset.task = self.labeller.task
+        return _dataset
 
 
 # TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
