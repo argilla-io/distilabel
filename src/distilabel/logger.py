@@ -1,4 +1,7 @@
 import logging
+import os
+
+DISTILABEL_LOG_LEVEL = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
 
 
 def _get_root_logger() -> logging.Logger:
@@ -7,7 +10,7 @@ def _get_root_logger() -> logging.Logger:
 
 def _configure_root_logger():
     root_logger = _get_root_logger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(DISTILABEL_LOG_LEVEL)
 
 
 _configure_root_logger()
