@@ -15,10 +15,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 if TYPE_CHECKING:
+    from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
 
 
@@ -48,7 +49,7 @@ class LLM(ABC):
             self.thread_pool_executor.shutdown()
 
     @abstractmethod
-    def _generate(self, **kwargs: Any) -> Tuple[Any, List[Any]]:
+    def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
         pass
 
     def generate(
@@ -56,7 +57,7 @@ class LLM(ABC):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Any:
+    ) -> Union[Future[List["LLMOutput"]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
                 progress_callback_func()

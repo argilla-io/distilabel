@@ -15,7 +15,7 @@
 import logging
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
 
 import torch
 from huggingface_hub import InferenceClient, InferenceTimeoutError
@@ -31,6 +31,7 @@ from tenacity import (
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 from distilabel.llm.base import LLM
+from distilabel.llm.utils import LLMOutput
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -96,7 +97,7 @@ class TransformersLLM(LLM):
 
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
-    ) -> Tuple[Any, List[Any]]:
+    ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
@@ -117,7 +118,7 @@ class TransformersLLM(LLM):
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )
-        parsed_outputs = []
+        outputs = []
         for raw_output in raw_outputs:
             try:
                 parsed_output = self.task.parse_output(raw_output)
@@ -126,8 +127,14 @@ class TransformersLLM(LLM):
                     f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
                 )
                 parsed_output = {}
-            parsed_outputs.append(parsed_output)
-        return raw_outputs, parsed_outputs
+            outputs.append(
+                LLMOutput(
+                    prompt_used=prompt,
+                    raw_output=raw_output,
+                    parsed_output=parsed_output,
+                )
+            )
+        return outputs
 
 
 class InferenceEndpointsLLM(LLM):
@@ -168,7 +175,7 @@ class InferenceEndpointsLLM(LLM):
 
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
-    ) -> Tuple[Any, List[Dict[str, Any]]]:
+    ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
@@ -176,10 +183,10 @@ class InferenceEndpointsLLM(LLM):
             self._text_generation_with_backoff(prompt=prompt)
             for _ in range(num_generations)
         ]
-        parsed_responses = []
-        for response in raw_responses:
+        outputs = []
+        for raw_response in raw_responses:
             try:
-                parsed_response = self.task.parse_output(response)
+                parsed_response = self.task.parse_output(raw_response)
             except Exception as e:
                 warnings.warn(
                     f"Error parsing Inference Endpoints output: {e}",
@@ -187,5 +194,11 @@ class InferenceEndpointsLLM(LLM):
                     stacklevel=2,
                 )
                 parsed_response = {}
-            parsed_responses.append(parsed_response)
-        return raw_responses, parsed_responses
+            outputs.append(
+                LLMOutput(
+                    prompt_used=prompt,
+                    raw_output=raw_response,
+                    parsed_output=parsed_response,
+                )
+            )
+        return outputs
