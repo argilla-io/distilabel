@@ -99,6 +99,35 @@ class Pipeline(Generic[T]):
                     f" just contains: {dataset.column_names}"
                 ) from err
 
+    def _overlapping_columns_with_dataset(self, dataset: T, force: bool = False) -> T:
+        # Additionally, we need to check that if the columns to be generated already exist,
+        # then we should look for `None`/`null` values and just fulfill those, while skipping
+        # the rest. This is useful to be able to continue a generation that broke or a process
+        # that was interrupted
+        generated_columns = []
+        if self.generator is not None:
+            generated_columns += self.generator.task.output_args_names
+        if self.labeller is not None:
+            generated_columns += self.labeller.task.output_args_names
+
+        if set(generated_columns) == set(dataset.column_names).intersection(
+            set(generated_columns)
+        ):
+            if not force:
+                warnings.warn(
+                    "The provided dataset already contains the columns to be generated:"
+                    f" {generated_columns}; which means that the generation process will"
+                    " be skipped for the rows with values for those columns. If you want"
+                    " to re-generate those columns, please either remove them from the"
+                    " dataset, or provide the `force=True` flag to the `Pipeline.generate`"
+                    " method.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            else:
+                dataset = dataset.remove_columns(generated_columns)
+        return dataset
+
     def _add_columns_to_dataset(
         self,
         dataset: T,
@@ -236,6 +265,7 @@ class Pipeline(Generic[T]):
         dataset: Dataset,
         num_generations: int = 1,
         batch_size: int = 1,
+        force: bool = False,
         display_progress_bar: bool = False,
     ) -> T:
         if (
@@ -255,6 +285,7 @@ class Pipeline(Generic[T]):
 
         self._validate_dataset(dataset)
         _dataset = self._reset_and_remap_dataset(dataset)
+        self._overlapping_columns_with_dataset(_dataset, force=force)
 
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
