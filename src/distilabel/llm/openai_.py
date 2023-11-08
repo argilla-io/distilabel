@@ -16,7 +16,7 @@ import logging
 import os
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 import openai
 from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
@@ -31,6 +31,7 @@ from tenacity import (
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
+from distilabel.logger import get_logger
 from distilabel.tasks.utils import Prompt
 
 if TYPE_CHECKING:
@@ -47,8 +48,7 @@ _OPENAI_API_STOP_AFTER_ATTEMPT = 6
 _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 
-logger: Final = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logger = get_logger()
 
 
 class OpenAILLM(LLM):
@@ -136,9 +136,7 @@ class OpenAILLM(LLM):
                     raw_response["message"]["content"].strip()
                 )
             except Exception as e:
-                warnings.warn(
-                    f"Error parsing OpenAI response: {e}", UserWarning, stacklevel=2
-                )
+                logger.error(f"Error parsing OpenAI response: {e}")
                 parsed_response = None
             outputs.append(
                 LLMOutput(

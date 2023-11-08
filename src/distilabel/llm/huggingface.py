@@ -15,7 +15,7 @@
 import logging
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 import torch
 from huggingface_hub import InferenceClient, InferenceTimeoutError
@@ -32,6 +32,7 @@ from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
+from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -45,8 +46,7 @@ _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 
-logger: Final = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logger = get_logger()
 
 
 class TransformersLLM(LLM):
@@ -123,9 +123,7 @@ class TransformersLLM(LLM):
             try:
                 parsed_output = self.task.parse_output(raw_output)
             except Exception as e:
-                warnings.warn(
-                    f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
-                )
+                logger.error(f"Error parsing Transformers output: {e}")
                 parsed_output = None
             outputs.append(
                 LLMOutput(
@@ -190,11 +188,7 @@ class InferenceEndpointsLLM(LLM):
             try:
                 parsed_response = self.task.parse_output(raw_response)
             except Exception as e:
-                warnings.warn(
-                    f"Error parsing Inference Endpoints output: {e}",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                logger.error(f"Error parsing Inference Endpoints output: {e}")
                 parsed_response = None
             outputs.append(
                 LLMOutput(

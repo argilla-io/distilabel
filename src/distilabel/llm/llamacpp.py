@@ -14,16 +14,18 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
+from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
 
     from distilabel.tasks.base import Task
+
+logger = get_logger()
 
 
 class LlamaCppLLM(LLM):
@@ -60,9 +62,7 @@ class LlamaCppLLM(LLM):
                     raw_output["choices"][0]["text"].strip()
                 )
             except Exception as e:
-                warnings.warn(
-                    f"Error parsing llama-cpp output: {e}", UserWarning, stacklevel=2
-                )
+                logger.error(f"Error parsing llama-cpp output: {e}")
                 parsed_output = None
             outputs.append(
                 LLMOutput(

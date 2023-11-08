@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import os
 import warnings
 from typing import (
@@ -31,6 +32,7 @@ from typing import (
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
+from distilabel.logger import get_logger
 from distilabel.progress_bar import get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
 
@@ -39,7 +41,25 @@ if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
 
 
-T = TypeVar("T", bound=Dataset)
+T = TypeVar("T", bound=CustomDataset)
+
+logger = get_logger()
+
+
+def _include_generator_outputs_as_inputs(
+    inputs: List[Dict[str, Any]],
+    outputs: List[Dict[str, Any]],
+    labeller: Union["LLM", None] = None,
+) -> None:
+    for input, generations_ in zip(inputs, outputs):
+        # Skip the `raw_generation_response` key as not used by the labelling LLM
+        input.update(
+            {
+                k: v
+                for k, v in generations_.items()
+                if labeller is not None and k in labeller.task.input_args_names
+            }
+        )
 
 
 class Pipeline(Generic[T]):
@@ -56,10 +76,8 @@ class Pipeline(Generic[T]):
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _remap_dataset(self, dataset: Dataset) -> T:
-        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
-        dataset.__class__ = self.dataset_cls
-        return dataset  # type: ignore
+    def _reset_and_remap_dataset(self, dataset: Dataset) -> T:
+        return self.dataset_cls(arrow_table=dataset.data, split=Split.TRAIN)
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -93,10 +111,10 @@ class Pipeline(Generic[T]):
 
     def _add_columns_to_dataset(
         self,
-        dataset: Dataset,
+        dataset: T,
         generations: List[Dict[str, Any]],
         labels: List[Dict[str, Any]],
-    ) -> Dataset:
+    ) -> T:
         if self.generator is not None:
             for output_name in self.generator.task.output_args_names:
                 dataset = dataset.add_column(
@@ -135,7 +153,7 @@ class Pipeline(Generic[T]):
             progress_callback_func=progress_callback_func,
         )
 
-        if self.generator.return_futures:
+        if self.generator.return_futures:  # type: ignore
             batch_generations = [future.result() for future in batch_generations]
 
         return self._process_batch_generations(batch_generations=batch_generations)
@@ -166,6 +184,21 @@ class Pipeline(Generic[T]):
                 )
             processed_generations.append(processed_generation)
         return processed_generations
+
+    def _include_generator_outputs_as_inputs(
+        self, inputs: List[Dict[str, Any]], outputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        for input, output in zip(inputs, outputs):
+            # Skip the keys not required by the labelling LLM
+            input.update(
+                {
+                    k: v
+                    for k, v in output.items()
+                    if self.labeller is not None
+                    and k in self.labeller.task.input_args_names
+                }
+            )
+        return inputs
 
     def _process_batch_labels(
         self, batch_labels: List[List["LLMOutput"]]
@@ -224,52 +257,54 @@ class Pipeline(Generic[T]):
             and num_generations < 2
         ):
             warnings.warn(
-                f"Provided `num_generations={num_generations}` which implies that the `generator` LLM will just run once, while the `labelling` LLM expects to recieve a list of N inputs to label, where N is > 1. If this is not intended, make sure to set `num_generations` to a value higher or equal to 2.",
+                f"Provided `num_generations={num_generations}` which implies that the "
+                "`generator` LLM will just run once, while the `labelling` LLM expects "
+                "to recieve a list of N inputs to label, where N is > 1. If this is not "
+                "intended, make sure to set `num_generations` to a value higher or "
+                "equal to 2.",
                 UserWarning,
                 stacklevel=2,
             )
 
         self._validate_dataset(dataset)
+        _dataset = self._reset_and_remap_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
 
         (
             generation_progress_func,
-            labelling_progress_bar,
+            labelling_progress_func,
         ) = get_progress_bars_for_pipeline(
-            num_rows=len(dataset),
+            num_rows=len(_dataset),
             num_generations=num_generations,
             display_progress_bar=display_progress_bar,
         )
 
-        for rows in dataset.iter(batch_size=batch_size):
+        num_batches = math.ceil(len(_dataset) / batch_size)
+
+        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size)):
+            logger.info(f"Processing batch {batch_i} of {num_batches}...")
             inputs = self._transform_dataset_to_expected_format(rows)
 
             if self.generator is not None:
+                logger.info(f"Calling generator for batch {batch_i}...")
                 batch_generations = self._get_batch_generations(
                     inputs, num_generations, generation_progress_func
                 )
                 generations.extend(batch_generations)
-
-                for input, generations_ in zip(inputs, batch_generations):
-                    # Skip the `raw_generation_response` key as not used by the labelling LLM
-                    input.update(
-                        {
-                            k: v
-                            for k, v in generations_.items()
-                            if self.labeller is not None
-                            and k in self.labeller.task.input_args_names
-                        }
-                    )
+                inputs = self._include_generator_outputs_as_inputs(
+                    inputs, batch_generations
+                )
 
             if self.labeller is not None:
                 # `num_generations` is always 1 because labelling the same input multiple times
                 # using the same LLM may not make sense
+                logger.info(f"Calling labeller for batch {batch_i}...")
                 batch_labels = self.labeller.generate(
                     inputs=inputs,
                     num_generations=1,
-                    progress_callback_func=labelling_progress_bar,
+                    progress_callback_func=labelling_progress_func,
                 )
                 labels.extend(batch_labels)
 
@@ -277,17 +312,14 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-
             labels = self._process_batch_labels(batch_labels=labels)
 
-        dataset = self._reset_dataset(dataset)
         dataset = self._add_columns_to_dataset(dataset, generations, labels)
-        dataset = self._remap_dataset(dataset)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
         # that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
-            dataset.task = self.labeller.task
-        return dataset
+            _dataset.task = self.labeller.task
+        return _dataset
 
 
 # TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
