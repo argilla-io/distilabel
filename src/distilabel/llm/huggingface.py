@@ -126,7 +126,7 @@ class TransformersLLM(LLM):
                 warnings.warn(
                     f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
                 )
-                parsed_output = {}
+                parsed_output = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
@@ -137,6 +137,8 @@ class TransformersLLM(LLM):
         return outputs
 
 
+# TODO: add `do_sample=False` if `temperature` is 0, as it will disable temperature sampling
+# and will always use the most likely next token in the sequence (greedy decoding).
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
@@ -193,7 +195,7 @@ class InferenceEndpointsLLM(LLM):
                     UserWarning,
                     stacklevel=2,
                 )
-                parsed_response = {}
+                parsed_response = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
