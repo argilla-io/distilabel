@@ -49,36 +49,17 @@ logger = get_logger()
 def _include_generator_outputs_as_inputs(
     inputs: List[Dict[str, Any]],
     outputs: List[Dict[str, Any]],
-    labeller_input_args_names: List[str],
+    labeller: Union["LLM", None] = None,
 ) -> None:
     for input, generations_ in zip(inputs, outputs):
         # Skip the `raw_generation_response` key as not used by the labelling LLM
         input.update(
-            {k: v for k, v in generations_.items() if k in labeller_input_args_names}
+            {
+                k: v
+                for k, v in generations_.items()
+                if labeller is not None and k in labeller.task.input_args_names
+            }
         )
-
-
-def _get_formatted_labels(labels) -> List[Dict[str, Any]]:
-    # TODO: implement fallback mechanism if `combine_dicts` fails
-    formatted_labels = []
-    for raw_response, parsed_responses in labels:
-        # It is always going to be a list of dicts or lists of dicts
-        # TODO: we need to add that to the base definition)
-        for parsed_response in parsed_responses:
-            if isinstance(parsed_response, list):
-                formatted_labels.append(
-                    {
-                        "raw_labelling_response": raw_response,
-                        **combine_dicts(*parsed_response),
-                    }
-                )
-            elif isinstance(parsed_response, dict):
-                formatted_labels.append(
-                    {"raw_labelling_response": raw_response, **parsed_response}
-                )
-            else:
-                raise ValueError(f"Unsupported type: {type(parsed_response)}")
-    return formatted_labels
 
 
 class Pipeline(Generic[T]):
@@ -204,6 +185,21 @@ class Pipeline(Generic[T]):
             processed_generations.append(processed_generation)
         return processed_generations
 
+    def _include_generator_outputs_as_inputs(
+        self, inputs: List[Dict[str, Any]], outputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        for input, output in zip(inputs, outputs):
+            # Skip the keys not required by the labelling LLM
+            input.update(
+                {
+                    k: v
+                    for k, v in output.items()
+                    if self.labeller is not None
+                    and k in self.labeller.task.input_args_names
+                }
+            )
+        return inputs
+
     def _process_batch_labels(
         self, batch_labels: List[List["LLMOutput"]]
     ) -> List[Dict[str, Any]]:
@@ -297,13 +293,8 @@ class Pipeline(Generic[T]):
                     inputs, num_generations, generation_progress_func
                 )
                 generations.extend(batch_generations)
-                labeller_input_args_names = (
-                    self.labeller.task.input_args_names
-                    if self.labeller is not None
-                    else []
-                )
-                _include_generator_outputs_as_inputs(
-                    inputs, batch_generations, labeller_input_args_names
+                inputs = self._include_generator_outputs_as_inputs(
+                    inputs, batch_generations
                 )
 
             if self.labeller is not None:
