@@ -128,6 +128,9 @@ class Pipeline(Generic[T]):
                 dataset = dataset.remove_columns(generated_columns)
         return dataset
 
+    def _backup_dataset(self, dataset: T) -> T:
+        return self.dataset_cls.from_dict({}, split=Split.TRAIN)
+
     def _add_columns_to_dataset(
         self,
         dataset: T,
@@ -266,6 +269,7 @@ class Pipeline(Generic[T]):
         num_generations: int = 1,
         batch_size: int = 1,
         force: bool = False,
+        checkpointing: bool = True,
         display_progress_bar: bool = False,
     ) -> T:
         if (
@@ -287,6 +291,9 @@ class Pipeline(Generic[T]):
         _dataset = self._reset_and_remap_dataset(dataset)
         self._overlapping_columns_with_dataset(_dataset, force=force)
 
+        if checkpointing:
+            _backup_dataset = self._backup_dataset(_dataset)
+
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
 
@@ -301,40 +308,71 @@ class Pipeline(Generic[T]):
 
         num_batches = math.ceil(len(_dataset) / batch_size)
 
-        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size), start=1):
-            logger.info(f"Processing batch {batch_i} of {num_batches}...")
-            inputs = self._transform_dataset_to_expected_format(rows)
+        try:
+            for batch_i, rows in enumerate(
+                _dataset.iter(batch_size=batch_size), start=1
+            ):
+                logger.info(f"Processing batch {batch_i} of {num_batches}...")
+                inputs = self._transform_dataset_to_expected_format(rows)
 
-            if self.generator is not None:
-                logger.info(f"Calling generator for batch {batch_i}...")
-                batch_generations = self._get_batch_generations(
-                    inputs, num_generations, generation_progress_func
-                )
-                generations.extend(batch_generations)
-                inputs = self._include_generator_outputs_as_inputs(
-                    inputs, batch_generations
-                )
+                if self.generator is not None:
+                    logger.info(f"Calling generator for batch {batch_i}...")
+                    batch_generations = self._get_batch_generations(
+                        inputs, num_generations, generation_progress_func
+                    )
+                    generations.extend(batch_generations)
+                    inputs = self._include_generator_outputs_as_inputs(
+                        inputs, batch_generations
+                    )
+
+                if self.labeller is not None:
+                    # `num_generations` is always 1 because labelling the same input multiple times
+                    # using the same LLM may not make sense
+                    logger.info(f"Calling labeller for batch {batch_i}...")
+                    batch_labels = self.labeller.generate(
+                        inputs=inputs,
+                        num_generations=1,
+                        progress_callback_func=labelling_progress_func,
+                    )
+                    labels.extend(batch_labels)
+
+                if checkpointing:
+                    # If checkpointing is enabled, then we should get the current generations and the
+                    # current labels (if any) as a datasets.Dataset row into `_backup_dataset`
+                    if self.generator is None:
+                        batch_generations = [{} for _ in range(len(rows))]
+                    if self.labeller is not None:
+                        # If the LLM returns futures, we need to wait for them to finish
+                        if self.labeller.return_futures:
+                            batch_labels = [future.result() for future in batch_labels]
+                        batch_labels = self._process_batch_labels(
+                            batch_labels=batch_labels
+                        )
+                    else:
+                        batch_labels = [{} for _ in range(len(rows))]
+
+                    rows = [dict(zip(rows, item)) for item in zip(*rows.values())]
+                    for row, generation, label in zip(
+                        rows, batch_generations, batch_labels
+                    ):
+                        _backup_dataset = _backup_dataset.add_item(
+                            {**row, **generation, **label}
+                        )
 
             if self.labeller is not None:
-                # `num_generations` is always 1 because labelling the same input multiple times
-                # using the same LLM may not make sense
-                logger.info(f"Calling labeller for batch {batch_i}...")
-                batch_labels = self.labeller.generate(
-                    inputs=inputs,
-                    num_generations=1,
-                    progress_callback_func=labelling_progress_func,
-                )
-                labels.extend(batch_labels)
+                # If the LLM returns futures, we need to wait for them to finish
+                if self.labeller.return_futures:
+                    labels = [future.result() for future in labels]
+                labels = self._process_batch_labels(batch_labels=labels)
+            dataset = self._add_columns_to_dataset(dataset, generations, labels)
 
-        if self.labeller is not None:
-            # If the LLM returns futures, we need to wait for them to finish
-            if self.labeller.return_futures:
-                labels = [future.result() for future in labels]
-            labels = self._process_batch_labels(batch_labels=labels)
+        except Exception as e:
+            if not checkpointing:
+                raise RuntimeError("`Pipeline.generate` failed") from e
+            else:
+                logger.error(f"`Pipeline.generate` failed with exception: {e}")
+                _dataset = _backup_dataset
 
-        dataset = self._add_columns_to_dataset(dataset, generations, labels)
-        # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
-        # that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
             _dataset.task = self.labeller.task
         return _dataset
