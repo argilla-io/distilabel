@@ -126,7 +126,7 @@ class TransformersLLM(LLM):
                 warnings.warn(
                     f"Error parsing Transformers output: {e}", UserWarning, stacklevel=2
                 )
-                parsed_output = {}
+                parsed_output = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
@@ -193,7 +193,7 @@ class InferenceEndpointsLLM(LLM):
                     UserWarning,
                     stacklevel=2,
                 )
-                parsed_response = {}
+                parsed_response = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,

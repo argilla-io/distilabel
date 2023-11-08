@@ -139,7 +139,7 @@ class OpenAILLM(LLM):
                 warnings.warn(
                     f"Error parsing OpenAI response: {e}", UserWarning, stacklevel=2
                 )
-                parsed_response = {}
+                parsed_response = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,

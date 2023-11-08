@@ -63,7 +63,7 @@ class LlamaCppLLM(LLM):
                 warnings.warn(
                     f"Error parsing llama-cpp output: {e}", UserWarning, stacklevel=2
                 )
-                parsed_output = {}
+                parsed_output = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
