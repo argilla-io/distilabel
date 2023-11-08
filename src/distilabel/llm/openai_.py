@@ -58,17 +58,24 @@ class OpenAILLM(LLM):
         model: str = "gpt-3.5-turbo",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
-        temperature: float = 0.7,
+        frequence_penalty: Union[float, None] = None,
+        presence_penalty: Union[float, None] = None,
+        temperature: Union[float, None] = None,
+        top_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
             num_threads=num_threads,
             formatting_fn=formatting_fn,
         )
+
+        self.max_new_tokens = max_new_tokens
+        self.frequence_penalty = frequence_penalty
+        self.presence_penalty = presence_penalty
+        self.temperature = temperature
+        self.top_p = top_p
 
         openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
@@ -121,11 +128,14 @@ class OpenAILLM(LLM):
                 f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
             )
         raw_responses = self._chat_completion_with_backoff(
-            model=self.model,
             messages=prompt,
-            n=num_generations,
-            temperature=self.temperature,
+            model=self.model,
+            frequency_penalty=self.frequence_penalty,
             max_tokens=self.max_new_tokens,
+            n=num_generations,
+            presence_penalty=self.presence_penalty,
+            temperature=self.temperature,
+            top_p=self.top_p,
         )
         raw_responses = raw_responses.to_dict_recursive()
 

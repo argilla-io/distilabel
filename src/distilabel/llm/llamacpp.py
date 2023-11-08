@@ -34,15 +34,19 @@ class LlamaCppLLM(LLM):
         model: "Llama",
         task: "Task",
         max_new_tokens: int = 128,
-        temperature: float = 0.7,
+        temperature: Union[float, None] = None,
+        top_p: Union[float, None] = None,
+        top_k: Union[int, None] = None,
+        repeat_penalty: Union[float, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        super().__init__(
-            task=task,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            formatting_fn=formatting_fn,
-        )
+        super().__init__(task=task, formatting_fn=formatting_fn)
+
+        self.max_new_tokens = max_new_tokens
+        self.temperature = temperature
+        self.top_p = top_p
+        self.top_k = top_k
+        self.repeat_penalty = repeat_penalty
 
         self.model = model
 
@@ -55,7 +59,12 @@ class LlamaCppLLM(LLM):
         outputs = []
         for _ in range(num_generations):
             raw_output = self.model.create_completion(
-                prompt, max_tokens=self.max_new_tokens, temperature=self.temperature
+                prompt,
+                max_tokens=self.max_new_tokens,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                repeat_penalty=self.repeat_penalty,
             )
             try:
                 parsed_output = self.task.parse_output(
