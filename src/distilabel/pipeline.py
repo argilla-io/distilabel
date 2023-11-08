@@ -231,9 +231,6 @@ class Pipeline(Generic[T]):
 
         return inputs
 
-    def _reset_dataset(self, dataset: Dataset) -> Dataset:
-        return Dataset(arrow_table=dataset.data, split=Split.TRAIN)
-
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
