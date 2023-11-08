@@ -228,7 +228,9 @@ class Pipeline(Generic[T]):
         processed_labels = []
         for labels in batch_labels:
             for label in labels:
-                if not isinstance(label["parsed_output"], (list, dict)):
+                if label["parsed_output"] is not None and not isinstance(
+                    label["parsed_output"], (list, dict)
+                ):
                     raise ValueError(
                         f"Unsupported type: {type(label['parsed_output'])}"
                     )
