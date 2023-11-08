@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class LLM(ABC):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[Any, List[List["LLMOutput"]]]:
+    ) -> Union[Future[List["LLMOutput"]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
                 progress_callback_func()
