@@ -33,7 +33,7 @@ from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
 from distilabel.logger import get_logger
-from distilabel.progress_bar import get_progress_bars_for_pipeline
+from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
@@ -307,6 +307,8 @@ class Pipeline(Generic[T]):
                     progress_callback_func=labelling_progress_func,
                 )
                 labels.extend(batch_labels)
+
+        _pipeline_progress.stop()
 
         if self.labeller is not None:
             # If the LLM returns futures, we need to wait for them to finish
