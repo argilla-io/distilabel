@@ -277,7 +277,6 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-
             labels = self._process_batch_labels(batch_labels=labels)
 
         dataset = self._reset_dataset(dataset)
