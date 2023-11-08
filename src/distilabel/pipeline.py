@@ -301,7 +301,7 @@ class Pipeline(Generic[T]):
 
         num_batches = math.ceil(len(_dataset) / batch_size)
 
-        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size)):
+        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size), start=1):
             logger.info(f"Processing batch {batch_i} of {num_batches}...")
             inputs = self._transform_dataset_to_expected_format(rows)
 
