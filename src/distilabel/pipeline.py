@@ -46,22 +46,6 @@ T = TypeVar("T", bound=CustomDataset)
 logger = get_logger()
 
 
-def _include_generator_outputs_as_inputs(
-    inputs: List[Dict[str, Any]],
-    outputs: List[Dict[str, Any]],
-    labeller: Union["LLM", None] = None,
-) -> None:
-    for input, generations_ in zip(inputs, outputs):
-        # Skip the `raw_generation_response` key as not used by the labelling LLM
-        input.update(
-            {
-                k: v
-                for k, v in generations_.items()
-                if labeller is not None and k in labeller.task.input_args_names
-            }
-        )
-
-
 class Pipeline(Generic[T]):
     dataset_cls: Type[T] = CustomDataset
 
