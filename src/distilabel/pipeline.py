@@ -72,7 +72,9 @@ class Pipeline(Generic[T]):
                     self.labeller.task.validate_dataset(dataset.column_names)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects a dataset with the following columns: {self.labeller.task.input_args_names}"
+                        "Labelling LLM expects a dataset with at least the following"
+                        f" columns: {self.labeller.task.input_args_names}, but the provided"
+                        f" dataset just contains: {dataset.column_names}"
                     ) from err
             else:
                 expected_columns = (
@@ -82,7 +84,9 @@ class Pipeline(Generic[T]):
                     self.labeller.task.validate_dataset(expected_columns)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects to receive the following columns after the generation process: {expected_columns}"
+                        "Labelling LLM expects to receive the following columns after the"
+                        f" generation process: {self.labeller.task.input_args_names}, but the"
+                        f" provided dataset including the columns to generate just contains: {expected_columns}"
                     ) from err
 
         if self.generator is not None:
@@ -90,7 +94,9 @@ class Pipeline(Generic[T]):
                 self.generator.task.validate_dataset(dataset.column_names)
             except KeyError as err:
                 raise KeyError(
-                    f"Generation LLM expects a dataset with the following columns: {self.generator.task.input_args_names}"
+                    "Generation LLM expects a dataset with the following columns:"
+                    f" {self.generator.task.input_args_names}, but the provided dataset"
+                    f" just contains: {dataset.column_names}"
                 ) from err
 
     def _add_columns_to_dataset(
