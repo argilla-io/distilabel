@@ -137,6 +137,8 @@ class TransformersLLM(LLM):
         return outputs
 
 
+# TODO: add `do_sample=False` if `temperature` is 0, as it will disable temperature sampling
+# and will always use the most likely next token in the sequence (greedy decoding).
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
