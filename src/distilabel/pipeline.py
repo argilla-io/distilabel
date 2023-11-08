@@ -392,6 +392,9 @@ class Pipeline(Generic[T]):
                 # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
                 # and has to be present here as the `__class__` is lost in `add_item`
                 _backup_dataset.__class__ = self.dataset_cls
+                _backup_dataset.task = (
+                    self.labeller.task if self.labeller is not None else None
+                )
 
                 if labelling_step_failed:
                     return _backup_dataset
