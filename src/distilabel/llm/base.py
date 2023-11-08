@@ -57,7 +57,7 @@ class LLM(ABC):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[Future[List["LLMOutput"]], List[List["LLMOutput"]]]:
+    ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
                 progress_callback_func()
