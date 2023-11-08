@@ -79,7 +79,7 @@ class JudgeLMTask(Task):
 
     def parse_output(self, output: str) -> JudgeLMOutput:
         split_output = output.split("\n")
-        ratings = [int(rating) for rating in split_output[0].split(" ")]
+        ratings = [int(float(rating)) for rating in split_output[0].split(" ")]
         rationale = "".join(split_output[1:])
         return JudgeLMOutput(ratings=ratings, rationale=rationale)
 
