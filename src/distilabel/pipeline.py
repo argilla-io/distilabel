@@ -128,7 +128,7 @@ class Pipeline(Generic[T]):
         inputs: List[Dict[str, Any]],
         num_generations: int,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> List["LLMOutput"]:
+    ) -> List[Dict[str, Any]]:
         batch_generations = self.generator.generate(
             inputs=inputs,
             num_generations=num_generations,
@@ -277,6 +277,7 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
+
             labels = self._process_batch_labels(batch_labels=labels)
 
         dataset = self._reset_dataset(dataset)
