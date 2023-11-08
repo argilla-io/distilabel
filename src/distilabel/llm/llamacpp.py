@@ -14,9 +14,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from distilabel.llm.base import LLM
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
@@ -47,16 +48,15 @@ class LlamaCppLLM(LLM):
 
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
-    ) -> Tuple[Any, List[Any]]:
+    ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
-        raw_outputs, parsed_outputs = [], []
+        outputs = []
         for _ in range(num_generations):
             raw_output = self.model.create_completion(
                 prompt, max_tokens=self.max_new_tokens, temperature=self.temperature
             )
-            raw_outputs.append(raw_output)
             try:
                 parsed_output = self.task.parse_output(
                     raw_output["choices"][0]["text"].strip()
@@ -64,5 +64,11 @@ class LlamaCppLLM(LLM):
             except Exception as e:
                 logger.error(f"Error parsing llama-cpp output: {e}")
                 parsed_output = {}
-            parsed_outputs.append(parsed_output)
-        return raw_outputs, parsed_outputs
+            outputs.append(
+                LLMOutput(
+                    prompt_used=prompt,
+                    raw_output=raw_output,
+                    parsed_output=parsed_output,
+                )
+            )
+        return outputs

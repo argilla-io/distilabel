@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import os
 import warnings
 from typing import (
@@ -28,8 +29,7 @@ from typing import (
     Union,
 )
 
-from datasets import Dataset
-from datasets.arrow_reader import math
+from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
 from distilabel.logger import get_logger
@@ -38,6 +38,7 @@ from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM
+    from distilabel.llm.utils import LLMOutput
 
 
 T = TypeVar("T", bound=CustomDataset)
@@ -46,12 +47,14 @@ logger = get_logger()
 
 
 def _include_generator_outputs_as_inputs(
-    inputs: List[Dict[str, Any]], outputs: List[Dict[str, Any]]
+    inputs: List[Dict[str, Any]],
+    outputs: List[Dict[str, Any]],
+    labeller_input_args_names: List[str],
 ) -> None:
     for input, generations_ in zip(inputs, outputs):
         # Skip the `raw_generation_response` key as not used by the labelling LLM
         input.update(
-            {k: v for k, v in generations_.items() if k != "raw_generation_response"}
+            {k: v for k, v in generations_.items() if k in labeller_input_args_names}
         )
 
 
@@ -92,8 +95,8 @@ class Pipeline(Generic[T]):
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _remap_dataset(self, dataset: Dataset) -> T:
-        return self.dataset_cls.from_dict(dataset.to_dict())  # type: ignore
+    def _reset_and_remap_dataset(self, dataset: Dataset) -> T:
+        return self.dataset_cls(arrow_table=dataset.data, split=Split.TRAIN)
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -137,10 +140,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in generations]
                 )
 
-            dataset = dataset.add_column(
-                "raw_generation_response",
-                [row.get("raw_generation_response", None) for row in generations],
-            )
+            for column_name in ["generation_prompt", "raw_generation_responses"]:
+                dataset = dataset.add_column(
+                    column_name,
+                    [row.get(column_name, None) for row in generations],
+                )
 
         if self.labeller is not None:
             for output_name in self.labeller.task.output_args_names:
@@ -148,10 +152,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in labels]
                 )
 
-            dataset = dataset.add_column(
-                "raw_labelling_response",
-                [row.get("raw_labelling_response", None) for row in labels],
-            )
+            for column_name in ["labelling_prompt", "raw_labelling_response"]:
+                dataset = dataset.add_column(
+                    column_name,
+                    [row.get(column_name, None) for row in labels],
+                )
 
         return dataset
 
@@ -170,14 +175,63 @@ class Pipeline(Generic[T]):
         if self.generator.return_futures:  # type: ignore
             batch_generations = [future.result() for future in batch_generations]
 
-        # TODO(alvarobartt): implement fallback mechanism if `combine_dicts` fails
-        return [
-            {
-                "raw_generation_response": raw_responses,
-                **combine_dicts(*parsed_responses),
+        return self._process_batch_generations(batch_generations=batch_generations)
+
+    def _process_batch_generations(
+        self,
+        batch_generations: List[List["LLMOutput"]],
+    ) -> List[Dict[str, Any]]:
+        processed_generations = []
+        for generations in batch_generations:
+            processed_generation = {
+                "generation_prompt": generations[0]["prompt_used"],
+                "raw_generation_responses": [
+                    generation["raw_output"] for generation in generations
+                ],
             }
-            for raw_responses, parsed_responses in batch_generations
-        ]
+            try:
+                processed_generation.update(
+                    **combine_dicts(
+                        *[generation["parsed_output"] for generation in generations]
+                    )
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Generation processing step failed when combining dicts: {e}",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            processed_generations.append(processed_generation)
+        return processed_generations
+
+    def _process_batch_labels(
+        self, batch_labels: List[List["LLMOutput"]]
+    ) -> List[Dict[str, Any]]:
+        processed_labels = []
+        for labels in batch_labels:
+            for label in labels:
+                if not isinstance(label["parsed_output"], (list, dict)):
+                    raise ValueError(
+                        f"Unsupported type: {type(label['parsed_output'])}"
+                    )
+
+                processed_label = {
+                    "labelling_prompt": label["prompt_used"],
+                    "raw_labelling_response": label["raw_output"],
+                }
+                try:
+                    if isinstance(label["parsed_output"], list):
+                        processed_label.update(**combine_dicts(*label["parsed_output"]))
+                    elif isinstance(label["parsed_output"], dict):
+                        processed_label.update(**label["parsed_output"])
+                except Exception as e:
+                    warnings.warn(
+                        f"Label processing step failed when combining dicts: {e}",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                processed_labels.append(processed_label)
+        return processed_labels
 
     def _transform_dataset_to_expected_format(
         self, rows: Dict[str, List[Any]]
@@ -191,6 +245,9 @@ class Pipeline(Generic[T]):
 
         return inputs
 
+    def _reset_dataset(self, dataset: Dataset) -> Dataset:
+        return Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
@@ -198,10 +255,23 @@ class Pipeline(Generic[T]):
         batch_size: int = 1,
         display_progress_bar: bool = False,
     ) -> T:
-        # We need to convert the dataset to a dict and then back to a dataset
-        # as we just want to keep the dataset content, not its metadata
-        _dataset = self._remap_dataset(dataset)
-        self._validate_dataset(_dataset)
+        if (
+            self.labeller is not None
+            and self.generator is not None
+            and num_generations < 2
+        ):
+            warnings.warn(
+                f"Provided `num_generations={num_generations}` which implies that the "
+                "`generator` LLM will just run once, while the `labelling` LLM expects "
+                "to recieve a list of N inputs to label, where N is > 1. If this is not "
+                "intended, make sure to set `num_generations` to a value higher or "
+                "equal to 2.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        self._validate_dataset(dataset)
+        _dataset = self._reset_and_remap_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
@@ -227,7 +297,14 @@ class Pipeline(Generic[T]):
                     inputs, num_generations, generation_progress_func
                 )
                 generations.extend(batch_generations)
-                _include_generator_outputs_as_inputs(inputs, batch_generations)
+                labeller_input_args_names = (
+                    self.labeller.task.input_args_names
+                    if self.labeller is not None
+                    else []
+                )
+                _include_generator_outputs_as_inputs(
+                    inputs, batch_generations, labeller_input_args_names
+                )
 
             if self.labeller is not None:
                 # `num_generations` is always 1 because labelling the same input multiple times
@@ -240,16 +317,15 @@ class Pipeline(Generic[T]):
                 )
                 labels.extend(batch_labels)
 
-        formatted_labels = []
         if self.labeller is not None:
             # If the LLM returns futures, we need to wait for them to finish
             if self.labeller.return_futures:
                 labels = [future.result() for future in labels]
-            formatted_labels = _get_formatted_labels(labels)
+            labels = self._process_batch_labels(batch_labels=labels)
 
-        _dataset = self._add_columns_to_dataset(_dataset, generations, formatted_labels)
+        dataset = self._add_columns_to_dataset(dataset, generations, labels)
         # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
-        #   that would imply not passing the `task` but just returning the remapped dataset
+        # that would imply not passing the `task` but just returning the remapped dataset
         if self.labeller is not None:
             _dataset.task = self.labeller.task
         return _dataset

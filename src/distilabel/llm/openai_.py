@@ -16,7 +16,7 @@ import logging
 import os
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 import openai
 from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
@@ -30,6 +30,7 @@ from tenacity import (
 )
 
 from distilabel.llm.base import LLM
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.tasks.utils import Prompt
 
@@ -104,8 +105,7 @@ class OpenAILLM(LLM):
         self,
         input: Dict[str, Any],
         num_generations: int = 1,
-    ) -> Tuple[Any, List[Any]]:
-        # TODO(alvarobartt): move this responsibility to the `Task` class
+    ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
         if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
             warnings.warn(
@@ -120,19 +120,29 @@ class OpenAILLM(LLM):
             raise ValueError(
                 f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
             )
-        raw_response = self._chat_completion_with_backoff(
+        raw_responses = self._chat_completion_with_backoff(
             model=self.model,
             messages=prompt,
             n=num_generations,
             temperature=self.temperature,
             max_tokens=self.max_new_tokens,
         )
-        try:
-            parsed_response = [
-                self.task.parse_output(choice["message"]["content"].strip())
-                for choice in raw_response["choices"]
-            ]
-        except Exception as e:
-            logger.error(f"Error parsing OpenAI response: {e}")
-            parsed_response = []
-        return raw_response.to_dict_recursive(), parsed_response
+        raw_responses = raw_responses.to_dict_recursive()
+
+        outputs = []
+        for raw_response in raw_responses["choices"]:
+            try:
+                parsed_response = self.task.parse_output(
+                    raw_response["message"]["content"].strip()
+                )
+            except Exception as e:
+                logger.error(f"Error parsing OpenAI response: {e}")
+                parsed_response = {}
+            outputs.append(
+                LLMOutput(
+                    prompt_used=prompt,
+                    raw_output=raw_responses,
+                    parsed_output=parsed_response,
+                )
+            )
+        return outputs
