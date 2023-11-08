@@ -1,8 +1,8 @@
 ---
 name: "\U0001F195 Feature request"
-about: Suggest an idea for this project
+about: Suggest an idea for this project.
 title: "[FEATURE]"
-labels: enhancement, machine-learning
+labels: enhancement, ml-internal
 assignees: ''
 
 ---
