@@ -63,7 +63,7 @@ class LlamaCppLLM(LLM):
                 )
             except Exception as e:
                 logger.error(f"Error parsing llama-cpp output: {e}")
-                parsed_output = {}
+                parsed_output = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,

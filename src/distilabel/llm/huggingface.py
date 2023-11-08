@@ -124,7 +124,7 @@ class TransformersLLM(LLM):
                 parsed_output = self.task.parse_output(raw_output)
             except Exception as e:
                 logger.error(f"Error parsing Transformers output: {e}")
-                parsed_output = {}
+                parsed_output = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
@@ -135,6 +135,8 @@ class TransformersLLM(LLM):
         return outputs
 
 
+# TODO: add `do_sample=False` if `temperature` is 0, as it will disable temperature sampling
+# and will always use the most likely next token in the sequence (greedy decoding).
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
@@ -187,7 +189,7 @@ class InferenceEndpointsLLM(LLM):
                 parsed_response = self.task.parse_output(raw_response)
             except Exception as e:
                 logger.error(f"Error parsing Inference Endpoints output: {e}")
-                parsed_response = {}
+                parsed_response = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,

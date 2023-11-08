@@ -137,7 +137,7 @@ class OpenAILLM(LLM):
                 )
             except Exception as e:
                 logger.error(f"Error parsing OpenAI response: {e}")
-                parsed_response = {}
+                parsed_response = None
             outputs.append(
                 LLMOutput(
                     prompt_used=prompt,
