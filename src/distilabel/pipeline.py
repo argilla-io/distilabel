@@ -61,7 +61,10 @@ class Pipeline(Generic[T]):
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
     def _reset_and_remap_dataset(self, dataset: Dataset) -> T:
-        return self.dataset_cls(arrow_table=dataset.data, split=Split.TRAIN)
+        dataset = Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
+        dataset.__class__ = self.dataset_cls
+        return dataset
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
@@ -99,7 +102,7 @@ class Pipeline(Generic[T]):
                     f" just contains: {dataset.column_names}"
                 ) from err
 
-    def _overlapping_columns_with_dataset(self, dataset: T, force: bool = False) -> T:
+    def _overlapping_columns_with_dataset(self, dataset: T) -> T:
         # Additionally, we need to check that if the columns to be generated already exist,
         # then we should look for `None`/`null` values and just fulfill those, while skipping
         # the rest. This is useful to be able to continue a generation that broke or a process
@@ -113,23 +116,21 @@ class Pipeline(Generic[T]):
         if set(generated_columns) == set(dataset.column_names).intersection(
             set(generated_columns)
         ):
-            if not force:
-                warnings.warn(
-                    "The provided dataset already contains the columns to be generated:"
-                    f" {generated_columns}; which means that the generation process will"
-                    " be skipped for the rows with values for those columns. If you want"
-                    " to re-generate those columns, please either remove them from the"
-                    " dataset, or provide the `force=True` flag to the `Pipeline.generate`"
-                    " method.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-            else:
-                dataset = dataset.remove_columns(generated_columns)
+            warnings.warn(
+                "The provided dataset already contains the columns to be generated:"
+                f" {generated_columns}; which means that the generation process will"
+                " be skipped for the rows with values for those columns. If you want"
+                " to re-generate those columns, please remove them from the dataset.",
+                UserWarning,
+                stacklevel=2,
+            )
         return dataset
 
-    def _backup_dataset(self, dataset: T) -> T:
-        return self.dataset_cls.from_dict({}, split=Split.TRAIN)
+    def _backup_dataset(self) -> T:
+        dataset = Dataset.from_dict({}, split=Split.TRAIN)
+        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
+        dataset.__class__ = self.dataset_cls
+        return dataset
 
     def _add_columns_to_dataset(
         self,
@@ -270,7 +271,6 @@ class Pipeline(Generic[T]):
         dataset: Dataset,
         num_generations: int = 1,
         batch_size: int = 1,
-        force: bool = False,
         checkpointing: bool = True,
         display_progress_bar: bool = False,
     ) -> T:
@@ -291,10 +291,10 @@ class Pipeline(Generic[T]):
 
         self._validate_dataset(dataset)
         _dataset = self._reset_and_remap_dataset(dataset)
-        self._overlapping_columns_with_dataset(_dataset, force=force)
 
         if checkpointing:
-            _backup_dataset = self._backup_dataset(_dataset)
+            _backup_dataset = self._backup_dataset()
+            _backup_dataset.task = self.labeller.task if self.labeller else None
 
         generations: List[Dict[str, Any]] = []
         labels: List[Dict[str, Any]] = []
@@ -310,15 +310,13 @@ class Pipeline(Generic[T]):
 
         num_batches = math.ceil(len(_dataset) / batch_size)
 
-        try:
-            for batch_i, rows in enumerate(
-                _dataset.iter(batch_size=batch_size), start=1
-            ):
-                logger.info(f"Processing batch {batch_i} of {num_batches}...")
-                inputs = self._transform_dataset_to_expected_format(rows)
+        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size), start=1):
+            logger.info(f"Processing batch {batch_i} of {num_batches}...")
+            inputs = self._transform_dataset_to_expected_format(rows)
 
-                if self.generator is not None:
-                    logger.info(f"Calling generator for batch {batch_i}...")
+            if self.generator is not None:
+                logger.info(f"Calling generator for batch {batch_i}...")
+                try:
                     batch_generations = self._get_batch_generations(
                         inputs, num_generations, generation_progress_func
                     )
@@ -326,57 +324,89 @@ class Pipeline(Generic[T]):
                     inputs = self._include_generator_outputs_as_inputs(
                         inputs, batch_generations
                     )
+                except Exception as e:
+                    if not checkpointing:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during generation step. Setting `checkpointing=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during generation step with exception: {e}"
+                    )
+                    return _backup_dataset
 
-                if self.labeller is not None:
-                    # `num_generations` is always 1 because labelling the same input multiple times
-                    # using the same LLM may not make sense
-                    logger.info(f"Calling labeller for batch {batch_i}...")
+            if self.labeller is not None:
+                logger.info(f"Calling labeller for batch {batch_i}...")
+                try:
                     batch_labels = self.labeller.generate(
                         inputs=inputs,
+                        # `num_generations` is always 1 because labelling the same input multiple times
+                        # using the same LLM may not make sense
                         num_generations=1,
                         progress_callback_func=labelling_progress_func,
                     )
                     labels.extend(batch_labels)
+                except Exception as e:
+                    if not checkpointing:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during labelling step. Setting `checkpointing=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during labelling step with exception: {e}"
+                    )
+                    return _backup_dataset
 
-                if checkpointing:
-                    # If checkpointing is enabled, then we should get the current generations and the
-                    # current labels (if any) as a datasets.Dataset row into `_backup_dataset`
-                    if self.generator is None:
-                        batch_generations = [{} for _ in range(len(rows))]
-                    if self.labeller is not None:
-                        # If the LLM returns futures, we need to wait for them to finish
+            # If checkpointing is enabled, then we should get the current generations and the
+            # current labels (if any) as a datasets.Dataset row into `_backup_dataset`
+            if checkpointing:
+                if self.generator is None:
+                    batch_generations = [{} for _ in range(len(rows))]
+
+                labelling_step_failed = False
+                if self.labeller is not None:
+                    # If the LLM returns futures, we need to wait for them to finish
+                    try:
                         if self.labeller.return_futures:
                             batch_labels = [future.result() for future in batch_labels]
                         batch_labels = self._process_batch_labels(
                             batch_labels=batch_labels
                         )
-                    else:
-                        batch_labels = [{} for _ in range(len(rows))]
-
-                    rows = [dict(zip(rows, item)) for item in zip(*rows.values())]
-                    for row, generation, label in zip(
-                        rows, batch_generations, batch_labels
-                    ):
-                        _backup_dataset = _backup_dataset.add_item(
-                            {**row, **generation, **label}
+                    except Exception as e:
+                        logger.error(
+                            f"`Pipeline.generate` failed during labelling step with exception: {e}"
                         )
+                        labelling_step_failed = True
+                        batch_labels = [
+                            {k: None for k in self.labeller.task.output_args_names}
+                            for _ in range(len(rows))
+                        ]
+                else:
+                    batch_labels = [{} for _ in range(len(rows))]
 
-            if self.labeller is not None:
-                # If the LLM returns futures, we need to wait for them to finish
-                if self.labeller.return_futures:
-                    labels = [future.result() for future in labels]
-                labels = self._process_batch_labels(batch_labels=labels)
-            dataset = self._add_columns_to_dataset(dataset, generations, labels)
+                rows = [dict(zip(rows, item)) for item in zip(*rows.values())]
+                for row, generation, label in zip(
+                    rows, batch_generations, batch_labels
+                ):
+                    _backup_dataset = _backup_dataset.add_item(
+                        {**row, **generation, **label}
+                    )
+                # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
+                # and has to be present here as the `__class__` is lost in `add_item`
+                _backup_dataset.__class__ = self.dataset_cls
 
-        except Exception as e:
-            if not checkpointing:
-                raise RuntimeError("`Pipeline.generate` failed") from e
-            else:
-                logger.error(f"`Pipeline.generate` failed with exception: {e}")
-                _dataset = _backup_dataset
+                if labelling_step_failed:
+                    return _backup_dataset
+
+        if checkpointing:
+            return _backup_dataset
 
         if self.labeller is not None:
-            _dataset.task = self.labeller.task
+            # If the LLM returns futures, we need to wait for them to finish
+            if self.labeller.return_futures:
+                labels = [future.result() for future in labels]
+            labels = self._process_batch_labels(batch_labels=labels)
+        _dataset = self._add_columns_to_dataset(_dataset, generations, labels)
+        _dataset.__class__ = self.dataset_cls
+        _dataset.task = self.labeller.task if self.labeller else None
         return _dataset
 
 
