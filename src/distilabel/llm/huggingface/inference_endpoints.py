@@ -45,8 +45,6 @@ _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 logger = get_logger()
 
 
-# TODO: add `do_sample=False` if `temperature` is 0, as it will disable temperature sampling
-# and will always use the most likely next token in the sequence (greedy decoding).
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
@@ -54,17 +52,30 @@ class InferenceEndpointsLLM(LLM):
         task: "Task",
         token: Union[str, None] = None,
         max_new_tokens: int = 128,
-        temperature: float = 0.7,
+        repetition_penalty: Union[float, None] = None,
+        seed: Union[int, None] = None,
+        do_sample: bool = False,
+        temperature: Union[float, None] = None,
+        top_k: Union[int, None] = None,
+        top_p: Union[float, None] = None,
+        typical_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
             num_threads=num_threads,
             formatting_fn=formatting_fn,
         )
+
+        self.do_sample = do_sample
+        self.max_new_tokens = max_new_tokens
+        self.repetition_penalty = repetition_penalty
+        self.seed = seed
+        self.temperature = temperature
+        self.top_k = top_k
+        self.top_p = top_p
+        self.typical_p = typical_p
 
         self.client = InferenceClient(model=endpoint_url, token=token)
 
@@ -79,9 +90,7 @@ class InferenceEndpointsLLM(LLM):
         after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
-        return self.client.text_generation(
-            **kwargs, max_new_tokens=self.max_new_tokens, temperature=self.temperature
-        )
+        return self.client.text_generation(**kwargs)
 
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
@@ -90,7 +99,15 @@ class InferenceEndpointsLLM(LLM):
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
         raw_responses = [
-            self._text_generation_with_backoff(prompt=prompt)
+            self._text_generation_with_backoff(
+                prompt=prompt,
+                do_sample=self.do_sample,
+                max_new_tokens=self.max_new_tokens,
+                temperature=self.temperature,
+                top_k=self.top_k,
+                top_p=self.top_p,
+                typical_p=self.typical_p,
+            )
             for _ in range(num_generations)
         ]
         outputs = []

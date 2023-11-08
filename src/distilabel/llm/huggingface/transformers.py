@@ -22,17 +22,26 @@ class TransformersLLM(LLM):
         tokenizer: PreTrainedTokenizer,
         task: "Task",
         max_new_tokens: int = 128,
-        temperature: float = 0.7,
+        do_sample: bool = False,
+        temperature: Union[float, None] = None,
+        top_k: Union[int, None] = None,
+        top_p: Union[float, None] = None,
+        typical_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
             num_threads=num_threads,
             formatting_fn=formatting_fn,
         )
+
+        self.max_new_tokens = max_new_tokens
+        self.do_sample = do_sample
+        self.temperature = temperature
+        self.top_k = top_k
+        self.top_p = top_p
+        self.typical_p = typical_p
 
         self.model = model
         if self.device != "cpu":
@@ -74,8 +83,12 @@ class TransformersLLM(LLM):
             generated_ids = self.model.generate(
                 **encoding,
                 generation_config=GenerationConfig(
+                    do_sample=self.do_sample,
                     temperature=self.temperature,
                     max_new_tokens=self.max_new_tokens,
+                    top_k=self.top_k,
+                    top_p=self.top_p,
+                    typical_p=self.typical_p,
                     num_generations=num_generations,
                 ),
             )
