@@ -42,11 +42,19 @@ class LlamaCppLLM(LLM):
     ) -> None:
         super().__init__(task=task, formatting_fn=formatting_fn)
 
-        self.max_new_tokens = max_new_tokens
+        self.max_tokens = max_new_tokens
         self.temperature = temperature
         self.top_p = top_p
         self.top_k = top_k
         self.repeat_penalty = repeat_penalty
+
+        self.__generation_attrs = [
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "top_k",
+            "repeat_penalty",
+        ]
 
         self.model = model
 
@@ -56,15 +64,16 @@ class LlamaCppLLM(LLM):
         prompt = self.task.generate_prompt(**input)
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
+        generation_kwargs = {}
+        for generation_attr in self.__generation_attrs:
+            value = getattr(self, generation_attr)
+            if value is not None:
+                generation_kwargs[generation_attr] = value
         outputs = []
         for _ in range(num_generations):
             raw_output = self.model.create_completion(
                 prompt,
-                max_tokens=self.max_new_tokens,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                top_k=self.top_k,
-                repeat_penalty=self.repeat_penalty,
+                **generation_kwargs,
             )
             try:
                 parsed_output = self.task.parse_output(

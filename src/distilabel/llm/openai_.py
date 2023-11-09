@@ -71,11 +71,19 @@ class OpenAILLM(LLM):
             formatting_fn=formatting_fn,
         )
 
-        self.max_new_tokens = max_new_tokens
+        self.max_tokens = max_new_tokens
         self.frequence_penalty = frequence_penalty
         self.presence_penalty = presence_penalty
         self.temperature = temperature
         self.top_p = top_p
+
+        self.__generation_attrs = [
+            "max_tokens",
+            "frequency_penalty",
+            "presence_penalty",
+            "temperature",
+            "top_p",
+        ]
 
         openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
@@ -127,15 +135,16 @@ class OpenAILLM(LLM):
             raise ValueError(
                 f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
             )
+        generation_kwargs = {}
+        for generation_attr in self.__generation_attrs:
+            value = getattr(self, generation_attr)
+            if value is not None:
+                generation_kwargs[generation_attr] = value
         raw_responses = self._chat_completion_with_backoff(
             messages=prompt,
             model=self.model,
-            frequency_penalty=self.frequence_penalty,
-            max_tokens=self.max_new_tokens,
             n=num_generations,
-            presence_penalty=self.presence_penalty,
-            temperature=self.temperature,
-            top_p=self.top_p,
+            **generation_kwargs,
         )
         raw_responses = raw_responses.to_dict_recursive()
 
