@@ -60,12 +60,6 @@ class Pipeline(Generic[T]):
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _reset_and_remap_dataset(self, dataset: Dataset) -> T:
-        dataset = Dataset(arrow_table=dataset.data, split=Split.TRAIN)
-        # Dynamically remaps the `datasets.Dataset` to be an instance of `dataset_cls`
-        dataset.__class__ = self.dataset_cls
-        return dataset
-
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
@@ -288,7 +282,6 @@ class Pipeline(Generic[T]):
             )
 
         self._validate_dataset(dataset)
-        _dataset = self._reset_and_remap_dataset(dataset)
 
         if checkpointing:
             _backup_dataset = self._backup_dataset()
