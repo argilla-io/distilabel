@@ -48,7 +48,7 @@ logger = get_logger()
 
 
 class Pipeline(Generic[T]):
-    dataset_cls: Type[T] = CustomDataset
+    dataset_cls: Type[T] = CustomDataset  # type: ignore
 
     def __init__(
         self,
@@ -263,9 +263,13 @@ class Pipeline(Generic[T]):
             generations = [{} for _ in range(len(dataset))]
         else:
             if len(generations) < len(dataset):
+                generator_column_names = [
+                    "generation_prompt",
+                    "raw_generation_responses",
+                ] + self.generator.task.output_args_names
                 generations.extend(
                     [
-                        {key: None for key in self.generator.task.output_args_names}
+                        {key: None for key in generator_column_names}
                         for _ in range(len(dataset) - len(generations))
                     ]
                 )
@@ -279,6 +283,17 @@ class Pipeline(Generic[T]):
                     # TODO: improve robustness by surrounding every future.result() with a try-except
                     batch_labels = [future.result() for future in batch_labels]  # type: ignore
                 labels = self._process_batch_labels(batch_labels=batch_labels)  # type: ignore
+                if len(labels) < len(dataset):
+                    labeller_column_names = [
+                        "labelling_prompt",
+                        "raw_labelling_response",
+                    ] + self.labeller.task.output_args_names
+                    labels.extend(
+                        [
+                            {key: None for key in labeller_column_names}
+                            for _ in range(len(dataset) - len(labels))
+                        ]
+                    )
             except Exception as e:
                 logger.error(
                     f"`Pipeline.generate` failed during labelling step with exception: {e}"
