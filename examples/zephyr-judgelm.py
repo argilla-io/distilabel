@@ -2,7 +2,7 @@ import time
 from typing import Any, Dict
 
 from datasets import load_dataset
-from distilabel.llm.huggingface import InferenceEndpointsLLM
+from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
 from distilabel.llm.openai_ import OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks.base import Task
