@@ -253,7 +253,7 @@ class Pipeline(Generic[T]):
 
         return inputs
 
-    def _build_dataset(
+    def _build_dataset(  # noqa: C901
         self,
         dataset: Dataset,
         generations: List[Dict[str, Any]],
@@ -262,17 +262,23 @@ class Pipeline(Generic[T]):
         if self.generator is None:
             generations = [{} for _ in range(len(dataset))]
         else:
+            generator_column_names = [
+                "generation_prompt",
+                "raw_generation_responses",
+            ] + self.generator.task.output_args_names
+
             if len(generations) < len(dataset):
-                generator_column_names = [
-                    "generation_prompt",
-                    "raw_generation_responses",
-                ] + self.generator.task.output_args_names
                 generations.extend(
                     [
                         {key: None for key in generator_column_names}
                         for _ in range(len(dataset) - len(generations))
                     ]
                 )
+
+            for generation in generations:
+                for key in generator_column_names:
+                    if key not in generation:
+                        generation.update({key: None})
 
         if self.labeller is None:
             labels = [{} for _ in range(len(dataset))]
@@ -283,17 +289,23 @@ class Pipeline(Generic[T]):
                     # TODO: improve robustness by surrounding every future.result() with a try-except
                     batch_labels = [future.result() for future in batch_labels]  # type: ignore
                 labels = self._process_batch_labels(batch_labels=batch_labels)  # type: ignore
+
+                labeller_column_names = [
+                    "labelling_prompt",
+                    "raw_labelling_response",
+                ] + self.labeller.task.output_args_names
+
                 if len(labels) < len(dataset):
-                    labeller_column_names = [
-                        "labelling_prompt",
-                        "raw_labelling_response",
-                    ] + self.labeller.task.output_args_names
                     labels.extend(
                         [
                             {key: None for key in labeller_column_names}
                             for _ in range(len(dataset) - len(labels))
                         ]
                     )
+                for label in labels:
+                    for key in labeller_column_names:
+                        if key not in label:
+                            label.update({key: None})
             except Exception as e:
                 logger.error(
                     f"`Pipeline.generate` failed during labelling step with exception: {e}"
