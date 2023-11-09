@@ -79,7 +79,7 @@ class OpenAILLM(LLM):
 
         self.__generation_attrs = [
             "max_tokens",
-            "frequency_penalty",
+            "frequence_penalty",
             "presence_penalty",
             "temperature",
             "top_p",
