@@ -77,6 +77,17 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
+        self.__generation_attrs = [
+            "do_sample",
+            "max_new_tokens",
+            "repetition_penalty",
+            "seed",
+            "temperature",
+            "top_k",
+            "top_p",
+            "typical_p",
+        ]
+
         self.client = InferenceClient(model=endpoint_url, token=token)
 
     @retry(
@@ -98,15 +109,15 @@ class InferenceEndpointsLLM(LLM):
         prompt = self.task.generate_prompt(**input)
         if self.formatting_fn is not None:
             prompt = self.formatting_fn(prompt)
+        generation_kwargs = {}
+        for generation_attr in self.__generation_attrs:
+            value = getattr(self, generation_attr)
+            if value is not None:
+                generation_kwargs[generation_attr] = value
         raw_responses = [
             self._text_generation_with_backoff(
                 prompt=prompt,
-                do_sample=self.do_sample,
-                max_new_tokens=self.max_new_tokens,
-                temperature=self.temperature,
-                top_k=self.top_k,
-                top_p=self.top_p,
-                typical_p=self.typical_p,
+                **generation_kwargs,
             )
             for _ in range(num_generations)
         ]
