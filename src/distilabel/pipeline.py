@@ -15,6 +15,7 @@
 import math
 import os
 import warnings
+from concurrent.futures import Future
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -46,24 +47,8 @@ T = TypeVar("T", bound=CustomDataset)
 logger = get_logger()
 
 
-def _include_generator_outputs_as_inputs(
-    inputs: List[Dict[str, Any]],
-    outputs: List[Dict[str, Any]],
-    labeller: Union["LLM", None] = None,
-) -> None:
-    for input, generations_ in zip(inputs, outputs):
-        # Skip the `raw_generation_response` key as not used by the labelling LLM
-        input.update(
-            {
-                k: v
-                for k, v in generations_.items()
-                if labeller is not None and k in labeller.task.input_args_names
-            }
-        )
-
-
 class Pipeline(Generic[T]):
-    dataset_cls: Type[T] = CustomDataset
+    dataset_cls: Type[T] = CustomDataset  # type: ignore
 
     def __init__(
         self,
@@ -76,9 +61,6 @@ class Pipeline(Generic[T]):
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
-    def _reset_and_remap_dataset(self, dataset: Dataset) -> T:
-        return self.dataset_cls(arrow_table=dataset.data, split=Split.TRAIN)
-
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
@@ -88,7 +70,9 @@ class Pipeline(Generic[T]):
                     self.labeller.task.validate_dataset(dataset.column_names)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects a dataset with the following columns: {self.labeller.task.input_args_names}"
+                        "Labelling LLM expects a dataset with at least the following"
+                        f" columns: {self.labeller.task.input_args_names}, but the provided"
+                        f" dataset just contains: {dataset.column_names}"
                     ) from err
             else:
                 expected_columns = (
@@ -98,7 +82,9 @@ class Pipeline(Generic[T]):
                     self.labeller.task.validate_dataset(expected_columns)
                 except KeyError as err:
                     raise KeyError(
-                        f"Labelling LLM expects to receive the following columns after the generation process: {expected_columns}"
+                        "Labelling LLM expects to receive the following columns after the"
+                        f" generation process: {self.labeller.task.input_args_names}, but the"
+                        f" provided dataset including the columns to generate just contains: {expected_columns}"
                     ) from err
 
         if self.generator is not None:
@@ -106,8 +92,32 @@ class Pipeline(Generic[T]):
                 self.generator.task.validate_dataset(dataset.column_names)
             except KeyError as err:
                 raise KeyError(
-                    f"Generation LLM expects a dataset with the following columns: {self.generator.task.input_args_names}"
+                    "Generation LLM expects a dataset with the following columns:"
+                    f" {self.generator.task.input_args_names}, but the provided dataset"
+                    f" just contains: {dataset.column_names}"
                 ) from err
+
+        # Additionally, we need to check that if the columns to be generated already exist,
+        # then we should look for `None`/`null` values and just fulfill those, while skipping
+        # the rest. This is useful to be able to continue a generation that broke or a process
+        # that was interrupted
+        generated_columns = []
+        if self.generator is not None:
+            generated_columns += self.generator.task.output_args_names
+        if self.labeller is not None:
+            generated_columns += self.labeller.task.output_args_names
+
+        if set(generated_columns) == set(dataset.column_names).intersection(
+            set(generated_columns)
+        ):
+            warnings.warn(
+                "The provided dataset already contains the columns to be generated:"
+                f" {generated_columns}; which means that the generation process will"
+                " be skipped for the rows with values for those columns. If you want"
+                " to re-generate those columns, please remove them from the dataset.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     def _add_columns_to_dataset(
         self,
@@ -206,7 +216,9 @@ class Pipeline(Generic[T]):
         processed_labels = []
         for labels in batch_labels:
             for label in labels:
-                if not isinstance(label["parsed_output"], (list, dict)):
+                if label["parsed_output"] is not None and not isinstance(
+                    label["parsed_output"], (list, dict)
+                ):
                     raise ValueError(
                         f"Unsupported type: {type(label['parsed_output'])}"
                     )
@@ -241,14 +253,81 @@ class Pipeline(Generic[T]):
 
         return inputs
 
-    def _reset_dataset(self, dataset: Dataset) -> Dataset:
-        return Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+    def _build_dataset(  # noqa: C901
+        self,
+        dataset: Dataset,
+        generations: List[Dict[str, Any]],
+        batch_labels: Union[List[Future["LLMOutput"]], List["LLMOutput"]],
+    ) -> T:
+        if self.generator is None:
+            generations = [{} for _ in range(len(dataset))]
+        else:
+            generator_column_names = [
+                "generation_prompt",
+                "raw_generation_responses",
+            ] + self.generator.task.output_args_names
+
+            if len(generations) < len(dataset):
+                generations.extend(
+                    [
+                        {key: None for key in generator_column_names}
+                        for _ in range(len(dataset) - len(generations))
+                    ]
+                )
+
+            for generation in generations:
+                for key in generator_column_names:
+                    if key not in generation:
+                        generation.update({key: None})
+
+        if self.labeller is None:
+            labels = [{} for _ in range(len(dataset))]
+        else:
+            # If the LLM returns futures, we need to wait for them to finish
+            try:
+                if self.labeller.return_futures:
+                    # TODO: improve robustness by surrounding every future.result() with a try-except
+                    batch_labels = [future.result() for future in batch_labels]  # type: ignore
+                labels = self._process_batch_labels(batch_labels=batch_labels)  # type: ignore
+
+                labeller_column_names = [
+                    "labelling_prompt",
+                    "raw_labelling_response",
+                ] + self.labeller.task.output_args_names
+
+                if len(labels) < len(dataset):
+                    labels.extend(
+                        [
+                            {key: None for key in labeller_column_names}
+                            for _ in range(len(dataset) - len(labels))
+                        ]
+                    )
+                for label in labels:
+                    for key in labeller_column_names:
+                        if key not in label:
+                            label.update({key: None})
+            except Exception as e:
+                logger.error(
+                    f"`Pipeline.generate` failed during labelling step with exception: {e}"
+                )
+                labels = [
+                    {k: None for k in self.labeller.task.output_args_names}
+                    for _ in range(len(dataset))
+                ]
+
+        _dataset = Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+        _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
+        # Dynamically remaps the `datasets.Dataset` to be a `dataset_cls` instance
+        _dataset.__class__ = self.dataset_cls
+        _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
+        return _dataset  # type: ignore
 
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
         num_generations: int = 1,
         batch_size: int = 1,
+        enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
     ) -> T:
         if (
@@ -267,61 +346,78 @@ class Pipeline(Generic[T]):
             )
 
         self._validate_dataset(dataset)
-        _dataset = self._reset_and_remap_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
-        labels: List[Dict[str, Any]] = []
+        batch_labels: Union[Future[List["LLMOutput"]], List["LLMOutput"]] = []
 
         (
             generation_progress_func,
             labelling_progress_func,
         ) = get_progress_bars_for_pipeline(
-            num_rows=len(_dataset),
+            num_rows=len(dataset),
             num_generations=num_generations,
             display_progress_bar=display_progress_bar,
         )
 
-        num_batches = math.ceil(len(_dataset) / batch_size)
+        num_batches = math.ceil(len(dataset) / batch_size)
 
-        for batch_i, rows in enumerate(_dataset.iter(batch_size=batch_size)):
+        for batch_i, rows in enumerate(dataset.iter(batch_size=batch_size), start=1):
             logger.info(f"Processing batch {batch_i} of {num_batches}...")
-            inputs = self._transform_dataset_to_expected_format(rows)
+            inputs = self._transform_dataset_to_expected_format(rows)  # type: ignore
 
             if self.generator is not None:
                 logger.info(f"Calling generator for batch {batch_i}...")
-                batch_generations = self._get_batch_generations(
-                    inputs, num_generations, generation_progress_func
-                )
-                generations.extend(batch_generations)
+                try:
+                    batch_generations = self._get_batch_generations(
+                        inputs, num_generations, generation_progress_func
+                    )
+                    generations.extend(batch_generations)
+                except Exception as e:
+                    if not enable_checkpoints:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during generation step. Setting `enable_checkpoints=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during generation step with exception: {e}"
+                    )
+                    return self._build_dataset(
+                        dataset, generations=generations, batch_labels=batch_labels
+                    )
+
                 inputs = self._include_generator_outputs_as_inputs(
                     inputs, batch_generations
                 )
 
             if self.labeller is not None:
-                # `num_generations` is always 1 because labelling the same input multiple times
-                # using the same LLM may not make sense
                 logger.info(f"Calling labeller for batch {batch_i}...")
-                batch_labels = self.labeller.generate(
-                    inputs=inputs,
-                    num_generations=1,
-                    progress_callback_func=labelling_progress_func,
-                )
-                labels.extend(batch_labels)
+                try:
+                    # TODO: move to `self._get_batch_labels` (without awaiting futures)
+                    batch_labels.extend(
+                        self.labeller.generate(  # type: ignore
+                            inputs=inputs,
+                            # `num_generations` is always 1 because labelling the same input multiple times
+                            # using the same LLM may not make sense
+                            num_generations=1,
+                            progress_callback_func=labelling_progress_func,
+                        )
+                    )
+                except Exception as e:
+                    if not enable_checkpoints:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during labelling step. Setting `enable_checkpoints=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during labelling step with exception: {e}"
+                    )
+                    return self._build_dataset(
+                        dataset, generations=generations, batch_labels=batch_labels
+                    )
 
         _pipeline_progress.stop()
 
-        if self.labeller is not None:
-            # If the LLM returns futures, we need to wait for them to finish
-            if self.labeller.return_futures:
-                labels = [future.result() for future in labels]
-            labels = self._process_batch_labels(batch_labels=labels)
-
-        dataset = self._add_columns_to_dataset(dataset, generations, labels)
-        # TODO: before releasing check whether we should move the `argilla` export to dataset level e.g. `PreferenceDataset`
-        # that would imply not passing the `task` but just returning the remapped dataset
-        if self.labeller is not None:
-            _dataset.task = self.labeller.task
-        return _dataset
+        return self._build_dataset(
+            dataset, generations=generations, batch_labels=batch_labels
+        )
 
 
 # TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)

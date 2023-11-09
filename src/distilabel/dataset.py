@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from datasets import Dataset
 
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 class CustomDataset(Dataset):
     task: Union["Task", None] = None
 
-    def to_argilla(self) -> "FeedbackDataset":
+    def to_argilla(self, **kwargs: Any) -> "FeedbackDataset":
         if _argilla_installed is False:
             raise ImportError(
                 "The argilla library is not installed. Please install it with `pip install argilla`."
@@ -44,43 +44,21 @@ class CustomDataset(Dataset):
             )
 
         rg_dataset = rg.FeedbackDataset(
-            fields=self.task.to_argilla_fields(dataset_row=self[0]),
-            questions=self.task.to_argilla_questions(dataset_row=self[0]),
+            fields=self.task.to_argilla_fields(dataset_row=self[0], **kwargs),
+            questions=self.task.to_argilla_questions(dataset_row=self[0], **kwargs),
         )
-        rg_dataset.add_records(
-            [
-                self.task.to_argilla_record(dataset_row=dataset_row)
-                for dataset_row in self
-            ]
-        )
+        for dataset_row in self:
+            if any(
+                dataset_row[input_arg_name] is None  # type: ignore
+                for input_arg_name in self.task.input_args_names
+            ):
+                continue
+            rg_dataset.add_records(
+                self.task.to_argilla_record(dataset_row=dataset_row, **kwargs)  # type: ignore
+            )
         return rg_dataset
 
 
 class PreferenceDataset(CustomDataset):
-    task: Union["Task", None] = None
-
     def to_argilla(self, group_ratings_as_ranking: bool = False) -> "FeedbackDataset":
-        if _argilla_installed is False:
-            raise ImportError(
-                "The argilla library is not installed. Please install it with `pip install argilla`."
-            )
-        if self.task is None:
-            raise ValueError(
-                "The prompt template is not set. Please set it with `dataset.task = <task>`."
-            )
-        rg_dataset = rg.FeedbackDataset(
-            fields=self.task.to_argilla_fields(dataset_row=self[0]),
-            questions=self.task.to_argilla_questions(
-                dataset_row=self[0], group_ratings_as_ranking=group_ratings_as_ranking
-            ),
-        )
-        rg_dataset.add_records(
-            [
-                self.task.to_argilla_record(
-                    dataset_row=dataset_row,
-                    group_ratings_as_ranking=group_ratings_as_ranking,
-                )
-                for dataset_row in self
-            ]
-        )
-        return rg_dataset
+        return super().to_argilla(group_ratings_as_ranking=group_ratings_as_ranking)

@@ -95,7 +95,10 @@ class UltraFeedbackTask(Task):
         return parsed_output
 
     def to_argilla_fields(
-        self, dataset_row: Dict[str, Any]
+        self,
+        dataset_row: Dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedFieldTypes"]:
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
@@ -120,6 +123,8 @@ class UltraFeedbackTask(Task):
         self,
         dataset_row: Dict[str, Any],
         group_ratings_as_ranking: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedQuestionTypes"]:
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
@@ -161,7 +166,11 @@ class UltraFeedbackTask(Task):
         return argilla_questions
 
     def to_argilla_record(  # noqa: C901
-        self, dataset_row: Dict[str, Any], group_ratings_as_ranking: bool = False
+        self,
+        dataset_row: Dict[str, Any],
+        group_ratings_as_ranking: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> "FeedbackRecord":
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
@@ -180,6 +189,8 @@ class UltraFeedbackTask(Task):
                 fields.update({input_arg_name: dataset_row[input_arg_name]})
         suggestions = []
         for output_arg_name in self.output_args_names:
+            if dataset_row[output_arg_name] is None:
+                continue
             if output_arg_name == "rating" and group_ratings_as_ranking:
 
                 def ratings_as_ranking_value(ratings: List[int]):

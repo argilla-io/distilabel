@@ -84,7 +84,10 @@ class JudgeLMTask(Task):
         return JudgeLMOutput(ratings=ratings, rationale=rationale)
 
     def to_argilla_fields(
-        self, dataset_row: Dict[str, Any]
+        self,
+        dataset_row: Dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedFieldTypes"]:
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
@@ -109,6 +112,8 @@ class JudgeLMTask(Task):
         self,
         dataset_row: Dict[str, Any],
         group_ratings_as_ranking: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> List["AllowedQuestionTypes"]:
         # TODO: move argilla_installed check to the `Argilla` abstract class
         if not _argilla_installed:
@@ -152,7 +157,11 @@ class JudgeLMTask(Task):
         return argilla_questions
 
     def to_argilla_record(  # noqa: C901
-        self, dataset_row: Dict[str, Any], group_ratings_as_ranking: bool = False
+        self,
+        dataset_row: Dict[str, Any],
+        group_ratings_as_ranking: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> "FeedbackRecord":
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
