@@ -87,7 +87,7 @@ class UltraFeedbackTask(Task):
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
-            rating = int(rating.split(": ")[1])
+            rating = int(float(rating.split(": ")[1]))
             rationale = rationale.split(": ")[1]
             parsed_output.append(
                 UltraFeedbackOutput(rating=rating, rationale=rationale)

@@ -34,7 +34,7 @@ from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
 from distilabel.logger import get_logger
-from distilabel.progress_bar import get_progress_bars_for_pipeline
+from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
@@ -400,6 +400,8 @@ class Pipeline(Generic[T]):
                     return self._build_dataset(
                         dataset, generations=generations, batch_labels=batch_labels
                     )
+
+        _pipeline_progress.stop()
 
         return self._build_dataset(
             dataset, generations=generations, batch_labels=batch_labels

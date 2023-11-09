@@ -27,14 +27,10 @@ class LLM(ABC):
     def __init__(
         self,
         task: Task,
-        max_new_tokens: int = 128,
-        temperature: float = 0.7,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
-        self.max_new_tokens = max_new_tokens
-        self.temperature = temperature
 
         self.thread_pool_executor = (
             ThreadPoolExecutor(max_workers=num_threads)
