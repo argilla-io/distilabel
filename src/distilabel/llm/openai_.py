@@ -32,7 +32,7 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
