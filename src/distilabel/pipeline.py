@@ -102,7 +102,6 @@ class Pipeline(Generic[T]):
                     f" just contains: {dataset.column_names}"
                 ) from err
 
-    def _overlapping_columns_with_dataset(self, dataset: T) -> T:
         # Additionally, we need to check that if the columns to be generated already exist,
         # then we should look for `None`/`null` values and just fulfill those, while skipping
         # the rest. This is useful to be able to continue a generation that broke or a process
@@ -124,7 +123,6 @@ class Pipeline(Generic[T]):
                 UserWarning,
                 stacklevel=2,
             )
-        return dataset
 
     def _backup_dataset(self) -> T:
         dataset = Dataset.from_dict({}, split=Split.TRAIN)
