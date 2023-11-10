@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import List, Literal, Union
 
-from pydantic import BaseModel
 from typing_extensions import TypedDict
 
 
@@ -25,7 +25,8 @@ class ChatCompletion(TypedDict):
 
 # TODO: add more output formats
 # TODO: move this file outside as `prompt.py` or something more meaningful
-class Prompt(BaseModel):
+@dataclass
+class Prompt:
     system_prompt: str
     formatted_prompt: str
 

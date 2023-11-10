@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
-from pydantic import BaseModel
 
 from distilabel.tasks.utils import Prompt
 
@@ -64,8 +63,7 @@ class Argilla:
         )
 
 
-# TODO: `pydantic` dependency is not needed, we are safe to remove it
-class Task(BaseModel, ABC, Argilla):
+class Task(ABC, Argilla):
     system_prompt: str
     task_description: Union[str, None] = None
 
