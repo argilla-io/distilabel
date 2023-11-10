@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from jinja2 import Template
 from pydantic import BaseModel
 
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
