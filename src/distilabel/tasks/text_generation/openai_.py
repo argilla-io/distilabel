@@ -15,10 +15,10 @@
 from typing import TYPE_CHECKING, Dict, List
 
 from distilabel.tasks.base import Task, get_template
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from distilabel.tasks.utils import ChatCompletion
+    from distilabel.tasks.prompt import ChatCompletion
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 

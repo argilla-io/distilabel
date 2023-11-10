@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task, get_template
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 try:
     import argilla as rg

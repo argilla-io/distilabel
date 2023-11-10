@@ -43,6 +43,8 @@ class Prompt:
             ]
         elif format == "llama2":
             return f"<s>[INST] <<SYS>>\n{self.system_prompt}<</SYS>>\n\n{self.formatted_prompt} [/INST]"
+        elif format == "chatml":
+            return f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{self.formatted_prompt}<|im_end|>\n<|im_start|>assistant\n"
         else:
             raise ValueError(
                 f"Format {format} not supported, please provide a custom `formatting_fn`."
