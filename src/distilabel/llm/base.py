@@ -44,6 +44,11 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        pass
+
     @abstractmethod
     def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
         pass

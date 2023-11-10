@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from huggingface_hub import InferenceClient, InferenceTimeoutError
@@ -89,7 +90,22 @@ class InferenceEndpointsLLM(LLM):
             "typical_p",
         ]
 
+        # TODO: replace with `text_genereation` as it has more features
         self.client = InferenceClient(model=endpoint_url, token=token)
+
+    # TODO: doesn't work well, it returns a JSON where `model_id=/repository`, already reported to HuggingFace
+    @cached_property
+    def model_name(self) -> str:
+        from huggingface_hub.utils import get_session
+
+        response = get_session().get(
+            f"{self.client.model}/info",
+            headers=self.client.headers,
+            timeout=30,
+        )
+        if response.status_code != 200:
+            return ""
+        return response.json()["model_id"]
 
     @retry(
         retry=retry_if_exception_type(_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS),

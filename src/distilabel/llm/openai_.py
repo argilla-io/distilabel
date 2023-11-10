@@ -104,6 +104,10 @@ class OpenAILLM(LLM):
             if model.get("id") is not None
         ]
 
+    @property
+    def model_name(self) -> str:
+        return self.model
+
     @retry(
         retry=retry_if_exception_type(_OPENAI_API_RETRY_ON_EXCEPTIONS),
         stop=stop_after_attempt(_OPENAI_API_STOP_AFTER_ATTEMPT),

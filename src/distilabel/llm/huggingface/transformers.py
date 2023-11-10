@@ -62,6 +62,10 @@ class TransformersLLM(LLM):
                 stacklevel=2,
             )
 
+    @property
+    def model_name(self) -> str:
+        return self.model.config.name_or_path
+
     @cached_property
     def device(self) -> torch.device:
         if torch.cuda.is_available():

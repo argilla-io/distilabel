@@ -58,6 +58,10 @@ class LlamaCppLLM(LLM):
 
         self.model = model
 
+    @property
+    def model_name(self) -> str:
+        return self.model.model_path
+
     def _generate(
         self, input: Dict[str, Any], num_generations: int = 1
     ) -> List[LLMOutput]:
