@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -47,6 +48,7 @@ class UltraFeedbackOutput(TypedDict):
     rationale: str
 
 
+@dataclass
 class UltraFeedbackTask(Task):
     ratings: List[Rating]
 

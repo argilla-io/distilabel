@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["datasets >=2.14.0", "pydantic >=2.4.2", "Jinja2 >=3.1.2"]
+dependencies = ["datasets >=2.14.0", "Jinja2 >=3.1.2"]
 dynamic = ["version"]
 
 [project.optional-dependencies]

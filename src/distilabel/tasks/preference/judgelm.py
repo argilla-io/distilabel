@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import TypedDict
@@ -41,6 +42,7 @@ class JudgeLMOutput(TypedDict):
     rationale: str
 
 
+@dataclass
 class JudgeLMTask(Task):
     __jinja2_template__: str = _JUDGELM_TEMPLATE
 
