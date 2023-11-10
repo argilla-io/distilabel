@@ -43,6 +43,7 @@ _OPENAI_API_RETRY_ON_EXCEPTIONS = (
     Timeout,
     RateLimitError,
     ServiceUnavailableError,
+    ConnectionError,
 )
 _OPENAI_API_STOP_AFTER_ATTEMPT = 6
 _OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
