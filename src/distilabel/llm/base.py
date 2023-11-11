@@ -44,6 +44,15 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    def _generate_prompts(self, inputs: List[Dict[str, Any]]) -> List[str]:
+        prompts = []
+        for input in inputs:
+            prompt = self.task.generate_prompt(**input)
+            if self.formatting_fn is not None:
+                prompt = self.formatting_fn(prompt)
+            prompts.append(prompt)
+        return prompts
+
     @abstractmethod
     def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
         pass
