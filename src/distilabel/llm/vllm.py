@@ -39,18 +39,21 @@ class vLLM(LLM):
         self.vllm = vllm
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
+        prompts = []
+        for input in inputs:
+            prompt = self.task.generate_prompt(**input)
+            if self.formatting_fn is not None:
+                prompt = self.formatting_fn(prompt)
+            prompts.append(prompt)
         requests = self.vllm.generate(
-            prompt,
+            prompts,
             SamplingParams(
                 n=num_generations,
                 presence_penalty=self.presence_penalty,
                 frequency_penalty=self.frequency_penalty,
-                temperature=0.3,
+                temperature=self.temperature,
                 top_p=self.top_p,
                 top_k=self.top_k,
                 max_tokens=self.max_tokens,
@@ -58,15 +61,18 @@ class vLLM(LLM):
             use_tqdm=False,
         )
         outputs = []
-        for output in requests[0].outputs:
-            try:
-                parsed_output = self.task.parse_output(output.text)
-            except Exception as e:
-                logger.error(f"Error parsing vLLM output: {e}")
-                parsed_output = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt, raw_output=output, parsed_output=parsed_output
+        for request, prompt in zip(requests, prompts):
+            output = []
+            for request_output in request.outputs:
+                try:
+                    parsed_output = self.task.parse_output(request_output.text)
+                except Exception as e:
+                    logger.error(f"Error parsing vLLM output: {e}")
+                    parsed_output = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt, raw_output=request_output.text, parsed_output=parsed_output
+                    )
                 )
-            )
+            outputs.append(output)
         return outputs

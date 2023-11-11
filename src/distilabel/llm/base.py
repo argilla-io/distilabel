@@ -56,7 +56,7 @@ class LLM(ABC):
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
-                progress_callback_func()
+                progress_callback_func(advance=num_generations * len(inputs))
 
         if self.thread_pool_executor is not None:
             futures = []
@@ -68,10 +68,8 @@ class LLM(ABC):
                 futures.append(future)
             return futures
 
-        generations = []
-        for input in inputs:
-            generations.append(self._generate(input, num_generations))
-            _progress()
+        generations = self._generate(inputs, num_generations)
+        _progress()
         return generations
 
     @property
