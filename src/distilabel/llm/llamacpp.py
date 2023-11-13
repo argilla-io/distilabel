@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from llama_cpp import Llama
 
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
@@ -38,9 +39,14 @@ class LlamaCppLLM(LLM):
         top_p: float = 0.95,
         top_k: int = 40,
         repeat_penalty: float = 1.1,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union[SupportedFormats, None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        super().__init__(task=task, formatting_fn=formatting_fn)
+        super().__init__(
+            task=task,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
+        )
 
         self.max_tokens = max_new_tokens
         self.temperature = temperature
@@ -53,7 +59,9 @@ class LlamaCppLLM(LLM):
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
-        prompts = self._generate_prompts(inputs)
+        prompts = self._generate_prompts(
+            inputs, default_format=None, expected_output_type=str
+        )
         outputs = []
         for prompt in prompts:
             output = []

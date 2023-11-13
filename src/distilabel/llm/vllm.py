@@ -1,3 +1,17 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from vllm import SamplingParams
@@ -10,6 +24,7 @@ if TYPE_CHECKING:
     from vllm import LLM as _vLLM
 
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
@@ -19,15 +34,20 @@ class vLLM(LLM):
         self,
         vllm: "_vLLM",
         task: "Task",
-        formatting_fn: Union[Callable[..., str], None] = None,
         max_new_tokens: int = 128,
         presence_penalty: float = 0.0,
         frequency_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        super().__init__(task=task, formatting_fn=formatting_fn)
+        super().__init__(
+            task=task,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
+        )
 
         self.presence_penalty = presence_penalty
         self.frequency_penalty = frequency_penalty
@@ -41,10 +61,12 @@ class vLLM(LLM):
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
-        prompts = self._generate_prompts(inputs)
+        prompts = self._generate_prompts(
+            inputs, default_format=None, expected_output_type=str
+        )
         requests = self.vllm.generate(
             prompts,
-            SamplingParams(
+            SamplingParams(  # type: ignore
                 n=num_generations,
                 presence_penalty=self.presence_penalty,
                 frequency_penalty=self.frequency_penalty,
@@ -53,7 +75,7 @@ class vLLM(LLM):
                 top_k=self.top_k,
                 max_tokens=self.max_tokens,
             ),
-            use_tqdm=False,
+            use_tqdm=False,  # type: ignore
         )
         outputs = []
         for request, prompt in zip(requests, prompts):

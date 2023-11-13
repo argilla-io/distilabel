@@ -23,6 +23,7 @@ from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
@@ -40,12 +41,14 @@ class OpenAILLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
             num_threads=num_threads,
-            formatting_fn=formatting_fn,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
         )
 
         self.max_tokens = max_new_tokens
@@ -70,23 +73,9 @@ class OpenAILLM(LLM):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
     ) -> List[List[LLMOutput]]:
-        prompts = self._generate_prompts(inputs)
-        # if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
-        #     warnings.warn(
-        #         f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
-        #         UserWarning,
-        #         stacklevel=2,
-        #     )
-        #     prompt = self.formatting_fn(prompt)
-        # elif isinstance(prompt, Prompt) and self.formatting_fn is None:
-        #     prompt = prompt.format_as(format="openai")
-        # if not isinstance(prompt, list):
-        #     raise ValueError(
-        #         f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
-        #     )
-        # TODO: move above logic to `_generate_prompts`
-        prompts = [prompt.format_as("openai") for prompt in prompts]
-
+        prompts = self._generate_prompts(
+            inputs, default_format="openai", expected_output_type=list
+        )
         outputs = []
         for prompt in prompts:
             chat_completions = self.client.chat.completions.create(
