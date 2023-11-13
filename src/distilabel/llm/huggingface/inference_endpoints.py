@@ -95,7 +95,7 @@ class InferenceEndpointsLLM(LLM):
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
-    ) -> List[LLMOutput]:
+    ) -> List[List[LLMOutput]]:
         prompts = self._generate_prompts(inputs)
         outputs = []
         for prompt in prompts:
