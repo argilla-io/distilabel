@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
@@ -28,7 +28,10 @@ class LLM(ABC):
         self,
         task: Task,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union[
+            Literal["llama2", "openai", "chatml", "zephyr"], None
+        ] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
 
@@ -38,7 +41,9 @@ class LLM(ABC):
             else None
         )
 
-        self.formatting_fn = formatting_fn
+        # TODO(gabrielmbmb): revisit before or after https://github.com/argilla-io/distilabel/pull/83
+        self.prompt_format = prompt_format
+        self.prompt_formatting_fn = prompt_formatting_fn
 
     def __del__(self) -> None:
         if self.thread_pool_executor is not None:

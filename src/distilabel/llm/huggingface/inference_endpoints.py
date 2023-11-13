@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+import warnings
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
 
 from huggingface_hub import InferenceClient, InferenceTimeoutError
 from huggingface_hub.inference._text_generation import TextGenerationError
@@ -29,6 +30,7 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -61,12 +63,16 @@ class InferenceEndpointsLLM(LLM):
         top_p: Union[float, None] = None,
         typical_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union[
+            Literal["llama2", "openai", "chatml", "zephyr"], None
+        ] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
             num_threads=num_threads,
-            formatting_fn=formatting_fn,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
         )
 
         self.do_sample = do_sample
@@ -108,8 +114,22 @@ class InferenceEndpointsLLM(LLM):
         self, input: Dict[str, Any], num_generations: int = 1
     ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
+        if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
+            warnings.warn(
+                f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
+                UserWarning,
+                stacklevel=2,
+            )
+            prompt = self.prompt_formatting_fn(prompt)
+        elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
+            if self.prompt_format:
+                prompt = prompt.format_as(format=self.prompt_format)  # type: ignore
+            else:
+                prompt = f"{prompt.system_prompt}\n{prompt.formatted_prompt}"
+        if not isinstance(prompt, str):
+            raise ValueError(
+                f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `str`, make sure that `task.generate_prompt` returns a `str` or that the `formatting_fn` formats the prompt as a `str`."
+            )
         generation_kwargs = {}
         for generation_attr in self.__generation_attrs:
             value = getattr(self, generation_attr)

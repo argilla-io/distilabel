@@ -14,11 +14,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+import warnings
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
@@ -38,9 +40,16 @@ class LlamaCppLLM(LLM):
         top_p: Union[float, None] = None,
         top_k: Union[int, None] = None,
         repeat_penalty: Union[float, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union[
+            Literal["llama2", "openai", "chatml", "zephyr"], None
+        ] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        super().__init__(task=task, formatting_fn=formatting_fn)
+        super().__init__(
+            task=task,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
+        )
 
         self.max_tokens = max_new_tokens
         self.temperature = temperature
@@ -62,8 +71,21 @@ class LlamaCppLLM(LLM):
         self, input: Dict[str, Any], num_generations: int = 1
     ) -> List[LLMOutput]:
         prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
+        if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
+            warnings.warn(
+                f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
+                UserWarning,
+                stacklevel=2,
+            )
+            prompt = self.prompt_formatting_fn(prompt)
+        elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
+            prompt = prompt.format_as(
+                format="llama2" if self.prompt_format is None else self.prompt_format  # type: ignore
+            )
+        if not isinstance(prompt, str):
+            raise ValueError(
+                f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `str`, make sure that `task.generate_prompt` returns a `str` or that the `formatting_fn` formats the prompt as a `str`."
+            )
         generation_kwargs = {}
         for generation_attr in self.__generation_attrs:
             value = getattr(self, generation_attr)
