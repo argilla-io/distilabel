@@ -12,21 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import os
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
-import openai
-from openai.error import APIError, RateLimitError, ServiceUnavailableError, Timeout
-from tenacity import (
-    after_log,
-    before_sleep_log,
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_random_exponential,
-)
+from openai import OpenAI
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
@@ -34,18 +23,6 @@ from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
-
-
-_OPENAI_API_RETRY_ON_EXCEPTIONS = (
-    APIError,
-    Timeout,
-    RateLimitError,
-    ServiceUnavailableError,
-    ConnectionError,
-)
-_OPENAI_API_STOP_AFTER_ATTEMPT = 6
-_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
-_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 
 logger = get_logger()
 
@@ -55,6 +32,7 @@ class OpenAILLM(LLM):
         self,
         task: "Task",
         model: str = "gpt-3.5-turbo",
+        client: Union[OpenAI, None] = None,
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -76,42 +54,22 @@ class OpenAILLM(LLM):
         self.temperature = temperature
         self.top_p = top_p
 
-        openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
+        self.client = client or OpenAI(api_key=openai_api_key, max_retries=6)
+
         assert (
             model in self.available_models
         ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
         self.model = model
 
-        assert (
-            openai.api_key is not None
-        ), "Either the `openai_api_key` arg or the `OPENAI_API_KEY` environment variable must be set to use the OpenAI API."
-
     @cached_property
     def available_models(self) -> List[str]:
-        return [
-            model["id"]
-            for model in openai.Model.list().get("data", [])
-            if model.get("id") is not None
-        ]
-
-    @retry(
-        retry=retry_if_exception_type(_OPENAI_API_RETRY_ON_EXCEPTIONS),
-        stop=stop_after_attempt(_OPENAI_API_STOP_AFTER_ATTEMPT),
-        wait=wait_random_exponential(
-            multiplier=_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
-            max=_OPENAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
-        ),
-        before_sleep=before_sleep_log(logger, logging.INFO),
-        after=after_log(logger, logging.INFO),
-    )
-    def _chat_completion_with_backoff(self, **kwargs: Any) -> Any:
-        return openai.ChatCompletion.create(**kwargs)
+        return [model.id for model in self.client.models.list().data]
 
     def _generate(
         self,
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
-    ) -> List[LLMOutput]:
+    ) -> List[List[LLMOutput]]:
         prompts = self._generate_prompts(inputs)
         # if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
         #     warnings.warn(
@@ -131,24 +89,23 @@ class OpenAILLM(LLM):
 
         outputs = []
         for prompt in prompts:
-            raw_responses = self._chat_completion_with_backoff(
+            chat_completions = self.client.chat.completions.create(
                 messages=prompt,
                 model=self.model,
                 n=num_generations,
-                request_timeout=50,
                 max_tokens=self.max_tokens,
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty,
                 temperature=self.temperature,
                 top_p=self.top_p,
+                timeout=50,
             )
-            raw_responses = raw_responses.to_dict_recursive()
 
             output = []
-            for raw_response in raw_responses["choices"]:
+            for chat_completion in chat_completions.choices:
                 try:
                     parsed_response = self.task.parse_output(
-                        raw_response["message"]["content"].strip()
+                        chat_completion.message.content.strip()
                     )
                 except Exception as e:
                     logger.error(f"Error parsing OpenAI response: {e}")
@@ -156,7 +113,7 @@ class OpenAILLM(LLM):
                 output.append(
                     LLMOutput(
                         prompt_used=prompt,
-                        raw_output=raw_responses,
+                        raw_output=chat_completion.message.content,
                         parsed_output=parsed_response,
                     )
                 )
