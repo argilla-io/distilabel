@@ -23,15 +23,13 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-# TODO: add more output formats
-# TODO: move this file outside as `prompt.py` or something more meaningful
 @dataclass
 class Prompt:
     system_prompt: str
     formatted_prompt: str
 
     def format_as(
-        self, format: Literal["openai", "llama2"]
+        self, format: Literal["openai", "llama2", "chatml", "zephyr"]
     ) -> Union[str, List[ChatCompletion]]:
         if format == "openai":
             return [
@@ -45,6 +43,8 @@ class Prompt:
             return f"<s>[INST] <<SYS>>\n{self.system_prompt}<</SYS>>\n\n{self.formatted_prompt} [/INST]"
         elif format == "chatml":
             return f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{self.formatted_prompt}<|im_end|>\n<|im_start|>assistant\n"
+        elif format == "zephyr":
+            return f"<|system|>\n{self.system_prompt}</s>\n<|user|>\n{self.formatted_prompt}</s>\n<|assistant|>\n"
         else:
             raise ValueError(
                 f"Format {format} not supported, please provide a custom `formatting_fn`."
