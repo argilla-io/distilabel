@@ -1,7 +1,7 @@
 from typing import Dict
 
-from ultralabel.llm.huggingface import InferenceEndpointsLLM
-from ultralabel.tasks.base import Task
+from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
+from distilabel.tasks.base import Task
 
 
 class Llama2TextGenerationTask(Task):
