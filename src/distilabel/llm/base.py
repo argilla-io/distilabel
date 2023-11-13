@@ -44,6 +44,15 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    def _generate_prompts(self, inputs: List[Dict[str, Any]]) -> List[str]:
+        prompts = []
+        for input in inputs:
+            prompt = self.task.generate_prompt(**input)
+            if self.formatting_fn is not None:
+                prompt = self.formatting_fn(prompt)
+            prompts.append(prompt)
+        return prompts
+
     @abstractmethod
     def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
         pass
@@ -56,22 +65,20 @@ class LLM(ABC):
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
-                progress_callback_func()
+                progress_callback_func(advance=num_generations * len(inputs))
 
         if self.thread_pool_executor is not None:
             futures = []
             for input in inputs:
                 future = self.thread_pool_executor.submit(
-                    self._generate, input, num_generations
+                    self._generate, [input], num_generations
                 )
                 future.add_done_callback(lambda future: _progress())
                 futures.append(future)
             return futures
 
-        generations = []
-        for input in inputs:
-            generations.append(self._generate(input, num_generations))
-            _progress()
+        generations = self._generate(inputs, num_generations)
+        _progress()
         return generations
 
     @property

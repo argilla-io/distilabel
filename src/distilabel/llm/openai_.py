@@ -14,7 +14,6 @@
 
 import logging
 import os
-import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
@@ -32,7 +31,6 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -59,10 +57,10 @@ class OpenAILLM(LLM):
         model: str = "gpt-3.5-turbo",
         openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
-        frequence_penalty: Union[float, None] = None,
-        presence_penalty: Union[float, None] = None,
-        temperature: Union[float, None] = None,
-        top_p: Union[float, None] = None,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
@@ -73,18 +71,10 @@ class OpenAILLM(LLM):
         )
 
         self.max_tokens = max_new_tokens
-        self.frequence_penalty = frequence_penalty
+        self.frequency_penalty = frequency_penalty
         self.presence_penalty = presence_penalty
         self.temperature = temperature
         self.top_p = top_p
-
-        self.__generation_attrs = [
-            "max_tokens",
-            "frequence_penalty",
-            "presence_penalty",
-            "temperature",
-            "top_p",
-        ]
 
         openai.api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         assert (
@@ -119,50 +109,56 @@ class OpenAILLM(LLM):
 
     def _generate(
         self,
-        input: Dict[str, Any],
+        inputs: List[Dict[str, Any]],
         num_generations: int = 1,
     ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
-            warnings.warn(
-                f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
-                UserWarning,
-                stacklevel=2,
-            )
-            prompt = self.formatting_fn(prompt)
-        elif isinstance(prompt, Prompt) and self.formatting_fn is None:
-            prompt = prompt.format_as(format="openai")
-        if not isinstance(prompt, list):
-            raise ValueError(
-                f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
-            )
-        generation_kwargs = {}
-        for generation_attr in self.__generation_attrs:
-            value = getattr(self, generation_attr)
-            if value is not None:
-                generation_kwargs[generation_attr] = value
-        raw_responses = self._chat_completion_with_backoff(
-            messages=prompt,
-            model=self.model,
-            n=num_generations,
-            **generation_kwargs,
-        )
-        raw_responses = raw_responses.to_dict_recursive()
+        prompts = self._generate_prompts(inputs)
+        # if not isinstance(prompt, Prompt) and self.formatting_fn is not None:
+        #     warnings.warn(
+        #         f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
+        #         UserWarning,
+        #         stacklevel=2,
+        #     )
+        #     prompt = self.formatting_fn(prompt)
+        # elif isinstance(prompt, Prompt) and self.formatting_fn is None:
+        #     prompt = prompt.format_as(format="openai")
+        # if not isinstance(prompt, list):
+        #     raise ValueError(
+        #         f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `list`, make sure that `task.generate_prompt` returns a `list` or that the `formatting_fn` formats the prompt as a `list`, where each item follows OpenAI's format of `{'role': ..., 'content': ...}`."
+        #     )
+        # TODO: move above logic to `_generate_prompts`
+        prompts = [prompt.format_as("openai") for prompt in prompts]
 
         outputs = []
-        for raw_response in raw_responses["choices"]:
-            try:
-                parsed_response = self.task.parse_output(
-                    raw_response["message"]["content"].strip()
-                )
-            except Exception as e:
-                logger.error(f"Error parsing OpenAI response: {e}")
-                parsed_response = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_responses,
-                    parsed_output=parsed_response,
-                )
+        for prompt in prompts:
+            raw_responses = self._chat_completion_with_backoff(
+                messages=prompt,
+                model=self.model,
+                n=num_generations,
+                request_timeout=50,
+                max_tokens=self.max_tokens,
+                frequency_penalty=self.frequency_penalty,
+                presence_penalty=self.presence_penalty,
+                temperature=self.temperature,
+                top_p=self.top_p,
             )
+            raw_responses = raw_responses.to_dict_recursive()
+
+            output = []
+            for raw_response in raw_responses["choices"]:
+                try:
+                    parsed_response = self.task.parse_output(
+                        raw_response["message"]["content"].strip()
+                    )
+                except Exception as e:
+                    logger.error(f"Error parsing OpenAI response: {e}")
+                    parsed_response = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_responses,
+                        parsed_output=parsed_response,
+                    )
+                )
+            outputs.append(output)
         return outputs

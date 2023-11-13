@@ -34,10 +34,10 @@ class LlamaCppLLM(LLM):
         model: "Llama",
         task: "Task",
         max_new_tokens: int = 128,
-        temperature: Union[float, None] = None,
-        top_p: Union[float, None] = None,
-        top_k: Union[int, None] = None,
-        repeat_penalty: Union[float, None] = None,
+        temperature: float = 0.8,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        repeat_penalty: float = 1.1,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(task=task, formatting_fn=formatting_fn)
@@ -48,45 +48,37 @@ class LlamaCppLLM(LLM):
         self.top_k = top_k
         self.repeat_penalty = repeat_penalty
 
-        self.__generation_attrs = [
-            "max_tokens",
-            "temperature",
-            "top_p",
-            "top_k",
-            "repeat_penalty",
-        ]
-
         self.model = model
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
-        generation_kwargs = {}
-        for generation_attr in self.__generation_attrs:
-            value = getattr(self, generation_attr)
-            if value is not None:
-                generation_kwargs[generation_attr] = value
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(inputs)
         outputs = []
-        for _ in range(num_generations):
-            raw_output = self.model.create_completion(
-                prompt,
-                **generation_kwargs,
-            )
-            try:
-                parsed_output = self.task.parse_output(
-                    raw_output["choices"][0]["text"].strip()
+        for prompt in prompts:
+            output = []
+            for _ in range(num_generations):
+                raw_output = self.model.create_completion(
+                    prompt,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    top_k=self.top_k,
+                    repeat_penalty=self.repeat_penalty,
                 )
-            except Exception as e:
-                logger.error(f"Error parsing llama-cpp output: {e}")
-                parsed_output = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_output,
-                    parsed_output=parsed_output,
+                try:
+                    parsed_output = self.task.parse_output(
+                        raw_output["choices"][0]["text"].strip()
+                    )
+                except Exception as e:
+                    logger.error(f"Error parsing llama-cpp output: {e}")
+                    parsed_output = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_output,
+                        parsed_output=parsed_output,
+                    )
                 )
-            )
+            outputs.append(output)
         return outputs
