@@ -12,22 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
-_LLAMA2_TEXT_GENERATION_TEMPLATE = get_template("llama2-generation.jinja2")
-
 
 class Llama2TextGenerationTask(TextGenerationTask):
-    __jinja2_template__: str = _LLAMA2_TEXT_GENERATION_TEMPLATE
-
     def generate_prompt(self, input: str) -> str:
         return Prompt(
             system_prompt=self.system_prompt,
-            formatted_prompt=self.template.render(
-                system_prompt=self.system_prompt, input=input
-            ),
+            formatted_prompt=input,
         ).format_as(
             "llama2"
         )  # type: ignore
