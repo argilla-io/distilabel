@@ -20,13 +20,14 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["datasets >=2.14.0", "pydantic >=2.4.2", "Jinja2 >=3.1.2"]
+dependencies = ["datasets >=2.14.0", "Jinja2 >=3.1.2"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = ["black ==23.10.0", "ruff ==0.1.0", "pre-commit >=3.5.0"]
 huggingface = ["transformers >=4.34.1", "tenacity >=8"]
-openai = ["openai >=0.28.1", "tenacity >=8"]
+openai = ["openai >=1.0.0"]
+vllm = ["vllm>=0.2.1"]
 argilla = ["argilla >=1.16.0"]
 
 [project.urls]

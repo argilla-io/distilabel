@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 
 class LLM(ABC):
@@ -28,7 +29,8 @@ class LLM(ABC):
         self,
         task: Task,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
 
@@ -38,7 +40,8 @@ class LLM(ABC):
             else None
         )
 
-        self.formatting_fn = formatting_fn
+        self.prompt_format = prompt_format
+        self.prompt_formatting_fn = prompt_formatting_fn
 
     def __del__(self) -> None:
         if self.thread_pool_executor is not None:
@@ -61,22 +64,20 @@ class LLM(ABC):
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
-                progress_callback_func()
+                progress_callback_func(advance=num_generations * len(inputs))
 
         if self.thread_pool_executor is not None:
             futures = []
             for input in inputs:
                 future = self.thread_pool_executor.submit(
-                    self._generate, input, num_generations
+                    self._generate, [input], num_generations
                 )
                 future.add_done_callback(lambda future: _progress())
                 futures.append(future)
             return futures
 
-        generations = []
-        for input in inputs:
-            generations.append(self._generate(input, num_generations))
-            _progress()
+        generations = self._generate(inputs, num_generations)
+        _progress()
         return generations
 
     @property

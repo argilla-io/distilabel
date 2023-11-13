@@ -33,12 +33,12 @@ from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
     InferenceTimeoutError,
     TextGenerationError,
-    ConnectionError,
 )
 _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
@@ -62,12 +62,14 @@ class InferenceEndpointsLLM(LLM):
         top_p: Union[float, None] = None,
         typical_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
             task=task,
             num_threads=num_threads,
-            formatting_fn=formatting_fn,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
         )
 
         self.do_sample = do_sample
@@ -79,18 +81,6 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        self.__generation_attrs = [
-            "do_sample",
-            "max_new_tokens",
-            "repetition_penalty",
-            "seed",
-            "temperature",
-            "top_k",
-            "top_p",
-            "typical_p",
-        ]
-
-        # TODO: replace with `text_genereation` as it has more features
         self.client = InferenceClient(model=endpoint_url, token=token)
 
     # TODO: doesn't work well, it returns a JSON where `model_id=/repository`, already reported to HuggingFace
@@ -118,38 +108,43 @@ class InferenceEndpointsLLM(LLM):
         after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
-        return self.client.text_generation(**kwargs)
+        return self.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
-        generation_kwargs = {}
-        for generation_attr in self.__generation_attrs:
-            value = getattr(self, generation_attr)
-            if value is not None:
-                generation_kwargs[generation_attr] = value
-        raw_responses = [
-            self._text_generation_with_backoff(
-                prompt=prompt,
-                **generation_kwargs,
-            )
-            for _ in range(num_generations)
-        ]
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(
+            inputs, default_format=None, expected_output_type=str
+        )
         outputs = []
-        for raw_response in raw_responses:
-            try:
-                parsed_response = self.task.parse_output(raw_response)
-            except Exception as e:
-                logger.error(f"Error parsing Inference Endpoints output: {e}")
-                parsed_response = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_response,
-                    parsed_output=parsed_response,
+        for prompt in prompts:
+            raw_responses = [
+                self._text_generation_with_backoff(
+                    prompt=prompt,
+                    do_sample=self.do_sample,
+                    max_new_tokens=self.max_new_tokens,
+                    repetition_penalty=self.repetition_penalty,
+                    seed=self.seed,
+                    temperature=self.temperature,
+                    top_k=self.top_k,
+                    top_p=self.top_p,
+                    typical_p=self.typical_p,
                 )
-            )
+                for _ in range(num_generations)
+            ]
+            output = []
+            for raw_response in raw_responses:
+                try:
+                    parsed_response = self.task.parse_output(raw_response)
+                except Exception as e:
+                    logger.error(f"Error parsing Inference Endpoints output: {e}")
+                    parsed_response = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_response,
+                        parsed_output=parsed_response,
+                    )
+                )
+            outputs.append(output)
         return outputs

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import List, Literal, Union
 
-from pydantic import BaseModel
 from typing_extensions import TypedDict
 
 
@@ -23,16 +23,18 @@ class ChatCompletion(TypedDict):
     content: str
 
 
-# TODO: add more output formats
-# TODO: move this file outside as `prompt.py` or something more meaningful
-class Prompt(BaseModel):
+SupportedFormats = Literal["default", "openai", "llama2", "chatml", "zephyr"]
+
+
+@dataclass
+class Prompt:
     system_prompt: str
     formatted_prompt: str
 
-    def format_as(
-        self, format: Literal["openai", "llama2"]
-    ) -> Union[str, List[ChatCompletion]]:
-        if format == "openai":
+    def format_as(self, format: SupportedFormats) -> Union[str, List[ChatCompletion]]:
+        if format == "default":
+            return f"{self.system_prompt}\n{self.formatted_prompt}"
+        elif format == "openai":
             return [
                 ChatCompletion(
                     role="system",
@@ -42,7 +44,12 @@ class Prompt(BaseModel):
             ]
         elif format == "llama2":
             return f"<s>[INST] <<SYS>>\n{self.system_prompt}<</SYS>>\n\n{self.formatted_prompt} [/INST]"
+        elif format == "chatml":
+            return f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{self.formatted_prompt}<|im_end|>\n<|im_start|>assistant\n"
+        elif format == "zephyr":
+            return f"<|system|>\n{self.system_prompt}</s>\n<|user|>\n{self.formatted_prompt}</s>\n<|assistant|>\n"
         else:
             raise ValueError(
-                f"Format {format} not supported, please provide a custom `formatting_fn`."
+                f"Format {format} not supported, please provide a custom `prompt_formatting_fn`"
+                " or use any of the available formats: openai, llama2, chatml, zephyr"
             )

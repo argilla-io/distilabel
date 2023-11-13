@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task, get_template
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 try:
     import argilla as rg
@@ -47,6 +48,7 @@ class UltraFeedbackOutput(TypedDict):
     rationale: str
 
 
+@dataclass
 class UltraFeedbackTask(Task):
     ratings: List[Rating]
 
@@ -59,9 +61,9 @@ class UltraFeedbackTask(Task):
         "instruction-following",
     ]
 
-    system_prompt: str = (
-        "Your role is to evaluate text quality based on given criteria."
-    )
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
 
     @property
     def input_args_names(self) -> List[str]:

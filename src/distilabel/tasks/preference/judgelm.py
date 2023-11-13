@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task, get_template
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 
 try:
     import argilla as rg
@@ -41,6 +42,7 @@ class JudgeLMOutput(TypedDict):
     rationale: str
 
 
+@dataclass
 class JudgeLMTask(Task):
     __jinja2_template__: str = _JUDGELM_TEMPLATE
 
@@ -80,7 +82,7 @@ class JudgeLMTask(Task):
     def parse_output(self, output: str) -> JudgeLMOutput:
         split_output = output.split("\n")
         ratings = [int(float(rating)) for rating in split_output[0].split(" ")]
-        rationale = "".join(split_output[1:])
+        rationale = "\n".join(split_output[1:])
         return JudgeLMOutput(ratings=ratings, rationale=rationale)
 
     def to_argilla_fields(
