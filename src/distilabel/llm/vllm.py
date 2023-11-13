@@ -21,10 +21,10 @@ from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
-    from distilable.tasks.prompt import SupportedFormats
     from vllm import LLM as _vLLM
 
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
