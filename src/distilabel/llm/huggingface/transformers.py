@@ -14,7 +14,7 @@
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
@@ -25,6 +25,7 @@ from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
@@ -42,9 +43,7 @@ class TransformersLLM(LLM):
         top_p: float = 1.0,
         typical_p: float = 1.0,
         num_threads: Union[int, None] = None,
-        prompt_format: Union[
-            Literal["llama2", "openai", "chatml", "zephyr"], None
-        ] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(

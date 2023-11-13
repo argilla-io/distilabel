@@ -17,13 +17,14 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type, Union
 
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 
 class LLM(ABC):
@@ -31,9 +32,7 @@ class LLM(ABC):
         self,
         task: Task,
         num_threads: Union[int, None] = None,
-        prompt_format: Union[
-            Literal["llama2", "openai", "chatml", "zephyr"], None
-        ] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
@@ -54,9 +53,7 @@ class LLM(ABC):
     def _generate_prompts(
         self,
         inputs: List[Dict[str, Any]],
-        default_format: Union[
-            Literal["llama2", "openai", "chatml", "zephyr"], None
-        ] = None,
+        default_format: Union["SupportedFormats", None] = None,
         expected_output_type: Type = str,
     ) -> List[Any]:
         prompts = []

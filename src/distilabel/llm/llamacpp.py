@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from llama_cpp import Llama
 
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
@@ -38,9 +39,7 @@ class LlamaCppLLM(LLM):
         top_p: float = 0.95,
         top_k: int = 40,
         repeat_penalty: float = 1.1,
-        prompt_format: Union[
-            Literal["llama2", "openai", "chatml", "zephyr"], None
-        ] = None,
+        prompt_format: Union[SupportedFormats, None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(

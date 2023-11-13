@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from huggingface_hub import InferenceClient, InferenceTimeoutError
 from huggingface_hub.inference._text_generation import TextGenerationError
@@ -32,6 +32,7 @@ from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
@@ -60,9 +61,7 @@ class InferenceEndpointsLLM(LLM):
         top_p: Union[float, None] = None,
         typical_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
-        prompt_format: Union[
-            Literal["llama2", "openai", "chatml", "zephyr"], None
-        ] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
