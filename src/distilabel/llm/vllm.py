@@ -92,6 +92,7 @@ class vLLM(LLM):
                     parsed_output = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=request_output.text,
                         parsed_output=parsed_output,

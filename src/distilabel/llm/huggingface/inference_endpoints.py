@@ -133,6 +133,7 @@ class InferenceEndpointsLLM(LLM):
                     parsed_response = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=raw_response,
                         parsed_output=parsed_response,

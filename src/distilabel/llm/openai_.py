@@ -105,6 +105,7 @@ class OpenAILLM(LLM):
                     parsed_response = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=chat_completion.message.content,
                         parsed_output=parsed_response,
