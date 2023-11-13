@@ -40,13 +40,8 @@ class vLLM(LLM):
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompts = []
-        for input in inputs:
-            prompt = self.task.generate_prompt(**input)
-            if self.formatting_fn is not None:
-                prompt = self.formatting_fn(prompt)
-            prompts.append(prompt)
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(inputs)
         requests = self.vllm.generate(
             prompts,
             SamplingParams(
@@ -71,7 +66,9 @@ class vLLM(LLM):
                     parsed_output = None
                 output.append(
                     LLMOutput(
-                        prompt_used=prompt, raw_output=request_output.text, parsed_output=parsed_output
+                        prompt_used=prompt,
+                        raw_output=request_output.text,
+                        parsed_output=parsed_output,
                     )
                 )
             outputs.append(output)

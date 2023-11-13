@@ -53,14 +53,14 @@ def get_progress_bars_for_pipeline(
             description="Texts Generated", total=num_rows * num_generations
         )
 
-        def _generation_progress_func() -> None:
-            generation_progress_bar(advance=num_generations)
+        def _generation_progress_func(advance=None) -> None:
+            generation_progress_bar(advance=advance or num_generations)
 
         labelling_progress_bar = get_progress_bar(
             description="Rows labelled", total=num_rows
         )
 
-        def _labelling_progress_func() -> None:
+        def _labelling_progress_func(advance=None) -> None:
             labelling_progress_bar(advance=1)
 
         return _generation_progress_func, _labelling_progress_func

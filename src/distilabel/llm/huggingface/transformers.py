@@ -6,10 +6,10 @@ import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 from distilabel.llm.base import LLM
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
-    from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
 
 logger = get_logger()
@@ -23,10 +23,10 @@ class TransformersLLM(LLM):
         task: "Task",
         max_new_tokens: int = 128,
         do_sample: bool = False,
-        temperature: Union[float, None] = None,
-        top_k: Union[int, None] = None,
-        top_p: Union[float, None] = None,
-        typical_p: Union[float, None] = None,
+        temperature: float = 1.0,
+        top_k: int = 50,
+        top_p: float = 1.0,
+        typical_p: float = 1.0,
         num_threads: Union[int, None] = None,
         formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
@@ -71,17 +71,16 @@ class TransformersLLM(LLM):
         return torch.device("cpu")
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if self.formatting_fn is not None:
-            prompt = self.formatting_fn(prompt)
-        encoding = self.tokenizer(text=prompt, padding=True, return_tensors="pt")
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(inputs)
+        encodings = self.tokenizer(prompts, padding=True, return_tensors="pt")
         if self.device != "cpu":
-            encoding = encoding.to(self.device)
+            encodings = encodings.to(self.device)
         with torch.inference_mode():
             generated_ids = self.model.generate(
-                **encoding,
+                **encodings,
+                pad_token_id=self.tokenizer.eos_token_id,
                 generation_config=GenerationConfig(
                     do_sample=self.do_sample,
                     temperature=self.temperature,
@@ -89,26 +88,29 @@ class TransformersLLM(LLM):
                     top_k=self.top_k,
                     top_p=self.top_p,
                     typical_p=self.typical_p,
-                    num_generations=num_generations,
+                    num_return_sequences=num_generations,
                 ),
             )
         raw_outputs = self.tokenizer.batch_decode(
-            generated_ids[:, -(encoding.input_ids.shape[1]) :],
+            generated_ids[:, encodings.input_ids.shape[1] :],
             skip_special_tokens=True,
             clean_up_tokenization_spaces=True,
         )
         outputs = []
-        for raw_output in raw_outputs:
-            try:
-                parsed_output = self.task.parse_output(raw_output)
-            except Exception as e:
-                logger.error(f"Error parsing Transformers output: {e}")
-                parsed_output = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_output,
-                    parsed_output=parsed_output,
+        for prompt, i in zip(prompts, range(0, len(raw_outputs), num_generations)):
+            output = []
+            for raw_output in raw_outputs[i : i + num_generations]:
+                try:
+                    parsed_output = self.task.parse_output(raw_output)
+                except Exception as e:
+                    logger.error(f"Error parsing Transformers output: {e}")
+                    parsed_output = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_output,
+                        parsed_output=parsed_output,
+                    )
                 )
-            )
+            outputs.append(output)
         return outputs

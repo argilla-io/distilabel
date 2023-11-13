@@ -71,7 +71,7 @@ class LLM(ABC):
             futures = []
             for input in inputs:
                 future = self.thread_pool_executor.submit(
-                    self._generate, input, num_generations
+                    self._generate, [input], num_generations
                 )
                 future.add_done_callback(lambda future: _progress())
                 futures.append(future)
