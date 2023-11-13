@@ -61,9 +61,9 @@ class UltraFeedbackTask(Task):
         "instruction-following",
     ]
 
-    system_prompt: str = (
-        "Your role is to evaluate text quality based on given criteria."
-    )
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
 
     @property
     def input_args_names(self) -> List[str]:

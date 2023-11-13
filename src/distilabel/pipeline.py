@@ -163,10 +163,15 @@ class Pipeline(Generic[T]):
             progress_callback_func=progress_callback_func,
         )
 
+        processed_generations = []
         if self.generator.return_futures:  # type: ignore
-            batch_generations = [future.result() for future in batch_generations]
+            for future in batch_generations:
+                result = future.result()
+                processed_generations.extend(result)
+        else:
+            processed_generations = batch_generations
 
-        return self._process_batch_generations(batch_generations=batch_generations)
+        return self._process_batch_generations(batch_generations=processed_generations)
 
     def _process_batch_generations(
         self,
@@ -285,10 +290,14 @@ class Pipeline(Generic[T]):
         else:
             # If the LLM returns futures, we need to wait for them to finish
             try:
+                processed_labels = []
                 if self.labeller.return_futures:
                     # TODO: improve robustness by surrounding every future.result() with a try-except
-                    batch_labels = [future.result() for future in batch_labels]  # type: ignore
-                labels = self._process_batch_labels(batch_labels=batch_labels)  # type: ignore
+                    for future in batch_labels:
+                        processed_labels.extend(future.result())
+                else:
+                    processed_labels = batch_labels
+                labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
 
                 labeller_column_names = [
                     "labelling_prompt",

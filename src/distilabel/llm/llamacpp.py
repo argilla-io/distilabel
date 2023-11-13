@@ -14,13 +14,11 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from llama_cpp import Llama
@@ -36,10 +34,10 @@ class LlamaCppLLM(LLM):
         model: "Llama",
         task: "Task",
         max_new_tokens: int = 128,
-        temperature: Union[float, None] = None,
-        top_p: Union[float, None] = None,
-        top_k: Union[int, None] = None,
-        repeat_penalty: Union[float, None] = None,
+        temperature: float = 0.8,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        repeat_penalty: float = 1.1,
         prompt_format: Union[
             Literal["llama2", "openai", "chatml", "zephyr"], None
         ] = None,
@@ -57,58 +55,39 @@ class LlamaCppLLM(LLM):
         self.top_k = top_k
         self.repeat_penalty = repeat_penalty
 
-        self.__generation_attrs = [
-            "max_tokens",
-            "temperature",
-            "top_p",
-            "top_k",
-            "repeat_penalty",
-        ]
-
         self.model = model
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
-            warnings.warn(
-                f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
-                UserWarning,
-                stacklevel=2,
-            )
-            prompt = self.prompt_formatting_fn(prompt)
-        elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
-            prompt = prompt.format_as(
-                format="llama2" if self.prompt_format is None else self.prompt_format  # type: ignore
-            )
-        if not isinstance(prompt, str):
-            raise ValueError(
-                f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `str`, make sure that `task.generate_prompt` returns a `str` or that the `formatting_fn` formats the prompt as a `str`."
-            )
-        generation_kwargs = {}
-        for generation_attr in self.__generation_attrs:
-            value = getattr(self, generation_attr)
-            if value is not None:
-                generation_kwargs[generation_attr] = value
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(
+            inputs, default_format="llama2", expected_output_type=str
+        )
         outputs = []
-        for _ in range(num_generations):
-            raw_output = self.model.create_completion(
-                prompt,
-                **generation_kwargs,
-            )
-            try:
-                parsed_output = self.task.parse_output(
-                    raw_output["choices"][0]["text"].strip()
+        for prompt in prompts:
+            output = []
+            for _ in range(num_generations):
+                raw_output = self.model.create_completion(
+                    prompt,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    top_k=self.top_k,
+                    repeat_penalty=self.repeat_penalty,
                 )
-            except Exception as e:
-                logger.error(f"Error parsing llama-cpp output: {e}")
-                parsed_output = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_output,
-                    parsed_output=parsed_output,
+                try:
+                    parsed_output = self.task.parse_output(
+                        raw_output["choices"][0]["text"].strip()
+                    )
+                except Exception as e:
+                    logger.error(f"Error parsing llama-cpp output: {e}")
+                    parsed_output = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_output,
+                        parsed_output=parsed_output,
+                    )
                 )
-            )
+            outputs.append(output)
         return outputs

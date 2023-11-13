@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Union
 
 from huggingface_hub import InferenceClient, InferenceTimeoutError
@@ -30,7 +29,6 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -39,7 +37,6 @@ if TYPE_CHECKING:
 _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
     InferenceTimeoutError,
     TextGenerationError,
-    ConnectionError,
 )
 _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
@@ -84,17 +81,6 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        self.__generation_attrs = [
-            "do_sample",
-            "max_new_tokens",
-            "repetition_penalty",
-            "seed",
-            "temperature",
-            "top_k",
-            "top_p",
-            "typical_p",
-        ]
-
         self.client = InferenceClient(model=endpoint_url, token=token)
 
     @retry(
@@ -108,52 +94,43 @@ class InferenceEndpointsLLM(LLM):
         after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
-        return self.client.text_generation(**kwargs)
+        return self.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
-        self, input: Dict[str, Any], num_generations: int = 1
-    ) -> List[LLMOutput]:
-        prompt = self.task.generate_prompt(**input)
-        if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
-            warnings.warn(
-                f"The method `generate_prompt` is not returning a `Prompt` class but a prompt of `type={type(prompt)}`, meaning that a pre-formatting has already been applied in the `task.generate_prompt` method, so the usage of a `formatting_fn` is discouraged.",
-                UserWarning,
-                stacklevel=2,
-            )
-            prompt = self.prompt_formatting_fn(prompt)
-        elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
-            if self.prompt_format:
-                prompt = prompt.format_as(format=self.prompt_format)  # type: ignore
-            else:
-                prompt = f"{prompt.system_prompt}\n{prompt.formatted_prompt}"
-        if not isinstance(prompt, str):
-            raise ValueError(
-                f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be a `str`, make sure that `task.generate_prompt` returns a `str` or that the `formatting_fn` formats the prompt as a `str`."
-            )
-        generation_kwargs = {}
-        for generation_attr in self.__generation_attrs:
-            value = getattr(self, generation_attr)
-            if value is not None:
-                generation_kwargs[generation_attr] = value
-        raw_responses = [
-            self._text_generation_with_backoff(
-                prompt=prompt,
-                **generation_kwargs,
-            )
-            for _ in range(num_generations)
-        ]
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List[LLMOutput]]:
+        prompts = self._generate_prompts(
+            inputs, default_format=None, expected_output_type=str
+        )
         outputs = []
-        for raw_response in raw_responses:
-            try:
-                parsed_response = self.task.parse_output(raw_response)
-            except Exception as e:
-                logger.error(f"Error parsing Inference Endpoints output: {e}")
-                parsed_response = None
-            outputs.append(
-                LLMOutput(
-                    prompt_used=prompt,
-                    raw_output=raw_response,
-                    parsed_output=parsed_response,
+        for prompt in prompts:
+            raw_responses = [
+                self._text_generation_with_backoff(
+                    prompt=prompt,
+                    do_sample=self.do_sample,
+                    max_new_tokens=self.max_new_tokens,
+                    repetition_penalty=self.repetition_penalty,
+                    seed=self.seed,
+                    temperature=self.temperature,
+                    top_k=self.top_k,
+                    top_p=self.top_p,
+                    typical_p=self.typical_p,
                 )
-            )
+                for _ in range(num_generations)
+            ]
+            output = []
+            for raw_response in raw_responses:
+                try:
+                    parsed_response = self.task.parse_output(raw_response)
+                except Exception as e:
+                    logger.error(f"Error parsing Inference Endpoints output: {e}")
+                    parsed_response = None
+                output.append(
+                    LLMOutput(
+                        prompt_used=prompt,
+                        raw_output=raw_response,
+                        parsed_output=parsed_response,
+                    )
+                )
+            outputs.append(output)
         return outputs
