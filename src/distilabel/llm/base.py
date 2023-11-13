@@ -14,9 +14,12 @@
 
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type, Union
+
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
@@ -51,6 +54,47 @@ class LLM(ABC):
     @abstractmethod
     def model_name(self) -> str:
         pass
+
+    def _generate_prompts(
+        self,
+        inputs: List[Dict[str, Any]],
+        default_format: Union["SupportedFormats", None] = None,
+        expected_output_type: Type = str,
+    ) -> List[Any]:
+        prompts = []
+        for input in inputs:
+            prompt = self.task.generate_prompt(**input)
+            if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
+                warnings.warn(
+                    "The method `generate_prompt` is not returning a `Prompt` class but a prompt"
+                    f" of `type={type(prompt)}`, meaning that a pre-formatting has already been"
+                    " applied in the `task.generate_prompt` method, so the usage of a `prompt_formatting_fn`"
+                    " is discouraged.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                prompt = self.prompt_formatting_fn(prompt)
+            elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
+                if self.prompt_format is not None or default_format is not None:
+                    prompt = prompt.format_as(format=self.prompt_format or default_format)  # type: ignore
+                else:
+                    warnings.warn(
+                        "No `prompt_format` has been specified and no `default_format` is set, so"
+                        " the prompt will be concatenated with a line-break and no specific formatting"
+                        " by default.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                    prompt = prompt.format_as(format="default")
+            if not isinstance(prompt, expected_output_type):
+                raise ValueError(
+                    f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"
+                    f" `type={expected_output_type}`, so make sure that `task.generate_prompt` returns"
+                    f" a `{expected_output_type}` or that the `formatting_fn` formats the prompt as a "
+                    f" `{expected_output_type}`."
+                )
+            prompts.append(prompt)
+        return prompts
 
     @abstractmethod
     def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
