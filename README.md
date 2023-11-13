@@ -1,7 +1,7 @@
  <div align="center">
    <h1>⚗️ distilabel</h1>
    <p>
-     <em>Distilling datasets with LLMs</em>
+     <em>AI Feedback framework</em>
    </p>
  </div>
 
