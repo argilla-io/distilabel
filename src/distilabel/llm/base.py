@@ -80,7 +80,7 @@ class LLM(ABC):
                         UserWarning,
                         stacklevel=2,
                     )
-                    prompt = f"{prompt.system_prompt}\n{prompt.formatted_prompt}"
+                    prompt = prompt.format_as(format="default")
             if not isinstance(prompt, expected_output_type):
                 raise ValueError(
                     f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"

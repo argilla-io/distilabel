@@ -60,7 +60,7 @@ class LlamaCppLLM(LLM):
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
         prompts = self._generate_prompts(
-            inputs, default_format="llama2", expected_output_type=str
+            inputs, default_format=None, expected_output_type=str
         )
         outputs = []
         for prompt in prompts:
