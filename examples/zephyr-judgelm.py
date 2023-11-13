@@ -7,7 +7,7 @@ from distilabel.llm.openai_ import OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks.base import Task
 from distilabel.tasks.preference.judgelm import JudgeLMTask
-from distilabel.tasks.utils import Prompt
+from distilabel.tasks.prompt import Prompt
 from transformers import AutoTokenizer
 
 
@@ -49,10 +49,10 @@ def remove_sample_if_token_limit_reached(example: Dict[str, Any]) -> bool:
 
 
 dataset = load_dataset("openbmb/UltraFeedback", split="train[:500]")
-print(f"Original Dataset length: {len(dataset)}")
+print(f"Original Dataset length: {len(dataset)}")  # type: ignore
 dataset = dataset.filter(lambda example: remove_sample_if_token_limit_reached(example))
 
-print(f"Filtered Dataset length: {len(dataset)}")
+print(f"Filtered Dataset length: {len(dataset)}")  # type: ignore
 dataset = (
     dataset.shuffle()
     .remove_columns(
@@ -69,12 +69,12 @@ dataset = (
 
 pipeline = Pipeline(
     generator=InferenceEndpointsLLM(
-        endpoint_url="<ZEPHYR_BETA_INFERENCE_ENDPOINT_URL>",
+        endpoint_name="<ZEPHYR_BETA_INFERENCE_endpoint_name>",
         task=TextGenerationTask(),
         max_new_tokens=1024,  # input_length=1024, max_length=2048
         num_threads=4,
         temperature=1.0,
-        formatting_fn=lambda prompt: f"<|system|>\n{prompt.system_prompt}</s>\n<|user|>\n{prompt.formatted_prompt}</s>\n<|assistant|>\n",
+        prompt_formatting_fn=lambda prompt: f"<|system|>\n{prompt.system_prompt}</s>\n<|user|>\n{prompt.formatted_prompt}</s>\n<|assistant|>\n",
     ),
     labeller=OpenAILLM(
         model="gpt-3.5-turbo",
@@ -97,8 +97,8 @@ disti_dataset = pipeline.generate(
 end = time.time()
 print("Elapsed", end - start)
 
-dataset.push_to_hub(
+dataset.push_to_hub(  # type: ignore
     "<HUGGING_FACE_HUB_USER>/zephyr-7b-beta-judgelm",
-    split="train",
+    split="train",  # type: ignore
     private=False,
 )

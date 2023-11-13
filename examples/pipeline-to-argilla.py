@@ -4,7 +4,7 @@ from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
 from distilabel.llm.openai_ import OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
-from distilabel.tasks.text_generation.llama import Llama2GenerationTask
+from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
 
 dataset = (
     load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
@@ -14,9 +14,9 @@ dataset = (
 
 pipeline = Pipeline(
     generator=InferenceEndpointsLLM(
-        endpoint_url="<HUGGING_FACE_INFERENCE_ENDPOINTS_URL>",
+        endpoint_name="<HUGGING_FACE_INFERENCE_ENDPOINT_NAME>",
         token="<HUGGING_FACE_HUB_TOKEN>",
-        task=Llama2GenerationTask(),
+        task=Llama2TextGenerationTask(),
         max_new_tokens=128,
         num_threads=4,
         temperature=0.3,
@@ -32,7 +32,7 @@ pipeline = Pipeline(
 )
 
 dataset = pipeline.generate(
-    dataset,
+    dataset,  # type: ignore
     num_generations=2,
     batch_size=1,
     enable_checkpoints=True,
