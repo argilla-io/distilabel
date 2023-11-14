@@ -84,6 +84,7 @@ class InferenceEndpointsLLM(LLM):
         self.inference_endpoint = get_inference_endpoint(
             name=endpoint_name, namespace=endpoint_namespace, token=token
         )
+        self.inference_endpoint.wait(timeout=30)
 
     @property
     def model_name(self) -> str:
