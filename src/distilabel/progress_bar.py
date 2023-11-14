@@ -47,10 +47,10 @@ def use_progress_bar(func: Callable[P, R]) -> Callable[P, R]:
     return wrapper
 
 
-def get_progress_bar(*args: Any, **kwargs: Any):
+def get_progress_bar(*args: Any, **kwargs: Any) -> Callable[..., None]:
     task_id = _pipeline_progress.add_task(*args, **kwargs)
 
-    def update_progress_bar(**kwargs):
+    def update_progress_bar(**kwargs: Any) -> None:
         _pipeline_progress.update(task_id, **kwargs)
 
     return update_progress_bar
