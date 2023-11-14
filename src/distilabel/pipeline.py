@@ -36,10 +36,10 @@ from distilabel.dataset import CustomDataset
 from distilabel.logger import get_logger
 from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
+from distilabel.llm.utils import LLMOutput
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM
-    from distilabel.llm.utils import LLMOutput
 
 
 T = TypeVar("T", bound=CustomDataset)
@@ -304,41 +304,30 @@ class Pipeline(Generic[T]):
             labels = [{} for _ in range(len(dataset))]
         else:
             # If the LLM returns futures, we need to wait for them to finish
-            try:
-                processed_labels = []
-                if self.labeller.return_futures:
-                    # TODO: improve robustness by surrounding every future.result() with a try-except
-                    for future in batch_labels:
+            processed_labels = []
+            if self.labeller.return_futures:
+                # TODO: improve robustness by surrounding every future.result() with a try-except
+                for future in batch_labels:
+                    try:
                         processed_labels.extend(future.result())
-                else:
-                    processed_labels = batch_labels
-                labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
+                    except Exception as e:
+                        logger.error(f"An error ocurred when getting the result from the labeller: {e}")
+                        processed_labels.append([LLMOutput(model_name=None, prompt_used=None, raw_output=None, parsed_output=None)])
+            else:
+                processed_labels = batch_labels
+            labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
 
-                labeller_column_names = [
-                    "labelling_model",
-                    "labelling_prompt",
-                    "raw_labelling_response",
-                ] + self.labeller.task.output_args_names
+            labeller_column_names = [
+                "labelling_model",
+                "labelling_prompt",
+                "raw_labelling_response",
+            ] + self.labeller.task.output_args_names
 
-                if len(labels) < len(dataset):
-                    labels.extend(
-                        [
-                            {key: None for key in labeller_column_names}
-                            for _ in range(len(dataset) - len(labels))
-                        ]
-                    )
-                for label in labels:
-                    for key in labeller_column_names:
-                        if key not in label:
-                            label.update({key: None})
-            except Exception as e:
-                logger.error(
-                    f"`Pipeline.generate` failed during labelling step with exception: {e}"
-                )
-                labels = [
-                    {k: None for k in self.labeller.task.output_args_names}
-                    for _ in range(len(dataset))
-                ]
+            # Add missing keys/columns with a `None` value 
+            for label in labels:
+                for key in labeller_column_names:
+                    if key not in label:
+                        label.update({key: None})
 
         _dataset = Dataset(
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
