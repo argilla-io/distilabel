@@ -15,7 +15,7 @@
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
-from huggingface_hub import InferenceClient, InferenceTimeoutError
+from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
 from huggingface_hub.inference._text_generation import TextGenerationError
 from tenacity import (
     after_log,
@@ -49,8 +49,9 @@ logger = get_logger()
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
-        endpoint_url: str,
+        endpoint_name: str,
         task: "Task",
+        endpoint_namespace: Union[str, None] = None,
         token: Union[str, None] = None,
         max_new_tokens: int = 128,
         repetition_penalty: Union[float, None] = None,
@@ -80,7 +81,14 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        self.client = InferenceClient(model=endpoint_url, token=token)
+        self.inference_endpoint = get_inference_endpoint(
+            name=endpoint_name, namespace=endpoint_namespace, token=token
+        )
+        self.inference_endpoint.wait(timeout=30)
+
+    @property
+    def model_name(self) -> str:
+        return self.inference_endpoint.repository
 
     @retry(
         retry=retry_if_exception_type(_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS),
@@ -93,7 +101,7 @@ class InferenceEndpointsLLM(LLM):
         after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
-        return self.client.text_generation(**kwargs)  # type: ignore
+        return self.inference_endpoint.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -126,6 +134,7 @@ class InferenceEndpointsLLM(LLM):
                     parsed_response = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=raw_response,
                         parsed_output=parsed_response,

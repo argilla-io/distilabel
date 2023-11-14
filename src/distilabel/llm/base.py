@@ -50,6 +50,11 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        pass
+
     def _generate_prompts(
         self,
         inputs: List[Dict[str, Any]],

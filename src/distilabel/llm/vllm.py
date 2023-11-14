@@ -58,6 +58,10 @@ class vLLM(LLM):
 
         self.vllm = vllm
 
+    @property
+    def model_name(self) -> str:
+        return self.vllm.model_config.model
+
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
@@ -88,6 +92,7 @@ class vLLM(LLM):
                     parsed_output = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=request_output.text,
                         parsed_output=parsed_output,

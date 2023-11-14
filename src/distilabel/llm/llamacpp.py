@@ -56,6 +56,10 @@ class LlamaCppLLM(LLM):
 
         self.model = model
 
+    @property
+    def model_name(self) -> str:
+        return self.model.model_path
+
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
@@ -83,6 +87,7 @@ class LlamaCppLLM(LLM):
                     parsed_output = None
                 output.append(
                     LLMOutput(
+                        model_name=self.model_name,
                         prompt_used=prompt,
                         raw_output=raw_output,
                         parsed_output=parsed_output,
