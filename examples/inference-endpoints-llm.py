@@ -1,17 +1,10 @@
 from typing import Dict
 
 from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
-from distilabel.tasks.base import Task
+from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
 
 
-class Llama2TextGenerationTask(Task):
-    def generate_prompt(self, question: str) -> str:
-        return (
-            "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]".format(
-                system_prompt=self.system_prompt, prompt=question
-            )
-        )
-
+class Llama2QuestionAnsweringTask(Llama2TextGenerationTask):
     def parse_output(self, output: str) -> Dict[str, str]:
         return {"answer": output.split("[ANSWER]")[1].split("[/ANSWER]")[0].strip()}
 
@@ -22,18 +15,10 @@ class Llama2TextGenerationTask(Task):
         return ["answer"]
 
 
-task = Llama2TextGenerationTask(
-    system_prompt=(
-        "You are a helpful and honest assistant and you have beed asked to"
-        " answer faithfully, and with a direct response. You will be provided"
-        " with a question and you need to answer using the format `[ANSWER]<ANSWER>[/ANSWER]`"
-        " e.g. if the answer is `magic` then you should return `[ANSWER]magic[/ANSWER]`."
-    ),
-)
 llm = InferenceEndpointsLLM(
-    endpoint_url="<HUGGING_FACE_INFERENCE_ENDPOINT_URL>",
-    task=task,
+    endpoint_name="<HUGGING_FACE_INFERENCE_ENDPOINT_NAME>",
     token="<HUGGING_FACE_TOKEN>",
+    task=Llama2QuestionAnsweringTask(),
 )
 print(llm.generate([{"question": "What's the capital of Spain?"}]))
 # Output: [{"answer": "The capital of Spain is Madrid."}]

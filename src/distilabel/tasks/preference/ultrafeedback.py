@@ -61,9 +61,9 @@ class UltraFeedbackTask(Task):
         "instruction-following",
     ]
 
-    system_prompt: str = (
-        "Your role is to evaluate text quality based on given criteria."
-    )
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
 
     @property
     def input_args_names(self) -> List[str]:
@@ -89,6 +89,10 @@ class UltraFeedbackTask(Task):
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
+            # `rating` here could be parsed to float as in some scenarios we
+            # find the model is producing scores as 8.5, but that will break
+            # the `argilla` integration as it expects an integer for the `RatingQuestion`
+            # so we can either do the parsing there or leave it as is.
             rating = int(float(rating.split(": ")[1]))
             rationale = rationale.split(": ")[1]
             parsed_output.append(

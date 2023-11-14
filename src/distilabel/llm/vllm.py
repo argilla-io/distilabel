@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+
+from vllm import SamplingParams
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
-    from llama_cpp import Llama
+    from vllm import LLM as _vLLM
 
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
@@ -29,17 +29,18 @@ if TYPE_CHECKING:
 logger = get_logger()
 
 
-class LlamaCppLLM(LLM):
+class vLLM(LLM):
     def __init__(
         self,
-        model: "Llama",
+        vllm: "_vLLM",
         task: "Task",
         max_new_tokens: int = 128,
-        temperature: float = 0.8,
-        top_p: float = 0.95,
-        top_k: int = 40,
-        repeat_penalty: float = 1.1,
-        prompt_format: Union[SupportedFormats, None] = None,
+        presence_penalty: float = 0.0,
+        frequency_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        top_k: int = -1,
+        prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         super().__init__(
@@ -48,17 +49,18 @@ class LlamaCppLLM(LLM):
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
-        self.max_tokens = max_new_tokens
+        self.presence_penalty = presence_penalty
+        self.frequency_penalty = frequency_penalty
         self.temperature = temperature
         self.top_p = top_p
         self.top_k = top_k
-        self.repeat_penalty = repeat_penalty
+        self.max_tokens = max_new_tokens
 
-        self.model = model
+        self.vllm = vllm
 
     @property
     def model_name(self) -> str:
-        return self.model.model_path
+        return self.vllm.model_config.model
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -66,30 +68,33 @@ class LlamaCppLLM(LLM):
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )
+        requests = self.vllm.generate(
+            prompts,
+            SamplingParams(  # type: ignore
+                n=num_generations,
+                presence_penalty=self.presence_penalty,
+                frequency_penalty=self.frequency_penalty,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                max_tokens=self.max_tokens,
+            ),
+            use_tqdm=False,  # type: ignore
+        )
         outputs = []
-        for prompt in prompts:
+        for request, prompt in zip(requests, prompts):
             output = []
-            for _ in range(num_generations):
-                raw_output = self.model.create_completion(
-                    prompt,
-                    max_tokens=self.max_tokens,
-                    temperature=self.temperature,
-                    top_p=self.top_p,
-                    top_k=self.top_k,
-                    repeat_penalty=self.repeat_penalty,
-                )
+            for request_output in request.outputs:
                 try:
-                    parsed_output = self.task.parse_output(
-                        raw_output["choices"][0]["text"].strip()
-                    )
+                    parsed_output = self.task.parse_output(request_output.text)
                 except Exception as e:
-                    logger.error(f"Error parsing llama-cpp output: {e}")
+                    logger.error(f"Error parsing vLLM output: {e}")
                     parsed_output = None
                 output.append(
                     LLMOutput(
                         model_name=self.model_name,
                         prompt_used=prompt,
-                        raw_output=raw_output,
+                        raw_output=request_output.text,
                         parsed_output=parsed_output,
                     )
                 )

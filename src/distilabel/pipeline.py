@@ -131,7 +131,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in generations]
                 )
 
-            for column_name in ["generation_prompt", "raw_generation_responses"]:
+            for column_name in [
+                "generation_model",
+                "generation_prompt",
+                "raw_generation_responses",
+            ]:
                 dataset = dataset.add_column(
                     column_name,
                     [row.get(column_name, None) for row in generations],
@@ -143,7 +147,11 @@ class Pipeline(Generic[T]):
                     output_name, [row.get(output_name, None) for row in labels]
                 )
 
-            for column_name in ["labelling_prompt", "raw_labelling_response"]:
+            for column_name in [
+                "labelling_model",
+                "labelling_prompt",
+                "raw_labelling_response",
+            ]:
                 dataset = dataset.add_column(
                     column_name,
                     [row.get(column_name, None) for row in labels],
@@ -163,10 +171,15 @@ class Pipeline(Generic[T]):
             progress_callback_func=progress_callback_func,
         )
 
+        processed_generations = []
         if self.generator.return_futures:  # type: ignore
-            batch_generations = [future.result() for future in batch_generations]
+            for future in batch_generations:
+                result = future.result()
+                processed_generations.extend(result)
+        else:
+            processed_generations = batch_generations
 
-        return self._process_batch_generations(batch_generations=batch_generations)
+        return self._process_batch_generations(batch_generations=processed_generations)
 
     def _process_batch_generations(
         self,
@@ -175,6 +188,9 @@ class Pipeline(Generic[T]):
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
+                # Since all the generations for the same `model_name` also share the same
+                # `prompt_used`, then we just keep the first element in `generations`
+                "generation_model": generations[0]["model_name"],
                 "generation_prompt": generations[0]["prompt_used"],
                 "raw_generation_responses": [
                     generation["raw_output"] for generation in generations
@@ -224,6 +240,9 @@ class Pipeline(Generic[T]):
                     )
 
                 processed_label = {
+                    # Since all the generations for the same `model_name` also share the same
+                    # `prompt_used`, then we just keep the first element in `generations`
+                    "labelling_model": label["model_name"],
                     "labelling_prompt": label["prompt_used"],
                     "raw_labelling_response": label["raw_output"],
                 }
@@ -263,6 +282,7 @@ class Pipeline(Generic[T]):
             generations = [{} for _ in range(len(dataset))]
         else:
             generator_column_names = [
+                "generation_model",
                 "generation_prompt",
                 "raw_generation_responses",
             ] + self.generator.task.output_args_names
@@ -285,12 +305,17 @@ class Pipeline(Generic[T]):
         else:
             # If the LLM returns futures, we need to wait for them to finish
             try:
+                processed_labels = []
                 if self.labeller.return_futures:
                     # TODO: improve robustness by surrounding every future.result() with a try-except
-                    batch_labels = [future.result() for future in batch_labels]  # type: ignore
-                labels = self._process_batch_labels(batch_labels=batch_labels)  # type: ignore
+                    for future in batch_labels:
+                        processed_labels.extend(future.result())
+                else:
+                    processed_labels = batch_labels
+                labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
 
                 labeller_column_names = [
+                    "labelling_model",
                     "labelling_prompt",
                     "raw_labelling_response",
                 ] + self.labeller.task.output_args_names
@@ -315,7 +340,9 @@ class Pipeline(Generic[T]):
                     for _ in range(len(dataset))
                 ]
 
-        _dataset = Dataset(arrow_table=dataset.data, split=Split.TRAIN)
+        _dataset = Dataset(
+            arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
+        )
         _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `dataset_cls` instance
         _dataset.__class__ = self.dataset_cls

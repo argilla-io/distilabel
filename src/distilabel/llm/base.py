@@ -14,13 +14,17 @@
 
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type, Union
+
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
 
 
 class LLM(ABC):
@@ -28,7 +32,8 @@ class LLM(ABC):
         self,
         task: Task,
         num_threads: Union[int, None] = None,
-        formatting_fn: Union[Callable[..., str], None] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         self.task = task
 
@@ -38,11 +43,58 @@ class LLM(ABC):
             else None
         )
 
-        self.formatting_fn = formatting_fn
+        self.prompt_format = prompt_format
+        self.prompt_formatting_fn = prompt_formatting_fn
 
     def __del__(self) -> None:
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
+
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        pass
+
+    def _generate_prompts(
+        self,
+        inputs: List[Dict[str, Any]],
+        default_format: Union["SupportedFormats", None] = None,
+        expected_output_type: Type = str,
+    ) -> List[Any]:
+        prompts = []
+        for input in inputs:
+            prompt = self.task.generate_prompt(**input)
+            if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
+                warnings.warn(
+                    "The method `generate_prompt` is not returning a `Prompt` class but a prompt"
+                    f" of `type={type(prompt)}`, meaning that a pre-formatting has already been"
+                    " applied in the `task.generate_prompt` method, so the usage of a `prompt_formatting_fn`"
+                    " is discouraged.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                prompt = self.prompt_formatting_fn(prompt)
+            elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
+                if self.prompt_format is not None or default_format is not None:
+                    prompt = prompt.format_as(format=self.prompt_format or default_format)  # type: ignore
+                else:
+                    warnings.warn(
+                        "No `prompt_format` has been specified and no `default_format` is set, so"
+                        " the prompt will be concatenated with a line-break and no specific formatting"
+                        " by default.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                    prompt = prompt.format_as(format="default")
+            if not isinstance(prompt, expected_output_type):
+                raise ValueError(
+                    f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"
+                    f" `type={expected_output_type}`, so make sure that `task.generate_prompt` returns"
+                    f" a `{expected_output_type}` or that the `formatting_fn` formats the prompt as a "
+                    f" `{expected_output_type}`."
+                )
+            prompts.append(prompt)
+        return prompts
 
     @abstractmethod
     def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
@@ -56,22 +108,20 @@ class LLM(ABC):
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
-                progress_callback_func()
+                progress_callback_func(advance=num_generations * len(inputs))
 
         if self.thread_pool_executor is not None:
             futures = []
             for input in inputs:
                 future = self.thread_pool_executor.submit(
-                    self._generate, input, num_generations
+                    self._generate, [input], num_generations
                 )
                 future.add_done_callback(lambda future: _progress())
                 futures.append(future)
             return futures
 
-        generations = []
-        for input in inputs:
-            generations.append(self._generate(input, num_generations))
-            _progress()
+        generations = self._generate(inputs, num_generations)
+        _progress()
         return generations
 
     @property

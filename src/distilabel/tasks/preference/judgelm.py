@@ -81,8 +81,12 @@ class JudgeLMTask(Task):
 
     def parse_output(self, output: str) -> JudgeLMOutput:
         split_output = output.split("\n")
+        # `ratings` here could be parsed to float as in some scenarios we
+        # find the model is producing scores as 8.5, but that will break
+        # the `argilla` integration as it expects an integer for the `RatingQuestion`
+        # so we can either do the parsing there or leave it as is.
         ratings = [int(float(rating)) for rating in split_output[0].split(" ")]
-        rationale = "".join(split_output[1:])
+        rationale = "\n".join(split_output[1:])
         return JudgeLMOutput(ratings=ratings, rationale=rationale)
 
     def to_argilla_fields(
