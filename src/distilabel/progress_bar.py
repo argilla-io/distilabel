@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Callable, Tuple, Union
+from functools import wraps
+from typing import Any, Callable, ParamSpec, Tuple, TypeVar, Union
 
 from rich.progress import (
     BarColumn,
@@ -29,11 +30,24 @@ _pipeline_progress = Progress(
     MofNCompleteColumn(),
 )
 
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def use_progress_bar(func: Callable[P, R]) -> Callable[P, R]:
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        _pipeline_progress.start()
+        try:
+            r = func(*args, **kwargs)
+        finally:
+            _pipeline_progress.stop()
+        return r
+
+    return wrapper
+
 
 def get_progress_bar(*args: Any, **kwargs: Any):
-    if not _pipeline_progress.live.is_started:
-        _pipeline_progress.start()
-
     task_id = _pipeline_progress.add_task(*args, **kwargs)
 
     def update_progress_bar(**kwargs):

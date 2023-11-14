@@ -34,7 +34,11 @@ from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
 from distilabel.logger import get_logger
-from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
+from distilabel.progress_bar import (
+    _pipeline_progress,
+    get_progress_bars_for_pipeline,
+    use_progress_bar,
+)
 from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
@@ -349,6 +353,7 @@ class Pipeline(Generic[T]):
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
         return _dataset  # type: ignore
 
+    @use_progress_bar
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
