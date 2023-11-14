@@ -66,7 +66,7 @@ class TextGenerationTask(Task):
                 )
 
     def _get_principle(self) -> str:
-        if self.principles_distribution != "balanced":
+        if isinstance(self.principles_distribution, dict):
             principle_group = random.choices(
                 list(self.principles_distribution.keys()),
                 weights=list(self.principles_distribution.values()),
