@@ -18,7 +18,7 @@ from typing import Dict, List, Literal, Union
 
 from distilabel.tasks.base import Task
 from distilabel.tasks.prompt import Prompt
-from distilabel.tasks.text_generation.principles import Principles
+from distilabel.tasks.text_generation.principles import UltraFeedbackPrinciples
 
 
 @dataclass
@@ -33,11 +33,11 @@ class TextGenerationTask(Task):
     )
     principles: Dict[str, List[str]] = field(
         default_factory=lambda: {
-            "harmlessness": Principles.harmlessness,
-            "helpfulness": Principles.helpfulness,
-            "truthfulness": Principles.truthfulness,
-            "honesty": Principles.honesty,
-            "verbalized_calibration": Principles.verbalized_calibration,
+            "harmlessness": UltraFeedbackPrinciples.harmlessness,
+            "helpfulness": UltraFeedbackPrinciples.helpfulness,
+            "truthfulness": UltraFeedbackPrinciples.truthfulness,
+            "honesty": UltraFeedbackPrinciples.honesty,
+            "verbalized_calibration": UltraFeedbackPrinciples.verbalized_calibration,
         },
         repr=False,
     )

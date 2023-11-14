@@ -1,4 +1,11 @@
-class Principles:
+class UltraFeedbackPrinciples:
+    """A class containing a list of principles from the UltraFeedback paper, that can
+    be injected into the system prompt given to the LLM.
+
+    References:
+        - https://github.com/OpenBMB/UltraFeedback
+    """
+
     helpfulness = [
         "The assistant should provide users with accurate, relevant, and up-to-date information, ensuring that the content is positive, interesting, engaging, educational, and helpful.",
         "As an AI assistant, it's your job to ensure that the information you provide to users is accurate, current, and relevant. Offer comprehensive details to educate and engage the user.",

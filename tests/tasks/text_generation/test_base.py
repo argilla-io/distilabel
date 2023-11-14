@@ -1,6 +1,6 @@
 import pytest
 from distilabel.tasks.text_generation.base import TextGenerationTask
-from distilabel.tasks.text_generation.principles import Principles
+from distilabel.tasks.text_generation.principles import UltraFeedbackPrinciples
 
 
 class TestSuiteTextGenerationTask:
@@ -15,11 +15,11 @@ class TestSuiteTextGenerationTask:
             " question, please don't share false information."
         )
         assert task.principles == {
-            "harmlessness": Principles.harmlessness,
-            "helpfulness": Principles.helpfulness,
-            "truthfulness": Principles.truthfulness,
-            "honesty": Principles.honesty,
-            "verbalized_calibration": Principles.verbalized_calibration,
+            "harmlessness": UltraFeedbackPrinciples.harmlessness,
+            "helpfulness": UltraFeedbackPrinciples.helpfulness,
+            "truthfulness": UltraFeedbackPrinciples.truthfulness,
+            "honesty": UltraFeedbackPrinciples.honesty,
+            "verbalized_calibration": UltraFeedbackPrinciples.verbalized_calibration,
         }
         assert task.principles_distribution is None
 
