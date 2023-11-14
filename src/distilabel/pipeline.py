@@ -51,7 +51,7 @@ T = TypeVar("T", bound=CustomDataset)
 logger = get_logger()
 
 
-class Pipeline(Generic[T]):
+class _Pipeline(Generic[T]):
     dataset_cls: Type[T] = CustomDataset  # type: ignore
 
     def __init__(
@@ -452,6 +452,9 @@ class Pipeline(Generic[T]):
         )
 
 
+Pipeline = _Pipeline[CustomDataset]
+
+
 # TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
     task: Literal["preference", "critique"],
@@ -522,7 +525,7 @@ def pipeline(
     else:
         raise ValueError(f"Invalid task: {task}")
 
-    class CustomPipeline(Pipeline[dataset_cls]):
+    class CustomPipeline(_Pipeline[dataset_cls]):
         pass
 
     CustomPipeline.dataset_cls = dataset_cls
