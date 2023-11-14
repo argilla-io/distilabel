@@ -76,7 +76,9 @@ class LLM(ABC):
                 prompt = self.prompt_formatting_fn(prompt)
             elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
                 if self.prompt_format is not None or default_format is not None:
-                    prompt = prompt.format_as(format=self.prompt_format or default_format)  # type: ignore
+                    prompt = prompt.format_as(
+                        format=self.prompt_format or default_format
+                    )  # type: ignore
                 else:
                     warnings.warn(
                         "No `prompt_format` has been specified and no `default_format` is set, so"
