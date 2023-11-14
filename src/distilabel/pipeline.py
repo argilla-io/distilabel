@@ -340,7 +340,9 @@ class Pipeline(Generic[T]):
                     for _ in range(len(dataset))
                 ]
 
-        _dataset = Dataset.from_dict(dataset.to_dict(), split=Split.TRAIN)  # type: ignore
+        _dataset = Dataset(
+            arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
+        )
         _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `dataset_cls` instance
         _dataset.__class__ = self.dataset_cls
