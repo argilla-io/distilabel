@@ -306,7 +306,6 @@ class Pipeline(Generic[T]):
             # If the LLM returns futures, we need to wait for them to finish
             processed_labels = []
             if self.labeller.return_futures:
-                # TODO: improve robustness by surrounding every future.result() with a try-except
                 for future in batch_labels:
                     try:
                         processed_labels.extend(future.result())
