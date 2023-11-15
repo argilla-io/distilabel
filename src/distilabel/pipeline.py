@@ -312,7 +312,7 @@ class Pipeline(Generic[T]):
                         processed_labels.extend(future.result())
                     except Exception as e:
                         logger.error(f"An error ocurred when getting the result from the labeller: {e}")
-                        processed_labels.append([LLMOutput(model_name=None, prompt_used=None, raw_output=None, parsed_output=None)])
+                        processed_labels.append([LLMOutput(model_name=self.labeller.model_name, prompt_used=None, raw_output=None, parsed_output=None)])
             else:
                 processed_labels = batch_labels
             labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
