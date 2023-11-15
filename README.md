@@ -8,6 +8,6 @@
 ## What's distilabel
 distilabel is a framework for building datasets with AI for LLM fine-tuning, evaluation, and alignment. 
 
-distilabel gives a framework for efficient and scalable model distilation, building on state of the art approaches such as UltraFeedback or JudgeLM.
+It gives an extensible and scalable framework for AI Feedback and model distillation, building on state of the art approaches such as UltraFeedback or JudgeLM.
 
 
