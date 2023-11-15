@@ -60,7 +60,7 @@ class vLLM(LLM):
 
     @property
     def model_name(self) -> str:
-        return self.vllm.model_config.model
+        return self.vllm.llm_engine.model_config.model
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
