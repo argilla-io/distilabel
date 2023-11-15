@@ -76,7 +76,9 @@ class LLM(ABC):
                 prompt = self.prompt_formatting_fn(prompt)
             elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
                 if self.prompt_format is not None or default_format is not None:
-                    prompt = prompt.format_as(format=self.prompt_format or default_format)  # type: ignore
+                    prompt = prompt.format_as(
+                        format=self.prompt_format or default_format  # type: ignore
+                    )
                 else:
                     warnings.warn(
                         "No `prompt_format` has been specified and no `default_format` is set, so"
@@ -97,7 +99,9 @@ class LLM(ABC):
         return prompts
 
     @abstractmethod
-    def _generate(self, **kwargs: Any) -> List["LLMOutput"]:
+    def _generate(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List["LLMOutput"]]:
         pass
 
     def generate(
@@ -108,7 +112,12 @@ class LLM(ABC):
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
         def _progress():
             if progress_callback_func is not None:
-                progress_callback_func(advance=num_generations * len(inputs))
+                advance = (
+                    num_generations * len(inputs)
+                    if not self.return_futures
+                    else num_generations
+                )
+                progress_callback_func(advance=advance)
 
         if self.thread_pool_executor is not None:
             futures = []
@@ -116,7 +125,7 @@ class LLM(ABC):
                 future = self.thread_pool_executor.submit(
                     self._generate, [input], num_generations
                 )
-                future.add_done_callback(lambda future: _progress())
+                future.add_done_callback(lambda _: _progress())
                 futures.append(future)
             return futures
 
