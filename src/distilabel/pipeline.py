@@ -33,10 +33,10 @@ from typing import (
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
 from distilabel.utils import combine_dicts
-from distilabel.llm.utils import LLMOutput
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM
@@ -311,8 +311,19 @@ class Pipeline(Generic[T]):
                     try:
                         processed_labels.extend(future.result())
                     except Exception as e:
-                        logger.error(f"An error ocurred when getting the result from the labeller: {e}")
-                        processed_labels.append([LLMOutput(model_name=self.labeller.model_name, prompt_used=None, raw_output=None, parsed_output=None)])
+                        logger.error(
+                            f"An error ocurred when getting the result from the labeller: {e}"
+                        )
+                        processed_labels.append(
+                            [
+                                LLMOutput(
+                                    model_name=self.labeller.model_name,
+                                    prompt_used=None,
+                                    raw_output=None,
+                                    parsed_output=None,
+                                )
+                            ]
+                        )
             else:
                 processed_labels = batch_labels
             labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
@@ -323,7 +334,17 @@ class Pipeline(Generic[T]):
                 "raw_labelling_response",
             ] + self.labeller.task.output_args_names
 
-            # Add missing keys/columns with a `None` value 
+            # Ensure the lengths of the labels and the dataset match (when pipeline
+            # fails in an intermediate step, the labels may be shorter than the dataset)
+            if len(labels) < len(dataset):
+                labels.extend(
+                    [
+                        {key: None for key in labeller_column_names}
+                        for _ in range(len(dataset) - len(labels))
+                    ]
+                )
+
+            # Add missing keys/columns with a `None` value
             for label in labels:
                 for key in labeller_column_names:
                     if key not in label:
