@@ -11,14 +11,14 @@ license = "MIT"
 keywords = ["llm", "annotation", "alignment"]
 authors = [{ name = "Argilla", email = "admin@argilla.io" }]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = ["datasets >=2.14.0", "Jinja2 >=3.1.2"]
 dynamic = ["version"]
@@ -26,13 +26,14 @@ dynamic = ["version"]
 [project.optional-dependencies]
 dev = ["black ==23.10.0", "ruff ==0.1.0", "pre-commit >=3.5.0"]
 huggingface = [
-  "transformers >=4.34.1",
-  "tenacity >=8",
-  "huggingface_hub >= 1.19.0",
+    "transformers >=4.34.1",
+    "tenacity >=8",
+    "huggingface_hub >= 1.19.0",
 ]
 openai = ["openai >=1.0.0"]
 vllm = ["vllm>=0.2.1"]
 argilla = ["argilla >=1.16.0"]
+tests = ["pytest>=7.4.0"]
 
 [project.urls]
 Documentation = "https://github.com/argilla/distilabel#readme"
@@ -46,3 +47,6 @@ path = "src/distilabel/__init__.py"
 line-length = 88
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
