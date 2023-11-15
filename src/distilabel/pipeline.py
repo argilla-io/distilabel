@@ -35,7 +35,11 @@ from datasets import Dataset, Split
 from distilabel.dataset import CustomDataset
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.progress_bar import _pipeline_progress, get_progress_bars_for_pipeline
+from distilabel.progress_bar import (
+    _pipeline_progress,
+    get_progress_bars_for_pipeline,
+    use_progress_bar,
+)
 from distilabel.utils import combine_dicts
 
 if TYPE_CHECKING:
@@ -47,7 +51,7 @@ T = TypeVar("T", bound=CustomDataset)
 logger = get_logger()
 
 
-class Pipeline(Generic[T]):
+class _Pipeline(Generic[T]):
     dataset_cls: Type[T] = CustomDataset  # type: ignore
 
     def __init__(
@@ -358,6 +362,7 @@ class Pipeline(Generic[T]):
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
         return _dataset  # type: ignore
 
+    @use_progress_bar
     def generate(  # noqa: C901
         self,
         dataset: Dataset,
@@ -456,6 +461,9 @@ class Pipeline(Generic[T]):
         )
 
 
+Pipeline = _Pipeline[CustomDataset]
+
+
 # TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
     task: Literal["preference", "critique"],
@@ -526,7 +534,7 @@ def pipeline(
     else:
         raise ValueError(f"Invalid task: {task}")
 
-    class CustomPipeline(Pipeline[dataset_cls]):
+    class CustomPipeline(_Pipeline[dataset_cls]):
         pass
 
     CustomPipeline.dataset_cls = dataset_cls
