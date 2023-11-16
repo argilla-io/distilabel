@@ -64,11 +64,11 @@ class UltraJudgeTask(Task):
 
     @property
     def extract_area_score_and_rationale_regex(self) -> str:
-        return rf"({'|'.join(self.areas)})\s*-\s*(\d+)\n(.*?)(?=\n\n|\Z)"
+        return rf"({'|'.join(self.areas)})\s*-\s*(\d+(?:\.\d+)?)\n(.*?)(?=\n\n|\Z)"
 
     @property
     def extract_final_scores_regex(self) -> str:
-        return r"Final scores:\s*((?:\d+\s*)+)"
+        return r"Final scores:\s*((?:\d+(?:\.\d+)?\s*)+)"
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         render_kwargs = {
