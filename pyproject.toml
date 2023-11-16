@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "distilabel"
-description = "Automatic build of preference datasets for LLM alignment"
+description = "AI Feedback framework"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
