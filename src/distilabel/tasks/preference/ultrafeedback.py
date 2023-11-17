@@ -113,7 +113,7 @@ class UltraFeedbackTask(PreferenceTask):
     def _to_argilla_rationale(
         self,
         dataset_row: Dict[str, Any],
-    ) -> "str":
+    ) -> str:
         rationales = dataset_row.get("rationale")
         if rationales is None:
             return ""
