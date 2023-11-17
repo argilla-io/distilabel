@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
 
 try:
@@ -50,8 +51,10 @@ class UltraFeedbackOutput(TypedDict):
 
 
 @dataclass
-class UltraFeedbackTask(Task):
+class UltraFeedbackTask(PreferenceTask):
     ratings: List[Rating]
+
+    task_description: str
 
     __jinja2_template__: str = field(
         default=_ULTRAFEEDBACK_TEMPLATE, init=False, repr=False
@@ -107,147 +110,14 @@ class UltraFeedbackTask(Task):
             )
         return parsed_output
 
-    def to_argilla_fields(
+    def _to_argilla_rationale(
         self,
         dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
-    ) -> List["AllowedFieldTypes"]:
-        if not _argilla_installed:
-            raise ImportError("The argilla library is not installed.")
-        argilla_fields = []
-        for arg_name in self.input_args_names:
-            if arg_name not in dataset_row:
-                raise ValueError(
-                    f"Dataset row does not contain the required field '{arg_name}'."
-                )
-            if isinstance(dataset_row[arg_name], list):
-                for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    argilla_fields.append(rg.TextField(name=f"{arg_name}-{idx}"))
-            elif isinstance(dataset_row[arg_name], str):
-                argilla_fields.append(rg.TextField(name=arg_name))
-            else:
-                raise ValueError(
-                    f"Type {type(dataset_row[arg_name])} is not supported."
-                )
-        return argilla_fields
-
-    def to_argilla_questions(
-        self,
-        dataset_row: Dict[str, Any],
-        group_ratings_as_ranking: bool = False,
-        *args: Any,
-        **kwargs: Any,
-    ) -> List["AllowedQuestionTypes"]:
-        if not _argilla_installed:
-            raise ImportError("The argilla library is not installed.")
-        argilla_questions = []
-        for arg_name in ["generations"]:
-            if arg_name not in dataset_row:
-                raise ValueError(
-                    f"Dataset row does not contain the required field '{arg_name}'."
-                )
-            if isinstance(dataset_row[arg_name], list):
-                # If `group_ratings_as_ranking` is True, then we group all the ratings into a ranking
-                if group_ratings_as_ranking:
-                    argilla_questions.append(
-                        rg.RankingQuestion(
-                            name=f"{arg_name}-ranking",
-                            title=f"Rank the {arg_name} from best to worst.",
-                            values=[
-                                f"{arg_name}-{idx}"
-                                for idx in range(1, len(dataset_row[arg_name]) + 1)
-                            ],
-                        )
-                    )
-                # Otherwise, we ask for each rating individually, but we still add the rationale
-                for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    if not group_ratings_as_ranking:
-                        argilla_questions.append(
-                            rg.RatingQuestion(
-                                name=f"{arg_name}-{idx}-rating",
-                                title=f"What's the rating for {arg_name}-{idx}?",
-                                values=list(range(1, len(self.ratings) + 1)),
-                            ),
-                        )
-                    argilla_questions.append(
-                        rg.TextQuestion(
-                            name=f"{arg_name}-{idx}-rationale",
-                            title=f"What's the rationale behind the rating for {arg_name}-{idx}?",
-                        ),
-                    )
-        return argilla_questions
-
-    def to_argilla_record(  # noqa: C901
-        self,
-        dataset_row: Dict[str, Any],
-        group_ratings_as_ranking: bool = False,
-        *args: Any,
-        **kwargs: Any,
-    ) -> "FeedbackRecord":
-        if not _argilla_installed:
-            raise ImportError("The argilla library is not installed.")
-        fields = {}
-        for input_arg_name in self.input_args_names:
-            if isinstance(dataset_row[input_arg_name], list):
-                for idx in range(1, len(dataset_row[input_arg_name]) + 1):
-                    fields.update(
-                        {
-                            f"{input_arg_name}-{idx}": dataset_row[input_arg_name][
-                                idx - 1
-                            ].strip()
-                        }
-                    )
-            else:
-                fields.update({input_arg_name: dataset_row[input_arg_name]})
-        suggestions = []
-        for output_arg_name in self.output_args_names:
-            if dataset_row[output_arg_name] is None:
-                continue
-            if output_arg_name == "rating" and group_ratings_as_ranking:
-
-                def ratings_as_ranking_value(ratings: List[int]):
-                    indexed_ratings = list(enumerate(ratings, start=1))
-                    sorted_ratings = sorted(
-                        indexed_ratings, key=lambda x: x[1], reverse=True
-                    )
-
-                    ranked_fields = []
-                    current_rank = 1
-                    for i, (index, rating) in enumerate(sorted_ratings):
-                        if i > 0 and rating < sorted_ratings[i - 1][1]:
-                            current_rank = i + 1
-                        ranked_fields.append(
-                            {"rank": current_rank, "value": f"generations-{index}"}
-                        )
-
-                    return ranked_fields
-
-                suggestions.append(
-                    {
-                        "question_name": "generations-ranking",
-                        "value": ratings_as_ranking_value(dataset_row[output_arg_name]),
-                    }
-                )
-                continue
-            for idx, value in enumerate(dataset_row[output_arg_name], start=1):
-                if output_arg_name == "rating":
-                    if value <= 0:
-                        warnings.warn(
-                            "Cannot convert rating value to Argilla as it is not a "
-                            "greater than 0. Setting it to 1.",
-                            stacklevel=2,
-                        )
-                        value = 1
-                else:
-                    value = value.strip()
-                suggestions.append(
-                    {
-                        "question_name": f"generations-{idx}-{output_arg_name}",
-                        "value": value,
-                    }
-                )
-        return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
+    ) -> "str":
+        rationales = []
+        for idx, rationale in enumerate(dataset_row["rationale"], start=1):
+            rationales.append(f"Rationale for generation-{idx}:\n{rationale}\n")
+        return "\n".join(rationales)
 
     @classmethod
     def for_text_quality(

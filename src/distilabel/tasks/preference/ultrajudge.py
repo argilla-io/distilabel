@@ -1,8 +1,9 @@
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, TypedDict
+from typing import Any, Dict, List, TypedDict
 
 from distilabel.tasks.base import Prompt, Task, get_template
+from distilabel.tasks.preference.base import PreferenceTask
 
 _ULTRAJUDGE_TEMPLATE = get_template("ultrajudge.jinja2")
 
@@ -18,7 +19,7 @@ class UltraJudgeOutput(TypedDict):
 
 
 @dataclass
-class UltraJudgeTask(Task):
+class UltraJudgeTask(PreferenceTask):
     system_prompt: str = (
         "You are an evaluator tasked with assessing AI assistants' responses from the perspective of typical user preferences."
         " Your critical analysis should focus on human-like engagement, solution effectiveness, accuracy, clarity, and"
@@ -105,3 +106,15 @@ class UltraJudgeTask(Task):
             outputs.append(UltraJudgeOutput(rating=rating, areas=areas))
 
         return outputs
+    
+    def _to_argilla_rationale(
+        self,
+        dataset_row: Dict[str, Any],
+    ) -> "str":
+        print("entruuuu")
+        rationales = []
+        print(dataset_row["areas"])
+        print(dataset_row.keys())
+        for idx, area in enumerate(dataset_row["areas"], start=1):
+            rationales.append(f"Rationale for generation-{idx}:\n{str(area)}\n")
+        return "\n".join(rationales)
