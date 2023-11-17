@@ -474,7 +474,6 @@ class _Pipeline(Generic[T]):
 Pipeline = _Pipeline[CustomDataset]
 
 
-# TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
     task: Literal["preference", "critique"],
     subtask: Optional[str] = None,
@@ -485,31 +484,35 @@ def pipeline(
 ) -> "Pipeline":
     if task == "preference":
         if labeller is None:
+            from dataclasses import fields
+
             from distilabel.llm.openai_ import OpenAILLM
             from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
+            task_cls = UltraFeedbackTask
             task_kwargs = {
-                key: kwargs.get(key)
-                for key in UltraFeedbackTask.__fields__.keys()  # TODO: update when `pydantic` dependency is removed
-                if key in kwargs and not key.startswith("__")
+                key: kwargs.get(key.name)
+                for key in fields(task_cls)
+                if key.name in kwargs and not key.name.startswith("__")
             }
 
             # Dynamically call the appropriate classmethod using getattr
             if subtask is not None:
-                if subtask not in UltraFeedbackTask.__subtasks__:
+                if subtask not in task_cls.__subtasks__:
                     raise ValueError(
-                        f"Invalid subtask: {subtask}, available subtasks are {UltraFeedbackTask.__subtasks__}"
+                        f"Invalid subtask: {subtask}, available subtasks are {task_cls.__subtasks__}"
                     )
                 classmethod_name = f"for_{subtask.lower().replace('-', '_')}"
-                if hasattr(UltraFeedbackTask, classmethod_name):
-                    classmethod = getattr(UltraFeedbackTask, classmethod_name)
+                if hasattr(task_cls, classmethod_name):
+                    task_cls = getattr(task_cls, classmethod_name)
 
-            # TODO: add a logging.info message to inform the user that `OpenAILLM` is being used by default?
+            logger.info(
+                "Since no `labeller` was provided, `OpenAILLM` will be used as the default labeller with `UltraFeedback`."
+            )
+
             labeller = OpenAILLM(
                 model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-                task=UltraFeedbackTask(**task_kwargs)
-                if subtask is None
-                else classmethod(**task_kwargs),
+                task=task_cls(**task_kwargs),  # type: ignore
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
                 num_threads=kwargs.get("num_threads") or 4,
                 openai_api_key=kwargs.get("openai_api_key")
@@ -522,8 +525,10 @@ def pipeline(
 
             if not isinstance(labeller.task, (UltraFeedbackTask, JudgeLMTask)):
                 warnings.warn(
-                    f"The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`, got {labeller.task.__class__.__name__}."
-                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `UltraFeedbackTask` is supported at the moment.",
+                    "The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`"
+                    f" or `JudgeLMTask`, got {labeller.task.__class__.__name__}. If you are planning"
+                    " to use a custom `labeller` for a `preference` task, use it at your own risk, since"
+                    " only `UltraFeedbackTask` and `JudgeLMTask` are supported at the moment.",
                     UserWarning,
                     stacklevel=2,
                 )
@@ -549,4 +554,4 @@ def pipeline(
 
     CustomPipeline.dataset_cls = dataset_cls
 
-    return CustomPipeline(generator=generator, labeller=labeller)
+    return CustomPipeline(generator=generator, labeller=labeller)  # type: ignore
