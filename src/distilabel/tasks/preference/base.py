@@ -38,7 +38,7 @@ class PreferenceTask(Task):
     def to_argilla_fields(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedFieldTypes"]:
-        return self._process_dataset_row(dataset_row, self._create_text_field)
+        return self._create_fields_from_row(dataset_row, self._create_text_field)
 
     def to_argilla_questions(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any

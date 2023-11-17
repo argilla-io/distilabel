@@ -109,9 +109,9 @@ class Argilla:
         fields[f"{arg_name}{suffix}"] = value.strip()
         metadata[f"length-{arg_name}{suffix}"] = len(value.strip())
 
-    def _process_dataset_row(
+    def _create_fields_from_row(
         self, dataset_row: Dict[str, Any], process_function: Callable
-    ) -> List:
+    ) -> List["AllowedFieldTypes"]:
         processed_items = []
         for arg_name in self.input_args_names:
             self._check_argument_exists(dataset_row, arg_name)
