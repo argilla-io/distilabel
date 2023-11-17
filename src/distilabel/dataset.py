@@ -36,7 +36,7 @@ class CustomDataset(Dataset):
     def to_argilla(self, **kwargs: Any) -> "FeedbackDataset":
         if _argilla_installed is False:
             raise ImportError(
-                "The argilla library is not installed. Please install it with `pip install argilla`."
+                "The argilla library is not installed. To use the to_dataset method, please install it with `pip install argilla`."
             )
         if self.task is None:
             raise ValueError(

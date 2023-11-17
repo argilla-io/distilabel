@@ -9,12 +9,12 @@ _ULTRAJUDGE_TEMPLATE = get_template("ultrajudge.jinja2")
 
 
 class Area(TypedDict):
-    rating: int
+    rating: float
     rationale: str
 
 
 class UltraJudgeOutput(TypedDict):
-    rating: int
+    rating: float
     areas: Dict[str, Area]
 
 
@@ -90,7 +90,7 @@ class UltraJudgeTask(PreferenceTask):
         # `areas_results` includes num_generations * num_areas tuples
         areas_results = re.findall(self.extract_area_score_and_rationale_regex, output)
         final_scores = [
-            int(float(str_score))
+            float(str_score)
             for str_score in re.findall(self.extract_final_scores_regex, output)[
                 0
             ].split(" ")

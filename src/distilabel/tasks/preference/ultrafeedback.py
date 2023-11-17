@@ -103,7 +103,7 @@ class UltraFeedbackTask(PreferenceTask):
             # find the model is producing scores as 8.5, but that will break
             # the `argilla` integration as it expects an integer for the `RatingQuestion`
             # so we can either do the parsing there or leave it as is.
-            rating = int(float(rating.split(": ")[1]))
+            rating = float(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
             parsed_output.append(
                 UltraFeedbackOutput(rating=rating, rationale=rationale)
@@ -114,10 +114,13 @@ class UltraFeedbackTask(PreferenceTask):
         self,
         dataset_row: Dict[str, Any],
     ) -> "str":
-        rationales = []
+        rationales = dataset_row.get("rationale")
+        if rationales is None:
+            return ""
+        sections = []
         for idx, rationale in enumerate(dataset_row["rationale"], start=1):
-            rationales.append(f"Rationale for generation-{idx}:\n{rationale}\n")
-        return "\n".join(rationales)
+            sections.append(f"Rationale for generation-{idx}:\n{rationale}\n")
+        return "\n".join(sections)
 
     @classmethod
     def for_text_quality(
