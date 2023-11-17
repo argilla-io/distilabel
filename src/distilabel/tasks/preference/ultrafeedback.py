@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
+import warnings
+from dataclasses import dataclass, field
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -52,14 +53,20 @@ class UltraFeedbackOutput(TypedDict):
 class UltraFeedbackTask(Task):
     ratings: List[Rating]
 
-    __jinja2_template__: str = _ULTRAFEEDBACK_TEMPLATE
-    __subtasks__: List[str] = [
-        "text-quality",
-        "helpfulness",
-        "truthfulness",
-        "honesty",
-        "instruction-following",
-    ]
+    __jinja2_template__: str = field(
+        default=_ULTRAFEEDBACK_TEMPLATE, init=False, repr=False
+    )
+    __subtasks__: List[str] = field(
+        default_factory=lambda: [
+            "text-quality",
+            "helpfulness",
+            "truthfulness",
+            "honesty",
+            "instruction-following",
+        ],
+        init=False,
+        repr=False,
+    )
 
     system_prompt: (
         str
@@ -224,10 +231,20 @@ class UltraFeedbackTask(Task):
                 )
                 continue
             for idx, value in enumerate(dataset_row[output_arg_name], start=1):
+                if output_arg_name == "rating":
+                    if value <= 0:
+                        warnings.warn(
+                            "Cannot convert rating value to Argilla as it is not a "
+                            "greater than 0. Setting it to 1.",
+                            stacklevel=2,
+                        )
+                        value = 1
+                else:
+                    value = value.strip()
                 suggestions.append(
                     {
                         "question_name": f"generations-{idx}-{output_arg_name}",
-                        "value": value.strip() if isinstance(value, str) else value,
+                        "value": value,
                     }
                 )
         return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
