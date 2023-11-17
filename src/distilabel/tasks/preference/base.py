@@ -87,12 +87,6 @@ class PreferenceTask(Task):
             )
         return metadata_properties
 
-    def _check_argument_exists(self, dataset_row, arg_name):
-        if arg_name not in dataset_row:
-            raise ValueError(
-                f"Dataset row does not contain the required field '{arg_name}'."
-            )
-
     def to_argilla_record(  # noqa: C901
         self,
         dataset_row: Dict[str, Any],
