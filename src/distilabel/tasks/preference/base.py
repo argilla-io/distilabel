@@ -16,11 +16,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 from distilabel.tasks.base import Task
 
-try:
-    import argilla as rg
-except ImportError:
-    pass
-
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
@@ -29,56 +24,38 @@ if TYPE_CHECKING:
         AllowedMetadataPropertyTypes,
     )
 
+
 @dataclass
 class PreferenceTask(Task):
     def to_argilla_fields(
-        self,
-        dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedFieldTypes"]:
-        argilla_fields = []
-        for arg_name in self.input_args_names:
-            self._check_argument_exists(dataset_row, arg_name)
-            if isinstance(dataset_row[arg_name], list):
-                for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    argilla_fields.append(rg.TextField(name=f"{arg_name}-{idx}"))
-            elif isinstance(dataset_row[arg_name], str):
-                argilla_fields.append(rg.TextField(name=arg_name))
-        return argilla_fields
+        return self._process_dataset_row(dataset_row, self._create_text_field)
 
     def to_argilla_questions(
-        self,
-        dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedQuestionTypes"]:
+        questions = []
         arg_name = "generations"
         self._check_argument_exists(dataset_row, arg_name)
-        argilla_questions = []
         if isinstance(dataset_row[arg_name], list):
-            # add ratings for generation
             for idx in range(1, len(dataset_row[arg_name]) + 1):
-                argilla_questions.append(
-                    rg.RatingQuestion(
-                        name=f"{arg_name}-{idx}-rating",
-                        title=f"What's the rating for {arg_name}-{idx}?",
-                        values=list(range(1, 11)),
-                    ),
+                question_name = f"{arg_name}-{idx}-rating"
+                title = f"What's the rating for {arg_name}-{idx}?"
+                questions.append(
+                    self._create_rating_question(
+                        question_name, title, list(range(1, 11))
+                    )
                 )
-        argilla_questions.append(
-            rg.TextQuestion(
-                name=f"ratings-rationale",
-                title=f"What's the rationale behind the ratings?",
-            ),
+        questions.append(
+            self._create_text_question(
+                "ratings-rationale", "What's the rationale behind the ratings?"
+            )
         )
-        return argilla_questions
+        return questions
 
     def to_argilla_metadata_properties(
-        self,
-        dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedMetadataPropertyTypes"]:
         metadata_properties = []
         for arg_name in self.input_args_names:
@@ -86,31 +63,35 @@ class PreferenceTask(Task):
             if isinstance(dataset_row[arg_name], list):
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
                     metadata_properties.append(
-                        rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")
+                        self._create_metadata_property(
+                            f"length-{arg_name}-{idx}", "integer"
+                        )
                     )
                     metadata_properties.append(
-                        rg.FloatMetadataProperty(name=f"rating-{arg_name}-{idx}")
+                        self._create_metadata_property(
+                            f"rating-{arg_name}-{idx}", "float"
+                        )
                     )
             elif isinstance(dataset_row[arg_name], str):
                 metadata_properties.append(
-                    rg.IntegerMetadataProperty(name=f"length-{arg_name}")
+                    self._create_metadata_property(f"length-{arg_name}", "integer")
                 )
             else:
                 raise ValueError(
                     f"Type {type(dataset_row[arg_name])} is not supported."
                 )
-        # additionally, we want the distance between best score and the second best
+        # add distance between best rating and the second best
         if isinstance(dataset_row[arg_name], list):
             metadata_properties.append(
-                rg.FloatMetadataProperty(name=f"distance-best-rated")
+                self._create_metadata_property("distance-best-rated", "float")
             )
         return metadata_properties
 
     def _check_argument_exists(self, dataset_row, arg_name):
         if arg_name not in dataset_row:
             raise ValueError(
-                    f"Dataset row does not contain the required field '{arg_name}'."
-                )
+                f"Dataset row does not contain the required field '{arg_name}'."
+            )
 
     def to_argilla_record(  # noqa: C901
         self,
@@ -122,18 +103,14 @@ class PreferenceTask(Task):
         metadata = {}
         for input_arg_name in self.input_args_names:
             if isinstance(dataset_row[input_arg_name], list):
-                for idx in range(1, len(dataset_row[input_arg_name]) + 1):
-                    input_value = dataset_row[input_arg_name][idx - 1].strip()
-                    # update field
-                    fields.update({f"{input_arg_name}-{idx}": input_value})
-                    # update field-related metadata
-                    metadata.update(
-                        {f"length-{input_arg_name}-{idx}": len(input_value)}
+                for idx, value in enumerate(dataset_row[input_arg_name], start=1):
+                    self._update_fields_and_metadata(
+                        fields, metadata, input_arg_name, value, idx
                     )
             else:
-                input_value = dataset_row[input_arg_name].strip()
-                fields.update({input_arg_name: input_value})
-                metadata.update({f"length-{input_arg_name}": len(input_value)})
+                self._update_fields_and_metadata(
+                    fields, metadata, input_arg_name, dataset_row[input_arg_name]
+                )
 
         suggestions = []
 
@@ -157,15 +134,14 @@ class PreferenceTask(Task):
                         }
                     )
                     # update rating metadata
-                    metadata.update({f"rating-{input_arg_name}-{idx}": value})
+                    metadata.update({f"rating-generations-{idx}": value})
                 if len(ratings) >= 2:
                     sorted_ratings = sorted(ratings, reverse=True)
                     # update rating distance from best to second
                     metadata.update(
                         {f"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
                     )
-
-        return rg.FeedbackRecord(
+        return self._create_argilla_record(
             fields=fields, suggestions=suggestions, metadata=metadata
         )
 

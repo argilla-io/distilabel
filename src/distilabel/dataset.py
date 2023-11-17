@@ -63,3 +63,4 @@ class CustomDataset(Dataset):
 class PreferenceDataset(CustomDataset):
     def to_argilla(self) -> "FeedbackDataset":
         return super().to_argilla()
+    
