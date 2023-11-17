@@ -46,6 +46,7 @@ class CustomDataset(Dataset):
         rg_dataset = rg.FeedbackDataset(
             fields=self.task.to_argilla_fields(dataset_row=self[0], **kwargs),
             questions=self.task.to_argilla_questions(dataset_row=self[0], **kwargs),
+            metadata_properties=self.task.to_argilla_questions(dataset_row=self[0], **kwargs)
         )
         for dataset_row in self:
             if any(

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from argilla.client.feedback.schemas.types import (
         AllowedFieldTypes,
         AllowedQuestionTypes,
+        AllowedMetadataPropertyTypes
     )
 
 _JUDGELM_TEMPLATE = get_template("judgelm.jinja2")
@@ -124,7 +125,7 @@ class JudgeLMTask(Task):
         # TODO: move argilla_installed check to the `Argilla` abstract class
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
-
+        # TODO: this should be a constant or var we can reuse accross methods
         arg_name = "generations"
         if arg_name not in dataset_row:
             raise ValueError(
@@ -161,6 +162,40 @@ class JudgeLMTask(Task):
                 ),
             )
         return argilla_questions
+    
+    def to_argilla_metadata_properties(
+        self,
+        dataset_row: Dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> List["AllowedMetadataPropertyTypes"]:
+        if not _argilla_installed:
+            raise ImportError("The argilla library is not installed.")
+        metadata_properties = []
+        # TODO: this should be a constant or a var we can reuse accross methods
+        arg_name = "generations"
+        for arg_name in self.input_args_names:
+            if arg_name not in dataset_row:
+                raise ValueError(
+                    f"Dataset row does not contain the required field '{arg_name}'."
+                )
+            if isinstance(dataset_row[arg_name], list):
+                for idx in range(1, len(dataset_row[arg_name]) + 1):
+                    metadata_properties.append(rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}"))
+                    metadata_properties.append(rg.IntegerMetadataProperty(name=f"rating-{arg_name}-{idx}"))
+            elif isinstance(dataset_row[arg_name], str):
+                metadata_properties.append(rg.IntegerMetadataProperty(name=f"length-{arg_name}"))
+                metadata_properties.append(rg.IntegerMetadataProperty(name=f"rating-{arg_name}-{idx}"))
+            else:
+                raise ValueError(
+                    f"Type {type(dataset_row[arg_name])} is not supported."
+                )
+        # additionally, we want the distance between best score and the second best
+        if isinstance(dataset_row[arg_name], list):
+            metadata_properties.append(rg.IntegerMetadataProperty(name=f"distance-best-rated"))
+        
+        return metadata_properties
+
 
     def to_argilla_record(  # noqa: C901
         self,
@@ -172,18 +207,31 @@ class JudgeLMTask(Task):
         if not _argilla_installed:
             raise ImportError("The argilla library is not installed.")
         fields = {}
+        metadata = {}
         for input_arg_name in self.input_args_names:
             if isinstance(dataset_row[input_arg_name], list):
                 for idx in range(1, len(dataset_row[input_arg_name]) + 1):
-                    fields.update(
-                        {
-                            f"{input_arg_name}-{idx}": dataset_row[input_arg_name][
+                    input_value = dataset_row[input_arg_name][
                                 idx - 1
                             ].strip()
+                    # update fields
+                    fields.update(
+                        {
+                            f"{input_arg_name}-{idx}": input_value
+                        }
+                    )
+                    # update fields-related metadata
+                    metadata.update(
+                        {
+                            f"length-{input_arg_name}-{idx}": len(input_value)
                         }
                     )
             else:
-                fields.update({input_arg_name: dataset_row[input_arg_name]})
+                # TODO: why we apply strip above and not here?
+                input_value = dataset_row[input_arg_name]
+                fields.update({input_arg_name: input_value})
+                metadata.update({f"length-{input_arg_name}": len(input_value)})
+
         suggestions = []
         for output_arg_name in self.output_args_names:
             if output_arg_name == "rationale":
@@ -222,11 +270,28 @@ class JudgeLMTask(Task):
                         }
                     )
                 else:
+                    ratings = []
                     for idx, value in enumerate(dataset_row[output_arg_name], start=1):
+                        ratings.append(value)
+                        # add suggestions
                         suggestions.append(
                             {
                                 "question_name": f"generations-{idx}-rating",
                                 "value": value,
                             }
                         )
-        return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
+                        # update metadata
+                        metadata.update(
+                            {
+                                f"rating-{input_arg_name}-{idx}": value
+                            }
+                        )
+                    sorted_ratings = sorted(ratings, reverse=True)
+                    # update metadata
+                    metadata.update(
+                            {
+                                f"distance-best-rated": sorted_ratings[0]-sorted_ratings[1]
+                            }
+                    )
+
+        return rg.FeedbackRecord(fields=fields, suggestions=suggestions, metadata=metadata)
