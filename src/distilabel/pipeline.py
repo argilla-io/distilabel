@@ -269,9 +269,19 @@ class _Pipeline(Generic[T]):
     ) -> List[Dict[str, Any]]:
         length = len(next(iter(rows.values())))
 
+        generator_column_names = []
+        if self.generator is not None:
+            generator_column_names = self.generator.task.input_args_names
+        labeller_column_names = []
+        if self.labeller is not None:
+            labeller_column_names = self.labeller.task.input_args_names
+        column_names = generator_column_names + labeller_column_names
+
         inputs = []
         for i in range(length):
-            input = {col: values[i] for col, values in rows.items()}
+            input = {
+                col: values[i] for col, values in rows.items() if col in column_names
+            }
             inputs.append(input)
 
         return inputs
