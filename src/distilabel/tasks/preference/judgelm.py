@@ -45,14 +45,6 @@ class JudgeLMTask(PreferenceTask):
     )
     system_prompt: str = "You are a helpful and precise assistant for checking the quality of the answer."
 
-    @property
-    def input_args_names(self) -> List[str]:
-        return ["input", "generations"]
-
-    @property
-    def output_args_names(self) -> List[str]:
-        return ["rating", "rationale"]
-
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         render_kwargs = {
             "input": input,

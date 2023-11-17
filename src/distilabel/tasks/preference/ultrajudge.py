@@ -52,10 +52,6 @@ class UltraJudgeTask(PreferenceTask):
     )
 
     @property
-    def input_args_names(self) -> List[str]:
-        return ["input", "generations"]
-
-    @property
     def output_args_names(self) -> List[str]:
         return ["rating", "areas"]
 

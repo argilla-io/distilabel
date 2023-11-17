@@ -75,14 +75,6 @@ class UltraFeedbackTask(PreferenceTask):
         str
     ) = "Your role is to evaluate text quality based on given criteria."
 
-    @property
-    def input_args_names(self) -> List[str]:
-        return ["input", "generations"]
-
-    @property
-    def output_args_names(self) -> List[str]:
-        return ["rating", "rationale"]
-
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         render_kwargs = {
             "task_description": self.task_description,

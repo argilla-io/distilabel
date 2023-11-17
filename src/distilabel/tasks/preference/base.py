@@ -15,6 +15,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 from distilabel.tasks.base import Task
+from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
@@ -27,6 +28,14 @@ if TYPE_CHECKING:
 
 @dataclass
 class PreferenceTask(Task):
+    @property
+    def input_args_names(self) -> List[str]:
+        return ["input", "generations"]
+
+    @property
+    def output_args_names(self) -> List[str]:
+        return ["rating", "rationale"]
+    
     def to_argilla_fields(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedFieldTypes"]:
