@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from dataclasses import dataclass, field
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
@@ -231,7 +232,13 @@ class UltraFeedbackTask(Task):
                 continue
             for idx, value in enumerate(dataset_row[output_arg_name], start=1):
                 if output_arg_name == "rating":
-                    value = value if value > 0 else 1
+                    if value <= 0:
+                        warnings.warn(
+                            "Cannot convert rating value to Argilla as it is not a "
+                            "greater than 0. Setting it to 1.",
+                            stacklevel=2,
+                        )
+                        value = 1
                 else:
                     value = value.strip()
                 suggestions.append(
