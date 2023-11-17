@@ -61,5 +61,5 @@ class CustomDataset(Dataset):
 
 
 class PreferenceDataset(CustomDataset):
-    def to_argilla(self, group_ratings_as_ranking: bool = False) -> "FeedbackDataset":
-        return super().to_argilla(group_ratings_as_ranking=group_ratings_as_ranking)
+    def to_argilla(self) -> "FeedbackDataset":
+        return super().to_argilla()
