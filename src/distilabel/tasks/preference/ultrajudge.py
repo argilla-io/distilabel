@@ -110,11 +110,17 @@ class UltraJudgeTask(PreferenceTask):
     def _to_argilla_rationale(
         self,
         dataset_row: Dict[str, Any],
-    ) -> "str":
-        print("entruuuu")
+    ) -> str:
+        def format_area(area):
+            sections = []
+            for title, ratings in area.items():
+                sections.append(title)
+                for k,v in ratings.items():
+                    sections.append(f"{k}:{v}")
+            return "\n".join(sections)
+
         rationales = []
-        print(dataset_row["areas"])
-        print(dataset_row.keys())
         for idx, area in enumerate(dataset_row["areas"], start=1):
-            rationales.append(f"Rationale for generation-{idx}:\n{str(area)}\n")
+            formatted_area = format_area(area)
+            rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
         return "\n".join(rationales)

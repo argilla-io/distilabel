@@ -31,7 +31,6 @@ if TYPE_CHECKING:
         AllowedMetadataPropertyTypes
     )
 
-
 @dataclass
 class PreferenceTask(Task):
     def to_argilla_fields(
@@ -233,13 +232,14 @@ class PreferenceTask(Task):
                                 f"rating-{input_arg_name}-{idx}": value
                             }
                         )
-                    sorted_ratings = sorted(ratings, reverse=True)
-                    # update distance from best to second
-                    metadata.update(
+                    if len(ratings)>=2:
+                        sorted_ratings = sorted(ratings, reverse=True)
+                        # update distance from best to second
+                        metadata.update(
                             {
-                                f"distance-best-rated": sorted_ratings[0]-sorted_ratings[1]
+                                    f"distance-best-rated": sorted_ratings[0]-sorted_ratings[1]
                             }
-                    )
+                        )
 
         return rg.FeedbackRecord(fields=fields, suggestions=suggestions, metadata=metadata)
 
