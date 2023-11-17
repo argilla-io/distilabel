@@ -15,7 +15,6 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 from distilabel.tasks.base import Task
-from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
