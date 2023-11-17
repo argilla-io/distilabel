@@ -124,17 +124,19 @@ class PreferenceTask(Task):
         for output_arg_name in self.output_args_names:
             if output_arg_name == "rating":
                 ratings = []
-                for idx, value in enumerate(dataset_row[output_arg_name], start=1):
-                    ratings.append(value)
-                    # add suggestions
-                    suggestions.append(
-                        {
-                            "question_name": f"generations-{idx}-rating",
-                            "value": int(value),
-                        }
-                    )
-                    # update rating metadata
-                    metadata.update({f"rating-generations-{idx}": value})
+                output_data = dataset_row.get(output_arg_name)
+                if output_data is not None:
+                    for idx, value in enumerate(output_data, start=1):
+                            ratings.append(value)
+                            # add suggestions
+                            suggestions.append(
+                                {
+                                    "question_name": f"generations-{idx}-rating",
+                                    "value": int(value),
+                                }
+                            )
+                            # update rating metadata
+                            metadata.update({f"rating-generations-{idx}": value})
                 if len(ratings) >= 2:
                     sorted_ratings = sorted(ratings, reverse=True)
                     # update rating distance from best to second
