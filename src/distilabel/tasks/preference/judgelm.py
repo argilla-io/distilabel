@@ -185,7 +185,6 @@ class JudgeLMTask(Task):
                     metadata_properties.append(rg.IntegerMetadataProperty(name=f"rating-{arg_name}-{idx}"))
             elif isinstance(dataset_row[arg_name], str):
                 metadata_properties.append(rg.IntegerMetadataProperty(name=f"length-{arg_name}"))
-                metadata_properties.append(rg.IntegerMetadataProperty(name=f"rating-{arg_name}-{idx}"))
             else:
                 raise ValueError(
                     f"Type {type(dataset_row[arg_name])} is not supported."
