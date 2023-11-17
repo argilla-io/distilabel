@@ -186,6 +186,9 @@ class JudgeLMTask(Task):
                 fields.update({input_arg_name: dataset_row[input_arg_name]})
         suggestions = []
         for output_arg_name in self.output_args_names:
+            if dataset_row[output_arg_name] is None:
+                continue
+
             if output_arg_name == "rationale":
                 suggestions.append(
                     {
