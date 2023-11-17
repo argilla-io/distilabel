@@ -56,7 +56,7 @@ class UltraJudgeTask(Task):
 
     @property
     def output_args_names(self) -> List[str]:
-        return ["rating", "rationale"]
+        return ["rating", "areas"]
 
     @property
     def areas_str(self) -> str:
