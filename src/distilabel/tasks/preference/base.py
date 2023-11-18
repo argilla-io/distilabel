@@ -103,16 +103,17 @@ class PreferenceTask(Task):
     ) -> "FeedbackRecord":
         fields = {}
         metadata = {}
+
         for input_arg_name in self.input_args_names:
-            if isinstance(dataset_row[input_arg_name], list):
-                for idx, value in enumerate(dataset_row[input_arg_name], start=1):
-                    self._update_fields_and_metadata(
-                        fields, metadata, input_arg_name, value, idx
-                    )
+            arg_value = dataset_row[input_arg_name]
+
+            if isinstance(arg_value, list):
+                for idx, value in enumerate(arg_value, start=1):
+                    fields[f"{input_arg_name}-{idx}"] = value.strip()
+                    metadata[f"length-{input_arg_name}-{idx}"] = len(value.strip())
             else:
-                self._update_fields_and_metadata(
-                    fields, metadata, input_arg_name, dataset_row[input_arg_name]
-                )
+                fields[input_arg_name] = arg_value.strip()
+                metadata[f"length-{input_arg_name}"] = len(arg_value.strip())
 
         suggestions = []
 

@@ -97,18 +97,6 @@ class Argilla:
         else:
             raise ValueError(f"Invalid property type: {property_type}")
 
-    def _update_fields_and_metadata(
-        self,
-        fields: Dict[str, str],
-        metadata: Dict[str, Any],
-        arg_name: str,
-        value: str,
-        idx: int = None,
-    ):
-        suffix = f"-{idx}" if idx is not None else ""
-        fields[f"{arg_name}{suffix}"] = value.strip()
-        metadata[f"length-{arg_name}{suffix}"] = len(value.strip())
-
     def _create_fields_from_row(
         self, dataset_row: Dict[str, Any], process_function: Callable
     ) -> List["AllowedFieldTypes"]:
