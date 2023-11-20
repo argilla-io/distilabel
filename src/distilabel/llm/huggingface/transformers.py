@@ -46,6 +46,46 @@ class TransformersLLM(LLM):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the TransformersLLM class.
+
+        Args:
+            model (PreTrainedModel): the model to be used for generation.
+            tokenizer (PreTrainedTokenizer): the tokenizer to be used for generation.
+            task (Task): the task to be performed by the LLM.
+            max_new_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to 128.
+            do_sample (bool, optional): whether to sample from the model or not.
+                Defaults to False.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to 1.0.
+            top_k (int, optional): the top-k value to be used for generation.
+                Defaults to 50.
+            top_p (float, optional): the top-p value to be used for generation.
+                Defaults to 1.0.
+            typical_p (float, optional): the typical-p value to be used for generation.
+                Defaults to 1.0.
+            num_threads (Union[int, None], optional): the number of threads to be used for generation.
+                If `None`, the number of threads will be set to the number of available CPUs.
+                Defaults to `None`.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for formatting the prompts. If `None`, the prompts will not be formatted.
+                Defaults to `None`.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): the function to be used
+                for formatting the prompts. If `None`, the prompts will not be formatted.
+
+        Examples:
+            >>> from transformers import AutoModelForCausalLM, AutoTokenizer
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import TransformersLLM
+            >>> model = AutoModelForCausalLM.from_pretrained("gpt2")
+            >>> tokenizer = AutoTokenizer.from_pretrained("gpt2")
+            >>> task = Task()
+            >>> llm = TransformersLLM(
+            ...     model=model,
+            ...     tokenizer=tokenizer,
+            ...     task=task,
+            ... )
+        """
         super().__init__(
             task=task,
             num_threads=num_threads,
@@ -81,10 +121,12 @@ class TransformersLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the name of the Transformers model."""
         return self.model.config.name_or_path
 
     @cached_property
     def device(self) -> torch.device:
+        """Returns the device to be used for generation."""
         if torch.cuda.is_available():
             return torch.device("cuda")
         if torch.backends.mps.is_available() and torch.backends.mps.is_built():  # type: ignore
@@ -94,6 +136,16 @@ class TransformersLLM(LLM):
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
+        """Generates `num_generations` for each input in `inputs`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to 1.
+
+        Returns:
+            List[List[LLMOutput]]: the outputs of the LLM.
+        """
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )
