@@ -1,0 +1,33 @@
+{{ task_description }}
+
+---
+
+## Format
+
+### Input:
+Instruction: [Specify task goal and restrictions]
+
+{% for response in responses %}
+Assistant {{ loop.index }}: [Text]
+{%- endfor %}
+
+### Output
+
+{% for response in responses %}
+Assistant {{ loop.index }}:
+[area] - [score]
+[area detailed feedback]
+{%- endfor %}
+
+Final scores: {% for response in responses %}[Assistant {{ loop.index }} score from 0 to 10]{% endfor %}
+
+---
+
+### Input
+Instruction: {{ input }}
+
+{% for response in responses %}
+Assistant {{ loop.index }}: {{ response }}
+{%- endfor %}
+
+### Output

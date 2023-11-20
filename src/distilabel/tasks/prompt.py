@@ -19,21 +19,60 @@ from typing_extensions import TypedDict
 
 
 class ChatCompletion(TypedDict):
+    """A `TypedDict` matching OpenAI's chat completion format."""
+
     role: Literal["system", "user", "assistant"]
     content: str
 
 
-# TODO: add more output formats
-# TODO: move this file outside as `prompt.py` or something more meaningful
+# A `Literal` type is used to ensure that the `format` argument is one of the supported formats.
+SupportedFormats = Literal["default", "openai", "llama2", "chatml", "zephyr"]
+
+
 @dataclass
 class Prompt:
+    """A `dataclass` representing a `Prompt`.
+
+    Args:
+        system_prompt (str): the system prompt.
+        formatted_prompt (str): the formatted prompt.
+
+    Examples:
+        >>> from distilabel.tasks.prompt import Prompt
+        >>> prompt = Prompt(
+        ...     system_prompt="You are a helpful assistant.",
+        ...     formatted_prompt="What are the first 5 Fibonacci numbers?",
+        ... )
+    """
+
     system_prompt: str
     formatted_prompt: str
 
-    def format_as(
-        self, format: Literal["openai", "llama2"]
-    ) -> Union[str, List[ChatCompletion]]:
-        if format == "openai":
+    def format_as(self, format: SupportedFormats) -> Union[str, List[ChatCompletion]]:
+        """Formats the prompt as the specified format.
+
+        Args:
+            format (SupportedFormats): the format to be used for the prompt. Available formats are
+                `default`, `openai`, `llama2`, `chatml`, and `zephyr`.
+
+        Returns:
+            Union[str, List[ChatCompletion]]: the formatted prompt.
+
+        Raises:
+            ValueError: if the specified format is not supported.
+
+        Examples:
+            >>> from distilabel.tasks.prompt import Prompt
+            >>> prompt = Prompt(
+            ...     system_prompt="You are a helpful assistant.",
+            ...     formatted_prompt="What are the first 5 Fibonacci numbers?",
+            ... )
+            >>> prompt.format_as("default")
+            'You are a helpful assistant.\nWhat are the first 5 Fibonacci numbers?'
+        """
+        if format == "default":
+            return f"{self.system_prompt}\n{self.formatted_prompt}"
+        elif format == "openai":
             return [
                 ChatCompletion(
                     role="system",
@@ -45,7 +84,10 @@ class Prompt:
             return f"<s>[INST] <<SYS>>\n{self.system_prompt}<</SYS>>\n\n{self.formatted_prompt} [/INST]"
         elif format == "chatml":
             return f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{self.formatted_prompt}<|im_end|>\n<|im_start|>assistant\n"
+        elif format == "zephyr":
+            return f"<|system|>\n{self.system_prompt}</s>\n<|user|>\n{self.formatted_prompt}</s>\n<|assistant|>\n"
         else:
             raise ValueError(
-                f"Format {format} not supported, please provide a custom `formatting_fn`."
+                f"Format {format} not supported, please provide a custom `prompt_formatting_fn`"
+                " or use any of the available formats: openai, llama2, chatml, zephyr"
             )

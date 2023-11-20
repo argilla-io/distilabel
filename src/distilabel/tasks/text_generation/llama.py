@@ -12,33 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.prompt import Prompt
+from distilabel.tasks.text_generation.base import TextGenerationTask
 
-_LLAMA2_TEXT_GENERATION_TEMPLATE = get_template("llama2-generation.jinja2")
 
+class Llama2TextGenerationTask(TextGenerationTask):
+    """A `TextGenerationTask` for the Llama2 model.
 
-class Llama2GenerationTask(Task):
-    system_prompt: str = (
-        "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible,"
-        " while being safe. Your answers should not include any harmful, unethical, racist, sexist,"
-        " toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased"
-        " and positive in nature.\nIf a question does not make any sense, or is not factually coherent,"
-        " explain why instead of answering something not correct. If you don't know the answer to a"
-        " question, please don't share false information."
-    )
-
-    __jinja2_template__: str = _LLAMA2_TEXT_GENERATION_TEMPLATE
+    Args:
+        system_prompt (str, optional): the system prompt to be used. Defaults to `None`.
+        principles (Dict[str, List[str]], optional): the principles to be used for the system prompt.
+            Defaults to `None`.
+        principles_distribution (Union[Dict[str, float], Literal["balanced"], None], optional): the
+            distribution of principles to be used for the system prompt. Defaults to `None`.
+    """
 
     def generate_prompt(self, input: str) -> str:
-        return self.template.render(system_prompt=self.system_prompt, input=input)
+        """Generates a prompt for the Llama2 model.
 
-    def parse_output(self, output: str) -> dict[str, str]:
-        return {"generations": output}
+        Args:
+            input (str): the input to be used for the prompt.
 
-    @property
-    def input_args_names(self) -> list[str]:
-        return ["input"]
+        Returns:
+            str: the generated prompt.
 
-    @property
-    def output_args_names(self) -> list[str]:
-        return ["generations"]
+        Examples:
+            >>> from distilabel.tasks.text_generation import Llama2TextGenerationTask
+            >>> task = Llama2TextGenerationTask(system_prompt="You are a helpful assistant.")
+            >>> task.generate_prompt("What are the first 5 Fibonacci numbers?")
+            '<s>[INST] <<SYS>>\nYou are a helpful assistant.<</SYS>>\n\nWhat are the first 5 Fibonacci numbers? [/INST]'
+        """
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt=input,
+        ).format_as("llama2")  # type: ignore
