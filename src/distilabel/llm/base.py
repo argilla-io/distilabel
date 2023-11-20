@@ -35,6 +35,26 @@ class LLM(ABC):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the LLM base class.
+
+        Note:
+            This class is intended to be used internally, but you anyone can still create
+            a subclass, implement the `abstractmethod`s and use it.
+
+        Args:
+            task (Task): the task to be performed by the LLM.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            prompt_format (Union["SupportedFormats", None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+        """
         self.task = task
 
         self.thread_pool_executor = (
@@ -47,6 +67,7 @@ class LLM(ABC):
         self.prompt_formatting_fn = prompt_formatting_fn
 
     def __del__(self) -> None:
+        """Shuts down the thread pool executor if it is not `None`."""
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
@@ -61,6 +82,20 @@ class LLM(ABC):
         default_format: Union["SupportedFormats", None] = None,
         expected_output_type: Type = str,
     ) -> List[Any]:
+        """Generates the prompts to be used for generation.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            default_format (Union["SupportedFormats", None], optional): the default format to be used
+                for the prompt if no `prompt_format` is specified. Defaults to `None`.
+            expected_output_type (Type, optional): the expected type of the prompt. Defaults to `str`.
+
+        Returns:
+            List[Any]: the generated prompts.
+
+        Raises:
+            ValueError: if the generated prompt is not of the expected type.
+        """
         prompts = []
         for input in inputs:
             prompt = self.task.generate_prompt(**input)
@@ -110,6 +145,19 @@ class LLM(ABC):
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
     ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
+        """Generates the outputs for the given inputs using the LLM.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each input.
+                Defaults to `1`.
+            progress_callback_func (Union[Callable, None], optional): a function to be called at each
+                generation step. Defaults to `None`.
+
+        Returns:
+            Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]: the generated outputs.
+        """
+
         def _progress():
             if progress_callback_func is not None:
                 advance = (
@@ -135,4 +183,5 @@ class LLM(ABC):
 
     @property
     def return_futures(self) -> bool:
+        """Returns whether the LLM returns futures or not."""
         return self.thread_pool_executor is not None

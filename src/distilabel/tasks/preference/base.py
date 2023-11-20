@@ -14,35 +14,47 @@
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
+
 from distilabel.tasks.base import Task
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
         AllowedFieldTypes,
-        AllowedQuestionTypes,
         AllowedMetadataPropertyTypes,
+        AllowedQuestionTypes,
     )
 
 
 @dataclass
 class PreferenceTask(Task):
+    """A `Task` for preference rating tasks.
+
+    Args:
+        system_prompt (str): the system prompt to be used for generation.
+        task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+    """
+
     @property
     def input_args_names(self) -> List[str]:
+        """Returns the names of the input arguments of the task."""
         return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
+        """Returns the names of the output arguments of the task."""
         return ["rating", "rationale"]
-    
+
     def to_argilla_fields(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedFieldTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedFieldTypes`."""
         return self._create_fields_from_row(dataset_row, self._create_text_field)
 
     def to_argilla_questions(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedQuestionTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedQuestionTypes`."""
         questions = []
         arg_name = "generations"
         self._check_argument_exists(dataset_row, arg_name)
@@ -63,8 +75,9 @@ class PreferenceTask(Task):
         return questions
 
     def to_argilla_metadata_properties(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedMetadataPropertyTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedMetadataPropertyTypes`."""
         metadata_properties = []
         for arg_name in self.input_args_names:
             self._check_argument_exists(dataset_row, arg_name)
@@ -98,9 +111,8 @@ class PreferenceTask(Task):
     def to_argilla_record(  # noqa: C901
         self,
         dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
     ) -> "FeedbackRecord":
+        """Converts a dataset row to an Argilla `FeedbackRecord`."""
         fields = {}
         metadata = {}
 
@@ -120,7 +132,7 @@ class PreferenceTask(Task):
         # add rationale
         suggestions.append(
             {
-                "question_name": f"ratings-rationale",
+                "question_name": "ratings-rationale",
                 "value": self._to_argilla_rationale(dataset_row),
             }
         )
@@ -130,25 +142,28 @@ class PreferenceTask(Task):
                 output_data = dataset_row.get(output_arg_name)
                 if output_data is not None:
                     for idx, value in enumerate(output_data, start=1):
-                            ratings.append(value)
-                            # add suggestions
-                            suggestions.append(
-                                {
-                                    "question_name": f"generations-{idx}-rating",
-                                    "value": int(value),
-                                }
-                            )
-                            # update rating metadata
-                            metadata.update({f"rating-generations-{idx}": value})
+                        ratings.append(value)
+                        # add suggestions
+                        suggestions.append(
+                            {
+                                "question_name": f"generations-{idx}-rating",
+                                "value": int(value),
+                            }
+                        )
+                        # update rating metadata
+                        metadata.update({f"rating-generations-{idx}": value})
                 if len(ratings) >= 2:
                     sorted_ratings = sorted(ratings, reverse=True)
                     # update rating distance from best to second
                     metadata.update(
-                        {f"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
+                        {"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
                     )
         return self._create_argilla_record(
             fields=fields, suggestions=suggestions, metadata=metadata
         )
 
     def _to_argilla_rationale(self, dataset_row: Dict[str, Any]) -> str:
+        """Gets the `rationale` column from a `datasets.Dataset` row and formats it
+        as expected by Argilla.
+        """
         return dataset_row["rationale"]

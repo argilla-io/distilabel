@@ -12,48 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
-from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
-
-try:
-    import argilla as rg
-
-    _argilla_installed = True
-except ImportError:
-    _argilla_installed = False
-
-if TYPE_CHECKING:
-    from argilla.client.feedback.schemas.records import FeedbackRecord
-    from argilla.client.feedback.schemas.types import (
-        AllowedFieldTypes,
-        AllowedQuestionTypes,
-    )
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
 
 class Rating(TypedDict):
+    """A `TypedDict` representing a rating."""
+
     value: int
     description: str
 
 
 class UltraFeedbackOutput(TypedDict):
-    rating: int
+    """A `TypedDict` representing the output of an `UltraFeedbackTask`."""
+
+    rating: float
     rationale: str
 
 
 @dataclass
 class UltraFeedbackTask(PreferenceTask):
-    ratings: List[Rating]
+    """A `PreferenceTask` following the prompt template used by ULTRAFEEDBACK.
 
+    Args:
+        system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
+        task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+        ratings (Union[List[Rating], None], optional): the ratings to be used for the task. Defaults to `None`.
+    """
+
+    ratings: List[Rating]
     task_description: str
 
     __jinja2_template__: str = field(
@@ -76,6 +72,24 @@ class UltraFeedbackTask(PreferenceTask):
     ) = "Your role is to evaluate text quality based on given criteria."
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
+        """Generates a prompt following the ULTRAFEEDBACK specification.
+
+        Args:
+            input (str): the input to be used for the prompt.
+            generations (List[str]): the generations to be used for the prompt.
+
+        Returns:
+            Prompt: the generated prompt.
+
+        Examples:
+            >>> from distilabel.tasks.preference import UltraFeedbackTask
+            >>> task = UltraFeedbackTask.for_text_quality()
+            >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
+            Prompt(
+                system_prompt="Your role is to evaluate text quality based on given criteria.",
+                formatted_prompt="# General Text Quality Assessment\nEvaluate the model's ...",
+            )
+        """
         render_kwargs = {
             "task_description": self.task_description,
             "ratings": self.ratings,
@@ -88,13 +102,10 @@ class UltraFeedbackTask(PreferenceTask):
         )
 
     def parse_output(self, output: str) -> List[UltraFeedbackOutput]:
+        """Parses the output of the model into the desired format."""
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
-            # `rating` here could be parsed to float as in some scenarios we
-            # find the model is producing scores as 8.5, but that will break
-            # the `argilla` integration as it expects an integer for the `RatingQuestion`
-            # so we can either do the parsing there or leave it as is.
             rating = float(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
             parsed_output.append(
@@ -106,6 +117,7 @@ class UltraFeedbackTask(PreferenceTask):
         self,
         dataset_row: Dict[str, Any],
     ) -> str:
+        """Converts the rationale to the format expected by Argilla."""
         rationales = dataset_row.get("rationale")
         if rationales is None:
             return ""
