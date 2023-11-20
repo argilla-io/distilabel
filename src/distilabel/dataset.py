@@ -60,8 +60,3 @@ class CustomDataset(Dataset):
                 self.task.to_argilla_record(dataset_row=dataset_row, **kwargs)  # type: ignore
             )
         return rg_dataset
-
-
-class PreferenceDataset(CustomDataset):
-    def to_argilla(self) -> "FeedbackDataset":
-        return super().to_argilla()

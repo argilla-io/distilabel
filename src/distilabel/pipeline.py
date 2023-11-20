@@ -21,12 +21,9 @@ from typing import (
     Any,
     Callable,
     Dict,
-    Generic,
     List,
     Literal,
     Optional,
-    Type,
-    TypeVar,
     Union,
 )
 
@@ -46,14 +43,10 @@ if TYPE_CHECKING:
     from distilabel.llm.base import LLM
 
 
-T = TypeVar("T", bound=CustomDataset)
-
 logger = get_logger()
 
 
-class _Pipeline(Generic[T]):
-    dataset_cls: Type[T] = CustomDataset  # type: ignore
-
+class Pipeline:
     def __init__(
         self,
         generator: Union["LLM", None] = None,
@@ -122,46 +115,6 @@ class _Pipeline(Generic[T]):
                 UserWarning,
                 stacklevel=2,
             )
-
-    def _add_columns_to_dataset(
-        self,
-        dataset: T,
-        generations: List[Dict[str, Any]],
-        labels: List[Dict[str, Any]],
-    ) -> T:
-        if self.generator is not None:
-            for output_name in self.generator.task.output_args_names:
-                dataset = dataset.add_column(
-                    output_name, [row.get(output_name, None) for row in generations]
-                )
-
-            for column_name in [
-                "generation_model",
-                "generation_prompt",
-                "raw_generation_responses",
-            ]:
-                dataset = dataset.add_column(
-                    column_name,
-                    [row.get(column_name, None) for row in generations],
-                )
-
-        if self.labeller is not None:
-            for output_name in self.labeller.task.output_args_names:
-                dataset = dataset.add_column(
-                    output_name, [row.get(output_name, None) for row in labels]
-                )
-
-            for column_name in [
-                "labelling_model",
-                "labelling_prompt",
-                "raw_labelling_response",
-            ]:
-                dataset = dataset.add_column(
-                    column_name,
-                    [row.get(column_name, None) for row in labels],
-                )
-
-        return dataset
 
     def _get_batch_generations(
         self,
@@ -291,7 +244,7 @@ class _Pipeline(Generic[T]):
         dataset: Dataset,
         generations: List[Dict[str, Any]],
         batch_labels: Union[List[Future["LLMOutput"]], List["LLMOutput"]],
-    ) -> T:
+    ) -> CustomDataset:
         if self.generator is None:
             generations = [{} for _ in range(len(dataset))]
         else:
@@ -367,8 +320,8 @@ class _Pipeline(Generic[T]):
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
         _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
-        # Dynamically remaps the `datasets.Dataset` to be a `dataset_cls` instance
-        _dataset.__class__ = self.dataset_cls
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
+        _dataset.__class__ = CustomDataset
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
         return _dataset  # type: ignore
 
@@ -380,7 +333,7 @@ class _Pipeline(Generic[T]):
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-    ) -> T:
+    ) -> CustomDataset:
         if (
             self.labeller is not None
             and self.generator is not None
@@ -471,9 +424,6 @@ class _Pipeline(Generic[T]):
         )
 
 
-Pipeline = _Pipeline[CustomDataset]
-
-
 def pipeline(
     task: Literal["preference", "critique"],
     subtask: Optional[str] = None,
@@ -481,7 +431,7 @@ def pipeline(
     generator: Optional["LLM"] = None,
     labeller: Optional["LLM"] = None,
     **kwargs,
-) -> "Pipeline":
+) -> Pipeline:
     if task == "preference":
         if labeller is None:
             from dataclasses import fields
@@ -541,17 +491,9 @@ def pipeline(
                 f"`generator` outputs do not match `labeller` inputs: "
                 f"{generator.task.input_args_names + generator.task.output_args_names} != {labeller.task.input_args_names}"
             )
-        from distilabel.dataset import PreferenceDataset
-
-        dataset_cls = PreferenceDataset
     elif task == "critique":
         raise NotImplementedError("Critique task is not implemented yet")
     else:
         raise ValueError(f"Invalid task: {task}")
 
-    class CustomPipeline(_Pipeline[dataset_cls]):
-        pass
-
-    CustomPipeline.dataset_cls = dataset_cls
-
-    return CustomPipeline(generator=generator, labeller=labeller)  # type: ignore
+    return Pipeline(generator=generator, labeller=labeller)
