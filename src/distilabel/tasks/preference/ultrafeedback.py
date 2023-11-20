@@ -12,30 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
-from distilabel.tasks.base import Task, get_template
+from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
-
-try:
-    import argilla as rg
-
-    _argilla_installed = True
-except ImportError:
-    _argilla_installed = False
-
-if TYPE_CHECKING:
-    from argilla.client.feedback.schemas.records import FeedbackRecord
-    from argilla.client.feedback.schemas.types import (
-        AllowedFieldTypes,
-        AllowedQuestionTypes,
-    )
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
@@ -46,7 +31,7 @@ class Rating(TypedDict):
 
 
 class UltraFeedbackOutput(TypedDict):
-    rating: int
+    rating: float
     rationale: str
 
 
@@ -91,10 +76,6 @@ class UltraFeedbackTask(PreferenceTask):
         parsed_output = []
         for section in output.split("#### Output for Text ")[1:]:
             rating, rationale = section.split("\n")[1:3]
-            # `rating` here could be parsed to float as in some scenarios we
-            # find the model is producing scores as 8.5, but that will break
-            # the `argilla` integration as it expects an integer for the `RatingQuestion`
-            # so we can either do the parsing there or leave it as is.
             rating = float(rating.split(": ")[1])
             rationale = rationale.split(": ")[1]
             parsed_output.append(

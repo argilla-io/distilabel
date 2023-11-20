@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import List
 
 from typing_extensions import TypedDict
 
@@ -25,7 +25,7 @@ _JUDGELM_TEMPLATE = get_template("judgelm.jinja2")
 
 
 class JudgeLMOutput(TypedDict):
-    rating: List[int]
+    rating: List[float]
     rationale: str
 
 
@@ -60,10 +60,6 @@ class JudgeLMTask(PreferenceTask):
 
     def parse_output(self, output: str) -> JudgeLMOutput:
         split_output = output.split("\n")
-        # `rating` here could be parsed to float as in some scenarios we
-        # find the model is producing scores as 8.5, but that will break
-        # the `argilla` integration as it expects an integer for the `RatingQuestion`
-        # so we can either do the parsing there or leave it as is.
         rating = [float(rating) for rating in split_output[0].split(" ")]
         rationale = "\n".join(split_output[1:])
         return JudgeLMOutput(rating=rating, rationale=rationale)

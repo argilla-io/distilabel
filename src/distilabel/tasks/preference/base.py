@@ -14,14 +14,15 @@
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
+
 from distilabel.tasks.base import Task
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
         AllowedFieldTypes,
-        AllowedQuestionTypes,
         AllowedMetadataPropertyTypes,
+        AllowedQuestionTypes,
     )
 
 
@@ -34,7 +35,7 @@ class PreferenceTask(Task):
     @property
     def output_args_names(self) -> List[str]:
         return ["rating", "rationale"]
-    
+
     def to_argilla_fields(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> List["AllowedFieldTypes"]:
@@ -120,7 +121,7 @@ class PreferenceTask(Task):
         # add rationale
         suggestions.append(
             {
-                "question_name": f"ratings-rationale",
+                "question_name": "ratings-rationale",
                 "value": self._to_argilla_rationale(dataset_row),
             }
         )
@@ -130,21 +131,21 @@ class PreferenceTask(Task):
                 output_data = dataset_row.get(output_arg_name)
                 if output_data is not None:
                     for idx, value in enumerate(output_data, start=1):
-                            ratings.append(value)
-                            # add suggestions
-                            suggestions.append(
-                                {
-                                    "question_name": f"generations-{idx}-rating",
-                                    "value": int(value),
-                                }
-                            )
-                            # update rating metadata
-                            metadata.update({f"rating-generations-{idx}": value})
+                        ratings.append(value)
+                        # add suggestions
+                        suggestions.append(
+                            {
+                                "question_name": f"generations-{idx}-rating",
+                                "value": int(value),
+                            }
+                        )
+                        # update rating metadata
+                        metadata.update({f"rating-generations-{idx}": value})
                 if len(ratings) >= 2:
                     sorted_ratings = sorted(ratings, reverse=True)
                     # update rating distance from best to second
                     metadata.update(
-                        {f"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
+                        {"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
                     )
         return self._create_argilla_record(
             fields=fields, suggestions=suggestions, metadata=metadata
