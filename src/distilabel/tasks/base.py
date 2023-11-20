@@ -14,11 +14,16 @@
 
 import importlib.resources as importlib_resources
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
+
+try:
+    import argilla as rg
+except ImportError:
+    pass
 
 if TYPE_CHECKING:
     from argilla.client.feedback.schemas.records import FeedbackRecord
@@ -32,7 +37,6 @@ def get_template(template_name: str) -> str:
     return str(
         importlib_resources.files("distilabel") / "tasks/_templates" / template_name
     )
-
 
 class Argilla:
     def to_argilla_fields(
@@ -61,6 +65,56 @@ class Argilla:
         raise NotImplementedError(
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla dataset you will need to implement this method."
         )
+
+    def _create_argilla_record(
+        self,
+        fields: Dict[str, Any],
+        suggestions: List[Dict[str, Any]],
+        metadata: Dict[str, Any],
+    ) -> rg.FeedbackRecord:
+        return rg.FeedbackRecord(
+            fields=fields, suggestions=suggestions, metadata=metadata
+        )
+
+    def _create_text_field(self, name: str) -> rg.TextField:
+        return rg.TextField(name=name)
+
+    def _create_rating_question(
+        self, name: str, title: str, values: List[int]
+    ) -> rg.RatingQuestion:
+        return rg.RatingQuestion(name=name, title=title, values=values)
+
+    def _create_text_question(self, name: str, title: str) -> rg.TextQuestion:
+        return rg.TextQuestion(name=name, title=title)
+
+    def _create_metadata_property(
+        self, name: str, property_type: str
+    ) -> Union[rg.IntegerMetadataProperty, rg.FloatMetadataProperty]:
+        if property_type == "integer":
+            return rg.IntegerMetadataProperty(name=name)
+        elif property_type == "float":
+            return rg.FloatMetadataProperty(name=name)
+        else:
+            raise ValueError(f"Invalid property type: {property_type}")
+
+    def _create_fields_from_row(
+        self, dataset_row: Dict[str, Any], process_function: Callable
+    ) -> List["AllowedFieldTypes"]:
+        processed_items = []
+        for arg_name in self.input_args_names:
+            self._check_argument_exists(dataset_row, arg_name)
+            if isinstance(dataset_row[arg_name], list):
+                for idx in range(1, len(dataset_row[arg_name]) + 1):
+                    processed_items.append(process_function(f"{arg_name}-{idx}"))
+            elif isinstance(dataset_row[arg_name], str):
+                processed_items.append(process_function(arg_name))
+        return processed_items
+    
+    def _check_argument_exists(self, dataset_row, arg_name):
+        if arg_name not in dataset_row:
+            raise ValueError(
+                f"Dataset row does not contain the required field '{arg_name}'."
+            )
 
 
 class Task(ABC, Argilla):

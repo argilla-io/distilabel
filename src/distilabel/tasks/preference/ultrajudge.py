@@ -1,24 +1,25 @@
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, TypedDict
+from typing import Any, Dict, List, TypedDict
 
 from distilabel.tasks.base import Prompt, Task, get_template
+from distilabel.tasks.preference.base import PreferenceTask
 
 _ULTRAJUDGE_TEMPLATE = get_template("ultrajudge.jinja2")
 
 
 class Area(TypedDict):
-    rating: int
+    rating: float
     rationale: str
 
 
 class UltraJudgeOutput(TypedDict):
-    rating: int
+    rating: float
     areas: Dict[str, Area]
 
 
 @dataclass
-class UltraJudgeTask(Task):
+class UltraJudgeTask(PreferenceTask):
     system_prompt: str = (
         "You are an evaluator tasked with assessing AI assistants' responses from the perspective of typical user preferences."
         " Your critical analysis should focus on human-like engagement, solution effectiveness, accuracy, clarity, and"
@@ -49,10 +50,6 @@ class UltraJudgeTask(Task):
     __jinja2_template__: str = field(
         default=_ULTRAJUDGE_TEMPLATE, init=False, repr=False
     )
-
-    @property
-    def input_args_names(self) -> List[str]:
-        return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
@@ -89,7 +86,7 @@ class UltraJudgeTask(Task):
         # `areas_results` includes num_generations * num_areas tuples
         areas_results = re.findall(self.extract_area_score_and_rationale_regex, output)
         final_scores = [
-            int(float(str_score))
+            float(str_score)
             for str_score in re.findall(self.extract_final_scores_regex, output)[
                 0
             ].split(" ")
@@ -105,3 +102,21 @@ class UltraJudgeTask(Task):
             outputs.append(UltraJudgeOutput(rating=rating, areas=areas))
 
         return outputs
+    
+    def _to_argilla_rationale(
+        self,
+        dataset_row: Dict[str, Any],
+    ) -> str:
+        def format_area(area):
+            sections = []
+            for title, ratings in area.items():
+                sections.append(title)
+                for k,v in ratings.items():
+                    sections.append(f"{k}:{v}")
+            return "\n".join(sections)
+
+        rationales = []
+        for idx, area in enumerate(dataset_row["areas"], start=1):
+            formatted_area = format_area(area)
+            rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
+        return "\n".join(rationales)
