@@ -36,7 +36,7 @@ class CustomDataset(Dataset):
     def to_argilla(self, **kwargs: Any) -> "FeedbackDataset":
         if _argilla_installed is False:
             raise ImportError(
-                "The argilla library is not installed. Please install it with `pip install argilla`."
+                "The argilla library is not installed. To use the to_dataset method, please install it with `pip install argilla`."
             )
         if self.task is None:
             raise ValueError(
@@ -46,6 +46,7 @@ class CustomDataset(Dataset):
         rg_dataset = rg.FeedbackDataset(
             fields=self.task.to_argilla_fields(dataset_row=self[0], **kwargs),
             questions=self.task.to_argilla_questions(dataset_row=self[0], **kwargs),
+            metadata_properties=self.task.to_argilla_metadata_properties(dataset_row=self[0], **kwargs)
         )
         for dataset_row in self:
             if any(
@@ -60,5 +61,6 @@ class CustomDataset(Dataset):
 
 
 class PreferenceDataset(CustomDataset):
-    def to_argilla(self, group_ratings_as_ranking: bool = False) -> "FeedbackDataset":
-        return super().to_argilla(group_ratings_as_ranking=group_ratings_as_ranking)
+    def to_argilla(self) -> "FeedbackDataset":
+        return super().to_argilla()
+    
