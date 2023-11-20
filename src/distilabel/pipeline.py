@@ -21,6 +21,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     Generic,
     List,
     Literal,
@@ -64,6 +65,10 @@ class _Pipeline(Generic[T]):
 
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "generator", self.generator
+        yield "labeller", self.labeller
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         # Generation LLM has not been provided, so the columns needed by the Labelling

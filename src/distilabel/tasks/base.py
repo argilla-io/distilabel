@@ -14,7 +14,7 @@
 
 import importlib.resources as importlib_resources
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Union
 
 from jinja2 import Template
 
@@ -68,6 +68,12 @@ class Task(ABC, Argilla):
     task_description: Union[str, None] = None
 
     __jinja2_template__: Union[str, None] = None
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "system_prompt", self.system_prompt
+        yield "task_description", self.task_description
+        yield "input_args_names", self.input_args_names
+        yield "output_args_names", self.output_args_names
 
     @property
     def template(self) -> "Template":

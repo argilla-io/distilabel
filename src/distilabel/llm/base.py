@@ -17,7 +17,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Type, Union
 
 from distilabel.tasks.prompt import Prompt
 
@@ -49,6 +49,13 @@ class LLM(ABC):
     def __del__(self) -> None:
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "task", self.task
+        yield "num_threads", self.thread_pool_executor._max_workers
+        yield "prompt_format", self.prompt_format
+        yield "prompt_formatting_fn", self.prompt_formatting_fn
+        yield "model", self.model_name
 
     @property
     @abstractmethod

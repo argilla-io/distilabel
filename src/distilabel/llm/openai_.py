@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from openai import OpenAI
 
@@ -63,6 +63,19 @@ class OpenAILLM(LLM):
             model in self.available_models
         ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
         self.model = model
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield from super().__rich_repr__()
+        yield (
+            "parameters",
+            {
+                "max_tokens": self.max_tokens,
+                "frequency_penalty": self.frequency_penalty,
+                "presence_penalty": self.presence_penalty,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+            },
+        )
 
     @cached_property
     def available_models(self) -> List[str]:
