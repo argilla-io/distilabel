@@ -50,11 +50,17 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.thread_pool_executor._max_workers}, promp_format='{self.prompt_format}', model='{self.model_name}')"
+
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "task", self.task
         yield "num_threads", self.thread_pool_executor._max_workers
         yield "prompt_format", self.prompt_format
-        yield "prompt_formatting_fn", self.prompt_formatting_fn
+        if self.prompt_formatting_fn is not None:
+            args = f"({', '.join(self.prompt_formatting_fn.__code__.co_varnames)})"
+            representation = self.prompt_formatting_fn.__name__ + args
+            yield "prompt_formatting_fn", representation
         yield "model", self.model_name
 
     @property

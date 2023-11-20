@@ -66,6 +66,11 @@ class _Pipeline(Generic[T]):
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
+    def __repr__(self) -> str:
+        return (
+            f"Pipeline(\n\tgenerator={self.generator},\n\tlabeller={self.labeller}\n)"
+        )
+
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "generator", self.generator
         yield "labeller", self.labeller
