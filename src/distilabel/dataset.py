@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
 
@@ -38,7 +38,7 @@ class CustomDataset(Dataset):
 
     task: Union["Task", None] = None
 
-    def to_argilla(self, **kwargs: Any) -> "FeedbackDataset":
+    def to_argilla(self) -> "FeedbackDataset":
         """Converts the dataset to an Argilla `FeedbackDataset` instance, based on the
         task defined in the dataset as part of `Pipeline.generate`.
 
@@ -59,10 +59,10 @@ class CustomDataset(Dataset):
             )
 
         rg_dataset = rg.FeedbackDataset(
-            fields=self.task.to_argilla_fields(dataset_row=self[0], **kwargs),
-            questions=self.task.to_argilla_questions(dataset_row=self[0], **kwargs),
+            fields=self.task.to_argilla_fields(dataset_row=self[0]),
+            questions=self.task.to_argilla_questions(dataset_row=self[0]),
             metadata_properties=self.task.to_argilla_metadata_properties(
-                dataset_row=self[0], **kwargs
+                dataset_row=self[0]
             ),
         )
         for dataset_row in self:
@@ -72,6 +72,6 @@ class CustomDataset(Dataset):
             ):
                 continue
             rg_dataset.add_records(
-                self.task.to_argilla_record(dataset_row=dataset_row, **kwargs)  # type: ignore
+                self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
             )
         return rg_dataset
