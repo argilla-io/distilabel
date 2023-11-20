@@ -21,6 +21,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     List,
     Literal,
     Optional,
@@ -87,6 +88,15 @@ class Pipeline:
 
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
+
+    def __repr__(self) -> str:
+        return (
+            f"Pipeline(\n\tgenerator={self.generator},\n\tlabeller={self.labeller}\n)"
+        )
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "generator", self.generator
+        yield "labeller", self.labeller
 
     def _validate_dataset(self, dataset: Dataset) -> None:
         """Validates that the provided dataset contains the columns needed by the LLMs, and

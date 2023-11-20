@@ -14,7 +14,7 @@
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
@@ -118,6 +118,20 @@ class TransformersLLM(LLM):
                 UserWarning,
                 stacklevel=2,
             )
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield from super().__rich_repr__()
+        yield (
+            "parameters",
+            {
+                "max_new_tokens": self.max_new_tokens,
+                "do_sample": self.do_sample,
+                "temperature": self.temperature,
+                "top_k": self.top_k,
+                "top_p": self.top_p,
+                "typical_p": self.typical_p,
+            },
+        )
 
     @property
     def model_name(self) -> str:

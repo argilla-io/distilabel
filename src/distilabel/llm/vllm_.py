@@ -15,7 +15,7 @@
 # WARNING: THIS FILE NAME HAS BEEN PREPENDED WITH AN UNDERSCORE TO AVOID
 # ANY POTENTIAL CONFLICT / COLLISSION WITH THE `vllm` PYTHON PACKAGE.
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from vllm import SamplingParams
 
@@ -93,6 +93,20 @@ class vLLM(LLM):
         self.max_tokens = max_new_tokens
 
         self.vllm = vllm
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield from super().__rich_repr__()
+        yield (
+            "parameters",
+            {
+                "max_tokens": self.max_tokens,
+                "presence_penalty": self.presence_penalty,
+                "frequency_penalty": self.frequency_penalty,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "top_k": self.top_k,
+            },
+        )
 
     @property
     def model_name(self) -> str:

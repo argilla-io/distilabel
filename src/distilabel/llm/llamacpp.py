@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
@@ -87,6 +87,19 @@ class LlamaCppLLM(LLM):
         self.repeat_penalty = repeat_penalty
 
         self.model = model
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield from super().__rich_repr__()
+        yield (
+            "parameters",
+            {
+                "max_new_tokens": self.max_tokens,
+                "temperature": self.temperature,
+                "top_p": self.top_p,
+                "top_k": self.top_k,
+                "repeat_penalty": self.repeat_penalty,
+            },
+        )
 
     @property
     def model_name(self) -> str:

@@ -17,7 +17,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Type, Union
 
 from distilabel.tasks.prompt import Prompt
 
@@ -70,6 +70,19 @@ class LLM(ABC):
         """Shuts down the thread pool executor if it is not `None`."""
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.thread_pool_executor._max_workers}, promp_format='{self.prompt_format}', model='{self.model_name}')"
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "task", self.task
+        yield "num_threads", self.thread_pool_executor._max_workers
+        yield "prompt_format", self.prompt_format
+        if self.prompt_formatting_fn is not None:
+            args = f"({', '.join(self.prompt_formatting_fn.__code__.co_varnames)})"
+            representation = self.prompt_formatting_fn.__name__ + args
+            yield "prompt_formatting_fn", representation
+        yield "model", self.model_name
 
     @property
     @abstractmethod

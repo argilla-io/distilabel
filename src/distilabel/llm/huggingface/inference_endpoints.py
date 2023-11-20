@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
 from huggingface_hub.inference._text_generation import TextGenerationError
@@ -113,6 +113,22 @@ class InferenceEndpointsLLM(LLM):
             name=endpoint_name, namespace=endpoint_namespace, token=token
         )
         self.inference_endpoint.wait(timeout=30)
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield from super().__rich_repr__()
+        yield (
+            "parameters",
+            {
+                "do_sample": self.do_sample,
+                "max_new_tokens": self.max_new_tokens,
+                "repetition_penalty": self.repetition_penalty,
+                "seed": self.seed,
+                "temperature": self.temperature,
+                "top_k": self.top_k,
+                "top_p": self.top_p,
+                "typical_p": self.typical_p,
+            },
+        )
 
     @property
     def model_name(self) -> str:
