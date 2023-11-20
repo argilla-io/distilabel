@@ -18,6 +18,8 @@ from typing_extensions import TypedDict
 
 
 class LLMOutput(TypedDict):
+    """A type for the output of an LLM."""
+
     model_name: str
     prompt_used: Any
     raw_output: Any

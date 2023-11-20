@@ -13,10 +13,19 @@
 # limitations under the License.
 
 from collections import defaultdict
-from typing import Any
+from typing import Any, Dict
 
 
-def combine_dicts(*dicts: Any):
+def combine_dicts(*dicts: Any) -> Dict[str, Any]:
+    """Combines multiple dictionaries into a single dictionary joining the values
+    as a list for each key.
+
+    Args:
+        *dicts (Any): the dictionaries to be combined.
+
+    Returns:
+        Dict[str, Any]: the combined dictionary.
+    """
     combined_dict = defaultdict(list)
     for d in dicts:
         for key, value in d.items():

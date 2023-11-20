@@ -65,6 +65,34 @@ class InferenceEndpointsLLM(LLM):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the InferenceEndpointsLLM class.
+
+        Args:
+            endpoint_name (str): The name of the endpoint.
+            task (Task): The task to be performed by the LLM.
+            endpoint_namespace (Union[str, None]): The namespace of the endpoint. Defaults to None.
+            token (Union[str, None]): The token for the endpoint. Defaults to None.
+            max_new_tokens (int): The maximum number of tokens to be generated. Defaults to 128.
+            repetition_penalty (Union[float, None]): The repetition penalty to be used for generation. Defaults to None.
+            seed (Union[int, None]): The seed for generation. Defaults to None.
+            do_sample (bool): Whether to do sampling. Defaults to False.
+            temperature (Union[float, None]): The temperature for generation. Defaults to None.
+            top_k (Union[int, None]): The top_k for generation. Defaults to None.
+            top_p (Union[float, None]): The top_p for generation. Defaults to None.
+            typical_p (Union[float, None]): The typical_p for generation. Defaults to None.
+            num_threads (Union[int, None]): The number of threads. Defaults to None.
+            prompt_format (Union["SupportedFormats", None]): The format of the prompt. Defaults to None.
+            prompt_formatting_fn (Union[Callable[..., str], None]): The function for formatting the prompt. Defaults to None.
+
+        Examples:
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import InferenceEndpointsLLM
+            >>> task = Task()
+            >>> llm = InferenceEndpointsLLM(
+            ...     endpoint_name="<INFERENCE_ENDPOINT_NAME>",
+            ...     task=task,
+            ... )
+        """
         super().__init__(
             task=task,
             num_threads=num_threads,
@@ -104,6 +132,7 @@ class InferenceEndpointsLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the model name of the endpoint."""
         return self.inference_endpoint.repository
 
     @retry(
@@ -117,11 +146,22 @@ class InferenceEndpointsLLM(LLM):
         after=after_log(logger, logging.INFO),
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
+        """Performs text generation with backoff in case of an error."""
         return self.inference_endpoint.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
+        """Generates `num_generations` for each input in `inputs`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to 1.
+
+        Returns:
+            List[List[LLMOutput]]: the outputs of the LLM.
+        """
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )

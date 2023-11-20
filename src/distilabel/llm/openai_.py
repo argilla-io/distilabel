@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# WARNING: THIS FILE NAME HAS BEEN PREPENDED WITH AN UNDERSCORE TO AVOID
+# ANY POTENTIAL CONFLICT / COLLISSION WITH THE `openai` PYTHON PACKAGE.
 
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
@@ -44,6 +47,46 @@ class OpenAILLM(LLM):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the OpenAILLM class.
+
+        Args:
+            task (Task): the task to be performed by the LLM.
+            model (str, optional): the model to be used for generation. Defaults to "gpt-3.5-turbo".
+            client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
+                If `None`, a new client will be created. Defaults to `None`.
+            openai_api_key (Union[str, None], optional): the OpenAI API key to be used for generation.
+                If `None`, the `OPENAI_API_KEY` environment variable will be used. Defaults to `None`.
+            max_new_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to 128.
+            frequency_penalty (float, optional): the frequency penalty to be used for generation.
+                Defaults to 0.0.
+            presence_penalty (float, optional): the presence penalty to be used for generation.
+                Defaults to 0.0.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to 1.0.
+            top_p (float, optional): the top-p value to be used for generation.
+                Defaults to 1.0.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+
+        Raises:
+            AssertionError: if the provided `model` is not available in your OpenAI account.
+
+        Examples:
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import OpenAILLM
+            >>> task = Task()
+            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=task)
+        """
         super().__init__(
             task=task,
             num_threads=num_threads,
@@ -79,10 +122,12 @@ class OpenAILLM(LLM):
 
     @cached_property
     def available_models(self) -> List[str]:
+        """Returns the list of available models in your OpenAI account."""
         return [model.id for model in self.client.models.list().data]
 
     @property
     def model_name(self) -> str:
+        """Returns the name of the OpenAI model."""
         return self.model
 
     def _generate(
@@ -90,6 +135,16 @@ class OpenAILLM(LLM):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
     ) -> List[List[LLMOutput]]:
+        """Generates `num_generations` for each input in `inputs`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to 1.
+
+        Returns:
+            List[List[LLMOutput]]: the generated outputs.
+        """
         prompts = self._generate_prompts(
             inputs, default_format="openai", expected_output_type=list
         )

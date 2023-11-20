@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# WARNING: THIS FILE NAME HAS BEEN PREPENDED WITH AN UNDERSCORE TO AVOID
+# ANY POTENTIAL CONFLICT / COLLISSION WITH THE `vllm` PYTHON PACKAGE.
 
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
@@ -43,6 +46,39 @@ class vLLM(LLM):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the vLLM class.
+
+        Args:
+            vllm (_vLLM): the vLLM model to be used.
+            task (Task): the task to be performed by the LLM.
+            max_new_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to 128.
+            presence_penalty (float, optional): the presence penalty to be used for generation.
+                Defaults to 0.0.
+            frequency_penalty (float, optional): the frequency penalty to be used for generation.
+                Defaults to 0.0.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to 1.0.
+            top_p (float, optional): the top-p value to be used for generation.
+                Defaults to 1.0.
+            top_k (int, optional): the top-k value to be used for generation.
+                Defaults to -1.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+
+        Examples:
+            >>> from vllm import LLM
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import vLLM
+            >>> model = LLM(model="gpt2")
+            >>> task = Task()
+            >>> llm = vLLM(model=model, task=task)
+        """
         super().__init__(
             task=task,
             prompt_format=prompt_format,
@@ -74,11 +110,22 @@ class vLLM(LLM):
 
     @property
     def model_name(self) -> str:
-        return self.vllm.llm_engine.model_config.model
+        """Returns the name of the vLLM model."""
+        return self.vllm.llm_engine.model_config.model  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
+        """Generates `num_generations` for each input in `inputs`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to 1.
+
+        Returns:
+            List[List[LLMOutput]]: the outputs of the LLM.
+        """
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )

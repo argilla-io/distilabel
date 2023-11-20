@@ -42,6 +42,38 @@ class LlamaCppLLM(LLM):
         prompt_format: Union[SupportedFormats, None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the LlamaCppLLM class.
+
+        Args:
+            model (Llama): the llama-cpp model to be used.
+            task (Task): the task to be performed by the LLM.
+            max_new_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to 128.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to 0.8.
+            top_p (float, optional): the top-p value to be used for generation.
+                Defaults to 0.95.
+            top_k (int, optional): the top-k value to be used for generation.
+                Defaults to 40.
+            repeat_penalty (float, optional): the repeat penalty to be used for generation.
+                Defaults to 1.1.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+
+        Examples:
+            >>> from llama_cpp import Llama
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import LlamaCppLLM
+            >>> model = Llama(model_path="path/to/model")
+            >>> task = Task()
+            >>> llm = LlamaCppLLM(model=model, task=task)
+        """
         super().__init__(
             task=task,
             prompt_format=prompt_format,
@@ -71,11 +103,22 @@ class LlamaCppLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the name of the llama-cpp model, which is the same as the model path."""
         return self.model.model_path
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
+        """Generates `num_generations` for each input in `inputs`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to 1.
+
+        Returns:
+            List[List[LLMOutput]]: the generated outputs.
+        """
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )
