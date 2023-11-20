@@ -25,7 +25,34 @@ if TYPE_CHECKING:
 
 
 class OpenAITextGenerationTask(TextGenerationTask):
+    """A `TextGenerationTask` for any chat-completion OpenAI model.
+
+    Args:
+        system_prompt (str, optional): the system prompt to be used. Defaults to `None`.
+        principles (Dict[str, List[str]], optional): the principles to be used for the system prompt.
+            Defaults to `None`.
+        principles_distribution (Union[Dict[str, float], Literal["balanced"], None], optional): the
+            distribution of principles to be used for the system prompt. Defaults to `None`.
+    """
+
     def generate_prompt(self, input: str) -> List["ChatCompletion"]:
+        """Generates a prompt for any chat-completion OpenAI model.
+
+        Args:
+            input (str): the input to be used for the prompt.
+
+        Returns:
+            List[ChatCompletion]: the generated prompt.
+
+        Examples:
+            >>> from distilabel.tasks.text_generation import OpenAITextGenerationTask
+            >>> task = OpenAITextGenerationTask(system_prompt="You are a helpful assistant.")
+            >>> task.generate_prompt("What are the first 5 Fibonacci numbers?")
+            [
+                {'role': 'system', 'content': 'You are a helpful assistant.'},
+                {'role': 'user', 'content': 'What are the first 5 Fibonacci numbers?'},
+            ]
+        """
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=input,

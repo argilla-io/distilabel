@@ -28,22 +28,33 @@ if TYPE_CHECKING:
 
 @dataclass
 class PreferenceTask(Task):
+    """A `Task` for preference rating tasks.
+
+    Args:
+        system_prompt (str): the system prompt to be used for generation.
+        task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+    """
+
     @property
     def input_args_names(self) -> List[str]:
+        """Returns the names of the input arguments of the task."""
         return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
+        """Returns the names of the output arguments of the task."""
         return ["rating", "rationale"]
 
     def to_argilla_fields(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedFieldTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedFieldTypes`."""
         return self._create_fields_from_row(dataset_row, self._create_text_field)
 
     def to_argilla_questions(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedQuestionTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedQuestionTypes`."""
         questions = []
         arg_name = "generations"
         self._check_argument_exists(dataset_row, arg_name)
@@ -64,8 +75,9 @@ class PreferenceTask(Task):
         return questions
 
     def to_argilla_metadata_properties(
-        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+        self, dataset_row: Dict[str, Any]
     ) -> List["AllowedMetadataPropertyTypes"]:
+        """Converts a dataset row to a list of Argilla `AllowedMetadataPropertyTypes`."""
         metadata_properties = []
         for arg_name in self.input_args_names:
             self._check_argument_exists(dataset_row, arg_name)
@@ -99,9 +111,8 @@ class PreferenceTask(Task):
     def to_argilla_record(  # noqa: C901
         self,
         dataset_row: Dict[str, Any],
-        *args: Any,
-        **kwargs: Any,
     ) -> "FeedbackRecord":
+        """Converts a dataset row to an Argilla `FeedbackRecord`."""
         fields = {}
         metadata = {}
 
@@ -152,4 +163,7 @@ class PreferenceTask(Task):
         )
 
     def _to_argilla_rationale(self, dataset_row: Dict[str, Any]) -> str:
+        """Gets the `rationale` column from a `datasets.Dataset` row and formats it
+        as expected by Argilla.
+        """
         return dataset_row["rationale"]

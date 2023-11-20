@@ -19,19 +19,57 @@ from typing_extensions import TypedDict
 
 
 class ChatCompletion(TypedDict):
+    """A `TypedDict` matching OpenAI's chat completion format."""
+
     role: Literal["system", "user", "assistant"]
     content: str
 
 
+# A `Literal` type is used to ensure that the `format` argument is one of the supported formats.
 SupportedFormats = Literal["default", "openai", "llama2", "chatml", "zephyr"]
 
 
 @dataclass
 class Prompt:
+    """A `dataclass` representing a `Prompt`.
+
+    Args:
+        system_prompt (str): the system prompt.
+        formatted_prompt (str): the formatted prompt.
+
+    Examples:
+        >>> from distilabel.tasks.prompt import Prompt
+        >>> prompt = Prompt(
+        ...     system_prompt="You are a helpful assistant.",
+        ...     formatted_prompt="What are the first 5 Fibonacci numbers?",
+        ... )
+    """
+
     system_prompt: str
     formatted_prompt: str
 
     def format_as(self, format: SupportedFormats) -> Union[str, List[ChatCompletion]]:
+        """Formats the prompt as the specified format.
+
+        Args:
+            format (SupportedFormats): the format to be used for the prompt. Available formats are
+                `default`, `openai`, `llama2`, `chatml`, and `zephyr`.
+
+        Returns:
+            Union[str, List[ChatCompletion]]: the formatted prompt.
+
+        Raises:
+            ValueError: if the specified format is not supported.
+
+        Examples:
+            >>> from distilabel.tasks.prompt import Prompt
+            >>> prompt = Prompt(
+            ...     system_prompt="You are a helpful assistant.",
+            ...     formatted_prompt="What are the first 5 Fibonacci numbers?",
+            ... )
+            >>> prompt.format_as("default")
+            'You are a helpful assistant.\nWhat are the first 5 Fibonacci numbers?'
+        """
         if format == "default":
             return f"{self.system_prompt}\n{self.formatted_prompt}"
         elif format == "openai":

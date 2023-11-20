@@ -25,12 +25,21 @@ _JUDGELM_TEMPLATE = get_template("judgelm.jinja2")
 
 
 class JudgeLMOutput(TypedDict):
+    """A `TypedDict` matching the output format of JudgeLM."""
+
     rating: List[float]
     rationale: str
 
 
 @dataclass
 class JudgeLMTask(PreferenceTask):
+    """A `PreferenceTask` following the prompt templated used by JudgeLM.
+
+    Args:
+        system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
+        task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+    """
+
     __jinja2_template__: str = _JUDGELM_TEMPLATE
 
     task_description: str = (
@@ -46,6 +55,24 @@ class JudgeLMTask(PreferenceTask):
     system_prompt: str = "You are a helpful and precise assistant for checking the quality of the answer."
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
+        """Generates a prompt following the JudgeLM specification.
+
+        Args:
+            input (str): the input to be used for the prompt.
+            generations (List[str]): the generations to be used for the prompt.
+
+        Returns:
+            Prompt: the generated prompt.
+
+        Examples:
+            >>> from distilabel.tasks.preference import JudgeLMTask
+            >>> task = JudgeLMTask(system_prompt="You are a helpful assistant.")
+            >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
+            Prompt(
+                system_prompt="You are a helpful assistant.",
+                formatted_prompt="[Question]\nWhat are the first 5 Fibonacci numbers?\n...",
+            )
+        """
         render_kwargs = {
             "input": input,
             "responses": generations,
@@ -59,6 +86,7 @@ class JudgeLMTask(PreferenceTask):
         )
 
     def parse_output(self, output: str) -> JudgeLMOutput:
+        """Parses the output of the model into the desired format."""
         split_output = output.split("\n")
         rating = [float(rating) for rating in split_output[0].split(" ")]
         rationale = "\n".join(split_output[1:])

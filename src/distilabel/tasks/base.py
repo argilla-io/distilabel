@@ -40,6 +40,10 @@ def get_template(template_name: str) -> str:
 
 
 class Argilla:
+    """Class to be used internally to define the methods required to export a dataset
+    as an Argilla `FeedbackDataset`.
+    """
+
     def to_argilla_fields(
         self,
         dataset_row: Dict[str, Any],
@@ -119,6 +123,17 @@ class Argilla:
 
 
 class Task(ABC, Argilla):
+    """Abstract class used to define the methods required to create a `Task`, to be used
+    within an `LLM`.
+
+    Args:
+        system_prompt (str): the system prompt to be used for generation.
+        task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+
+    Raises:
+        ValueError: if the `__jinja2_template__` attribute is not provided.
+    """
+
     system_prompt: str
     task_description: Union[str, None] = None
 
@@ -152,6 +167,14 @@ class Task(ABC, Argilla):
         pass
 
     def validate_dataset(self, columns_in_dataset: List[str]) -> None:
+        """Validates that the dataset contains the required columns for the task.
+
+        Args:
+            columns_in_dataset (List[str]): the columns in the dataset.
+
+        Raises:
+            KeyError: if the dataset does not contain the required columns.
+        """
         for input_arg_name in self.input_args_names:
             if input_arg_name not in columns_in_dataset:
                 raise KeyError(
