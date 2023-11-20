@@ -21,6 +21,4 @@ class Llama2TextGenerationTask(TextGenerationTask):
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=input,
-        ).format_as(
-            "llama2"
-        )  # type: ignore
+        ).format_as("llama2")  # type: ignore

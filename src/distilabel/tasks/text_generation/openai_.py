@@ -29,6 +29,4 @@ class OpenAITextGenerationTask(TextGenerationTask):
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=input,
-        ).format_as(
-            "openai"
-        )  # type: ignore
+        ).format_as("openai")  # type: ignore

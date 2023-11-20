@@ -38,6 +38,7 @@ def get_template(template_name: str) -> str:
         importlib_resources.files("distilabel") / "tasks/_templates" / template_name
     )
 
+
 class Argilla:
     def to_argilla_fields(
         self,
@@ -109,7 +110,7 @@ class Argilla:
             elif isinstance(dataset_row[arg_name], str):
                 processed_items.append(process_function(arg_name))
         return processed_items
-    
+
     def _check_argument_exists(self, dataset_row, arg_name):
         if arg_name not in dataset_row:
             raise ValueError(
