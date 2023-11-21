@@ -11,20 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# WARNING: THIS FILE NAME HAS BEEN PREPENDED WITH AN UNDERSCORE TO AVOID
-# ANY POTENTIAL CONFLICT / COLLISSION WITH THE `vllm` PYTHON PACKAGE.
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
-
-from vllm import SamplingParams
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.utils.imports import _LLAMA_CPP_AVAILABLE
 
 if TYPE_CHECKING:
-    from vllm import LLM as _vLLM
+    from llama_cpp import Llama
 
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
@@ -32,37 +30,34 @@ if TYPE_CHECKING:
 logger = get_logger()
 
 
-class vLLM(LLM):
+class LlamaCppLLM(LLM):
     def __init__(
         self,
-        vllm: "_vLLM",
+        model: "Llama",
         task: "Task",
         max_new_tokens: int = 128,
-        presence_penalty: float = 0.0,
-        frequency_penalty: float = 0.0,
-        temperature: float = 1.0,
-        top_p: float = 1.0,
-        top_k: int = -1,
-        prompt_format: Union["SupportedFormats", None] = None,
+        temperature: float = 0.8,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        repeat_penalty: float = 1.1,
+        prompt_format: Union[SupportedFormats, None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        """Initializes the vLLM class.
+        """Initializes the LlamaCppLLM class.
 
         Args:
-            vllm (_vLLM): the vLLM model to be used.
+            model (Llama): the llama-cpp model to be used.
             task (Task): the task to be performed by the LLM.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
-            presence_penalty (float, optional): the presence penalty to be used for generation.
-                Defaults to 0.0.
-            frequency_penalty (float, optional): the frequency penalty to be used for generation.
-                Defaults to 0.0.
             temperature (float, optional): the temperature to be used for generation.
-                Defaults to 1.0.
+                Defaults to 0.8.
             top_p (float, optional): the top-p value to be used for generation.
-                Defaults to 1.0.
+                Defaults to 0.95.
             top_k (int, optional): the top-k value to be used for generation.
-                Defaults to -1.
+                Defaults to 40.
+            repeat_penalty (float, optional): the repeat penalty to be used for generation.
+                Defaults to 1.1.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
                 formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
@@ -70,14 +65,15 @@ class vLLM(LLM):
                 will be used if no `prompt_formatting_fn` is provided.
             prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
                 applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
 
         Examples:
-            >>> from vllm import LLM
+            >>> from llama_cpp import Llama
             >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
-            >>> from distilabel.llm import vLLM
-            >>> model = LLM(model="gpt2")
+            >>> from distilabel.llm import LlamaCppLLM
+            >>> model = Llama(model_path="path/to/model")
             >>> task = Task()
-            >>> llm = vLLM(model=model, task=task)
+            >>> llm = LlamaCppLLM(model=model, task=task)
         """
         super().__init__(
             task=task,
@@ -85,33 +81,37 @@ class vLLM(LLM):
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
-        self.presence_penalty = presence_penalty
-        self.frequency_penalty = frequency_penalty
+        if not _LLAMA_CPP_AVAILABLE:
+            raise ImportError(
+                "`LlamaCppLLM` cannot be used as `llama_cpp` is not installed, please "
+                " install it with `pip install llama-cpp-python`."
+            )
+
+        self.max_tokens = max_new_tokens
         self.temperature = temperature
         self.top_p = top_p
         self.top_k = top_k
-        self.max_tokens = max_new_tokens
+        self.repeat_penalty = repeat_penalty
 
-        self.vllm = vllm
+        self.model = model
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
         yield (
             "parameters",
             {
-                "max_tokens": self.max_tokens,
-                "presence_penalty": self.presence_penalty,
-                "frequency_penalty": self.frequency_penalty,
+                "max_new_tokens": self.max_tokens,
                 "temperature": self.temperature,
                 "top_p": self.top_p,
                 "top_k": self.top_k,
+                "repeat_penalty": self.repeat_penalty,
             },
         )
 
     @property
     def model_name(self) -> str:
-        """Returns the name of the vLLM model."""
-        return self.vllm.llm_engine.model_config.model  # type: ignore
+        """Returns the name of the llama-cpp model, which is the same as the model path."""
+        return self.model.model_path
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -124,38 +124,35 @@ class vLLM(LLM):
                 input. Defaults to 1.
 
         Returns:
-            List[List[LLMOutput]]: the outputs of the LLM.
+            List[List[LLMOutput]]: the generated outputs.
         """
         prompts = self._generate_prompts(
             inputs, default_format=None, expected_output_type=str
         )
-        requests = self.vllm.generate(
-            prompts,
-            SamplingParams(  # type: ignore
-                n=num_generations,
-                presence_penalty=self.presence_penalty,
-                frequency_penalty=self.frequency_penalty,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                top_k=self.top_k,
-                max_tokens=self.max_tokens,
-            ),
-            use_tqdm=False,  # type: ignore
-        )
         outputs = []
-        for request, prompt in zip(requests, prompts):
+        for prompt in prompts:
             output = []
-            for request_output in request.outputs:
+            for _ in range(num_generations):
+                raw_output = self.model.create_completion(
+                    prompt,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    top_k=self.top_k,
+                    repeat_penalty=self.repeat_penalty,
+                )
                 try:
-                    parsed_output = self.task.parse_output(request_output.text)
+                    parsed_output = self.task.parse_output(
+                        raw_output["choices"][0]["text"].strip()
+                    )
                 except Exception as e:
-                    logger.error(f"Error parsing vLLM output: {e}")
+                    logger.error(f"Error parsing llama-cpp output: {e}")
                     parsed_output = None
                 output.append(
                     LLMOutput(
                         model_name=self.model_name,
                         prompt_used=prompt,
-                        raw_output=request_output.text,
+                        raw_output=raw_output,
                         parsed_output=parsed_output,
                     )
                 )
