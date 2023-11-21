@@ -15,6 +15,7 @@
 # WARNING: THIS FILE NAME HAS BEEN PREPENDED WITH AN UNDERSCORE TO AVOID
 # ANY POTENTIAL CONFLICT / COLLISSION WITH THE `self_instruct` PYTHON PACKAGE.
 
+from dataclasses import dataclass
 from typing import Dict, List
 
 from distilabel.tasks.base import get_template
@@ -23,7 +24,7 @@ from distilabel.tasks.text_generation.base import TextGenerationTask
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 
-
+@dataclass
 class SelfInstructTask(TextGenerationTask):
     """A `TextGenerationTask` following the Self-Instruct specification for building
     the prompts.
