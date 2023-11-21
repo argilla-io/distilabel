@@ -38,7 +38,7 @@ from distilabel.progress_bar import (
     get_progress_bars_for_pipeline,
     use_progress_bar,
 )
-from distilabel.utils import combine_dicts
+from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM

@@ -15,8 +15,6 @@
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
-from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
-from huggingface_hub.inference._text_generation import TextGenerationError
 from tenacity import (
     after_log,
     before_sleep_log,
@@ -29,16 +27,24 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.utils.imports import _HUGGINGFACE_HUB_AVAILABLE
+
+if _HUGGINGFACE_HUB_AVAILABLE:
+    from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
+    from huggingface_hub.inference._text_generation import TextGenerationError
+
+    _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
+        InferenceTimeoutError,
+        TextGenerationError,
+    )
+else:
+    _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = ()
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
 
 
-_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
-    InferenceTimeoutError,
-    TextGenerationError,
-)
 _INFERENCE_ENDPOINTS_API_STOP_AFTER_ATTEMPT = 6
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
@@ -99,6 +105,12 @@ class InferenceEndpointsLLM(LLM):
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )
+
+        if not _HUGGINGFACE_HUB_AVAILABLE:
+            raise ImportError(
+                "`InferenceEndpointsLLM` cannot be used as `huggingface-hub` is not "
+                "installed, please install it with `pip install huggingface-hub`."
+            )
 
         self.do_sample = do_sample
         self.max_new_tokens = max_new_tokens

@@ -16,14 +16,19 @@ import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
-import torch
-from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
-
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.utils.imports import _TRANSFORMERS_AVAILABLE
+
+if _TRANSFORMERS_AVAILABLE:
+    import torch
+    from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 if TYPE_CHECKING:
+    from torch import device
+    from transformers import PreTrainedModel, PreTrainedTokenizer
+
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
 
@@ -33,8 +38,8 @@ logger = get_logger()
 class TransformersLLM(LLM):
     def __init__(
         self,
-        model: PreTrainedModel,
-        tokenizer: PreTrainedTokenizer,
+        model: "PreTrainedModel",
+        tokenizer: "PreTrainedTokenizer",
         task: "Task",
         max_new_tokens: int = 128,
         do_sample: bool = False,
@@ -139,7 +144,7 @@ class TransformersLLM(LLM):
         return self.model.config.name_or_path
 
     @cached_property
-    def device(self) -> torch.device:
+    def device(self) -> "device":
         """Returns the device to be used for generation."""
         if torch.cuda.is_available():
             return torch.device("cuda")
