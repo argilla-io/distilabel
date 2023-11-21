@@ -26,6 +26,12 @@ except ImportError:
     pass
 
 if TYPE_CHECKING:
+    from argilla.client.feedback.schemas.fields import TextField
+    from argilla.client.feedback.schemas.metadata import (
+        FloatMetadataProperty,
+        IntegerMetadataProperty,
+    )
+    from argilla.client.feedback.schemas.questions import RatingQuestion, TextQuestion
     from argilla.client.feedback.schemas.records import FeedbackRecord
     from argilla.client.feedback.schemas.types import (
         AllowedFieldTypes,
@@ -76,25 +82,25 @@ class Argilla:
         fields: Dict[str, Any],
         suggestions: List[Dict[str, Any]],
         metadata: Dict[str, Any],
-    ) -> rg.FeedbackRecord:
+    ) -> "FeedbackRecord":
         return rg.FeedbackRecord(
             fields=fields, suggestions=suggestions, metadata=metadata
         )
 
-    def _create_text_field(self, name: str) -> rg.TextField:
+    def _create_text_field(self, name: str) -> "TextField":
         return rg.TextField(name=name)
 
     def _create_rating_question(
         self, name: str, title: str, values: List[int]
-    ) -> rg.RatingQuestion:
+    ) -> "RatingQuestion":
         return rg.RatingQuestion(name=name, title=title, values=values)
 
-    def _create_text_question(self, name: str, title: str) -> rg.TextQuestion:
+    def _create_text_question(self, name: str, title: str) -> "TextQuestion":
         return rg.TextQuestion(name=name, title=title)
 
     def _create_metadata_property(
         self, name: str, property_type: str
-    ) -> Union[rg.IntegerMetadataProperty, rg.FloatMetadataProperty]:
+    ) -> Union["IntegerMetadataProperty", "FloatMetadataProperty"]:
         if property_type == "integer":
             return rg.IntegerMetadataProperty(name=name)
         elif property_type == "float":
