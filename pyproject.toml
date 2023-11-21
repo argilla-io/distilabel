@@ -20,13 +20,13 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["datasets >=2.14.0", "Jinja2 >=3.1.2", "rich>=13.5.0"]
+dependencies = ["datasets >=2.14.0", "Jinja2 >=3.1.2", "rich>=13.5.0", "tenacity >=8"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = ["black ==23.10.0", "ruff ==0.1.0", "pre-commit >=3.5.0"]
 hf-transformers = ["transformers >=4.34.1", "torch>=2.0.0"]
-hf-inference-endpoints = ["huggingface_hub >= 1.19.0", "tenacity >=8"]
+hf-inference-endpoints = ["huggingface_hub >= 1.19.0"]
 openai = ["openai >=1.0.0"]
 vllm = ["vllm>=0.2.1"]
 argilla = ["argilla >=1.16.0"]
