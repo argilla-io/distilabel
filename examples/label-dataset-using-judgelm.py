@@ -2,9 +2,9 @@ import os
 
 import argilla as rg
 from datasets import load_dataset
-from distilabel.llm.openai_ import OpenAILLM
+from distilabel.llm import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks.preference.judgelm import JudgeLMTask
+from distilabel.tasks import JudgeLMTask
 
 os.environ["OPENAI_API_KEY"] = "<OPENAI_API_KEY>"
 rg.init(api_url="<ARGILLA_API_KEY>", api_key="<ARGILLA_API_URL>")
