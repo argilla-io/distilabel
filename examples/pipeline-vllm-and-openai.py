@@ -17,7 +17,7 @@ import os
 from datasets import load_dataset
 from distilabel.llm import OpenAILLM, vLLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks import Llama2TextGenerationTask, UltraFeedbackTask
+from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from vllm import LLM
 
 if __name__ == "__main__":
@@ -30,9 +30,10 @@ if __name__ == "__main__":
     pipeline = Pipeline(
         generator=vLLM(
             vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
-            task=Llama2TextGenerationTask(),
+            task=TextGenerationTask(),
             max_new_tokens=128,
             temperature=0.3,
+            prompt_format="zephyr",
         ),
         labeller=OpenAILLM(
             model="gpt-3.5-turbo",
