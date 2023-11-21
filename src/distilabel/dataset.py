@@ -16,13 +16,10 @@ from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
 
-try:
+from distilabel.utils.imports import _ARGILLA_AVAILABLE
+
+if _ARGILLA_AVAILABLE:
     import argilla as rg
-
-    _argilla_installed = True
-except ImportError:
-    _argilla_installed = False
-
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
@@ -49,10 +46,12 @@ class CustomDataset(Dataset):
         Returns:
             FeedbackDataset: the Argilla `FeedbackDataset` instance.
         """
-        if _argilla_installed is False:
+        if not _ARGILLA_AVAILABLE:
             raise ImportError(
-                "The argilla library is not installed. To use the to_dataset method, please install it with `pip install argilla`."
+                "To use `to_argilla` method is required to have `argilla` installed. "
+                "Please install it with `pip install argilla`."
             )
+
         if self.task is None:
             raise ValueError(
                 "The task is not set. Please set it with `dataset.task = <task>`."
