@@ -104,7 +104,7 @@ _VLLM_AVAILABLE = _check_package_is_available(
     "vllm", min_version="0.2.1", greater_or_equal=True
 )
 _HUGGINGFACE_HUB_AVAILABLE = _check_package_is_available(
-    "huggingface_hub", min_version="1.19.0", greater_or_equal=True
+    "huggingface_hub", min_version="0.19.0", greater_or_equal=True
 )
 _TRANSFORMERS_AVAILABLE = _check_package_is_available(
     "transformers", min_version="4.31.1", greater_or_equal=True
