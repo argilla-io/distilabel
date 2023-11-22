@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "distilabel"
-description = "AI Feedback framework"
+description = "AI Feedback (AIF) framework"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
