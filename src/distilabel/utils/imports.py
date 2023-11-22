@@ -16,6 +16,7 @@ import warnings
 from typing import List, Union
 
 import pkg_resources
+from packaging import version
 
 
 def _check_package_is_available(
@@ -29,13 +30,14 @@ def _check_package_is_available(
     """Checks whether the provided Python package is installed / exists, and also checks that
     its a valid version if the version identifiers are provided."""
     try:
-        version = pkg_resources.get_distribution(name).version
+        installed_version = version.parse(pkg_resources.get_distribution(name).version)
         if min_version is not None:
-            if (greater_or_equal and version < min_version) or (
-                not greater_or_equal and version <= min_version
+            min_version = version.parse(min_version)
+            if (greater_or_equal and installed_version < min_version) or (
+                not greater_or_equal and installed_version <= min_version
             ):
                 warnings.warn(
-                    f"`{name}` is installed, but the installed version is {version}, while "
+                    f"`{name}` is installed, but the installed version is {installed_version}, while "
                     f"the minimum required version for `{name}` is {min_version}. If you are "
                     f"willing to use `distilabel` with `{name}`, please ensure you install it "
                     "from the package extras.",
@@ -44,11 +46,12 @@ def _check_package_is_available(
                 )
                 return False
         if max_version is not None:
-            if (lower_or_equal and version > max_version) or (
-                not lower_or_equal and version >= max_version
+            max_version = version.parse(max_version)
+            if (lower_or_equal and installed_version > max_version) or (
+                not lower_or_equal and installed_version >= max_version
             ):
                 warnings.warn(
-                    f"`{name}` is installed, but the installed version is {version}, while "
+                    f"`{name}` is installed, but the installed version is {installed_version}, while "
                     f"the maximum allowed version for `{name}` is {max_version}. If you are "
                     f"willing to use `distilabel` with `{name}`, please ensure you install it "
                     "from the package extras.",
@@ -57,9 +60,10 @@ def _check_package_is_available(
                 )
                 return False
         if excluded_versions is not None:
-            if version in excluded_versions:
+            excluded_versions = [version.parse(v) for v in excluded_versions]
+            if installed_version in excluded_versions:
                 warnings.warn(
-                    f"`{name}` is installed, but the installed version is {version}, which is "
+                    f"`{name}` is installed, but the installed version is {installed_version}, which is "
                     "an excluded version because it's not compatible with `distilabel`. If you are "
                     f"willing to use `distilabel` with `{name}`, please ensure you install it "
                     "from the package extras.",
@@ -90,3 +94,16 @@ _HUGGINGFACE_HUB_AVAILABLE = _check_package_is_available(
 _TRANSFORMERS_AVAILABLE = _check_package_is_available(
     "transformers", min_version="4.31.1", greater_or_equal=True
 ) and _check_package_is_available("torch", min_version="2.0.0", greater_or_equal=True)
+
+
+if __name__ == "__main__":
+    print(
+        _check_package_is_available(
+            "requests",
+            min_version="2.0.0",
+            greater_or_equal=True,
+            max_version="5.0.0",
+            lower_or_equal=True,
+            excluded_versions=["3.0.0"],
+        )
+    )
