@@ -28,7 +28,22 @@ def _check_package_is_available(
     excluded_versions: Union[List[str], None] = None,
 ) -> bool:
     """Checks whether the provided Python package is installed / exists, and also checks that
-    its a valid version if the version identifiers are provided."""
+    its a valid version if the version identifiers are provided.
+
+    Args:
+        name (str): Name of the Python package to check.
+        min_version (Union[str, None], optional): Minimum required version of the package. Defaults to None.
+        greater_or_equal (bool, optional): Whether the installed version must be greater or equal to the minimum required version. Defaults to False.
+        max_version (Union[str, None], optional): Maximum allowed version of the package. Defaults to None.
+        lower_or_equal (bool, optional): Whether the installed version must be lower or equal to the maximum allowed version. Defaults to False.
+        excluded_versions (Union[List[str], None], optional): List of versions that are not compatible with the package. Defaults to None.
+
+    Raises:
+        UserWarning: If the package is installed but the version is not compatible with the provided version identifiers.
+
+    Returns:
+        bool: Whether the package is installed and the version is compatible with the provided version identifiers.
+    """
     try:
         installed_version = version.parse(pkg_resources.get_distribution(name).version)
         if min_version is not None:
