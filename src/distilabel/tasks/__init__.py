@@ -20,6 +20,7 @@ from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
 from distilabel.tasks.text_generation.openai import OpenAITextGenerationTask
+from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
 __all__ = [
     "Task",
@@ -30,4 +31,5 @@ __all__ = [
     "TextGenerationTask",
     "OpenAITextGenerationTask",
     "Llama2TextGenerationTask",
+    "SelfInstructTask"
 ]
