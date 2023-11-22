@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List
+from typing import ClassVar, List
 
 from typing_extensions import TypedDict
 
@@ -40,7 +40,7 @@ class JudgeLMTask(PreferenceTask):
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
     """
 
-    __jinja2_template__: str = _JUDGELM_TEMPLATE
+    __jinja2_template__: ClassVar[str] = _JUDGELM_TEMPLATE
 
     task_description: str = (
         "We would like to request your feedback on the performance of {num_responses} AI assistants in response to the"

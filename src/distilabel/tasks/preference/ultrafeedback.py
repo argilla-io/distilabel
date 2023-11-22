@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
@@ -52,20 +52,16 @@ class UltraFeedbackTask(PreferenceTask):
     ratings: List[Rating]
     task_description: str
 
-    __jinja2_template__: str = field(
+    __jinja2_template__: ClassVar[str] = field(
         default=_ULTRAFEEDBACK_TEMPLATE, init=False, repr=False
     )
-    __subtasks__: List[str] = field(
-        default_factory=lambda: [
-            "text-quality",
-            "helpfulness",
-            "truthfulness",
-            "honesty",
-            "instruction-following",
-        ],
-        init=False,
-        repr=False,
-    )
+    __subtasks__: ClassVar[List[str]] = [
+        "text-quality",
+        "helpfulness",
+        "truthfulness",
+        "honesty",
+        "instruction-following",
+    ]
 
     system_prompt: (
         str
