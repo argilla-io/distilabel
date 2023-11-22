@@ -1,74 +1,33 @@
 # distilabel
 
-AI Feedback framework to build datasets with and for LLMs
+AI Feedback (AIF) framework to build datasets with and for LLMs:
+
+- Integrations with the most popular libraries and APIs for LLMs: HF Transformers, OpenAI, vLLM, etc.
+- Multiple tasks for Self-Instruct, Preference datasets and more.
+- Export to Argilla for easy data exploration and further annotation.
 
 ## Installation
 
 ```sh
 pip install distilabel
 ```
+Requires Python 3.8+
 
-# Quickstart examples
+In addition, the following extras are available:
 
-## Instruction dataset generation
+- `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
+- `hf-inference-endpoints`: for using the [text-generation-inference](https://github.com/huggingface/text-generation-inference) via the `InferenceEndpointsLLM` integration.
+- `openai`: for using OpenAI API models via the `OpenAILLM` integration.
+- `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+- `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
-```py title="Generate instructions for table generation about different topics"
-from datasets import Dataset
+## Quick example
 
-from distilabel.llm import OpenAILLM
-from distilabel.pipeline import Pipeline
-from distilabel.tasks import SelfInstructTask
+# TODO: add quick example
+The main class in `distilabel` is the `Pipeline` class in charge of coordinating the `generator` and `labeller` LLMs.
 
-self_instruct = SelfInstructTask(
-    application_description="An AI application to generate tables",
-    num_instructions=10
-)
 
-llm = OpenAILLM(
-    model="gpt-4",
-    task=self_instruct,
-    max_new_tokens=1024,
-    num_threads=2,
-    token="sk..."
-)
-
-dataset = Dataset.from_dict(
-    {"instruction": ["High school math", "Celebrities", "Astrophysics"]}
-)
-
-pipeline = Pipeline(
-    generator=llm
-)
-
-dataset = pipeline.generate(
-    dataset, num_generations=1, batch_size=1, display_progress_bar=True
-)
-```
-## Preference dataset generation
-
-```py title="Build a preference dataset based on response's truthfulness"
-from datasets import load_dataset
+```python
 from distilabel.pipeline import pipeline
-from distilabel.llm import InferenceEndpointsLLM
-from distilabel.tasks.text_generation import Llama2GenerationTask
-
-dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
-    .remove_columns(["completion", "meta"])
-    .rename_column("prompt", "instruction")
-)
-
-llm = InferenceEndpointsLLM(
-        endpoint_url="<INFERENCE_ENDPOINTS_URL>",
-        task=Llama2GenerationTask(), 
-        max_new_tokens=128,
-        num_threads=4,
-        temperature=0.3,
-)
-
-pipe = pipeline(
-    "preference",
-    "truthfulness",
-    generator=llm
-)
 ```
+
