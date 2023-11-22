@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import warnings
+from importlib.metadata import PackageNotFoundError, version
 from typing import List, Union
 
-import pkg_resources
-from packaging import version
+from packaging import version as version_parser
 
 
 def _check_package_is_available(
@@ -45,9 +45,9 @@ def _check_package_is_available(
         bool: Whether the package is installed and the version is compatible with the provided version identifiers.
     """
     try:
-        installed_version = version.parse(pkg_resources.get_distribution(name).version)
+        installed_version = version_parser.parse(version(name))
         if min_version is not None:
-            min_version = version.parse(min_version)
+            min_version = version_parser.parse(min_version)
             if (greater_or_equal and installed_version < min_version) or (
                 not greater_or_equal and installed_version <= min_version
             ):
@@ -61,7 +61,7 @@ def _check_package_is_available(
                 )
                 return False
         if max_version is not None:
-            max_version = version.parse(max_version)
+            max_version = version_parser.parse(max_version)
             if (lower_or_equal and installed_version > max_version) or (
                 not lower_or_equal and installed_version >= max_version
             ):
@@ -75,7 +75,7 @@ def _check_package_is_available(
                 )
                 return False
         if excluded_versions is not None:
-            excluded_versions = [version.parse(v) for v in excluded_versions]
+            excluded_versions = [version_parser.parse(v) for v in excluded_versions]
             if installed_version in excluded_versions:
                 warnings.warn(
                     f"`{name}` is installed, but the installed version is {installed_version}, which is "
@@ -87,7 +87,7 @@ def _check_package_is_available(
                 )
                 return False
         return True
-    except pkg_resources.DistributionNotFound:
+    except PackageNotFoundError:
         return False
 
 
@@ -109,16 +109,3 @@ _HUGGINGFACE_HUB_AVAILABLE = _check_package_is_available(
 _TRANSFORMERS_AVAILABLE = _check_package_is_available(
     "transformers", min_version="4.31.1", greater_or_equal=True
 ) and _check_package_is_available("torch", min_version="2.0.0", greater_or_equal=True)
-
-
-if __name__ == "__main__":
-    print(
-        _check_package_is_available(
-            "requests",
-            min_version="2.0.0",
-            greater_or_equal=True,
-            max_version="5.0.0",
-            lower_or_equal=True,
-            excluded_versions=["3.0.0"],
-        )
-    )
