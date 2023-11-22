@@ -19,7 +19,7 @@ from the `LLM` response. It's worth mentioning that the `Task` class doesn't ret
 will generate the `str` format depending on the `LLM` that is going to be used (Zephyr, Llama, OpenAI, etc).
 
 ```python
---8<-- "docs/snippets/task.py"
+--8<-- "docs/snippets/concepts/task.py"
 ```
 
 ### LLM
@@ -29,7 +29,7 @@ parameters that can be passed to the model to tweak the generations. As mentione
 associated that will use to generate the prompt and extract the output from the generation.
 
 ```python
---8<-- "docs/snippets/llm.py"
+--8<-- "docs/snippets/concepts/llm.py"
 ```
 
 !!! note
@@ -47,7 +47,7 @@ a generator `LLM` and a labeller `LLM` to the `Pipeline` class, as it can also b
     === "Generator and labeller"
 
         ```python
-        --8<-- "docs/snippets/pipeline.py"
+        --8<-- "docs/snippets/concepts/pipeline.py"
         ```
 
         !!! note
@@ -58,13 +58,13 @@ a generator `LLM` and a labeller `LLM` to the `Pipeline` class, as it can also b
     === "Only generator"
 
         ```python
-        --8<-- "docs/snippets/pipeline-only-generator.py"
+        --8<-- "docs/snippets/concepts/pipeline-only-generator.py"
         ```
 
     === "Only labeller"
 
         ```python
-        --8<-- "docs/snippets/pipeline-only-labeller.py"
+        --8<-- "docs/snippets/concepts/pipeline-only-labeller.py"
         ```
 
 
