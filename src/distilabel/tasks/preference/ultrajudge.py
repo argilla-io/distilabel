@@ -14,7 +14,7 @@
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TypedDict
+from typing import Any, ClassVar, Dict, List, TypedDict
 
 from distilabel.tasks.base import Prompt, get_template
 from distilabel.tasks.preference.base import PreferenceTask
@@ -76,7 +76,7 @@ class UltraJudgeTask(PreferenceTask):
         ]
     )
 
-    __jinja2_template__: str = field(
+    __jinja2_template__: ClassVar[str] = field(
         default=_ULTRAJUDGE_TEMPLATE, init=False, repr=False
     )
 
