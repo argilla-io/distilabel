@@ -45,11 +45,6 @@ theme:
 watch:
   - src/distilabel
 
-# Additional configuration
-extra:
-  version:
-    provider: mike
-
 # Extensions
 markdown_extensions:
   - attr_list
@@ -79,7 +74,7 @@ nav:
   - Getting started: index.md
   - Concepts: concepts.md
   - Guides:
-      - guides/self-instruct.md
+      - guides/instruct-generation.md
       - guides/preference-dataset.md
   - Code Reference: reference/
   - About: about.md

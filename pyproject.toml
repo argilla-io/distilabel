@@ -39,7 +39,6 @@ argilla = ["argilla >= 1.16.0"]
 tests = ["pytest >= 7.4.0"]
 docs = [
     "mkdocs-material >= 9.4.10",
-    "mike >= 2.0.0",
     "mkdocstrings[python] >= 0.24.0",
     "mkdocs-literate-nav >= 0.6.1",
     "mkdocs-section-index >= 0.3.8",
