@@ -3,8 +3,8 @@ components or classes and how they work together. The following sections will gu
 of the framework: `Pipeline`, `LLM` (both generator and labeller), and the `Task`.
 
 <figure markdown>
-  ![distilabel](../../assets/images/distilabel-diagram.svg#only-light){ width="600" }
-  ![distilabel](../../assets/images/distilabel-diagram-dark.svg#only-dark){ width="600" }
+  ![distilabel](assets/images/distilabel-diagram.svg#only-light){ width="600" }
+  ![distilabel](assets/images/distilabel-diagram-dark.svg#only-dark){ width="600" }
   <figcaption>distilabel flow diagram</figcaption>
 </figure>
 
