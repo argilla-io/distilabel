@@ -12,11 +12,13 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://distilabel.argilla.io/">
+        <link rel="canonical" href="https://distilabel.argilla.io/reference/distilabel/utils/">
       
       
+        <link rel="prev" href="../tasks/text_generation/self_instruct/">
       
-        <link rel="next" href="concepts/">
+      
+        <link rel="next" href="dicts/">
       
       
       <link rel="icon" href="/assets/distilabel-icon.svg">
@@ -24,14 +26,14 @@
     
     
       
-        <title>distilabel</title>
+        <title>utils - distilabel</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.fad675c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.fad675c6.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.356b1318.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.356b1318.min.css">
       
       
 
@@ -50,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -83,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#distilabel" class="md-skip">
+        <a href="#distilabel.utils" class="md-skip">
           Skip to content
         </a>
       
@@ -97,7 +99,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="distilabel" class="md-header__button md-logo" aria-label="distilabel" data-md-component="logo">
+    <a href="../../.." title="distilabel" class="md-header__button md-logo" aria-label="distilabel" data-md-component="logo">
       
   <img src="/assets/distilabel-icon.svg" alt="logo">
 
@@ -116,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting started
+              utils
             
           </span>
         </div>
@@ -228,11 +230,9 @@
         
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
         
   
     
@@ -249,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="concepts/" class="md-tabs__link">
+      <a href="../../../concepts/" class="md-tabs__link">
         
   
     
@@ -266,7 +266,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="guides/" class="md-tabs__link">
+      <a href="../../../guides/" class="md-tabs__link">
         
   
     
@@ -281,11 +281,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="reference/distilabel/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   Code Reference
@@ -320,7 +322,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="distilabel" class="md-nav__button md-logo" aria-label="distilabel" data-md-component="logo">
+    <a href="../../.." title="distilabel" class="md-nav__button md-logo" aria-label="distilabel" data-md-component="logo">
       
   <img src="/assets/distilabel-icon.svg" alt="logo">
 
@@ -346,29 +348,9 @@
       
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Getting started
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -377,44 +359,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Quick example
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -425,7 +369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/" class="md-nav__link">
+      <a href="../../../concepts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -444,7 +388,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/" class="md-nav__link">
+      <a href="../../../guides/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -461,6 +405,8 @@
       
   
   
+    
+  
   
     
     
@@ -470,12 +416,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -489,7 +435,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Code Reference
@@ -500,23 +446,25 @@
                 
   
   
+    
+  
   
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -533,7 +481,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_1">
             <span class="md-nav__icon md-icon"></span>
             distilabel
@@ -546,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/dataset/" class="md-nav__link">
+      <a href="../dataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -580,7 +528,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/llm/" class="md-nav__link ">
+            <a href="../llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -610,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/base/" class="md-nav__link">
+      <a href="../llm/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -644,7 +592,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/llm/huggingface/" class="md-nav__link ">
+            <a href="../llm/huggingface/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -674,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/huggingface/inference_endpoints/" class="md-nav__link">
+      <a href="../llm/huggingface/inference_endpoints/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -694,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/huggingface/transformers/" class="md-nav__link">
+      <a href="../llm/huggingface/transformers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -722,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/llama_cpp/" class="md-nav__link">
+      <a href="../llm/llama_cpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -742,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/openai/" class="md-nav__link">
+      <a href="../llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -762,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/utils/" class="md-nav__link">
+      <a href="../llm/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -782,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/llm/vllm/" class="md-nav__link">
+      <a href="../llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -810,7 +758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/logger/" class="md-nav__link">
+      <a href="../logger/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -830,7 +778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/pipeline/" class="md-nav__link">
+      <a href="../pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -850,7 +798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/progress_bar/" class="md-nav__link">
+      <a href="../progress_bar/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -884,7 +832,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/tasks/" class="md-nav__link ">
+            <a href="../tasks/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -914,7 +862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/base/" class="md-nav__link">
+      <a href="../tasks/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -948,7 +896,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/tasks/preference/" class="md-nav__link ">
+            <a href="../tasks/preference/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -978,7 +926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/preference/base/" class="md-nav__link">
+      <a href="../tasks/preference/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -998,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/preference/judgelm/" class="md-nav__link">
+      <a href="../tasks/preference/judgelm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1018,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/preference/ultrafeedback/" class="md-nav__link">
+      <a href="../tasks/preference/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1038,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/preference/ultrajudge/" class="md-nav__link">
+      <a href="../tasks/preference/ultrajudge/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1066,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/prompt/" class="md-nav__link">
+      <a href="../tasks/prompt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1100,7 +1048,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/tasks/text_generation/" class="md-nav__link ">
+            <a href="../tasks/text_generation/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1130,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/text_generation/base/" class="md-nav__link">
+      <a href="../tasks/text_generation/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1150,7 +1098,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/text_generation/llama/" class="md-nav__link">
+      <a href="../tasks/text_generation/llama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1170,7 +1118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/text_generation/openai/" class="md-nav__link">
+      <a href="../tasks/text_generation/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1190,7 +1138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/text_generation/principles/" class="md-nav__link">
+      <a href="../tasks/text_generation/principles/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1210,7 +1158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/tasks/text_generation/self_instruct/" class="md-nav__link">
+      <a href="../tasks/text_generation/self_instruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1244,23 +1192,25 @@
                 
   
   
+    
+  
   
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_7" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/distilabel/utils/" class="md-nav__link ">
+            <a href="./" class="md-nav__link md-nav__link--active">
               
   
   <span class="md-ellipsis">
@@ -1271,13 +1221,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_1_7" id="__nav_4_1_7_label" tabindex="0">
+              <label class="md-nav__link md-nav__link--active" for="__nav_4_1_7" id="__nav_4_1_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_1_7">
             <span class="md-nav__icon md-icon"></span>
             utils
@@ -1290,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/utils/dicts/" class="md-nav__link">
+      <a href="dicts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1310,7 +1260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/distilabel/utils/imports/" class="md-nav__link">
+      <a href="imports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1365,54 +1315,33 @@
   
 
 
-<h1 id="distilabel">distilabel</h1>
-<p>AI Feedback (AIF) framework to build datasets with and for LLMs:</p>
-<ul>
-<li>Integrations with the most popular libraries and APIs for LLMs: HF Transformers, OpenAI, vLLM, etc.</li>
-<li>Multiple tasks for Self-Instruct, Preference datasets and more.</li>
-<li>Dataset export to Argilla for easy data exploration and further annotation.</li>
-</ul>
-<h2 id="installation">Installation</h2>
-<p><div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel
-</span></code></pre></div>
-Requires Python 3.8+</p>
-<p>In addition, the following extras are available:</p>
-<ul>
-<li><code>hf-transformers</code>: for using models available in <a href="https://github.com/huggingface/transformers">transformers</a> package via the <code>TransformersLLM</code> integration.</li>
-<li><code>hf-inference-endpoints</code>: for using the <a href="https://huggingface.co/inference-endpoints">Hugging Face Inference Endpoints</a> via the <code>InferenceEndpointsLLM</code> integration.</li>
-<li><code>openai</code>: for using OpenAI API models via the <code>OpenAILLM</code> integration.</li>
-<li><code>vllm</code>: for using <a href="https://github.com/vllm-project/vllm">vllm</a> serving engine via the <code>vLLM</code> integration.</li>
-<li><code>argilla</code>: for exporting the generated datasets to <a href="https://argilla.io/">Argilla</a>.</li>
-</ul>
-<h2 id="quick-example">Quick example</h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">pipeline</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">TextGenerationTask</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">dataset</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test[:10]&quot;</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="o">.</span><span class="n">remove_columns</span><span class="p">([</span><span class="s2">&quot;completion&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">])</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">)</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">task</span> <span class="o">=</span> <span class="n">TextGenerationTask</span><span class="p">()</span>  <span class="c1"># (1)</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">generator</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>  <span class="c1"># (2)</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;preference&quot;</span><span class="p">,</span> <span class="s2">&quot;instruction-following&quot;</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>  <span class="c1"># (3)</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-</span></code></pre></div>
-<ol>
-<li>Create a <code>Task</code> for generating text given an instruction.</li>
-<li>Create a <code>LLM</code> for generating text using the <code>Task</code> created in the first step. As the <code>LLM</code> will generate text, it will be a <code>generator</code>.</li>
-<li>Create a pre-defined <code>Pipeline</code> using the <code>pipeline</code> function and the <code>generator</code> created in step 2. The <code>pipeline</code> function
-will create a <code>labeller</code> LLM using <code>OpenAILLM</code> with the <code>UltraFeedback</code> task for instruction following assessment.</li>
-</ol>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To run the script successfully, ensure you have assigned your OpenAI API key to the <code>OPENAI_API_KEY</code> environment variable.</p>
+  <h1>utils</h1>
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="distilabel.utils"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
 </div>
 
 
@@ -1452,10 +1381,10 @@ will create a <code>labeller</code> LLM using <code>OpenAILLM</code> with the <c
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant", "navigation.tabs", "toc.follow", "toc.integrate", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tabs", "toc.follow", "toc.integrate", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.6c14ae12.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.6c14ae12.min.js"></script>
       
     
   </body>
