@@ -31,3 +31,6 @@ In addition, the following extras are available:
 2. Create a `LLM` for generating text using the `Task` created in the first step. As the `LLM` will generate text, it will be a `generator`.
 3. Create a pre-defined `Pipeline` using the `pipeline` function and the `generator` created in step 2. The `pipeline` function
 will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for instruction following assessment.
+
+!!! note
+    To run the script successfully, ensure you have assigned your OpenAI API key to the `OPENAI_API_KEY` environment variable.

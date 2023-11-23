@@ -1,44 +1,35 @@
-from typing import Dict, List
+from distilabel.tasks import UltraJudgeTask
 
-from distilabel.tasks import Prompt, Task
+task = UltraJudgeTask()
+
+input = (
+    "Can you provide a corrected version of the following sentence using proper "
+    'English grammar? "We going to the beach" Additionally, could you please '
+    "provide your correction in an Excel table format with the following columns: "
+    "| Incorrect Sentence | Corrected Sentence | |-------------------|--------------------|"
+)
+
+generations = [
+    (
+        "| Incorrect Sentence | Corrected Sentence |\n|-------------------|-------------------"
+        '-----|\n| "We going to the beach" | "We are going to the beach" |\n\nCorrectio'
+        'n: The verb in the second sentence ("are") changes to reflect the subject\'s ("w'
+        'e") agreement with the verb "be." This is called subject-verb agreement. In the '
+        'first sentence, the verb "going" infers that the action is ongoing or in a contin'
+        "uous state, which is not the case. Therefore, the second sentence is grammatically "
+        "correct."
+    ),
+    (
+        "| Incorrect Sentence | Corrected Sentence |\n|-------------------|-------------------"
+        "-----|\n| We going to the beach | We are going to the beach | \n\nHere's a breakdo"
+        'wn of the correction:\n\n- "We going to the beach" is an example of a subject-ve'
+        'rb agreement error. The verb changing from the third person singular ("is") to t'
+        'he third person plural ("are") in this instance, as there are multiple people go'
+        'ing to the beach.\n- The "g" in "going" changes to an "e" due to a hard "g"'
+        ' sound being followed by an "e," which is a common spelling rule in English.'
+    ),
+]
 
 
-class CustomTask(Task):
-    @property
-    def input_args_names(self) -> List[str]:
-        return ["input", "generation"]
-
-    @property
-    def output_args_names(self) -> List[str]:
-        return ["score"]
-
-    def generate_prompt(self, input: str, generation: str) -> Prompt:
-        return Prompt(
-            system_prompt="You're a helpful AI assistant...",
-            formatted_prompt=(
-                "Given the following instruction and text generation, evaluate how good"
-                " the generated text is giving a score between 0 and 1. Just return the score.\n\n"
-                f"### Instruction\n{input}\n\n"
-                f"### Generation\n{generation}"
-            ),
-        )
-
-    def parse_output(self, output: str) -> Dict[str, float]:
-        extracted_score = float(output)
-        return {"score": extracted_score}
-
-
-custom_task = CustomTask()
-prompt = custom_task.generate_prompt("What's 2 + 2?", "2 + 2 is 5")
-print(prompt.format_as("default"))
-# You're a helpful AI assistant...
-# Given the following instruction and text generation, evaluate how good the generated text is giving a score between 0 and 1. Just return the score.
-#
-# ### Instruction
-# What's 2 + 2?
-#
-# ### Generation
-# 2 + 2 is 5
-
-print(custom_task.parse_output("0.0"))
-# {"score": 0.0}
+prompt = task.generate_prompt(input, generations)
+print(prompt.format_as("default"))  # format as "openai", "zephyr", "llama", ...

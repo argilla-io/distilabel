@@ -1,10 +1,10 @@
 This page aims to get you familiarized with the basic concepts of the framework, describing the most important
 components or classes and how they work together. The following sections will guide you through the primary components
-of our framework: `Pipeline`, `LLM` (both generator and labeller), and the `Task`.
+of the framework: `Pipeline`, `LLM` (both generator and labeller), and the `Task`.
 
 <figure markdown>
-  ![distilabel](../../assets/images/distilabel-diagram.png#only-light){ width="600" }
-  ![distilabel](../../assets/images/distilabel-diagram-dark.png#only-dark){ width="600" }
+  ![distilabel](../../assets/images/distilabel-diagram.svg#only-light){ width="600" }
+  ![distilabel](../../assets/images/distilabel-diagram-dark.svg#only-dark){ width="600" }
   <figcaption>distilabel flow diagram</figcaption>
 </figure>
 
@@ -66,5 +66,4 @@ a generator `LLM` and a labeller `LLM` to the `Pipeline` class, as it can also b
         ```python
         --8<-- "docs/snippets/concepts/pipeline-only-labeller.py"
         ```
-
 
