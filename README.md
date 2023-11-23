@@ -81,9 +81,9 @@ https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-
 
 🚀 However, going beyond research efforts and applying AIF at scale it's different. For enterprise and production use, we need framework that implements **key AIF methods on a robust, efficient and scalable way**. This framework should enable AI engineers to build custom datasets at scale for their own use cases. 
 
-👩‍🎓 This, combined with humans-in-the-loop for improving dataset quality is the next big leap for OSS LLM models. Distilabel aims to bridge this gap.
+👩‍🎓 This, combined with humans-in-the-loop for improving dataset quality is the next big leap for OSS LLM models. 
 
-`distilabel` aims to bridge this gap.
+⚗️ `distilabel` aims to bridge this gap.
 
 ## Key features
 
