@@ -73,8 +73,6 @@ plugins:
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
-  - Guides:
-      - guides/instruct-generation.md
-      - guides/preference-dataset.md
+  - Guides: guides.md
   - Code Reference: reference/
   - About: about.md
