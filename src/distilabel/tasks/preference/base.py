@@ -25,7 +25,6 @@ if TYPE_CHECKING:
         AllowedQuestionTypes,
     )
 
-
 @dataclass
 class PreferenceTask(Task):
     """A `Task` for preference rating tasks.
