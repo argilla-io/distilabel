@@ -20,7 +20,12 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["datasets >= 2.14.0", "Jinja2 >= 3.1.2", "rich >= 13.5.0", "tenacity >= 8"]
+dependencies = [
+    "datasets >= 2.14.0",
+    "Jinja2 >= 3.1.2",
+    "rich >= 13.5.0",
+    "tenacity >= 8",
+]
 dynamic = ["version"]
 
 [project.optional-dependencies]
@@ -32,6 +37,12 @@ openai = ["openai >= 1.0.0"]
 vllm = ["vllm >= 0.2.1"]
 argilla = ["argilla >= 1.16.0"]
 tests = ["pytest >= 7.4.0"]
+docs = [
+    "mkdocs-material >= 9.4.10",
+    "mkdocstrings[python] >= 0.24.0",
+    "mkdocs-literate-nav >= 0.6.1",
+    "mkdocs-section-index >= 0.3.8",
+]
 
 [project.urls]
 Documentation = "https://github.com/argilla/distilabel#readme"
