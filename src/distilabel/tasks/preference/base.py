@@ -25,7 +25,6 @@ if TYPE_CHECKING:
         AllowedQuestionTypes,
     )
 
-
 @dataclass
 class PreferenceTask(Task):
     """A `Task` for preference rating tasks.
@@ -130,12 +129,13 @@ class PreferenceTask(Task):
         suggestions = []
 
         # add rationale
-        suggestions.append(
-            {
-                "question_name": "ratings-rationale",
-                "value": self._to_argilla_rationale(dataset_row),
-            }
-        )
+        if self._to_argilla_rationale(dataset_row) is not None:
+            suggestions.append(
+                {
+                    "question_name": "ratings-rationale",
+                    "value": self._to_argilla_rationale(dataset_row),
+                }
+            )
         for output_arg_name in self.output_args_names:
             if output_arg_name == "rating":
                 ratings = []
@@ -143,13 +143,16 @@ class PreferenceTask(Task):
                 if output_data is not None:
                     for idx, value in enumerate(output_data, start=1):
                         ratings.append(value)
-                        # add suggestions
-                        suggestions.append(
-                            {
-                                "question_name": f"generations-{idx}-rating",
-                                "value": int(value),
-                            }
-                        )
+                        if value <=0:
+                            value = 1.0
+                        if value <= 10:
+                            # add suggestions
+                            suggestions.append(
+                                {
+                                    "question_name": f"generations-{idx}-rating",
+                                    "value": int(value),
+                                }
+                            )
                         # update rating metadata
                         metadata.update({f"rating-generations-{idx}": value})
                 if len(ratings) >= 2:
