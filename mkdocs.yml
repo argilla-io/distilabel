@@ -14,6 +14,7 @@ extra_css:
 theme:
   name: material
   logo: /assets/distilabel-icon.svg
+  favicon: /assets/distilabel-icon.svg
   features:
     - navigation.instant
     - navigation.tabs
