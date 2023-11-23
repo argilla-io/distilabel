@@ -629,7 +629,7 @@ def pipeline(
         if labeller is None:
             from dataclasses import fields
 
-            from distilabel.llm.openai_ import OpenAILLM
+            from distilabel.llm.openai import OpenAILLM
             from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
             task_cls = UltraFeedbackTask
@@ -665,13 +665,16 @@ def pipeline(
         else:
             from distilabel.tasks.preference.judgelm import JudgeLMTask
             from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
 
-            if not isinstance(labeller.task, (UltraFeedbackTask, JudgeLMTask)):
+            if not isinstance(
+                labeller.task, (UltraFeedbackTask, JudgeLMTask, UltraJudgeTask)
+            ):
                 warnings.warn(
-                    "The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`"
-                    f" or `JudgeLMTask`, got {labeller.task.__class__.__name__}. If you are planning"
-                    " to use a custom `labeller` for a `preference` task, use it at your own risk, since"
-                    " only `UltraFeedbackTask` and `JudgeLMTask` are supported at the moment.",
+                    "The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`,"
+                    f" `JudgeLMTask` or `UltraJudge`, got {labeller.task.__class__.__name__}."
+                    "If you are planning to use a custom `labeller` for a `preference` "
+                    "task, use it at your own risk.",
                     UserWarning,
                     stacklevel=2,
                 )
