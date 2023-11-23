@@ -4,7 +4,7 @@ AI Feedback (AIF) framework to build datasets with and for LLMs:
 
 - Integrations with the most popular libraries and APIs for LLMs: HF Transformers, OpenAI, vLLM, etc.
 - Multiple tasks for Self-Instruct, Preference datasets and more.
-- Export to Argilla for easy data exploration and further annotation.
+- Dataset export to Argilla for easy data exploration and further annotation.
 
 ## Installation
 
