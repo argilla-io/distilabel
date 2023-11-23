@@ -15,8 +15,6 @@ Main use cases are:
 1. As an AI engineer I want to **build domain-specific instruction datasets** to fine-tune OSS LLMs with increased accuracy.
 2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give thruthful responses).
 
-This readme might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
-
 ## Quickstart
 
 Install with `pip` (requires Python 3.8+):
@@ -33,46 +31,20 @@ from distilabel.tasks import TextGenerationTask
 
 # dataset with instructions
 dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
     .remove_columns(["completion", "meta"])
     .rename_column("prompt", "input")
 )
-
 # use gpt3.5 turbo for generating responses
 task = TextGenerationTask() 
-
-generator = OpenAILLM(
-    task=task, 
-    max_new_tokens=512
-    #openai_api_key="sk-.."
-)
+generator = OpenAILLM(task=task, max_new_tokens=512)
 
 # build preference dataset comparing two responses
 # focusing on the instruction-following skill
-pipe = pipeline("preference", "instruction-following", generator=generator)
+pipeline = pipeline("preference", "instruction-following", generator=generator)
 
-dataset = pipe.generate(dataset, num_generations=2)
+dataset = pipeline.generate(dataset)
 ```
-
-Push to Argilla for human feedback:
-
-```python
-import argilla as rg
-
-rg.init(
-    api_key="<YOUR_API_KEY>",
-    api_url="<YOUR_ARGILLA_API_URL>"
-)
-
-rg_dataset = dataset.to_argilla()
-rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
-```
-
-
-
-https://github.com/argilla-io/distilabel/assets/1107111/e7769a0e-d11e-4e2f-b059-fdc5a51fb48b
-
-
 
 ## Motivation
 Recent projects like [Zephyr](https://huggingface.co/collections/HuggingFaceH4/zephyr-7b-6538c6d6d5ddd1cbb1744a66) and [Tulu](https://huggingface.co/collections/allenai/tulu-v2-suite-6551b56e743e6349aab45101) have shown it's possible to **build highly powerful open-source models with DPO and AI Feedback** (AIF) datasets. 
@@ -89,8 +61,6 @@ However, going beyond research efforts and applying AIF at scale it's different.
 
 * 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
 
-## Overview
-![distilabel](https://github.com/argilla-io/distilabel/assets/1107111/1f1aa3ca-9796-49f1-8b76-84a9b87a27f7)
 
 ## Roadmap
 
