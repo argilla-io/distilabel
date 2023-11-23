@@ -15,6 +15,8 @@ Main use cases are:
 1. As an AI engineer I want to **build domain-specific instruction datasets** to fine-tune OSS LLMs with increased accuracy.
 2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give thruthful responses).
 
+This readme might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
+
 ## Quickstart
 
 Install with `pip` (requires Python 3.8+):
