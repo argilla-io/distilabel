@@ -21,7 +21,7 @@ This readme might be outdated the best place to get started is the [documentatio
 
 Install with `pip` (requires Python 3.8+):
 ```sh
-pip install distilabel[openai]
+pip install distilabel[openai,argilla]
 ```
 
 Build a preference dataset for DPO/RLHF:
