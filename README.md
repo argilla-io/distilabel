@@ -17,6 +17,12 @@ Main use cases are:
 
 This readme might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
 
+> [!TIP]
+> To discuss, get support, give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g)
+
+> [!TIP]
+> To contribute check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
+
 ## Quickstart
 
 Install with `pip` (requires Python 3.8+):
