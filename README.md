@@ -54,7 +54,7 @@ pipe = pipeline("preference", "instruction-following", generator=generator)
 dataset = pipe.generate(dataset, num_generations=2)
 ```
 
-Push to Argilla for human feedback:
+The resulting dataset can already be used for preference tuning (a larger version of it). But beware these AIF dataset are imperfect. To get the most out of AIF feedback, push to Argilla for human feedback:
 
 ```python
 import argilla as rg
@@ -94,7 +94,7 @@ https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-
 * 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
 
 ## Overview
-![distilabel](https://github.com/argilla-io/distilabel/assets/1107111/b8e1aa40-0cd3-42df-8300-104cc59455e7)
+![distilabel_overview](https://github.com/argilla-io/distilabel/assets/1107111/182c871c-108f-441e-bb3e-f01b080f8631)
 
 
 ## Roadmap
