@@ -12,56 +12,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.utils.imports import _VLLM_AVAILABLE
+from distilabel.utils.imports import _OPENAI_AVAILABLE
 
-if _VLLM_AVAILABLE:
-    from vllm import SamplingParams
+if _OPENAI_AVAILABLE:
+    from openai import OpenAI
 
 if TYPE_CHECKING:
-    from vllm import LLM as _vLLM
-
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
 
 
-class vLLM(LLM):
+class OpenAILLM(LLM):
     def __init__(
         self,
-        vllm: "_vLLM",
         task: "Task",
+        model: str = "gpt-3.5-turbo",
+        client: Union["OpenAI", None] = None,
+        openai_api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
-        presence_penalty: float = 0.0,
         frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-        top_k: int = -1,
+        num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        """Initializes the vLLM class.
+        """Initializes the OpenAILLM class.
 
         Args:
-            vllm (_vLLM): the vLLM model to be used.
             task (Task): the task to be performed by the LLM.
+            model (str, optional): the model to be used for generation. Defaults to "gpt-3.5-turbo".
+            client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
+                If `None`, a new client will be created. Defaults to `None`.
+            openai_api_key (Union[str, None], optional): the OpenAI API key to be used for generation.
+                If `None`, the `OPENAI_API_KEY` environment variable will be used. Defaults to `None`.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
-            presence_penalty (float, optional): the presence penalty to be used for generation.
-                Defaults to 0.0.
             frequency_penalty (float, optional): the frequency penalty to be used for generation.
+                Defaults to 0.0.
+            presence_penalty (float, optional): the presence penalty to be used for generation.
                 Defaults to 0.0.
             temperature (float, optional): the temperature to be used for generation.
                 Defaults to 1.0.
             top_p (float, optional): the top-p value to be used for generation.
                 Defaults to 1.0.
-            top_k (int, optional): the top-k value to be used for generation.
-                Defaults to -1.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
                 formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
@@ -69,35 +75,42 @@ class vLLM(LLM):
                 will be used if no `prompt_formatting_fn` is provided.
             prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
                 applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+
+        Raises:
+            AssertionError: if the provided `model` is not available in your OpenAI account.
 
         Examples:
-            >>> from vllm import LLM
             >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
-            >>> from distilabel.llm import vLLM
-            >>> model = LLM(model="gpt2")
+            >>> from distilabel.llm import OpenAILLM
             >>> task = Task()
-            >>> llm = vLLM(model=model, task=task)
+            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=task)
         """
         super().__init__(
             task=task,
+            num_threads=num_threads,
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
-        if not _VLLM_AVAILABLE:
+        if not _OPENAI_AVAILABLE:
             raise ImportError(
-                "`vLLM` cannot be used as `vllm` is not installed, please "
-                " install it with `pip install vllm`."
+                "`OpenAILLM` cannot be used as `openai` is not installed, please "
+                " install it with `pip install openai`."
             )
 
-        self.presence_penalty = presence_penalty
+        self.max_tokens = max_new_tokens
         self.frequency_penalty = frequency_penalty
+        self.presence_penalty = presence_penalty
         self.temperature = temperature
         self.top_p = top_p
-        self.top_k = top_k
-        self.max_tokens = max_new_tokens
 
-        self.vllm = vllm
+        self.client = client or OpenAI(api_key=openai_api_key, max_retries=6)
+
+        assert (
+            model in self.available_models
+        ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
+        self.model = model
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -105,21 +118,27 @@ class vLLM(LLM):
             "parameters",
             {
                 "max_tokens": self.max_tokens,
-                "presence_penalty": self.presence_penalty,
                 "frequency_penalty": self.frequency_penalty,
+                "presence_penalty": self.presence_penalty,
                 "temperature": self.temperature,
                 "top_p": self.top_p,
-                "top_k": self.top_k,
             },
         )
 
+    @cached_property
+    def available_models(self) -> List[str]:
+        """Returns the list of available models in your OpenAI account."""
+        return [model.id for model in self.client.models.list().data]
+
     @property
     def model_name(self) -> str:
-        """Returns the name of the vLLM model."""
-        return self.vllm.llm_engine.model_config.model  # type: ignore
+        """Returns the name of the OpenAI model."""
+        return self.model
 
     def _generate(
-        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
     ) -> List[List[LLMOutput]]:
         """Generates `num_generations` for each input in `inputs`.
 
@@ -129,39 +148,40 @@ class vLLM(LLM):
                 input. Defaults to 1.
 
         Returns:
-            List[List[LLMOutput]]: the outputs of the LLM.
+            List[List[LLMOutput]]: the generated outputs.
         """
         prompts = self._generate_prompts(
-            inputs, default_format=None, expected_output_type=str
-        )
-        requests = self.vllm.generate(
-            prompts,
-            SamplingParams(  # type: ignore
-                n=num_generations,
-                presence_penalty=self.presence_penalty,
-                frequency_penalty=self.frequency_penalty,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                top_k=self.top_k,
-                max_tokens=self.max_tokens,
-            ),
-            use_tqdm=False,  # type: ignore
+            inputs, default_format="openai", expected_output_type=list
         )
         outputs = []
-        for request, prompt in zip(requests, prompts):
+        for prompt in prompts:
+            chat_completions = self.client.chat.completions.create(
+                messages=prompt,
+                model=self.model,
+                n=num_generations,
+                max_tokens=self.max_tokens,
+                frequency_penalty=self.frequency_penalty,
+                presence_penalty=self.presence_penalty,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                timeout=50,
+            )
+
             output = []
-            for request_output in request.outputs:
+            for chat_completion in chat_completions.choices:
                 try:
-                    parsed_output = self.task.parse_output(request_output.text)
+                    parsed_response = self.task.parse_output(
+                        chat_completion.message.content.strip()
+                    )
                 except Exception as e:
-                    logger.error(f"Error parsing vLLM output: {e}")
-                    parsed_output = None
+                    logger.error(f"Error parsing OpenAI response: {e}")
+                    parsed_response = None
                 output.append(
                     LLMOutput(
                         model_name=self.model_name,
                         prompt_used=prompt,
-                        raw_output=request_output.text,
-                        parsed_output=parsed_output,
+                        raw_output=chat_completion.message.content,
+                        parsed_output=parsed_response,
                     )
                 )
             outputs.append(output)

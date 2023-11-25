@@ -13,5 +13,23 @@
 # limitations under the License.
 
 from distilabel.tasks.base import Task
+from distilabel.tasks.preference.judgelm import JudgeLMTask
+from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
+from distilabel.tasks.prompt import Prompt
+from distilabel.tasks.text_generation.base import TextGenerationTask
+from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+from distilabel.tasks.text_generation.openai import OpenAITextGenerationTask
+from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
-__all__ = ["Task"]
+__all__ = [
+    "Task",
+    "JudgeLMTask",
+    "UltraFeedbackTask",
+    "UltraJudgeTask",
+    "Prompt",
+    "TextGenerationTask",
+    "OpenAITextGenerationTask",
+    "Llama2TextGenerationTask",
+    "SelfInstructTask"
+]

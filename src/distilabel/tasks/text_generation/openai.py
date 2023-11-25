@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING, List
+
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
+if TYPE_CHECKING:
+    from distilabel.tasks.prompt import ChatCompletion
 
-class Llama2TextGenerationTask(TextGenerationTask):
-    """A `TextGenerationTask` for the Llama2 model.
+
+class OpenAITextGenerationTask(TextGenerationTask):
+    """A `TextGenerationTask` for any chat-completion OpenAI model.
 
     Args:
         system_prompt (str, optional): the system prompt to be used. Defaults to `None`.
@@ -27,22 +32,25 @@ class Llama2TextGenerationTask(TextGenerationTask):
             distribution of principles to be used for the system prompt. Defaults to `None`.
     """
 
-    def generate_prompt(self, input: str) -> str:
-        """Generates a prompt for the Llama2 model.
+    def generate_prompt(self, input: str) -> List["ChatCompletion"]:
+        """Generates a prompt for any chat-completion OpenAI model.
 
         Args:
             input (str): the input to be used for the prompt.
 
         Returns:
-            str: the generated prompt.
+            List[ChatCompletion]: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import Llama2TextGenerationTask
-            >>> task = Llama2TextGenerationTask(system_prompt="You are a helpful assistant.")
+            >>> from distilabel.tasks.text_generation import OpenAITextGenerationTask
+            >>> task = OpenAITextGenerationTask(system_prompt="You are a helpful assistant.")
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?")
-            '<s>[INST] <<SYS>>\nYou are a helpful assistant.<</SYS>>\n\nWhat are the first 5 Fibonacci numbers? [/INST]'
+            [
+                {'role': 'system', 'content': 'You are a helpful assistant.'},
+                {'role': 'user', 'content': 'What are the first 5 Fibonacci numbers?'},
+            ]
         """
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=input,
-        ).format_as("llama2")  # type: ignore
+        ).format_as("openai")  # type: ignore

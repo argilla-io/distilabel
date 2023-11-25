@@ -21,12 +21,10 @@ from typing import (
     Any,
     Callable,
     Dict,
-    Generic,
+    Generator,
     List,
     Literal,
     Optional,
-    Type,
-    TypeVar,
     Union,
 )
 
@@ -40,32 +38,76 @@ from distilabel.progress_bar import (
     get_progress_bars_for_pipeline,
     use_progress_bar,
 )
-from distilabel.utils import combine_dicts
+from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.base import LLM
 
 
-T = TypeVar("T", bound=CustomDataset)
-
 logger = get_logger()
 
 
-class _Pipeline(Generic[T]):
-    dataset_cls: Type[T] = CustomDataset  # type: ignore
-
+class Pipeline:
     def __init__(
         self,
         generator: Union["LLM", None] = None,
         labeller: Union["LLM", None] = None,
     ) -> None:
+        """Initializes the Pipeline class.
+
+        Args:
+            generator (Union["LLM", None], optional): the LLM to be used for generation.
+                Defaults to None.
+            labeller (Union["LLM", None], optional): the LLM to be used for labelling.
+                Defaults to None.
+
+        Raises:
+            ValueError: if no LLM is provided.
+
+        Examples:
+            >>> from distilabel.llm.huggingface import TransformersLLM
+            >>> from distilabel.llm.openai_ import OpenAILLM
+            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from distilabel.pipeline import Pipeline
+
+            >>> generator = TransformersLLM(
+            ...     model="meta-llama/Llama-2-7b-chat-hf",
+            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
+            ...     task=Llama2TextGenerationTask(),
+            ... )
+            >>> labeller = OpenAILLM(
+            ...     model="gpt-3.5-turbo",
+            ...     task=UltraFeedbackTask.for_text_quality(),
+            ... )
+            >>> pipeline = Pipeline(generator=generator, labeller=labeller)
+            >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
+        """
         self.generator = generator
         self.labeller = labeller
 
         if self.generator is None and self.labeller is None:
             raise ValueError("At least one LLM has to be provided to the pipeline")
 
+    def __repr__(self) -> str:
+        return (
+            f"Pipeline(\n\tgenerator={self.generator},\n\tlabeller={self.labeller}\n)"
+        )
+
+    def __rich_repr__(self) -> Generator[Any, None, None]:
+        yield "generator", self.generator
+        yield "labeller", self.labeller
+
     def _validate_dataset(self, dataset: Dataset) -> None:
+        """Validates that the provided dataset contains the columns needed by the LLMs, and
+        warns the user if the columns to be generated already exist.
+
+        Args:
+            dataset (Dataset): the dataset to be validated.
+
+        Raises:
+            KeyError: if the dataset does not contain the columns needed by the LLMs.
+        """
         # Generation LLM has not been provided, so the columns needed by the Labelling
         # LLM must be in the provided dataset
         if self.labeller is not None:
@@ -123,52 +165,26 @@ class _Pipeline(Generic[T]):
                 stacklevel=2,
             )
 
-    def _add_columns_to_dataset(
-        self,
-        dataset: T,
-        generations: List[Dict[str, Any]],
-        labels: List[Dict[str, Any]],
-    ) -> T:
-        if self.generator is not None:
-            for output_name in self.generator.task.output_args_names:
-                dataset = dataset.add_column(
-                    output_name, [row.get(output_name, None) for row in generations]
-                )
-
-            for column_name in [
-                "generation_model",
-                "generation_prompt",
-                "raw_generation_responses",
-            ]:
-                dataset = dataset.add_column(
-                    column_name,
-                    [row.get(column_name, None) for row in generations],
-                )
-
-        if self.labeller is not None:
-            for output_name in self.labeller.task.output_args_names:
-                dataset = dataset.add_column(
-                    output_name, [row.get(output_name, None) for row in labels]
-                )
-
-            for column_name in [
-                "labelling_model",
-                "labelling_prompt",
-                "raw_labelling_response",
-            ]:
-                dataset = dataset.add_column(
-                    column_name,
-                    [row.get(column_name, None) for row in labels],
-                )
-
-        return dataset
-
     def _get_batch_generations(
         self,
         inputs: List[Dict[str, Any]],
         num_generations: int,
         progress_callback_func: Union[Callable, None] = None,
     ) -> List[Dict[str, Any]]:
+        """Gets the batch generations for the given inputs, capturing the futures if the
+        LLM returns them, and then processes the batch generations.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int): the number of generations to be performed for each
+                input.
+            progress_callback_func (Union[Callable, None], optional): the callback function
+                to be called when the progress of the generation process changes. Defaults
+                to None.
+
+        Returns:
+            List[Dict[str, Any]]: the processed batch generations.
+        """
         batch_generations = self.generator.generate(
             inputs=inputs,
             num_generations=num_generations,
@@ -189,6 +205,15 @@ class _Pipeline(Generic[T]):
         self,
         batch_generations: List[List["LLMOutput"]],
     ) -> List[Dict[str, Any]]:
+        """Processes the batch generations, combining the outputs of the LLMs into a single
+        dictionary.
+
+        Args:
+            batch_generations (List[List["LLMOutput"]]): the batch generations to be processed.
+
+        Returns:
+            List[Dict[str, Any]]: the processed batch generations.
+        """
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
@@ -218,9 +243,18 @@ class _Pipeline(Generic[T]):
     def _include_generator_outputs_as_inputs(
         self, inputs: List[Dict[str, Any]], outputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        for input, output in zip(inputs, outputs):
+        """Includes the outputs of the generator as inputs for the labeller.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for labelling.
+            outputs (List[Dict[str, Any]]): the outputs of the generator.
+
+        Returns:
+            List[Dict[str, Any]]: the inputs to be used for labelling.
+        """
+        for input_, output in zip(inputs, outputs):
             # Skip the keys not required by the labelling LLM
-            input.update(
+            input_.update(
                 {
                     k: v
                     for k, v in output.items()
@@ -233,6 +267,15 @@ class _Pipeline(Generic[T]):
     def _process_batch_labels(
         self, batch_labels: List[List["LLMOutput"]]
     ) -> List[Dict[str, Any]]:
+        """Processes the batch labels, combining the outputs of the LLMs into a single
+        dictionary.
+
+        Args:
+            batch_labels (List[List["LLMOutput"]]): the batch labels to be processed.
+
+        Returns:
+            List[Dict[str, Any]]: the processed batch labels.
+        """
         processed_labels = []
         for labels in batch_labels:
             for label in labels:
@@ -267,11 +310,30 @@ class _Pipeline(Generic[T]):
     def _transform_dataset_to_expected_format(
         self, rows: Dict[str, List[Any]]
     ) -> List[Dict[str, Any]]:
+        """Transforms the `datasets.Dataset` to the expected format required by the LLMs
+        during the `generate` process.
+
+        Args:
+            rows (Dict[str, List[Any]]): the rows to be transformed.
+
+        Returns:
+            List[Dict[str, Any]]: the transformed rows.
+        """
         length = len(next(iter(rows.values())))
+
+        generator_column_names = []
+        if self.generator is not None:
+            generator_column_names = self.generator.task.input_args_names
+        labeller_column_names = []
+        if self.labeller is not None:
+            labeller_column_names = self.labeller.task.input_args_names
+        column_names = generator_column_names + labeller_column_names
 
         inputs = []
         for i in range(length):
-            input = {col: values[i] for col, values in rows.items()}
+            input = {
+                col: values[i] for col, values in rows.items() if col in column_names
+            }
             inputs.append(input)
 
         return inputs
@@ -281,7 +343,22 @@ class _Pipeline(Generic[T]):
         dataset: Dataset,
         generations: List[Dict[str, Any]],
         batch_labels: Union[List[Future["LLMOutput"]], List["LLMOutput"]],
-    ) -> T:
+    ) -> CustomDataset:
+        """Builds the final dataset with either the generations, the labels, or both, depending
+        on the LLMs provided to the `Pipeline`.
+
+        Args:
+            dataset (Dataset): the original dataset.
+            generations (List[Dict[str, Any]]): the processed generations.
+            batch_labels (Union[List[Future["LLMOutput"]], List["LLMOutput"]]): the processed
+                batch labels.
+
+        Returns:
+            CustomDataset: the final dataset.
+
+        Raises:
+            RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
+        """
         if self.generator is None:
             generations = [{} for _ in range(len(dataset))]
         else:
@@ -357,8 +434,8 @@ class _Pipeline(Generic[T]):
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
         _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
-        # Dynamically remaps the `datasets.Dataset` to be a `dataset_cls` instance
-        _dataset.__class__ = self.dataset_cls
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
+        _dataset.__class__ = CustomDataset
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
         return _dataset  # type: ignore
 
@@ -370,7 +447,49 @@ class _Pipeline(Generic[T]):
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-    ) -> T:
+        verbose: bool = True,
+    ) -> CustomDataset:
+        """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
+
+        Args:
+            dataset (Dataset): the dataset to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to `1`.
+            batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
+            enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
+            display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
+            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
+
+        Returns:
+            CustomDataset: the final dataset.
+
+        Raises:
+            RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
+            UserWarning: if the `Pipeline` fails during the generation or labelling steps and
+                `enable_checkpoints` is set to `False`.
+
+        Examples:
+            >>> from distilabel.llm.huggingface import TransformersLLM
+            >>> from distilabel.llm.openai_ import OpenAILLM
+            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from distilabel.pipeline import Pipeline
+
+            >>> generator = TransformersLLM(
+            ...     model="meta-llama/Llama-2-7b-chat-hf",
+            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
+            ...     task=Llama2TextGenerationTask(),
+            ... )
+            >>> labeller = OpenAILLM(
+            ...     model="gpt-3.5-turbo",
+            ...     task=UltraFeedbackTask.for_text_quality(),
+            ... )
+            >>> pipeline = Pipeline(generator=generator, labeller=labeller)
+            >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
+        """
+        if not verbose:
+            logger.setLevel("ERROR")
+
         if (
             self.labeller is not None
             and self.generator is not None
@@ -461,45 +580,82 @@ class _Pipeline(Generic[T]):
         )
 
 
-Pipeline = _Pipeline[CustomDataset]
-
-
-# TODO: add support for any defined task e.g. pipeline("preference", "ultrafeedback/helpfulness", ...)
 def pipeline(
-    task: Literal["preference", "critique"],
+    task: Literal["preference"],
     subtask: Optional[str] = None,
     *,
     generator: Optional["LLM"] = None,
     labeller: Optional["LLM"] = None,
     **kwargs,
-) -> "Pipeline":
+) -> Pipeline:
+    """Creates a `Pipeline` instance with the provided LLMs for a given task, which is useful
+    whenever you want to use a pre-defined `Pipeline` for a given task, or if you want to
+    create a custom `Pipeline` for a given task. Ideally one using this function over the `Pipeline`
+    class, don't want to worry about the details of the `labeller`, since it will come with a default
+    configuration based on the `task`, by default the LLM used for `labelling` will always be `gpt-3.5-turbo`
+    from OpenAI, as it's the one that provides the most consistent and fast results.
+
+    Args:
+        task (Literal["preference", "critique"]): the task to be performed by the `Pipeline`.
+        subtask (Optional[str], optional): the subtask to be performed by the `Pipeline`.
+            Defaults to None.
+        generator (Optional["LLM"], optional): the LLM to be used for generation. Defaults to None.
+        labeller (Optional["LLM"], optional): the LLM to be used for labelling. Defaults to None.
+        **kwargs: the keyword arguments to be passed to the `task` and `subtask` classes.
+
+    Raises:
+        ValueError: if an invalid task is provided.
+
+    Returns:
+        Pipeline: the `Pipeline` instance.
+
+    Examples:
+        >>> from distilabel.llm.huggingface import TransformersLLM
+        >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+        >>> from distilabel.pipeline import pipeline
+
+        >>> generator = TransformersLLM(
+        ...     model="meta-llama/Llama-2-7b-chat-hf",
+        ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
+        ...     task=Llama2TextGenerationTask(),
+        ... )
+        >>> pipeline = pipeline(
+        ...     task="preference",
+        ...     subtask="text-quality",
+        ...     generator=generator,
+        ... )
+    """
     if task == "preference":
         if labeller is None:
-            from distilabel.llm.openai_ import OpenAILLM
+            from dataclasses import fields
+
+            from distilabel.llm.openai import OpenAILLM
             from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 
+            task_cls = UltraFeedbackTask
             task_kwargs = {
-                key: kwargs.get(key)
-                for key in UltraFeedbackTask.__fields__.keys()  # TODO: update when `pydantic` dependency is removed
-                if key in kwargs and not key.startswith("__")
+                key: kwargs.get(key.name)
+                for key in fields(task_cls)
+                if key.name in kwargs and not key.name.startswith("__")
             }
 
             # Dynamically call the appropriate classmethod using getattr
             if subtask is not None:
-                if subtask not in UltraFeedbackTask.__subtasks__:
+                if subtask not in task_cls.__subtasks__:
                     raise ValueError(
-                        f"Invalid subtask: {subtask}, available subtasks are {UltraFeedbackTask.__subtasks__}"
+                        f"Invalid subtask: {subtask}, available subtasks are {task_cls.__subtasks__}"
                     )
                 classmethod_name = f"for_{subtask.lower().replace('-', '_')}"
-                if hasattr(UltraFeedbackTask, classmethod_name):
-                    classmethod = getattr(UltraFeedbackTask, classmethod_name)
+                if hasattr(task_cls, classmethod_name):
+                    task_cls = getattr(task_cls, classmethod_name)
 
-            # TODO: add a logging.info message to inform the user that `OpenAILLM` is being used by default?
+            logger.info(
+                "Since no `labeller` was provided, `OpenAILLM` will be used as the default labeller with `UltraFeedback`."
+            )
+
             labeller = OpenAILLM(
                 model=kwargs.get("openai_model") or "gpt-3.5-turbo",
-                task=UltraFeedbackTask(**task_kwargs)
-                if subtask is None
-                else classmethod(**task_kwargs),
+                task=task_cls(**task_kwargs),  # type: ignore
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
                 num_threads=kwargs.get("num_threads") or 4,
                 openai_api_key=kwargs.get("openai_api_key")
@@ -509,11 +665,16 @@ def pipeline(
         else:
             from distilabel.tasks.preference.judgelm import JudgeLMTask
             from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
 
-            if not isinstance(labeller.task, (UltraFeedbackTask, JudgeLMTask)):
+            if not isinstance(
+                labeller.task, (UltraFeedbackTask, JudgeLMTask, UltraJudgeTask)
+            ):
                 warnings.warn(
-                    f"The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`, got {labeller.task.__class__.__name__}."
-                    " If you are planning to use a custom `labeller` for a `preference` task, use it at your own risk, since only `UltraFeedbackTask` is supported at the moment.",
+                    "The `labeller` task for `preference` must be an instance of `UltraFeedbackTask`,"
+                    f" `JudgeLMTask` or `UltraJudge`, got {labeller.task.__class__.__name__}."
+                    "If you are planning to use a custom `labeller` for a `preference` "
+                    "task, use it at your own risk.",
                     UserWarning,
                     stacklevel=2,
                 )
@@ -526,17 +687,7 @@ def pipeline(
                 f"`generator` outputs do not match `labeller` inputs: "
                 f"{generator.task.input_args_names + generator.task.output_args_names} != {labeller.task.input_args_names}"
             )
-        from distilabel.dataset import PreferenceDataset
-
-        dataset_cls = PreferenceDataset
-    elif task == "critique":
-        raise NotImplementedError("Critique task is not implemented yet")
     else:
-        raise ValueError(f"Invalid task: {task}")
+        raise ValueError(f"Invalid task: {task}, available tasks are: `preference`.")
 
-    class CustomPipeline(_Pipeline[dataset_cls]):
-        pass
-
-    CustomPipeline.dataset_cls = dataset_cls
-
-    return CustomPipeline(generator=generator, labeller=labeller)
+    return Pipeline(generator=generator, labeller=labeller)

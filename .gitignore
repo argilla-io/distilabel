@@ -33,3 +33,4 @@ htmlcov/
 *.log
 *.swp
 .DS_Store
+site/

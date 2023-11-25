@@ -12,15 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Optional
+from collections import defaultdict
+from typing import Any, Dict
 
-from typing_extensions import TypedDict
 
+def combine_dicts(*dicts: Any) -> Dict[str, Any]:
+    """Combines multiple dictionaries into a single dictionary joining the values
+    as a list for each key.
 
-class LLMOutput(TypedDict):
-    """A type for the output of an LLM."""
+    Args:
+        *dicts (Any): the dictionaries to be combined.
 
-    model_name: str
-    prompt_used: Any
-    raw_output: Any
-    parsed_output: Optional[Any]
+    Returns:
+        Dict[str, Any]: the combined dictionary.
+    """
+    combined_dict = defaultdict(list)
+    for d in dicts:
+        for key, value in d.items():
+            combined_dict[key].append(value)
+    return dict(combined_dict)
