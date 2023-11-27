@@ -3,6 +3,8 @@
   <p><em>AI Feedback (AIF) framework for building datasets and labellers with LLMs</em></p>
 </div>
 
+![distilabel_overview](https://github.com/argilla-io/distilabel/assets/1107111/182c871c-108f-441e-bb3e-f01b080f8631)
+
 ## What's `distilabel`?
 
 `distilabel` is a framework for AI engineers to align LLMs using RLHF-related methods (e.g. reward models, DPO).
@@ -14,11 +16,34 @@ Main use cases are:
 1. As an AI engineer I want to **build domain-specific instruction datasets** to fine-tune OSS LLMs with increased accuracy.
 2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give truthful responses).
 
+> [!WARNING]
+> `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks, and also the `README` might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
+
+## Motivation
+
+🔥 Recent projects like [Zephyr](https://huggingface.co/collections/HuggingFaceH4/zephyr-7b-6538c6d6d5ddd1cbb1744a66) and [Tulu](https://huggingface.co/collections/allenai/tulu-v2-suite-6551b56e743e6349aab45101) have shown it's possible to **build powerful open-source models with DPO and AI Feedback** (AIF) datasets. 
+
+👩‍🔬 There's a lot of exciting research in the AIF space, such as [UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) (the dataset leveraged by Zephyr and Tulu), [JudgeLM](https://github.com/baaivision/JudgeLM), or [Prometheus](https://huggingface.co/kaist-ai/prometheus-13b-v1.0). 
+
+🚀 However, going beyond research efforts and applying AIF at scale it's different. For enterprise and production use, we need framework that implements **key AIF methods on a robust, efficient and scalable way**. This framework should enable AI engineers to build custom datasets at scale for their own use cases. 
+
+👩‍🎓 This, combined with humans-in-the-loop for improving dataset quality is the next big leap for OSS LLM models. 
+
+⚗️ `distilabel` aims to bridge this gap.
+
+## Key features
+
+* 🤖 **Leverage OSS models and APIs**: HF Transformers, OpenAI, HF Inference Endpoints, vLLM, LlamaCPP, and more to come.
+
+* 💻 **Scalable and extensible**: Scalable implementations of existing methods (e.g. UltraFeedback). Easily extensible to build and configure your own labellers.
+
+* 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
+
 ## Quickstart
 
 Install with `pip` (requires Python 3.8+):
 ```sh
-pip install distilabel[openai]
+pip install distilabel[openai,argilla]
 ```
 
 Build a preference dataset for DPO/RLHF:
@@ -31,7 +56,7 @@ from distilabel.tasks import TextGenerationTask
 
 # Load a dataset with instructions from the Hub
 dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
     .remove_columns(["completion", "meta"])
     .rename_column("prompt", "input")
 )
@@ -40,6 +65,7 @@ dataset = (
 generator = OpenAILLM(
     task=TextGenerationTask(),
     max_new_tokens=512,
+    # openai_api_key="sk-...",
 )
 
 pipeline = pipeline("preference", "instruction-following", generator=generator)
@@ -48,21 +74,21 @@ pipeline = pipeline("preference", "instruction-following", generator=generator)
 dataset = pipeline.generate(dataset)
 ```
 
-## Motivation
+The resulting dataset can already be used for preference tuning (a larger version of it). But beware these AIF dataset are imperfect. To get the most out of AIF feedback, push to Argilla for human feedback:
 
-Recent projects like [Zephyr](https://huggingface.co/collections/HuggingFaceH4/zephyr-7b-6538c6d6d5ddd1cbb1744a66) and [Tulu](https://huggingface.co/collections/allenai/tulu-v2-suite-6551b56e743e6349aab45101) have shown it's possible to **build highly powerful open-source models with DPO and AI Feedback** (AIF) datasets. 
+```python
+import argilla as rg
 
-There's a lot of exciting research in the AIF spaces, such as [UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) (the dataset leveraged by Zephyr and Tulu), [JudgeLM](https://github.com/baaivision/JudgeLM), or [Prometheus](https://huggingface.co/kaist-ai/prometheus-13b-v1.0). 
+rg.init(
+    api_key="<YOUR_ARGILLA_API_KEY>",
+    api_url="<YOUR_ARGILLA_API_URL>"
+)
 
-However, going beyond research efforts and applying AIF at scale it's different. For enterprise and production use, we need framework that implements **key AIF methods on a robust, efficient and scalable way**. This framework should enable AI engineers to build custom datasets and scale for their own use cases. This, combined with humans-in-the-loop for improving dataset quality is the next big leap for OSS LLM models. `distilabel` aims to bridge this gap.
+rg_dataset = dataset.to_argilla()
+rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
+```
 
-## Key features
-
-* 🤖 **Leverage OSS models and APIs**: HF Transformers, OpenAI, HF Inference Endpoints, vLLM, LlamaCPP, and more to come.
-
-* 💻 **Scalable and extensible**: Scalable implementations of existing methods (e.g. UltraFeedback). Easily extensible to build and configure your own labellers.
-
-* 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
+https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-cbd2a7687e30
 
 ## Roadmap
 
@@ -72,6 +98,12 @@ However, going beyond research efforts and applying AIF at scale it's different.
 - Add labellers to evolve instructions generated with self-instruct
 - Add labellers for predictive NLP tasks: text classification, information extraction, etc.
 - Open an issue to suggest a feature!
+
+## Contribute
+
+To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
+
+To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
 
 ## How to generate instructions
 
