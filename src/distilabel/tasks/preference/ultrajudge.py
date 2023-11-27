@@ -155,15 +155,8 @@ class UltraJudgeTask(PreferenceTask):
 
         return outputs
 
-    def _to_argilla_rationale(
-        self,
-        dataset_row: Dict[str, Any],
-    ) -> str:
-        """Gets the `rationale` column from a `datasets.Dataset` row and formats it
-        as expected by Argilla.
-        """
-
-        def format_area(area):
+    def _merge_rationales(self, rationales: List[Dict[str, Any]]) -> str:
+        def format_area(area: Dict[str, Any]):
             sections = []
             for title, ratings in area.items():
                 sections.append(title)
@@ -171,8 +164,7 @@ class UltraJudgeTask(PreferenceTask):
                     sections.append(f"{k}:{v}")
             return "\n".join(sections)
 
-        rationales = []
-        for idx, area in enumerate(dataset_row["areas"], start=1):
-            formatted_area = format_area(area)
-            rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
-        return "\n".join(rationales)
+        merged_rationales = []
+        for idx, area in enumerate(rationales, start=1):
+            merged_rationales.append(f"Generation {idx}:\n{format_area(area)}\n")
+        return "\n".join(merged_rationales)

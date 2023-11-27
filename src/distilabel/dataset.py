@@ -19,7 +19,7 @@ from datasets import Dataset
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
-    import argilla as rg
+    pass
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
@@ -57,13 +57,13 @@ class CustomDataset(Dataset):
                 "The task is not set. Please set it with `dataset.task = <task>`."
             )
 
-        rg_dataset = rg.FeedbackDataset(
-            fields=self.task.to_argilla_fields(dataset_row=self[0]),
-            questions=self.task.to_argilla_questions(dataset_row=self[0]),
-            metadata_properties=self.task.to_argilla_metadata_properties(
-                dataset_row=self[0]
-            ),
-        )
+        try:
+            rg_dataset = self.task.to_argilla_dataset(dataset_row=self[0])  # type: ignore
+        except Exception as e:
+            raise ValueError(
+                f"Error while converting the dataset to an Argilla `FeedbackDataset` instance: {e}"
+            ) from e
+
         for dataset_row in self:
             if any(
                 dataset_row[input_arg_name] is None  # type: ignore

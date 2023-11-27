@@ -12,18 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from distilabel.tasks.argilla_utils import infer_fields_from_dataset_row
 from distilabel.tasks.base import Task
+from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
-if TYPE_CHECKING:
-    from argilla.client.feedback.schemas.records import FeedbackRecord
-    from argilla.client.feedback.schemas.types import (
-        AllowedFieldTypes,
-        AllowedMetadataPropertyTypes,
-        AllowedQuestionTypes,
-    )
+if _ARGILLA_AVAILABLE:
+    import argilla as rg
+
+    if TYPE_CHECKING:
+        from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+        from argilla.client.feedback.schemas.records import FeedbackRecord
+
 
 @dataclass
 class PreferenceTask(Task):
@@ -44,129 +47,153 @@ class PreferenceTask(Task):
         """Returns the names of the output arguments of the task."""
         return ["rating", "rationale"]
 
-    def to_argilla_fields(
-        self, dataset_row: Dict[str, Any]
-    ) -> List["AllowedFieldTypes"]:
-        """Converts a dataset row to a list of Argilla `AllowedFieldTypes`."""
-        return self._create_fields_from_row(dataset_row, self._create_text_field)
-
-    def to_argilla_questions(
-        self, dataset_row: Dict[str, Any]
-    ) -> List["AllowedQuestionTypes"]:
-        """Converts a dataset row to a list of Argilla `AllowedQuestionTypes`."""
+    def to_argilla_dataset(
+        self,
+        dataset_row: Dict[str, Any],
+        responses_column: Optional[str] = "generations",
+        responses_values: Optional[List[int]] = None,
+        ratings_column: Optional[str] = "rating",
+        rationale_column: Optional[str] = "rationale",
+    ) -> "FeedbackDataset":
+        # First we infer the fields from the input_args_names, but we could also
+        # create those manually instead using `rg.TextField(...)`
+        fields = infer_fields_from_dataset_row(
+            field_names=self.input_args_names, dataset_row=dataset_row
+        )
+        # Then we add the questions, which cannot be easily inferred in this case,
+        # because those depend neither on the outputs nor on the inputs, but in a combination
+        # of both, since the questions will be formulated using the inputs, but assigned to the
+        # outputs.
+        if responses_column is None or responses_column not in dataset_row:
+            raise ValueError(
+                f"The responses column {responses_column} is not present in the dataset row."
+            )
+        if ratings_column is None or ratings_column not in dataset_row:
+            raise ValueError(
+                f"The ratings column {ratings_column} is not present in the dataset row."
+            )
+        if rationale_column is None or rationale_column not in dataset_row:
+            raise ValueError(
+                f"The rationale column {rationale_column} is not present in the dataset row."
+            )
         questions = []
-        arg_name = "generations"
-        self._check_argument_exists(dataset_row, arg_name)
-        if isinstance(dataset_row[arg_name], list):
-            for idx in range(1, len(dataset_row[arg_name]) + 1):
-                question_name = f"{arg_name}-{idx}-rating"
-                title = f"What's the rating for {arg_name}-{idx}?"
-                questions.append(
-                    self._create_rating_question(
-                        question_name, title, list(range(1, 11))
-                    )
+        for idx in range(1, len(dataset_row[responses_column]) + 1):
+            questions.append(
+                rg.RatingQuestion(  # type: ignore
+                    name=f"{responses_column}-{idx}-{ratings_column}",
+                    title=f"What's the {ratings_column} for {responses_column}-{idx}?",
+                    values=responses_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 )
+            )
         questions.append(
-            self._create_text_question(
-                "ratings-rationale", "What's the rationale behind the ratings?"
+            rg.TextQuestion(  # type: ignore
+                name=f"{ratings_column}-{rationale_column}",
+                title=f"What's the rationale behind each {ratings_column}?",
             )
         )
-        return questions
-
-    def to_argilla_metadata_properties(
-        self, dataset_row: Dict[str, Any]
-    ) -> List["AllowedMetadataPropertyTypes"]:
-        """Converts a dataset row to a list of Argilla `AllowedMetadataPropertyTypes`."""
+        # Finally, we define some metadata properties that can be potentially used
+        # while exploring the dataset within Argilla to get more insights on the data.
         metadata_properties = []
         for arg_name in self.input_args_names:
-            self._check_argument_exists(dataset_row, arg_name)
             if isinstance(dataset_row[arg_name], list):
                 for idx in range(1, len(dataset_row[arg_name]) + 1):
                     metadata_properties.append(
-                        self._create_metadata_property(
-                            f"length-{arg_name}-{idx}", "integer"
-                        )
+                        rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
                     )
-                    metadata_properties.append(
-                        self._create_metadata_property(
-                            f"rating-{arg_name}-{idx}", "float"
+                    if arg_name == responses_column:
+                        metadata_properties.append(
+                            rg.FloatMetadataProperty(
+                                name=f"{ratings_column}-{arg_name}-{idx}"
+                            )  # type: ignore
                         )
-                    )
             elif isinstance(dataset_row[arg_name], str):
                 metadata_properties.append(
-                    self._create_metadata_property(f"length-{arg_name}", "integer")
+                    rg.IntegerMetadataProperty(name=f"length-{arg_name}")  # type: ignore
                 )
             else:
-                raise ValueError(
-                    f"Type {type(dataset_row[arg_name])} is not supported."
+                warnings.warn(
+                    f"Unsupported input type ({type(dataset_row[arg_name])}), skipping...",
+                    UserWarning,
+                    stacklevel=2,
                 )
-        # add distance between best rating and the second best
-        if isinstance(dataset_row[arg_name], list):
-            metadata_properties.append(
-                self._create_metadata_property("distance-best-rated", "float")
-            )
-        return metadata_properties
+        metadata_properties.append(
+            rg.FloatMetadataProperty(name=f"distance-best-{ratings_column}")
+        )  # type: ignore
+        # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
+        # defined above.
+        return rg.FeedbackDataset(
+            fields=fields,
+            questions=questions,
+            metadata_properties=metadata_properties,  # Note that these are always optional
+        )
+
+    def _merge_rationales(self, rationales: List[str]) -> str:
+        return "\n".join(rationales)
 
     def to_argilla_record(  # noqa: C901
         self,
         dataset_row: Dict[str, Any],
+        responses_column: Optional[str] = "generations",
+        ratings_column: Optional[str] = "rating",
+        rationale_column: Optional[str] = "rationale",
     ) -> "FeedbackRecord":
         """Converts a dataset row to an Argilla `FeedbackRecord`."""
-        fields = {}
-        metadata = {}
-
-        for input_arg_name in self.input_args_names:
-            arg_value = dataset_row[input_arg_name]
-
+        # We start off with the fields, which are the inputs of the LLM, but also
+        # build the metadata from them, as previously specified within the
+        fields, metadata = {}, {}
+        for arg_name in self.input_args_names:
+            arg_value = dataset_row[arg_name]
             if isinstance(arg_value, list):
                 for idx, value in enumerate(arg_value, start=1):
-                    fields[f"{input_arg_name}-{idx}"] = value.strip()
-                    metadata[f"length-{input_arg_name}-{idx}"] = len(value.strip())
+                    fields[f"{arg_name}-{idx}"] = value.strip() if value else ""
+                    if value is not None:
+                        metadata[f"length-{arg_name}-{idx}"] = len(value.strip())
+            elif isinstance(arg_value, str):
+                fields[arg_name] = arg_value.strip() if arg_value else ""
+                if arg_value is not None:
+                    metadata[f"length-{arg_name}"] = len(arg_value.strip())
             else:
-                fields[input_arg_name] = arg_value.strip()
-                metadata[f"length-{input_arg_name}"] = len(arg_value.strip())
-
+                warnings.warn(
+                    f"Unsupported input type ({type(arg_value)}), skipping...",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        # Then we include the suggestions, which are generated from the outputs
+        # of the LLM instead.
         suggestions = []
-
-        # add rationale
-        if self._to_argilla_rationale(dataset_row) is not None:
+        if rationale_column is None or rationale_column not in dataset_row:
+            raise ValueError(
+                f"The rationale column {rationale_column} is not present in the dataset row."
+            )
+        if dataset_row.get(rationale_column) is not None:
+            rationales = dataset_row.get(rationale_column)
             suggestions.append(
                 {
-                    "question_name": "ratings-rationale",
-                    "value": self._to_argilla_rationale(dataset_row),
+                    "question_name": f"{ratings_column}-{rationale_column}",
+                    "value": self._merge_rationales(rationales=rationales)
+                    if isinstance(rationales, list)
+                    else rationales,
                 }
             )
-        for output_arg_name in self.output_args_names:
-            if output_arg_name == "rating":
-                ratings = []
-                output_data = dataset_row.get(output_arg_name)
-                if output_data is not None:
-                    for idx, value in enumerate(output_data, start=1):
-                        ratings.append(value)
-                        if value <=0:
-                            value = 1.0
-                        if value <= 10:
-                            # add suggestions
-                            suggestions.append(
-                                {
-                                    "question_name": f"generations-{idx}-rating",
-                                    "value": int(value),
-                                }
-                            )
-                        # update rating metadata
-                        metadata.update({f"rating-generations-{idx}": value})
-                if len(ratings) >= 2:
-                    sorted_ratings = sorted(ratings, reverse=True)
-                    # update rating distance from best to second
-                    metadata.update(
-                        {"distance-best-rated": sorted_ratings[0] - sorted_ratings[1]}
-                    )
-        return self._create_argilla_record(
+        if ratings_column is None or ratings_column not in dataset_row:
+            raise ValueError(
+                f"The ratings column {ratings_column} is not present in the dataset row."
+            )
+        if dataset_row.get(ratings_column) is not None:
+            ratings = dataset_row.get(ratings_column)
+            for idx, value in enumerate(ratings, start=1):  # type: ignore
+                suggestions.append(
+                    {
+                        "question_name": f"{responses_column}-{idx}-{ratings_column}",
+                        "value": 1 if value < 1 else int(value) if value < 10 else None,
+                    }
+                )
+                metadata[f"{ratings_column}-{responses_column}-{idx}"] = value
+            if len(ratings) >= 2:  # type: ignore
+                sorted_ratings = sorted(ratings, reverse=True)  # type: ignore
+                metadata[f"distance-best-{ratings_column}"] = (
+                    sorted_ratings[0] - sorted_ratings[1]
+                )
+        return rg.FeedbackRecord(
             fields=fields, suggestions=suggestions, metadata=metadata
         )
-
-    def _to_argilla_rationale(self, dataset_row: Dict[str, Any]) -> str:
-        """Gets the `rationale` column from a `datasets.Dataset` row and formats it
-        as expected by Argilla.
-        """
-        return dataset_row["rationale"]
