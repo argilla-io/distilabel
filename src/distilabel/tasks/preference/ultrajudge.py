@@ -165,14 +165,17 @@ class UltraJudgeTask(PreferenceTask):
 
         def format_area(area):
             sections = []
-            for title, ratings in area.items():
-                sections.append(title)
-                for k, v in ratings.items():
-                    sections.append(f"{k}:{v}")
+            if area is not None:
+                for title, ratings in area.items():
+                    sections.append(title)
+                    if ratings is not None:
+                        for k, v in ratings.items():
+                            sections.append(f"{k}:{v}")
             return "\n".join(sections)
 
         rationales = []
-        for idx, area in enumerate(dataset_row["areas"], start=1):
-            formatted_area = format_area(area)
-            rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
+        if dataset_row["areas"] is not None:
+            for idx, area in enumerate(dataset_row["areas"], start=1):
+                formatted_area = format_area(area)
+                rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
         return "\n".join(rationales)
