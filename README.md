@@ -3,7 +3,7 @@
   <p><em>AI Feedback (AIF) framework for building datasets and labellers with LLMs</em></p>
 </div>
 
-![overview](https://github.com/argilla-io/distilabel/assets/36760800/820351f5-9a12-43cb-8304-45c3a3af78d2)
+![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)
 
 > [!TIP]
 > To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
