@@ -50,7 +50,7 @@ class PreferenceTask(Task):
     def to_argilla_dataset(
         self,
         dataset_row: Dict[str, Any],
-        responses_column: Optional[str] = "generations",
+        generations_column: Optional[str] = "generations",
         responses_values: Optional[List[int]] = None,
         ratings_column: Optional[str] = "rating",
         rationale_column: Optional[str] = "rationale",
@@ -64,9 +64,9 @@ class PreferenceTask(Task):
         # because those depend neither on the outputs nor on the inputs, but in a combination
         # of both, since the questions will be formulated using the inputs, but assigned to the
         # outputs.
-        if responses_column is None or responses_column not in dataset_row:
+        if generations_column is None or generations_column not in dataset_row:
             raise ValueError(
-                f"The responses column {responses_column} is not present in the dataset row."
+                f"The generations column {generations_column} is not present in the dataset row."
             )
         if ratings_column is None or ratings_column not in dataset_row:
             raise ValueError(
@@ -77,11 +77,11 @@ class PreferenceTask(Task):
                 f"The rationale column {rationale_column} is not present in the dataset row."
             )
         questions = []
-        for idx in range(1, len(dataset_row[responses_column]) + 1):
+        for idx in range(1, len(dataset_row[generations_column]) + 1):
             questions.append(
                 rg.RatingQuestion(  # type: ignore
-                    name=f"{responses_column}-{idx}-{ratings_column}",
-                    title=f"What's the {ratings_column} for {responses_column}-{idx}?",
+                    name=f"{generations_column}-{idx}-{ratings_column}",
+                    title=f"What's the {ratings_column} for {generations_column}-{idx}?",
                     values=responses_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 )
             )
@@ -100,7 +100,7 @@ class PreferenceTask(Task):
                     metadata_properties.append(
                         rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
                     )
-                    if arg_name == responses_column:
+                    if arg_name == generations_column:
                         metadata_properties.append(
                             rg.FloatMetadataProperty(
                                 name=f"{ratings_column}-{arg_name}-{idx}"
@@ -133,7 +133,7 @@ class PreferenceTask(Task):
     def to_argilla_record(  # noqa: C901
         self,
         dataset_row: Dict[str, Any],
-        responses_column: Optional[str] = "generations",
+        generations_column: Optional[str] = "generations",
         ratings_column: Optional[str] = "rating",
         rationale_column: Optional[str] = "rationale",
     ) -> "FeedbackRecord":
@@ -184,11 +184,11 @@ class PreferenceTask(Task):
             for idx, value in enumerate(ratings, start=1):  # type: ignore
                 suggestions.append(
                     {
-                        "question_name": f"{responses_column}-{idx}-{ratings_column}",
+                        "question_name": f"{generations_column}-{idx}-{ratings_column}",
                         "value": 1 if value < 1 else int(value) if value < 10 else None,
                     }
                 )
-                metadata[f"{ratings_column}-{responses_column}-{idx}"] = value
+                metadata[f"{ratings_column}-{generations_column}-{idx}"] = value
             if len(ratings) >= 2:  # type: ignore
                 sorted_ratings = sorted(ratings, reverse=True)  # type: ignore
                 metadata[f"distance-best-{ratings_column}"] = (
