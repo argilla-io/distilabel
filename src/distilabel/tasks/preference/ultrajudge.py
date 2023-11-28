@@ -39,7 +39,7 @@ class UltraJudgeOutput(TypedDict):
 @dataclass
 class UltraJudgeTask(PreferenceTask):
     """A `PreferenceTask` for the UltraJudge task. The `UltraJudge` task has been defined
-    at Argilla specically for a better evaluation using AI Feedback. The task is defined
+    at Argilla specifically for a better evaluation using AI Feedback. The task is defined
     based on both UltraFeedback and JudgeLM, but with several improvements / modifications.
 
     Args:
