@@ -117,8 +117,8 @@ class PreferenceTask(Task):
                     stacklevel=2,
                 )
         metadata_properties.append(
-            rg.FloatMetadataProperty(name=f"distance-best-{ratings_column}")
-        )  # type: ignore
+            rg.FloatMetadataProperty(name=f"distance-best-{ratings_column}")  # type: ignore
+        )
         # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
         # defined above.
         return rg.FeedbackDataset(
@@ -127,8 +127,13 @@ class PreferenceTask(Task):
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
 
-    def _merge_rationales(self, rationales: List[str]) -> str:
-        return "\n".join(rationales)
+    def _merge_rationales(
+        self, rationales: List[str], generations_column: str = "generations"
+    ) -> str:
+        return "".join(
+            f"{generations_column}-{idx}:\n{rationale}\n"
+            for idx, rationale in enumerate(rationales, start=1)
+        )
 
     def to_argilla_record(  # noqa: C901
         self,

@@ -155,8 +155,12 @@ class UltraJudgeTask(PreferenceTask):
 
         return outputs
 
-    def _merge_rationales(self, rationales: List[Dict[str, Any]]) -> str:
-        def format_area(area: Dict[str, Any]):
+    def _merge_rationales(
+        self, rationales: List[Dict[str, Any]], generations_column: str = "generations"
+    ) -> str:
+        """Overwrite of the `_merge_rationales` as we need to process the areas before merging."""
+
+        def format_area(area: Dict[str, Any]) -> str:
             sections = []
             for title, ratings in area.items():
                 sections.append(title)
@@ -166,5 +170,7 @@ class UltraJudgeTask(PreferenceTask):
 
         merged_rationales = []
         for idx, area in enumerate(rationales, start=1):
-            merged_rationales.append(f"Generation {idx}:\n{format_area(area)}\n")
+            merged_rationales.append(
+                f"{generations_column}-{idx}:\n{format_area(area)}\n"
+            )
         return "\n".join(merged_rationales)

@@ -109,12 +109,6 @@ class UltraFeedbackTask(PreferenceTask):
             )
         return parsed_output
 
-    def _merge_rationales(self, rationales: List[str]) -> str:
-        merged_rationales = []
-        for idx, rationale in enumerate(rationales, start=1):
-            merged_rationales.append(f"Generation {idx}:\n{rationale}\n")
-        return "\n".join(merged_rationales)
-
     @classmethod
     def for_text_quality(
         cls,
