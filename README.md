@@ -5,7 +5,8 @@
 
 ![distilabel_overview](https://github.com/argilla-io/distilabel/assets/1107111/182c871c-108f-441e-bb3e-f01b080f8631)
 
-> [!TIP] To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
+> [!TIP]
+> To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
 
 ## What's `distilabel`?
 
