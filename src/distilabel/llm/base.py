@@ -72,7 +72,7 @@ class LLM(ABC):
             self.thread_pool_executor.shutdown()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.thread_pool_executor._max_workers}, promp_format='{self.prompt_format}', model='{self.model_name}')"
+        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.thread_pool_executor._max_workers if self.thread_pool_executor is not None else 0}, promp_format='{self.prompt_format}', model='{self.model_name}')"
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "task", self.task
