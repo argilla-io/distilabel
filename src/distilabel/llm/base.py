@@ -76,7 +76,7 @@ class LLM(ABC):
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "task", self.task
-        yield "num_threads", self.thread_pool_executor._max_workers
+        yield "num_threads", self.thread_pool_executor._max_workers if self.thread_pool_executor is not None else 0
         yield "prompt_format", self.prompt_format
         if self.prompt_formatting_fn is not None:
             args = f"({', '.join(self.prompt_formatting_fn.__code__.co_varnames)})"
