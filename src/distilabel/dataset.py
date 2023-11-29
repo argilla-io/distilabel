@@ -18,9 +18,6 @@ from datasets import Dataset
 
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
-if _ARGILLA_AVAILABLE:
-    pass
-
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
 

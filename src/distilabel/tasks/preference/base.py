@@ -23,9 +23,9 @@ from distilabel.utils.imports import _ARGILLA_AVAILABLE
 if _ARGILLA_AVAILABLE:
     import argilla as rg
 
-    if TYPE_CHECKING:
-        from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
-        from argilla.client.feedback.schemas.records import FeedbackRecord
+if TYPE_CHECKING:
+    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla.client.feedback.schemas.records import FeedbackRecord
 
 
 @dataclass
@@ -66,15 +66,18 @@ class PreferenceTask(Task):
         # outputs.
         if generations_column is None or generations_column not in dataset_row:
             raise ValueError(
-                f"The generations column {generations_column} is not present in the dataset row."
+                f"The `generations_column='{generations_column}'` is not present in the dataset"
+                f" row. Please provide any of {list(dataset_row.keys())}.",
             )
         if ratings_column is None or ratings_column not in dataset_row:
             raise ValueError(
-                f"The ratings column {ratings_column} is not present in the dataset row."
+                f"The `ratings_column='{ratings_column}'` is not present in the dataset row. Please"
+                f" provide any of {list(dataset_row.keys())}.",
             )
         if rationale_column is None or rationale_column not in dataset_row:
             raise ValueError(
-                f"The rationale column {rationale_column} is not present in the dataset row."
+                f"The `rationale_column='{rationale_column}'` is not present in the dataset row. Please"
+                f" provide any of {list(dataset_row.keys())}.",
             )
         questions = []
         for idx in range(1, len(dataset_row[generations_column]) + 1):

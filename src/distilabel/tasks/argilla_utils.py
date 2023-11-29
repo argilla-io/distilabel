@@ -19,8 +19,8 @@ from distilabel.utils.imports import _ARGILLA_AVAILABLE
 if _ARGILLA_AVAILABLE:
     import argilla as rg
 
-    if TYPE_CHECKING:
-        from argilla.client.feedback.schemas.types import AllowedFieldTypes
+if TYPE_CHECKING:
+    from argilla.client.feedback.schemas.types import AllowedFieldTypes
 
 
 def infer_fields_from_dataset_row(
