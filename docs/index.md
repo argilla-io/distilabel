@@ -34,3 +34,7 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 
 !!! note
     To run the script successfully, ensure you have assigned your OpenAI API key to the `OPENAI_API_KEY` environment variable.
+
+For a more complete example, check out our awesome notebook on Google Colab:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)

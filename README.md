@@ -44,13 +44,24 @@ Main use cases are:
 
 ## Quickstart
 
+### Installation
+
 Install with `pip` (requires Python 3.8+):
 
 ```bash
 pip install distilabel[openai,argilla]
 ```
 
-Build a preference dataset for DPO/RLHF:
+### Try it out
+
+After installing, you can immediately start experimenting with `distilabel`:
+
+- **Explore Locally**: Follow the example below to build a preference dataset for DPO/RLHF.
+- **Interactive Notebook**: Prefer an interactive experience? Try our Google Colab Notebook!
+
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+
+### Example: Build a preference dataset for DPO/RLHF
 
 ```python
 from datasets import load_dataset
@@ -94,6 +105,10 @@ rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
 
 https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-cbd2a7687e30
 
+### More examples
+
+Find more examples of different use cases of `distilabel` under [`examples/`](./examples/).
+
 ## Roadmap
 
 - [ ] Add Critique Models and support for Prometheus OSS
@@ -106,10 +121,6 @@ https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-
 ## Contribute
 
 To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
-
-## Examples
-
-Find more examples of different use cases of `distilabel` under [`examples/`](./examples/).
 
 ## References
 
