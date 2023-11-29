@@ -25,12 +25,22 @@ This readme might be outdated the best place to get started is the [documentatio
 
 ## Quickstart
 
+### Installation
+
 Install with `pip` (requires Python 3.8+):
 ```sh
 pip install distilabel[openai,argilla]
 ```
 
-Build a preference dataset for DPO/RLHF:
+### Try it out
+
+After installing, you can immediately start experimenting with `distilabel`:
+
+- **Explore Locally**: Follow the example below to build a preference dataset for DPO/RLHF.
+- **Interactive Notebook**: Prefer an interactive experience? Try our Google Colab Notebook!
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+
+### Example: build a preference dataset for DPO/RLHF
 ```python
 from datasets import load_dataset
 from distilabel.llm import OpenAILLM
