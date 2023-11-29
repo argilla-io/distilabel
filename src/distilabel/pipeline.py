@@ -392,7 +392,7 @@ class Pipeline:
                         processed_labels.extend(future.result())
                     except Exception as e:
                         logger.error(
-                            f"An error ocurred when getting the result from the labeller: {e}"
+                            f"An error occurred when getting the result from the labeller: {e}"
                         )
                         processed_labels.append(
                             [
@@ -498,7 +498,7 @@ class Pipeline:
             warnings.warn(
                 f"Provided `num_generations={num_generations}` which implies that the "
                 "`generator` LLM will just run once, while the `labelling` LLM expects "
-                "to recieve a list of N inputs to label, where N is > 1. If this is not "
+                "to receive a list of N inputs to label, where N is > 1. If this is not "
                 "intended, make sure to set `num_generations` to a value higher or "
                 "equal to 2.",
                 UserWarning,

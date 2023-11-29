@@ -1,97 +1,29 @@
- <div align="center">
-   <h1>⚗️ distilabel</h1>
-   <p>
-     <em>AI Feedback framework for building datasets and labelers with LLMs</em>
-   </p>
- </div>
+<div align="center">
+  <h1>⚗️ distilabel</h1>
+  <p><em>AI Feedback (AIF) framework for building datasets and labellers with LLMs</em></p>
+</div>
 
-## What's distilabel
-distilabel is a framework for AI engineers to align LLM using RLHF-related methods (e.g., reward models, DPO).
+![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)
+
+> [!TIP]
+> To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
+
+## What's `distilabel`?
+
+`distilabel` is a framework for AI engineers to align LLMs using RLHF-related methods (e.g. reward models, DPO).
 
 The initial focus is LLM fine-tuning and adaptation but we'll be extending it for predictive NLP use cases soon.
 
 Main use cases are:
 
 1. As an AI engineer I want to **build domain-specific instruction datasets** to fine-tune OSS LLMs with increased accuracy.
-2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give thruthful responses).
+2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give truthful responses).
 
-This readme might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
-
-> [!TIP]
-> To discuss, get support, give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g)
-
-> [!TIP]
-> To contribute check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
-
-## Quickstart
-
-### Installation
-
-Install with `pip` (requires Python 3.8+):
-```sh
-pip install distilabel[openai,argilla]
-```
-
-### Try it out
-
-After installing, you can immediately start experimenting with `distilabel`:
-
-- **Explore Locally**: Follow the example below to build a preference dataset for DPO/RLHF.
-- **Interactive Notebook**: Prefer an interactive experience? Try our Google Colab Notebook!
-
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
-
-### Example: build a preference dataset for DPO/RLHF
-```python
-from datasets import load_dataset
-from distilabel.llm import OpenAILLM
-from distilabel.pipeline import pipeline
-from distilabel.tasks import TextGenerationTask
-
-# dataset with instructions
-dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
-    .remove_columns(["completion", "meta"])
-    .rename_column("prompt", "input")
-)
-
-# use gpt3.5 turbo for generating responses
-task = TextGenerationTask() 
-
-generator = OpenAILLM(
-    task=task, 
-    max_new_tokens=512
-    #openai_api_key="sk-.."
-)
-
-# build preference dataset comparing two responses
-# focusing on the instruction-following skill
-pipe = pipeline("preference", "instruction-following", generator=generator)
-
-dataset = pipe.generate(dataset, num_generations=2)
-```
-
-The resulting dataset can already be used for preference tuning (a larger version of it). But beware these AIF dataset are imperfect. To get the most out of AIF feedback, push to Argilla for human feedback:
-
-```python
-import argilla as rg
-
-rg.init(
-    api_key="<YOUR_API_KEY>",
-    api_url="<YOUR_ARGILLA_API_URL>"
-)
-
-rg_dataset = dataset.to_argilla()
-rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
-```
-
-
-
-https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-cbd2a7687e30
-
-
+> [!WARNING]
+> `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks, and also the `README` might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
 
 ## Motivation
+
 🔥 Recent projects like [Zephyr](https://huggingface.co/collections/HuggingFaceH4/zephyr-7b-6538c6d6d5ddd1cbb1744a66) and [Tulu](https://huggingface.co/collections/allenai/tulu-v2-suite-6551b56e743e6349aab45101) have shown it's possible to **build powerful open-source models with DPO and AI Feedback** (AIF) datasets. 
 
 👩‍🔬 There's a lot of exciting research in the AIF space, such as [UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) (the dataset leveraged by Zephyr and Tulu), [JudgeLM](https://github.com/baaivision/JudgeLM), or [Prometheus](https://huggingface.co/kaist-ai/prometheus-13b-v1.0). 
@@ -104,90 +36,94 @@ https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-
 
 ## Key features
 
-* 🤖 **Leverage OSS models and APIs**: HF Transformers, OpenAI, HF Inference Endpoints, vLLM, LlamaCPP, and more to come.
+* 🤖 **Leverage OSS models and APIs**: 🤗 transformers, OpenAI, 🤗 Inference Endpoints, vLLM, llama.cpp, and more to come.
 
-* 💻 **Scalable and extensible**: Scalable implementations of existing methods (e.g., UltraFeedback). Easily extensible to build and configure your own labelers.
+* 💻 **Scalable and extensible**: Scalable implementations of existing methods (e.g. UltraFeedback). Easily extensible to build and configure your own labellers.
 
 * 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
 
-## Overview
-![distilabel_overview](https://github.com/argilla-io/distilabel/assets/1107111/182c871c-108f-441e-bb3e-f01b080f8631)
+## Quickstart
 
+### Installation
+
+Install with `pip` (requires Python 3.8+):
+
+```bash
+pip install distilabel[openai,argilla]
+```
+
+### Try it out
+
+After installing, you can immediately start experimenting with `distilabel`:
+
+- **Explore Locally**: Follow the example below to build a preference dataset for DPO/RLHF.
+- **Interactive Notebook**: Prefer an interactive experience? Try our Google Colab Notebook!
+
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+
+### Example: Build a preference dataset for DPO/RLHF
+
+```python
+from datasets import load_dataset
+from distilabel.llm import OpenAILLM
+from distilabel.pipeline import pipeline
+from distilabel.tasks import TextGenerationTask
+
+# Load a dataset with instructions from the Hub
+dataset = (
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
+    .remove_columns(["completion", "meta"])
+    .rename_column("prompt", "input")
+)
+
+# Use `OpenAILLM` (running `gpt-3.5-turbo`) to generate responses for given inputs
+generator = OpenAILLM(
+    task=TextGenerationTask(),
+    max_new_tokens=512,
+    # openai_api_key="sk-...",
+)
+
+pipeline = pipeline("preference", "instruction-following", generator=generator)
+
+# Build a preference dataset comparing two responses focused on the instruction-following skill of the LLM
+dataset = pipeline.generate(dataset)
+```
+
+The resulting dataset can already be used for preference tuning (a larger version of it). But beware these AIF dataset are imperfect. To get the most out of AIF, push to Argilla for human feedback:
+
+```python
+import argilla as rg
+
+rg.init(
+    api_key="<YOUR_ARGILLA_API_KEY>",
+    api_url="<YOUR_ARGILLA_API_URL>"
+)
+
+rg_dataset = dataset.to_argilla()
+rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
+```
+
+https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-cbd2a7687e30
+
+### More examples
+
+Find more examples of different use cases of `distilabel` under [`examples/`](./examples/).
 
 ## Roadmap
 
-- Add Critique Models and support for Prometheus OSS
-- Add a generator with multiple models
-- Train OSS labelers to replace OpenAI labelers
-- Add labelers to evolve instructions generated with self-instruct
-- Add labelers for predictive NLP tasks: text classification, information extraction
-- Open an issue to suggest a feature!
+- [ ] Add Critique Models and support for Prometheus OSS
+- [ ] Add a generator with multiple models
+- [ ] Train OSS labellers to replace OpenAI labellers
+- [ ] Add labellers to evolve instructions generated with self-instruct
+- [ ] Add labellers for predictive NLP tasks: text classification, information extraction, etc.
+- [ ] Open an issue to suggest a feature!
 
-## How to generate instructions
-If you don't have an instruction or prompts dataset you can generate one with our `self-instruct` inspired generator:
+## Contribute
 
-```python
-import os
-from distilabel.tasks import SelfInstructTask
-from distilabel.pipeline import Pipeline
-from distilabel.llm import OpenAILLM
-from datasets import Dataset
+To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
 
-math_topics = [
-    "Algebraic Expressions",
-    "Linear Equations",
-    "Quadratic Equations",
-    "Polynomial Functions",
-    "Rational Expressions",
-    "Exponential Functions",
-    "Logarithmic Functions",
-    "Sequences and Series",
-    "Matrices",
-    "Determinants",
-    #...
-]
+## References
 
-dataset = Dataset.from_dict({
-    "input": math_topics
-})
-
-# it will steer the generator
-# to generate instructions for this specific app
-instruction_task = SelfInstructTask(
-    application_description= """
-    An AI assistant adept at answering a wide array of math, logic, and reasoning puzzles, trivia, and general questions.
-    """,
-    num_instructions=10 # 10 instructions per input
-)
-
-# default model is: gpt3.5-turbo
-# you can choose gpt-4 too
-instruction_generator = OpenAILLM(
-    task=instruction_task,
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
-    num_threads=8,
-    max_new_tokens=1024
-)
-
-pipeline = Pipeline(
-    generator=instruction_generator
-)
-
-# will generate
-distiset = pipeline.generate(
-    dataset=dataset,
-    # 10 instruction * 10 generations * 10 inputs = 1000 instructions
-    num_generations=10, 
-    batch_size=4
-)
-# Output:
-# Number of generated instructions: 2044
-# 1. Provide an explanation for solving a quadratic equation step by step.
-# 2. What is the process for simplifying an algebraic expression with exponents?
-# 3. Detail how to factorize a polynomial equation.
-# ...
-# 10. How can one determine if a given graph represents a linear or quadratic equation?
-# 1. How can I simplify the algebraic expression (x^2 + 3x + 2)(2x - 1)?
-# 2. Provide step-by-step instructions on how to solve the equation 4(x + 2) - 3 = 7(2x - 1).
-# ...
-```
+* [UltraFeedback: Boosting Language Models with High-quality Feedback](https://arxiv.org/abs/2310.01377)
+* [JudgeLM: Fine-tuned Large Language Models are Scalable Judges](https://arxiv.org/abs/2310.17631)
+* [Self-Instruct: Aligning Language Models with Self-Generated Instructions](https://arxiv.org/abs/2212.10560)

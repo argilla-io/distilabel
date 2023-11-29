@@ -35,7 +35,7 @@ hf-inference-endpoints = ["huggingface_hub >= 1.19.0"]
 llama-cpp = ["llama-cpp >= 0.2.0"]
 openai = ["openai >= 1.0.0"]
 vllm = ["vllm >= 0.2.1"]
-argilla = ["argilla >= 1.16.0"]
+argilla = ["argilla >= 1.18.0"]
 tests = ["pytest >= 7.4.0"]
 docs = [
     "mkdocs-material >= 9.4.10",

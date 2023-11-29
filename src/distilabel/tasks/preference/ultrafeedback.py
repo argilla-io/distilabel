@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import ClassVar, List, Optional
 
 from typing_extensions import TypedDict
 
@@ -108,19 +108,6 @@ class UltraFeedbackTask(PreferenceTask):
                 UltraFeedbackOutput(rating=rating, rationale=rationale)
             )
         return parsed_output
-
-    def _to_argilla_rationale(
-        self,
-        dataset_row: Dict[str, Any],
-    ) -> str:
-        """Converts the rationale to the format expected by Argilla."""
-        rationales = dataset_row.get("rationale")
-        if rationales is None:
-            return ""
-        sections = []
-        for idx, rationale in enumerate(dataset_row["rationale"], start=1):
-            sections.append(f"Rationale for generation-{idx}:\n{rationale}\n")
-        return "\n".join(sections)
 
     @classmethod
     def for_text_quality(

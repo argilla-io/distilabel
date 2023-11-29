@@ -39,7 +39,7 @@ class UltraJudgeOutput(TypedDict):
 @dataclass
 class UltraJudgeTask(PreferenceTask):
     """A `PreferenceTask` for the UltraJudge task. The `UltraJudge` task has been defined
-    at Argilla specically for a better evaluation using AI Feedback. The task is defined
+    at Argilla specifically for a better evaluation using AI Feedback. The task is defined
     based on both UltraFeedback and JudgeLM, but with several improvements / modifications.
 
     Args:
@@ -155,15 +155,12 @@ class UltraJudgeTask(PreferenceTask):
 
         return outputs
 
-    def _to_argilla_rationale(
-        self,
-        dataset_row: Dict[str, Any],
+    def _merge_rationales(
+        self, rationales: List[Dict[str, Any]], generations_column: str = "generations"
     ) -> str:
-        """Gets the `rationale` column from a `datasets.Dataset` row and formats it
-        as expected by Argilla.
-        """
+        """Overwrite of the `_merge_rationales` as we need to process the areas before merging."""
 
-        def format_area(area):
+        def format_area(area: Dict[str, Any]) -> str:
             sections = []
             for title, ratings in area.items():
                 sections.append(title)
@@ -171,8 +168,9 @@ class UltraJudgeTask(PreferenceTask):
                     sections.append(f"{k}:{v}")
             return "\n".join(sections)
 
-        rationales = []
-        for idx, area in enumerate(dataset_row["areas"], start=1):
-            formatted_area = format_area(area)
-            rationales.append(f"Rationale for generation-{idx}:\n{formatted_area}\n")
-        return "\n".join(rationales)
+        merged_rationales = []
+        for idx, area in enumerate(rationales, start=1):
+            merged_rationales.append(
+                f"{generations_column}-{idx}:\n{format_area(area)}\n"
+            )
+        return "\n".join(merged_rationales)
