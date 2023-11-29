@@ -95,10 +95,15 @@ class UltraJudgeTask(PreferenceTask):
         """Returns a regex to extract the area, score, and rationale from the output."""
         return rf"({'|'.join(self.areas)})\s*-\s*(\d+(?:\.\d+)?)\n(.*?)(?=\n\n|\Z)"
 
-    @property
-    def extract_final_scores_regex(self) -> str:
-        """Returns a regex to extract the final scores from the output."""
-        return r"Final scores:\s*((?:\d+(?:\.\d+)?\s*)+)"
+    def extract_final_scores(self, output):
+        """Extracts final scores from the output for each assistant."""
+        regex = re.compile((r"Final\s*scores:\s*(?:Assistant\s*1\s*(?:-|score:)\s*([\d.]+))?(?:\s|,)*"
+                                r"(?:Assistant\s*2\s*(?:-|score:)\s*([\d.]+))?\s*(([\d.]+)\s*-?\s*([\d.]+))?"))
+        matches = regex.search(output)
+        if matches:
+            score_assistant1 = matches.group(1) or matches.group(4) or 0
+            score_assistant2 = matches.group(2) or matches.group(5) or 0
+        return float(score_assistant1), float(score_assistant2)
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         """Generates a prompt following the UltraJudge specification.
@@ -137,12 +142,7 @@ class UltraJudgeTask(PreferenceTask):
         num_areas = len(self.areas)
         # `areas_results` includes num_generations * num_areas tuples
         areas_results = re.findall(self.extract_area_score_and_rationale_regex, output)
-        final_scores = [
-            float(str_score)
-            for str_score in re.findall(self.extract_final_scores_regex, output)[
-                0
-            ].split(" ")
-        ]
+        final_scores = self.extract_final_scores(output)
 
         outputs = []
         for i, rating in enumerate(final_scores):
