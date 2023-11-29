@@ -51,8 +51,8 @@ class PreferenceTask(Task):
         self,
         dataset_row: Dict[str, Any],
         generations_column: Optional[str] = "generations",
-        responses_values: Optional[List[int]] = None,
         ratings_column: Optional[str] = "rating",
+        ratings_values: Optional[List[int]] = None,
         rationale_column: Optional[str] = "rationale",
     ) -> "FeedbackDataset":
         # First we infer the fields from the input_args_names, but we could also
@@ -82,13 +82,13 @@ class PreferenceTask(Task):
                 rg.RatingQuestion(  # type: ignore
                     name=f"{generations_column}-{idx}-{ratings_column}",
                     title=f"What's the {ratings_column} for {generations_column}-{idx}?",
-                    values=responses_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    values=ratings_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 )
             )
         questions.append(
             rg.TextQuestion(  # type: ignore
                 name=f"{ratings_column}-{rationale_column}",
-                title=f"What's the rationale behind each {ratings_column}?",
+                title=f"What's the {rationale_column} behind each {ratings_column}?",
             )
         )
         # Finally, we define some metadata properties that can be potentially used
