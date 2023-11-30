@@ -1,3 +1,4 @@
+import os
 import argparse
 import random
 from typing import List, Dict, Optional, Union, Tuple
@@ -90,7 +91,7 @@ def get_dataset(dataset_name: str) -> Tuple[Dataset, List[int]]:
     return dataset, gold
 
 
-def generate_preds(dataset: Dataset, task_type: Task) -> Dataset:
+def generate_preds(dataset: Dataset, task_type: Task, openai_key: str) -> Dataset:
     """
     Generate predictions using the specified task and dataset.
 
@@ -105,7 +106,7 @@ def generate_preds(dataset: Dataset, task_type: Task) -> Dataset:
         task=task, 
         prompt_format="openai",
         max_new_tokens=1024,
-        openai_api_key="sk-YOUR-KEY",
+        openai_api_key=openai_key,
         temperature = 1.0,
         top_p = 1.0,
     )
@@ -149,19 +150,35 @@ def calc_metrics(dataset: Union[Dataset, str], gold: List[int], binary: bool=Tru
         print(f"{k.upper()}: {v:.03f}")
     return metrics
 
-if __name__=="__main__":
+
+def get_args():
     parser = argparse.ArgumentParser(description="Generate predictions and calculate metrics.")
     parser.add_argument("--dataset_name", type=str, default="MT_Bench", help="Name of the dataset (MT_Bench or HHH_Alignment).")
     parser.add_argument("--task_name", type=str, default="UltraJudge", help="Name of the task (UltraFeedback, JudgeLM, or UltraJudge).")
     parser.add_argument("--save_path", type=str, default="mt_bench_judgelm", help="Path to save the generated dataset.")
-    args = parser.parse_args()
+    parser.add_argument("--openai_api_key", type=str, help=("You can pass in your OpenAI API key here or set an env variable OPENAI_API_KEY"))
+    return parser.parse_args()
 
-    tasks = {"UltraFeedback": UltraFeedbackTask.for_text_quality(), "JudgeLM": JudgeLMTask(), "UltraJudge": UltraJudgeTask()}
+def main():
+    args = get_args()
+    openai_key = os.environ.get("OPENAI_API_KEY") or args.openai_api_key
+    if openai_key is None:
+        raise ValueError(f"OPENAI_API_KEY not found. Please set env variable or pass it in in CLU.")
+    
+    tasks = {
+        "UltraFeedback": UltraFeedbackTask.for_text_quality(),
+        "JudgeLM": JudgeLMTask(),
+        "UltraJudge": UltraJudgeTask()
+    }
     task = tasks[args.task_name]
     binary = (args.dataset_name == "HHH_Alignment")
     dataset, gold = get_dataset(args.dataset_name)
-    preds_dataset = generate_preds(dataset, task)
+    preds_dataset = generate_preds(dataset, task, openai_key)
     preds_dataset["gold"] = gold
     metrics = calc_metrics(preds_dataset, gold, binary=binary)
     if args.save_path:
         preds_dataset.save_to_disk(args.save_path)
+
+
+if __name__=="__main__":
+    main()

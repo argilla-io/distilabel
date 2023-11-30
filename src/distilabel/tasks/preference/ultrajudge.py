@@ -95,7 +95,7 @@ class UltraJudgeTask(PreferenceTask):
         """Returns a regex to extract the area, score, and rationale from the output."""
         return rf"({'|'.join(self.areas)})\s*-\s*(\d+(?:\.\d+)?)\n(.*?)(?=\n\n|\Z)"
 
-    def extract_final_scores(self, output):
+    def extract_final_scores(self, output: str) -> Tuple[float, float]:
         """Extracts final scores from the output for each assistant."""
         regex = re.compile((r"Final\s*scores:\s*(?:Assistant\s*1\s*(?:-|score:)\s*([\d.]+))?(?:\s|,)*"
                                 r"(?:Assistant\s*2\s*(?:-|score:)\s*([\d.]+))?\s*(([\d.]+)\s*-?\s*([\d.]+))?"))
