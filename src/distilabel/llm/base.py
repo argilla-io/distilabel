@@ -71,12 +71,17 @@ class LLM(ABC):
         if self.thread_pool_executor is not None:
             self.thread_pool_executor.shutdown()
 
+    @property
+    def num_threads(self) -> Union[int, None]:
+        if self.thread_pool_executor:
+            return self.thread_pool_executor._max_workers
+
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.thread_pool_executor._max_workers}, promp_format='{self.prompt_format}', model='{self.model_name}')"
+        return f"{self.__class__.__name__}(task={self.task.__class__.__name__}, num_threads={self.num_threads}, promp_format='{self.prompt_format}', model='{self.model_name}')"
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "task", self.task
-        yield "num_threads", self.thread_pool_executor._max_workers
+        yield "num_threads", self.num_threads
         yield "prompt_format", self.prompt_format
         if self.prompt_formatting_fn is not None:
             args = f"({', '.join(self.prompt_formatting_fn.__code__.co_varnames)})"
