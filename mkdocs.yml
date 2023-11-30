@@ -75,4 +75,16 @@ nav:
   - Getting started: index.md
   - Concepts: concepts.md
   - Guides: guides.md
+  - Learn:
+    - learn/index.md
+    - Tutorials:
+      - learn/tutorials/index.md
+      - Create a Preference Dataset: learn/tutorials/preference-dataset.md
+    - User Guides:
+      - Tasks:
+        - learn/user-guides/tasks/index.md
+        - Create your own task for Question Answering: learn/user-guides/tasks/qa-task.md
+      - LLMs: learn/user-guides/create-pipeline.md
+      - Pipelines:
+        - learn/user-guides/preference-dataset.md
   - Code Reference: reference/
