@@ -19,7 +19,7 @@ theme:
     - navigation.instant
     - navigation.tabs
     - toc.follow
-    - toc.integrate
+    #- toc.integrate
     - content.code.copy
     - content.code.annotate
   palette:
@@ -70,6 +70,7 @@ plugins:
       nav_file: SUMMARY.md
   - section-index
   - mkdocstrings
+  - mknotebooks
 
 nav:
   - Getting started: index.md
@@ -78,7 +79,7 @@ nav:
     - learn/index.md
     - Tutorials:
       - learn/tutorials/index.md
-      - Create a Preference Dataset: learn/tutorials/preference-dataset.md
+      - Create a Preference Dataset notebook: learn/tutorials/nb-preference-dataset.ipynb
     - User Guides:
       - Tasks:
         - learn/user-guides/tasks/index.md
@@ -86,4 +87,4 @@ nav:
       - LLMs: learn/user-guides/create-pipeline.md
       - Pipelines:
         - learn/user-guides/preference-dataset.md
-  - Code Reference: reference/
+  - API Reference: reference/
