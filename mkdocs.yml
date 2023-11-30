@@ -74,7 +74,6 @@ plugins:
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
-  - Guides: guides.md
   - Learn:
     - learn/index.md
     - Tutorials:
