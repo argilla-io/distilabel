@@ -1,3 +1,6 @@
-!!! warning "🚧 Work in Progress"
-    This page is a work in progress.
+# User guides
 
+In this section you will find guides that will help you understand the different components of `distilabel`.
+
+!!! note
+    ALL THE `/examples` BELONG HERE WITH EXPLANATION
