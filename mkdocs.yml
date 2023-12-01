@@ -79,12 +79,13 @@ nav:
     - learn/index.md
     - Tutorials:
       - learn/tutorials/index.md
-      - Create a Preference Dataset notebook: learn/tutorials/nb-preference-dataset.ipynb
+      - Create a Preference Dataset: learn/tutorials/nb-preference-dataset.ipynb
     - User Guides:
-      - Tasks:
-        - learn/user-guides/tasks/index.md
-        - Create your own task for Question Answering: learn/user-guides/tasks/qa-task.md
-      - LLMs: learn/user-guides/create-pipeline.md
-      - Pipelines:
-        - learn/user-guides/preference-dataset.md
-  - API Reference: reference/
+      - learn/user-guides/index.md
+      - Create an Inference Endpoint LLM for a QA task: learn/user-guides/inference-endpoints-custom-task.md
+  - API Reference:
+    - api/index.md
+    - distilabel.tasks: api/tasks.md
+    - distilabel.llms: api/llms.md
+    - distilabel.pipelines: api/pipeline.md
+    - Code reference: reference/
