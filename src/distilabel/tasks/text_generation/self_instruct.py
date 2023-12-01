@@ -21,6 +21,7 @@ from distilabel.tasks.text_generation.base import TextGenerationTask
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 
+
 @dataclass
 class SelfInstructTask(TextGenerationTask):
     """A `TextGenerationTask` following the Self-Instruct specification for building
@@ -69,7 +70,7 @@ class SelfInstructTask(TextGenerationTask):
         """
         render_kwargs = {
             "application_description": self.application_description,
-            "num_instructions": self.num_instructions,
+            "num_examples": self.num_instructions,
             "input": input,
         }
         return Prompt(
