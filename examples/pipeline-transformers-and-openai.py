@@ -42,6 +42,7 @@ if __name__ == "__main__":
             max_new_tokens=128,
             temperature=0.3,
             prompt_format="zephyr",
+            do_sample=True
         ),
         labeller=OpenAILLM(
             model="gpt-3.5-turbo",
