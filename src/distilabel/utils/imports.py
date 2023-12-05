@@ -98,7 +98,7 @@ _OPENAI_AVAILABLE = _check_package_is_available(
     "openai", min_version="1.0.0", greater_or_equal=True
 )
 _LLAMA_CPP_AVAILABLE = _check_package_is_available(
-    "llama_cpp", min_version="0.2.0", greater_or_equal=True
+    "llama_cpp_python", min_version="0.2.0", greater_or_equal=True
 )
 _VLLM_AVAILABLE = _check_package_is_available(
     "vllm", min_version="0.2.1", greater_or_equal=True
