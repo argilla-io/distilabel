@@ -14,17 +14,32 @@
 
 from __future__ import annotations
 
+import multiprocessing as mp
+import queue
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Type, Union
+from threading import Thread
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Type,
+    Union,
+)
 
+from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
+
+logger = get_logger()
 
 
 class LLM(ABC):
@@ -203,3 +218,205 @@ class LLM(ABC):
     def return_futures(self) -> bool:
         """Returns whether the LLM returns futures or not."""
         return self.thread_pool_executor is not None
+
+
+class _TextGenerationRequest:
+    def __init__(self, inputs, num_generations) -> None:
+        self.future = Future()
+        self.inputs = inputs
+        self.num_generations = num_generations
+
+
+class _TextGenerationCall:
+    def __init__(self, inputs, num_generations) -> None:
+        self.inputs = inputs
+        self.num_generations = num_generations
+
+
+class _TextGenerationResult:
+    def __init__(self, generations) -> None:
+        self.generations = generations
+
+
+class _GenerationProcess(mp.Process):
+    def __init__(self, process_llm: "ProcessLLM") -> None:
+        self._task = process_llm.task
+        # The function that will be executed to load the `LLM`
+        self._load_llm_fn = process_llm._load_llm_fn
+
+        # The `Semaphore` that will be used to synchronize the loading of the `LLM`.
+        self._load_llm_sem = process_llm._load_llm_sem
+
+        # Communication queues
+        self._call_queue = process_llm._call_queue
+        self._result_queue = process_llm._result_queue
+
+        super().__init__()
+
+    def _load_llm(self) -> LLM:
+        llm = self._load_llm_fn(self._task)
+        self._load_llm_sem.release()
+        return llm
+
+    def run(self) -> None:
+        llm = self._load_llm()
+
+        while True:
+            request = self._call_queue.get()
+            logger.info(f"Received request: {request}")
+            if request is None:
+                break
+            generations = llm.generate(
+                inputs=request.inputs, num_generations=request.num_generations
+            )
+            self._result_queue.put(_TextGenerationResult(generations))
+
+    def stop(self) -> None:
+        self._call_queue.put(None)
+
+
+class _BridgeThread(Thread):
+    def __init__(self, process_llm: "ProcessLLM") -> None:
+        # The `Semaphore` that will be used to synchronize the loading of the `LLM`.
+        self._load_llm_sem = process_llm._load_llm_sem
+
+        # Communication queues between the main process and the child process
+        self._call_queue = process_llm._call_queue
+        self._result_queue = process_llm._result_queue
+
+        self._pending_text_generation_request = (
+            process_llm.pending_text_generation_request
+        )
+        self._text_generation_request_ids_queue = (
+            process_llm.text_generation_request_ids_queue
+        )
+
+        super().__init__()
+
+    def _wait_llm_loaded(self) -> None:
+        logger.info("Waiting for the LLM to be loaded...")
+        self._load_llm_sem.acquire()
+        logger.info("LLM loaded!")
+
+    def _get_text_generation_request(self) -> _TextGenerationRequest:
+        text_generation_request_id = self._text_generation_request_ids_queue.get()
+        return self._pending_text_generation_request[text_generation_request_id]
+
+    def _call_generation_process(
+        self, text_generation_request: _TextGenerationRequest
+    ) -> None:
+        text_generation_call = _TextGenerationCall(
+            inputs=text_generation_request.inputs,
+            num_generations=text_generation_request.num_generations,
+        )
+        self._call_queue.put(text_generation_call)
+
+    def _get_result_generation_process(self) -> _TextGenerationResult:
+        return self._result_queue.get()
+
+    def _process_request(self) -> bool:
+        # Get a text generation request
+        text_generation_request_id = self._text_generation_request_ids_queue.get()
+        if text_generation_request_id is None:
+            return True
+
+        tg_request = self._pending_text_generation_request[text_generation_request_id]
+        tg_request.future.set_running_or_notify_cancel()
+
+        # Send the text generation request to the child process
+        self._call_generation_process(tg_request)
+
+        # Get the text generation result from the child process
+        generation_result = self._get_result_generation_process()
+
+        # Set the result of the text generation request
+        tg_request.future.set_result(generation_result.generations)
+
+        return False
+
+    def run(self) -> None:
+        self._wait_llm_loaded()
+        while True:
+            should_stop = self._process_request()
+            if should_stop:
+                break
+
+    def stop(self) -> None:
+        self._text_generation_request_ids_queue.put(None)
+
+
+class ProcessLLM:
+    """A class that wraps an `LLM` and performs generation in a separate process."""
+
+    def __init__(self, task: Task, load_llm_fn: Callable[..., LLM]) -> None:
+        """Initializes the `ProcessLLM` class.
+
+        Args:
+            load_llm_fn (Callable[..., LLM]): a function that will be executed in the
+                child process to load the `LLM`. It must return an `LLM` instance.
+        """
+        self.task = task
+
+        self._load_llm_fn = load_llm_fn
+
+        # The bridge thread will act as a bridge between the main process and the child
+        # process for communication. It will send the generation requests to the child
+        # process and receive the results from the child process.
+        self._bridge_thread = None
+
+        # The child process which will load the `LLM` and perform the generation.
+        self._generation_process = None
+
+        # The `Semaphore` that will be used to synchronize the loading of the `LLM`.
+        # `_BridgeThread` will be blocked until `_GenerationProcess` has called the
+        # `load_llm_fn` and the `LLM` has been loaded.
+        self._load_llm_sem = mp.Semaphore(0)
+
+        # This thread will create text generation requests
+        self.pending_text_generation_request: Dict[int, _TextGenerationRequest] = {}
+        self.text_generation_request_count = 0
+        self.text_generation_request_ids_queue = queue.Queue[int]()
+
+        # Queues for the communication between the `_BridgeThread` and the `_GenerationProcess`
+        self._call_queue = mp.Queue()
+        self._result_queue = mp.Queue()
+
+    def _start_bridge_thread(self) -> None:
+        if self._bridge_thread is None:
+            self._bridge_thread = _BridgeThread(self)
+            self._bridge_thread.start()
+            self._generation_process = _GenerationProcess(self)
+            self._generation_process.start()
+
+    def _add_text_generation_request(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> Future:
+        text_generation_request = _TextGenerationRequest(
+            inputs=inputs, num_generations=num_generations
+        )
+        self.pending_text_generation_request[
+            self.text_generation_request_count
+        ] = text_generation_request
+        self.text_generation_request_ids_queue.put(self.text_generation_request_count)
+        self.text_generation_request_count += 1
+        return text_generation_request.future
+
+    def generate(
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> Future[List["LLMOutput"]]:
+        self._start_bridge_thread()
+        return self._add_text_generation_request(inputs, num_generations)
+
+    def shutdown(self) -> None:
+        self._generation_process.stop()
+        self._generation_process.join()
+
+        self._bridge_thread.stop()
+        self._bridge_thread.join()
+
+    @property
+    def return_futures(self) -> bool:
+        return True
