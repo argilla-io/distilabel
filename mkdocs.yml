@@ -60,6 +60,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - footnotes
 
 plugins:
   - search
@@ -85,7 +86,7 @@ nav:
       - Create an Inference Endpoint LLM for a QA task: learn/user-guides/inference-endpoints-custom-task.md
   - API Reference:
     - api/index.md
+    - distilabel.pipelines: api/pipeline.md
     - distilabel.tasks: api/tasks.md
     - distilabel.llms: api/llms.md
-    - distilabel.pipelines: api/pipeline.md
     - Code reference: reference/

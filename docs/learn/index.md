@@ -1,5 +1,5 @@
 # Learn
 
-This is the reference section to learn how to use the power that `distilabel` has to offer. Here you can find the tutorials and guides to learn how to use `distilabel`.
+This section serves as the reference guide for harnessing the capabilities of `distilabel`. Explore tutorials and guides that delve into the technical aspects of utilizing `distilabel`.
 
-Consider this the entrypoint to become an expert AI Feedback dataset crafter.
+Consider this your initial step towards mastering the intricacies of `distilabel` for expert AI Feedback dataset crafting.

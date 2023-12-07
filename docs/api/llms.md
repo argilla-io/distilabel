@@ -1,12 +1,12 @@
 # LLMs
 
-Already familiar with the `LLM` component? Otherwise you can take a look at the [concepts](../concepts.md) and come back later.
-
 The following LLMs are implemented:
+
+- [OpenAILLM][distilabel.llm.openai.OpenAILLM]: 
 
 - [LlammaCppLLM][distilabel.llm.llama_cpp.LlamaCppLLM]: 
 
-- [OpenAILLM][distilabel.llm.openai.OpenAILLM]: 
+    Useful when you need to run your LLMs locally, keep located your weights and run them.
 
 - [vLLM][distilabel.llm.vllm.vLLM]: 
 
@@ -15,3 +15,14 @@ The following LLMs are implemented:
     - [TransformersLLM][distilabel.llm.huggingface.transformers.TransformersLLM]: 
 
     - [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM]: 
+
+        Useful if you want to use the huggingface infraestructure to deploy your LLM easily.
+
+---
+
+```python
+from distilabel.llm import InferenceEndpointsLLM
+
+
+```
+
