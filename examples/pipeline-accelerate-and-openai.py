@@ -85,6 +85,7 @@ if __name__ == "__main__":
             os.getenv("HF_REPO_ID"),  # type: ignore
             split="train",
             private=True,
+            token=os.getenv("HF_TOKEN", None),
         )
         
         try:
