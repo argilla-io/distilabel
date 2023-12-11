@@ -32,7 +32,6 @@ def get_current_device() -> int:
     return Accelerator().local_process_index if torch.cuda.is_available() else "cpu"
 
 if __name__ == "__main__":
-    
     accelerator = Accelerator()
     with accelerator.local_main_process_first():
         dataset = (
