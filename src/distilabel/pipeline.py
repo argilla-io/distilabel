@@ -626,15 +626,19 @@ class Pipeline:
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
         try:
+            # First we generate a `Dataset` only with the first row from the whole dataset
+            subset = Dataset.from_dict(
+                {key: [value] for key, value in dataset[0].items()}
+            )
+            # Then we call the `_generate` method with it
             _ = self._generate(
-                dataset=Dataset.from_dict(
-                    {key: [value] for key, value in dataset[0].items()}
-                ),  # type: ignore
-                num_generations=num_generations,
-                batch_size=batch_size,
-                enable_checkpoints=enable_checkpoints,
-                display_progress_bar=display_progress_bar,
-                verbose=verbose,
+                dataset=subset,
+                # Default kwargs to make the process as simple as possible
+                num_generations=1,
+                batch_size=1,
+                enable_checkpoints=False,
+                display_progress_bar=False,
+                verbose=False,
             )
         except Exception as e:
             raise RuntimeError(
