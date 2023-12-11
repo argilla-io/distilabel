@@ -41,7 +41,9 @@ if __name__ == "__main__":
         )
 
     model = AutoModelForCausalLM.from_pretrained(
-        "HuggingFaceH4/zephyr-7b-beta", dtype=torch.bfloat16, device_map={"": get_current_device()},
+        "HuggingFaceH4/zephyr-7b-beta",
+        torch_dtype=torch.bfloat16,
+        device_map={"": get_current_device()},
     )
     tokenizer = AutoTokenizer.from_pretrained("HuggingFaceH4/zephyr-7b-beta")
     tokenizer.padding_side = "left"
