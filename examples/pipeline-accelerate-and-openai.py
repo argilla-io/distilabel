@@ -99,6 +99,8 @@ if __name__ == "__main__":
             )
 
             # Convert into an Argilla dataset and push it to Argilla
+            dataset.__class__ = CustomDataset
+            dataset.task = UltraFeedbackTask.for_instruction_following()
             rg_dataset = dataset.to_argilla()
             rg_dataset.push_to_argilla(
                 name=f"my-dataset-{uuid4()}",
