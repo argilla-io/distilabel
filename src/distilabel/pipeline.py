@@ -628,7 +628,7 @@ class Pipeline:
         try:
             _ = self._generate(
                 dataset=Dataset.from_dict(
-                    {key: [value]} for key, value in dataset[0].items()
+                    {key: [value] for key, value in dataset[0].items()}
                 ),  # type: ignore
                 num_generations=num_generations,
                 batch_size=batch_size,
