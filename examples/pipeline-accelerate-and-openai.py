@@ -20,6 +20,7 @@ import torch
 from accelerate import Accelerator
 from accelerate.utils import gather_object
 from datasets import load_dataset, Dataset
+from distilabel.dataset import CustomDataset
 from distilabel.llm import OpenAILLM, TransformersLLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
