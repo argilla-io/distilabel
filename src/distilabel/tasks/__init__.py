@@ -31,5 +31,5 @@ __all__ = [
     "TextGenerationTask",
     "OpenAITextGenerationTask",
     "Llama2TextGenerationTask",
-    "SelfInstructTask"
+    "SelfInstructTask",
 ]
