@@ -94,8 +94,8 @@ if __name__ == "__main__":
             import argilla as rg
 
             rg.init(
-                api_url="<ARGILLA_API_URL>",
-                api_key="<ARGILLA_API_KEY>",
+                api_url=os.getenv("ARGILLA_API_URL"),
+                api_key=os.getenv("ARGILLA_API_KEY"),
             )
 
             # Convert into an Argilla dataset and push it to Argilla
