@@ -1,6 +1,6 @@
 # LLMs
 
-The LLM class encapsulates the functionality for interacting with a language model. It distinguishes between *task* specifications and configurable arguments that influence the LLM's behavior. For illustration purposes, we employ the `TextGenerationTask` in this section and guide readers to the dedicated [`Tasks`](../api/tasks.md) section for comprehensive details.
+The `LLM` class encapsulates the functionality for interacting with a language model. It distinguishes between *task* specifications and configurable arguments that influence the LLM's behavior. For illustration purposes, we employ the `TextGenerationTask` in this section and guide readers to the dedicated [`Tasks`](../technical-reference/tasks.md) section for comprehensive details.
 
 To delineate their behavior, we have access to a series of arguments specific for each of them, but first let's see the general ones, and the `generate` method.
 
@@ -127,7 +127,7 @@ llm = TransformersLLM(
 )
 ```
 
-### InferenceEndpointsLLM
+### Inference Endpoints
 
 Hugging Face provides a streamlined approach for deploying models through [inference endpoints](https://huggingface.co/inference-endpoints) on their infrastructure. Opt for this solution if your model is hosted on Hugging Face.
 
