@@ -105,7 +105,7 @@ if __name__ == "__main__":
             rg_dataset = dataset.to_argilla()
             rg_dataset.push_to_argilla(
                 name=f"my-dataset-{uuid4()}",
-                workspace="<ARGILLA_WORKSPACE_NAME>",
+                workspace="admin",
             )
         except ImportError:
             pass
