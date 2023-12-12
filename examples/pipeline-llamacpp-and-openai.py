@@ -17,7 +17,7 @@ import os
 from datasets import load_dataset
 from distilabel.llm import LlamaCppLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks import Llama2TextGenerationTask, UltraFeedbackTask
+from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from llama_cpp import Llama
 
 if __name__ == "__main__":
@@ -31,8 +31,9 @@ if __name__ == "__main__":
         generator=LlamaCppLLM(
             model=Llama(
                 model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=-1
-            ),  # e.g. https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_0.gguf
-            task=Llama2TextGenerationTask(),
+            ),  # e.g. download it from https://huggingface.co/TheBloke/notus-7b-v1-GGUF/blob/main/notus-7b-v1.Q4_0.gguf
+            task=TextGenerationTask(),
+            prompt_format="notus",
             max_new_tokens=128,
             temperature=0.3,
         ),
@@ -59,6 +60,7 @@ if __name__ == "__main__":
         os.getenv("HF_REPO_ID"),  # type: ignore
         split="train",
         private=True,
+        token=os.getenv("HF_TOKEN", None),
     )
 
     try:
@@ -67,15 +69,15 @@ if __name__ == "__main__":
         import argilla as rg
 
         rg.init(
-            api_url="<ARGILLA_API_URL>",
-            api_key="<ARGILLA_API_KEY>",
+            api_url=os.getenv("ARGILLA_API_URL"),
+            api_key=os.getenv("ARGILLA_API_KEY"),
         )
 
         # Convert into an Argilla dataset and push it to Argilla
         rg_dataset = dataset.to_argilla()
         rg_dataset.push_to_argilla(
             name=f"my-dataset-{uuid4()}",
-            workspace="<ARGILLA_WORKSPACE_NAME>",
+            workspace="admin",
         )
     except ImportError:
         pass

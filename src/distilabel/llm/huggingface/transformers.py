@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import warnings
-from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from distilabel.llm.base import LLM
@@ -26,7 +25,6 @@ if _TRANSFORMERS_AVAILABLE:
     from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizer
 
 if TYPE_CHECKING:
-    from torch import device
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
     from distilabel.tasks.base import Task
@@ -106,11 +104,8 @@ class TransformersLLM(LLM):
         self.typical_p = typical_p
 
         self.model = model
-        if self.device != "cpu":
-            self.model.to(self.device)
-
         self.tokenizer = tokenizer
-        self.tokenizer.padding_side = "left"
+
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         if (
@@ -143,15 +138,6 @@ class TransformersLLM(LLM):
         """Returns the name of the Transformers model."""
         return self.model.config.name_or_path
 
-    @cached_property
-    def device(self) -> "device":
-        """Returns the device to be used for generation."""
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        if torch.backends.mps.is_available() and torch.backends.mps.is_built():  # type: ignore
-            return torch.device("mps")
-        return torch.device("cpu")
-
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List[LLMOutput]]:
@@ -169,8 +155,7 @@ class TransformersLLM(LLM):
             inputs, default_format=None, expected_output_type=str
         )
         encodings = self.tokenizer(prompts, padding=True, return_tensors="pt")
-        if self.device != "cpu":
-            encodings = encodings.to(self.device)
+        encodings = encodings.to(self.model.device)
         with torch.inference_mode():
             generated_ids = self.model.generate(
                 **encodings,  # type: ignore
