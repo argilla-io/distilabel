@@ -1,6 +1,6 @@
 # LLMs
 
-The `LLM` class encapsulates the functionality for interacting with a language model. It distinguishes between *task* specifications and configurable arguments that influence the LLM's behavior. For illustration purposes, we employ the `TextGenerationTask` in this section and guide readers to the dedicated [`Tasks`](../technical-reference/tasks.md) section for comprehensive details.
+The [`LLM`][distilabel.llm.base.LLM] class encapsulates the functionality for interacting with a language model. It distinguishes between *task* specifications and configurable arguments that influence the LLM's behavior. For illustration purposes, we employ the `TextGenerationTask` in this section and guide readers to the dedicated [`Tasks`](../technical-reference/tasks.md) section for comprehensive details.
 
 To delineate their behavior, we have access to a series of arguments specific for each of them, but first let's see the general ones, and the `generate` method.
 
@@ -29,7 +29,7 @@ Aside from the specific parameters that each LLM has, let's briefly introduce th
 
 - `prompt_format` and `prompt_formatting_fn`:
 
-    These two arguments allow to tweak the prompt of our models, for example we can direct the LLM to format the prompt according to one of the defined formats, while `prompt_formatting_fn` allows to pass a function that will be applied to the prompt before the generation, for extra control of what we ingest to the model.
+    These two arguments allow to tweak the prompt of our models, for example we can direct the `LLM` to format the prompt according to one of the defined formats, while `prompt_formatting_fn` allows to pass a function that will be applied to the prompt before the generation, for extra control of what we ingest to the model.
 
 Once we have a `LLM` instantiated we will interact with it by means of the `generate` method. This method will take as arguments the inputs from which we want our model to generate text, and the number of generations we want. We will obtain in return lists of `LLMOutput`[^2], which is a general container for the LLM's outputs.
 
