@@ -80,7 +80,6 @@ nav:
     - learn/index.md
     - Tutorials:
       - learn/tutorials/index.md
-      - Create a Preference Dataset: learn/tutorials/nb-preference-dataset.ipynb
     - User Guides:
       - learn/user-guides/index.md
   - Technical References:
