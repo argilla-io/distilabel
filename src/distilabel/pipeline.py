@@ -514,8 +514,7 @@ class Pipeline:
         if self.labeller is not None and isinstance(self.labeller, ProcessLLM):
             self.labeller.teardown()
 
-    @use_progress_bar
-    def generate(  # noqa: C901
+    def _generate(  # noqa: C901
         self,
         dataset: Dataset,
         num_generations: int = 1,
@@ -656,6 +655,82 @@ class Pipeline:
 
         return self._build_dataset(
             dataset, generations=generations, labels=labels, batch_size=batch_size
+        )
+
+    def generate(
+        self,
+        dataset: Dataset,
+        num_generations: int = 1,
+        batch_size: int = 1,
+        enable_checkpoints: bool = True,
+        display_progress_bar: bool = False,
+        verbose: bool = True,
+    ) -> CustomDataset:
+        """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
+
+        Args:
+            dataset (Dataset): the dataset to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each
+                input. Defaults to `1`.
+            batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
+            enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
+            display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
+            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
+
+        Returns:
+            CustomDataset: the final dataset.
+
+        Raises:
+            RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
+            UserWarning: if the `Pipeline` fails during the generation or labelling steps and
+                `enable_checkpoints` is set to `False`.
+
+        Examples:
+            >>> from distilabel.llm.huggingface import TransformersLLM
+            >>> from distilabel.llm.openai_ import OpenAILLM
+            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from distilabel.pipeline import Pipeline
+
+            >>> generator = TransformersLLM(
+            ...     model="meta-llama/Llama-2-7b-chat-hf",
+            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
+            ...     task=Llama2TextGenerationTask(),
+            ... )
+            >>> labeller = OpenAILLM(
+            ...     model="gpt-3.5-turbo",
+            ...     task=UltraFeedbackTask.for_text_quality(),
+            ... )
+            >>> pipeline = Pipeline(generator=generator, labeller=labeller)
+            >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
+        """
+        try:
+            # First we generate a `Dataset` only with the first row from the whole dataset
+            subset = Dataset.from_dict(
+                {key: [value] for key, value in dataset[0].items()}
+            )
+            # Then we call the `_generate` method with it
+            _ = self._generate(
+                dataset=subset,
+                # Default kwargs to make the process as simple as possible
+                num_generations=1,
+                batch_size=1,
+                enable_checkpoints=False,
+                display_progress_bar=False,
+                verbose=False,
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"`Pipeline.generate` failed during the dry run over {dataset[0]} with exception: {e}"
+            ) from e
+
+        return use_progress_bar(self._generate)(
+            dataset=dataset,
+            num_generations=num_generations,
+            batch_size=batch_size,
+            enable_checkpoints=enable_checkpoints,
+            display_progress_bar=display_progress_bar,
+            verbose=verbose,
         )
 
 

@@ -45,7 +45,7 @@ if __name__ == "__main__":
     llm = InferenceEndpointsLLM(
         endpoint_name=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
         endpoint_namespace=os.getenv("HF_NAMESPACE"),  # type: ignore
-        token=os.getenv("HF_TOKEN") or None,
+        token=os.getenv("HF_TOKEN", None),
         task=Llama2QuestionAnsweringTask(),
     )
     print(llm.generate([{"question": "What's the capital of Spain?"}]))

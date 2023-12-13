@@ -55,10 +55,12 @@ if __name__ == "__main__":
     end = time.time()
     print("Elapsed", end - start)
 
+    # Push to the HuggingFace Hub
     dataset.push_to_hub(
         os.getenv("HF_REPO_ID"),  # type: ignore
         split="train",
-        private=False,
+        private=True,
+        token=os.getenv("HF_TOKEN", None),
     )
 
     try:
@@ -67,10 +69,15 @@ if __name__ == "__main__":
         import argilla as rg
 
         rg.init(
-            api_url=os.getenv("ARGILLA_API_URL"), api_key=os.getenv("ARGILLA_API_KEY")
+            api_url=os.getenv("ARGILLA_API_URL"),
+            api_key=os.getenv("ARGILLA_API_KEY"),
         )
 
+        # Convert into an Argilla dataset and push it to Argilla
         rg_dataset = dataset.to_argilla()
-        rg_dataset.push_to_argilla(name=f"my-dataset-{uuid4()}", workspace="admin")
+        rg_dataset.push_to_argilla(
+            name=f"my-dataset-{uuid4()}",
+            workspace="admin",
+        )
     except ImportError:
         pass
