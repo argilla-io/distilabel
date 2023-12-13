@@ -15,7 +15,17 @@
 import logging
 import os
 
+from rich.logging import RichHandler
+
 DISTILABEL_LOG_LEVEL = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[PID: %(process)d] %(message)s",
+    datefmt="%X",
+    handlers=[RichHandler(rich_tracebacks=True, tracebacks_show_locals=True)],
+)
 
 
 def _get_root_logger() -> logging.Logger:
