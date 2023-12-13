@@ -270,7 +270,9 @@ class _GenerationProcess(mp.Process):
     def _load_llm(self) -> LLM:
         llm = self._load_llm_fn(self._task)
         self._set_model_name(llm.model_name)
-        logger.info(f"Loaded '{llm.__class__.__name__}' with model '{llm.model_name}'!")
+        logger.debug(
+            f"Loaded '{llm.__class__.__name__}' with model '{llm.model_name}'!"
+        )
         self._load_llm_sem.release()
         return llm
 
@@ -288,13 +290,13 @@ class _GenerationProcess(mp.Process):
         while True:
             request = self._call_queue.get()
             if request == -1:
-                logger.info(
+                logger.debug(
                     f"Process with '{name}' received stop request. Stopping generation process..."
                 )
                 break
 
             # Perform generation
-            logger.info(f"Process with '{name}' received request...")
+            logger.debug(f"Process with '{name}' received request...")
             results = llm.generate(
                 inputs=request.inputs, num_generations=request.num_generations
             )
@@ -339,11 +341,11 @@ class _BridgeThread(Thread):
 
     def _wait_llm_loaded(self) -> None:
         generation_process_pid = self._generation_process.pid
-        logger.info(
+        logger.debug(
             f"Waiting for process with PID {generation_process_pid} to load the LLM..."
         )
         self._load_llm_sem.acquire()
-        logger.info(f"Process with PID {generation_process_pid} has loaded the LLM!")
+        logger.debug(f"Process with PID {generation_process_pid} has loaded the LLM!")
 
     def _get_text_generation_request(self) -> _TextGenerationRequest:
         text_generation_request_id = self._text_generation_request_ids_queue.get()
