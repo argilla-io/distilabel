@@ -502,9 +502,6 @@ class Pipeline:
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
-
-        self._teardown()
-
         return _dataset  # type: ignore
 
     def _teardown(self) -> None:
@@ -521,7 +518,6 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -532,7 +528,6 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
 
         Returns:
             CustomDataset: the final dataset.
@@ -561,9 +556,6 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
-        if not verbose:
-            logger.setLevel("ERROR")
-
         if (
             self.labeller is not None
             and self.generator is not None
@@ -705,6 +697,7 @@ class Pipeline:
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
         try:
+            logger.info("Executing dry-run...")
             # First we generate a `Dataset` only with the first row from the whole dataset
             subset = Dataset.from_dict(
                 {key: [value] for key, value in dataset[0].items()}
@@ -717,21 +710,28 @@ class Pipeline:
                 batch_size=1,
                 enable_checkpoints=False,
                 display_progress_bar=False,
-                verbose=False,
             )
         except Exception as e:
+            self._teardown()
             raise RuntimeError(
                 f"`Pipeline.generate` failed during the dry run over {dataset[0]} with exception: {e}"
             ) from e
 
-        return use_progress_bar(self._generate)(
+        logger.info(
+            "Dry-run executed with no issues. Starting the actual generation..."
+        )
+
+        dataset = use_progress_bar(self._generate)(
             dataset=dataset,
             num_generations=num_generations,
             batch_size=batch_size,
             enable_checkpoints=enable_checkpoints,
             display_progress_bar=display_progress_bar,
-            verbose=verbose,
         )
+
+        self._teardown()
+
+        return dataset
 
 
 def pipeline(
