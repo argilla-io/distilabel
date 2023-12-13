@@ -19,6 +19,9 @@ import queue
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
+from ctypes import c_char
+from enum import Enum, auto
+from functools import cached_property
 from threading import Thread
 from typing import (
     TYPE_CHECKING,
@@ -33,6 +36,7 @@ from typing import (
 
 from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
+from distilabel.utils.types import is_list_of_futures
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
@@ -40,6 +44,11 @@ if TYPE_CHECKING:
     from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
+
+
+class LLMFutures(Enum):
+    CONTAINS_ROWS = auto()
+    CONTAINS_BATCHES = auto()
 
 
 class LLM(ABC):
@@ -195,7 +204,7 @@ class LLM(ABC):
             if progress_callback_func is not None:
                 advance = (
                     num_generations * len(inputs)
-                    if not self.return_futures
+                    if self.return_futures is not None
                     else num_generations
                 )
                 progress_callback_func(advance=advance)
@@ -215,20 +224,22 @@ class LLM(ABC):
         return generations
 
     @property
-    def return_futures(self) -> bool:
-        """Returns whether the LLM returns futures or not."""
-        return self.thread_pool_executor is not None
+    def return_futures(self) -> Union[LLMFutures, None]:
+        return LLMFutures.CONTAINS_ROWS
+
+
+MAX_MODEL_NAME_LENGTH = 256
 
 
 class _TextGenerationRequest:
-    def __init__(self, inputs, num_generations) -> None:
+    def __init__(self, inputs: List[Dict[str, Any]], num_generations: int) -> None:
         self.future = Future()
         self.inputs = inputs
         self.num_generations = num_generations
 
 
 class _TextGenerationCall:
-    def __init__(self, inputs, num_generations) -> None:
+    def __init__(self, inputs: List[Dict[str, Any]], num_generations: int) -> None:
         self.inputs = inputs
         self.num_generations = num_generations
 
@@ -251,28 +262,55 @@ class _GenerationProcess(mp.Process):
         self._call_queue = process_llm._call_queue
         self._result_queue = process_llm._result_queue
 
+        # Shared memory object for transfering the `model_name` to the main process
+        self._model_name = process_llm._model_name
+
         super().__init__()
 
     def _load_llm(self) -> LLM:
         llm = self._load_llm_fn(self._task)
+        self._set_model_name(llm.model_name)
+        logger.info(f"Loaded '{llm.__class__.__name__}' with model '{llm.model_name}'!")
         self._load_llm_sem.release()
         return llm
 
+    def _set_model_name(self, model_name: str) -> None:
+        truncated_model_name = model_name[: MAX_MODEL_NAME_LENGTH - 1].encode("utf-8")
+        with self._model_name:
+            for i, c in enumerate(truncated_model_name):
+                self._model_name[i] = c
+            self._model_name[len(truncated_model_name)] = b"\0"
+
     def run(self) -> None:
         llm = self._load_llm()
+        name = f"{llm.__class__.__name__}({llm.model_name})"
 
         while True:
             request = self._call_queue.get()
-            logger.info(f"Received request: {request}")
-            if request is None:
+            if request == -1:
+                logger.info(
+                    f"Process with '{name}' received stop request. Stopping generation process..."
+                )
                 break
-            generations = llm.generate(
+
+            # Perform generation
+            logger.info(f"Process with '{name}' received request...")
+            results = llm.generate(
                 inputs=request.inputs, num_generations=request.num_generations
             )
+
+            # Generations are a list of `Future`s because the `LLM` is using a thread pool
+            if is_list_of_futures(results):
+                generations = []
+                for future in results:
+                    generations.extend(future.result())
+            else:
+                generations = results
+
             self._result_queue.put(_TextGenerationResult(generations))
 
     def stop(self) -> None:
-        self._call_queue.put(None)
+        self._call_queue.put(-1)
 
 
 class _BridgeThread(Thread):
@@ -280,10 +318,14 @@ class _BridgeThread(Thread):
         # The `Semaphore` that will be used to synchronize the loading of the `LLM`.
         self._load_llm_sem = process_llm._load_llm_sem
 
+        self._generation_process = process_llm._generation_process
+
         # Communication queues between the main process and the child process
         self._call_queue = process_llm._call_queue
         self._result_queue = process_llm._result_queue
 
+        # Pending text generation requests and queue for communication between
+        # the main thread and the `_BridgeThread`
         self._pending_text_generation_request = (
             process_llm.pending_text_generation_request
         )
@@ -291,12 +333,17 @@ class _BridgeThread(Thread):
             process_llm.text_generation_request_ids_queue
         )
 
+        self._model_name = process_llm._model_name
+
         super().__init__()
 
     def _wait_llm_loaded(self) -> None:
-        logger.info("Waiting for the LLM to be loaded...")
+        generation_process_pid = self._generation_process.pid
+        logger.info(
+            f"Waiting for process with PID {generation_process_pid} to load the LLM..."
+        )
         self._load_llm_sem.acquire()
-        logger.info("LLM loaded!")
+        logger.info(f"Process with PID {generation_process_pid} has loaded the LLM!")
 
     def _get_text_generation_request(self) -> _TextGenerationRequest:
         text_generation_request_id = self._text_generation_request_ids_queue.get()
@@ -317,7 +364,7 @@ class _BridgeThread(Thread):
     def _process_request(self) -> bool:
         # Get a text generation request
         text_generation_request_id = self._text_generation_request_ids_queue.get()
-        if text_generation_request_id is None:
+        if text_generation_request_id == -1:
             return True
 
         tg_request = self._pending_text_generation_request[text_generation_request_id]
@@ -336,13 +383,15 @@ class _BridgeThread(Thread):
 
     def run(self) -> None:
         self._wait_llm_loaded()
+        with self._model_name:
+            "".join([c.decode() for c in self._model_name if c != b"\0"])
         while True:
             should_stop = self._process_request()
             if should_stop:
                 break
 
     def stop(self) -> None:
-        self._text_generation_request_ids_queue.put(None)
+        self._text_generation_request_ids_queue.put(-1)
 
 
 class ProcessLLM:
@@ -381,24 +430,38 @@ class ProcessLLM:
         self._call_queue = mp.Queue()
         self._result_queue = mp.Queue()
 
+        # Shared memory object for transfering the `model_name` to the main process
+        # once the `LLM` is loaded
+        self._model_name = mp.Array(c_char, MAX_MODEL_NAME_LENGTH)
+
     def _start_bridge_thread(self) -> None:
         if self._bridge_thread is None:
-            self._bridge_thread = _BridgeThread(self)
-            self._bridge_thread.start()
             self._generation_process = _GenerationProcess(self)
             self._generation_process.start()
+            self._bridge_thread = _BridgeThread(self)
+            self._bridge_thread.start()
 
     def _add_text_generation_request(
-        self, inputs: List[Dict[str, Any]], num_generations: int = 1
-    ) -> Future:
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> Future[List[List["LLMOutput"]]]:
+        def _progress():
+            if progress_callback_func is not None:
+                progress_callback_func(advance=num_generations * len(inputs))
+
         text_generation_request = _TextGenerationRequest(
             inputs=inputs, num_generations=num_generations
         )
+        # Put the request information in the dictionary associated to the request id
         self.pending_text_generation_request[
             self.text_generation_request_count
         ] = text_generation_request
+        # Put the request id in the queue (for the `_BridgeThread` to consume it)
         self.text_generation_request_ids_queue.put(self.text_generation_request_count)
         self.text_generation_request_count += 1
+        text_generation_request.future.add_done_callback(lambda _: _progress())
         return text_generation_request.future
 
     def generate(
@@ -406,17 +469,26 @@ class ProcessLLM:
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Future[List["LLMOutput"]]:
+    ) -> Future[List[List["LLMOutput"]]]:
         self._start_bridge_thread()
-        return self._add_text_generation_request(inputs, num_generations)
+        return self._add_text_generation_request(
+            inputs, num_generations, progress_callback_func
+        )
 
-    def shutdown(self) -> None:
-        self._generation_process.stop()
-        self._generation_process.join()
+    def teardown(self) -> None:
+        if self._generation_process is not None:
+            self._generation_process.stop()
+            self._generation_process.join()
 
-        self._bridge_thread.stop()
-        self._bridge_thread.join()
+        if self._bridge_thread is not None:
+            self._bridge_thread.stop()
+            self._bridge_thread.join()
+
+    @cached_property
+    def model_name(self) -> str:
+        with self._model_name:
+            return "".join([c.decode() for c in self._model_name if c != b"\0"])
 
     @property
-    def return_futures(self) -> bool:
-        return True
+    def return_futures(self) -> Union[LLMFutures, None]:
+        return LLMFutures.CONTAINS_BATCHES
