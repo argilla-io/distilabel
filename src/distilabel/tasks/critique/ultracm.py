@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -47,9 +48,12 @@ class UltraCMTask(CritiqueTask):
         }
         return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: "
 
-    def parse_output(self, output: str) -> UltraCMOutput:
+    def parse_output(self, output: str) -> UltraCMOutput:  # type: ignore
         """Parses the output of the model into the desired format."""
-        split_output = output.split("\n")
-        score = float(split_output[0].strip())
-        critique = "\n".join(split_output[1:])
-        return UltraCMOutput(score=score, critique=critique)
+        pattern = r"(\d+(?:\.\d+)?)\s*(.*)"
+        match = re.match(pattern, output)
+        if match:
+            return UltraCMOutput(
+                score=float(match.group(1)),
+                critique=match.group(2).strip(),
+            )
