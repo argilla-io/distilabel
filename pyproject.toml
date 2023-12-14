@@ -47,7 +47,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/argilla/distilabel#readme"
+Documentation = "https://distilabel.argilla.io/"
 Issues = "https://github.com/argilla/distilabel/issues"
 Source = "https://github.com/argilla/distilabel"
 
