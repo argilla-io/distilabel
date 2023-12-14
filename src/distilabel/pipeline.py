@@ -242,6 +242,20 @@ class Pipeline:
         inputs: List[Dict[str, Any]],
         progress_callback_func: Union[Callable, None] = None,
     ) -> Union[Future[List["LLMOutput"]], List[Future], List["LLMOutput"]]:
+        """Gets the batch labels for the given inputs.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for labelling. Each dict
+                should contain a key with the text generations.
+            progress_callback_func (Union[Callable, None], optional): the callback function
+                to be called when the progress of the labelling process changes. Defaults
+                to `None`.
+
+        Returns:
+            Union[Future[List["LLMOutput"]], List[Future], List["LLMOutput"]]: the batch
+                labels.
+        """
+
         return self.labeller.generate(  # type: ignore
             inputs=inputs,
             # `num_generations` is always 1 because labelling the same input multiple times

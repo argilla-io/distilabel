@@ -47,6 +47,17 @@ logger = get_logger()
 
 
 class LLMFutures(Enum):
+    """An enum used to indicate whether the `LLM` returns futures or not, and if so
+    what the futures contains.
+
+    Attributes:
+        CONTAINS_ROWS: used to indicate that the `LLM` will return `Future`s that
+            contains a `List[List[LLMOutput]]`. The first list just contains 1 element
+            (the row) and the second list contains the generations for that row.
+        CONTAINS_BATCHES: used to indicate that the `LLM` will return `Future`s that
+            contains a `List[List[LLMOutput]]`.
+    """
+
     CONTAINS_ROWS = auto()
     CONTAINS_BATCHES = auto()
 
@@ -225,6 +236,8 @@ class LLM(ABC):
 
     @property
     def return_futures(self) -> Union[LLMFutures, None]:
+        """Returns whether the LLM returns futures or not, and if so what the futures
+        contains."""
         return LLMFutures.CONTAINS_ROWS
 
 
@@ -232,6 +245,9 @@ MAX_MODEL_NAME_LENGTH = 256
 
 
 class _TextGenerationRequest:
+    """An object used to transfer the text generation request from the main process to
+    the `_BridgeThread`."""
+
     def __init__(self, inputs: List[Dict[str, Any]], num_generations: int) -> None:
         self.future = Future()
         self.inputs = inputs
@@ -575,4 +591,6 @@ class ProcessLLM:
 
     @property
     def return_futures(self) -> Union[LLMFutures, None]:
+        """Returns whether the LLM returns futures or not, and if so what the futures
+        contains."""
         return LLMFutures.CONTAINS_BATCHES
