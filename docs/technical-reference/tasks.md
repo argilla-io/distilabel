@@ -28,14 +28,7 @@ The following methods define a task:
 After defining a task, the only action required is to pass it to the corresponding `LLM`. All the intricate processes are then handled internally:
 
 ```python
-from distilabel.llm import TransformersLLM
-from distilabel.tasks import TextGenerationTask
-# This snippet uses `TransformersLLM`, but is the same for every other `LLM`.
-generator = TransformersLLM(
-    model=...,
-    tokenizer=...,
-    task=TextGenerationTask(),
-)
+--8<-- "docs/snippets/technical-reference/tasks/generic_transformersllm.py"
 ```
 
 For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
@@ -45,14 +38,7 @@ For the API reference visit [TextGenerationTask][distilabel.tasks.text_generatio
 This class inherits from the `TextGenerationTask` and it's specially prepared to deal with prompts in the form of the *Llama2* model, so it should be the go to task for `LLMs` intented for text generation that were trained using this prompt format. The specific prompt formats can be found in the source code of the [Prompt][distilabel.tasks.prompt.Prompt] class.
 
 ```python
-from distilabel.llm import TransformersLLM
-from distilabel.tasks import Llama2TextGenerationTask
-# This snippet uses `TransformersLLM`, but is the same for every other `LLM`.
-generator = TransformersLLM(
-    model=...,
-    tokenizer=...,
-    task=Llama2TextGenerationTask(),
-)
+--8<-- "docs/snippets/technical-reference/tasks/generic_llama2_textgeneration.py"
 ```
 
 For the API reference visit [Llama2TextGenerationTask][distilabel.tasks.text_generation.llama.Llama2TextGenerationTask].
@@ -62,13 +48,7 @@ For the API reference visit [Llama2TextGenerationTask][distilabel.tasks.text_gen
 The OpenAI task for text generation is similar to the `Llama2TextGenerationTask`, but with the specific prompt format expected by the *chat completion* task from OpenAI.
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import OpenAITextGenerationTask
-
-generator = OpenAILLM(
-    task=OpenAITextGenerationTask(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_textgeneration.py"
 ```
 
 For the API reference visit [OpenAITextGenerationTask][distilabel.tasks.text_generation.openai.OpenAITextGenerationTask].
@@ -81,17 +61,7 @@ with Self-Generated Instructions](https://arxiv.org/pdf/2212.10560.pdf).
 From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works): *The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import SelfInstructTask
-
-generator = OpenAILLM(
-    task=SelfInstructTask(
-        application_description="You are a question-answering assistant for...",
-        application_description="AI assistant",
-        num_instructions=3
-    ),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_self_instruct.py"
 ```
 
 For the API reference visit  [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
@@ -115,34 +85,7 @@ From the original [repository](https://github.com/OpenBMB/UltraFeedback): *To co
 The following snippet can be used as a simplified UltraFeedback Task, for which we define 3 different ratings, but take into account the predefined versions are intended to be used out of the box:
 
 ```python
-from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask, Rating
-from textwrap import dedent
-
-task_description = dedent(
-    """
-    # General Text Quality Assessment
-    Evaluate the model's outputs based on various criteria:
-    1. **Correctness & Informativeness**: Does the output provide accurate and helpful information?
-    2. **Honesty & Uncertainty**: How confidently does the model convey its information, and does it express uncertainty appropriately?
-    3. **Truthfulness & Hallucination**: Does the model introduce misleading or fabricated details?
-    4. **Instruction Following**: Does the model's output align with given instructions and the user's intent?
-    Your role is to provide a holistic assessment considering all the above factors.
-
-    **Scoring**: Rate outputs 1 to 3 based on the overall quality, considering all aspects:
-    """
-)
-
-ratings = [
-    Rating(value=1, description="Low Quality"),
-    Rating(value=2, description="Moderate Quality"),
-    Rating(value=3, description="Good Quality"),
-]
-
-ultrafeedback_task = UltraFeedbackTask(
-    system_prompt="Your role is to evaluate text quality based on given criteria",
-    task_description=task_description,
-    ratings=ratings
-)
+--8<-- "docs/snippets/technical-reference/tasks/ultrafeedback.py"
 ```
 
 - Text Quality:
@@ -150,13 +93,7 @@ ultrafeedback_task = UltraFeedbackTask(
 The following example uses a `LLM` to examinate the data for text quality criteria, which includes the different criteria from UltraFeedback (Correctness & Informativeness, Honesty & Uncertainty, Truthfulness & Hallucination and Instruction Following):
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraFeedbackTask
-
-labeller = OpenAILLM(
-    task=UltraFeedbackTask.for_text_quality(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_for_text_quality.py"
 ```
 
 - Helpfulness:
@@ -164,13 +101,7 @@ labeller = OpenAILLM(
 The following example creates a UltraFeedback task to emphasize helpfulness, that is overall quality and correctness of the output:
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraFeedbackTask
-
-labeller = OpenAILLM(
-    task=UltraFeedbackTask.for_helpfulness(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_for_helpfulness.py"
 ```
 
 - Truthfulness:
@@ -178,13 +109,7 @@ labeller = OpenAILLM(
 The following example creates a UltraFeedback task to emphasize truthfulness and hallucination assessment:
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraFeedbackTask
-
-labeller = OpenAILLM(
-    task=UltraFeedbackTask.for_truthfulness(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_for_truthfulness.py"
 ```
 
 - Honesty:
@@ -192,13 +117,7 @@ labeller = OpenAILLM(
 The following example creates a UltraFeedback task to emphasize honesty and uncertainty expression assessment:
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraFeedbackTask
-
-labeller = OpenAILLM(
-    task=UltraFeedbackTask.for_honesty(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_for_honesty.py"
 ```
 
 - Instruction Following:
@@ -206,13 +125,7 @@ labeller = OpenAILLM(
 The following example creates a UltraFeedback task to emphasize the evaluation of alignment between output and intent:
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraFeedbackTask
-
-labeller = OpenAILLM(
-    task=UltraFeedbackTask.for_instruction_following(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_for_instruction_following.py"
 ```
 
 For the API reference visit [UltraFeedbackTask][distilabel.tasks.preference.ultrafeedback.UltraFeedbackTask].
@@ -222,13 +135,7 @@ For the API reference visit [UltraFeedbackTask][distilabel.tasks.preference.ultr
 The task specially designed to build the prompts following the UltraFeedback paper: [JudgeLM: Fine-tuned Large Language Models Are Scalable Judges](https://arxiv.org/pdf/2310.17631.pdf). This task is designed to evaluate the performance of AI assistants.
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import JudgeLMTask
-
-labeller = OpenAILLM(
-    task=JudgeLMTask(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_judgelm.py"
 ```
 
 For the API reference visit [JudgeLMTask][distilabel.tasks.preference.judgelm.JudgeLMTask].
@@ -240,26 +147,13 @@ This class implements a `PreferenceTask` specifically for a better evaluation us
 It introduces an additional argument to differentiate various areas for processing. While these areas can be customized, the default values are as follows:
 
 ```python
-from distilabel.tasks import UltraJudgeTask
-
-# To see the complete system_prompt and task_description please take a look at the UltraJudgeTask definition
-ultrajudge_task = UltraJudgeTask(
-    system_prompt="You are an evaluator tasked with assessing AI assistants' responses from the perspective of typical user preferences...",
-    task_description="Your task is to rigorously evaluate the performance of..."
-    areas=["Practical Accuracy", "Clarity & Transparency", "Authenticity & Reliability", "Compliance with Intent"]
-)
+--8<-- "docs/snippets/technical-reference/tasks/ultrajudge.py"
 ```
 
 Which can be directly used in the following way:
 
 ```python
-from distilabel.llm import OpenAILLM
-from distilabel.tasks import UltraJudgeTask
-
-labeller = OpenAILLM(
-    task=UltraJudgeTask(),
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+--8<-- "docs/snippets/technical-reference/tasks/openai_ultrajudge.py"
 ```
 
 For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultrajudge.UltraJudgeTask].
