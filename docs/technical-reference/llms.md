@@ -98,7 +98,7 @@ For the API reference visit [vLLM][distilabel.llm.vllm.vLLM].
 
 ## Huggingface LLMs
 
-In this section we differentiate between two different ways of working with the huggingface's models:
+This section explains two different ways to use huggingface's models:
 
 ### Transformers
 
