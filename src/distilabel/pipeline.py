@@ -452,7 +452,7 @@ class Pipeline:
         else:
             processed_labels = []
             if self.labeller.return_futures is not None:
-                for i, future in enumerate(labels, 1):
+                for i, future in enumerate(labels, start=1):
                     try:
                         processed_labels.extend(future.result())
                     except Exception as e:
