@@ -27,6 +27,9 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, tracebacks_show_locals=True)],
 )
 
+# Silence httpx logs
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 
 def _get_root_logger() -> logging.Logger:
     return logging.getLogger("distilabel")
