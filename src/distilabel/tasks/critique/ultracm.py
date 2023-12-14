@@ -45,7 +45,7 @@ class UltraCMTask(CritiqueTask):
             "instruction": instruction,
             "completion": completion,
         }
-        return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: "
+        return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: "
 
     def parse_output(self, output: str) -> UltraCMOutput:
         """Parses the output of the model into the desired format."""
