@@ -239,17 +239,31 @@ class _TextGenerationRequest:
 
 
 class _TextGenerationCall:
+    """An object used to transfer the text generation info from the `_BridgeThread` to
+    the `_GenerationProcess`."""
+
     def __init__(self, inputs: List[Dict[str, Any]], num_generations: int) -> None:
         self.inputs = inputs
         self.num_generations = num_generations
 
 
 class _TextGenerationResult:
+    """An object used to transfer the text generation results from the `_GenerationProcess`
+    to the `_BridgeThread`."""
+
     def __init__(self, generations) -> None:
         self.generations = generations
 
 
 class _GenerationProcess(mp.Process):
+    """A process that will load the `LLM` and perform the text generation.
+
+    This process will load the `LLM` using the `load_llm_fn` and then it will wait to
+    receive a `_TextGenerationCall` from the `_BridgeThread`. Once it receives the
+    `_TextGenerationCall`, it will perform the text generation and send the
+    `_TextGenerationResult` to the `_BridgeThread`.
+    """
+
     def __init__(self, process_llm: "ProcessLLM") -> None:
         self._task = process_llm.task
         # The function that will be executed to load the `LLM`
@@ -265,9 +279,10 @@ class _GenerationProcess(mp.Process):
         # Shared memory object for transfering the `model_name` to the main process
         self._model_name = process_llm._model_name
 
-        super().__init__()
+        super().__init__(daemon=True)
 
     def _load_llm(self) -> LLM:
+        """Loads the `LLM` and sets the model name in the shared memory object."""
         llm = self._load_llm_fn(self._task)
         self._set_model_name(llm.model_name)
         logger.debug(
@@ -277,6 +292,8 @@ class _GenerationProcess(mp.Process):
         return llm
 
     def _set_model_name(self, model_name: str) -> None:
+        """Sets the model name in the shared memory object, so the main process can
+        access it."""
         truncated_model_name = model_name[: MAX_MODEL_NAME_LENGTH - 1].encode("utf-8")
         with self._model_name:
             for i, c in enumerate(truncated_model_name):
@@ -284,6 +301,10 @@ class _GenerationProcess(mp.Process):
             self._model_name[len(truncated_model_name)] = b"\0"
 
     def run(self) -> None:
+        """Runs the infinite loop of the generation process. It will wait for a text
+        generation request from the bridge thread, perform the generation and send the
+        result to the bridge thread.
+        """
         llm = self._load_llm()
         name = f"{llm.__class__.__name__}({llm.model_name})"
 
@@ -312,10 +333,23 @@ class _GenerationProcess(mp.Process):
             self._result_queue.put(_TextGenerationResult(generations))
 
     def stop(self) -> None:
+        """Stops the infinite loop of the generation process."""
         self._call_queue.put(-1)
 
 
 class _BridgeThread(Thread):
+    """A thread that will act as a bridge between the main process and the child process.
+
+    It will receive the text generation requests from the main process and send them to
+    the child process. The main process will get a `Future` associated to the request.
+    In order to communicate with the generation process, the bridge thread will use
+    `multiprocessing.Queue`s. For each `_TextGenerationRequest`, it will create a
+    `_TextGenerationCall` and send it to the child process using the `_call_queue`, then
+    the thread will get blocked until it receives the `_TextGenerationResult` from the
+    child process using the `_result_queue`. Once the result is received, the thread will
+    set the result of the `Future` associated to the request.
+    """
+
     def __init__(self, process_llm: "ProcessLLM") -> None:
         # The `Semaphore` that will be used to synchronize the loading of the `LLM`.
         self._load_llm_sem = process_llm._load_llm_sem
@@ -340,6 +374,7 @@ class _BridgeThread(Thread):
         super().__init__()
 
     def _wait_llm_loaded(self) -> None:
+        """Waits for the generation process to load the `LLM`."""
         generation_process_pid = self._generation_process.pid
         logger.debug(
             f"Waiting for process with PID {generation_process_pid} to load the LLM..."
@@ -364,6 +399,12 @@ class _BridgeThread(Thread):
         return self._result_queue.get()
 
     def _process_request(self) -> bool:
+        """Processes a text generation request. Returns `True` if the bridge thread
+        should stop, `False` otherwise.
+
+        Returns:
+            bool: `True` if the bridge thread should stop, `False` otherwise.
+        """
         # Get a text generation request
         text_generation_request_id = self._text_generation_request_ids_queue.get()
         if text_generation_request_id == -1:
@@ -384,26 +425,42 @@ class _BridgeThread(Thread):
         return False
 
     def run(self) -> None:
+        """Runs the infinite loop of the bridge thread. It will wait for a text generation
+        request from the main process, send it to the child process, wait for the result
+        and set the result of the `Future` associated to the request.
+        """
+
         self._wait_llm_loaded()
-        with self._model_name:
-            "".join([c.decode() for c in self._model_name if c != b"\0"])
         while True:
             should_stop = self._process_request()
             if should_stop:
                 break
 
     def stop(self) -> None:
+        """Stops the infinite loop of the bridge thread."""
         self._text_generation_request_ids_queue.put(-1)
 
 
 class ProcessLLM:
-    """A class that wraps an `LLM` and performs generation in a separate process."""
+    """A class that wraps an `LLM` and performs generation in a separate process. The
+    result is a `Future` that will be set when the generation is completed.
 
-    def __init__(self, task: Task, load_llm_fn: Callable[..., LLM]) -> None:
+    This class creates a new child process that will load the `LLM` and perform the
+    text generation. In order to communicate with this child process, a bridge thread
+    is created in the main process. The bridge thread will send and receive the results
+    from the child process using `multiprocessing.Queue`s. The communication between the
+    bridge thread and the main process is done using `Future`s. This architecture was
+    inspired by the `ProcessPoolExecutor` from the `concurrent.futures` module and it's
+    a simplified version of it.
+    """
+
+    def __init__(self, task: Task, load_llm_fn: Callable[[Task], LLM]) -> None:
         """Initializes the `ProcessLLM` class.
 
         Args:
-            load_llm_fn (Callable[..., LLM]): a function that will be executed in the
+            task: the task to be performed by the `LLM`. This task will be used by the
+                child process when calling the `load_llm_fn`.
+            load_llm_fn (Callable[[Task], LLM]): a function that will be executed in the
                 child process to load the `LLM`. It must return an `LLM` instance.
         """
         self.task = task
@@ -437,6 +494,7 @@ class ProcessLLM:
         self._model_name = mp.Array(c_char, MAX_MODEL_NAME_LENGTH)
 
     def _start_bridge_thread(self) -> None:
+        """Starts the bridge thread and the generation process."""
         if self._bridge_thread is None:
             self._generation_process = _GenerationProcess(self)
             self._generation_process.start()
@@ -449,6 +507,15 @@ class ProcessLLM:
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
     ) -> Future[List[List["LLMOutput"]]]:
+        """Creates and send a new text generation request to the bridge thread. This thread
+        and the bridge thread shares a dictionary used to store the text generation requests.
+        This thread will add the text generation requests to the dictionary and the bridge
+        thread will only read from it. In order for the bridge thread to know that a new
+        text generation request has been added to the dictionary, this thread will put the
+        id of the request in a queue. The bridge thread will read from this queue and get
+        the text generation request from the dictionary.
+        """
+
         def _progress():
             if progress_callback_func is not None:
                 progress_callback_func(advance=num_generations * len(inputs))
@@ -472,12 +539,26 @@ class ProcessLLM:
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
     ) -> Future[List[List["LLMOutput"]]]:
+        """Generates the outputs for the given inputs using the `ProcessLLM` and its loaded
+        `LLM`.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each input.
+                Defaults to `1`.
+            progress_callback_func (Union[Callable, None], optional): a function to be called at each
+                generation step. Defaults to `None`.
+
+        Returns:
+            Future[List[List["LLMOutput"]]]: the generated outputs as a `Future`.
+        """
         self._start_bridge_thread()
         return self._add_text_generation_request(
             inputs, num_generations, progress_callback_func
         )
 
     def teardown(self) -> None:
+        """Stops the bridge thread and the generation process."""
         if self._generation_process is not None:
             self._generation_process.stop()
             self._generation_process.join()
@@ -488,6 +569,7 @@ class ProcessLLM:
 
     @cached_property
     def model_name(self) -> str:
+        """Returns the model name of the `LLM` once it has been loaded."""
         with self._model_name:
             return "".join([c.decode() for c in self._model_name if c != b"\0"])
 
