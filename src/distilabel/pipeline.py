@@ -25,6 +25,7 @@ from typing import (
     Literal,
     Optional,
     Union,
+    cast,
 )
 
 from datasets import Dataset, Split
@@ -241,7 +242,11 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[Future[List["LLMOutput"]], List[Future], List["LLMOutput"]]:
+    ) -> Union[
+        Future[List[List["LLMOutput"]]],
+        List[Future[List[List["LLMOutput"]]]],
+        List[List["LLMOutput"]],
+    ]:
         """Gets the batch labels for the given inputs.
 
         Args:
@@ -406,7 +411,11 @@ class Pipeline:
         self,
         dataset: Dataset,
         generations: List[Dict[str, Any]],
-        labels: Union[List[Future["LLMOutput"]], List["LLMOutput"]],
+        labels: Union[
+            Future[List[List["LLMOutput"]]],
+            List[Future[List[List["LLMOutput"]]]],
+            List[List["LLMOutput"]],
+        ],
         batch_size: int,
     ) -> CustomDataset:
         """Builds the final dataset with either the generations, the labels, or both, depending
@@ -448,13 +457,13 @@ class Pipeline:
                         generation.update({key: None})
 
         if self.labeller is None:
-            labels = [{} for _ in range(len(dataset))]
+            processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
-            processed_labels = []
+            batch_labels = []
             if self.labeller.return_futures is not None:
-                for i, future in enumerate(labels, start=1):
+                for i, future in enumerate(labels, start=1):  # type: ignore
                     try:
-                        processed_labels.extend(future.result())
+                        batch_labels.extend(future.result())
                     except Exception as e:
                         logger.error(
                             f"An error occurred when getting the result from the labeller: {e}"
@@ -472,7 +481,7 @@ class Pipeline:
                             if i * batch_size <= len(dataset)
                             else len(dataset) % batch_size
                         )
-                        processed_labels.append(
+                        batch_labels.append(
                             [
                                 LLMOutput(
                                     model_name=self.labeller.model_name,
@@ -483,9 +492,10 @@ class Pipeline:
                                 for _ in range(num_outputs)
                             ]
                         )
-            else:
-                processed_labels = labels
-            labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
+
+            processed_labels = self._process_batch_labels(
+                batch_labels=batch_labels or cast(List[List["LLMOutput"]], labels)
+            )
 
             labeller_column_names = [
                 "labelling_model",
@@ -495,16 +505,16 @@ class Pipeline:
 
             # Ensure the lengths of the labels and the dataset match (when pipeline
             # fails in an intermediate step, the labels may be shorter than the dataset)
-            if len(labels) < len(dataset):
-                labels.extend(
+            if len(processed_labels) < len(dataset):
+                processed_labels.extend(
                     [
                         {key: None for key in labeller_column_names}
-                        for _ in range(len(dataset) - len(labels))
+                        for _ in range(len(dataset) - len(processed_labels))
                     ]
                 )
 
             # Add missing keys/columns with a `None` value
-            for label in labels:
+            for label in processed_labels:
                 for key in labeller_column_names:
                     if key not in label:
                         label.update({key: None})
@@ -588,7 +598,11 @@ class Pipeline:
         self._validate_dataset(dataset)
 
         generations: List[Dict[str, Any]] = []
-        labels: Union[Future[List["LLMOutput"]], List["LLMOutput"]] = []
+        labels: Union[
+            Future[List[List["LLMOutput"]]],
+            List[Future[List[List["LLMOutput"]]]],
+            List[List["LLMOutput"]],
+        ] = []
 
         (
             generation_progress_func,
@@ -641,7 +655,7 @@ class Pipeline:
                     if isinstance(batch_labels, Future):
                         labels.append(batch_labels)
                     else:
-                        labels.extend(batch_labels)
+                        labels.extend(batch_labels)  # type: ignore
                 except Exception as e:
                     if not enable_checkpoints:
                         raise RuntimeError(
