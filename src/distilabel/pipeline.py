@@ -31,7 +31,7 @@ from typing import (
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
-from distilabel.llm.base import LLM, LLMFutures, ProcessLLM
+from distilabel.llm.base import LLM, LLMFutures, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.progress_bar import (
@@ -48,7 +48,7 @@ logger = get_logger()
 class Pipeline:
     def __init__(
         self,
-        generator: Union["LLM", "ProcessLLM", None] = None,
+        generator: Union["LLM", "ProcessLLM", "LLMPool", None] = None,
         labeller: Union["LLM", "ProcessLLM", None] = None,
     ) -> None:
         """Initializes the Pipeline class.

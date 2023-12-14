@@ -18,7 +18,7 @@ import multiprocessing as mp
 import queue
 import warnings
 from abc import ABC, abstractmethod
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from ctypes import c_char
 from enum import Enum, auto
 from functools import cached_property
@@ -594,3 +594,42 @@ class ProcessLLM:
         """Returns whether the LLM returns futures or not, and if so what the futures
         contains."""
         return LLMFutures.CONTAINS_BATCHES
+
+
+class LLMPool:
+    def __init__(self, llms: List[ProcessLLM]) -> None:
+        if len(llms) < 2:
+            raise ValueError(
+                "The `llms` argument must contain at least 2 `ProcessLLM`s. If you want"
+                " to use a single `ProcessLLM`, use the `ProcessLLM` directly instead."
+            )
+
+        if not all(isinstance(llm, ProcessLLM) for llm in llms):
+            raise TypeError("The `llms` argument must contain only `ProcessLLM`s.")
+
+        self.llms = llms
+        self.num_llms = len(llms)
+
+    def generate(
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
+        if self.num_llms == num_generations:
+            futures = []
+            for llm in self.llms:
+                future = llm.generate(inputs, num_generations=1)
+                futures.append(future)
+
+            wait(futures)
+
+        if self.num_llms < num_generations:
+            pass
+
+        if self.num_llms > num_generations:
+            pass
+
+    @property
+    def task(self) -> "Task":
+        return self.llms[0].task
