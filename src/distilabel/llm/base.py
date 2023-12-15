@@ -17,6 +17,7 @@ from __future__ import annotations
 import multiprocessing as mp
 import queue
 import warnings
+import random
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor, wait
 from ctypes import c_char
@@ -610,25 +611,42 @@ class LLMPool:
         self.llms = llms
         self.num_llms = len(llms)
 
+    def _get_num_generations_per_llm(self, num_generations: int) -> Dict[int, int]:
+        llms_ids = list(range(self.num_llms))
+        generations_per_llm = {i: 1 for i in llms_ids}
+        if num_generations < self.num_llms:
+            llms_not_chosen = random.choices(llms_ids, k=self.num_llms - num_generations)
+            for llm_not_chosen in llms_not_chosen:
+                generations_per_llm[llm_not_chosen] = 0
+        elif num_generations > self.num_llms:
+            additional_llms_chosen = random.choices(llms_ids, k=num_generations - self.num_llms)
+            for llm_chosen in additional_llms_chosen:
+                generations_per_llm[llm_chosen] += 1
+        return generations_per_llm
+
     def generate(
         self,
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
-        if self.num_llms == num_generations:
-            futures = []
-            for llm in self.llms:
-                future = llm.generate(inputs, num_generations=1)
-                futures.append(future)
+    ) -> List[List["LLMOutput"]]:
+        num_generations_per_llm = self._get_num_generations_per_llm(num_generations)
 
-            wait(futures)
+        futures = []
+        for i, llm in enumerate(self.llms):
+            future = llm.generate(inputs, num_generations=num_generations_per_llm[i])
+            futures.append(future)
+        llms_generations = [future.result() for future in futures]
 
-        if self.num_llms < num_generations:
-            pass
+        generations = []
+        for llms_row_generations in zip(*llms_generations):  # ([{}], [{}], ...)
+            row_generations = []
+            for llm_row_generations in llms_row_generations:
+                for generation in llm_row_generations:
+                    row_generations.append(generation)
+            generations.append(row_generations)
 
-        if self.num_llms > num_generations:
-            pass
+        return generations
 
     @property
     def task(self) -> "Task":

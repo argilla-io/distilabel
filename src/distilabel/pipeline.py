@@ -287,7 +287,10 @@ class Pipeline:
             processed_generation = {
                 # Since all the generations for the same `model_name` also share the same
                 # `prompt_used`, then we just keep the first element in `generations`
-                "generation_model": generations[0]["model_name"],
+                # "generation_model": generations[0]["model_name"],
+                "generation_model": [
+                    generation["model_name"] for generation in generations
+                ],
                 "generation_prompt": generations[0]["prompt_used"],
                 "raw_generation_responses": [
                     generation["raw_output"] for generation in generations
@@ -522,7 +525,9 @@ class Pipeline:
         _dataset = Dataset(
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
-        _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
+        _dataset = _dataset.map(
+            lambda _: {**generations.pop(0), **processed_labels.pop(0)}
+        )  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
@@ -684,7 +689,6 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -695,7 +699,6 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
 
         Returns:
             CustomDataset: the final dataset.
