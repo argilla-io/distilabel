@@ -1,7 +1,21 @@
-print(pipe_dataset["input"][-1])  # noqa: F821
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+print(pipe_dataset["input"][-1])
 # Create a 3 turn conversation between a customer and a grocery store clerk - that is, 3 per person. Then tell me what they talked about.
 
-print(pipe_dataset["generations"][-1][-1])  # noqa: F821
+print(pipe_dataset["generations"][-1][-1])
 # Customer: Hi there, I'm looking for some fresh berries. Do you have any raspberries or blueberries in stock?
 
 # Grocery Store Clerk: Yes, we have both raspberries and blueberries in stock today. Would you like me to grab some for you or can you find them yourself?
@@ -20,8 +34,8 @@ print(pipe_dataset["generations"][-1][-1])  # noqa: F821
 # turn 2: product recommendations based on taste and personal preference, availability
 # turn 3: store acknowledgment, shopping gratitude, loyalty and repeat business expectation.
 
-print(pipe_dataset["rating"][-1][-1])  # noqa: F821
+print(pipe_dataset["rating"][-1][-1])
 # 5.0
 
-print(pipe_dataset["rationale"][-1][-1])  # noqa: F821
+print(pipe_dataset["rationale"][-1][-1])
 # The text accurately follows the given instructions and provides a conversation between a customer and a grocery store clerk. The information provided is correct, informative, and aligned with the user's intent. There are no hallucinations or misleading details.
