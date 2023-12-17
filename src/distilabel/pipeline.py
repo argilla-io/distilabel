@@ -522,15 +522,7 @@ class Pipeline:
         _dataset = Dataset(
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
-        # If no labeller is provided, the labels will be empty, so we create a fake dict
-        if not labels:
-            poped_label = {}
-        else:
-            poped_label = labels.pop(0)
-            # When we have futures, we cannot apply the operator **
-            if isinstance(poped_label, Future):
-                poped_label = poped_label.result()
-        _dataset = _dataset.map(lambda _: {**generations.pop(0), **poped_label})  # type: ignore
+        _dataset = _dataset.map(lambda _: {**generations.pop(0), **processed_labels.pop(0)}) # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
