@@ -680,10 +680,14 @@ class LLMPool:
         """
         num_generations_per_llm = self._get_num_generations_per_llm(num_generations)
 
-        futures = []
-        for i, llm in enumerate(self.llms):
-            future = llm.generate(inputs, num_generations=num_generations_per_llm[i])
-            futures.append(future)
+        futures = [
+            llm.generate(
+                inputs,
+                num_generations=num_generations_per_llm[i],
+                progress_callback_func=progress_callback_func,
+            )
+            for i, llm in enumerate(self.llms)
+        ]
         llms_generations = [future.result() for future in futures]
 
         generations = []
