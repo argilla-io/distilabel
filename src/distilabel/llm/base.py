@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import multiprocessing as mp
 import queue
-import warnings
 import random
+import warnings
 from abc import ABC, abstractmethod
-from concurrent.futures import Future, ThreadPoolExecutor, wait
+from concurrent.futures import Future, ThreadPoolExecutor
 from ctypes import c_char
 from enum import Enum, auto
 from functools import cached_property
@@ -615,11 +615,15 @@ class LLMPool:
         llms_ids = list(range(self.num_llms))
         generations_per_llm = {i: 1 for i in llms_ids}
         if num_generations < self.num_llms:
-            llms_not_chosen = random.choices(llms_ids, k=self.num_llms - num_generations)
+            llms_not_chosen = random.choices(
+                llms_ids, k=self.num_llms - num_generations
+            )
             for llm_not_chosen in llms_not_chosen:
                 generations_per_llm[llm_not_chosen] = 0
         elif num_generations > self.num_llms:
-            additional_llms_chosen = random.choices(llms_ids, k=num_generations - self.num_llms)
+            additional_llms_chosen = random.choices(
+                llms_ids, k=num_generations - self.num_llms
+            )
             for llm_chosen in additional_llms_chosen:
                 generations_per_llm[llm_chosen] += 1
         return generations_per_llm
@@ -647,6 +651,10 @@ class LLMPool:
             generations.append(row_generations)
 
         return generations
+
+    def teardown(self) -> None:
+        for llm in self.llms:
+            llm.teardown()
 
     @property
     def task(self) -> "Task":
