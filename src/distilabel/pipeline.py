@@ -33,7 +33,7 @@ from typing import (
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
-from distilabel.llm.base import LLM, LLMFutures, LLMPool, ProcessLLM
+from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.progress_bar import (
@@ -42,7 +42,7 @@ from distilabel.progress_bar import (
     use_progress_bar,
 )
 from distilabel.utils.dicts import combine_dicts
-from distilabel.utils.types import is_list_of_futures
+from distilabel.utils.types import is_future
 
 logger = get_logger()
 
@@ -225,27 +225,6 @@ class Pipeline:
                         for _ in range(num_batches)
                     ]
                 )
-        elif is_list_of_futures(outputs):
-            for future in outputs:
-                # Result of future is `List[List[LLMOutput]]` (first list contains 1
-                # element, and the second list contains `num_generations` elements)
-                try:
-                    batch_generations.extend(future.result())
-                except Exception as e:
-                    logger.error(
-                        f"An error ocurred when getting the result of a future from the generator: {e}"
-                    )
-                    batch_generations.extend(
-                        [
-                            LLMOutput(
-                                model_name=self.generator.model_name,
-                                prompt_used=None,
-                                raw_output=None,
-                                parsed_output=None,
-                            )
-                            for _ in range(num_generations)
-                        ]
-                    )
         else:
             batch_generations = outputs
         return self._process_batch_generations(batch_generations=batch_generations)
@@ -254,11 +233,7 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[
-        Future[List[List["LLMOutput"]]],
-        List[Future[List[List["LLMOutput"]]]],
-        List[List["LLMOutput"]],
-    ]:
+    ) -> Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]:
         """Gets the batch labels for the given inputs.
 
         Args:
@@ -269,7 +244,7 @@ class Pipeline:
                 to `None`.
 
         Returns:
-            Union[Future[List["LLMOutput"]], List[Future], List["LLMOutput"]]: the batch
+            Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]: the batch
                 labels.
         """
 
@@ -430,9 +405,8 @@ class Pipeline:
         dataset: Dataset,
         generations: List[Dict[str, Any]],
         labels: Union[
-            Future[List[List["LLMOutput"]]],
-            List[Future[List[List["LLMOutput"]]]],
             List[List["LLMOutput"]],
+            Future[List[List["LLMOutput"]]],
         ],
         batch_size: int,
     ) -> CustomDataset:
@@ -442,8 +416,8 @@ class Pipeline:
         Args:
             dataset (Dataset): the original dataset.
             generations (List[Dict[str, Any]]): the processed generations.
-            labels (Union[List[Future["LLMOutput"]], List["LLMOutput"]]): the processed
-                labels.
+            labels (Union[List[List[LLMOutput]], Future[List[List[LLMOutput]]]]): the
+                processed labels.
 
         Returns:
             CustomDataset: the final dataset.
@@ -478,7 +452,7 @@ class Pipeline:
             processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
             batch_labels = []
-            if self.labeller.return_futures is not None:
+            if self.labeller.return_futures:
                 for i, future in enumerate(labels, start=1):  # type: ignore
                     try:
                         batch_labels.extend(future.result())
@@ -486,16 +460,8 @@ class Pipeline:
                         logger.error(
                             f"An error occurred when getting the result from the labeller: {e}"
                         )
-                        # If the LLM returned a list of futures (`LLM` with thread pool
-                        # executor), and each future contains just the result for a single
-                        # row, then we need to create an empty LLMOutput for each future.
-                        # If the LLM returns a future containing `batch_size` rows in the
-                        # result (`ProcessLLM`), then we need to create a list of empty
-                        # LLMOutputs with the length of the `batch_size`
                         num_outputs = (
-                            1
-                            if self.labeller.return_futures == LLMFutures.CONTAINS_ROWS
-                            else batch_size
+                            batch_size
                             if i * batch_size <= len(dataset)
                             else len(dataset) % batch_size
                         )
@@ -624,9 +590,8 @@ class Pipeline:
 
         generations: List[Dict[str, Any]] = []
         labels: Union[
-            Future[List[List["LLMOutput"]]],
-            List[Future[List[List["LLMOutput"]]]],
             List[List["LLMOutput"]],
+            Future[List[List["LLMOutput"]]],
         ] = []
 
         (
@@ -677,8 +642,8 @@ class Pipeline:
                         inputs=inputs, progress_callback_func=labelling_progress_func
                     )
 
-                    if isinstance(batch_labels, Future):
-                        labels.append(batch_labels)
+                    if is_future(batch_labels):
+                        labels.append(batch_labels)  # type: ignore
                     else:
                         labels.extend(batch_labels)  # type: ignore
                 except Exception as e:
@@ -702,6 +667,38 @@ class Pipeline:
             dataset, generations=generations, labels=labels, batch_size=batch_size
         )
 
+    def dry_run(self, dataset: Dataset) -> CustomDataset:
+        """Performs a dry run over the provided dataset, which consists on generating the
+        outputs for the first row of the dataset, to ensure that the `Pipeline` will be
+        able to generate the outputs for the whole dataset.
+
+        Args:
+            dataset (Dataset): the dataset to be used for generation. Just the first row
+                will be used for the dry run.
+
+        Returns:
+            CustomDataset: the dataset containing the outputs for the first row.
+        """
+        try:
+            # First we generate a `Dataset` only with the first row from the whole dataset
+            subset = Dataset.from_dict(
+                {key: [value] for key, value in dataset[0].items()}
+            )
+            # Then we call the `_generate` method with it
+            return self._generate(
+                dataset=subset,
+                # Default kwargs to make the process as simple as possible
+                num_generations=1,
+                batch_size=1,
+                enable_checkpoints=False,
+                display_progress_bar=False,
+            )
+        except Exception as e:
+            self._teardown()
+            raise RuntimeError(
+                f"`Pipeline.generate` failed during the dry run over {dataset[0]} with exception: {e}"
+            ) from e
+
     def generate(
         self,
         dataset: Dataset,
@@ -709,6 +706,7 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
+        skip_dry_run: bool = False,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -719,6 +717,7 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
+            skip_dry_run (bool, optional): whether to skip the dry run or not. Defaults to `False`.
 
         Returns:
             CustomDataset: the final dataset.
@@ -747,30 +746,12 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
-        try:
+        if not skip_dry_run:
             logger.info("Executing dry-run...")
-            # First we generate a `Dataset` only with the first row from the whole dataset
-            subset = Dataset.from_dict(
-                {key: [value] for key, value in dataset[0].items()}
+            self.dry_run(dataset)
+            logger.info(
+                "Dry-run executed with no issues. Starting the actual generation..."
             )
-            # Then we call the `_generate` method with it
-            _ = self._generate(
-                dataset=subset,
-                # Default kwargs to make the process as simple as possible
-                num_generations=1,
-                batch_size=1,
-                enable_checkpoints=False,
-                display_progress_bar=False,
-            )
-        except Exception as e:
-            self._teardown()
-            raise RuntimeError(
-                f"`Pipeline.generate` failed during the dry run over {dataset[0]} with exception: {e}"
-            ) from e
-
-        logger.info(
-            "Dry-run executed with no issues. Starting the actual generation..."
-        )
 
         dataset = use_progress_bar(self._generate)(
             dataset=dataset,

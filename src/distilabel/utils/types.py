@@ -15,23 +15,20 @@
 from __future__ import annotations
 
 from concurrent.futures import Future
-from typing import List, Union
+from typing import Any, Union
 
 from typing_extensions import TypeGuard, TypeVar
 
-T = TypeVar("FutureResult")  # type: ignore
+T = TypeVar("T")
 
 
-def is_list_of_futures(
-    results: Union[List[Future[T]], List[List[T]]],
-) -> TypeGuard[List[Future[T]]]:
-    """Check if results is a list of futures. This function narrows the type of
-    `results` to `List[Future[T]]` if it is a list of futures.
+def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
+    """Checks if an object is a future narrowing the type.
 
     Args:
-        results: A list of futures.
+        obj (Future[T]): Object to check
 
     Returns:
-        `True` if `results` is a list of futures, `False` otherwise.
+        TypeGuard[Future[T]]: True if it is a future
     """
-    return isinstance(results, list) and isinstance(results[0], Future)
+    return isinstance(obj, Future)
