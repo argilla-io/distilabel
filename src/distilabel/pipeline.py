@@ -295,17 +295,20 @@ class Pipeline:
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
-                # Since all the generations for the same `model_name` also share the same
-                # `prompt_used`, then we just keep the first element in `generations`
-                # "generation_model": generations[0]["model_name"],
-                "generation_model": [
-                    generation["model_name"] for generation in generations
-                ],
-                "generation_prompt": generations[0]["prompt_used"],
-                "raw_generation_responses": [
-                    generation["raw_output"] for generation in generations
-                ],
+                "generation_model": [],
+                "generation_prompt": [],
+                "raw_generation_responses": [],
             }
+            for generation in generations:
+                processed_generation["generation_model"].append(
+                    generation["model_name"]
+                )
+                processed_generation["generation_prompt"].append(
+                    generation["prompt_used"]
+                )
+                processed_generation["raw_generation_responses"].append(
+                    generation["raw_output"]
+                )
             # Create `generations` column which is a list with N text generations
             try:
                 processed_generation.update(
