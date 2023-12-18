@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import ClassVar, List
-
-from typing_extensions import TypedDict
+from typing import ClassVar, List, TypedDict
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
