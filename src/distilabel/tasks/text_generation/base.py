@@ -17,10 +17,10 @@ import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
-from distilabel.tasks.argilla_utils import infer_fields_from_dataset_row
 from distilabel.tasks.base import Task
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.principles import UltraFeedbackPrinciples
+from distilabel.utils.argilla import infer_fields_from_dataset_row
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
