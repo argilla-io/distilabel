@@ -534,7 +534,9 @@ class Pipeline:
         return _dataset  # type: ignore
 
     def _teardown(self) -> None:
-        if self.generator is not None and isinstance(self.generator, ProcessLLM):
+        if self.generator is not None and isinstance(
+            self.generator, (ProcessLLM, LLMPool)
+        ):
             self.generator.teardown()
 
         if self.labeller is not None and isinstance(self.labeller, ProcessLLM):
