@@ -132,17 +132,17 @@ class TextGenerationTask(Task):
             system_prompt += " " + principle
         return Prompt(system_prompt=system_prompt, formatted_prompt=input)
 
-    def parse_output(self, output: str) -> dict[str, str]:
+    def parse_output(self, output: str) -> Dict[str, str]:
         """Parses the output of the LLM into the desired format."""
         return {"generations": output}
 
     @property
-    def input_args_names(self) -> list[str]:
+    def input_args_names(self) -> List[str]:
         """Returns the input args names for the task."""
         return ["input"]
 
     @property
-    def output_args_names(self) -> list[str]:
+    def output_args_names(self) -> List[str]:
         """Returns the output args names for the task."""
         return ["generations"]
 
