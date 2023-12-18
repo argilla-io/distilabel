@@ -659,3 +659,7 @@ class LLMPool:
     @property
     def task(self) -> "Task":
         return self.llms[0].task
+
+    @property
+    def return_futures(self) -> Union[LLMFutures, None]:
+        return None
