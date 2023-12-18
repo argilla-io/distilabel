@@ -689,7 +689,6 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -700,7 +699,6 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
 
         Returns:
             CustomDataset: the final dataset.
