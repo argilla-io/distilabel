@@ -24,13 +24,13 @@ from vllm import LLM
 def load_notus(task):
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     llm = LLM(model="TheBloke/notus-7B-v1-AWQ", quantization="awq")
-    return vLLM(vllm=llm, task=task, max_new_tokens=512)
+    return vLLM(vllm=llm, task=task, max_new_tokens=512, prompt_format="notus")
 
 
 def load_zephyr(task):
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     llm = LLM(model="TheBloke/zephyr-7b-beta-AWQ", quantization="awq")
-    return vLLM(vllm=llm, task=task, max_new_tokens=512)
+    return vLLM(vllm=llm, task=task, max_new_tokens=512, prompt_format="zephyr")
 
 
 def load_openai(task):
@@ -68,5 +68,3 @@ if __name__ == "__main__":
         num_generations=3,
         batch_size=5,
     )
-
-    dataset.push_to_hub("gabrielmbmb/test-dataset")
