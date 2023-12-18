@@ -14,9 +14,7 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
-
-from typing_extensions import TypedDict
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, TypedDict
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask

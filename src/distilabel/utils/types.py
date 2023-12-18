@@ -13,9 +13,11 @@
 # limitations under the License.
 
 from concurrent.futures import Future
-from typing import List, TypeGuard, TypeVar, Union
+from typing import List, Union
 
-T = TypeVar("FutureResult")
+from typing_extensions import TypeGuard, TypeVar
+
+T = TypeVar("FutureResult")  # type: ignore
 
 
 def is_list_of_futures(
