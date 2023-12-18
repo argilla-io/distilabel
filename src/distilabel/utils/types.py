@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from concurrent.futures import Future
-from typing import List, TypeGuard, TypeVar, Union
+from __future__ import annotations
 
-T = TypeVar("FutureResult")
+from concurrent.futures import Future
+from typing import List, Union
+
+from typing_extensions import TypeGuard, TypeVar
+
+T = TypeVar("FutureResult")  # type: ignore
 
 
 def is_list_of_futures(

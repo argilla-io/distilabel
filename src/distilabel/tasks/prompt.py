@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List, Literal, Union
-
-from typing_extensions import TypedDict
+from typing import List, Literal, TypedDict, Union
 
 
 class ChatCompletion(TypedDict):

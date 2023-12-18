@@ -14,9 +14,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar
-
-from typing_extensions import TypedDict
+from typing import ClassVar, TypedDict
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.critique.base import CritiqueTask

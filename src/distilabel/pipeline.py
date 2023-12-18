@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import math
 import os
 import warnings
@@ -31,7 +33,7 @@ from typing import (
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
-from distilabel.llm.base import LLM, LLMFutures, ProcessLLM
+from distilabel.llm.base import LLM, LLMFutures, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.progress_bar import (
@@ -48,7 +50,7 @@ logger = get_logger()
 class Pipeline:
     def __init__(
         self,
-        generator: Union["LLM", "ProcessLLM", None] = None,
+        generator: Union["LLM", "ProcessLLM", "LLMPool", None] = None,
         labeller: Union["LLM", "ProcessLLM", None] = None,
     ) -> None:
         """Initializes the Pipeline class.
@@ -81,6 +83,16 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
+        if generator is not None and not isinstance(
+            generator, (LLM, ProcessLLM, LLMPool)
+        ):
+            raise ValueError(
+                "`generator` must be an instance of `LLM`, `ProcessLLM` or `LLMPool`"
+            )
+
+        if labeller is not None and not isinstance(labeller, (LLM, ProcessLLM)):
+            raise ValueError("`labeller` must be an instance of `LLM` or `ProcessLLM`")
+
         self.generator = generator
         self.labeller = labeller
 
@@ -285,14 +297,20 @@ class Pipeline:
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
-                # Since all the generations for the same `model_name` also share the same
-                # `prompt_used`, then we just keep the first element in `generations`
-                "generation_model": generations[0]["model_name"],
-                "generation_prompt": generations[0]["prompt_used"],
-                "raw_generation_responses": [
-                    generation["raw_output"] for generation in generations
-                ],
+                "generation_model": [],
+                "generation_prompt": [],
+                "raw_generation_responses": [],
             }
+            for generation in generations:
+                processed_generation["generation_model"].append(
+                    generation["model_name"]
+                )
+                processed_generation["generation_prompt"].append(
+                    generation["prompt_used"]
+                )
+                processed_generation["raw_generation_responses"].append(
+                    generation["raw_output"]
+                )
             # Create `generations` column which is a list with N text generations
             try:
                 processed_generation.update(
@@ -522,14 +540,21 @@ class Pipeline:
         _dataset = Dataset(
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
-        _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
+        _dataset = _dataset.map(
+            lambda _: {**generations.pop(0), **processed_labels.pop(0)}
+        )  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
-        _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
+        if self.generator is not None and self.labeller is None:
+            _dataset.task = self.generator.task  # type: ignore
+        elif self.labeller is not None:
+            _dataset.task = self.labeller.task  # type: ignore
         return _dataset  # type: ignore
 
     def _teardown(self) -> None:
-        if self.generator is not None and isinstance(self.generator, ProcessLLM):
+        if self.generator is not None and isinstance(
+            self.generator, (ProcessLLM, LLMPool)
+        ):
             self.generator.teardown()
 
         if self.labeller is not None and isinstance(self.labeller, ProcessLLM):
@@ -684,7 +709,6 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -695,7 +719,6 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
 
         Returns:
             CustomDataset: the final dataset.
