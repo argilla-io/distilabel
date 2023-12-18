@@ -527,7 +527,10 @@ class Pipeline:
         )  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
-        _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
+        if self.generator is not None and self.labeller is None:
+            _dataset.task = self.generator.task  # type: ignore
+        elif self.labeller is not None:
+            _dataset.task = self.labeller.task  # type: ignore
         return _dataset  # type: ignore
 
     def _teardown(self) -> None:
@@ -686,7 +689,6 @@ class Pipeline:
         batch_size: int = 1,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -697,7 +699,6 @@ class Pipeline:
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
 
         Returns:
             CustomDataset: the final dataset.
