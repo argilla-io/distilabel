@@ -500,7 +500,7 @@ class ProcessLLM:
         # This thread will create text generation requests
         self.pending_text_generation_request: Dict[int, _TextGenerationRequest] = {}
         self.text_generation_request_count = 0
-        self.text_generation_request_ids_queue = queue.Queue[int]()
+        self.text_generation_request_ids_queue: queue.Queue[int] = queue.Queue()
 
         # Queues for the communication between the `_BridgeThread` and the `_GenerationProcess`
         self._call_queue = mp.Queue()
