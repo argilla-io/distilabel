@@ -14,13 +14,16 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import ClassVar, List, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
+
+if TYPE_CHECKING:
+    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
@@ -108,6 +111,25 @@ class UltraFeedbackTask(PreferenceTask):
                 UltraFeedbackOutput(rating=rating, rationale=rationale)
             )
         return parsed_output
+
+    # Override the default `to_argilla_dataset` method to provide the `ratings_values` of
+    # UltraFeedback, as the default goes from 1-10 while UltraFeedback's default is 1-5
+    # (0-4 actually, but Argilla doesn't support 0s).
+    def to_argilla_dataset(
+        self,
+        dataset_row: Dict[str, Any],
+        generations_column: Optional[str] = "generations",
+        ratings_column: Optional[str] = "rating",
+        ratings_values: Optional[List[int]] = None,
+        rationale_column: Optional[str] = "rationale",
+    ) -> "FeedbackDataset":
+        return super().to_argilla_dataset(
+            dataset_row=dataset_row,
+            generations_column=generations_column,
+            ratings_column=ratings_column,
+            ratings_values=ratings_values or [1, 2, 3, 4, 5],
+            rationale_column=rationale_column,
+        )
 
     @classmethod
     def for_text_quality(
