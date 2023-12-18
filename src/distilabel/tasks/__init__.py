@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from distilabel.tasks.base import Task
+from distilabel.tasks.critique.base import CritiqueTask
+from distilabel.tasks.critique.ultracm import UltraCMTask
 from distilabel.tasks.preference.judgelm import JudgeLMTask
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
@@ -24,6 +26,8 @@ from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
 __all__ = [
     "Task",
+    "CritiqueTask",
+    "UltraCMTask",
     "JudgeLMTask",
     "UltraFeedbackTask",
     "UltraJudgeTask",
