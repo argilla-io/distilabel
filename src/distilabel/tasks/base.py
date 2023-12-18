@@ -18,6 +18,7 @@ if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Union
 
