@@ -687,6 +687,7 @@ class LLMPool:
                 progress_callback_func=progress_callback_func,
             )
             for i, llm in enumerate(self.llms)
+            if num_generations_per_llm[i] > 0
         ]
         llms_generations = [future.result() for future in futures]
 
