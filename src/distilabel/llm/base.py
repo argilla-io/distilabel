@@ -611,6 +611,9 @@ class LLMPool:
     - If `num_generations` is greater than the number of `LLM`s, then each `LLM` will
     perform `num_generations // num_llms` generations, and the remaining `num_generations % num_llms`
     generations will be performed by `num_generations % num_llms` randomly chosen `LLM`s.
+
+    Attributes:
+        llms (List[ProcessLLM]): the `ProcessLLM`s to be used for generation.
     """
 
     def __init__(self, llms: List[ProcessLLM]) -> None:
