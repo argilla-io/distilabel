@@ -621,9 +621,9 @@ class LLMPool:
                 least 2 `ProcessLLM`s.
 
         Raises:
-            ValueError: if the `llms` argument contains less than 2 `ProcessLLM`s or
+            ValueError: if the `llms` argument contains less than 2 `ProcessLLM`s, the
+                `llms` argument contains `ProcessLLM`s that are not `ProcessLLM`s, or
                 if the `llms` argument contains `ProcessLLM`s with different tasks.
-            TypeError: if the `llms` argument contains elements that are not `ProcessLLM`s.
         """
         if len(llms) < 2:
             raise ValueError(
@@ -632,7 +632,7 @@ class LLMPool:
             )
 
         if not all(isinstance(llm, ProcessLLM) for llm in llms):
-            raise TypeError("The `llms` argument must contain only `ProcessLLM`s.")
+            raise ValueError("The `llms` argument must contain only `ProcessLLM`s.")
 
         if not all(llm.task == llms[0].task for llm in llms):
             raise ValueError(
