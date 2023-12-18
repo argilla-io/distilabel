@@ -525,7 +525,10 @@ class Pipeline:
         _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
-        _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
+        if self.generator is not None and self.labeller is None:
+            _dataset.task = self.generator.task  # type: ignore
+        elif self.labeller is not None:
+            _dataset.task = self.labeller.task  # type: ignore
         return _dataset  # type: ignore
 
     def _teardown(self) -> None:
