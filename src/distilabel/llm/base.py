@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import multiprocessing as mp
 import queue
+import random
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -594,3 +595,129 @@ class ProcessLLM:
         """Returns whether the LLM returns futures or not, and if so what the futures
         contains."""
         return LLMFutures.CONTAINS_BATCHES
+
+
+class LLMPool:
+    """LLMPool is a class that wraps multiple `ProcessLLM`s and performs generation in
+    parallel using them. Depending on the number of `LLM`s and the parameter `num_generations`,
+    the `LLMPool` will decide how many generations to perform for each `LLM`:
+
+    - If `num_generations` is less than the number of `LLM`s, then `num_generations` LLMs
+    will be chosen randomly and each of them will perform 1 generation.
+
+    - If `num_generations` is equal to the number of `LLM`s, then each `LLM` will perform
+    1 generation.
+
+    - If `num_generations` is greater than the number of `LLM`s, then each `LLM` will
+    perform `num_generations // num_llms` generations, and the remaining `num_generations % num_llms`
+    generations will be performed by `num_generations % num_llms` randomly chosen `LLM`s.
+
+    Attributes:
+        llms (List[ProcessLLM]): the `ProcessLLM`s to be used for generation.
+    """
+
+    def __init__(self, llms: List[ProcessLLM]) -> None:
+        """Initializes the `LLMPool` class.
+
+        Args:
+            llms: the `ProcessLLM`s to be used for generation. The list must contain at
+                least 2 `ProcessLLM`s.
+
+        Raises:
+            ValueError: if the `llms` argument contains less than 2 `ProcessLLM`s, the
+                `llms` argument contains `ProcessLLM`s that are not `ProcessLLM`s, or
+                if the `llms` argument contains `ProcessLLM`s with different tasks.
+        """
+        if len(llms) < 2:
+            raise ValueError(
+                "The `llms` argument must contain at least 2 `ProcessLLM`s. If you want"
+                " to use a single `ProcessLLM`, use the `ProcessLLM` directly instead."
+            )
+
+        if not all(isinstance(llm, ProcessLLM) for llm in llms):
+            raise ValueError("The `llms` argument must contain only `ProcessLLM`s.")
+
+        if not all(llm.task == llms[0].task for llm in llms):
+            raise ValueError(
+                "The `llms` argument must contain `ProcessLLM`s with the same task."
+            )
+
+        self.llms = llms
+        self.num_llms = len(llms)
+
+    def _get_num_generations_per_llm(self, num_generations: int) -> Dict[int, int]:
+        """Returns the number of generations to be performed by each `LLM`.
+
+        Args:
+            num_generations: the number of generations to be performed.
+
+        Returns:
+            Dict[int, int]: a dictionary where the keys are the ids of the `LLM`s and the
+            values are the number of generations to be performed by each `LLM`.
+        """
+        llms_ids = list(range(self.num_llms))
+        generations_per_llm = {i: num_generations // self.num_llms for i in llms_ids}
+
+        for i in random.sample(llms_ids, k=num_generations % self.num_llms):
+            generations_per_llm[i] += 1
+
+        return generations_per_llm
+
+    def generate(
+        self,
+        inputs: List[Dict[str, Any]],
+        num_generations: int = 1,
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> List[List["LLMOutput"]]:
+        """Generates the outputs for the given inputs using the pool of `ProcessLLM`s.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            num_generations (int, optional): the number of generations to be performed for each input.
+                Defaults to `1`.
+            progress_callback_func (Union[Callable, None], optional): a function to be called at each
+                generation step. Defaults to `None`.
+
+        Returns:
+            Future[List[List["LLMOutput"]]]: the generated outputs as a `Future`.
+        """
+        num_generations_per_llm = self._get_num_generations_per_llm(num_generations)
+
+        futures = [
+            llm.generate(
+                inputs,
+                num_generations=num_generations_per_llm[i],
+                progress_callback_func=progress_callback_func,
+            )
+            for i, llm in enumerate(self.llms)
+            if num_generations_per_llm[i] > 0
+        ]
+        llms_generations = [future.result() for future in futures]
+
+        generations = []
+        for llms_row_generations in zip(*llms_generations):
+            row_generations = []
+            for llm_row_generations in llms_row_generations:
+                for generation in llm_row_generations:
+                    row_generations.append(generation)
+            generations.append(row_generations)
+
+        return generations
+
+    def teardown(self) -> None:
+        """Stops the `ProcessLLM`s."""
+        for llm in self.llms:
+            llm.teardown()
+
+    @property
+    def task(self) -> "Task":
+        """Returns the task that will be used by the `ProcessLLM`s of this pool.
+
+        Returns:
+            Task: the task that will be used by the `ProcessLLM`s of this pool.
+        """
+        return self.llms[0].task
+
+    @property
+    def return_futures(self) -> Union[LLMFutures, None]:
+        return None
