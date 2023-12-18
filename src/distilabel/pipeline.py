@@ -522,7 +522,9 @@ class Pipeline:
         _dataset = Dataset(
             arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
         )
-        _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
+        _dataset = _dataset.map(
+            lambda _: {**generations.pop(0), **processed_labels.pop(0)}
+        )  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         if self.generator is not None and self.labeller is None:
