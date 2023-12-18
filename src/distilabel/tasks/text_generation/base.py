@@ -212,9 +212,16 @@ class TextGenerationTask(Task):
             arg_value = dataset_row[arg_name]
             if isinstance(arg_value, list):
                 for idx, value in enumerate(arg_value, start=1):
-                    fields[f"{arg_name}-{idx}"] = value.strip() if value else ""
+                    value = (
+                        value.strip()
+                        if isinstance(value, str)
+                        else "\n".join(value)
+                        if isinstance(value, list)
+                        else ""
+                    )
+                    fields[f"{arg_name}-{idx}"] = value
                     if value is not None:
-                        metadata[f"length-{arg_name}-{idx}"] = len(value.strip())
+                        metadata[f"length-{arg_name}-{idx}"] = len(value)
             elif isinstance(arg_value, str):
                 fields[arg_name] = arg_value.strip() if arg_value else ""
                 if arg_value is not None:
