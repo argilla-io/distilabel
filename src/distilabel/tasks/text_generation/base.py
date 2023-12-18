@@ -13,12 +13,22 @@
 # limitations under the License.
 
 import random
+import warnings
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
+from distilabel.tasks.argilla_utils import infer_fields_from_dataset_row
 from distilabel.tasks.base import Task
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.principles import UltraFeedbackPrinciples
+from distilabel.utils.imports import _ARGILLA_AVAILABLE
+
+if _ARGILLA_AVAILABLE:
+    import argilla as rg
+
+if TYPE_CHECKING:
+    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla.client.feedback.schemas.records import FeedbackRecord
 
 
 @dataclass
@@ -135,3 +145,84 @@ class TextGenerationTask(Task):
     def output_args_names(self) -> list[str]:
         """Returns the output args names for the task."""
         return ["generations"]
+
+    def to_argilla_dataset(
+        self,
+        dataset_row: Dict[str, Any],
+        generations_column: Optional[str] = "generations",
+    ) -> "FeedbackDataset":
+        # First we infer the fields from the input_args_names, but we could also
+        # create those manually instead using `rg.TextField(...)`
+        fields = infer_fields_from_dataset_row(
+            field_names=self.input_args_names + self.output_args_names,
+            dataset_row=dataset_row,
+        )
+        # Then we add a default `RatingQuestion` which asks the users to provide a
+        # rating for each of the generations, differing from the scenario where the inputs
+        # are the fields and the outputs the ones used to formulate the quesstions. So on,
+        # in this scenario we won't have suggestions, as the questions will be related to the
+        # combination of inputs and outputs.
+        if generations_column is None or generations_column not in dataset_row:
+            raise ValueError(
+                f"The `generations_column='{generations_column}'` is not present in the dataset"
+                f" row. Please provide any of {list(dataset_row.keys())}.",
+            )
+        questions = []
+        for idx in range(1, len(dataset_row[generations_column]) + 1):
+            questions.append(
+                rg.RatingQuestion(  # type: ignore
+                    name=f"{generations_column}-{idx}-rating",
+                    title=f"How would you rate the generation at `{generations_column}-{idx}`?",
+                    values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                )
+            )
+        # Finally, we define some metadata properties that can be potentially used
+        # while exploring the dataset within Argilla to get more insights on the data.
+        metadata_properties = []
+        for arg_name in self.input_args_names + self.output_args_names:
+            if isinstance(dataset_row[arg_name], list):
+                for idx in range(1, len(dataset_row[arg_name]) + 1):
+                    metadata_properties.append(
+                        rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
+                    )
+            elif isinstance(dataset_row[arg_name], str):
+                metadata_properties.append(
+                    rg.IntegerMetadataProperty(name=f"length-{arg_name}")  # type: ignore
+                )
+            else:
+                warnings.warn(
+                    f"Unsupported input type ({type(dataset_row[arg_name])}), skipping...",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
+        # defined above.
+        return rg.FeedbackDataset(
+            fields=fields,
+            questions=questions,
+            metadata_properties=metadata_properties,  # Note that these are always optional
+        )
+
+    def to_argilla_record(self, dataset_row: Dict[str, Any]) -> "FeedbackRecord":
+        """Converts a dataset row to an Argilla `FeedbackRecord`."""
+        # We start off with the fields, which are the inputs of the LLM, but also
+        # build the metadata from them, as previously specified within the
+        fields, metadata = {}, {}
+        for arg_name in self.input_args_names + self.output_args_names:
+            arg_value = dataset_row[arg_name]
+            if isinstance(arg_value, list):
+                for idx, value in enumerate(arg_value, start=1):
+                    fields[f"{arg_name}-{idx}"] = value.strip() if value else ""
+                    if value is not None:
+                        metadata[f"length-{arg_name}-{idx}"] = len(value.strip())
+            elif isinstance(arg_value, str):
+                fields[arg_name] = arg_value.strip() if arg_value else ""
+                if arg_value is not None:
+                    metadata[f"length-{arg_name}"] = len(arg_value.strip())
+            else:
+                warnings.warn(
+                    f"Unsupported input type ({type(arg_value)}), skipping...",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        return rg.FeedbackRecord(fields=fields, metadata=metadata)
