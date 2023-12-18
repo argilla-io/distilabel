@@ -81,6 +81,16 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
+        if generator is not None and not isinstance(
+            generator, (LLM, ProcessLLM, LLMPool)
+        ):
+            raise ValueError(
+                "`generator` must be an instance of `LLM`, `ProcessLLM` or `LLMPool`"
+            )
+
+        if labeller is not None and not isinstance(labeller, (LLM, ProcessLLM)):
+            raise ValueError("`labeller` must be an instance of `LLM` or `ProcessLLM`")
+
         self.generator = generator
         self.labeller = labeller
 
