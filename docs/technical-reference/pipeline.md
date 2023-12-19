@@ -6,7 +6,7 @@ This section will detail the [`Pipeline`][distilabel.pipeline.Pipeline], providi
 
 The [Pipeline][distilabel.pipeline.Pipeline] class is a central component in `distilabel`, responsible for crafting datasets. It manages the generation of datasets and oversees the interaction between the generator and labeller `LLMs`.
 
-You create an instance of the [`Pipeline`][distilabel.pipeline.Pipeline] by providing a *generator* and an optional *labeller* [LLM][distilabel.llm.base.LLM]. Interactions with it are facilitated through its `generate` method. This method requires a [`dataset`](https://huggingface.co/docs/datasets/v2.15.0/en/package_reference/main_classes#datasets.Dataset), specifies the *num_generations* to determine the number of examples to be created, and includes additional parameters for controlling the *batch_size* and managing the generation process.
+You create an instance of the [`Pipeline`][distilabel.pipeline.Pipeline] by providing a *generator* and an optional *labeller* [LLM][distilabel.llm.base.LLM]. Interactions with it are facilitated through its `generate` method. This method requires a [`dataset`](https://huggingface.co/docs/datasets/main/en/package_reference/main_classes#datasets.Dataset), specifies the *num_generations* to determine the number of examples to be created, and includes additional parameters for controlling the *batch_size* and managing the generation process.
 
 Let's start by a Pipeline with a single `LLM` as a generator.
 

@@ -74,11 +74,11 @@ Instead of generating text, you can instruct the `LLM` to label datasets. The ex
 
 Preference datasets for Language Models (LLMs) are sets of information that show how people rank or prefer one thing over another in a straightforward and clear manner. These datasets help train language models to understand and generate content that aligns with user preferences, enhancing the model's ability to generate contextually relevant and preferred outputs.
 
-Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for direct use. It implements the default methods `input_args_names` and `output_args_names`, but `generate_prompt` and `parse_output` are specific to each `PreferenceTask`. Examining the output_args_names reveals that the generation will encompass both the rating and the rationale that influenced that rating. `distilabel` implements the following preference tasks:
+Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for direct use. It implements the default methods `input_args_names` and `output_args_names`, but `generate_prompt` and `parse_output` are specific to each `PreferenceTask`. Examining the `output_args_names` reveals that the generation will encompass both the rating and the rationale that influenced that rating.
 
 #### UltraFeedbackTask
 
-The task specially designed to build the prompts following the UltraFeedback paper: [UltraFeedback: Boosting Language Models With High Quality Feedback](https://arxiv.org/pdf/2310.01377.pdf).
+This task is specifically designed to build the prompts following the format defined in the ["UltraFeedback: Boosting Language Models With High Quality Feedback"](https://arxiv.org/pdf/2310.01377.pdf) paper.
 
 From the original [repository](https://github.com/OpenBMB/UltraFeedback): *To collect high-quality preference and textual feedback, we design a fine-grained annotation instruction, which contains 4 different aspects, namely instruction-following, truthfulness, honesty and helpfulness*. This `Task` is designed to label datasets following the different aspects defined for the UltraFeedback dataset creation.
 
