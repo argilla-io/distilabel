@@ -13,13 +13,12 @@ extra_css:
 
 theme:
   name: material
-  logo: assets/alembic.svg
+  logo: assets/logo.svg
   favicon: assets/distilabel-icon.svg
   features:
     - navigation.instant
     - navigation.tabs
     - toc.follow
-    #- toc.integrate
     - content.code.copy
     - content.code.annotate
   palette:
