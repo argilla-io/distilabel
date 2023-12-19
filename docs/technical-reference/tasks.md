@@ -88,45 +88,45 @@ The following snippet can be used as a simplified UltraFeedback Task, for which 
 --8<-- "docs/snippets/technical-reference/tasks/ultrafeedback.py"
 ```
 
-- Text Quality:
+=== "Text Quality"
 
-The following example uses a `LLM` to examinate the data for text quality criteria, which includes the different criteria from UltraFeedback (Correctness & Informativeness, Honesty & Uncertainty, Truthfulness & Hallucination and Instruction Following):
+    The following example uses a `LLM` to examinate the data for text quality criteria, which includes the different criteria from UltraFeedback (Correctness & Informativeness, Honesty & Uncertainty, Truthfulness & Hallucination and Instruction Following):
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/openai_for_text_quality.py"
-```
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_text_quality.py"
+    ```
 
-- Helpfulness:
+=== "Helpfulness"
 
-The following example creates a UltraFeedback task to emphasize helpfulness, that is overall quality and correctness of the output:
+    The following example creates a UltraFeedback task to emphasize helpfulness, that is overall quality and correctness of the output:
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/openai_for_helpfulness.py"
-```
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_helpfulness.py"
+    ```
 
-- Truthfulness:
+=== "Truthfulness"
 
-The following example creates a UltraFeedback task to emphasize truthfulness and hallucination assessment:
+    The following example creates a UltraFeedback task to emphasize truthfulness and hallucination assessment:
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/openai_for_truthfulness.py"
-```
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_truthfulness.py"
+    ```
 
-- Honesty:
+=== "Honesty"
 
-The following example creates a UltraFeedback task to emphasize honesty and uncertainty expression assessment:
+    The following example creates a UltraFeedback task to emphasize honesty and uncertainty expression assessment:
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/openai_for_honesty.py"
-```
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_honesty.py"
+    ```
 
-- Instruction Following:
+=== "Instruction Following"
 
-The following example creates a UltraFeedback task to emphasize the evaluation of alignment between output and intent:
+    The following example creates a UltraFeedback task to emphasize the evaluation of alignment between output and intent:
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/openai_for_instruction_following.py"
-```
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_instruction_following.py"
+    ```
 
 For the API reference visit [UltraFeedbackTask][distilabel.tasks.preference.ultrafeedback.UltraFeedbackTask].
 
