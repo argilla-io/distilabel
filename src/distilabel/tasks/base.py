@@ -113,7 +113,7 @@ class Task(ABC):
 
     def to_argilla_record(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
-    ) -> "FeedbackRecord":
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
         raise NotImplementedError(
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."
