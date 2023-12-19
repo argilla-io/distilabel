@@ -56,10 +56,12 @@ class PrometheusTask(CritiqueTask):
 
     def parse_output(self, output: str) -> CritiqueTaskOutput:  # type: ignore
         """Parses the output of the model into the desired format."""
-        pattern = r"(\d+(?:\.\d+)?)\s*(.*)"
+        # We use a regex instead of splitting by the delimiter because the
+        # critique may contain the delimiter, and using the regex is safer.
+        pattern = r"(.+?)\. \[RESULT\] (\d+)"
         match = re.match(pattern, output)
         if match:
             return CritiqueTaskOutput(
-                score=float(match.group(1)),
-                critique=match.group(2).strip(),
+                score=float(match.group(2)),
+                critique=match.group(1).strip(),
             )
