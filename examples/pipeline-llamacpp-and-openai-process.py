@@ -34,7 +34,7 @@ def load_llama_cpp_llm(task: "Task") -> "LLM":
     from distilabel.llm import LlamaCppLLM
 
     llama = Llama(
-        model_path="notus-7b-v1.Q4_0.gguf", n_gpu_layers=10, n_ctx=1024, verbose=True
+        model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=10, n_ctx=1024, verbose=False
     )
     return LlamaCppLLM(
         model=llama, task=task, max_new_tokens=512, prompt_format="zephyr"
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     dataset = pipeline.generate(
         dataset,  # type: ignore
         num_generations=2,
-        batch_size=2,
+        batch_size=1,
         enable_checkpoints=True,
         display_progress_bar=False,
     )
