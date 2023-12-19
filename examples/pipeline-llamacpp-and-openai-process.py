@@ -13,12 +13,41 @@
 # limitations under the License.
 
 import os
+from typing import TYPE_CHECKING
 
 from datasets import load_dataset
-from distilabel.llm import OpenAILLM, vLLM
+from distilabel.llm import ProcessLLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
-from vllm import LLM
+from llama_cpp import Llama
+
+if TYPE_CHECKING:
+    from distilabel.llm import LLM
+    from distilabel.tasks import Task
+
+
+def load_llama_cpp_llm(task: "Task") -> "LLM":
+    from distilabel.llm import LlamaCppLLM
+
+    llama = Llama(
+        model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=10, n_ctx=1024, verbose=False
+    )
+    return LlamaCppLLM(
+        model=llama, task=task, max_new_tokens=512, prompt_format="zephyr"
+    )
+
+
+def load_openai_llm(task: "Task") -> "LLM":
+    from distilabel.llm import OpenAILLM
+
+    return OpenAILLM(
+        model="gpt-3.5-turbo",
+        task=task,
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        num_threads=2,
+        max_new_tokens=512,
+    )
+
 
 if __name__ == "__main__":
     dataset = (
@@ -28,20 +57,9 @@ if __name__ == "__main__":
     )
 
     pipeline = Pipeline(
-        generator=vLLM(
-            vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
-            task=TextGenerationTask(),
-            max_new_tokens=128,
-            temperature=0.3,
-            prompt_format="zephyr",
-        ),
-        labeller=OpenAILLM(
-            model="gpt-3.5-turbo",
-            task=UltraFeedbackTask.for_text_quality(),
-            max_new_tokens=128,
-            num_threads=2,
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
-            temperature=0.0,
+        generator=ProcessLLM(task=TextGenerationTask(), load_llm_fn=load_llama_cpp_llm),
+        labeller=ProcessLLM(
+            task=UltraFeedbackTask.for_text_quality(), load_llm_fn=load_openai_llm
         ),
     )
 
@@ -50,7 +68,7 @@ if __name__ == "__main__":
         num_generations=2,
         batch_size=1,
         enable_checkpoints=True,
-        display_progress_bar=True,
+        display_progress_bar=False,
     )
 
     # Push to the HuggingFace Hub

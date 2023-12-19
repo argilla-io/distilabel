@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List, Literal, Union
-
-from typing_extensions import TypedDict
+from typing import List, Literal, TypedDict, Union
 
 
 class ChatCompletion(TypedDict):
@@ -26,7 +24,7 @@ class ChatCompletion(TypedDict):
 
 
 # A `Literal` type is used to ensure that the `format` argument is one of the supported formats.
-SupportedFormats = Literal["default", "openai", "llama2", "chatml", "zephyr"]
+SupportedFormats = Literal["default", "openai", "llama2", "chatml", "zephyr", "notus"]
 
 
 @dataclass
@@ -84,7 +82,7 @@ class Prompt:
             return f"<s>[INST] <<SYS>>\n{self.system_prompt}<</SYS>>\n\n{self.formatted_prompt} [/INST]"
         elif format == "chatml":
             return f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{self.formatted_prompt}<|im_end|>\n<|im_start|>assistant\n"
-        elif format == "zephyr":
+        elif format in ["zephyr", "notus"]:
             return f"<|system|>\n{self.system_prompt}</s>\n<|user|>\n{self.formatted_prompt}</s>\n<|assistant|>\n"
         else:
             raise ValueError(

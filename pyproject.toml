@@ -25,6 +25,7 @@ dependencies = [
     "Jinja2 >= 3.1.2",
     "rich >= 13.5.0",
     "tenacity >= 8",
+    "importlib-resources >= 6.1.1; python_version < '3.9'",
 ]
 dynamic = ["version"]
 
@@ -45,7 +46,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/argilla/distilabel#readme"
+Documentation = "https://distilabel.argilla.io/"
 Issues = "https://github.com/argilla/distilabel/issues"
 Source = "https://github.com/argilla/distilabel"
 

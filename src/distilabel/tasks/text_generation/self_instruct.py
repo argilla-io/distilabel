@@ -21,6 +21,7 @@ from distilabel.tasks.text_generation.base import TextGenerationTask
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 
+
 @dataclass
 class SelfInstructTask(TextGenerationTask):
     """A `TextGenerationTask` following the Self-Instruct specification for building
@@ -42,7 +43,8 @@ class SelfInstructTask(TextGenerationTask):
 
     system_prompt: str = (
         "You are an expert prompt writer, writing the best and most diverse prompts for a variety of tasks."
-        "You are given a task description and a set of instructions for how to write the prompts for a specific AI application."
+        " You are given a task description and a set of instructions for how to write the prompts for an"
+        " specific AI application."
     )
     application_description: str = "AI assistant"
     num_instructions: int = 5
