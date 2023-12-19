@@ -19,7 +19,6 @@ theme:
     - navigation.instant
     - navigation.tabs
     - toc.follow
-    #- toc.integrate
     - content.code.copy
     - content.code.annotate
   palette:
