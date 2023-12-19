@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# WARNING: to run this example in Mac OS use:
+# no_proxy=* OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES python examples/pipeline-llamacpp-and-openai-process.py
+# Otherwise you will get an error when loading the llama.cpp model
+
 import os
 from typing import TYPE_CHECKING
 

@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-import multiprocessing as mp
 import queue
 import random
 import warnings
@@ -33,6 +32,8 @@ from typing import (
     Type,
     Union,
 )
+
+import multiprocess as mp
 
 from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
