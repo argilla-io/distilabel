@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# WARNING: to run this example in Mac OS use:
+# no_proxy=* OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES python examples/pipeline-llamacpp-and-openai-process.py
+# Otherwise you will get an error when loading the llama.cpp model
+
 import os
 from typing import TYPE_CHECKING
 
@@ -30,7 +34,7 @@ def load_llama_cpp_llm(task: "Task") -> "LLM":
     from distilabel.llm import LlamaCppLLM
 
     llama = Llama(
-        model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=10, n_ctx=1024, verbose=False
+        model_path="notus-7b-v1.Q4_0.gguf", n_gpu_layers=10, n_ctx=1024, verbose=True
     )
     return LlamaCppLLM(
         model=llama, task=task, max_new_tokens=512, prompt_format="zephyr"
@@ -66,7 +70,7 @@ if __name__ == "__main__":
     dataset = pipeline.generate(
         dataset,  # type: ignore
         num_generations=2,
-        batch_size=1,
+        batch_size=2,
         enable_checkpoints=True,
         display_progress_bar=False,
     )
