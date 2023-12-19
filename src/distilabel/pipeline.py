@@ -636,7 +636,11 @@ class Pipeline:
                 logger.info(f"Calling generator for batch {batch_i}...")
                 try:
                     batch_generations = self._get_batch_generations(
-                        inputs, num_generations, num_batches, generation_progress_func
+                        inputs=inputs,
+                        num_generations=num_generations,
+                        num_batches=num_batches,
+                        shuffle_before_labelling=shuffle_before_labelling,
+                        progress_callback_func=generation_progress_func,
                     )
                     generations.extend(batch_generations)
                 except Exception as e:
@@ -655,7 +659,7 @@ class Pipeline:
                     )
 
                 inputs = self._include_generator_outputs_as_inputs(
-                    inputs, batch_generations
+                    inputs=inputs, outputs=batch_generations
                 )
 
             if self.labeller is not None:
@@ -785,6 +789,7 @@ class Pipeline:
             num_generations=num_generations,
             batch_size=batch_size,
             enable_checkpoints=enable_checkpoints,
+            shuffle_before_labelling=shuffle_before_labelling,
             display_progress_bar=display_progress_bar,
         )
 
