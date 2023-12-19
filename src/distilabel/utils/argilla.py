@@ -28,7 +28,7 @@ def infer_fields_from_dataset_row(
 ) -> List["AllowedFieldTypes"]:
     if not _ARGILLA_AVAILABLE:
         raise ImportError(
-            "In order to use any of the functions defined within `argilla_utils` you must install `argilla`"
+            "In order to use any of the functions defined within `utils.argilla` you must install `argilla`"
         )
     processed_items = []
     for arg_name in field_names:
@@ -37,7 +37,7 @@ def infer_fields_from_dataset_row(
         if isinstance(dataset_row[arg_name], list):
             for idx in range(1, len(dataset_row[arg_name]) + 1):
                 processed_items.append(
-                    rg.TextField(name=f"{arg_name}-{idx}", title=f"{arg_name}-{idx}")
+                    rg.TextField(name=f"{arg_name}-{idx}", title=f"{arg_name}-{idx}")  # type: ignore
                 )  # type: ignore
         elif isinstance(dataset_row[arg_name], str):
             processed_items.append(rg.TextField(name=arg_name, title=arg_name))  # type: ignore
