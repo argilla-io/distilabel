@@ -90,7 +90,7 @@ Let's see an example using [notus-7b-v1](https://huggingface.co/argilla/notus-7b
 
 ### Inference Endpoints
 
-Hugging Face provides a streamlined approach for deploying models through [inference endpoints](https://huggingface.co/inference-endpoints) on their infrastructure. Opt for this solution if your model is hosted on Hugging Face.
+HuggingFace provides a streamlined approach for deploying models through [inference endpoints](https://huggingface.co/inference-endpoints) on their infrastructure. Opt for this solution if your model is hosted on HuggingFace.
 
 For the API reference visit [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM].
 
