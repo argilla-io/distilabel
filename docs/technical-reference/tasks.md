@@ -74,7 +74,7 @@ Instead of generating text, you can instruct the `LLM` to label datasets. The ex
 
 Preference datasets for Language Models (LLMs) are sets of information that show how people rank or prefer one thing over another in a straightforward and clear manner. These datasets help train language models to understand and generate content that aligns with user preferences, enhancing the model's ability to generate contextually relevant and preferred outputs.
 
-Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for direct use. It implements the default methods `input_args_names` and `output_args_names`, but `generate_prompt` and `parse_output` are specific to each `PreferenceTask`. Examining the output_args_names reveals that the generation will encompass both the rating and the rationale that influenced that rating. `distilabel` implements the following preference tasks:
+Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for direct use. It implements the default methods `input_args_names` and `output_args_names`, but `generate_prompt` and `parse_output` are specific to each `PreferenceTask`. Examining the `output_args_names` reveals that the generation will encompass both the rating and the rationale that influenced that rating.
 
 #### UltraFeedbackTask
 
