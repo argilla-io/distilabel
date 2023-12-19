@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import math
 import os
+import random
 import warnings
 from concurrent.futures import Future
 from typing import (
@@ -276,6 +277,7 @@ class Pipeline:
                 "generation_prompt": [],
                 "raw_generation_responses": [],
             }
+            random.shuffle(generations)
             for generation in generations:
                 processed_generation["generation_model"].append(
                     generation["model_name"]
