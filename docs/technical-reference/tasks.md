@@ -78,7 +78,7 @@ Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for d
 
 #### UltraFeedbackTask
 
-The task specially designed to build the prompts following the UltraFeedback paper: [UltraFeedback: Boosting Language Models With High Quality Feedback](https://arxiv.org/pdf/2310.01377.pdf).
+This task is specifically designed to build the prompts following the format defined in the ["UltraFeedback: Boosting Language Models With High Quality Feedback"](https://arxiv.org/pdf/2310.01377.pdf) paper.
 
 From the original [repository](https://github.com/OpenBMB/UltraFeedback): *To collect high-quality preference and textual feedback, we design a fine-grained annotation instruction, which contains 4 different aspects, namely instruction-following, truthfulness, honesty and helpfulness*. This `Task` is designed to label datasets following the different aspects defined for the UltraFeedback dataset creation.
 
