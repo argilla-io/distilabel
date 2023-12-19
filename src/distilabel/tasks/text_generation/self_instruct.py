@@ -97,7 +97,6 @@ class SelfInstructTask(TextGenerationTask):
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the model into the desired format."""
         pattern = re.compile(r"\d+\.\s+(.*?)\n")
-        print(pattern.findall(output))
         return {"instructions": pattern.findall(output)}
 
     def to_argilla_dataset(self, dataset_row: Dict[str, Any]) -> "FeedbackDataset":
