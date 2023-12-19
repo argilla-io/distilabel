@@ -26,6 +26,7 @@ dependencies = [
     "rich >= 13.5.0",
     "tenacity >= 8",
     "importlib-resources >= 6.1.1; python_version < '3.9'",
+    "multiprocess",
 ]
 dynamic = ["version"]
 

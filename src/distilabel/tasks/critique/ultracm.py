@@ -14,19 +14,12 @@
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar, TypedDict
+from typing import ClassVar
 
 from distilabel.tasks.base import get_template
-from distilabel.tasks.critique.base import CritiqueTask
+from distilabel.tasks.critique.base import CritiqueTask, CritiqueTaskOutput
 
 _ULTRACM_TEMPLATE = get_template("ultracm.jinja2")
-
-
-class UltraCMOutput(TypedDict):
-    """A `TypedDict` matching the output format of UltraCM."""
-
-    score: float
-    critique: str
 
 
 @dataclass
@@ -46,12 +39,12 @@ class UltraCMTask(CritiqueTask):
         }
         return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: "
 
-    def parse_output(self, output: str) -> UltraCMOutput:  # type: ignore
+    def parse_output(self, output: str) -> CritiqueTaskOutput:  # type: ignore
         """Parses the output of the model into the desired format."""
         pattern = r"(\d+(?:\.\d+)?)\s*(.*)"
         match = re.match(pattern, output)
         if match:
-            return UltraCMOutput(
+            return CritiqueTaskOutput(
                 score=float(match.group(1)),
                 critique=match.group(2).strip(),
             )

@@ -14,14 +14,12 @@
 
 from __future__ import annotations
 
-import multiprocessing as mp
 import queue
 import random
 import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import Future, ThreadPoolExecutor
 from ctypes import c_char
-from enum import Enum, auto
 from functools import cached_property
 from threading import Thread
 from typing import (
@@ -35,9 +33,11 @@ from typing import (
     Union,
 )
 
+import multiprocess as mp
+
 from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
-from distilabel.utils.types import is_list_of_futures
+from distilabel.utils.futures import when_all_complete
 
 if TYPE_CHECKING:
     from distilabel.llm.utils import LLMOutput
@@ -45,22 +45,6 @@ if TYPE_CHECKING:
     from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
-
-
-class LLMFutures(Enum):
-    """An enum used to indicate whether the `LLM` returns futures or not, and if so
-    what the futures contains.
-
-    Attributes:
-        CONTAINS_ROWS: used to indicate that the `LLM` will return `Future`s that
-            contains a `List[List[LLMOutput]]`. The first list just contains 1 element
-            (the row) and the second list contains the generations for that row.
-        CONTAINS_BATCHES: used to indicate that the `LLM` will return `Future`s that
-            contains a `List[List[LLMOutput]]`.
-    """
-
-    CONTAINS_ROWS = auto()
-    CONTAINS_BATCHES = auto()
 
 
 class LLM(ABC):
@@ -198,7 +182,7 @@ class LLM(ABC):
         inputs: List[Dict[str, Any]],
         num_generations: int = 1,
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[List[Future[List["LLMOutput"]]], List[List["LLMOutput"]]]:
+    ) -> Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]:
         """Generates the outputs for the given inputs using the LLM.
 
         Args:
@@ -214,12 +198,7 @@ class LLM(ABC):
 
         def _progress():
             if progress_callback_func is not None:
-                advance = (
-                    num_generations * len(inputs)
-                    if self.return_futures is not None
-                    else num_generations
-                )
-                progress_callback_func(advance=advance)
+                progress_callback_func(advance=num_generations * len(inputs))
 
         if self.thread_pool_executor is not None:
             futures = []
@@ -227,19 +206,19 @@ class LLM(ABC):
                 future = self.thread_pool_executor.submit(
                     self._generate, [input], num_generations
                 )
-                future.add_done_callback(lambda _: _progress())
                 futures.append(future)
-            return futures
+            future = when_all_complete(futures)
+            future.add_done_callback(lambda _: _progress())
+            return future
 
         generations = self._generate(inputs, num_generations)
         _progress()
         return generations
 
     @property
-    def return_futures(self) -> Union[LLMFutures, None]:
-        """Returns whether the LLM returns futures or not, and if so what the futures
-        contains."""
-        return LLMFutures.CONTAINS_ROWS
+    def return_futures(self) -> bool:
+        """Whether the `LLM` returns futures"""
+        return True
 
 
 MAX_MODEL_NAME_LENGTH = 256
@@ -339,13 +318,7 @@ class _GenerationProcess(mp.Process):
                 inputs=request.inputs, num_generations=request.num_generations
             )
 
-            # Generations are a list of `Future`s because the `LLM` is using a thread pool
-            if is_list_of_futures(results):
-                generations = []
-                for future in results:
-                    generations.extend(future.result())
-            else:
-                generations = results
+            generations = results.result() if isinstance(results, Future) else results
 
             self._result_queue.put(_TextGenerationResult(generations))
 
@@ -591,10 +564,9 @@ class ProcessLLM:
             return "".join([c.decode() for c in self._model_name if c != b"\0"])
 
     @property
-    def return_futures(self) -> Union[LLMFutures, None]:
-        """Returns whether the LLM returns futures or not, and if so what the futures
-        contains."""
-        return LLMFutures.CONTAINS_BATCHES
+    def return_futures(self) -> bool:
+        """Whether the `LLM` returns futures"""
+        return True
 
 
 class LLMPool:
@@ -719,5 +691,6 @@ class LLMPool:
         return self.llms[0].task
 
     @property
-    def return_futures(self) -> Union[LLMFutures, None]:
-        return None
+    def return_futures(self) -> bool:
+        """Whether the `LLM` returns futures"""
+        return False
