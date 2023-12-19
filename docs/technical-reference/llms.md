@@ -72,7 +72,7 @@ For the API reference visit [LlammaCppLLM][distilabel.llm.llama_cpp.LlamaCppLLM]
 
 For the API reference visit [vLLM][distilabel.llm.vllm.vLLM].
 
-## Huggingface LLMs
+## HuggingFace LLMs
 
 This section explains two different ways to use HuggingFace models:
 
