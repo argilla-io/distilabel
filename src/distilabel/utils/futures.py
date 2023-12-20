@@ -34,10 +34,14 @@ def when_all_complete(futures: List[Future[T]]) -> Future[T]:
             completed, and it will contain the results of the `futures`.
     """
     all_done_future = Future()
-    results = []
+    results = [None] * len(futures)
 
     def check_all_done(future: Future) -> None:
-        results.extend(future.result())
+        # This is done to preserve the order of the results with respect to the order
+        # of the futures.
+        index = futures.index(future)
+        results[index] = future.result()[0]
+
         _, not_done = wait(futures, return_when="FIRST_COMPLETED")
         if len(not_done) == 0:
             all_done_future.set_result(results)
