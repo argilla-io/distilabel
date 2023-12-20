@@ -209,28 +209,7 @@ class Pipeline:
         )
         batch_generations = []
         if isinstance(outputs, Future):
-            try:
-                # Result of future is `List[List[LLMOutput]]` (first list contains `batch_size`
-                # elements, and the second list contains `num_generations` elements)
-                batch_generations.extend(outputs.result())
-            except Exception as e:
-                logger.error(
-                    f"An error occured when getting the result from the generator: {e}"
-                )
-                batch_generations.extend(
-                    [
-                        [
-                            LLMOutput(
-                                model_name=self.generator.model_name,
-                                prompt_used=None,
-                                raw_output=None,
-                                parsed_output=None,
-                            )
-                            for _ in range(num_generations)
-                        ]
-                        for _ in range(num_batches)
-                    ]
-                )
+            batch_generations.extend(outputs.result())
         else:
             batch_generations = outputs
         return self._process_batch_generations(
