@@ -200,7 +200,7 @@ class Pipeline:
         Returns:
             List[Dict[str, Any]]: the processed batch generations.
         """
-        outputs = self.generator.generate(
+        outputs = self.generator.generate(  # type: ignore
             inputs=inputs,
             num_generations=num_generations,
             progress_callback_func=progress_callback_func,

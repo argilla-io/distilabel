@@ -20,14 +20,17 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 from distilabel.tasks.base import Task
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.principles import UltraFeedbackPrinciples
-from distilabel.utils.argilla import infer_fields_from_dataset_row
+from distilabel.utils.argilla import (
+    infer_fields_from_dataset_row,
+    model_metadata_from_dataset_row,
+)
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
     import argilla as rg
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla import FeedbackDataset
     from argilla.client.feedback.schemas.records import FeedbackRecord
 
 
@@ -235,4 +238,8 @@ class TextGenerationTask(Task):
                     UserWarning,
                     stacklevel=2,
                 )
+        # Then we add the model metadata from the `generation_model` and `labelling_model`
+        # columns of the dataset, if they exist.
+        metadata.update(model_metadata_from_dataset_row(dataset_row=dataset_row))
+        # Finally, we return the `FeedbackRecord` with the fields and the metadata
         return rg.FeedbackRecord(fields=fields, metadata=metadata)
