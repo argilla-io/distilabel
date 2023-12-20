@@ -180,7 +180,6 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         num_generations: int,
-        num_batches: int,
         shuffle_before_labelling: bool = True,
         progress_callback_func: Union[Callable, None] = None,
     ) -> List[Dict[str, Any]]:
@@ -191,7 +190,6 @@ class Pipeline:
             inputs (List[Dict[str, Any]]): the inputs to be used for generation.
             num_generations (int): the number of generations to be performed for each
                 input.
-            num_batches (int): the number of batches to be processed.
             shuffle_before_labelling (bool, optional): whether to shuffle the generations
                 before labelling or not. This is useful to avoid the labelling LLM to be
                 biased by the order of the generations. Defaults to `True`.
@@ -617,7 +615,6 @@ class Pipeline:
                     batch_generations = self._get_batch_generations(
                         inputs=inputs,
                         num_generations=num_generations,
-                        num_batches=num_batches,
                         shuffle_before_labelling=shuffle_before_labelling,
                         progress_callback_func=generation_progress_func,
                     )
