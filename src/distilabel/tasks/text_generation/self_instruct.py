@@ -20,7 +20,10 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
-from distilabel.utils.argilla import infer_fields_from_dataset_row
+from distilabel.utils.argilla import (
+    infer_fields_from_dataset_row,
+    model_metadata_from_dataset_row,
+)
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
@@ -181,6 +184,13 @@ class SelfInstructTask(TextGenerationTask):
                         )
                 fields["instruction"] = instruction
                 metadata["length-instruction"] = len(instruction)
+
+                # Then we add the model metadata from the `generation_model` and `labelling_model`
+                # columns of the dataset, if they exist.
+                metadata.update(
+                    model_metadata_from_dataset_row(dataset_row=dataset_row)
+                )
+                # Finally, we append the `FeedbackRecord` with the fields and the metadata
                 records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
         if not records:
             raise ValueError(

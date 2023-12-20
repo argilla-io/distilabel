@@ -74,3 +74,12 @@ def infer_model_metadata_properties(
         for metadata_property in metadata_properties:
             rg_dataset.add_metadata_property(metadata_property)
     return rg_dataset
+
+
+def model_metadata_from_dataset_row(dataset_row: Dict[str, Any]) -> Dict[str, Any]:
+    metadata = {}
+    if "generation_model" in dataset_row:
+        metadata["generation-model"] = dataset_row["generation_model"]
+    if "labelling_model" in dataset_row:
+        metadata["labelling-model"] = dataset_row["labelling_model"]
+    return metadata

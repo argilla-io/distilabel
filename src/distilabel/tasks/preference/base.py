@@ -17,7 +17,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from distilabel.tasks.base import Task
-from distilabel.utils.argilla import infer_fields_from_dataset_row
+from distilabel.utils.argilla import (
+    infer_fields_from_dataset_row,
+    model_metadata_from_dataset_row,
+)
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
@@ -202,6 +205,10 @@ class PreferenceTask(Task):
                 metadata[f"distance-best-{ratings_column}"] = (
                     sorted_ratings[0] - sorted_ratings[1]
                 )
+        # Then we add the model metadata from the `generation_model` and `labelling_model`
+        # columns of the dataset, if they exist.
+        metadata.update(model_metadata_from_dataset_row(dataset_row=dataset_row))
+        # Finally, we return the `FeedbackRecord` with the fields and the metadata
         return rg.FeedbackRecord(
             fields=fields, suggestions=suggestions, metadata=metadata
         )

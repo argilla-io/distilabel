@@ -81,8 +81,9 @@ class CustomDataset(Dataset):
             ):
                 continue
             try:
-                records = self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
-                rg_dataset.add_records(records)  # type: ignore
+                rg_dataset.add_records(
+                    self.task.to_argilla_record(dataset_row=dataset_row)
+                )  # type: ignore
             except Exception as e:
                 warnings.warn(
                     f"Error while converting a row into an Argilla `FeedbackRecord` instance: {e}",
