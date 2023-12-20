@@ -82,7 +82,7 @@ class CustomDataset(Dataset):
                 continue
             try:
                 rg_dataset.add_records(
-                    self.task.to_argilla_record(dataset_row=dataset_row)
+                    self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
                 )  # type: ignore
             except Exception as e:
                 warnings.warn(

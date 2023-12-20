@@ -55,7 +55,7 @@ def infer_model_metadata_properties(
         )
     metadata_properties = []
     for column_name in ["generation_model", "labelling_model"]:
-        if column_name not in hf_dataset:
+        if column_name not in hf_dataset.column_names:
             continue
         models = []
         for item in hf_dataset[column_name]:
