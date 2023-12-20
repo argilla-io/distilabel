@@ -20,10 +20,8 @@ if _ARGILLA_AVAILABLE:
     import argilla as rg
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.schemas.types import (
-        AllowedFieldTypes,
-        AllowedMetadataPropertyTypes,
-    )
+    from argilla import FeedbackDataset
+    from argilla.client.feedback.schemas.types import AllowedFieldTypes
     from datasets import Dataset
 
 
@@ -49,18 +47,18 @@ def infer_fields_from_dataset_row(
 
 
 def infer_model_metadata_properties(
-    dataset: "Dataset",
-) -> List["AllowedMetadataPropertyTypes"]:
+    hf_dataset: "Dataset", rg_dataset: "FeedbackDataset"
+) -> "FeedbackDataset":
     if not _ARGILLA_AVAILABLE:
         raise ImportError(
             "In order to use any of the functions defined within `utils.argilla` you must install `argilla`"
         )
     metadata_properties = []
     for column_name in ["generation_model", "labelling_model"]:
-        if column_name not in dataset:
+        if column_name not in hf_dataset:
             continue
         models = []
-        for item in dataset[column_name]:
+        for item in hf_dataset[column_name]:
             if isinstance(item, list):
                 models.extend(item)
             elif isinstance(item, str):
@@ -68,8 +66,11 @@ def infer_model_metadata_properties(
         models = list(set(models))
         property_name = column_name.replace("_", "-")
         metadata_properties.append(
-            rg.TermsMetadataProperty(
+            rg.TermsMetadataProperty(  # type: ignore
                 name=property_name, title=property_name, values=models
             )  # type: ignore
         )
-    return metadata_properties
+    if len(metadata_properties) > 0:
+        for metadata_property in metadata_properties:
+            rg_dataset.add_metadata_property(metadata_property)
+    return rg_dataset
