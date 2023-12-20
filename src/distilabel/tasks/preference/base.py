@@ -24,7 +24,7 @@ if _ARGILLA_AVAILABLE:
     import argilla as rg
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla import FeedbackDataset
     from argilla.client.feedback.schemas.records import FeedbackRecord
 
 

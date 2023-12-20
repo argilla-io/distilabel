@@ -27,7 +27,7 @@ if _ARGILLA_AVAILABLE:
     import argilla as rg
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla import FeedbackDataset
     from argilla.client.feedback.schemas.records import FeedbackRecord
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")

@@ -21,7 +21,7 @@ from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla import FeedbackDataset
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
