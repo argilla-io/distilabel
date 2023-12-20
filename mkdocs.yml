@@ -13,13 +13,12 @@ extra_css:
 
 theme:
   name: material
-  logo: assets/distilabel-icon.svg
+  logo: assets/logo.svg
   favicon: assets/distilabel-icon.svg
   features:
     - navigation.instant
     - navigation.tabs
     - toc.follow
-    - toc.integrate
     - content.code.copy
     - content.code.annotate
   palette:
@@ -60,6 +59,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - footnotes
 
 plugins:
   - search
@@ -70,9 +70,21 @@ plugins:
       nav_file: SUMMARY.md
   - section-index
   - mkdocstrings
+  - mknotebooks
 
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
-  - Guides: guides.md
-  - Code Reference: reference/
+  - Learn:
+    - learn/index.md
+    - Tutorials:
+      - learn/tutorials/index.md
+    - User Guides:
+      - learn/user-guides/index.md
+  - Technical References:
+    - Concept Guides:
+      - technical-reference/index.md
+      - LLMs: technical-reference/llms.md
+      - Tasks: technical-reference/tasks.md
+      - Pipelines: technical-reference/pipeline.md
+    - API Reference: reference/

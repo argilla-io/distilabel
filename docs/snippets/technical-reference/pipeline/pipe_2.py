@@ -12,23 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+from datasets import load_dataset
 
-from concurrent.futures import Future
-from typing import Any, Union
+instruction_dataset = (
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:3]")
+    .remove_columns(["completion", "meta"])
+    .rename_column("prompt", "input")
+)
 
-from typing_extensions import TypeGuard, TypeVar
-
-T = TypeVar("T")
-
-
-def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
-    """Checks if an object is a future narrowing the type.
-
-    Args:
-        obj (Future[T]): Object to check
-
-    Returns:
-        TypeGuard[Future[T]]: True if it is a future
-    """
-    return isinstance(obj, Future)
+pipe_dataset = pipe.generate(
+    instruction_dataset,
+    num_generations=2,
+    batch_size=1,
+    enable_checkpoints=True,
+    display_progress_bar=True,
+)

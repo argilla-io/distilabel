@@ -12,23 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+import argilla as rg
 
-from concurrent.futures import Future
-from typing import Any, Union
+rg.init(api_key="<YOUR_ARGILLA_API_KEY>", api_url="<YOUR_ARGILLA_API_URL>")
 
-from typing_extensions import TypeGuard, TypeVar
-
-T = TypeVar("T")
-
-
-def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
-    """Checks if an object is a future narrowing the type.
-
-    Args:
-        obj (Future[T]): Object to check
-
-    Returns:
-        TypeGuard[Future[T]]: True if it is a future
-    """
-    return isinstance(obj, Future)
+rg_dataset = pipe_dataset.to_argilla()
+rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")

@@ -15,6 +15,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from typing_extensions import TypedDict
+
 from distilabel.tasks.base import Task
 
 
@@ -36,3 +38,10 @@ class CritiqueTask(Task):
     def output_args_names(self) -> List[str]:
         """Returns the names of the output arguments of the task."""
         return ["critique", "score"]
+
+
+class CritiqueTaskOutput(TypedDict):
+    """A `TypedDict` matching the output format of any `CritiqueTask`."""
+
+    score: float
+    critique: str

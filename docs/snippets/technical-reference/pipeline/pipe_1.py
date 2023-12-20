@@ -12,23 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+import os
 
-from concurrent.futures import Future
-from typing import Any, Union
+from distilabel.llm import InferenceEndpointsLLM
+from distilabel.pipeline import pipeline
+from distilabel.tasks import TextGenerationTask
 
-from typing_extensions import TypeGuard, TypeVar
-
-T = TypeVar("T")
-
-
-def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
-    """Checks if an object is a future narrowing the type.
-
-    Args:
-        obj (Future[T]): Object to check
-
-    Returns:
-        TypeGuard[Future[T]]: True if it is a future
-    """
-    return isinstance(obj, Future)
+pipe = pipeline(
+    "preference",
+    "text-quality",
+    generator=InferenceEndpointsLLM(
+        endpoint_name=endpoint_name,
+        endpoint_namespace=endpoint_namespace,
+        token=token,
+        task=TextGenerationTask(),
+        max_new_tokens=512,
+        do_sample=True,
+        prompt_format="notus",
+    ),
+    max_new_tokens=256,
+    num_threads=2,
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    temperature=0.0,
+)

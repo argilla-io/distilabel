@@ -39,3 +39,33 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 For a more complete example, check out our awesome notebook on Google Colab:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+
+## Navigation
+
+<div class="grid cards" markdown>
+
+-   <p align="center"> [**Tutorials**](./learn/tutorials/)</p>
+
+    ---
+
+    End to end project lessons.
+
+-   <p align="center"> [**User Guides**](./learn/user-guides/)</p>
+
+    ---
+
+    Practical guides to achieve specific tasks with `distilabel`.
+
+-   <p align="center"> [**Concept Guides**](./technical-reference/llms.md)</p>
+
+    ---
+
+    Understand the components and their interactions.
+
+-   <p align="center"> [**API Reference**](./reference/distilabel)</p>
+
+    ---
+
+    Technical description of the classes and functions.
+
+</div>

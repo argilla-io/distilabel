@@ -212,6 +212,9 @@ class TextGenerationTask(Task):
             arg_value = dataset_row[arg_name]
             if isinstance(arg_value, list):
                 for idx, value in enumerate(arg_value, start=1):
+                    # TODO: value formatting was included here due to some issues
+                    # with `SelfInstructTask` but these list-parsing may not be needed
+                    # anymore.
                     value = (
                         value.strip()
                         if isinstance(value, str)

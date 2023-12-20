@@ -12,23 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+from datasets import Dataset
 
-from concurrent.futures import Future
-from typing import Any, Union
-
-from typing_extensions import TypeGuard, TypeVar
-
-T = TypeVar("T")
-
-
-def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
-    """Checks if an object is a future narrowing the type.
-
-    Args:
-        obj (Future[T]): Object to check
-
-    Returns:
-        TypeGuard[Future[T]]: True if it is a future
-    """
-    return isinstance(obj, Future)
+dataset = Dataset.from_dict(
+    {"input": ["Create an easy dinner recipe with few ingredients"]}
+)
+dataset_generated = pipe_generation.generate(dataset, num_generations=2)

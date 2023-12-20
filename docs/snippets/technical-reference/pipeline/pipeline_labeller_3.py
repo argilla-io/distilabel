@@ -12,23 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
-
-from concurrent.futures import Future
-from typing import Any, Union
-
-from typing_extensions import TypeGuard, TypeVar
-
-T = TypeVar("T")
-
-
-def is_future(obj: Union[Future[T], Any]) -> TypeGuard[Future[T]]:
-    """Checks if an object is a future narrowing the type.
-
-    Args:
-        obj (Future[T]): Object to check
-
-    Returns:
-        TypeGuard[Future[T]]: True if it is a future
-    """
-    return isinstance(obj, Future)
+ds_labelled.select_columns(["input", "generations", "rating", "rationale"])[0]
+# {
+#     "input": "Describe the capital of Spain in 25 words.",
+#     "generations": ["Santo Domingo is the capital of Dominican Republic"],
+#     "rating": [1.0],
+#     "rationale": [
+#         "The text is irrelevant to the instruction. It describes the capital of the Dominican Republic instead of Spain."
+#     ],
+# }
