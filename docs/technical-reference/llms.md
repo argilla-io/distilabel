@@ -1,6 +1,6 @@
 # LLMs
 
-In this section we will explain what's an `LLM` and the different `LLM`s implementations available in `distilabel`.
+In this section we will see what's an `LLM` and the different `LLM`s implementations available in `distilabel`.
 
 ## LLM
 
