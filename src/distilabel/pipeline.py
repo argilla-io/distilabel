@@ -495,12 +495,12 @@ class Pipeline:
                     if key not in label:
                         label.update({key: None})
 
-        _dataset = Dataset(
-            arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
-        )
-        _dataset = _dataset.map(
-            lambda _: {**generations.pop(0), **processed_labels.pop(0)}
-        )  # type: ignore
+        _flattened_dataset = dataset.flatten_indices()
+        _dataset = Dataset.from_dict({}, split=Split.TRAIN)
+        for row, generation, processed_label in zip(
+            _flattened_dataset, generations, processed_labels
+        ):
+            _dataset = _dataset.add_item({**row, **generation, **processed_label})  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         if self.generator is not None and self.labeller is None:
