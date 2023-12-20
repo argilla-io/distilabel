@@ -91,6 +91,8 @@ The `LLMOutput` is a `TypedDict` containing the keys `model_name`, `prompt_used`
 
   1. The keys contained in `parsed_output` will depend on the `Task` used. In this case, we used `TextGenerationTask`, so the key `generations` is present.
 
+If the `LLM` uses a thread pool, then the output of the `generate` method will be a [Future](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Future) having as result a list of lists of `LLMOutput` as described above.
+
 ## Integrations
 
 ### OpenAI
