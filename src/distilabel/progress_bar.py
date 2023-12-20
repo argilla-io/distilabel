@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from functools import wraps
-from typing import Any, Callable, ParamSpec, Tuple, TypeVar, Union
+from typing import Any, Callable, Tuple, TypeVar, Union
 
 from rich.progress import (
     BarColumn,
@@ -22,6 +22,7 @@ from rich.progress import (
     TaskProgressColumn,
     TextColumn,
 )
+from typing_extensions import ParamSpec
 
 _pipeline_progress = Progress(
     TextColumn("[progress.description]{task.description}"),

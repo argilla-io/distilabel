@@ -19,6 +19,7 @@ In addition, the following extras are available:
 - `hf-inference-endpoints`: for using the [Hugging Face Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
 - `openai`: for using OpenAI API models via the `OpenAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+- `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
 ## Quick example
@@ -38,3 +39,33 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 For a more complete example, check out our awesome notebook on Google Colab:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+
+## Navigation
+
+<div class="grid cards" markdown>
+
+-   <p align="center"> [**Tutorials**](./learn/tutorials/)</p>
+
+    ---
+
+    End to end project lessons.
+
+-   <p align="center"> [**User Guides**](./learn/user-guides/)</p>
+
+    ---
+
+    Practical guides to achieve specific tasks with `distilabel`.
+
+-   <p align="center"> [**Concept Guides**](./technical-reference/llms.md)</p>
+
+    ---
+
+    Understand the components and their interactions.
+
+-   <p align="center"> [**API Reference**](./reference/distilabel)</p>
+
+    ---
+
+    Technical description of the classes and functions.
+
+</div>

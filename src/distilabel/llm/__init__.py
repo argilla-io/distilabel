@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
 from distilabel.llm.huggingface.transformers import TransformersLLM
 from distilabel.llm.llama_cpp import LlamaCppLLM
@@ -24,4 +25,7 @@ __all__ = [
     "vLLM",
     "InferenceEndpointsLLM",
     "TransformersLLM",
+    "ProcessLLM",
+    "LLM",
+    "LLMPool",
 ]

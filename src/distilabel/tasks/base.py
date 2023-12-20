@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib.resources as importlib_resources
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Union
 
@@ -107,7 +113,7 @@ class Task(ABC):
 
     def to_argilla_record(
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
-    ) -> "FeedbackRecord":
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
         raise NotImplementedError(
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."

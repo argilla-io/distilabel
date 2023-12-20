@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import math
 import os
+import random
 import warnings
 from concurrent.futures import Future
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -26,11 +28,13 @@ from typing import (
     Literal,
     Optional,
     Union,
+    cast,
 )
 
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset
+from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.progress_bar import (
@@ -39,10 +43,7 @@ from distilabel.progress_bar import (
     use_progress_bar,
 )
 from distilabel.utils.dicts import combine_dicts
-
-if TYPE_CHECKING:
-    from distilabel.llm.base import LLM
-
+from distilabel.utils.types import is_future
 
 logger = get_logger()
 
@@ -50,8 +51,8 @@ logger = get_logger()
 class Pipeline:
     def __init__(
         self,
-        generator: Union["LLM", None] = None,
-        labeller: Union["LLM", None] = None,
+        generator: Union["LLM", "ProcessLLM", "LLMPool", None] = None,
+        labeller: Union["LLM", "ProcessLLM", None] = None,
     ) -> None:
         """Initializes the Pipeline class.
 
@@ -83,11 +84,21 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
+        if generator is not None and not isinstance(
+            generator, (LLM, ProcessLLM, LLMPool)
+        ):
+            raise ValueError(
+                "`generator` must be an instance of `LLM`, `ProcessLLM` or `LLMPool`"
+            )
+
+        if labeller is not None and not isinstance(labeller, (LLM, ProcessLLM)):
+            raise ValueError("`labeller` must be an instance of `LLM` or `ProcessLLM`")
+
         self.generator = generator
         self.labeller = labeller
 
         if self.generator is None and self.labeller is None:
-            raise ValueError("At least one LLM has to be provided to the pipeline")
+            raise ValueError("Either `generator` or `labeller` must be provided.")
 
     def __repr__(self) -> str:
         return (
@@ -169,6 +180,7 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         num_generations: int,
+        shuffle_before_labelling: bool = True,
         progress_callback_func: Union[Callable, None] = None,
     ) -> List[Dict[str, Any]]:
         """Gets the batch generations for the given inputs, capturing the futures if the
@@ -178,6 +190,9 @@ class Pipeline:
             inputs (List[Dict[str, Any]]): the inputs to be used for generation.
             num_generations (int): the number of generations to be performed for each
                 input.
+            shuffle_before_labelling (bool, optional): whether to shuffle the generations
+                before labelling or not. This is useful to avoid the labelling LLM to be
+                biased by the order of the generations. Defaults to `True`.
             progress_callback_func (Union[Callable, None], optional): the callback function
                 to be called when the progress of the generation process changes. Defaults
                 to None.
@@ -185,31 +200,61 @@ class Pipeline:
         Returns:
             List[Dict[str, Any]]: the processed batch generations.
         """
-        batch_generations = self.generator.generate(
+        outputs = self.generator.generate(
             inputs=inputs,
             num_generations=num_generations,
             progress_callback_func=progress_callback_func,
         )
-
-        processed_generations = []
-        if self.generator.return_futures:  # type: ignore
-            for future in batch_generations:
-                result = future.result()
-                processed_generations.extend(result)
+        batch_generations = []
+        if isinstance(outputs, Future):
+            batch_generations.extend(outputs.result())
         else:
-            processed_generations = batch_generations
+            batch_generations = outputs
+        return self._process_batch_generations(
+            batch_generations=batch_generations,
+            shuffle_before_labelling=shuffle_before_labelling,
+        )
 
-        return self._process_batch_generations(batch_generations=processed_generations)
+    def _get_batch_labels(
+        self,
+        inputs: List[Dict[str, Any]],
+        progress_callback_func: Union[Callable, None] = None,
+    ) -> Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]:
+        """Gets the batch labels for the given inputs.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for labelling. Each dict
+                should contain a key with the text generations.
+            progress_callback_func (Union[Callable, None], optional): the callback function
+                to be called when the progress of the labelling process changes. Defaults
+                to `None`.
+
+        Returns:
+            Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]: the batch
+                labels.
+        """
+
+        return self.labeller.generate(  # type: ignore
+            inputs=inputs,
+            # `num_generations` is always 1 because labelling the same input multiple times
+            # using the same LLM may not make sense
+            num_generations=1,
+            progress_callback_func=progress_callback_func,
+        )
 
     def _process_batch_generations(
         self,
         batch_generations: List[List["LLMOutput"]],
+        shuffle_before_labelling: bool = True,
     ) -> List[Dict[str, Any]]:
         """Processes the batch generations, combining the outputs of the LLMs into a single
         dictionary.
 
         Args:
             batch_generations (List[List["LLMOutput"]]): the batch generations to be processed.
+            shuffle_before_labelling (bool, optional): whether to shuffle the generations
+                before labelling or not. This is useful to avoid the labelling LLM to be
+                biased by the order of the generations. Defaults to `True`.
 
         Returns:
             List[Dict[str, Any]]: the processed batch generations.
@@ -217,14 +262,23 @@ class Pipeline:
         processed_generations = []
         for generations in batch_generations:
             processed_generation = {
-                # Since all the generations for the same `model_name` also share the same
-                # `prompt_used`, then we just keep the first element in `generations`
-                "generation_model": generations[0]["model_name"],
-                "generation_prompt": generations[0]["prompt_used"],
-                "raw_generation_responses": [
-                    generation["raw_output"] for generation in generations
-                ],
+                "generation_model": [],
+                "generation_prompt": [],
+                "raw_generation_responses": [],
             }
+            if shuffle_before_labelling:
+                random.shuffle(generations)
+            for generation in generations:
+                processed_generation["generation_model"].append(
+                    generation["model_name"]
+                )
+                processed_generation["generation_prompt"].append(
+                    generation["prompt_used"]
+                )
+                processed_generation["raw_generation_responses"].append(
+                    generation["raw_output"]
+                )
+            # Create `generations` column which is a list with N text generations
             try:
                 processed_generation.update(
                     **combine_dicts(
@@ -342,7 +396,11 @@ class Pipeline:
         self,
         dataset: Dataset,
         generations: List[Dict[str, Any]],
-        batch_labels: Union[List[Future["LLMOutput"]], List["LLMOutput"]],
+        labels: Union[
+            List[List["LLMOutput"]],
+            Future[List[List["LLMOutput"]]],
+        ],
+        batch_size: int,
     ) -> CustomDataset:
         """Builds the final dataset with either the generations, the labels, or both, depending
         on the LLMs provided to the `Pipeline`.
@@ -350,8 +408,8 @@ class Pipeline:
         Args:
             dataset (Dataset): the original dataset.
             generations (List[Dict[str, Any]]): the processed generations.
-            batch_labels (Union[List[Future["LLMOutput"]], List["LLMOutput"]]): the processed
-                batch labels.
+            labels (Union[List[List[LLMOutput]], Future[List[List[LLMOutput]]]]): the
+                processed labels.
 
         Returns:
             CustomDataset: the final dataset.
@@ -376,25 +434,30 @@ class Pipeline:
                     ]
                 )
 
+            # Add missing keys/columns with a `None` value
             for generation in generations:
                 for key in generator_column_names:
                     if key not in generation:
                         generation.update({key: None})
 
         if self.labeller is None:
-            labels = [{} for _ in range(len(dataset))]
+            processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
-            # If the LLM returns futures, we need to wait for them to finish
-            processed_labels = []
+            batch_labels = []
             if self.labeller.return_futures:
-                for future in batch_labels:
+                for i, future in enumerate(labels, start=1):  # type: ignore
                     try:
-                        processed_labels.extend(future.result())
+                        batch_labels.extend(future.result())
                     except Exception as e:
                         logger.error(
                             f"An error occurred when getting the result from the labeller: {e}"
                         )
-                        processed_labels.append(
+                        num_outputs = (
+                            batch_size
+                            if i * batch_size <= len(dataset)
+                            else len(dataset) % batch_size
+                        )
+                        batch_labels.append(
                             [
                                 LLMOutput(
                                     model_name=self.labeller.model_name,
@@ -402,11 +465,13 @@ class Pipeline:
                                     raw_output=None,
                                     parsed_output=None,
                                 )
+                                for _ in range(num_outputs)
                             ]
                         )
-            else:
-                processed_labels = batch_labels
-            labels = self._process_batch_labels(batch_labels=processed_labels)  # type: ignore
+
+            processed_labels = self._process_batch_labels(
+                batch_labels=batch_labels or cast(List[List["LLMOutput"]], labels)
+            )
 
             labeller_column_names = [
                 "labelling_model",
@@ -416,38 +481,236 @@ class Pipeline:
 
             # Ensure the lengths of the labels and the dataset match (when pipeline
             # fails in an intermediate step, the labels may be shorter than the dataset)
-            if len(labels) < len(dataset):
-                labels.extend(
+            if len(processed_labels) < len(dataset):
+                processed_labels.extend(
                     [
                         {key: None for key in labeller_column_names}
-                        for _ in range(len(dataset) - len(labels))
+                        for _ in range(len(dataset) - len(processed_labels))
                     ]
                 )
 
             # Add missing keys/columns with a `None` value
-            for label in labels:
+            for label in processed_labels:
                 for key in labeller_column_names:
                     if key not in label:
                         label.update({key: None})
 
-        _dataset = Dataset(
-            arrow_table=dataset.flatten_indices().data, split=Split.TRAIN
-        )
-        _dataset = _dataset.map(lambda _: {**generations.pop(0), **labels.pop(0)})  # type: ignore
+        _flattened_dataset = dataset.flatten_indices()
+        _dataset = Dataset.from_dict({}, split=Split.TRAIN)
+        for row, generation, processed_label in zip(
+            _flattened_dataset, generations, processed_labels
+        ):
+            _dataset = _dataset.add_item({**row, **generation, **processed_label})  # type: ignore
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
-        _dataset.task = self.labeller.task if self.labeller is not None else None  # type: ignore
+        if self.generator is not None and self.labeller is None:
+            _dataset.task = self.generator.task  # type: ignore
+        elif self.labeller is not None:
+            _dataset.task = self.labeller.task  # type: ignore
         return _dataset  # type: ignore
 
-    @use_progress_bar
-    def generate(  # noqa: C901
+    def _teardown(self) -> None:
+        if self.generator is not None and isinstance(
+            self.generator, (ProcessLLM, LLMPool)
+        ):
+            self.generator.teardown()
+
+        if self.labeller is not None and isinstance(self.labeller, ProcessLLM):
+            self.labeller.teardown()
+
+    def _generate(  # noqa: C901
         self,
         dataset: Dataset,
         num_generations: int = 1,
         batch_size: int = 1,
+        shuffle_before_labelling: bool = True,
         enable_checkpoints: bool = True,
         display_progress_bar: bool = False,
-        verbose: bool = True,
+    ) -> CustomDataset:
+        """Generates the outputs for the given dataset using the LLMs provided to the
+        `Pipeline`.
+
+        Args:
+            dataset (Dataset): the dataset to be used for generation.
+            num_generations (int, optional): the number of generations to be performed
+                for each input. Defaults to `1`.
+            batch_size (int, optional): the batch size to be used for generation. Defaults
+                to `1`.
+            shuffle_before_labelling (bool, optional): whether to shuffle the generations
+                before labelling or not. This is useful to avoid the labelling LLM to be
+                biased by the order of the generations. Defaults to `True`.
+            enable_checkpoints (bool, optional): whether to enable checkpoints or not.
+                Defaults to `True`.
+            display_progress_bar (bool, optional): whether to display the progress bar
+                or not. Defaults to `False`.
+
+        Returns:
+            CustomDataset: the final dataset.
+
+        Raises:
+            RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
+            UserWarning: if the `Pipeline` fails during the generation or labelling steps
+                and `enable_checkpoints` is set to `False`.
+
+        Examples:
+            >>> from distilabel.llm.huggingface import TransformersLLM
+            >>> from distilabel.llm.openai_ import OpenAILLM
+            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from distilabel.pipeline import Pipeline
+
+            >>> generator = TransformersLLM(
+            ...     model="meta-llama/Llama-2-7b-chat-hf",
+            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
+            ...     task=Llama2TextGenerationTask(),
+            ... )
+            >>> labeller = OpenAILLM(
+            ...     model="gpt-3.5-turbo",
+            ...     task=UltraFeedbackTask.for_text_quality(),
+            ... )
+            >>> pipeline = Pipeline(generator=generator, labeller=labeller)
+            >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
+        """
+        if (
+            self.labeller is not None
+            and self.generator is not None
+            and num_generations < 2
+        ):
+            warnings.warn(
+                f"Provided `num_generations={num_generations}` which implies that the "
+                "`generator` LLM will just run once, while the `labelling` LLM expects "
+                "to receive a list of N inputs to label, where N is > 1. If this is not "
+                "intended, make sure to set `num_generations` to a value higher or "
+                "equal to 2.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        self._validate_dataset(dataset)
+
+        generations: List[Dict[str, Any]] = []
+        labels: Union[
+            List[List["LLMOutput"]],
+            Future[List[List["LLMOutput"]]],
+        ] = []
+
+        (
+            generation_progress_func,
+            labelling_progress_func,
+        ) = get_progress_bars_for_pipeline(
+            num_rows=len(dataset),
+            num_generations=num_generations,
+            display_progress_bar=display_progress_bar,
+        )
+
+        num_batches = math.ceil(len(dataset) / batch_size)
+
+        for batch_i, rows in enumerate(dataset.iter(batch_size=batch_size), start=1):
+            logger.info(f"Processing batch {batch_i} of {num_batches}...")
+            inputs = self._transform_dataset_to_expected_format(rows)  # type: ignore
+
+            if self.generator is not None:
+                logger.info(f"Calling generator for batch {batch_i}...")
+                try:
+                    batch_generations = self._get_batch_generations(
+                        inputs=inputs,
+                        num_generations=num_generations,
+                        shuffle_before_labelling=shuffle_before_labelling,
+                        progress_callback_func=generation_progress_func,
+                    )
+                    generations.extend(batch_generations)
+                except Exception as e:
+                    if not enable_checkpoints:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during generation step. Setting `enable_checkpoints=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during generation step with exception: {e}"
+                    )
+                    return self._build_dataset(
+                        dataset,
+                        generations=generations,
+                        labels=labels,
+                        batch_size=batch_size,
+                    )
+
+                inputs = self._include_generator_outputs_as_inputs(
+                    inputs=inputs, outputs=batch_generations
+                )
+
+            if self.labeller is not None:
+                logger.info(f"Calling labeller for batch {batch_i}...")
+                try:
+                    batch_labels = self._get_batch_labels(
+                        inputs=inputs, progress_callback_func=labelling_progress_func
+                    )
+
+                    if is_future(batch_labels):
+                        labels.append(batch_labels)  # type: ignore
+                    else:
+                        labels.extend(batch_labels)  # type: ignore
+                except Exception as e:
+                    if not enable_checkpoints:
+                        raise RuntimeError(
+                            "`Pipeline.generate` failed during labelling step. Setting `enable_checkpoints=True` is recommended!"
+                        ) from e
+                    logger.error(
+                        f"`Pipeline.generate` failed during labelling step with exception: {e}"
+                    )
+                    return self._build_dataset(
+                        dataset,
+                        generations=generations,
+                        labels=labels,
+                        batch_size=batch_size,
+                    )
+
+        _pipeline_progress.stop()
+
+        return self._build_dataset(
+            dataset, generations=generations, labels=labels, batch_size=batch_size
+        )
+
+    def dry_run(self, dataset: Dataset) -> CustomDataset:
+        """Performs a dry run over the provided dataset, which consists on generating the
+        outputs for the first row of the dataset, to ensure that the `Pipeline` will be
+        able to generate the outputs for the whole dataset.
+
+        Args:
+            dataset (Dataset): the dataset to be used for generation. Just the first row
+                will be used for the dry run.
+
+        Returns:
+            CustomDataset: the dataset containing the outputs for the first row.
+        """
+        try:
+            # First we generate a `Dataset` only with the first row from the whole dataset
+            subset = Dataset.from_dict(
+                {key: [value] for key, value in dataset[0].items()}
+            )
+            # Then we call the `_generate` method with it
+            return self._generate(
+                dataset=subset,
+                # Default kwargs to make the process as simple as possible
+                num_generations=1,
+                batch_size=1,
+                enable_checkpoints=False,
+                display_progress_bar=False,
+            )
+        except Exception as e:
+            self._teardown()
+            raise RuntimeError(
+                f"`Pipeline.generate` failed during the dry run over {dataset[0]} with exception: {e}"
+            ) from e
+
+    def generate(
+        self,
+        dataset: Dataset,
+        num_generations: int = 1,
+        batch_size: int = 1,
+        shuffle_before_labelling: bool = True,
+        enable_checkpoints: bool = True,
+        display_progress_bar: bool = False,
+        skip_dry_run: bool = False,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the `Pipeline`.
 
@@ -456,9 +719,12 @@ class Pipeline:
             num_generations (int, optional): the number of generations to be performed for each
                 input. Defaults to `1`.
             batch_size (int, optional): the batch size to be used for generation. Defaults to `1`.
+            shuffle_before_labelling: whether to shuffle the generations before labelling
+                or not. This is useful to avoid the labelling LLM to be biased by the order
+                of the generations. Defaults to `True`.
             enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
-            verbose (bool, optional): whether to display the logs or not. Defaults to `True`.
+            skip_dry_run (bool, optional): whether to skip the dry run or not. Defaults to `False`.
 
         Returns:
             CustomDataset: the final dataset.
@@ -487,97 +753,25 @@ class Pipeline:
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
         """
-        if not verbose:
-            logger.setLevel("ERROR")
-
-        if (
-            self.labeller is not None
-            and self.generator is not None
-            and num_generations < 2
-        ):
-            warnings.warn(
-                f"Provided `num_generations={num_generations}` which implies that the "
-                "`generator` LLM will just run once, while the `labelling` LLM expects "
-                "to receive a list of N inputs to label, where N is > 1. If this is not "
-                "intended, make sure to set `num_generations` to a value higher or "
-                "equal to 2.",
-                UserWarning,
-                stacklevel=2,
+        if not skip_dry_run:
+            logger.info("Executing dry-run...")
+            self.dry_run(dataset)
+            logger.info(
+                "Dry-run executed with no issues. Starting the actual generation..."
             )
 
-        self._validate_dataset(dataset)
-
-        generations: List[Dict[str, Any]] = []
-        batch_labels: Union[Future[List["LLMOutput"]], List["LLMOutput"]] = []
-
-        (
-            generation_progress_func,
-            labelling_progress_func,
-        ) = get_progress_bars_for_pipeline(
-            num_rows=len(dataset),
+        dataset = use_progress_bar(self._generate)(
+            dataset=dataset,
             num_generations=num_generations,
+            batch_size=batch_size,
+            enable_checkpoints=enable_checkpoints,
+            shuffle_before_labelling=shuffle_before_labelling,
             display_progress_bar=display_progress_bar,
         )
 
-        num_batches = math.ceil(len(dataset) / batch_size)
+        self._teardown()
 
-        for batch_i, rows in enumerate(dataset.iter(batch_size=batch_size), start=1):
-            logger.info(f"Processing batch {batch_i} of {num_batches}...")
-            inputs = self._transform_dataset_to_expected_format(rows)  # type: ignore
-
-            if self.generator is not None:
-                logger.info(f"Calling generator for batch {batch_i}...")
-                try:
-                    batch_generations = self._get_batch_generations(
-                        inputs, num_generations, generation_progress_func
-                    )
-                    generations.extend(batch_generations)
-                except Exception as e:
-                    if not enable_checkpoints:
-                        raise RuntimeError(
-                            "`Pipeline.generate` failed during generation step. Setting `enable_checkpoints=True` is recommended!"
-                        ) from e
-                    logger.error(
-                        f"`Pipeline.generate` failed during generation step with exception: {e}"
-                    )
-                    return self._build_dataset(
-                        dataset, generations=generations, batch_labels=batch_labels
-                    )
-
-                inputs = self._include_generator_outputs_as_inputs(
-                    inputs, batch_generations
-                )
-
-            if self.labeller is not None:
-                logger.info(f"Calling labeller for batch {batch_i}...")
-                try:
-                    # TODO: move to `self._get_batch_labels` (without awaiting futures)
-                    batch_labels.extend(
-                        self.labeller.generate(  # type: ignore
-                            inputs=inputs,
-                            # `num_generations` is always 1 because labelling the same input multiple times
-                            # using the same LLM may not make sense
-                            num_generations=1,
-                            progress_callback_func=labelling_progress_func,
-                        )
-                    )
-                except Exception as e:
-                    if not enable_checkpoints:
-                        raise RuntimeError(
-                            "`Pipeline.generate` failed during labelling step. Setting `enable_checkpoints=True` is recommended!"
-                        ) from e
-                    logger.error(
-                        f"`Pipeline.generate` failed during labelling step with exception: {e}"
-                    )
-                    return self._build_dataset(
-                        dataset, generations=generations, batch_labels=batch_labels
-                    )
-
-        _pipeline_progress.stop()
-
-        return self._build_dataset(
-            dataset, generations=generations, batch_labels=batch_labels
-        )
+        return dataset
 
 
 def pipeline(

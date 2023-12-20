@@ -29,9 +29,9 @@ if __name__ == "__main__":
     )
 
     model = AutoModelForCausalLM.from_pretrained(
-        "HuggingFaceH4/zephyr-7b-beta", dtype=torch.bfloat16, device="cuda:0"
+        "argilla/notus-7b-v1", dtype=torch.bfloat16, device_map="auto"
     )
-    tokenizer = AutoTokenizer.from_pretrained("HuggingFaceH4/zephyr-7b-beta")
+    tokenizer = AutoTokenizer.from_pretrained("argilla/notus-7b-v1")
     tokenizer.padding_side = "left"
 
     pipeline = Pipeline(
@@ -41,14 +41,15 @@ if __name__ == "__main__":
             task=TextGenerationTask(),
             max_new_tokens=128,
             temperature=0.3,
-            prompt_format="zephyr",
+            prompt_format="notus",
+            do_sample=True,
         ),
         labeller=OpenAILLM(
             model="gpt-3.5-turbo",
             task=UltraFeedbackTask.for_instruction_following(),
             max_new_tokens=128,
             num_threads=2,
-            openai_api_key="<OPENAI_API_KEY>",
+            openai_api_key=os.getenv("OPENAI_API_KEY", None),
             temperature=0.0,
         ),
     )
@@ -66,6 +67,7 @@ if __name__ == "__main__":
         os.getenv("HF_REPO_ID"),  # type: ignore
         split="train",
         private=True,
+        token=os.getenv("HF_TOKEN", None),
     )
 
     try:
@@ -74,15 +76,15 @@ if __name__ == "__main__":
         import argilla as rg
 
         rg.init(
-            api_url="<ARGILLA_API_URL>",
-            api_key="<ARGILLA_API_KEY>",
+            api_url=os.getenv("ARGILLA_API_URL"),
+            api_key=os.getenv("ARGILLA_API_KEY"),
         )
 
         # Convert into an Argilla dataset and push it to Argilla
         rg_dataset = dataset.to_argilla()
         rg_dataset.push_to_argilla(
             name=f"my-dataset-{uuid4()}",
-            workspace="<ARGILLA_WORKSPACE_NAME>",
+            workspace="admin",
         )
     except ImportError:
         pass

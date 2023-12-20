@@ -34,3 +34,6 @@ htmlcov/
 *.swp
 .DS_Store
 site/
+
+# Jupyter Notebook
+*.ipynb_checkpoints

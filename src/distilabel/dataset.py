@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
@@ -67,7 +68,14 @@ class CustomDataset(Dataset):
                 for input_arg_name in self.task.input_args_names
             ):
                 continue
-            rg_dataset.add_records(
-                self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
-            )
+            try:
+                rg_dataset.add_records(
+                    self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Error while converting a row into an Argilla `FeedbackRecord` instance: {e}",
+                    UserWarning,
+                    stacklevel=2,
+                )
         return rg_dataset
