@@ -70,7 +70,6 @@ plugins:
       nav_file: SUMMARY.md
   - section-index
   - mkdocstrings
-  - mknotebooks
 
 nav:
   - Getting started: index.md
