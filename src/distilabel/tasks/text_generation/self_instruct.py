@@ -182,4 +182,8 @@ class SelfInstructTask(TextGenerationTask):
                 fields["instruction"] = instruction
                 metadata["length-instruction"] = len(instruction)
                 records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
+        if not records:
+            raise ValueError(
+                f"Skipping the row {dataset_row} as the list of `FeedbackRecord` is empty as those could not be inferred."
+            )
         return records
