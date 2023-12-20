@@ -5,6 +5,7 @@ repos:
       - id: insert-license
         name: "Insert license header in Python source files"
         files: \.py$
+        exclude: ^docs/snippets/
         args:
           - --license-filepath
           - license_header.txt
