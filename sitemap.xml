@@ -2,177 +2,242 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://argilla-io.github.io/distilabel/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/concepts/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/guides/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <loc>https://argilla-io.github.io/distilabel/learn/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/learn/tutorials/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/learn/user-guides/</loc>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/SUMMARY/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/dataset/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/logger/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/pipeline/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/progress_bar/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/base/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/llama_cpp/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/openai/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/utils/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/vllm/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/huggingface/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/huggingface/inference_endpoints/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/llm/huggingface/transformers/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/base/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/prompt/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/critique/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/critique/base/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/critique/prometheus/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/critique/ultracm/</loc>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/preference/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/preference/base/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/preference/judgelm/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/preference/ultrafeedback/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/preference/ultrajudge/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/base/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/llama/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/openai/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/principles/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/tasks/text_generation/self_instruct/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/argilla/</loc>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/dicts/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/futures/</loc>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/imports/</loc>
-         <lastmod>2023-11-29</lastmod>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/reference/distilabel/utils/types/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/technical-reference/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/technical-reference/llms/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/technical-reference/pipeline/</loc>
+         <lastmod>2023-12-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/technical-reference/tasks/</loc>
+         <lastmod>2023-12-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
