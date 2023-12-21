@@ -11,7 +11,7 @@ llm = vLLM(
 )
 result_vllm = llm.generate([{"input": "What's a large language model?"}])
 # >>> print(result[0][0]["parsed_output"]["generations"])
-# A large language model is a type of artificial intelligence (AI) system that is designed 
-# to understand and interpret human language. It is called "large" because it uses a vast 
-# amount of data, typically billions of words or more, to learn and make predictions about 
+# A large language model is a type of artificial intelligence (AI) system that is designed
+# to understand and interpret human language. It is called "large" because it uses a vast
+# amount of data, typically billions of words or more, to learn and make predictions about
 # language. Large language models are ...

@@ -94,11 +94,27 @@ We will repeat this pattern 4 times, each time with a different `LLM` and a diff
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_2.py"
 ```
 
-In order to distribute the generations among the different `LLM`s, we will use a `LLMPool`. This class expects a list of `LLMProcess`. Calling the `generate` method of the `LLMPool` will call the `generate` method of each `LLMProcess` in parallel, and will wait for all of them to finish, returning a list of lists of `LLMOutput`s with the generations.
+In order to distribute the generations among the different `LLM`s, we will use a `LLMPool`. This class expects a list of `ProcessLLM`. Calling the `generate` method of the `LLMPool` will call the `generate` method of each `LLMProcess` in parallel, and will wait for all of them to finish, returning a list of lists of `LLMOutput`s with the generations.
 
 ```python
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_3.py"
 ```
+
+We will use this `LLMPool` as the generator for our pipeline and we will use GPT-4 to label the generated instructions using the `UltraFeedbackTask` for instruction-following.
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_4.py"
+```
+
+1. We also will execute the calls to OpenAI API in a different process using the `ProcessLLM`. This will allow to not block the main process GIL, and allowing the generator to continue with the next batch.  
+
+Then, we will load the dataset and call the `generate` method of the pipeline. For each input in the dataset, the `LLMPool` will randomly select two `LLM`s and will generate two generations for each of them. The generations will be labelled by GPT-4 using the `UltraFeedbackTask` for instruction-following. Finally, we will push the generated dataset to Argilla, in order to review the generations and labels that were automatically generated, and to manually correct them if needed.
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_5.py"
+```
+
+With a few lines of code, we have easily generated a dataset with 2 generations per input, using 4 different `LLM`s, and labelled the generations using GPT-4. You can check the full code [here](https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-preference-dataset-llmpool.py).
 
 ## pipeline
 

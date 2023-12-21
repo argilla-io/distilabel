@@ -17,6 +17,7 @@ def load_notus(task: Task) -> LLM:
         prompt_format="notus",
     )
 
+
 def load_zephyr(task: Task) -> LLM:
     import os
     from distilabel.llm import vLLM
@@ -25,12 +26,13 @@ def load_zephyr(task: Task) -> LLM:
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
     return vLLM(
-        vllm=LLM(model="argilla/zephyr-7b-beta"),
+        vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
         prompt_format="notus",
     )
+
 
 def load_starling(task: Task) -> LLM:
     import os
@@ -47,6 +49,7 @@ def load_starling(task: Task) -> LLM:
         prompt_format="notus",
     )
 
+
 def load_neural_chat(task: Task) -> LLM:
     import os
     from distilabel.llm import vLLM
@@ -61,6 +64,7 @@ def load_neural_chat(task: Task) -> LLM:
         temperature=0.7,
         prompt_format="notus",
     )
+
 
 notus = ProcessLLM(task=TextGenerationTask(), load_llm_fn=load_notus)
 zephyr = ProcessLLM(task=TextGenerationTask(), load_llm_fn=load_zephyr)

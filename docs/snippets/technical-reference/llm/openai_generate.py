@@ -12,6 +12,6 @@ openaillm = OpenAILLM(
 )
 result = openaillm.generate([{"input": "What is OpenAI?"}])
 # >>> print(result[0][0]["parsed_output"]["generations"])
-# OpenAI is an artificial intelligence research laboratory and company. It was founded 
-# with the goal of ensuring that artificial general intelligence (AGI) benefits all of 
-# humanity. OpenAI conducts cutting-edge research in various fields of AI ... 
+# OpenAI is an artificial intelligence research laboratory and company. It was founded
+# with the goal of ensuring that artificial general intelligence (AGI) benefits all of
+# humanity. OpenAI conducts cutting-edge research in various fields of AI ...

@@ -19,5 +19,5 @@ llm = TransformersLLM(
 result = llm.generate([{"input": "What's a large language model?"}])
 # >>> print(result[0][0]["parsed_output"]["generations"])
 # A large language model is a type of machine learning algorithm that is designed to analyze
-# and understand large amounts of text data. It is called "large" because it requires a 
+# and understand large amounts of text data. It is called "large" because it requires a
 # vast amount of data to train and improve its accuracy. These models are ...
