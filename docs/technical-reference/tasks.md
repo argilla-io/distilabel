@@ -1,28 +1,15 @@
 # Tasks
 
-The `Task` class takes charge of setting how the LLM behaves, deciding whether it acts as a *generator* or a *labeller*. To accomplish this, the `Task` class creates a prompt using a template that will be sent to the [`LLM`](../technical-reference/llms.md). It specifies the necessary input arguments for generating the prompt and identifies the output arguments to be extracted from the `LLM` response. The `Task` class yields a `Prompt` that can generate a string with the format needed, depending on the specific `LLM` used.
+In this section we will see what's a `Task` and the list of tasks available in `distilabel`.
 
-`distilabel` distinguishes between two primary categories of tasks: those focused on text generation and those centered around labelling. These `Task` classes delineate the LLM's conduct, be it the creation of textual content or the assignment of labels to text, each with precise guidelines tailored to their respective functionalities. Users can seamlessly leverage these distinct task types to tailor the LLM's behavior according to their specific application needs.
+## Task
 
-Let's see the different tasks in `distilabel`:
+The `Task` class takes charge of setting how the LLM behaves, deciding whether it acts as a *generator* or a *labeller*. To accomplish this, the `Task` class creates a prompt using a template that will be sent to the [`LLM`](../technical-reference/llms.md). It specifies the necessary input arguments for generating the prompt and identifies the output arguments to be extracted from the `LLM` response. The `Task` class yields a `Prompt` that can generate a string with the format needed, depending on the specific `LLM` used. 
 
-## Text Generation
+All the `Task`s defines a `system_prompt` which serves as the initial instruction given to the LLM, guiding it on what kind of information or output is expected, and the following methods:
 
-These set of classes are designed to steer a `LLM` in generating text with specific guidelines. They provide a structured approach to instruct the LLM on generating content in a manner tailored to predefined criteria.
-
-The following tasks for text generation are implemented:
-
-### TextGenerationTask
-
-This is the base class for *text generation*, and includes the following fields for guiding the generation process: `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected. A list of `principles` to inject on the `system_prompt`, which by default correspond to those defiend in the UltraFeedback paper[^1], and lastly a distribution for these principles so the `LLM` can be directed towards the different principles with a more customized behaviour.
-
-[^1]:
-    The principles can be found [here][distilabel.tasks.text_generation.principles] in the codebase. More information on the *Principle Sampling* can be found in the [UltraFeedfack repository](https://github.com/OpenBMB/UltraFeedback#principle-sampling).
-
-The following methods define a task:
-
-- `generate_prompt`: This method will be used by the `LLM` during the creation of the prompts that will be used by the different models.
-- `parse_output`: After the `LLM` has generated the content, this method will be called after on the raw outputs to extract the relevant content.
+- `generate_prompt`: This method will be used by the `LLM` to create the prompts that will be fed to the model.
+- `parse_output`: After the `LLM` has generated the content, this method will be called on the raw outputs of the model to extract the relevant content (scores, rationales, etc).
 - `input_args_names` and `output_args_names`: These methods are used in the [`Pipeline`](../technical-reference/pipeline.md) to process the datasets. The first one defines the columns that will be extracted from the dataset to build the prompt in case of a `LLM` that acts as a generator or labeller alone, or the columns that should be placed in the dataset to be processed by the *labeller* `LLM`, in the case of a `Pipeline` that has both a *generator* and a *labeller*. The second one is in charge of inserting the defined fields as columns of the dataset generated dataset.
 
 After defining a task, the only action required is to pass it to the corresponding `LLM`. All the intricate processes are then handled internally:
@@ -30,6 +17,24 @@ After defining a task, the only action required is to pass it to the correspondi
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_transformersllm.py"
 ```
+
+Given this explanation, `distilabel` distinguishes between two primary categories of tasks: those focused on text generation and those centered around labelling. These `Task` classes delineate the LLM's conduct, be it the creation of textual content or the assignment of labels to text, each with precise guidelines tailored to their respective functionalities. Users can seamlessly leverage these distinct task types to tailor the LLM's behavior according to their specific application needs.
+
+## Text Generation
+
+These set of classes are designed to steer a `LLM` in generating text with specific guidelines. They provide a structured approach to instruct the LLM on generating content in a manner tailored to predefined criteria.
+
+### TextGenerationTask
+
+This is the base class for *text generation*, and includes the following fields for guiding the generation process: 
+
+- `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected. 
+- A list of `principles` to inject on the `system_prompt`, which by default correspond to those defined in the UltraFeedback paper[^1], 
+- and lastly a distribution for these principles so the `LLM` can be directed towards the different principles with a more customized behaviour.
+
+[^1]:
+    The principles can be found [here][distilabel.tasks.text_generation.principles] in the codebase. More information on the *Principle Sampling* can be found in the [UltraFeedfack repository](https://github.com/OpenBMB/UltraFeedback#principle-sampling).
+
 
 For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
 
