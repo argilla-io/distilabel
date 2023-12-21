@@ -70,6 +70,8 @@ class TextGenerationTask(Task):
     )
     principles_distribution: Union[Dict[str, float], Literal["balanced"], None] = None
 
+    __type__: Literal["generation"] = "generation"
+
     def __post_init__(self) -> None:
         """Validates the `principles_distribution` if it is a dict.
 

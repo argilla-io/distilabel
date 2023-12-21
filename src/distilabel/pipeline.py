@@ -504,8 +504,12 @@ class Pipeline:
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         if self.generator is not None and self.labeller is None:
+            if self.generator.task.__type__ != "generation":  # type: ignore
+                self.generator.task.__type__ = "generation"  # type: ignore
             _dataset.task = self.generator.task  # type: ignore
         elif self.labeller is not None:
+            if self.labeller.task.__type__ != "labelling":  # type: ignore
+                self.labeller.task.__type__ = "labelling"  # type: ignore
             _dataset.task = self.labeller.task  # type: ignore
         return _dataset  # type: ignore
 

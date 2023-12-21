@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
 
-from distilabel.utils.argilla import infer_model_metadata_properties
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if TYPE_CHECKING:
@@ -63,16 +62,16 @@ class CustomDataset(Dataset):
                 f"Error while converting the dataset to an Argilla `FeedbackDataset` instance: {e}"
             ) from e
 
-        try:
-            rg_dataset = infer_model_metadata_properties(
-                hf_dataset=self, rg_dataset=rg_dataset
-            )
-        except Exception as e:
-            warnings.warn(
-                f"Error while adding the model metadata properties: {e}",
-                UserWarning,
-                stacklevel=2,
-            )
+        # try:
+        #     rg_dataset = infer_model_metadata_properties(
+        #         hf_dataset=self, rg_dataset=rg_dataset
+        #     )
+        # except Exception as e:
+        #     warnings.warn(
+        #         f"Error while adding the model metadata properties: {e}",
+        #         UserWarning,
+        #         stacklevel=2,
+        #     )
 
         for dataset_row in self:
             if any(
@@ -82,7 +81,7 @@ class CustomDataset(Dataset):
                 continue
             try:
                 rg_dataset.add_records(
-                    self.task.to_argilla_record(dataset_row=dataset_row)  # type: ignore
+                    self.task._to_argilla_record(dataset_row=dataset_row)  # type: ignore
                 )  # type: ignore
             except Exception as e:
                 warnings.warn(

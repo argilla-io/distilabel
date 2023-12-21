@@ -136,7 +136,7 @@ class PreferenceTask(Task):
     def _merge_rationales(
         self, rationales: List[str], generations_column: str = "generations"
     ) -> str:
-        return "".join(
+        return "\n".join(
             f"{generations_column}-{idx}:\n{rationale}\n"
             for idx, rationale in enumerate(rationales, start=1)
         )
