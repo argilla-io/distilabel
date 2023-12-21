@@ -1,0 +1,24 @@
+name: Publish documentation
+
+on:
+  push:
+    branches:
+      - main
+      - gh-pages
+    tags:
+      - "**"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set git credentials
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.name "${{ github.actor }}@users.noreply.github.com"
+
+      - run: mike deploy dev --push
+        if: github.ref == 'refs/heads/main'
+
+      - run: mike deploy latest ${{ github.ref_name }} --push
+        if: startsWith(github.ref, 'refs/tags/')
