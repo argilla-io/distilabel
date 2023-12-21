@@ -118,3 +118,80 @@ class Task(ABC):
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."
         )
+
+    # Renamed to _to_argilla_record instead of renaming `to_argilla_record` to protected, as that would
+    # imply more breaking changes.
+    def _to_argilla_record(  # noqa: C901
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
+        """Converts a dataset row to an Argilla `FeedbackRecord`.
+        Args:
+            dataset_row (Dict[str, Any]): the dataset row to be converted.
+            *args (Any): additional arguments to be passed to the `to_argilla_record` method.
+            **kwargs (Any): additional keyword arguments to be passed to the `to_argilla_record` method.
+        Returns:
+            Union[FeedbackRecord, List[FeedbackRecord]]: the converted `FeedbackRecord`.
+        Raises:
+            NotImplementedError: if the `to_argilla_record` method is not implemented.
+        """
+        column_names = list(dataset_row.keys())
+        required_column_names = self.input_args_names + self.output_args_names
+
+        dataset_rows = [dataset_row]
+        if "generation_model" in dataset_row and isinstance(
+            dataset_row["generation_model"], list
+        ):
+            generation_columns = column_names[
+                column_names.index("generation_model") : column_names.index(
+                    "labelling_model"
+                )
+                if "labelling_model" in column_names
+                else None
+            ]
+            if any(
+                generation_column in required_column_names
+                for generation_column in generation_columns
+            ):
+                unwrapped_dataset_rows = []
+                for row in dataset_rows:
+                    for idx in range(len(dataset_row["generation_model"])):
+                        unwrapped_dataset_row = {}
+                        for key, value in row.items():
+                            if key in generation_columns:
+                                unwrapped_dataset_row[key] = value[idx]
+                            else:
+                                unwrapped_dataset_row[key] = value
+                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                dataset_rows = unwrapped_dataset_rows
+
+        if "labelling_model" in dataset_row and isinstance(
+            dataset_row["labelling_model"], list
+        ):
+            labelling_columns = column_names[column_names.index("labelling_model") :]
+            if any(
+                labelling_column in required_column_names
+                for labelling_column in labelling_columns
+            ):
+                unwrapped_dataset_rows = []
+                for row in dataset_rows:
+                    for idx in range(len(dataset_row["labelling_model"])):
+                        unwrapped_dataset_row = {}
+                        for key, value in row.items():
+                            if key in labelling_columns:
+                                unwrapped_dataset_row[key] = value[idx]
+                            else:
+                                unwrapped_dataset_row[key] = value
+                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                dataset_rows = unwrapped_dataset_rows
+
+        if len(dataset_rows) == 1:
+            return self.to_argilla_record(dataset_rows[0], *args, **kwargs)
+
+        records = []
+        for dataset_row in dataset_rows:
+            generated_records = self.to_argilla_record(dataset_row, *args, **kwargs)
+            if isinstance(generated_records, list):
+                records.extend(generated_records)
+            else:
+                records.append(generated_records)
+        return records
