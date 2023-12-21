@@ -14,7 +14,16 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TypedDict,
+)
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
@@ -53,6 +62,10 @@ class UltraFeedbackTask(PreferenceTask):
     ratings: List[Rating]
     task_description: str
 
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
+
     __jinja2_template__: ClassVar[str] = field(
         default=_ULTRAFEEDBACK_TEMPLATE, init=False, repr=False
     )
@@ -63,10 +76,7 @@ class UltraFeedbackTask(PreferenceTask):
         "honesty",
         "instruction-following",
     ]
-
-    system_prompt: (
-        str
-    ) = "Your role is to evaluate text quality based on given criteria."
+    __type__: Literal["labelling"] = "labelling"
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         """Generates a prompt following the ULTRAFEEDBACK specification.

@@ -20,7 +20,7 @@ else:
     import importlib.resources as importlib_resources
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 
 from jinja2 import Template
 
@@ -53,6 +53,7 @@ class Task(ABC):
     task_description: Union[str, None] = None
 
     __jinja2_template__: Union[str, None] = None
+    __type__: Union[Literal["generation", "labelling"], None] = None
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "system_prompt", self.system_prompt
@@ -124,18 +125,13 @@ class Task(ABC):
     def _to_argilla_record(  # noqa: C901
         self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
     ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
-        """Converts a dataset row to an Argilla `FeedbackRecord`.
-        Args:
-            dataset_row (Dict[str, Any]): the dataset row to be converted.
-            *args (Any): additional arguments to be passed to the `to_argilla_record` method.
-            **kwargs (Any): additional keyword arguments to be passed to the `to_argilla_record` method.
-        Returns:
-            Union[FeedbackRecord, List[FeedbackRecord]]: the converted `FeedbackRecord`.
-        Raises:
-            NotImplementedError: if the `to_argilla_record` method is not implemented.
-        """
         column_names = list(dataset_row.keys())
-        required_column_names = self.input_args_names + self.output_args_names
+        if self.__type__ is None or self.__type__ == "generation":
+            required_column_names = self.input_args_names + self.output_args_names
+        elif self.__type__ == "labelling":
+            required_column_names = self.output_args_names
+        else:
+            raise ValueError("The task type is not supported.")
 
         dataset_rows = [dataset_row]
         if "generation_model" in dataset_row and isinstance(

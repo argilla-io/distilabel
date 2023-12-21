@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import ClassVar, List, TypedDict
+from typing import ClassVar, List, Literal, TypedDict
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
@@ -38,8 +38,6 @@ class JudgeLMTask(PreferenceTask):
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
     """
 
-    __jinja2_template__: ClassVar[str] = _JUDGELM_TEMPLATE
-
     task_description: str = (
         "We would like to request your feedback on the performance of {num_responses} AI assistants in response to the"
         " user question displayed above.\nPlease rate the helpfulness, relevance, accuracy, level of details"
@@ -51,6 +49,9 @@ class JudgeLMTask(PreferenceTask):
         " not affect your judgment."
     )
     system_prompt: str = "You are a helpful and precise assistant for checking the quality of the answer."
+
+    __jinja2_template__: ClassVar[str] = _JUDGELM_TEMPLATE
+    __type__: Literal["labelling"] = "labelling"
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         """Generates a prompt following the JudgeLM specification.
