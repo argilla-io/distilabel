@@ -8,6 +8,10 @@ site_description: AI Feedback framework
 repo_name: argilla-io/distilabel
 repo_url: https://github.com/argilla-io/distilabel
 
+extra:
+  version:
+    provider: mike
+
 extra_css:
   - stylesheets/extra.css
 
