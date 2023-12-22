@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
@@ -27,7 +29,7 @@ class Llama2TextGenerationTask(TextGenerationTask):
             distribution of principles to be used for the system prompt. Defaults to `None`.
     """
 
-    def generate_prompt(self, input: str) -> str:
+    def generate_prompt(self, input: str, **_: Any) -> str:
         """Generates a prompt for the Llama2 model.
 
         Args:

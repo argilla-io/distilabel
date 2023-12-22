@@ -34,7 +34,7 @@ class CritiqueTask(Task):
     @property
     def input_args_names(self) -> List[str]:
         """Returns the names of the input arguments of the task."""
-        return ["instruction", "completion"]
+        return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
