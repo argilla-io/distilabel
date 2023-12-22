@@ -78,12 +78,6 @@ plugins:
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
-  - Learn:
-      - learn/index.md
-      - Tutorials:
-          - learn/tutorials/index.md
-      - User Guides:
-          - learn/user-guides/index.md
   - Technical References:
       - Concept Guides:
           - technical-reference/index.md

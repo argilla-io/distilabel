@@ -44,18 +44,6 @@ For a more complete example, check out our awesome notebook on Google Colab:
 
 <div class="grid cards" markdown>
 
--   <p align="center"> [**Tutorials**](./learn/tutorials/)</p>
-
-    ---
-
-    End to end project lessons.
-
--   <p align="center"> [**User Guides**](./learn/user-guides/)</p>
-
-    ---
-
-    Practical guides to achieve specific tasks with `distilabel`.
-
 -   <p align="center"> [**Concept Guides**](./technical-reference/llms.md)</p>
 
     ---
