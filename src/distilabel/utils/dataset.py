@@ -15,7 +15,7 @@
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -64,7 +64,7 @@ class DatasetCheckpoint:
 
     path: Path = Path.cwd() / "dataset_checkpoint"
     save_frequency: int = -1
-    extra_kwargs: dict[str, Any] = field(default_factory=dict)
+    extra_kwargs: Dict[str, Any] = field(default_factory=dict)
 
     # Internal fields to keep track of the number of records generated and when to check.
     _total_checks: int = field(repr=False, default=0)
