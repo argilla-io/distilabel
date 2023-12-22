@@ -42,7 +42,9 @@ def infer_fields_from_dataset_row(
                     rg.TextField(name=f"{arg_name}-{idx}", title=f"{arg_name}-{idx}")  # type: ignore
                 )  # type: ignore
         elif isinstance(dataset_row[arg_name], str):
-            processed_items.append(rg.TextField(name=arg_name, title=arg_name))  # type: ignore
+            processed_items.append(
+                rg.TextField(name=arg_name, title=arg_name, use_markdown=True)
+            )  # type: ignore
     return processed_items
 
 
