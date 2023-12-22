@@ -14,7 +14,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.critique.base import CritiqueTask, CritiqueTaskOutput
@@ -37,14 +37,11 @@ class PrometheusTask(CritiqueTask):
         return super().input_args_names + ["ref_completion"]
 
     def generate_prompt(
-        self,
-        instruction: str,
-        completion: str,
-        ref_completion: str,
+        self, input: str, generations: str, ref_completion: str, **_: Any
     ) -> str:
         render_kwargs = {
-            "instruction": instruction,
-            "completion": completion,
+            "instruction": input,
+            "completion": generations,
             "ref_completion": ref_completion,
             "scoring_criteria": self.scoring_criteria,
             "score_descriptions": self.score_descriptions,

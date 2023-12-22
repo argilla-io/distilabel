@@ -14,7 +14,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.critique.base import CritiqueTask, CritiqueTaskOutput
@@ -32,10 +32,10 @@ class UltraCMTask(CritiqueTask):
         " the user's questions.</s>"
     )
 
-    def generate_prompt(self, instruction: str, completion: str) -> str:
+    def generate_prompt(self, input: str, generations: str, **_: Any) -> str:
         render_kwargs = {
-            "instruction": instruction,
-            "completion": completion,
+            "instruction": input,
+            "completion": generations,
         }
         return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: "
 

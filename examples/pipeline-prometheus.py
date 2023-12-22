@@ -18,7 +18,7 @@ import torch
 from datasets import Dataset
 from distilabel.llm import TransformersLLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks.critique.prometheus import PrometheusTask
+from distilabel.tasks import PrometheusTask
 from transformers import AutoTokenizer, LlamaForCausalLM
 
 if __name__ == "__main__":
@@ -50,8 +50,8 @@ if __name__ == "__main__":
 
     dataset = Dataset.from_dict(
         {
-            "instruction": ["What's the capital of Spain?"],
-            "completion": ["Paris"],
+            "input": ["What's the capital of Spain?"],
+            "generations": ["Paris"],
             "ref_completion": ["Madrid"],
         }
     )
