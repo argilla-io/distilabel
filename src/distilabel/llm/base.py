@@ -218,7 +218,7 @@ class LLM(ABC):
     @property
     def return_futures(self) -> bool:
         """Whether the `LLM` returns futures"""
-        return False
+        return self.thread_pool_executor is not None
 
 
 MAX_MODEL_NAME_LENGTH = 256
