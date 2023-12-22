@@ -625,20 +625,6 @@ class Pipeline:
                         progress_callback_func=generation_progress_func,
                     )
                     generations.extend(batch_generations)
-                    # If we have both generator and labeller, save only after the labeller
-                    if checkpoint_strategy and (self.labeller is None):
-                        if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
-                            logger.info(f"Saving dataset up to batch {batch_i}...")
-                            ds = self._build_dataset(
-                                dataset,
-                                generations=generations,
-                                labels=labels,
-                                batch_size=batch_size,
-                            )
-                            ds.save_to_disk(
-                                checkpoint_strategy.path,
-                                **checkpoint_strategy.extra_kwargs,
-                            )
 
                 except Exception as e:
                     if not checkpoint_strategy:
@@ -648,16 +634,13 @@ class Pipeline:
                     logger.error(
                         f"`Pipeline.generate` failed during generation step with exception: {e}"
                     )
-                    ds = self._build_dataset(
+
+                    return self._build_dataset(
                         dataset,
                         generations=generations,
                         labels=labels,
                         batch_size=batch_size,
                     )
-                    ds.save_to_disk(
-                        checkpoint_strategy.path, **checkpoint_strategy.extra_kwargs
-                    )
-                    return ds
 
                 inputs = self._include_generator_outputs_as_inputs(
                     inputs=inputs, outputs=batch_generations
@@ -675,19 +658,19 @@ class Pipeline:
                     else:
                         labels.extend(batch_labels)  # type: ignore
 
-                    if checkpoint_strategy:
-                        if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
-                            logger.info(f"Saving dataset up to batch {batch_i}...")
-                            ds = self._build_dataset(
-                                dataset,
-                                generations=generations,
-                                labels=labels,
-                                batch_size=batch_size,
-                            )
-                            ds.save_to_disk(
-                                checkpoint_strategy.path,
-                                **checkpoint_strategy.extra_kwargs,
-                            )
+                    # if checkpoint_strategy:
+                    #     if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
+                    #         logger.info(f"Saving dataset up to batch {batch_i}...")
+                    #         ds = self._build_dataset(
+                    #             dataset,
+                    #             generations=generations,
+                    #             labels=labels,
+                    #             batch_size=batch_size,
+                    #         )
+                    #         ds.save_to_disk(
+                    #             checkpoint_strategy.path,
+                    #             **checkpoint_strategy.extra_kwargs,
+                    #         )
 
                 except Exception as e:
                     if not checkpoint_strategy:
@@ -697,16 +680,28 @@ class Pipeline:
                     logger.error(
                         f"`Pipeline.generate` failed during labelling step with exception: {e}"
                     )
-                    ds = self._build_dataset(
+
+                    return self._build_dataset(
                         dataset,
                         generations=generations,
                         labels=labels,
                         batch_size=batch_size,
                     )
-                    ds.save_to_disk(
-                        checkpoint_strategy.path, **checkpoint_strategy.extra_kwargs
-                    )
-                    return ds
+
+            if checkpoint_strategy and checkpoint_strategy.do_checkpoint(
+                batch_i * batch_size
+            ):
+                logger.info(f"Saving dataset up to batch {batch_i}...")
+                ds = self._build_dataset(
+                    dataset,
+                    generations=generations,
+                    labels=labels,
+                    batch_size=batch_size,
+                )
+                ds.save_to_disk(
+                    checkpoint_strategy.path,
+                    **checkpoint_strategy.extra_kwargs,
+                )
 
         _pipeline_progress.stop()
 

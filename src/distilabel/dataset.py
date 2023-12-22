@@ -156,7 +156,6 @@ class DatasetCheckpoint:
             return False
 
         if (step - self._total_checks * self.save_frequency) // self.save_frequency:
-            # if step % self.save_frequency == 0:
             self._total_checks += 1
             return True
         return False
