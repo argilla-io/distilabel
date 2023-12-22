@@ -95,7 +95,7 @@ class CustomDataset(Dataset):
                 )
         return rg_dataset
 
-    def save_to_disk(self, dataset_path: PathLike, **kwargs) -> None:
+    def save_to_disk(self, dataset_path: PathLike, **kwargs: Any) -> None:
         """Saves the datataset to disk, also saving the task.
 
         Args:
@@ -107,7 +107,7 @@ class CustomDataset(Dataset):
             save_task_to_disk(dataset_path, self.task)
 
     @classmethod
-    def load_from_disk(cls, dataset_path: PathLike, **kwargs):
+    def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
         """Load a CustomDataset from disk, also reading the task.
 
         Args:
