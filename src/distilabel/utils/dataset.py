@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from distilabel.tasks.base import Task
 
 
+TASK_FILE_NAME = "task.pkl"
+
+
 def save_task_to_disk(path: Path, task: "Task") -> None:
     """Saves a task to disk.
 
@@ -27,7 +30,7 @@ def save_task_to_disk(path: Path, task: "Task") -> None:
         path: The path to the task.
         task: The task.
     """
-    task_path = path / "task.pkl"
+    task_path = path / TASK_FILE_NAME
     with open(task_path, "wb") as f:
         pickle.dump(task, f)
 
