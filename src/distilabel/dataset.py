@@ -13,8 +13,10 @@
 # limitations under the License.
 
 import warnings
+from dataclasses import dataclass, field
 from os import PathLike
-from typing import TYPE_CHECKING, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from datasets import Dataset
 
@@ -120,3 +122,41 @@ class CustomDataset(Dataset):
         task = load_task_from_disk(dataset_path)
         ds.task = task
         return ds
+
+
+@dataclass
+class DatasetCheckpoint:
+    """A checkpoint class that contains the information of a checkpoint.
+
+    Args:
+        path (Path): The path to the checkpoint.
+        save_frequency (int): The frequency at which the checkpoint should be saved
+            By default is set to -1 (no checkpoint is saved to disk, but the dataset
+            is returned upon failure).
+        extra_kwargs (dict[str, Any]): Additional kwargs to be passed to the `save_to_disk` method of the Dataset.
+    """
+
+    path: Path = Path.cwd() / "dataset_checkpoint"
+    save_frequency: int = -1
+    extra_kwargs: Dict[str, Any] = field(default_factory=dict)
+
+    # Internal fields to keep track of the number of records generated and when to check.
+    _total_checks: int = field(repr=False, default=0)
+
+    def do_checkpoint(self, step: int) -> bool:
+        """Determines if a checkpoint should be done.
+
+        Args:
+            step (int): The number of records generated.
+
+        Returns:
+            bool: Whether a checkpoint should be done.
+        """
+        if self.save_frequency == -1:
+            return False
+
+        if (step - self._total_checks * self.save_frequency) // self.save_frequency:
+            # if step % self.save_frequency == 0:
+            self._total_checks += 1
+            return True
+        return False
