@@ -38,13 +38,13 @@ class PrometheusTask(CritiqueTask):
 
     def generate_prompt(
         self,
-        instruction: str,
-        completion: str,
+        input: str,
+        generations: str,
         ref_completion: str,
     ) -> str:
         render_kwargs = {
-            "instruction": instruction,
-            "completion": completion,
+            "instruction": input,
+            "completion": generations,
             "ref_completion": ref_completion,
             "scoring_criteria": self.scoring_criteria,
             "score_descriptions": self.score_descriptions,
