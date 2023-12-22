@@ -14,7 +14,7 @@
 
 import warnings
 from os import PathLike
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from datasets import Dataset
 
