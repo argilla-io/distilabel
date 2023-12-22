@@ -42,6 +42,7 @@ from distilabel.progress_bar import (
     get_progress_bars_for_pipeline,
     use_progress_bar,
 )
+from distilabel.utils.dataset import DatasetCheckpoint
 from distilabel.utils.dicts import combine_dicts
 from distilabel.utils.types import is_future
 
@@ -528,7 +529,7 @@ class Pipeline:
         num_generations: int = 1,
         batch_size: int = 1,
         shuffle_before_labelling: bool = True,
-        enable_checkpoints: bool = True,
+        checkpoint_strategy: Optional[DatasetCheckpoint] = DatasetCheckpoint(),
         display_progress_bar: bool = False,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the
@@ -543,8 +544,9 @@ class Pipeline:
             shuffle_before_labelling (bool, optional): whether to shuffle the generations
                 before labelling or not. This is useful to avoid the labelling LLM to be
                 biased by the order of the generations. Defaults to `True`.
-            enable_checkpoints (bool, optional): whether to enable checkpoints or not.
-                Defaults to `True`.
+            checkpoint_strategy (DatasetCheckpoint, optional): the checkpoint strategy.
+                If `None` is provided, no checkpoints will be saved. Defaults to `DatasetCheckpoint()`,
+                which won't save the dataset but returns the generated dataset upon failure.
             display_progress_bar (bool, optional): whether to display the progress bar
                 or not. Defaults to `False`.
 
@@ -554,7 +556,7 @@ class Pipeline:
         Raises:
             RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
             UserWarning: if the `Pipeline` fails during the generation or labelling steps
-                and `enable_checkpoints` is set to `False`.
+                and `checkpoint_strategy` is set to `None`.
 
         Examples:
             >>> from distilabel.llm.huggingface import TransformersLLM
@@ -623,20 +625,39 @@ class Pipeline:
                         progress_callback_func=generation_progress_func,
                     )
                     generations.extend(batch_generations)
+                    # If we have both generator and labeller, save only after the labeller
+                    if checkpoint_strategy and (self.labeller is None):
+                        if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
+                            logger.info(f"Saving dataset up to batch {batch_i}...")
+                            ds = self._build_dataset(
+                                dataset,
+                                generations=generations,
+                                labels=labels,
+                                batch_size=batch_size,
+                            )
+                            ds.save_to_disk(
+                                checkpoint_strategy.path,
+                                **checkpoint_strategy.extra_kwargs,
+                            )
+
                 except Exception as e:
-                    if not enable_checkpoints:
+                    if not checkpoint_strategy:
                         raise RuntimeError(
-                            "`Pipeline.generate` failed during generation step. Setting `enable_checkpoints=True` is recommended!"
+                            "`Pipeline.generate` failed during generation step. Passing a `DatasetCheckpoint` is recommended!"
                         ) from e
                     logger.error(
                         f"`Pipeline.generate` failed during generation step with exception: {e}"
                     )
-                    return self._build_dataset(
+                    ds = self._build_dataset(
                         dataset,
                         generations=generations,
                         labels=labels,
                         batch_size=batch_size,
                     )
+                    ds.save_to_disk(
+                        checkpoint_strategy.path, **checkpoint_strategy.extra_kwargs
+                    )
+                    return ds
 
                 inputs = self._include_generator_outputs_as_inputs(
                     inputs=inputs, outputs=batch_generations
@@ -653,20 +674,39 @@ class Pipeline:
                         labels.append(batch_labels)  # type: ignore
                     else:
                         labels.extend(batch_labels)  # type: ignore
+
+                    if checkpoint_strategy:
+                        if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
+                            logger.info(f"Saving dataset up to batch {batch_i}...")
+                            ds = self._build_dataset(
+                                dataset,
+                                generations=generations,
+                                labels=labels,
+                                batch_size=batch_size,
+                            )
+                            ds.save_to_disk(
+                                checkpoint_strategy.path,
+                                **checkpoint_strategy.extra_kwargs,
+                            )
+
                 except Exception as e:
-                    if not enable_checkpoints:
+                    if not checkpoint_strategy:
                         raise RuntimeError(
-                            "`Pipeline.generate` failed during labelling step. Setting `enable_checkpoints=True` is recommended!"
+                            "`Pipeline.generate` failed during labelling step. Passing a `DatasetCheckpoint` is recommended!"
                         ) from e
                     logger.error(
                         f"`Pipeline.generate` failed during labelling step with exception: {e}"
                     )
-                    return self._build_dataset(
+                    ds = self._build_dataset(
                         dataset,
                         generations=generations,
                         labels=labels,
                         batch_size=batch_size,
                     )
+                    ds.save_to_disk(
+                        checkpoint_strategy.path, **checkpoint_strategy.extra_kwargs
+                    )
+                    return ds
 
         _pipeline_progress.stop()
 
@@ -697,7 +737,7 @@ class Pipeline:
                 # Default kwargs to make the process as simple as possible
                 num_generations=1,
                 batch_size=1,
-                enable_checkpoints=False,
+                checkpoint_strategy=None,
                 display_progress_bar=False,
             )
         except Exception as e:
@@ -712,7 +752,7 @@ class Pipeline:
         num_generations: int = 1,
         batch_size: int = 1,
         shuffle_before_labelling: bool = True,
-        enable_checkpoints: bool = True,
+        checkpoint_strategy: Optional[DatasetCheckpoint] = DatasetCheckpoint(),
         display_progress_bar: bool = False,
         skip_dry_run: bool = False,
     ) -> CustomDataset:
@@ -726,7 +766,9 @@ class Pipeline:
             shuffle_before_labelling: whether to shuffle the generations before labelling
                 or not. This is useful to avoid the labelling LLM to be biased by the order
                 of the generations. Defaults to `True`.
-            enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
+            checkpoint_strategy (DatasetCheckpoint, optional): the checkpoint strategy.
+                If `None` is provided, no checkpoints will be saved. Defaults to `DatasetCheckpoint()`,
+                which won't save the dataset but returns the generated dataset upon failure.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
             skip_dry_run (bool, optional): whether to skip the dry run or not. Defaults to `False`.
 
@@ -736,7 +778,7 @@ class Pipeline:
         Raises:
             RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
             UserWarning: if the `Pipeline` fails during the generation or labelling steps and
-                `enable_checkpoints` is set to `False`.
+                `checkpoint_strategy` is set to `None`.
 
         Examples:
             >>> from distilabel.llm.huggingface import TransformersLLM
@@ -768,7 +810,7 @@ class Pipeline:
             dataset=dataset,
             num_generations=num_generations,
             batch_size=batch_size,
-            enable_checkpoints=enable_checkpoints,
+            checkpoint_strategy=checkpoint_strategy,
             shuffle_before_labelling=shuffle_before_labelling,
             display_progress_bar=display_progress_bar,
         )
