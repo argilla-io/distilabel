@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import warnings
+from os import PathLike
 from typing import TYPE_CHECKING, Union
 
 from datasets import Dataset
 
+from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if TYPE_CHECKING:
@@ -90,3 +92,31 @@ class CustomDataset(Dataset):
                     stacklevel=2,
                 )
         return rg_dataset
+
+    def save_to_disk(self, dataset_path: PathLike, **kwargs) -> None:
+        """Saves the datataset to disk, also saving the task.
+
+        Args:
+            dataset_path: Path to the dataset.
+            **kwargs: Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+        """
+        super().save_to_disk(dataset_path, **kwargs)
+        if self.task is not None:
+            save_task_to_disk(dataset_path, self.task)
+
+    @classmethod
+    def load_from_disk(cls, dataset_path: PathLike, **kwargs):
+        """Load a CustomDataset from disk, also reading the task.
+
+        Args:
+            dataset_path: Path to the dataset, as you would do with a standard Dataset.
+
+        Returns:
+            The loaded dataset.
+        """
+        ds = super().load_from_disk(dataset_path, *kwargs)
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
+        ds.__class__ = cls
+        task = load_task_from_disk(dataset_path)
+        ds.task = task
+        return ds
