@@ -15,7 +15,7 @@
 import random
 import warnings
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Optional, Union
 
 from distilabel.tasks.base import Task
 from distilabel.tasks.prompt import Prompt
@@ -70,7 +70,7 @@ class TextGenerationTask(Task):
     )
     principles_distribution: Union[Dict[str, float], Literal["balanced"], None] = None
 
-    __type__: Literal["generation"] = "generation"
+    __type__: ClassVar[Literal["generation"]] = "generation"
 
     def __post_init__(self) -> None:
         """Validates the `principles_distribution` if it is a dict.
@@ -116,7 +116,7 @@ class TextGenerationTask(Task):
             principle_group = random.choice(list(self.principles.keys()))
         return random.choice(self.principles[principle_group])
 
-    def generate_prompt(self, input: str) -> Prompt:
+    def generate_prompt(self, input: str, **_: Any) -> Prompt:
         """Generates the prompt to be used for generation.
 
         Args:

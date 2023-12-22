@@ -100,7 +100,7 @@ class UltraJudgeTask(PreferenceTask):
         """Returns a regex to extract the final scores from the output."""
         return r"Final scores:\s*((?:\d+(?:\.\d+)?\s*)+)"
 
-    def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the UltraJudge specification.
 
         Args:

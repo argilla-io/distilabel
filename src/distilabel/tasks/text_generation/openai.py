@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List
 
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
@@ -32,7 +32,7 @@ class OpenAITextGenerationTask(TextGenerationTask):
             distribution of principles to be used for the system prompt. Defaults to `None`.
     """
 
-    def generate_prompt(self, input: str) -> List["ChatCompletion"]:
+    def generate_prompt(self, input: str, **_: Any) -> List["ChatCompletion"]:
         """Generates a prompt for any chat-completion OpenAI model.
 
         Args:

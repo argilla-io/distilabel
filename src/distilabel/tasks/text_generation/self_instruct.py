@@ -65,7 +65,7 @@ class SelfInstructTask(TextGenerationTask):
 
     __jinja2_template__: str = _SELF_INSTRUCT_TEMPLATE
 
-    def generate_prompt(self, input: str) -> Prompt:
+    def generate_prompt(self, input: str, **_: Any) -> Prompt:
         """Generates a prompt following the Self-Instruct specification.
 
         Args:

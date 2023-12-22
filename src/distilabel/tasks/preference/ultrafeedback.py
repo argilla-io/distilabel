@@ -76,7 +76,7 @@ class UltraFeedbackTask(PreferenceTask):
         "instruction-following",
     ]
 
-    def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the ULTRAFEEDBACK specification.
 
         Args:
