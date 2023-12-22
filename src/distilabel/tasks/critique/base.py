@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import List, Literal
+from typing import ClassVar, List, Literal
 
 from typing_extensions import TypedDict
 
@@ -29,7 +29,7 @@ class CritiqueTask(Task):
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
     """
 
-    __type__: Literal["labelling"] = "labelling"
+    __type__: ClassVar[Literal["labelling"]] = "labelling"
 
     @property
     def input_args_names(self) -> List[str]:

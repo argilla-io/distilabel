@@ -14,7 +14,7 @@
 
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Optional
 
 from distilabel.tasks.base import Task
 from distilabel.utils.argilla import (
@@ -39,6 +39,8 @@ class PreferenceTask(Task):
         system_prompt (str): the system prompt to be used for generation.
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
     """
+
+    __type__: ClassVar[Literal["labelling"]] = "labelling"
 
     @property
     def input_args_names(self) -> List[str]:

@@ -20,7 +20,6 @@ from typing import (
     ClassVar,
     Dict,
     List,
-    Literal,
     Optional,
     TypedDict,
 )
@@ -76,7 +75,6 @@ class UltraFeedbackTask(PreferenceTask):
         "honesty",
         "instruction-following",
     ]
-    __type__: Literal["labelling"] = "labelling"
 
     def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
         """Generates a prompt following the ULTRAFEEDBACK specification.
