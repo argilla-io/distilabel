@@ -33,7 +33,7 @@ from typing import (
 
 from datasets import Dataset, Split
 
-from distilabel.dataset import CustomDataset
+from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
@@ -42,7 +42,6 @@ from distilabel.progress_bar import (
     get_progress_bars_for_pipeline,
     use_progress_bar,
 )
-from distilabel.utils.dataset import DatasetCheckpoint
 from distilabel.utils.dicts import combine_dicts
 from distilabel.utils.types import is_future
 
