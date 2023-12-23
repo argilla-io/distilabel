@@ -13,15 +13,23 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import ClassVar, List, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Union
 
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task
+from distilabel.tasks.mixins import ToArgillaMixin
+from distilabel.utils.imports import _ARGILLA_AVAILABLE
+
+if _ARGILLA_AVAILABLE:
+    pass
+
+if TYPE_CHECKING:
+    from argilla import FeedbackDataset, FeedbackRecord
 
 
 @dataclass
-class CritiqueTask(Task):
+class CritiqueTask(ToArgillaMixin, Task):
     """A `Task` for critique / judge tasks.
 
     Args:
@@ -40,6 +48,25 @@ class CritiqueTask(Task):
     def output_args_names(self) -> List[str]:
         """Returns the names of the output arguments of the task."""
         return ["critique", "score"]
+
+    def to_argilla_dataset(self, dataset_row: Dict[str, Any]) -> "FeedbackDataset":
+        return super().to_argilla_dataset(
+            dataset_row=dataset_row,
+            generations_column="generations",
+            ratings_column="score",
+            rationale_column="critique",
+            ratings_values=[1, 2, 3, 4, 5],
+        )
+
+    def to_argilla_record(
+        self, dataset_row: Dict[str, Any]
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
+        return super().to_argilla_record(
+            dataset_row=dataset_row,
+            generations_column="generations",
+            ratings_column="score",
+            rationale_column="critique",
+        )
 
 
 class CritiqueTaskOutput(TypedDict):
