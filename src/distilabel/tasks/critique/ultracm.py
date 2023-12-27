@@ -40,7 +40,7 @@ class UltraCMTask(CritiqueTask):
         }
         return Prompt(
             system_prompt=self.system_prompt,
-            formatted_prompt=f"\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: ",
+            formatted_prompt=f"User: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: ",
         )
 
     def parse_output(self, output: str) -> CritiqueTaskOutput:  # type: ignore
