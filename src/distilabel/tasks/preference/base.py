@@ -16,11 +16,11 @@ from dataclasses import dataclass
 from typing import ClassVar, List, Literal
 
 from distilabel.tasks.base import Task
-from distilabel.tasks.mixins import ToArgillaMixin
+from distilabel.tasks.mixins import RatingToArgillaMixin
 
 
 @dataclass
-class PreferenceTask(ToArgillaMixin, Task):
+class PreferenceTask(RatingToArgillaMixin, Task):
     """A `Task` for preference rating tasks.
 
     Args:
@@ -39,11 +39,3 @@ class PreferenceTask(ToArgillaMixin, Task):
     def output_args_names(self) -> List[str]:
         """Returns the names of the output arguments of the task."""
         return ["rating", "rationale"]
-
-    def _merge_rationales(
-        self, rationales: List[str], generations_column: str = "generations"
-    ) -> str:
-        return "\n".join(
-            f"{generations_column}-{idx}:\n{rationale}\n"
-            for idx, rationale in enumerate(rationales, start=1)
-        )

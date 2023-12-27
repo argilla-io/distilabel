@@ -18,14 +18,14 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Union
 from typing_extensions import TypedDict
 
 from distilabel.tasks.base import Task
-from distilabel.tasks.mixins import ToArgillaMixin
+from distilabel.tasks.mixins import RatingToArgillaMixin
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
 
 
 @dataclass
-class CritiqueTask(ToArgillaMixin, Task):
+class CritiqueTask(RatingToArgillaMixin, Task):
     """A `Task` for critique / judge tasks.
 
     Args:

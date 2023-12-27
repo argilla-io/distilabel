@@ -34,9 +34,10 @@ class TaskProtocol(Protocol):
         ...
 
 
-class ToArgillaMixin:
+class RatingToArgillaMixin:
     """Mixin that adds the `to_argilla_dataset` and `to_argilla_record` methods for tasks
-    with a score and a rationale."""
+    that generate both ratings and rationales i.e. `PreferenceTask` or `CritiqueTask`.
+    """
 
     def to_argilla_dataset(
         self: TaskProtocol,
@@ -169,7 +170,7 @@ class ToArgillaMixin:
             suggestions.append(
                 {
                     "question_name": f"{ratings_column}-{rationale_column}",
-                    "value": self._merge_rationales(rationales=rationales)
+                    "value": self._merge_rationales(rationales=rationales)  # type: ignore
                     if isinstance(rationales, list)
                     else rationales,
                 }
@@ -198,7 +199,7 @@ class ToArgillaMixin:
                     metadata[f"distance-best-{ratings_column}"] = (
                         sorted_ratings[0] - sorted_ratings[1]
                     )
-            else:
+            elif isinstance(ratings, (str, float, int)):
                 suggestions.append(
                     {
                         "question_name": f"{generations_column}-1-{ratings_column}",
