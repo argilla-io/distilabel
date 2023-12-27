@@ -2,7 +2,7 @@ from distilabel.llm import TransformersLLM
 from distilabel.tasks import TextGenerationTask
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Load the models from huggingface hub:
+# Load the models from the HuggingFace Hub
 tokenizer = AutoTokenizer.from_pretrained("argilla/notus-7b-v1")
 model = AutoModelForCausalLM.from_pretrained("argilla/notus-7b-v1", device_map="auto")
 
