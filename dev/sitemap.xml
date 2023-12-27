@@ -176,16 +176,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/llama/</loc>
-         <lastmod>2023-12-27</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/openai/</loc>
-         <lastmod>2023-12-27</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/principles/</loc>
          <lastmod>2023-12-27</lastmod>
          <changefreq>daily</changefreq>
