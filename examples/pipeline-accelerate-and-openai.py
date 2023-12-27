@@ -31,7 +31,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 def get_current_device() -> int:
     """Get the current device. For GPU we return the local process index to enable multiple GPU training."""
-    return Accelerator().local_process_index if torch.cuda.is_available() else "cpu"
+    return Accelerator().local_process_index if torch.cuda.is_available() else "cpu"  # type: ignore
 
 
 if __name__ == "__main__":

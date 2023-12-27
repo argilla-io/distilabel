@@ -38,7 +38,7 @@ class PrometheusTask(CritiqueTask):
 
     def generate_prompt(
         self, input: str, generations: str, ref_completion: str, **_: Any
-    ) -> str:
+    ) -> Prompt:
         render_kwargs = {
             "instruction": input,
             "completion": generations,
@@ -49,7 +49,7 @@ class PrometheusTask(CritiqueTask):
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=self.template.render(**render_kwargs),
-        ).format_as(format="llama2")  # type: ignore
+        )
 
     def parse_output(self, output: str) -> CritiqueTaskOutput:  # type: ignore
         """Parses the output of the model into the desired format."""

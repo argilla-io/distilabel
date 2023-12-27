@@ -18,6 +18,7 @@ from typing import Any, ClassVar
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.critique.base import CritiqueTask, CritiqueTaskOutput
+from distilabel.tasks.prompt import Prompt
 
 _ULTRACM_TEMPLATE = get_template("ultracm.jinja2")
 
@@ -32,12 +33,15 @@ class UltraCMTask(CritiqueTask):
         " the user's questions.</s>"
     )
 
-    def generate_prompt(self, input: str, generations: str, **_: Any) -> str:
+    def generate_prompt(self, input: str, generations: str, **_: Any) -> Prompt:
         render_kwargs = {
             "instruction": input,
             "completion": generations,
         }
-        return f"{self.system_prompt}\nUser: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: "
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt=f"User: {self.template.render(**render_kwargs)}</s>\nAssistant: ### Feedback\nOverall Score: ",
+        )
 
     def parse_output(self, output: str) -> CritiqueTaskOutput:  # type: ignore
         """Parses the output of the model into the desired format."""
