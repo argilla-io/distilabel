@@ -27,8 +27,7 @@ from jinja2 import Template
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla import FeedbackDataset
-    from argilla.client.feedback.schemas.records import FeedbackRecord
+    from argilla import FeedbackDataset, FeedbackRecord
 
 
 def get_template(template_name: str) -> str:
