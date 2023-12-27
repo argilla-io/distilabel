@@ -46,5 +46,5 @@ jobs:
       - run: mike deploy dev --push
         if: github.ref == 'refs/heads/main'
 
-      - run: mike deploy latest ${{ github.ref_name }} --update-aliases --push
+      - run: mike deploy ${{ github.ref_name }} latest --update-aliases --push
         if: startsWith(github.ref, 'refs/tags/')
