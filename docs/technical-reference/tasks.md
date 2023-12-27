@@ -38,26 +38,6 @@ This is the base class for *text generation*, and includes the following fields 
 
 For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
 
-### Llama2TextGenerationTask
-
-This class inherits from the `TextGenerationTask` and it's specially prepared to deal with prompts in the form of the *Llama2* model, so it should be the go to task for `LLMs` intented for text generation that were trained using this prompt format. The specific prompt formats can be found in the source code of the [Prompt][distilabel.tasks.prompt.Prompt] class.
-
-```python
---8<-- "docs/snippets/technical-reference/tasks/generic_llama2_textgeneration.py"
-```
-
-For the API reference visit [Llama2TextGenerationTask][distilabel.tasks.text_generation.llama.Llama2TextGenerationTask].
-
-### OpenAITextGenerationTask
-
-The OpenAI task for text generation is similar to the `Llama2TextGenerationTask`, but with the specific prompt format expected by the *chat completion* task from OpenAI.
-
-```python
---8<-- "docs/snippets/technical-reference/tasks/generic_openai_textgeneration.py"
-```
-
-For the API reference visit [OpenAITextGenerationTask][distilabel.tasks.text_generation.openai.OpenAITextGenerationTask].
-
 ### SelfInstructTask
 
 The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models

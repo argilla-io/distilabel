@@ -1,11 +1,12 @@
 import os
 
 from distilabel.llm import OpenAILLM
-from distilabel.tasks import OpenAITextGenerationTask
+from distilabel.tasks import TextGenerationTask
 
 openaillm = OpenAILLM(
     model="gpt-3.5-turbo",
-    task=OpenAITextGenerationTask(),
+    task=TextGenerationTask(),
+    prompt_format="openai",
     max_new_tokens=256,
     openai_api_key=os.environ.get("OPENAI_API_KEY"),
     temperature=0.3,
