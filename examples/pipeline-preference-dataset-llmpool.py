@@ -108,7 +108,8 @@ if __name__ == "__main__":
             ]
         ),
         labeller=ProcessLLM(
-            task=UltraFeedbackTask.for_instruction_following(), load_llm_fn=load_gpt_4
+            task=UltraFeedbackTask.for_instruction_following(),
+            load_llm_fn=load_gpt_4,  # type: ignore
         ),
     )
 
@@ -119,7 +120,10 @@ if __name__ == "__main__":
     )
 
     dataset = pipeline.generate(
-        dataset=dataset, num_generations=2, batch_size=10, display_progress_bar=True
+        dataset=dataset,
+        num_generations=2,
+        batch_size=10,
+        display_progress_bar=True,  # type: ignore
     )
 
     rg_argilla = dataset.to_argilla()
