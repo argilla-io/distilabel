@@ -86,7 +86,7 @@ def load_neural_chat(task: Task) -> LLM:
     )
 
 
-def load_gpt_4(task: UltraFeedbackTask) -> LLM:
+def load_gpt_4(task: Task) -> LLM:
     from distilabel.llm import OpenAILLM
 
     return OpenAILLM(
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         ),
         labeller=ProcessLLM(
             task=UltraFeedbackTask.for_instruction_following(),
-            load_llm_fn=load_gpt_4,  # type: ignore
+            load_llm_fn=load_gpt_4,
         ),
     )
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     )
 
     dataset = pipeline.generate(
-        dataset=dataset,
+        dataset=dataset,  # type: ignore
         num_generations=2,
         batch_size=10,
         display_progress_bar=True,  # type: ignore
