@@ -71,7 +71,7 @@ class Task(ABC):
         return Template(open(self.__jinja2_template__).read())
 
     @abstractmethod
-    def generate_prompt(self, **kwargs: Any) -> Union[Prompt, Any]:
+    def generate_prompt(self, **kwargs: Any) -> Prompt:
         pass
 
     @abstractmethod
