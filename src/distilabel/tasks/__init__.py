@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from distilabel.tasks.base import Task
+from distilabel.tasks.chat import ChatTask
 from distilabel.tasks.critique.base import CritiqueTask
 from distilabel.tasks.critique.prometheus import PrometheusTask
 from distilabel.tasks.critique.ultracm import UltraCMTask
@@ -25,6 +26,7 @@ from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
 __all__ = [
     "Task",
+    "ChatTask",
     "CritiqueTask",
     "PrometheusTask",
     "UltraCMTask",
