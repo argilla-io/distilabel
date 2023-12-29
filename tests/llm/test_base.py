@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Set
+from typing import Any, Dict, List, Set
 
 import pytest
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.text_generation.base import TextGenerationTask
-
-if TYPE_CHECKING:
-    pass
 
 
 class DummyLLM(LLM):
