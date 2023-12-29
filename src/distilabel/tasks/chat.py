@@ -162,12 +162,12 @@ class ChatTask(Task):
         # the generated content is correct or not, according to the guidelines defined
         # within the dataset.
         questions = [
-            rg.LabelQuestion(
+            rg.LabelQuestion(  # type: ignore
                 name="correctness",
                 title="Is the final response correct?",
                 labels=["YES", "NO"],
             )
-        ]  # type: ignore
+        ]
         # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
         # defined above.
         return rg.FeedbackDataset(
