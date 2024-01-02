@@ -60,6 +60,19 @@ _VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 logger = get_logger()
 
 
+_vertexai_retry_decorator = retry(
+    retry=retry_if_exception_type(_VERTEXAI_API_RETRY_ON_EXCEPTIONS),
+    stop=stop_after_attempt(_VERTEXAI_API_STOP_AFTER_ATTEMPT),
+    wait=wait_random_exponential(
+        multiplier=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
+        max=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
+    ),
+    before_sleep=before_sleep_log(logger, logging.INFO),
+    after=after_log(logger, logging.INFO),
+    reraise=True,
+)
+
+
 def is_gemini_model(model: str) -> bool:
     """Returns `True` if the model is a model from the Vertex AI Gemini API.
 
@@ -91,6 +104,12 @@ class VertexAILLM(LLM):
     - Codey API: https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview
     - Text API: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text
 
+    To use the `VertexAILLM` is necessary to have configured the Google Cloud authentication
+    using one of these methods:
+
+    - Setting `GOOGLE_CLOUD_CREDENTIALS` environment variable
+    - Using `gcloud auth application-default login` command
+    - Using `vertexai.init` function from the `google-cloud-aiplatform` library
     """
 
     def __init__(
@@ -135,11 +154,6 @@ class VertexAILLM(LLM):
         self.max_output_tokens = max_new_tokens
         self.stop_sequences = stop_sequences
 
-        # TODO: check if there's any endpoint to get available models
-        # if model not in {"gemini-pro", "gemini-pro-vision"}:
-        #     raise ValueError(
-        #         f"Model '{model}' is not available in the Gemini API of Vertex AI."
-        #     )
         if is_gemini_model(model):
             self.model = GenerativeModel(model)
         elif is_codey_model(model):
@@ -219,17 +233,7 @@ class VertexAILLM(LLM):
             outputs.append(output)
         return outputs
 
-    @retry(
-        retry=retry_if_exception_type(_VERTEXAI_API_RETRY_ON_EXCEPTIONS),
-        stop=stop_after_attempt(_VERTEXAI_API_STOP_AFTER_ATTEMPT),
-        wait=wait_random_exponential(
-            multiplier=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
-            max=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
-        ),
-        before_sleep=before_sleep_log(logger, logging.INFO),
-        after=after_log(logger, logging.INFO),
-        reraise=True,
-    )
+    @_vertexai_retry_decorator
     def _call_generative_model_with_backoff(
         self, contents: List[Dict[str, Any]], **kwargs: Any
     ) -> "GenerationResponse":
@@ -281,17 +285,7 @@ class VertexAILLM(LLM):
 
         return outputs
 
-    @retry(
-        retry=retry_if_exception_type(_VERTEXAI_API_RETRY_ON_EXCEPTIONS),
-        stop=stop_after_attempt(_VERTEXAI_API_STOP_AFTER_ATTEMPT),
-        wait=wait_random_exponential(
-            multiplier=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
-            max=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
-        ),
-        before_sleep=before_sleep_log(logger, logging.INFO),
-        after=after_log(logger, logging.INFO),
-        reraise=True,
-    )
+    @_vertexai_retry_decorator
     def _call_text_generation_model(
         self, **kwargs: Any
     ) -> "MultiCandidateTextGenerationResponse":
