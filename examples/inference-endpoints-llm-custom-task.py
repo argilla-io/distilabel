@@ -16,15 +16,15 @@ import os
 from typing import Dict
 
 from distilabel.llm import InferenceEndpointsLLM
-from distilabel.tasks import Llama2TextGenerationTask, Prompt
+from distilabel.tasks import Prompt, TextGenerationTask
 
 
-class Llama2QuestionAnsweringTask(Llama2TextGenerationTask):
-    def generate_prompt(self, question: str) -> str:
+class Llama2QuestionAnsweringTask(TextGenerationTask):
+    def generate_prompt(self, question: str) -> Prompt:
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=question,
-        ).format_as("llama2")  # type: ignore
+        )
 
     def parse_output(self, output: str) -> Dict[str, str]:
         return {"answer": output.strip()}
@@ -47,6 +47,7 @@ if __name__ == "__main__":
         endpoint_namespace=os.getenv("HF_NAMESPACE"),  # type: ignore
         token=os.getenv("HF_TOKEN", None),
         task=Llama2QuestionAnsweringTask(),
+        prompt_format="llama2",
     )
     print(llm.generate([{"question": "What's the capital of Spain?"}]))
     # Output: [

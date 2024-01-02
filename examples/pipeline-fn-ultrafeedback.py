@@ -18,7 +18,7 @@ import time
 from datasets import load_dataset
 from distilabel.llm import InferenceEndpointsLLM
 from distilabel.pipeline import pipeline
-from distilabel.tasks import Llama2TextGenerationTask
+from distilabel.tasks import TextGenerationTask
 
 if __name__ == "__main__":
     dataset = (
@@ -33,7 +33,8 @@ if __name__ == "__main__":
         generator=InferenceEndpointsLLM(
             endpoint_name=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
             endpoint_namespace=os.getenv("HF_NAMESPACE", None),
-            task=Llama2TextGenerationTask(),
+            task=TextGenerationTask(),
+            prompt_format="llama2",
             max_new_tokens=256,
             num_threads=2,
             temperature=0.3,

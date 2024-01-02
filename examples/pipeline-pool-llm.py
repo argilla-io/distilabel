@@ -64,7 +64,7 @@ if __name__ == "__main__":
     )
 
     dataset = pipeline.generate(
-        dataset=dataset,
+        dataset=dataset,  # type: ignore
         num_generations=3,
         batch_size=5,
     )

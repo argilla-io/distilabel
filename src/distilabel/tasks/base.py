@@ -27,8 +27,7 @@ from jinja2 import Template
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla import FeedbackDataset
-    from argilla.client.feedback.schemas.records import FeedbackRecord
+    from argilla import FeedbackDataset, FeedbackRecord
 
 
 def get_template(template_name: str) -> str:
@@ -71,7 +70,7 @@ class Task(ABC):
         return Template(open(self.__jinja2_template__).read())
 
     @abstractmethod
-    def generate_prompt(self, **kwargs: Any) -> Union[Prompt, Any]:
+    def generate_prompt(self, **kwargs: Any) -> Prompt:
         pass
 
     @abstractmethod
