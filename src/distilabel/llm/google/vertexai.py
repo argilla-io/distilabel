@@ -12,7 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+
+from tenacity import (
+    after_log,
+    before_sleep_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_random_exponential,
+)
 
 from distilabel.llm import LLM
 from distilabel.llm.utils import LLMOutput
@@ -20,18 +30,68 @@ from distilabel.logger import get_logger
 from distilabel.utils.imports import _VERTEXAI_AVAILABLE
 
 if _VERTEXAI_AVAILABLE:
+    from google.api_core import exceptions
+    from vertexai.language_models import CodeGenerationModel, TextGenerationModel
     from vertexai.preview.generative_models import GenerationConfig, GenerativeModel
 
+    _VERTEXAI_API_RETRY_ON_EXCEPTIONS = (
+        exceptions.ResourceExhausted,
+        exceptions.ServiceUnavailable,
+        exceptions.Aborted,
+        exceptions.DeadlineExceeded,
+        exceptions.GoogleAPIError,
+    )
+
+else:
+    _VERTEXAI_API_RETRY_ON_EXCEPTIONS = ()
+
 if TYPE_CHECKING:
+    from vertexai.language_models._language_models import (
+        MultiCandidateTextGenerationResponse,
+    )
     from vertexai.preview.generative_models import GenerationResponse
 
     from distilabel.tasks.base import Task
 
+_VERTEXAI_API_STOP_AFTER_ATTEMPT = 6
+_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
+_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
+
 logger = get_logger()
 
 
-class VertexGenerativeModelLLM(LLM):
-    """An `LLM` which allows to use models from the Gemini API of Vertex AI."""
+def is_gemini_model(model: str) -> bool:
+    """Returns `True` if the model is a model from the Vertex AI Gemini API.
+
+    Args:
+        model (str): the model name to be checked.
+
+    Returns:
+        bool: `True` if the model is a model from the Vertex AI Gemini API.
+    """
+    return "gemini" in model
+
+
+def is_codey_model(model: str) -> bool:
+    """Returns `True` if the model is a model from the Vertex AI Codey API.
+
+    Args:
+        model (str): the model name to be checked.
+
+    Returns:
+        bool: `True` if the model is a model from the Vertex AI Codey API.
+    """
+    return "code" in model
+
+
+class VertexAILLM(LLM):
+    """An `LLM` which allows to use models from the Vertex AI APIs:
+
+    - Gemini API: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini
+    - Codey API: https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview
+    - Text API: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text
+
+    """
 
     def __init__(
         self,
@@ -76,16 +136,24 @@ class VertexGenerativeModelLLM(LLM):
         self.stop_sequences = stop_sequences
 
         # TODO: check if there's any endpoint to get available models
-        if model not in ["gemini-pro", "gemini-pro-vision"]:
-            raise ValueError(
-                f"Model '{model}' is not available in the Gemini API of Vertex AI."
-            )
-        self.model = GenerativeModel(model)
+        # if model not in {"gemini-pro", "gemini-pro-vision"}:
+        #     raise ValueError(
+        #         f"Model '{model}' is not available in the Gemini API of Vertex AI."
+        #     )
+        if is_gemini_model(model):
+            self.model = GenerativeModel(model)
+        elif is_codey_model(model):
+            self.model = CodeGenerationModel.from_pretrained(model)
+        else:
+            self.model = TextGenerationModel.from_pretrained(model)
 
     @property
     def model_name(self) -> str:
         """Returns the name of the model used for generation."""
-        return self.model._model_name
+        if isinstance(self.model, GenerativeModel):
+            return self.model._model_name
+
+        return self.model._model_id
 
     def _generate_contents(
         self, inputs: List[Dict[str, Any]]
@@ -112,32 +180,32 @@ class VertexGenerativeModelLLM(LLM):
             )
         return contents
 
-    def _generate(
+    def _generate_with_generative_model(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List["LLMOutput"]]:
+        """Generate `num_generations` for each input in `inputs` using a Vertex AI Gemini
+        API model."""
         inputs_contents = self._generate_contents(inputs)
         outputs = []
         for contents in inputs_contents:
             output = []
             # TODO: remove this for-loop once `GenerationConfig.candidate_count` valid range is not [1, 2)
             for _ in range(num_generations):
-                response: "GenerationResponse" = self.model.generate_content(  # type: ignore
+                response = self._call_generative_model_with_backoff(
                     contents=contents,
-                    generation_config=GenerationConfig(
-                        temperature=self.temperature,
-                        top_p=self.top_p,
-                        top_k=self.top_k,
-                        # TODO: update this parameter to have `num_generations` as value once `GenerationConfig.candidate_count` valid range is not [1, 2)
-                        candidate_count=1,
-                        max_output_tokens=self.max_output_tokens,
-                        stop_sequences=self.stop_sequences,
-                    ),
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    top_k=self.top_k,
+                    max_output_tokens=self.max_output_tokens,
+                    stop_sequences=self.stop_sequences,
                 )
 
                 try:
                     parsed_response = self.task.parse_output(response.text)
                 except Exception as e:
-                    logger.error(f"Error parsing OpenAI response: {e}")
+                    logger.error(
+                        f"Error parsing Vertex AI Gemini API model response: {e}"
+                    )
                     parsed_response = None
 
                 output.append(
@@ -150,3 +218,89 @@ class VertexGenerativeModelLLM(LLM):
                 )
             outputs.append(output)
         return outputs
+
+    @retry(
+        retry=retry_if_exception_type(_VERTEXAI_API_RETRY_ON_EXCEPTIONS),
+        stop=stop_after_attempt(_VERTEXAI_API_STOP_AFTER_ATTEMPT),
+        wait=wait_random_exponential(
+            multiplier=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
+            max=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
+        ),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+        after=after_log(logger, logging.INFO),
+        reraise=True,
+    )
+    def _call_generative_model_with_backoff(
+        self, contents: List[Dict[str, Any]], **kwargs: Any
+    ) -> "GenerationResponse":
+        return self.model.generate_content(  # type: ignore
+            contents=contents,
+            # TODO: update `candidate_count` to have `num_generations` as value once valid range is not [1, 2)
+            generation_config=GenerationConfig(candidate_count=1, **kwargs),
+        )
+
+    def _generate_with_text_generation_model(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List["LLMOutput"]]:
+        """Generate `num_generations` for each input in `inputs` using a Vertex AI Text/Code
+        API model."""
+        prompts = self._generate_prompts(inputs, default_format="default")
+        outputs = []
+        for prompt in prompts:
+            response = self._call_text_generation_model(
+                prompt=prompt,
+                max_output_tokens=self.max_output_tokens,
+                temperature=self.temperature,
+                top_k=self.top_k,
+                top_p=self.top_p,
+                stop_sequences=self.stop_sequences,
+                # WARNING: The model can return < `candidate_count` generations depending
+                # on the generation parameters and the input.
+                candidate_count=num_generations,
+            )
+
+            output = []
+            for candidate in response.candidates:
+                try:
+                    parsed_response = self.task.parse_output(candidate.text)
+                except Exception as e:
+                    logger.error(
+                        f"Error parsing Vertex AI Text/Code API model response: {e}"
+                    )
+                    parsed_response = None
+
+                output.append(
+                    LLMOutput(
+                        model_name=self.model_name,
+                        prompt_used=prompt,
+                        raw_output=candidate.text,
+                        parsed_output=parsed_response,
+                    )
+                )
+            outputs.append(output)
+
+        return outputs
+
+    @retry(
+        retry=retry_if_exception_type(_VERTEXAI_API_RETRY_ON_EXCEPTIONS),
+        stop=stop_after_attempt(_VERTEXAI_API_STOP_AFTER_ATTEMPT),
+        wait=wait_random_exponential(
+            multiplier=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
+            max=_VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX,
+        ),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+        after=after_log(logger, logging.INFO),
+        reraise=True,
+    )
+    def _call_text_generation_model(
+        self, **kwargs: Any
+    ) -> "MultiCandidateTextGenerationResponse":
+        return self.model.predict(**kwargs)  # type: ignore
+
+    def _generate(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List["LLMOutput"]]:
+        if isinstance(self.model, GenerativeModel):
+            return self._generate_with_generative_model(inputs, num_generations)
+
+        return self._generate_with_text_generation_model(inputs, num_generations)

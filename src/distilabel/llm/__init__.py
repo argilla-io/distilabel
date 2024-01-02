@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
-from distilabel.llm.google.vertexai import VertexGenerativeModelLLM
+from distilabel.llm.google.vertexai import VertexAILLM
 from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
 from distilabel.llm.huggingface.transformers import TransformersLLM
 from distilabel.llm.llama_cpp import LlamaCppLLM
@@ -29,5 +29,5 @@ __all__ = [
     "ProcessLLM",
     "LLM",
     "LLMPool",
-    "VertexGenerativeModelLLM",
+    "VertexAILLM",
 ]
