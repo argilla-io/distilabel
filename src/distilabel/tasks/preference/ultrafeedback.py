@@ -124,17 +124,17 @@ class UltraFeedbackTask(PreferenceTask):
     def to_argilla_dataset(
         self,
         dataset_row: Dict[str, Any],
-        generations_column: Optional[str] = "generations",
-        ratings_column: Optional[str] = "rating",
+        generations_column: str = "generations",
+        ratings_column: str = "rating",
+        rationale_column: str = "rationale",
         ratings_values: Optional[List[int]] = None,
-        rationale_column: Optional[str] = "rationale",
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
             dataset_row=dataset_row,
             generations_column=generations_column,
             ratings_column=ratings_column,
-            ratings_values=ratings_values or [1, 2, 3, 4, 5],
             rationale_column=rationale_column,
+            ratings_values=ratings_values or [1, 2, 3, 4, 5],
         )
 
     @classmethod

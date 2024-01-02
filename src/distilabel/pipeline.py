@@ -66,16 +66,15 @@ class Pipeline:
             ValueError: if no LLM is provided.
 
         Examples:
-            >>> from distilabel.llm.huggingface import TransformersLLM
-            >>> from distilabel.llm.openai_ import OpenAILLM
-            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
-            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from transformers import AutoModelForCausalLM, AutoTokenizer
+            >>> from distilabel.llm import OpenAILLM, TransformersLLM
+            >>> from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
             >>> from distilabel.pipeline import Pipeline
-
             >>> generator = TransformersLLM(
-            ...     model="meta-llama/Llama-2-7b-chat-hf",
-            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
-            ...     task=Llama2TextGenerationTask(),
+            ...     model=AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+            ...     tokenizer=AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+            ...     task=TextGenerationTask(),
+            ...     prompt_format="llama2",
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
@@ -657,20 +656,6 @@ class Pipeline:
                     else:
                         labels.extend(batch_labels)  # type: ignore
 
-                    # if checkpoint_strategy:
-                    #     if checkpoint_strategy.do_checkpoint(batch_i * batch_size):
-                    #         logger.info(f"Saving dataset up to batch {batch_i}...")
-                    #         ds = self._build_dataset(
-                    #             dataset,
-                    #             generations=generations,
-                    #             labels=labels,
-                    #             batch_size=batch_size,
-                    #         )
-                    #         ds.save_to_disk(
-                    #             checkpoint_strategy.path,
-                    #             **checkpoint_strategy.extra_kwargs,
-                    #         )
-
                 except Exception as e:
                     if not checkpoint_strategy:
                         raise RuntimeError(
@@ -775,16 +760,15 @@ class Pipeline:
                 `checkpoint_strategy` is set to `None`.
 
         Examples:
-            >>> from distilabel.llm.huggingface import TransformersLLM
-            >>> from distilabel.llm.openai_ import OpenAILLM
-            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
-            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+            >>> from transformers import AutoModelForCaualLM, AutoTokenizer
+            >>> from distilabel.llm import OpenAILLM, TransformersLLM
+            >>> from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
             >>> from distilabel.pipeline import Pipeline
-
             >>> generator = TransformersLLM(
-            ...     model="meta-llama/Llama-2-7b-chat-hf",
-            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
-            ...     task=Llama2TextGenerationTask(),
+            ...     model=AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+            ...     tokenizer=AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+            ...     task=TextGenerationTask(),
+            ...     prompt_format="llama2",
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
@@ -844,20 +828,22 @@ def pipeline(
         Pipeline: the `Pipeline` instance.
 
     Examples:
-        >>> from distilabel.llm.huggingface import TransformersLLM
-        >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
+        >>> from transformers import AutoModelForCausalLM, AutoTokenizer
+        >>> from distilabel.llm import TransformersLLM
+        >>> from distilabel.tasks import TextGenerationTask
         >>> from distilabel.pipeline import pipeline
-
         >>> generator = TransformersLLM(
-        ...     model="meta-llama/Llama-2-7b-chat-hf",
-        ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
-        ...     task=Llama2TextGenerationTask(),
+        ...     model=AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+        ...     tokenizer=AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf"),
+        ...     task=TextGenerationTask(),
+        ...     prompt_format="llama2",
         ... )
         >>> pipeline = pipeline(
         ...     task="preference",
         ...     subtask="text-quality",
         ...     generator=generator,
         ... )
+        >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
     """
     if task == "preference":
         if labeller is None:

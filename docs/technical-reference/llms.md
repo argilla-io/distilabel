@@ -107,7 +107,7 @@ For the API reference visit [OpenAILLM][distilabel.llm.openai.OpenAILLM].
 
 ### Llama.cpp
 
-Applicable for local execution of Language Models (LLMs). Utilize this LLM when you have access to the quantized weights of your selected model for interaction.
+Applicable for local execution of Language Models (LLMs). Use this LLM when you have access to the quantized weights of your selected model for interaction.
 
 Let's see an example using [notus-7b-v1](https://huggingface.co/argilla/notus-7b-v1). First, you can download the weights from the following [link](https://huggingface.co/TheBloke/notus-7B-v1-GGUF):
 
@@ -135,7 +135,7 @@ This section explains two different ways to use HuggingFace models:
 
 #### Transformers
 
-This is the option to utilize a model hosted on Hugging Face Hub. Load the model and tokenizer in the standard manner as done locally, and proceed to instantiate your class.
+This is the option to use a model hosted on the HuggingFace Hub. Load the model and tokenizer in the standard manner as done locally, and proceed to instantiate your class.
 
 For the API reference visit [TransformersLLM][distilabel.llm.huggingface.transformers.TransformersLLM].
 
@@ -147,7 +147,7 @@ Let's see an example using [notus-7b-v1](https://huggingface.co/argilla/notus-7b
 
 #### Inference Endpoints
 
-Hugging Face provides a streamlined approach for deploying models through [inference endpoints](https://huggingface.co/inference-endpoints) on their infrastructure. Opt for this solution if your model is hosted on Hugging Face.
+HuggingFace provides a streamlined approach for deploying models through [Inference Endpoints](https://huggingface.co/inference-endpoints) on their infrastructure. Opt for this solution if your model is hosted on the HuggingFace Hub.
 
 For the API reference visit [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM].
 
