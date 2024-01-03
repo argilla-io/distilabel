@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+import re
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from tenacity import (
     after_log,
@@ -30,7 +32,16 @@ from distilabel.logger import get_logger
 from distilabel.utils.imports import _VERTEXAI_AVAILABLE
 
 if _VERTEXAI_AVAILABLE:
+    import google.auth
     from google.api_core import exceptions
+    from google.api_core.client_options import ClientOptions
+    from google.auth.exceptions import DefaultCredentialsError
+    from google.cloud.aiplatform.gapic import (
+        EndpointServiceClient,
+        PredictionServiceClient,
+    )
+    from google.protobuf import json_format
+    from google.protobuf.struct_pb2 import Value
     from vertexai.language_models import CodeGenerationModel, TextGenerationModel
     from vertexai.preview.generative_models import GenerationConfig, GenerativeModel
 
@@ -52,10 +63,14 @@ if TYPE_CHECKING:
     from vertexai.preview.generative_models import GenerationResponse
 
     from distilabel.tasks.base import Task
+    from distilabel.tasks.prompt import SupportedFormats
+
 
 _VERTEXAI_API_STOP_AFTER_ATTEMPT = 6
 _VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
 _VERTEXAI_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
+
+_PARSE_VERTEXAI_ENDPOINT_PREDICTION_REGEX = re.compile(r"Output:\s*\n(.*?)(\n|$)")
 
 logger = get_logger()
 
@@ -98,7 +113,7 @@ def is_codey_model(model: str) -> bool:
 
 
 class VertexAILLM(LLM):
-    """An `LLM` which allows to use models from the Vertex AI APIs:
+    """An `LLM` which allows to use Google's proprietary models from the Vertex AI APIs:
 
     - Gemini API: https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini
     - Codey API: https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview
@@ -298,3 +313,183 @@ class VertexAILLM(LLM):
             return self._generate_with_generative_model(inputs, num_generations)
 
         return self._generate_with_text_generation_model(inputs, num_generations)
+
+
+class VertexAIEndpointLLM(LLM):
+    """An `LLM` which uses a Vertex AI Online prediction endpoint for the generation.
+
+    More information about Vertex AI Endpoints can be found here:
+
+        - https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint
+    """
+
+    def __init__(
+        self,
+        task: "Task",
+        endpoint_id: str,
+        project: Optional[str] = None,
+        location: str = "us-central1",
+        generation_parameters: Optional[Dict[str, Any]] = None,
+        prompt_argument: str = "prompt",
+        num_generations_argument: str = "n",
+        num_threads: Union[int, None] = None,
+        prompt_format: Union["SupportedFormats", None] = None,
+        prompt_formatting_fn: Union[Callable[..., str], None] = None,
+    ) -> None:
+        """Initializes the `VertexAIEndpointLLM` class.
+
+        Args:
+            task (Task): the task to be performed by the LLM.
+            endpoint_id (str): the ID of the Vertex AI endpoint to be used for generation.
+            project (Optional[str], optional): the project to be used for generation. If `None`,
+                the default project will be used. Defaults to `None`.
+            location (str, optional): the location of the Vertex AI endpoint to be used for
+                generation. Defaults to "us-central1".
+            generation_parameters (Optional[Dict[str, Any]], optional): the generation parameters
+                to be used for generation. The name of the parameters will depend on the
+                Docker image used to deploy the model to the Vertex AI endpoint. Defaults
+                to `None`.
+            prompt_argument (str, optional): the name of the Vertex AI Endpoint key to
+                be used for the prompt. Defaults to "prompt".
+            num_generations_argument (str, optional): the name of the Vertex AI Endpoint
+                key to be used to specify the number of generations per prompt. Defaults
+                to "n".
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+        """
+        super().__init__(
+            task=task,
+            num_threads=num_threads,
+            prompt_format=prompt_format,
+            prompt_formatting_fn=prompt_formatting_fn,
+        )
+
+        if project is None:
+            try:
+                project = google.auth.default()[1]
+            except DefaultCredentialsError as e:
+                raise ValueError(
+                    "No `project` was specified and no default credentials were found."
+                ) from e
+
+        if generation_parameters is None:
+            generation_parameters = {}
+
+        self.endpoint_id = endpoint_id
+        self.project = project
+        self.location = location
+        self.generation_parameters = generation_parameters
+        self.prompt_argument = prompt_argument
+        self.num_generations_argument = num_generations_argument
+
+        self.client = PredictionServiceClient(
+            client_options=ClientOptions(
+                api_endpoint=f"{self.location}-aiplatform.googleapis.com"
+            )
+        )
+
+    @cached_property
+    def model_name(self) -> str:
+        """Returns the name of the model used for generation."""
+        client = EndpointServiceClient(
+            client_options=ClientOptions(
+                api_endpoint=f"{self.location}-aiplatform.googleapis.com"
+            )
+        )
+        endpoint = client.get_endpoint(name=self.endpoint_path)
+        return endpoint.deployed_models[0].display_name
+
+    @property
+    def endpoint_path(self) -> str:
+        """Returns the path of the Vertex AI endpoint to be used for generation."""
+        return self.client.endpoint_path(
+            project=self.project,  # type: ignore
+            location=self.location,
+            endpoint=self.endpoint_id,
+        )
+
+    @_vertexai_retry_decorator
+    def _call_vertexai_endpoint(self, instances: List[Any]) -> Any:
+        return self.client.predict(endpoint=self.endpoint_path, instances=instances)
+
+    def _prepare_instances(self, prompts: List[str], num_generations: int) -> List[Any]:
+        """Prepares the instances to be sent to the Vertex AI endpoint.
+
+        Args:
+            prompts (List[str]): the prompts to be used for generation.
+            num_generations (int): the number of generations to be performed for each prompt.
+
+        Returns:
+            List[Any]: the instances to be sent to the Vertex AI endpoint.
+        """
+        instances = []
+        for prompt in prompts:
+            instance = json_format.ParseDict(
+                {
+                    self.prompt_argument: prompt,
+                    self.num_generations_argument: num_generations,
+                    **self.generation_parameters,
+                },
+                Value(),
+            )
+            instances.append(instance)
+        return instances
+
+    def _generate(
+        self, inputs: List[Dict[str, Any]], num_generations: int = 1
+    ) -> List[List["LLMOutput"]]:
+        prompts = self._generate_prompts(inputs)
+        instances = self._prepare_instances(
+            prompts=prompts, num_generations=num_generations
+        )
+
+        outputs = []
+        for instance in instances:
+            try:
+                response = self._call_vertexai_endpoint(instances=instances)
+            except exceptions.InternalServerError as e:
+                raise ValueError(
+                    "The Vertex AI endpoint returned 500 Internal Server Error. This is"
+                    " usually caused due to wrong generation parameters. Please check the"
+                    " `generation_parameters` and try again."
+                ) from e
+
+            output = []
+            for prediction in response.predictions:
+                # Vertex endpoint output is `Prompt:\n{{ model_prompt }}\nOutput:\n{{ model_output }}`
+                # so we need to do a pre-parsing to remove the `Prompt:` and `Output:` parts.
+                match = _PARSE_VERTEXAI_ENDPOINT_PREDICTION_REGEX.search(prediction)
+                if not match:
+                    raise ValueError(
+                        "Couldn't parse the response from the Vertex AI endpoint."
+                    )
+
+                model_output = match.group(1).strip()
+
+                try:
+                    parsed_output = self.task.parse_output(model_output)
+                except Exception as e:
+                    logger.error(
+                        f"Error parsing Vertex AI endpoint model response: {e}"
+                    )
+                    parsed_output = None
+                output.append(
+                    LLMOutput(
+                        model_name=self.model_name,
+                        prompt_used=instance.struct_value[self.prompt_argument],
+                        raw_output=model_output,
+                        parsed_output=parsed_output,
+                    )
+                )
+            outputs.append(output)
+
+        return outputs
