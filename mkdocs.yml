@@ -6,7 +6,11 @@ site_description: AI Feedback framework
 
 # Repository
 repo_name: argilla-io/distilabel
-repo_url: https://github.com/argilla-io/distilabel.git
+repo_url: https://github.com/argilla-io/distilabel
+
+extra:
+  version:
+    provider: mike
 
 extra_css:
   - stylesheets/extra.css
@@ -14,7 +18,7 @@ extra_css:
 theme:
   name: material
   logo: assets/logo.svg
-  favicon: assets/distilabel-icon.svg
+  favicon: assets/logo.svg
   features:
     - navigation.instant
     - navigation.tabs
@@ -70,21 +74,14 @@ plugins:
       nav_file: SUMMARY.md
   - section-index
   - mkdocstrings
-  - mknotebooks
 
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
-  - Learn:
-    - learn/index.md
-    - Tutorials:
-      - learn/tutorials/index.md
-    - User Guides:
-      - learn/user-guides/index.md
   - Technical References:
-    - Concept Guides:
-      - technical-reference/index.md
-      - LLMs: technical-reference/llms.md
-      - Tasks: technical-reference/tasks.md
-      - Pipelines: technical-reference/pipeline.md
-    - API Reference: reference/
+      - Concept Guides:
+          - technical-reference/index.md
+          - LLMs: technical-reference/llms.md
+          - Tasks: technical-reference/tasks.md
+          - Pipelines: technical-reference/pipeline.md
+      - API Reference: reference/

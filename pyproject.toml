@@ -40,11 +40,12 @@ vllm = ["vllm >= 0.2.1"]
 argilla = ["argilla >= 1.18.0"]
 tests = ["pytest >= 7.4.0"]
 docs = [
-    "mkdocs-material >= 9.4.10",
+    "mkdocs-material >= 9.5.0",
     "mkdocstrings[python] >= 0.24.0",
     "mkdocs-literate-nav >= 0.6.1",
     "mkdocs-section-index >= 0.3.8",
     "mkdocs-gen-files >= 0.5.0",
+    "mike >= 2.0.0",
 ]
 
 [project.urls]

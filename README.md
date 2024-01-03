@@ -111,8 +111,8 @@ Find more examples of different use cases of `distilabel` under [`examples/`](./
 
 ## Roadmap
 
-- [ ] Add Critique Models and support for Prometheus OSS
-- [ ] Add a generator with multiple models
+- [x] Add Critique Models and support for Prometheus OSS
+- [x] Add a generator with multiple models
 - [ ] Train OSS labellers to replace OpenAI labellers
 - [ ] Add labellers to evolve instructions generated with self-instruct
 - [ ] Add labellers for predictive NLP tasks: text classification, information extraction, etc.

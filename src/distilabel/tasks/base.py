@@ -20,15 +20,14 @@ else:
     import importlib.resources as importlib_resources
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
-    from argilla.client.feedback.schemas.records import FeedbackRecord
+    from argilla import FeedbackDataset, FeedbackRecord
 
 
 def get_template(template_name: str) -> str:
@@ -53,6 +52,7 @@ class Task(ABC):
     task_description: Union[str, None] = None
 
     __jinja2_template__: Union[str, None] = None
+    __type__: Union[Literal["generation", "labelling"], None] = None
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield "system_prompt", self.system_prompt
@@ -70,7 +70,7 @@ class Task(ABC):
         return Template(open(self.__jinja2_template__).read())
 
     @abstractmethod
-    def generate_prompt(self, **kwargs: Any) -> Union[Prompt, Any]:
+    def generate_prompt(self, **kwargs: Any) -> Prompt:
         pass
 
     @abstractmethod
@@ -118,3 +118,75 @@ class Task(ABC):
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."
         )
+
+    # Renamed to _to_argilla_record instead of renaming `to_argilla_record` to protected, as that would
+    # imply more breaking changes.
+    def _to_argilla_record(  # noqa: C901
+        self, dataset_row: Dict[str, Any], *args: Any, **kwargs: Any
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
+        column_names = list(dataset_row.keys())
+        if self.__type__ is None or self.__type__ == "generation":
+            required_column_names = self.input_args_names + self.output_args_names
+        elif self.__type__ == "labelling":
+            required_column_names = self.output_args_names
+        else:
+            raise ValueError("The task type is not supported.")
+
+        dataset_rows = [dataset_row]
+        if "generation_model" in dataset_row and isinstance(
+            dataset_row["generation_model"], list
+        ):
+            generation_columns = column_names[
+                column_names.index("generation_model") : column_names.index(
+                    "labelling_model"
+                )
+                if "labelling_model" in column_names
+                else None
+            ]
+            if any(
+                generation_column in required_column_names
+                for generation_column in generation_columns
+            ):
+                unwrapped_dataset_rows = []
+                for row in dataset_rows:
+                    for idx in range(len(dataset_row["generation_model"])):
+                        unwrapped_dataset_row = {}
+                        for key, value in row.items():
+                            if key in generation_columns:
+                                unwrapped_dataset_row[key] = value[idx]
+                            else:
+                                unwrapped_dataset_row[key] = value
+                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                dataset_rows = unwrapped_dataset_rows
+
+        if "labelling_model" in dataset_row and isinstance(
+            dataset_row["labelling_model"], list
+        ):
+            labelling_columns = column_names[column_names.index("labelling_model") :]
+            if any(
+                labelling_column in required_column_names
+                for labelling_column in labelling_columns
+            ):
+                unwrapped_dataset_rows = []
+                for row in dataset_rows:
+                    for idx in range(len(dataset_row["labelling_model"])):
+                        unwrapped_dataset_row = {}
+                        for key, value in row.items():
+                            if key in labelling_columns:
+                                unwrapped_dataset_row[key] = value[idx]
+                            else:
+                                unwrapped_dataset_row[key] = value
+                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                dataset_rows = unwrapped_dataset_rows
+
+        if len(dataset_rows) == 1:
+            return self.to_argilla_record(dataset_rows[0], *args, **kwargs)
+
+        records = []
+        for dataset_row in dataset_rows:
+            generated_records = self.to_argilla_record(dataset_row, *args, **kwargs)
+            if isinstance(generated_records, list):
+                records.extend(generated_records)
+            else:
+                records.append(generated_records)
+        return records

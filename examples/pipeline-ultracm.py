@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     dataset = Dataset.from_dict(
         {
-            "instruction": ["What's the capital of Spain?"],
-            "completion": ["Madrid"],
+            "input": ["What's the capital of Spain?"],
+            "generations": ["Madrid"],
         }
     )
 

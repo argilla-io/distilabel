@@ -14,14 +14,22 @@
 
 from dataclasses import dataclass, field
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    TypedDict,
+)
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.local.dataset import FeedbackDataset
+    from argilla import FeedbackDataset
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
@@ -53,6 +61,10 @@ class UltraFeedbackTask(PreferenceTask):
     ratings: List[Rating]
     task_description: str
 
+    system_prompt: (
+        str
+    ) = "Your role is to evaluate text quality based on given criteria."
+
     __jinja2_template__: ClassVar[str] = field(
         default=_ULTRAFEEDBACK_TEMPLATE, init=False, repr=False
     )
@@ -64,11 +76,7 @@ class UltraFeedbackTask(PreferenceTask):
         "instruction-following",
     ]
 
-    system_prompt: (
-        str
-    ) = "Your role is to evaluate text quality based on given criteria."
-
-    def generate_prompt(self, input: str, generations: List[str]) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the ULTRAFEEDBACK specification.
 
         Args:
@@ -116,17 +124,17 @@ class UltraFeedbackTask(PreferenceTask):
     def to_argilla_dataset(
         self,
         dataset_row: Dict[str, Any],
-        generations_column: Optional[str] = "generations",
-        ratings_column: Optional[str] = "rating",
+        generations_column: str = "generations",
+        ratings_column: str = "rating",
+        rationale_column: str = "rationale",
         ratings_values: Optional[List[int]] = None,
-        rationale_column: Optional[str] = "rationale",
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
             dataset_row=dataset_row,
             generations_column=generations_column,
             ratings_column=ratings_column,
-            ratings_values=ratings_values or [1, 2, 3, 4, 5],
             rationale_column=rationale_column,
+            ratings_values=ratings_values or [1, 2, 3, 4, 5],
         )
 
     @classmethod

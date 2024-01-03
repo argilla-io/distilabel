@@ -16,7 +16,7 @@ Requires Python 3.8+
 In addition, the following extras are available:
 
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
-- `hf-inference-endpoints`: for using the [Hugging Face Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
+- `hf-inference-endpoints`: for using the [HuggingFace Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
 - `openai`: for using OpenAI API models via the `OpenAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
@@ -43,18 +43,6 @@ For a more complete example, check out our awesome notebook on Google Colab:
 ## Navigation
 
 <div class="grid cards" markdown>
-
--   <p align="center"> [**Tutorials**](./learn/tutorials/)</p>
-
-    ---
-
-    End to end project lessons.
-
--   <p align="center"> [**User Guides**](./learn/user-guides/)</p>
-
-    ---
-
-    Practical guides to achieve specific tasks with `distilabel`.
 
 -   <p align="center"> [**Concept Guides**](./technical-reference/llms.md)</p>
 

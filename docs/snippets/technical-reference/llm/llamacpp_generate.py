@@ -11,8 +11,8 @@ llm = LlamaCppLLM(
     prompt_format="notus",
 )
 
-result_llamacpp = llm.generate([{"input": "What is the capital of Spain?"}])
-# >>> print(result_llamacpp[0][0]["parsed_output"]["generations"])
+result = llm.generate([{"input": "What is the capital of Spain?"}])
+# >>> print(result[0][0]["parsed_output"]["generations"])
 # The capital of Spain is Madrid. It is located in the center of the country and
 # is known for its vibrant culture, beautiful architecture, and delicious food.
 # Madrid is home to many famous landmarks such as the Prado Museum, Retiro Park,
