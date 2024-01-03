@@ -425,13 +425,13 @@ class Pipeline:
                 "raw_generation_responses",
             ] + self.generator.task.output_args_names
 
-            if len(generations) < len(dataset):
-                generations.extend(
-                    [
-                        {key: None for key in generator_column_names}
-                        for _ in range(len(dataset) - len(generations))
-                    ]
-                )
+            # if len(generations) < len(dataset):
+            #     generations.extend(
+            #         [
+            #             {key: None for key in generator_column_names}
+            #             for _ in range(len(dataset) - len(generations))
+            #         ]
+            #     )
 
             # Add missing keys/columns with a `None` value
             for generation in generations:
@@ -689,9 +689,17 @@ class Pipeline:
 
         _pipeline_progress.stop()
 
-        return self._build_dataset(
+        ds = self._build_dataset(
             dataset, generations=generations, labels=labels, batch_size=batch_size
         )
+        if checkpoint_strategy:
+            logger.info("Saving final dataset...")
+            ds.save_to_disk(
+                checkpoint_strategy.path,
+                **checkpoint_strategy.extra_kwargs,
+            )
+
+        return ds
 
     def dry_run(self, dataset: Dataset) -> CustomDataset:
         """Performs a dry run over the provided dataset, which consists on generating the
