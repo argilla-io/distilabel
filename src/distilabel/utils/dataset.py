@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import dill as pickle
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -32,7 +33,7 @@ def save_task_to_disk(path: Path, task: "Task") -> None:
     """
     task_path = path / TASK_FILE_NAME
     with open(task_path, "wb") as f:
-        pickle.dump(task, f)
+        f.write(pickle.dumps(task))
 
 
 def load_task_from_disk(path: Path) -> "Task":
@@ -48,5 +49,5 @@ def load_task_from_disk(path: Path) -> "Task":
     if not task_path.exists():
         raise FileNotFoundError(f"The task file does not exist: {task_path}")
     with open(task_path, "rb") as f:
-        task = pickle.load(f)
+        task = pickle.loads(f.read())
     return task
