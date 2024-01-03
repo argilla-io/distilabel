@@ -60,10 +60,17 @@ def test_do_checkpoint(
     ds = CustomDataset.from_dict(
         {"input": ["a"] * dataset_len, "generations": ["a"] * dataset_len}
     )
+    ds.task = UltraFeedbackTask.for_text_quality()
     chk = DatasetCheckpoint(save_frequency=save_frequency)
     ctr = 0
-    for batch_i, _ in enumerate(ds.iter(batch_size=batch_size), start=1):
-        step = batch_i * batch_size
-        if chk.do_checkpoint(step):
-            ctr += 1
+    with tempfile.TemporaryDirectory() as tmpdir:
+        ds_name = Path(tmpdir) / "dataset_folder"
+        for batch_i, _ in enumerate(ds.iter(batch_size=batch_size), start=1):
+            step = batch_i * batch_size
+            if chk.do_checkpoint(step):
+                ds.save_to_disk(ds_name)
+                ds_from_disk = CustomDataset.load_from_disk(ds_name)
+                assert ds_from_disk.to_pandas()["generations"].isna().sum() == 0
+
+                ctr += 1
     assert ctr == expected == chk._total_checks
