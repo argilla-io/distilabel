@@ -443,7 +443,9 @@ class VertexAIEndpointLLM(LLM):
     def _call_vertexai_endpoint(self, instances: List[Any]) -> Any:
         return self.client.predict(endpoint=self.endpoint_path, instances=instances)
 
-    def _prepare_instances(self, prompts: List[str], num_generations: int) -> List[Any]:
+    def _prepare_instances(
+        self, prompts: List[str], num_generations: int
+    ) -> List["Value"]:
         """Prepares the instances to be sent to the Vertex AI endpoint.
 
         Args:
@@ -451,7 +453,7 @@ class VertexAIEndpointLLM(LLM):
             num_generations (int): the number of generations to be performed for each prompt.
 
         Returns:
-            List[Any]: the instances to be sent to the Vertex AI endpoint.
+            The instances to be sent to the Vertex AI endpoint.
         """
         instances = []
         for prompt in prompts:
@@ -512,9 +514,4 @@ class VertexAIEndpointLLM(LLM):
         instances = self._prepare_instances(
             prompts=prompts, num_generations=num_generations
         )
-
-        outputs = []
-        for instance in instances:
-            outputs.append(self._single_output(instance))
-
-        return outputs
+        return [self._single_output(instance) for instance in instances]
