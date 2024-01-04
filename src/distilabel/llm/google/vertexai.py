@@ -209,6 +209,50 @@ class VertexAILLM(LLM):
             )
         return contents
 
+    @_vertexai_retry_decorator
+    def _call_generative_model_with_backoff(
+        self, contents: List[Dict[str, Any]], **kwargs: Any
+    ) -> "GenerationResponse":
+        return self.model.generate_content(  # type: ignore
+            contents=contents,
+            # TODO: update `candidate_count` to have `num_generations` as value once valid range is not [1, 2)
+            generation_config=GenerationConfig(candidate_count=1, **kwargs),
+        )
+
+    def _generative_model_single_output(
+        self, contents: List[Dict[str, Any]]
+    ) -> LLMOutput:
+        raw_output = None
+        try:
+            response = self._call_generative_model_with_backoff(
+                contents=contents,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                max_output_tokens=self.max_output_tokens,
+                stop_sequences=self.stop_sequences,
+            )
+            raw_output = response.text
+            parsed_output = self.task.parse_output(raw_output)
+        except ValueError as e:
+            logger.error(f"Vertex AI Gemini API model didn't return content: {e}")
+            return LLMOutput(
+                model_name=self.model_name,
+                prompt_used=contents,
+                raw_output=None,
+                parsed_output=None,
+            )
+        except Exception as e:
+            logger.error(f"Error parsing Vertex AI Gemini API model response: {e}")
+            parsed_output = None
+
+        return LLMOutput(
+            model_name=self.model_name,
+            prompt_used=contents,
+            raw_output=raw_output,
+            parsed_output=parsed_output,
+        )
+
     def _generate_with_generative_model(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List["LLMOutput"]]:
@@ -220,43 +264,50 @@ class VertexAILLM(LLM):
             output = []
             # TODO: remove this for-loop once `GenerationConfig.candidate_count` valid range is not [1, 2)
             for _ in range(num_generations):
-                response = self._call_generative_model_with_backoff(
-                    contents=contents,
-                    temperature=self.temperature,
-                    top_p=self.top_p,
-                    top_k=self.top_k,
-                    max_output_tokens=self.max_output_tokens,
-                    stop_sequences=self.stop_sequences,
-                )
-
-                try:
-                    parsed_response = self.task.parse_output(response.text)
-                except Exception as e:
-                    logger.error(
-                        f"Error parsing Vertex AI Gemini API model response: {e}"
-                    )
-                    parsed_response = None
-
-                output.append(
-                    LLMOutput(
-                        model_name=self.model_name,
-                        prompt_used=contents,
-                        raw_output=response.text,
-                        parsed_output=parsed_response,
-                    )
-                )
+                output.append(self._generative_model_single_output(contents=contents))
             outputs.append(output)
         return outputs
 
     @_vertexai_retry_decorator
-    def _call_generative_model_with_backoff(
-        self, contents: List[Dict[str, Any]], **kwargs: Any
-    ) -> "GenerationResponse":
-        return self.model.generate_content(  # type: ignore
-            contents=contents,
-            # TODO: update `candidate_count` to have `num_generations` as value once valid range is not [1, 2)
-            generation_config=GenerationConfig(candidate_count=1, **kwargs),
+    def _call_text_generation_model(
+        self, **kwargs: Any
+    ) -> "MultiCandidateTextGenerationResponse":
+        return self.model.predict(**kwargs)  # type: ignore
+
+    def _text_generation_model_single_output(
+        self, prompt: str, num_generations: int
+    ) -> List[LLMOutput]:
+        response = self._call_text_generation_model(
+            prompt=prompt,
+            max_output_tokens=self.max_output_tokens,
+            temperature=self.temperature,
+            top_k=self.top_k,
+            top_p=self.top_p,
+            stop_sequences=self.stop_sequences,
+            # WARNING: The model can return < `candidate_count` generations depending
+            # on the generation parameters and the input.
+            candidate_count=num_generations,
         )
+
+        output = []
+        for candidate in response.candidates:
+            try:
+                parsed_response = self.task.parse_output(candidate.text)
+            except Exception as e:
+                logger.error(
+                    f"Error parsing Vertex AI Text/Code API model response: {e}"
+                )
+                parsed_response = None
+
+            output.append(
+                LLMOutput(
+                    model_name=self.model_name,
+                    prompt_used=prompt,
+                    raw_output=candidate.text,
+                    parsed_output=parsed_response,
+                )
+            )
+        return output
 
     def _generate_with_text_generation_model(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -266,45 +317,10 @@ class VertexAILLM(LLM):
         prompts = self._generate_prompts(inputs, default_format="default")
         outputs = []
         for prompt in prompts:
-            response = self._call_text_generation_model(
-                prompt=prompt,
-                max_output_tokens=self.max_output_tokens,
-                temperature=self.temperature,
-                top_k=self.top_k,
-                top_p=self.top_p,
-                stop_sequences=self.stop_sequences,
-                # WARNING: The model can return < `candidate_count` generations depending
-                # on the generation parameters and the input.
-                candidate_count=num_generations,
+            outputs.append(
+                self._text_generation_model_single_output(prompt, num_generations)
             )
-
-            output = []
-            for candidate in response.candidates:
-                try:
-                    parsed_response = self.task.parse_output(candidate.text)
-                except Exception as e:
-                    logger.error(
-                        f"Error parsing Vertex AI Text/Code API model response: {e}"
-                    )
-                    parsed_response = None
-
-                output.append(
-                    LLMOutput(
-                        model_name=self.model_name,
-                        prompt_used=prompt,
-                        raw_output=candidate.text,
-                        parsed_output=parsed_response,
-                    )
-                )
-            outputs.append(output)
-
         return outputs
-
-    @_vertexai_retry_decorator
-    def _call_text_generation_model(
-        self, **kwargs: Any
-    ) -> "MultiCandidateTextGenerationResponse":
-        return self.model.predict(**kwargs)  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -329,7 +345,7 @@ class VertexAIEndpointLLM(LLM):
         endpoint_id: str,
         project: Optional[str] = None,
         location: str = "us-central1",
-        generation_parameters: Optional[Dict[str, Any]] = None,
+        generation_kwargs: Optional[Dict[str, Any]] = None,
         prompt_argument: str = "prompt",
         num_generations_argument: str = "n",
         num_threads: Union[int, None] = None,
@@ -345,7 +361,7 @@ class VertexAIEndpointLLM(LLM):
                 the default project will be used. Defaults to `None`.
             location (str, optional): the location of the Vertex AI endpoint to be used for
                 generation. Defaults to "us-central1".
-            generation_parameters (Optional[Dict[str, Any]], optional): the generation parameters
+            generation_kwargs (Optional[Dict[str, Any]], optional): the generation parameters
                 to be used for generation. The name of the parameters will depend on the
                 Docker image used to deploy the model to the Vertex AI endpoint. Defaults
                 to `None`.
@@ -373,6 +389,12 @@ class VertexAIEndpointLLM(LLM):
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
+        if not _VERTEXAI_AVAILABLE:
+            raise ImportError(
+                "`VertexAIEndpointLLM` cannot be used as `google-cloud-aiplatform` is not"
+                " installed, please install it with `pip install google-cloud-aiplatform`"
+            )
+
         if project is None:
             try:
                 project = google.auth.default()[1]
@@ -381,13 +403,13 @@ class VertexAIEndpointLLM(LLM):
                     "No `project` was specified and no default credentials were found."
                 ) from e
 
-        if generation_parameters is None:
-            generation_parameters = {}
+        if generation_kwargs is None:
+            generation_kwargs = {}
 
         self.endpoint_id = endpoint_id
         self.project = project
         self.location = location
-        self.generation_parameters = generation_parameters
+        self.generation_kwargs = generation_kwargs
         self.prompt_argument = prompt_argument
         self.num_generations_argument = num_generations_argument
 
@@ -437,12 +459,51 @@ class VertexAIEndpointLLM(LLM):
                 {
                     self.prompt_argument: prompt,
                     self.num_generations_argument: num_generations,
-                    **self.generation_parameters,
+                    **self.generation_kwargs,
                 },
                 Value(),
             )
             instances.append(instance)
         return instances
+
+    def _single_output(self, instance: Any) -> List[LLMOutput]:
+        try:
+            # NOTE: `predict` method accepts a list of instances, but depending on the
+            # deployed Docker image, it can just accept one instance.
+            response = self._call_vertexai_endpoint(instances=[instance])
+        except exceptions.InternalServerError as e:
+            raise ValueError(
+                "The Vertex AI endpoint returned 500 Internal Server Error. This is"
+                " usually caused due to wrong generation parameters. Please check the"
+                " `generation_parameters` and try again."
+            ) from e
+
+        output = []
+        for prediction in response.predictions:
+            # Vertex endpoint output is `Prompt:\n{{ model_prompt }}\nOutput:\n{{ model_output }}`
+            # so we need to do a pre-parsing to remove the `Prompt:` and `Output:` parts.
+            match = _PARSE_VERTEXAI_ENDPOINT_PREDICTION_REGEX.search(prediction)
+            if not match:
+                raise ValueError(
+                    "Couldn't parse the response from the Vertex AI endpoint."
+                )
+
+            model_output = match.group(1).strip()
+
+            try:
+                parsed_output = self.task.parse_output(model_output)
+            except Exception as e:
+                logger.error(f"Error parsing Vertex AI endpoint model response: {e}")
+                parsed_output = None
+            output.append(
+                LLMOutput(
+                    model_name=self.model_name,
+                    prompt_used=instance.struct_value[self.prompt_argument],
+                    raw_output=model_output,
+                    parsed_output=parsed_output,
+                )
+            )
+        return output
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -454,42 +515,6 @@ class VertexAIEndpointLLM(LLM):
 
         outputs = []
         for instance in instances:
-            try:
-                response = self._call_vertexai_endpoint(instances=instances)
-            except exceptions.InternalServerError as e:
-                raise ValueError(
-                    "The Vertex AI endpoint returned 500 Internal Server Error. This is"
-                    " usually caused due to wrong generation parameters. Please check the"
-                    " `generation_parameters` and try again."
-                ) from e
-
-            output = []
-            for prediction in response.predictions:
-                # Vertex endpoint output is `Prompt:\n{{ model_prompt }}\nOutput:\n{{ model_output }}`
-                # so we need to do a pre-parsing to remove the `Prompt:` and `Output:` parts.
-                match = _PARSE_VERTEXAI_ENDPOINT_PREDICTION_REGEX.search(prediction)
-                if not match:
-                    raise ValueError(
-                        "Couldn't parse the response from the Vertex AI endpoint."
-                    )
-
-                model_output = match.group(1).strip()
-
-                try:
-                    parsed_output = self.task.parse_output(model_output)
-                except Exception as e:
-                    logger.error(
-                        f"Error parsing Vertex AI endpoint model response: {e}"
-                    )
-                    parsed_output = None
-                output.append(
-                    LLMOutput(
-                        model_name=self.model_name,
-                        prompt_used=instance.struct_value[self.prompt_argument],
-                        raw_output=model_output,
-                        parsed_output=parsed_output,
-                    )
-                )
-            outputs.append(output)
+            outputs.append(self._single_output(instance))
 
         return outputs
