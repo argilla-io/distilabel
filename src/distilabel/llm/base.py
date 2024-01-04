@@ -647,9 +647,13 @@ class LLMPool:
         if not all(isinstance(llm, ProcessLLM) for llm in llms):
             raise ValueError("The `llms` argument must contain only `ProcessLLM`s.")
 
-        if not all(llm.task == llms[0].task for llm in llms):
+        # Note: The following piece of code is used to check that all the `ProcessLLM`s
+        # have the same task or a subclass of it.
+        mros = [(type(llm.task), len(type(llm.task).mro())) for llm in llms]
+        min_common_class = min(mros, key=lambda x: x[1])[0]
+        if not all(isinstance(llm.task, min_common_class) for llm in llms):
             raise ValueError(
-                "The `llms` argument must contain `ProcessLLM`s with the same task."
+                "The `llms` argument must contain `ProcessLLM`s with the same task or pertain all to the same base class."
             )
 
         self.llms = llms
