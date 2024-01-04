@@ -134,6 +134,12 @@ class DatasetCheckpoint:
             By default is set to -1 (no checkpoint is saved to disk, but the dataset
             is returned upon failure).
         extra_kwargs (dict[str, Any]): Additional kwargs to be passed to the `save_to_disk` method of the Dataset.
+
+    Examples:
+        >>> from distilabel.dataset import DatasetCheckpoint
+        >>> # Save the dataset every 10% of the records generated.
+        >>> checkpoint = DatasetCheckpoint(save_frequency=len(dataset) // 10)
+        >>> # Afterwards, we can access the checkpoint checkpoint.path.
     """
 
     path: Path = Path.cwd() / "dataset_checkpoint"

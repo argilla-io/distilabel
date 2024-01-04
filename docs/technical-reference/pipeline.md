@@ -116,6 +116,28 @@ Then, we will load the dataset and call the `generate` method of the pipeline. F
 
 With a few lines of code, we have easily generated a dataset with 2 generations per input, using 4 different `LLM`s, and labelled the generations using GPT-4. You can check the full code [here](https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-preference-dataset-llmpool.py).
 
+### Dataset checkpoints
+
+With long pipelines, it may be useful to review the dataset during the process, just to keep track and stop the process, or have it saved in case something fails before obtaining the final dataset. We can use the `checkpoint_strategy` in `Pipeline.generate` method for this end:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_1.py"
+```
+
+By passing the checkpoint strategy to the `generate` method, the dataset will be saved to disk automatically every *freq* generations:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_2.py"
+```
+
+The dataset can be regenerated from the checkpoint by simply calling the `CustomDataset.load_from_disk` method.
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_3.py"
+```
+
+And with the dataset regenerated we can easily call `push_to_argilla` on it to review it.
+
 ## pipeline
 
 Considering recurring patterns in dataset creation, we can facilitate the process by utilizing the [`Pipeline`][distilabel.pipeline.Pipeline]. This is made simpler through the [`pipeline`][distilabel.pipeline.pipeline] function, which provides the necessary parameters for creating a `Pipeline`.
