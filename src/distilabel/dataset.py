@@ -142,7 +142,7 @@ class DatasetCheckpoint:
         >>> # Afterwards, we can access the checkpoint checkpoint.path.
     """
 
-    path: Path = Path.cwd() / "dataset_checkpoint"
+    path: Path = Path.cwd() / "ckpt"
     save_frequency: int = -1
     extra_kwargs: Dict[str, Any] = field(default_factory=dict)
 
