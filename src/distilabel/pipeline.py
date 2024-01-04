@@ -531,50 +531,7 @@ class Pipeline:
         display_progress_bar: bool = False,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the
-        `Pipeline`.
-
-        Args:
-            dataset (Dataset): the dataset to be used for generation.
-            num_generations (int, optional): the number of generations to be performed
-                for each input. Defaults to `1`.
-            batch_size (int, optional): the batch size to be used for generation. Defaults
-                to `1`.
-            shuffle_before_labelling (bool, optional): whether to shuffle the generations
-                before labelling or not. This is useful to avoid the labelling LLM to be
-                biased by the order of the generations. Defaults to `True`.
-            checkpoint_strategy (DatasetCheckpoint, optional): the checkpoint strategy.
-                If `None` is provided, no checkpoints will be saved. Defaults to `DatasetCheckpoint()`,
-                which won't save the dataset but returns the generated dataset upon failure.
-            display_progress_bar (bool, optional): whether to display the progress bar
-                or not. Defaults to `False`.
-
-        Returns:
-            CustomDataset: the final dataset.
-
-        Raises:
-            RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
-            UserWarning: if the `Pipeline` fails during the generation or labelling steps
-                and `checkpoint_strategy` is set to `None`.
-
-        Examples:
-            >>> from distilabel.llm.huggingface import TransformersLLM
-            >>> from distilabel.llm.openai_ import OpenAILLM
-            >>> from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
-            >>> from distilabel.tasks.text_generation.llama import Llama2TextGenerationTask
-            >>> from distilabel.pipeline import Pipeline
-
-            >>> generator = TransformersLLM(
-            ...     model="meta-llama/Llama-2-7b-chat-hf",
-            ...     tokenizer="meta-llama/Llama-2-7b-chat-hf",
-            ...     task=Llama2TextGenerationTask(),
-            ... )
-            >>> labeller = OpenAILLM(
-            ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
-            ... )
-            >>> pipeline = Pipeline(generator=generator, labeller=labeller)
-            >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
-        """
+        `Pipeline`."""
         if (
             self.labeller is not None
             and self.generator is not None
