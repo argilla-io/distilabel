@@ -47,9 +47,9 @@ def _check_package_is_available(
     try:
         installed_version = version_parser.parse(version(name))
         if min_version is not None:
-            min_version = version_parser.parse(min_version)
-            if (greater_or_equal and installed_version < min_version) or (
-                not greater_or_equal and installed_version <= min_version
+            min_version = version_parser.parse(min_version)  # type: ignore
+            if (greater_or_equal and installed_version < min_version) or (  # type: ignore
+                not greater_or_equal and installed_version <= min_version  # type: ignore
             ):
                 # warnings.warn(
                 #     f"`{name}` is installed, but the installed version is {installed_version}, while "
@@ -61,9 +61,9 @@ def _check_package_is_available(
                 # )
                 return False
         if max_version is not None:
-            max_version = version_parser.parse(max_version)
-            if (lower_or_equal and installed_version > max_version) or (
-                not lower_or_equal and installed_version >= max_version
+            max_version = version_parser.parse(max_version)  # type: ignore
+            if (lower_or_equal and installed_version > max_version) or (  # type: ignore
+                not lower_or_equal and installed_version >= max_version  # type: ignore
             ):
                 # warnings.warn(
                 #     f"`{name}` is installed, but the installed version is {installed_version}, while "
@@ -75,8 +75,8 @@ def _check_package_is_available(
                 # )
                 return False
         if excluded_versions is not None:
-            excluded_versions = [version_parser.parse(v) for v in excluded_versions]
-            if installed_version in excluded_versions:
+            excluded_versions = [version_parser.parse(v) for v in excluded_versions]  # type: ignore
+            if installed_version in excluded_versions:  # type: ignore
                 # warnings.warn(
                 #     f"`{name}` is installed, but the installed version is {installed_version}, which is "
                 #     "an excluded version because it's not compatible with `distilabel`. If you are "
@@ -109,3 +109,4 @@ _HUGGINGFACE_HUB_AVAILABLE = _check_package_is_available(
 _TRANSFORMERS_AVAILABLE = _check_package_is_available(
     "transformers", min_version="4.31.1", greater_or_equal=True
 ) and _check_package_is_available("torch", min_version="2.0.0", greater_or_equal=True)
+_REPLICATE_AVAILABLE = _check_package_is_available("replicate")
