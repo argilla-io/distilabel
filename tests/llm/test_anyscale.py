@@ -20,7 +20,7 @@ from distilabel.llm.anyscale import AnyscaleLLM
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
 
-@mock.patch("distilabel.llm.anyscale.OpenAI")
+@mock.patch("openai.OpenAI")
 @mock.patch(
     "distilabel.llm.anyscale.OpenAILLM.available_models",
     ["HuggingFaceH4/zephyr-7b-beta"],
