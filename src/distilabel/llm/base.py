@@ -29,17 +29,18 @@ from typing import (
     Dict,
     Generator,
     List,
+    Tuple,
     Union,
 )
 
 import multiprocess as mp
 
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
 from distilabel.utils.futures import when_all_complete
 
 if TYPE_CHECKING:
-    from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
 
@@ -167,6 +168,69 @@ class LLM(ABC):
     ) -> List[List["LLMOutput"]]:
         pass
 
+    def _get_valid_inputs(
+        self, inputs: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], List[int]]:
+        """Returns the valid inputs and the indices of the invalid inputs.
+
+        A valid input is an input that contains all the arguments required by the task.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+
+        Returns:
+            Tuple[List[Dict[str, Any]], List[int]]: a tuple containing the valid inputs and
+                the indices of the invalid inputs.
+        """
+
+        valid_inputs = []
+        not_valid_inputs_indices = []
+        for i, input in enumerate(inputs):
+            if not all(input_arg in input for input_arg in self.task.input_args_names):
+                logger.warn(
+                    f"Missing {self.task.__class__.__name__} input argument in batch element {i}"
+                )
+                not_valid_inputs_indices.append(i)
+                continue
+
+            valid_inputs.append(input)
+
+        return valid_inputs, not_valid_inputs_indices
+
+    def _fill_missing_inputs(
+        self,
+        generations: List[List[LLMOutput]],
+        not_valid_inputs_indices: List[int],
+        num_generations: int,
+    ) -> List[List[LLMOutput]]:
+        """Fills the `generations` list with empty `LLMOutput`s for the inputs that were
+        not valid for the associated task of this `LLM`.
+
+        Args:
+            generations (List[List[LLMOutput]]): the generations to be filled.
+            not_valid_inputs_indices (List[int]): the indices of the inputs that were not
+                valid for the associated task of this `LLM`.
+            num_generations (int): the number of generations to be performed for each input.
+
+        Returns:
+            List[List[LLMOutput]]: the filled generations.
+        """
+
+        for idx in not_valid_inputs_indices:
+            generations.insert(
+                idx,
+                [
+                    LLMOutput(
+                        model_name=self.model_name,
+                        prompt_used=None,
+                        raw_output=None,
+                        parsed_output=None,
+                    )
+                    for _ in range(num_generations)
+                ],
+            )
+        return generations
+
     def generate(
         self,
         inputs: List[Dict[str, Any]],
@@ -190,18 +254,30 @@ class LLM(ABC):
             if progress_callback_func is not None:
                 progress_callback_func(advance=num_generations * len(inputs))
 
+        valid_inputs, not_valid_inputs_indices = self._get_valid_inputs(inputs)
+
         if self.thread_pool_executor is not None:
             futures = []
-            for input in inputs:
+            for input in valid_inputs:
                 future = self.thread_pool_executor.submit(
                     self._generate, [input], num_generations
                 )
                 futures.append(future)
-            future = when_all_complete(futures)
+            future = when_all_complete(
+                futures=futures,
+                callback=lambda generations: self._fill_missing_inputs(
+                    generations, not_valid_inputs_indices, num_generations
+                ),
+            )
             future.add_done_callback(lambda _: _progress())
             return future
 
-        generations = self._generate(inputs, num_generations)
+        generations = self._generate(valid_inputs, num_generations)
+
+        generations = self._fill_missing_inputs(
+            generations, not_valid_inputs_indices, num_generations
+        )
+
         _progress()
         return generations
 
