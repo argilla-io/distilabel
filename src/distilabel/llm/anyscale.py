@@ -54,7 +54,7 @@ class AnyscaleLLM(OpenAILLM):
             client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
                 If `None`, a new client will be created. Defaults to `None`.
             api_key (Union[str, None], optional): the Anyscale API key to be used for generation.
-                If `None`, the `OPENAI_API_KEY` environment variable will be used. Defaults to `None`.
+                If `None`, the `ANYSCALE_API_KEY` environment variable will be used. Defaults to `None`.
                 Visit "https://docs.endpoints.anyscale.com/guides/authenticate/" for more information.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
