@@ -160,6 +160,51 @@ class TogetherInferenceLLM(LLM):
         """Returns the name of the Together Inference model."""
         return self.model
 
+    def _generate_single_output(self, prompt: str) -> LLMOutput:
+        """Runs the Together Inference text generation function over a single prompt
+        producing a single `LLMOutput`.
+
+        Args:
+            prompt (str): the formatted prompt to be provided to the Together Inference
+                endpoint.
+
+        Raises:
+            RuntimeError: raised if the Together Inference endpoint fails.
+        """
+        try:
+            output = together.Complete.create(
+                prompt=prompt,
+                model=self.model,
+                max_tokens=self.max_new_tokens,
+                stop=self.stop,
+                temperature=self.temperature,
+                top_k=self.top_k,
+                top_p=self.top_p,
+                repetition_penalty=self.repetition_penalty,
+                logprobs=self.logprobs,
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"Together Inference generation failed with exception: {e}"
+            ) from e
+
+        if output["output"]["choices"] is None or len(output["output"]["choices"]) < 1:  # type: ignore
+            raise RuntimeError("Together Inference generation returned no generations.")
+
+        choice = output["output"]["choices"]  # type: ignore
+        try:
+            parsed_response = self.task.parse_output(choice["text"].strip())
+        except Exception as e:
+            logger.error(f"Error parsing Together Inference response: {e}")
+            parsed_response = None
+
+        return LLMOutput(
+            model_name=self.model_name,
+            prompt_used=prompt,
+            raw_output=choice["text"] or None,
+            parsed_output=parsed_response,
+        )
+
     def _generate(
         self,
         inputs: List[Dict[str, Any]],
@@ -178,38 +223,7 @@ class TogetherInferenceLLM(LLM):
         prompts = self._generate_prompts(inputs, default_format=None)
         outputs = []
         for prompt in prompts:
-            batch = []
-            for _ in range(num_generations):
-                output = together.Complete.create(
-                    prompt=prompt,
-                    model=self.model,
-                    max_tokens=self.max_new_tokens,
-                    stop=self.stop,
-                    temperature=self.temperature,
-                    top_k=self.top_k,
-                    top_p=self.top_p,
-                    repetition_penalty=self.repetition_penalty,
-                    logprobs=self.logprobs,
-                )
-                if output["output"]["choices"] is not None:
-                    for choice in output["output"]["choices"]:
-                        try:
-                            parsed_response = self.task.parse_output(
-                                choice["text"].strip()
-                            )
-                        except Exception as e:
-                            logger.error(
-                                f"Error parsing Together Inference response: {e}"
-                            )
-                            parsed_response = None
-                        batch.append(
-                            LLMOutput(
-                                model_name=self.model_name,
-                                prompt_used=prompt,
-                                raw_output=choice["text"],
-                                parsed_output=parsed_response,
-                            )
-                        )
-            if len(batch) > 0:
-                outputs.append(batch)
+            outputs.append(
+                [self._generate_single_output(prompt) for _ in range(num_generations)]
+            )
         return outputs
