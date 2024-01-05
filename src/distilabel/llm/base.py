@@ -29,7 +29,6 @@ from typing import (
     Dict,
     Generator,
     List,
-    Type,
     Union,
 )
 
@@ -118,7 +117,6 @@ class LLM(ABC):
         self,
         inputs: List[Dict[str, Any]],
         default_format: Union["SupportedFormats", None] = None,
-        expected_output_type: Type = str,
     ) -> List[Any]:
         """Generates the prompts to be used for generation.
 
@@ -126,7 +124,6 @@ class LLM(ABC):
             inputs (List[Dict[str, Any]]): the inputs to be used for generation.
             default_format (Union["SupportedFormats", None], optional): the default format to be used
                 for the prompt if no `prompt_format` is specified. Defaults to `None`.
-            expected_output_type (Type, optional): the expected type of the prompt. Defaults to `str`.
 
         Returns:
             List[Any]: the generated prompts.
@@ -161,13 +158,6 @@ class LLM(ABC):
                         stacklevel=2,
                     )
                     prompt = prompt.format_as(format="default")
-            if not isinstance(prompt, expected_output_type):
-                raise ValueError(
-                    f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"
-                    f" `type={expected_output_type}`, so make sure that `task.generate_prompt` returns"
-                    f" a `{expected_output_type}` or that the `formatting_fn` formats the prompt as a "
-                    f" `{expected_output_type}`."
-                )
             prompts.append(prompt)
         return prompts
 
@@ -647,9 +637,13 @@ class LLMPool:
         if not all(isinstance(llm, ProcessLLM) for llm in llms):
             raise ValueError("The `llms` argument must contain only `ProcessLLM`s.")
 
-        if not all(llm.task == llms[0].task for llm in llms):
+        # Note: The following piece of code is used to check that all the `ProcessLLM`s
+        # have the same task or a subclass of it.
+        mros = [(type(llm.task), len(type(llm.task).mro())) for llm in llms]
+        min_common_class = min(mros, key=lambda x: x[1])[0]
+        if not all(isinstance(llm.task, min_common_class) for llm in llms):
             raise ValueError(
-                "The `llms` argument must contain `ProcessLLM`s with the same task."
+                "All the `ProcessLLM` in `llms` must share the same task (either as the instance or the parent class)."
             )
 
         self.llms = llms

@@ -1,3 +1,6 @@
+---
+description: Take a look at the different classes that allow interacting with the Large Language Models.
+---
 # LLMs
 
 In this section we will see what's an `LLM` and the different `LLM`s implementations available in `distilabel`.
