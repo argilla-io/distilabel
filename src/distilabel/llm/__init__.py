@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.llm.anyscale import AnyscaleLLM
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.google.vertexai import VertexAIEndpointLLM, VertexAILLM
 from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
@@ -31,4 +32,5 @@ __all__ = [
     "LlamaCppLLM",
     "OpenAILLM",
     "vLLM",
+    "AnyscaleLLM",
 ]
