@@ -144,40 +144,64 @@ class Task(ABC):
                 else None
             ]
             if any(
-                generation_column in required_column_names
-                for generation_column in generation_columns
+                isinstance(nested, list)
+                for column_name in list(
+                    set(generation_columns)
+                    - {
+                        "generation_model",
+                        "generation_prompt",
+                        "raw_generation_response",
+                    }
+                )
+                for nested in dataset_row[column_name]
             ):
-                unwrapped_dataset_rows = []
-                for row in dataset_rows:
-                    for idx in range(len(dataset_row["generation_model"])):
-                        unwrapped_dataset_row = {}
-                        for key, value in row.items():
-                            if key in generation_columns:
-                                unwrapped_dataset_row[key] = value[idx]
-                            else:
-                                unwrapped_dataset_row[key] = value
-                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
-                dataset_rows = unwrapped_dataset_rows
+                if any(
+                    generation_column in required_column_names
+                    for generation_column in generation_columns
+                ):
+                    unwrapped_dataset_rows = []
+                    for row in dataset_rows:
+                        for idx in range(len(dataset_row["generation_model"])):
+                            unwrapped_dataset_row = {}
+                            for key, value in row.items():
+                                if key in generation_columns:
+                                    unwrapped_dataset_row[key] = value[idx]
+                                else:
+                                    unwrapped_dataset_row[key] = value
+                            unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                    dataset_rows = unwrapped_dataset_rows
 
         if "labelling_model" in dataset_row and isinstance(
             dataset_row["labelling_model"], list
         ):
             labelling_columns = column_names[column_names.index("labelling_model") :]
             if any(
-                labelling_column in required_column_names
-                for labelling_column in labelling_columns
+                isinstance(nested, list)
+                for column_name in list(
+                    set(labelling_columns)
+                    - {
+                        "labelling_model",
+                        "labelling_prompt",
+                        "raw_labelling_response",
+                    }
+                )
+                for nested in dataset_row[column_name]
             ):
-                unwrapped_dataset_rows = []
-                for row in dataset_rows:
-                    for idx in range(len(dataset_row["labelling_model"])):
-                        unwrapped_dataset_row = {}
-                        for key, value in row.items():
-                            if key in labelling_columns:
-                                unwrapped_dataset_row[key] = value[idx]
-                            else:
-                                unwrapped_dataset_row[key] = value
-                        unwrapped_dataset_rows.append(unwrapped_dataset_row)
-                dataset_rows = unwrapped_dataset_rows
+                if any(
+                    labelling_column in required_column_names
+                    for labelling_column in labelling_columns
+                ):
+                    unwrapped_dataset_rows = []
+                    for row in dataset_rows:
+                        for idx in range(len(dataset_row["labelling_model"])):
+                            unwrapped_dataset_row = {}
+                            for key, value in row.items():
+                                if key in labelling_columns:
+                                    unwrapped_dataset_row[key] = value[idx]
+                                else:
+                                    unwrapped_dataset_row[key] = value
+                            unwrapped_dataset_rows.append(unwrapped_dataset_row)
+                    dataset_rows = unwrapped_dataset_rows
 
         if len(dataset_rows) == 1:
             return self.to_argilla_record(dataset_rows[0], *args, **kwargs)
