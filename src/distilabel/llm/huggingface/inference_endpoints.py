@@ -174,9 +174,7 @@ class InferenceEndpointsLLM(LLM):
         Returns:
             List[List[LLMOutput]]: the outputs of the LLM.
         """
-        prompts = self._generate_prompts(
-            inputs, default_format=None, expected_output_type=str
-        )
+        prompts = self._generate_prompts(inputs, default_format=None)
         outputs = []
         for prompt in prompts:
             raw_responses = [
