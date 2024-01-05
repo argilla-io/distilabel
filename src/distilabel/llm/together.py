@@ -53,7 +53,7 @@ class TogetherInferenceLLM(LLM):
 
         Args:
             task (Task): the task to be performed by the LLM.
-            model (str, optional): the model to be used for generation. Defaults to "gpt-3.5-turbo".
+            model (str): the model to be used for generation.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
             temperature (float, optional): the temperature to be used for generation. From the Together
