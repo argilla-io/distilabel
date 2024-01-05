@@ -200,7 +200,7 @@ class LLM(ABC):
     def _fill_missing_inputs(
         self,
         generations: List[List[LLMOutput]],
-        not_valid_inputs_indices: List[int],
+        invalid_inputs_indices: List[int],
         num_generations: int,
     ) -> List[List[LLMOutput]]:
         """Fills the `generations` list with empty `LLMOutput`s for the inputs that were
@@ -208,7 +208,7 @@ class LLM(ABC):
 
         Args:
             generations (List[List[LLMOutput]]): the generations to be filled.
-            not_valid_inputs_indices (List[int]): the indices of the inputs that were not
+            invalid_inputs_indices (List[int]): the indices of the inputs that were not
                 valid for the associated task of this `LLM`.
             num_generations (int): the number of generations to be performed for each input.
 
@@ -216,8 +216,9 @@ class LLM(ABC):
             List[List[LLMOutput]]: the filled generations.
         """
 
-        for idx in not_valid_inputs_indices:
-            generations.insert(
+        filled_generations = generations.copy()
+        for idx in invalid_inputs_indices:
+            filled_generations.insert(
                 idx,
                 [
                     LLMOutput(
@@ -229,7 +230,7 @@ class LLM(ABC):
                     for _ in range(num_generations)
                 ],
             )
-        return generations
+        return filled_generations
 
     def generate(
         self,
@@ -254,7 +255,7 @@ class LLM(ABC):
             if progress_callback_func is not None:
                 progress_callback_func(advance=num_generations * len(inputs))
 
-        valid_inputs, not_valid_inputs_indices = self._get_valid_inputs(inputs)
+        valid_inputs, invalid_inputs_indices = self._get_valid_inputs(inputs)
 
         if self.thread_pool_executor is not None:
             futures = []
@@ -266,7 +267,7 @@ class LLM(ABC):
             future = when_all_complete(
                 futures=futures,
                 callback=lambda generations: self._fill_missing_inputs(
-                    generations, not_valid_inputs_indices, num_generations
+                    generations, invalid_inputs_indices, num_generations
                 ),
             )
             future.add_done_callback(lambda _: _progress())
@@ -275,7 +276,7 @@ class LLM(ABC):
         generations = self._generate(valid_inputs, num_generations)
 
         generations = self._fill_missing_inputs(
-            generations, not_valid_inputs_indices, num_generations
+            generations, invalid_inputs_indices, num_generations
         )
 
         _progress()
