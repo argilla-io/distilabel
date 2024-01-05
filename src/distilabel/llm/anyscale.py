@@ -86,9 +86,6 @@ class AnyscaleLLM(OpenAILLM):
             >>> from distilabel.llm import AnyscaleLLM
             >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask(), openai_api_key=os.getenv("OPENAI_API_KEY", None))
             >>> llm.generate([{"input": "What's the capital of Spain?"}])
-            >>> [[{'model_name': 'HuggingFaceH4/zephyr-7b-beta',
-            ...    'prompt_used': [{'role': 'system',
-            ...        'content': "You...
         """
         LLM.__init__(
             self,
