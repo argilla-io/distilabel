@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from typing import Any, Dict, List, Set
 
 import pytest
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
+from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
 
@@ -44,6 +46,18 @@ class DummyLLM(LLM):
         return outputs
 
 
+class DummySubtask(TextGenerationTask):
+    system_prompt: str = "You are a helpful assistant."
+
+    def generate_prompt(self, input: str) -> "Prompt":
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt="Instruction {instruction}\nResponse".format(
+                instruction=input
+            ),
+        )
+
+
 def test_llmpool_errors_if_llms_less_than_two() -> None:
     with pytest.raises(ValueError, match="The `llms` argument must contain at least 2"):
         LLMPool(llms=[None])  # type: ignore
@@ -56,6 +70,24 @@ def test_llmpool_errors_if_llm_not_instance_of_processllm() -> None:
         LLMPool(llms=[None, None])  # type: ignore
 
 
+@pytest.mark.parametrize(
+    "tasks",
+    [
+        (TextGenerationTask(), TextGenerationTask()),
+        (TextGenerationTask(), DummySubtask()),
+        (TextGenerationTask(), TextGenerationTask(), DummySubtask()),
+        (TextGenerationTask(), DummySubtask(), DummySubtask()),
+    ],
+)
+def test_llmpool_with_subclass_of_tasks(tasks) -> None:
+    LLMPool(
+        llms=[
+            ProcessLLM(task=t, load_llm_fn=lambda task: DummyLLM(task=task))
+            for t in tasks
+        ]
+    )
+
+
 def test_llmpool_errors_if_llms_do_not_have_same_task() -> None:
     llm1 = ProcessLLM(
         task=TextGenerationTask(), load_llm_fn=lambda task: DummyLLM(task=task)
@@ -66,7 +98,9 @@ def test_llmpool_errors_if_llms_do_not_have_same_task() -> None:
     )
     with pytest.raises(
         ValueError,
-        match="The `llms` argument must contain `ProcessLLM`s with the same task.",
+        match=re.escape(
+            "All the `ProcessLLM` in `llms` must share the same task (either as the instance or the parent class)."
+        ),
     ):
         LLMPool(llms=[llm1, llm2])
 
