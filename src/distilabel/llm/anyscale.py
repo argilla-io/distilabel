@@ -52,7 +52,7 @@ class AnyscaleLLM(OpenAILLM):
             model (str, optional): the model to be used for generation. Defaults to "HuggingFaceH4/zephyr-7b-beta".
             client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
                 If `None`, a new client will be created. Defaults to `None`.
-            openai_api_key (Union[str, None], optional): the OpenAI API key to be used for generation.
+            api_key (Union[str, None], optional): the Anyscale API key to be used for generation.
                 If `None`, the `OPENAI_API_KEY` environment variable will be used. Defaults to `None`.
                 Visit "https://docs.endpoints.anyscale.com/guides/authenticate/" for more information.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
