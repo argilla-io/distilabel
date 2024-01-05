@@ -1,67 +1,48 @@
 <div align="center">
   <h1>⚗️ distilabel</h1>
-  <p><em>AI Feedback (AIF) framework for building datasets and labellers with LLMs</em></p>
+  <p><em>AI Feedback (AIF) framework for building datasets with and for LLMs.</em></p>
 </div>
-
-![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)
 
 > [!TIP]
 > To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
 
-## What's `distilabel`?
+![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)
 
-`distilabel` is a framework for AI engineers to align LLMs using RLHF-related methods (e.g. reward models, DPO).
+## Features
 
-The initial focus is LLM fine-tuning and adaptation but we'll be extending it for predictive NLP use cases soon.
-
-Main use cases are:
-
-1. As an AI engineer I want to **build domain-specific instruction datasets** to fine-tune OSS LLMs with increased accuracy.
-2. As an AI engineer I want to **build domain-specific and diverse preference datasets** to use RLHF-related methods and align LLMs (e.g, increase the ability to follow instructions or give truthful responses).
+- Integrations with the most popular libraries and APIs for LLMs: HF Transformers, OpenAI, vLLM, etc.
+- Multiple tasks for Self-Instruct, Preference datasets and more.
+- Dataset export to Argilla for easy data exploration and further annotation.
 
 > [!WARNING]
 > `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks, and also the `README` might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
 
-## Motivation
+## Installation
 
-🔥 Recent projects like [Zephyr](https://huggingface.co/collections/HuggingFaceH4/zephyr-7b-6538c6d6d5ddd1cbb1744a66) and [Tulu](https://huggingface.co/collections/allenai/tulu-v2-suite-6551b56e743e6349aab45101) have shown it's possible to **build powerful open-source models with DPO and AI Feedback** (AIF) datasets. 
-
-👩‍🔬 There's a lot of exciting research in the AIF space, such as [UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) (the dataset leveraged by Zephyr and Tulu), [JudgeLM](https://github.com/baaivision/JudgeLM), or [Prometheus](https://huggingface.co/kaist-ai/prometheus-13b-v1.0). 
-
-🚀 However, going beyond research efforts and applying AIF at scale it's different. For enterprise and production use, we need framework that implements **key AIF methods on a robust, efficient and scalable way**. This framework should enable AI engineers to build custom datasets at scale for their own use cases. 
-
-👩‍🎓 This, combined with humans-in-the-loop for improving dataset quality is the next big leap for OSS LLM models. 
-
-⚗️ `distilabel` aims to bridge this gap.
-
-## Key features
-
-* 🤖 **Leverage OSS models and APIs**: 🤗 transformers, OpenAI, 🤗 Inference Endpoints, vLLM, llama.cpp, and more to come.
-
-* 💻 **Scalable and extensible**: Scalable implementations of existing methods (e.g. UltraFeedback). Easily extensible to build and configure your own labellers.
-
-* 🧑‍🦱 **Human-in-the-loop**: One line of code integration with Argilla to improve and correct datasets.
-
-## Quickstart
-
-### Installation
-
-Install with `pip` (requires Python 3.8+):
-
-```bash
-pip install distilabel[openai,argilla]
+```sh
+pip install distilabel --upgrade
 ```
 
-### Try it out
+Requires Python 3.8+
 
-After installing, you can immediately start experimenting with `distilabel`:
+In addition, the following extras are available:
 
-- **Explore Locally**: Follow the example below to build a preference dataset for DPO/RLHF.
-- **Interactive Notebook**: Prefer an interactive experience? Try our Google Colab Notebook!
+- `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
+- `hf-inference-endpoints`: for using the [HuggingFace Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
+- `openai`: for using OpenAI API models via the `OpenAILLM` integration.
+- `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
+- `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
+- `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+## Example
 
-### Example: Build a preference dataset for DPO/RLHF
+To run the following example you must install `distilabel` with both `openai` and `argilla` extras:
+
+```sh
+pip install "distilabel[openai,argilla]" --upgrade
+```
+
+Then run the following example:
 
 ```python
 from datasets import load_dataset
@@ -69,54 +50,49 @@ from distilabel.llm import OpenAILLM
 from distilabel.pipeline import pipeline
 from distilabel.tasks import TextGenerationTask
 
-# Load a dataset with instructions from the Hub
 dataset = (
-    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:5]")
+    load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
     .remove_columns(["completion", "meta"])
     .rename_column("prompt", "input")
 )
 
-# Use `OpenAILLM` (running `gpt-3.5-turbo`) to generate responses for given inputs
-generator = OpenAILLM(
-    task=TextGenerationTask(),
-    max_new_tokens=512,
-    # openai_api_key="sk-...",
-)
+# Create a `Task` for generating text given an instruction.
+task = TextGenerationTask()
 
+# Create a `LLM` for generating text using the `Task` created in
+# the first step. As the `LLM` will generate text, it will be a `generator`.
+generator = OpenAILLM(task=task, max_new_tokens=512)
+
+# Create a pre-defined `Pipeline` using the `pipeline` function and the
+# `generator` created in step 2. The `pipeline` function will create a
+# `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
+# instruction following assessment.
 pipeline = pipeline("preference", "instruction-following", generator=generator)
 
-# Build a preference dataset comparing two responses focused on the instruction-following skill of the LLM
 dataset = pipeline.generate(dataset)
 ```
 
-The resulting dataset can already be used for preference tuning (a larger version of it). But beware these AIF dataset are imperfect. To get the most out of AIF, push to Argilla for human feedback:
+Additionally, you can push the generated dataset to Argilla for further exploration and annotation:
 
 ```python
 import argilla as rg
 
-rg.init(
-    api_key="<YOUR_ARGILLA_API_KEY>",
-    api_url="<YOUR_ARGILLA_API_URL>"
-)
+rg.init(api_url="<YOUR_ARGILLA_API_URL>", api_key="<YOUR_ARGILLA_API_KEY>")
 
+# Convert the dataset to Argilla format
 rg_dataset = dataset.to_argilla()
+
+# Push the dataset to Argilla
 rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
 ```
 
-https://github.com/argilla-io/distilabel/assets/1107111/be34c95c-8be4-46ef-9437-cbd2a7687e30
-
-### More examples
+## More examples
 
 Find more examples of different use cases of `distilabel` under [`examples/`](./examples/).
 
-## Roadmap
+Or check out the following Google Colab Notebook:
 
-- [x] Add Critique Models and support for Prometheus OSS
-- [x] Add a generator with multiple models
-- [ ] Train OSS labellers to replace OpenAI labellers
-- [ ] Add labellers to evolve instructions generated with self-instruct
-- [ ] Add labellers for predictive NLP tasks: text classification, information extraction, etc.
-- [ ] Open an issue to suggest a feature!
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
 
 ## Contribute
 
