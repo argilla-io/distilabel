@@ -29,7 +29,6 @@ from typing import (
     Dict,
     Generator,
     List,
-    Type,
     Union,
 )
 
@@ -118,7 +117,6 @@ class LLM(ABC):
         self,
         inputs: List[Dict[str, Any]],
         default_format: Union["SupportedFormats", None] = None,
-        expected_output_type: Type = str,
     ) -> List[Any]:
         """Generates the prompts to be used for generation.
 
@@ -126,7 +124,6 @@ class LLM(ABC):
             inputs (List[Dict[str, Any]]): the inputs to be used for generation.
             default_format (Union["SupportedFormats", None], optional): the default format to be used
                 for the prompt if no `prompt_format` is specified. Defaults to `None`.
-            expected_output_type (Type, optional): the expected type of the prompt. Defaults to `str`.
 
         Returns:
             List[Any]: the generated prompts.
@@ -161,13 +158,6 @@ class LLM(ABC):
                         stacklevel=2,
                     )
                     prompt = prompt.format_as(format="default")
-            if not isinstance(prompt, expected_output_type):
-                raise ValueError(
-                    f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"
-                    f" `type={expected_output_type}`, so make sure that `task.generate_prompt` returns"
-                    f" a `{expected_output_type}` or that the `formatting_fn` formats the prompt as a "
-                    f" `{expected_output_type}`."
-                )
             prompts.append(prompt)
         return prompts
 

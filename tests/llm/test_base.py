@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Set
+from typing import Any, Dict, List, Set
 
 import pytest
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
@@ -21,9 +21,6 @@ from distilabel.llm.utils import LLMOutput
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
-
-if TYPE_CHECKING:
-    pass
 
 
 class DummyLLM(LLM):

@@ -150,9 +150,7 @@ class OpenAILLM(LLM):
         Returns:
             List[List[LLMOutput]]: the generated outputs.
         """
-        prompts = self._generate_prompts(
-            inputs, default_format="openai", expected_output_type=list
-        )
+        prompts = self._generate_prompts(inputs, default_format="openai")
         outputs = []
         for prompt in prompts:
             chat_completions = self.client.chat.completions.create(
