@@ -57,10 +57,30 @@ class TogetherInferenceLLM(LLM):
             model (str, optional): the model to be used for generation. Defaults to "gpt-3.5-turbo".
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
-            temperature (float, optional): the temperature to be used for generation.
-                Defaults to 1.0.
-            top_p (float, optional): the top-p value to be used for generation.
-                Defaults to 1.0.
+            temperature (float, optional): the temperature to be used for generation. From the Together
+                Inference docs: "A decimal number that determines the degree of randomness in the response.
+                A value of 0 will always yield the same output. A temperature much less than 1 favors more
+                correctness and is appropriate for question answering or summarization. A value approaching
+                1 introduces more randomness in the output.". Defaults to 1.0.
+            repetition_penalty (float, optional): the repetition penalty to be used for generation. From the
+                Together Inference docs: "Controls the diversity of generated text by reducing the likelihood
+                of repeated sequences. Higher values decrease repetition.". Defaults to 1.0.
+            top_p (float, optional): the top-p value to be used for generation. From the Together
+                Inference docs: "used to dynamically adjust the number of choices for each predicted
+                token based on the cumulative probabilities. It specifies a probability threshold,
+                below which all less likely tokens are filtered out. This technique helps to maintain
+                diversity and generate more fluent and natural-sounding text.". Defaults to 1.0.
+            top_k (int, optional): the top-k value to be used for generation. From the Together Inference
+                docs: "used to limit the number of choices for the next predicted word or token. It specifies
+                the maximum number of tokens to consider at each step, based on their probability of occurrence.
+                This technique helps to speed up the generation process and can improve the quality of the
+                generated text by focusing on the most likely options.". Defaults to 1.
+            stop (List[str], optional): strings to delimitate the generation process, so that when the
+                model generates any of the provided characters, the generation process is considered completed.
+                Defaults to None.
+            logprobs (int, optional): the number of logprobs to be returned for each token. From the
+                Together Inference docs: "An integer that specifies how many top token log probabilities
+                are included in the response for each token generation step.". Defaults to None.
             num_threads (Union[int, None], optional): the number of threads to be used
                 for parallel generation. If `None`, no parallel generation will be performed.
                 Defaults to `None`.
@@ -74,18 +94,18 @@ class TogetherInferenceLLM(LLM):
                 Defaults to `None`.
 
         Raises:
-            AssertionError: if the provided `model` is not available in your OpenAI account.
+            AssertionError: if the provided `model` is not available in Together Inference.
 
         Examples:
             >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
-            >>> from distilabel.llm import OpenAILLM
+            >>> from distilabel.llm import TogetherInferenceLLM
             >>> task = Task()
-            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=task)
+            >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=task, prompt_format="llama2")
         """
         if not _TOGETHER_AVAILABLE:
             raise ImportError(
-                "`OpenAILLM` cannot be used as `openai` is not installed, please "
-                " install it with `pip install openai`."
+                "`TogetherInferenceLLM` cannot be used as `together` is not installed, please "
+                " install it with `pip install together`."
             )
 
         together.api_key = api_key or os.getenv("TOGETHER_API_KEY", None)
