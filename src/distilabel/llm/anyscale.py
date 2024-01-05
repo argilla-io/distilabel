@@ -35,7 +35,7 @@ class AnyscaleLLM(OpenAILLM):
         task: "Task",
         model: str = "HuggingFaceH4/zephyr-7b-beta",
         client: Union["OpenAI", None] = None,
-        openai_api_key: Union[str, None] = None,
+        api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
