@@ -706,6 +706,80 @@
                 
   
   
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../google/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    google
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_1_2_2" id="__nav_3_2_1_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_1_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            google
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../google/vertexai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    vertexai
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -720,7 +794,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_3" checked>
         
           
           
@@ -736,14 +810,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_2_2" id="__nav_3_2_1_2_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3_2_1_2_3" id="__nav_3_2_1_2_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_2_1_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_1_2_3">
             <span class="md-nav__icon md-icon"></span>
             huggingface
           </label>
@@ -1976,9 +2050,7 @@
 <span class="normal"><a href="#__codelineno-0-207">207</a></span>
 <span class="normal"><a href="#__codelineno-0-208">208</a></span>
 <span class="normal"><a href="#__codelineno-0-209">209</a></span>
-<span class="normal"><a href="#__codelineno-0-210">210</a></span>
-<span class="normal"><a href="#__codelineno-0-211">211</a></span>
-<span class="normal"><a href="#__codelineno-0-212">212</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="k">class</span> <span class="nc">InferenceEndpointsLLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="k">class</span> <span class="nc">InferenceEndpointsLLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">):</span>
 </span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>        <span class="n">endpoint_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2100,42 +2172,40 @@
 </span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="sd">        Returns:</span>
 </span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">            List[List[LLMOutput]]: the outputs of the LLM.</span>
 </span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>        <span class="n">prompts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_prompts</span><span class="p">(</span>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>            <span class="n">inputs</span><span class="p">,</span> <span class="n">default_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expected_output_type</span><span class="o">=</span><span class="nb">str</span>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>        <span class="p">)</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>            <span class="n">raw_responses</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_text_generation_with_backoff</span><span class="p">(</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>                    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>                    <span class="n">do_sample</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">do_sample</span><span class="p">,</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>                    <span class="n">max_new_tokens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_new_tokens</span><span class="p">,</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>                    <span class="n">repetition_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repetition_penalty</span><span class="p">,</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>                    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>                    <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>                    <span class="n">top_k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_k</span><span class="p">,</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>                    <span class="n">top_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_p</span><span class="p">,</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>                    <span class="n">typical_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">typical_p</span><span class="p">,</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>                <span class="p">)</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_generations</span><span class="p">)</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>            <span class="p">]</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>            <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>            <span class="k">for</span> <span class="n">raw_response</span> <span class="ow">in</span> <span class="n">raw_responses</span><span class="p">:</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>                <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span><span class="n">raw_response</span><span class="p">)</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error parsing Inference Endpoints output: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>                    <span class="n">LLMOutput</span><span class="p">(</span>
-</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>                        <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
-</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>                        <span class="n">prompt_used</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
-</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>                        <span class="n">raw_output</span><span class="o">=</span><span class="n">raw_response</span><span class="p">,</span>
-</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>                        <span class="n">parsed_output</span><span class="o">=</span><span class="n">parsed_response</span><span class="p">,</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>                    <span class="p">)</span>
-</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>                <span class="p">)</span>
-</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>        <span class="k">return</span> <span class="n">outputs</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>        <span class="n">prompts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_prompts</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">default_format</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>            <span class="n">raw_responses</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">_text_generation_with_backoff</span><span class="p">(</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>                    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>                    <span class="n">do_sample</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">do_sample</span><span class="p">,</span>
+</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>                    <span class="n">max_new_tokens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_new_tokens</span><span class="p">,</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>                    <span class="n">repetition_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repetition_penalty</span><span class="p">,</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>                    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>                    <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>                    <span class="n">top_k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_k</span><span class="p">,</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>                    <span class="n">top_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_p</span><span class="p">,</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>                    <span class="n">typical_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">typical_p</span><span class="p">,</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>                <span class="p">)</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_generations</span><span class="p">)</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>            <span class="p">]</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>            <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>            <span class="k">for</span> <span class="n">raw_response</span> <span class="ow">in</span> <span class="n">raw_responses</span><span class="p">:</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>                <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span><span class="n">raw_response</span><span class="p">)</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error parsing Inference Endpoints output: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>                    <span class="n">LLMOutput</span><span class="p">(</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>                        <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>                        <span class="n">prompt_used</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>                        <span class="n">raw_output</span><span class="o">=</span><span class="n">raw_response</span><span class="p">,</span>
+</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>                        <span class="n">parsed_output</span><span class="o">=</span><span class="n">parsed_response</span><span class="p">,</span>
+</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>                    <span class="p">)</span>
+</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>                <span class="p">)</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>        <span class="k">return</span> <span class="n">outputs</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
 

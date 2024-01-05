@@ -723,11 +723,11 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../huggingface/" class="md-nav__link ">
+            <a href="../google/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    huggingface
+    google
   </span>
   
 
@@ -742,6 +742,80 @@
         
         <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_2_1_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            google
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../google/vertexai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    vertexai
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../huggingface/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    huggingface
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_1_2_3" id="__nav_3_2_1_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_1_2_3">
             <span class="md-nav__icon md-icon"></span>
             huggingface
           </label>
@@ -1990,9 +2064,7 @@
 <span class="normal"><a href="#__codelineno-0-183">183</a></span>
 <span class="normal"><a href="#__codelineno-0-184">184</a></span>
 <span class="normal"><a href="#__codelineno-0-185">185</a></span>
-<span class="normal"><a href="#__codelineno-0-186">186</a></span>
-<span class="normal"><a href="#__codelineno-0-187">187</a></span>
-<span class="normal"><a href="#__codelineno-0-188">188</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="k">class</span> <span class="nc">OpenAILLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="k">class</span> <span class="nc">OpenAILLM</span><span class="p">(</span><span class="n">LLM</span><span class="p">):</span>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="n">task</span><span class="p">:</span> <span class="s2">&quot;Task&quot;</span><span class="p">,</span>
@@ -2112,42 +2184,40 @@
 </span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">        Returns:</span>
 </span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">            List[List[LLMOutput]]: the generated outputs.</span>
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a>        <span class="n">prompts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_prompts</span><span class="p">(</span>
-</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>            <span class="n">inputs</span><span class="p">,</span> <span class="n">default_format</span><span class="o">=</span><span class="s2">&quot;openai&quot;</span><span class="p">,</span> <span class="n">expected_output_type</span><span class="o">=</span><span class="nb">list</span>
-</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>        <span class="p">)</span>
-</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
-</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>            <span class="n">chat_completions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>                <span class="n">messages</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
-</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>                <span class="n">n</span><span class="o">=</span><span class="n">num_generations</span><span class="p">,</span>
-</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>                <span class="n">max_tokens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_tokens</span><span class="p">,</span>
-</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>                <span class="n">frequency_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_penalty</span><span class="p">,</span>
-</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>                <span class="n">presence_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">presence_penalty</span><span class="p">,</span>
-</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>                <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>                <span class="n">top_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_p</span><span class="p">,</span>
-</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>                <span class="n">timeout</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>            <span class="p">)</span>
-</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>
-</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a>            <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>            <span class="k">for</span> <span class="n">chat_completion</span> <span class="ow">in</span> <span class="n">chat_completions</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
-</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>                <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span>
-</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>                        <span class="n">chat_completion</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>                    <span class="p">)</span>
-</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error parsing OpenAI response: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>                    <span class="n">LLMOutput</span><span class="p">(</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>                        <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>                        <span class="n">prompt_used</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>                        <span class="n">raw_output</span><span class="o">=</span><span class="n">chat_completion</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>                        <span class="n">parsed_output</span><span class="o">=</span><span class="n">parsed_response</span><span class="p">,</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>                    <span class="p">)</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>                <span class="p">)</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="k">return</span> <span class="n">outputs</span>
+</span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a>        <span class="n">prompts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_prompts</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">default_format</span><span class="o">=</span><span class="s2">&quot;openai&quot;</span><span class="p">)</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+</span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>            <span class="n">chat_completions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>                <span class="n">messages</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>                <span class="n">n</span><span class="o">=</span><span class="n">num_generations</span><span class="p">,</span>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a>                <span class="n">max_tokens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_tokens</span><span class="p">,</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a>                <span class="n">frequency_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency_penalty</span><span class="p">,</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a>                <span class="n">presence_penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">presence_penalty</span><span class="p">,</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>                <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>                <span class="n">top_p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_p</span><span class="p">,</span>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>                <span class="n">timeout</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>            <span class="p">)</span>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>            <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>            <span class="k">for</span> <span class="n">chat_completion</span> <span class="ow">in</span> <span class="n">chat_completions</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
+</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a>                <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span>
+</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>                        <span class="n">chat_completion</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>                    <span class="p">)</span>
+</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error parsing OpenAI response: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>                    <span class="n">parsed_response</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>                    <span class="n">LLMOutput</span><span class="p">(</span>
+</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>                        <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>                        <span class="n">prompt_used</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>                        <span class="n">raw_output</span><span class="o">=</span><span class="n">chat_completion</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>                        <span class="n">parsed_output</span><span class="o">=</span><span class="n">parsed_response</span><span class="p">,</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>                    <span class="p">)</span>
+</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>                <span class="p">)</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="k">return</span> <span class="n">outputs</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
 
