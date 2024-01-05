@@ -23,7 +23,6 @@ from distilabel.utils.imports import _TOGETHER_AVAILABLE
 
 if _TOGETHER_AVAILABLE:
     import together
-    from together.types import TogetherResponse
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -192,11 +191,11 @@ class TogetherInferenceLLM(LLM):
                     repetition_penalty=self.repetition_penalty,
                     logprobs=self.logprobs,
                 )
-                if isinstance(output, TogetherResponse) and output.choices is not None:
-                    for choice in output.choices:
+                if output["output"]["choices"] is not None:
+                    for choice in output["output"]["choices"]:
                         try:
                             parsed_response = self.task.parse_output(
-                                choice.text.strip()
+                                choice["text"].strip()
                             )
                         except Exception as e:
                             logger.error(
@@ -207,7 +206,7 @@ class TogetherInferenceLLM(LLM):
                             LLMOutput(
                                 model_name=self.model_name,
                                 prompt_used=prompt,
-                                raw_output=choice.text,
+                                raw_output=choice["text"],
                                 parsed_output=parsed_response,
                             )
                         )
