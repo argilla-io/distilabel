@@ -59,21 +59,17 @@ class TestVertexAILLMGenerativeModel:
         llm = VertexAILLM(task=TextGenerationTask())
 
         contents = llm._generate_contents(
-            inputs=[
-                {"input": "Gemini Pro is cool"},
-                {"input": "but OSS LLMs are even cooler"},
+            prompts=[
+                "Gemini Pro is cool",
+                "but OSS LLMs are even cooler",
             ]
         )
 
         assert contents == [
             [
-                {"role": "user", "parts": [{"text": llm.task.system_prompt}]},
-                {"role": "model", "parts": [{"text": "Understood."}]},
                 {"role": "user", "parts": [{"text": "Gemini Pro is cool"}]},
             ],
             [
-                {"role": "user", "parts": [{"text": llm.task.system_prompt}]},
-                {"role": "model", "parts": [{"text": "Understood."}]},
                 {"role": "user", "parts": [{"text": "but OSS LLMs are even cooler"}]},
             ],
         ]

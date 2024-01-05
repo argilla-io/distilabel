@@ -184,30 +184,18 @@ class VertexAILLM(LLM):
 
         return self.model._model_id
 
-    def _generate_contents(
-        self, inputs: List[Dict[str, Any]]
-    ) -> List[List[Dict[str, Any]]]:
+    def _generate_contents(self, prompts: List[str]) -> List[List[Dict[str, Any]]]:
         """Generates a list of valid dicts that can be parsed to `vertexai.preview.generative_models.Content`
         objects for each input.
 
         Args:
-            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+            prompts (List[str]): the prompts to be used for generation.
 
         Returns:
             List[List[Dict[str, Any]]]: the list of valid `vertexai.preview.generative_models.Content`
                 objects.
         """
-        contents = []
-        for input in inputs:
-            prompt = self.task.generate_prompt(**input)
-            contents.append(
-                [
-                    {"role": "user", "parts": [{"text": prompt.system_prompt}]},
-                    {"role": "model", "parts": [{"text": "Understood."}]},
-                    {"role": "user", "parts": [{"text": prompt.formatted_prompt}]},
-                ]
-            )
-        return contents
+        return [[{"role": "user", "parts": [{"text": prompt}]}] for prompt in prompts]
 
     @_vertexai_retry_decorator
     def _call_generative_model_with_backoff(
@@ -258,7 +246,8 @@ class VertexAILLM(LLM):
     ) -> List[List["LLMOutput"]]:
         """Generate `num_generations` for each input in `inputs` using a Vertex AI Gemini
         API model."""
-        inputs_contents = self._generate_contents(inputs)
+        prompts = self._generate_prompts(inputs, default_format="default")
+        inputs_contents = self._generate_contents(prompts)
         outputs = []
         for contents in inputs_contents:
             output = []
