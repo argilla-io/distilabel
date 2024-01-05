@@ -111,7 +111,7 @@ class AnyscaleLLM(OpenAILLM):
         self.top_p = top_p
 
         self.client = client or OpenAI(
-            api_key=openai_api_key,
+            api_key=api_key,
             max_retries=6,
             base_url="https://api.endpoints.anyscale.com/v1",
         )
