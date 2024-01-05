@@ -15,14 +15,16 @@
 from __future__ import annotations
 
 from concurrent.futures import Future, wait
-from typing import List
+from typing import Callable, List, Optional
 
 from typing_extensions import TypeVar
 
 T = TypeVar("T")
 
 
-def when_all_complete(futures: List[Future[T]]) -> Future[T]:
+def when_all_complete(
+    futures: List[Future[T]], callback: Optional[Callable[[List[T]], List[T]]] = None
+) -> Future[List[T]]:
     """Returns a `Future` that will be completed when all the provided `futures` are
     completed, and it will contain the results of the `futures`.
 
@@ -34,7 +36,7 @@ def when_all_complete(futures: List[Future[T]]) -> Future[T]:
             completed, and it will contain the results of the `futures`.
     """
     all_done_future = Future()
-    results = [None] * len(futures)
+    results: List[T] = [None] * len(futures)  # type: ignore
 
     def check_all_done(future: Future) -> None:
         # This is done to preserve the order of the results with respect to the order
@@ -44,7 +46,10 @@ def when_all_complete(futures: List[Future[T]]) -> Future[T]:
 
         _, not_done = wait(futures, return_when="FIRST_COMPLETED")
         if len(not_done) == 0:
-            all_done_future.set_result(results)
+            final_results = results
+            if callback is not None:
+                final_results = callback(results)
+            all_done_future.set_result(final_results)
 
     for future in futures:
         future.add_done_callback(check_all_done)
