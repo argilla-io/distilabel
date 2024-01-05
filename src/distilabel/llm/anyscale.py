@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from typing import TYPE_CHECKING, Callable, Union
 
 from distilabel.llm.base import LLM
@@ -84,7 +85,7 @@ class AnyscaleLLM(OpenAILLM):
             >>> import os
             >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import AnyscaleLLM
-            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask(), openai_api_key=os.getenv("OPENAI_API_KEY", None))
+            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask(), openai_api_key=os.getenv("ANYSCALE_API_KEY", None))
             >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         LLM.__init__(
@@ -108,7 +109,7 @@ class AnyscaleLLM(OpenAILLM):
         self.top_p = top_p
 
         self.client = client or OpenAI(
-            api_key=api_key,
+            api_key=api_key or os.getenv("ANYSCALE_API_KEY"),
             max_retries=6,
             base_url="https://api.endpoints.anyscale.com/v1",
         )

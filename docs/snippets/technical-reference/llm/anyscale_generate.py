@@ -6,7 +6,7 @@ from distilabel.tasks import TextGenerationTask
 anyscale_llm = AnyscaleLLM(
     model="HuggingFaceH4/zephyr-7b-beta",
     task=TextGenerationTask(),
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("ANYSCALE_API_KEY"),
 )
 result = anyscale_llm.generate([{"input": "What is Anyscale?"}])
 # >>> print(result[0][0]["parsed_output"]["generations"])
