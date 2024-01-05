@@ -1,5 +1,5 @@
 ---
-description: Distilabel is an AI Feedback (AIF) framework to build datasets with and for LLMs.
+description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
 ---
 # distilabel
 
