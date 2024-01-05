@@ -191,7 +191,7 @@ class TogetherInferenceLLM(LLM):
         if output["output"]["choices"] is None or len(output["output"]["choices"]) < 1:  # type: ignore
             raise RuntimeError("Together Inference generation returned no generations.")
 
-        choice = output["output"]["choices"]  # type: ignore
+        choice = output["output"]["choices"][0]  # type: ignore
         try:
             parsed_response = self.task.parse_output(choice["text"].strip())
         except Exception as e:
