@@ -11,21 +11,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/learn/</loc>
-         <lastmod>2024-01-05</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/learn/tutorials/</loc>
-         <lastmod>2024-01-05</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/learn/user-guides/</loc>
-         <lastmod>2024-01-05</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/SUMMARY/</loc>
          <lastmod>2024-01-05</lastmod>
          <changefreq>daily</changefreq>
