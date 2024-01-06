@@ -1,0 +1,3 @@
+{%- for message in messages %}
+<div align='{% if message.role not in ['system', 'user'] %}right{% else %}left{% endif %}'><b>{{ message.role }}</b><br>{{ message.content }}</div>
+{%- endfor %}
