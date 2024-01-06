@@ -84,7 +84,7 @@ class SelfInstructTask(TextGenerationTask):
         """
         render_kwargs = {
             "application_description": self.application_description,
-            "num_instructions": self.num_instructions,
+            "num_examples": self.num_instructions,
             "input": input,
         }
         return Prompt(
