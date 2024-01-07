@@ -41,8 +41,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e .[dev,tests,vertexai,openai]
-
+        run: pip install -e .[dev,tests,vertexai,openai,together]
       - name: Lint
         run: make lint
 
