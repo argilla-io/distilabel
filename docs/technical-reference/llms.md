@@ -171,6 +171,16 @@ See their release post with more details at [Announcing Together Inference Engin
 --8<-- "docs/snippets/technical-reference/llm/together_inference_generate.py"
 ```
 
+### Anyscale
+
+Anyscale Endpoints offers open source large language models (LLMs) as fully managed API endpoints. Interoperate with open source models as you would do it with OpenAI:
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/anyscale_generate.py"
+```
+
+For the API reference visit [AnyscaleLLM][distilabel.llm.anyscale.AnyscaleLLM].
+
 ## `ProcessLLM` and `LLMPool`
 
 By default, `distilabel` uses a single process, so the generation loop is usually bottlenecked by the model inference time and Python GIL. To overcome this limitation, we provide the `ProcessLLM` class that allows to load an `LLM` in a different process, avoiding the GIL and allowing to parallelize the generation loop. Creating a `ProcessLLM` is easy as:
