@@ -19,40 +19,42 @@ import pytest
 from distilabel.llm.anyscale import AnyscaleLLM
 from distilabel.tasks.text_generation.base import TextGenerationTask
 
+MODEL_NAME = "argilla/notus-7b-v1"
+
 
 @mock.patch("distilabel.llm.anyscale.OpenAI")
 @mock.patch(
     "distilabel.llm.anyscale.OpenAILLM.available_models",
-    ["HuggingFaceH4/zephyr-7b-beta"],
+    [MODEL_NAME],
 )
 class TestAnyscaleLLM:
     def test_llm_anyscale(self, mock_anyscale):
         llm = AnyscaleLLM(
-            model="HuggingFaceH4/zephyr-7b-beta",
+            model=MODEL_NAME,
             task=TextGenerationTask(),
-            api_key="OPENAI_API_KEY",
+            api_key="api.key",
         )
         assert isinstance(llm, AnyscaleLLM)
-        assert llm.model_name == "HuggingFaceH4/zephyr-7b-beta"
+        assert llm.model_name == MODEL_NAME
 
     def test_unavailable_model(self, mock_anyscale):
         with pytest.raises(
             AssertionError,
             match=re.escape(
-                "Provided `model` is not available in your Anyscale account, available models are ['HuggingFaceH4/zephyr-7b-beta']"
+                f"Provided `model` is not available in your Anyscale account, available models are ['{MODEL_NAME}']"
             ),
         ):
             AnyscaleLLM(
                 model="other_model",
                 task=TextGenerationTask(),
-                api_key="OPENAI_API_KEY",
+                api_key="api.key",
             )
 
     def test_generate(self, mock_anyscale):
         llm = AnyscaleLLM(
-            model="HuggingFaceH4/zephyr-7b-beta",
+            model=MODEL_NAME,
             task=TextGenerationTask(),
-            api_key="OPENAI_API_KEY",
+            api_key="api.key",
         )
 
         input = "What is Anyscale?"
