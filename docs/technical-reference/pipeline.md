@@ -1,3 +1,6 @@
+---
+description: Orchestrate the dataset generation and labelling with the Pipeline.
+---
 # Pipelines
 
 This section will detail the [`Pipeline`][distilabel.pipeline.Pipeline], providing guidance on creating and using them.

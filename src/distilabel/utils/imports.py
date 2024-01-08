@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import warnings
 from importlib.metadata import PackageNotFoundError, version
 from typing import List, Union
 
@@ -109,3 +108,10 @@ _HUGGINGFACE_HUB_AVAILABLE = _check_package_is_available(
 _TRANSFORMERS_AVAILABLE = _check_package_is_available(
     "transformers", min_version="4.31.1", greater_or_equal=True
 ) and _check_package_is_available("torch", min_version="2.0.0", greater_or_equal=True)
+_VERTEXAI_AVAILABLE = _check_package_is_available(
+    "google-cloud-aiplatform", min_version="1.38.1", greater_or_equal=True
+)
+_AISTUDIO_AVAILABLE = _check_package_is_available(
+    "google-generativeai", min_version="0.3.2", greater_or_equal=True
+)
+_TOGETHER_AVAILABLE = _check_package_is_available("together")

@@ -1,3 +1,6 @@
+---
+description: Determine the behaviour of your LLM by selecting a suitable task.
+---
 # Tasks
 
 In this section we will see what's a `Task` and the list of tasks available in `distilabel`.

@@ -29,18 +29,18 @@ from typing import (
     Dict,
     Generator,
     List,
-    Type,
+    Tuple,
     Union,
 )
 
 import multiprocess as mp
 
+from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
 from distilabel.tasks.prompt import Prompt
 from distilabel.utils.futures import when_all_complete
 
 if TYPE_CHECKING:
-    from distilabel.llm.utils import LLMOutput
     from distilabel.tasks.base import Task
     from distilabel.tasks.prompt import SupportedFormats
 
@@ -118,7 +118,6 @@ class LLM(ABC):
         self,
         inputs: List[Dict[str, Any]],
         default_format: Union["SupportedFormats", None] = None,
-        expected_output_type: Type = str,
     ) -> List[Any]:
         """Generates the prompts to be used for generation.
 
@@ -126,7 +125,6 @@ class LLM(ABC):
             inputs (List[Dict[str, Any]]): the inputs to be used for generation.
             default_format (Union["SupportedFormats", None], optional): the default format to be used
                 for the prompt if no `prompt_format` is specified. Defaults to `None`.
-            expected_output_type (Type, optional): the expected type of the prompt. Defaults to `str`.
 
         Returns:
             List[Any]: the generated prompts.
@@ -161,13 +159,6 @@ class LLM(ABC):
                         stacklevel=2,
                     )
                     prompt = prompt.format_as(format="default")
-            if not isinstance(prompt, expected_output_type):
-                raise ValueError(
-                    f"The provided `prompt={prompt}` is of `type={type(prompt)}`, but it must be of"
-                    f" `type={expected_output_type}`, so make sure that `task.generate_prompt` returns"
-                    f" a `{expected_output_type}` or that the `formatting_fn` formats the prompt as a "
-                    f" `{expected_output_type}`."
-                )
             prompts.append(prompt)
         return prompts
 
@@ -176,6 +167,70 @@ class LLM(ABC):
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
     ) -> List[List["LLMOutput"]]:
         pass
+
+    def _get_valid_inputs(
+        self, inputs: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], List[int]]:
+        """Returns the valid inputs and the indices of the invalid inputs.
+
+        A valid input is an input that contains all the arguments required by the task.
+
+        Args:
+            inputs (List[Dict[str, Any]]): the inputs to be used for generation.
+
+        Returns:
+            Tuple[List[Dict[str, Any]], List[int]]: a tuple containing the valid inputs and
+                the indices of the invalid inputs.
+        """
+
+        valid_inputs = []
+        not_valid_inputs_indices = []
+        for i, input in enumerate(inputs):
+            if not all(input_arg in input for input_arg in self.task.input_args_names):
+                logger.warn(
+                    f"Missing {self.task.__class__.__name__} input argument in batch element {i}"
+                )
+                not_valid_inputs_indices.append(i)
+                continue
+
+            valid_inputs.append(input)
+
+        return valid_inputs, not_valid_inputs_indices
+
+    def _fill_missing_inputs(
+        self,
+        generations: List[List[LLMOutput]],
+        invalid_inputs_indices: List[int],
+        num_generations: int,
+    ) -> List[List[LLMOutput]]:
+        """Fills the `generations` list with empty `LLMOutput`s for the inputs that were
+        not valid for the associated task of this `LLM`.
+
+        Args:
+            generations (List[List[LLMOutput]]): the generations to be filled.
+            invalid_inputs_indices (List[int]): the indices of the inputs that were not
+                valid for the associated task of this `LLM`.
+            num_generations (int): the number of generations to be performed for each input.
+
+        Returns:
+            List[List[LLMOutput]]: the filled generations.
+        """
+
+        filled_generations = generations.copy()
+        for idx in invalid_inputs_indices:
+            filled_generations.insert(
+                idx,
+                [
+                    LLMOutput(
+                        model_name=self.model_name,
+                        prompt_used=None,
+                        raw_output=None,
+                        parsed_output=None,
+                    )
+                    for _ in range(num_generations)
+                ],
+            )
+        return filled_generations
 
     def generate(
         self,
@@ -200,18 +255,30 @@ class LLM(ABC):
             if progress_callback_func is not None:
                 progress_callback_func(advance=num_generations * len(inputs))
 
+        valid_inputs, invalid_inputs_indices = self._get_valid_inputs(inputs)
+
         if self.thread_pool_executor is not None:
             futures = []
-            for input in inputs:
+            for input in valid_inputs:
                 future = self.thread_pool_executor.submit(
                     self._generate, [input], num_generations
                 )
                 futures.append(future)
-            future = when_all_complete(futures)
+            future = when_all_complete(
+                futures=futures,
+                callback=lambda generations: self._fill_missing_inputs(
+                    generations, invalid_inputs_indices, num_generations
+                ),
+            )
             future.add_done_callback(lambda _: _progress())
             return future
 
-        generations = self._generate(inputs, num_generations)
+        generations = self._generate(valid_inputs, num_generations)
+
+        generations = self._fill_missing_inputs(
+            generations, invalid_inputs_indices, num_generations
+        )
+
         _progress()
         return generations
 
@@ -647,9 +714,13 @@ class LLMPool:
         if not all(isinstance(llm, ProcessLLM) for llm in llms):
             raise ValueError("The `llms` argument must contain only `ProcessLLM`s.")
 
-        if not all(llm.task == llms[0].task for llm in llms):
+        # Note: The following piece of code is used to check that all the `ProcessLLM`s
+        # have the same task or a subclass of it.
+        mros = [(type(llm.task), len(type(llm.task).mro())) for llm in llms]
+        min_common_class = min(mros, key=lambda x: x[1])[0]
+        if not all(isinstance(llm.task, min_common_class) for llm in llms):
             raise ValueError(
-                "The `llms` argument must contain `ProcessLLM`s with the same task."
+                "All the `ProcessLLM` in `llms` must share the same task (either as the instance or the parent class)."
             )
 
         self.llms = llms

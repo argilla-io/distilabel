@@ -281,7 +281,12 @@ class Pipeline:
             try:
                 processed_generation.update(
                     **combine_dicts(
-                        *[generation["parsed_output"] for generation in generations]
+                        *[
+                            generation["parsed_output"]
+                            if generation["parsed_output"] is not None
+                            else {}
+                            for generation in generations
+                        ]
                     )
                 )
             except Exception as e:

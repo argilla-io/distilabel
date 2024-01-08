@@ -38,6 +38,8 @@ hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
 llama-cpp = ["llama-cpp-python >= 0.2.0"]
 openai = ["openai >= 1.0.0"]
 vllm = ["vllm >= 0.2.1"]
+vertexai = ["google-cloud-aiplatform >= 1.38.0"]
+together = ["together"]
 argilla = ["argilla >= 1.18.0"]
 tests = ["pytest >= 7.4.0"]
 docs = [
@@ -47,6 +49,8 @@ docs = [
     "mkdocs-section-index >= 0.3.8",
     "mkdocs-gen-files >= 0.5.0",
     "mike >= 2.0.0",
+    "Pillow >= 9.5.0",
+    "CairoSVG >= 2.7.1",
 ]
 
 [project.urls]
