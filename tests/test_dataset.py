@@ -23,7 +23,7 @@ from distilabel.tasks import UltraFeedbackTask
 @pytest.fixture
 def custom_dataset():
     ds = CustomDataset.from_dict({"input": ["a", "b"], "generations": ["c", "d"]})
-    ds.task = UltraFeedbackTask.for_text_quality()
+    ds.task = UltraFeedbackTask.for_overall_quality()
     return ds
 
 
@@ -60,7 +60,7 @@ def test_do_checkpoint(
     ds = CustomDataset.from_dict(
         {"input": ["a"] * dataset_len, "generations": ["a"] * dataset_len}
     )
-    ds.task = UltraFeedbackTask.for_text_quality()
+    ds.task = UltraFeedbackTask.for_overall_quality()
     chk = DatasetCheckpoint(save_frequency=save_frequency)
     ctr = 0
     with tempfile.TemporaryDirectory() as tmpdir:
