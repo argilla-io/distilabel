@@ -142,12 +142,16 @@ class UltraFeedbackTask(PreferenceTask):
         )
 
     @classmethod
-    def for_text_quality(
+    def for_overall_quality(
         cls,
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
     ) -> "UltraFeedbackTask":
+        """Classmethod for the `UltraFeedbackTask` subtask defined by Argilla, in order to
+        evaluate all the criterias originally defined in UltraFeedback at once, in a single
+        subtask.
+        """
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
