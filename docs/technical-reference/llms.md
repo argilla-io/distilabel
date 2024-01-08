@@ -202,6 +202,15 @@ To use one of these classes you will need to have configured the Google Cloud au
 ```python
 --8<-- "docs/snippets/technical-reference/llm/vertexaiendpointllm_generate.py"
 ```
+### Anyscale
+
+Anyscale Endpoints offers open source large language models (LLMs) as fully managed API endpoints. Interoperate with open source models as you would do it with OpenAI:
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/anyscale_generate.py"
+```
+
+For the API reference visit [AnyscaleLLM][distilabel.llm.anyscale.AnyscaleLLM].
 
 ## `ProcessLLM` and `LLMPool`
 
