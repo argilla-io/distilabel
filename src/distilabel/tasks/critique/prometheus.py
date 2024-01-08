@@ -36,7 +36,7 @@ class PrometheusTask(CritiqueTask):
             value is the description of each rating.
 
     References:
-        - [`Prometheus: Inducing Fine-grained Evaluation Capability in Language Models`](https://arxiv.org/abs/2310.08491)
+        [`Prometheus: Inducing Fine-grained Evaluation Capability in Language Models`](https://arxiv.org/abs/2310.08491)
     """
 
     scoring_criteria: str
@@ -71,7 +71,11 @@ class PrometheusTask(CritiqueTask):
             ...     scoring_criteria="Overall quality of the responses provided.",
             ...     score_descriptions={0: "false", 1: "partially false", 2: "average", 3: "partially true", 4: "true"},
             ... )
-            >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", generations=["0 1 1 2 3", "0 1 1 2 3"], ref_completion="0 1 1 2 3")
+            >>> task.generate_prompt(
+            ...     input="What are the first 5 Fibonacci numbers?",
+            ...     generations=["0 1 1 2 3", "0 1 1 2 3"],
+            ...     ref_completion="0 1 1 2 3",
+            ... )
             Prompt(
                 system_prompt="You are a fair evaluator language model.",
                 formatted_prompt=""###Task Description:...",
