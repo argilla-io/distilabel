@@ -746,7 +746,7 @@ def pipeline(
     *,
     generator: Optional["LLM"] = None,
     labeller: Optional["LLM"] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Pipeline:
     """Creates a `Pipeline` instance with the provided LLMs for a given task, which is useful
     whenever you want to use a pre-defined `Pipeline` for a given task, or if you want to
