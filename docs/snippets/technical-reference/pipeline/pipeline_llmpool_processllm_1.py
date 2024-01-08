@@ -4,6 +4,7 @@ from distilabel.tasks import Task, TextGenerationTask
 
 def load_notus(task: Task) -> LLM:  # (1)
     import os
+
     from distilabel.llm import vLLM
     from vllm import LLM
 

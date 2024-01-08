@@ -54,7 +54,7 @@ For a more complete example, check out our awesome notebook on Google Colab:
 
     Understand the components and their interactions.
 
--   <p align="center"> [**API Reference**](./reference/distilabel)</p>
+-   <p align="center"> [**API Reference**](./reference/distilabel/index.md)</p>
 
     ---
 

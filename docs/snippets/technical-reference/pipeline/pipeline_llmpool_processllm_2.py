@@ -4,6 +4,7 @@ from distilabel.tasks import Task, TextGenerationTask
 
 def load_notus(task: Task) -> LLM:
     import os
+
     from distilabel.llm import vLLM
     from vllm import LLM
 
@@ -20,6 +21,7 @@ def load_notus(task: Task) -> LLM:
 
 def load_zephyr(task: Task) -> LLM:
     import os
+
     from distilabel.llm import vLLM
     from vllm import LLM
 
@@ -36,6 +38,7 @@ def load_zephyr(task: Task) -> LLM:
 
 def load_starling(task: Task) -> LLM:
     import os
+
     from distilabel.llm import vLLM
     from vllm import LLM
 
@@ -52,6 +55,7 @@ def load_starling(task: Task) -> LLM:
 
 def load_neural_chat(task: Task) -> LLM:
     import os
+
     from distilabel.llm import vLLM
     from vllm import LLM
 

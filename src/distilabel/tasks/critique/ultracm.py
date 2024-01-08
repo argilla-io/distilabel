@@ -28,6 +28,23 @@ _ULTRACM_TEMPLATE = get_template("ultracm.jinja2")
 
 @dataclass
 class UltraCMTask(CritiqueTask):
+    """A `CritiqueTask` following the prompt templated used by UltraCM (from UltraFeedback).
+
+    Args:
+        system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
+
+    Disclaimer:
+        Since the UltraCM model has been trained with OpenAI API generated data, the prompting
+        strategy may just be consistent / compliant with either GPT-3.5 or GPT-4 from OpenAI API, or
+        with their own model. Any other model may fail on the generation of a structured output, as
+        well as providing an incorrect / inaccurate critique.
+
+    References:
+        - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
+        - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
+        - [`openbmb/UltraCM-13b`](https://huggingface.co/openbmb/UltraCM-13b)
+    """
+
     __jinja2_template__: ClassVar[str] = _ULTRACM_TEMPLATE
 
     system_prompt: str = (
@@ -37,6 +54,28 @@ class UltraCMTask(CritiqueTask):
     )
 
     def generate_prompt(self, input: str, generations: str, **_: Any) -> Prompt:
+        """Generates a prompt following the UltraCM specification.
+
+        Args:
+            input (str): the input to be used for the prompt.
+            generations (List[str]): the generations to be used for the prompt, in
+                this case, the ones to be critiqued.
+
+        Returns:
+            Prompt: the generated prompt.
+
+        Examples:
+            >>> from distilabel.tasks.critique import UltraCMTask
+            >>> task = UltraCMTask()
+            >>> task.generate_prompt(
+            ...     input="What are the first 5 Fibonacci numbers?",
+            ...     generations=["0 1 1 2 3", "0 1 1 2 3"],
+            ... )
+            Prompt(
+                system_prompt="User: A one-turn chat between a curious user ...",
+                formatted_prompt="User: Given my answer to an instruction, your role ...",
+            )
+        """
         render_kwargs = {
             "instruction": input,
             "completion": generations,

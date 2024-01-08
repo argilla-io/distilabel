@@ -21,7 +21,7 @@ We will create a [`Pipeline`][distilabel.pipeline.Pipeline] that will use [Notus
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_generator_1.py"
 ```
 
-We've set up our pipeline using a specialized [`TextGenerationTask`](distilabel.tasks.text_generation.base.TextGenerationTask) (refer to the [tasks section](./tasks.md) for more task details), and an [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM] configured for [`notus-7b-v1`](https://huggingface.co/argilla/notus-7b-v1), although any of the available `LLMs` will work.
+We've set up our pipeline using a specialized [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask] (refer to the [tasks section](./tasks.md) for more task details), and an [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM] configured for [`notus-7b-v1`](https://huggingface.co/argilla/notus-7b-v1), although any of the available `LLMs` will work.
 
 To use the [Pipeline][distilabel.pipeline.Pipeline] for dataset generation, we call the generate method. We provide it with the input dataset and specify the desired number of generations. In this example, we've prepared a `Dataset` with a single row to illustrate the process. This dataset contains one row, and we'll trigger 2 generations from it:
 

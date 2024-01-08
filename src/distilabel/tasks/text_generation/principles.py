@@ -18,7 +18,8 @@ class UltraFeedbackPrinciples:
     be injected into the system prompt given to the LLM.
 
     References:
-        - https://github.com/OpenBMB/UltraFeedback
+        - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
+        - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
     """
 
     helpfulness = [
