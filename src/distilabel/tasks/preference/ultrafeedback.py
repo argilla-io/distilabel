@@ -92,7 +92,7 @@ class UltraFeedbackTask(PreferenceTask):
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
             Prompt(
                 system_prompt="Your role is to evaluate text quality based on given criteria.",
-                formatted_prompt="# General Text Quality Assessment\nEvaluate the model's ...",
+                formatted_prompt="# General Text Quality Assessment...",
             )
         """
         render_kwargs = {

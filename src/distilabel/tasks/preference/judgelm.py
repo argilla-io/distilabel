@@ -68,7 +68,7 @@ class JudgeLMTask(PreferenceTask):
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
             Prompt(
                 system_prompt="You are a helpful assistant.",
-                formatted_prompt="[Question]\nWhat are the first 5 Fibonacci numbers?\n...",
+                formatted_prompt="[Question] What are the first 5 Fibonacci numbers? ...",
             )
         """
         render_kwargs = {
