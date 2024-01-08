@@ -66,7 +66,7 @@ class Prompt:
             ...     formatted_prompt="What are the first 5 Fibonacci numbers?",
             ... )
             >>> prompt.format_as("default")
-            'You are a helpful assistant.\nWhat are the first 5 Fibonacci numbers?'
+            'You are a helpful assistant. What are the first 5 Fibonacci numbers?'
         """
         if format == "default":
             return f"{self.system_prompt}\n{self.formatted_prompt}"
