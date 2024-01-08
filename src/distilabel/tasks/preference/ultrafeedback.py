@@ -56,6 +56,10 @@ class UltraFeedbackTask(PreferenceTask):
         system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
         ratings (Union[List[Rating], None], optional): the ratings to be used for the task. Defaults to `None`.
+
+    References:
+        - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
+        - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
     """
 
     ratings: List[Rating]

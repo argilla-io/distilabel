@@ -36,7 +36,9 @@ class PrometheusTask(CritiqueTask):
             value is the description of each rating.
 
     References:
-        [`Prometheus: Inducing Fine-grained Evaluation Capability in Language Models`](https://arxiv.org/abs/2310.08491)
+        - [`Prometheus: Inducing Fine-grained Evaluation Capability in Language Models`](https://arxiv.org/abs/2310.08491)
+        - [`kaist-ai/prometheus-13b-v1.0`](https://huggingface.co/kaist-ai/prometheus-7b-v1.0)
+        - [`kaist-ai/prometheus-13b-v1.0`](https://huggingface.co/kaist-ai/prometheus-13b-v1.0)
     """
 
     scoring_criteria: str

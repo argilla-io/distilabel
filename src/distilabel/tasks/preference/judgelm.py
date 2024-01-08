@@ -36,6 +36,12 @@ class JudgeLMTask(PreferenceTask):
     Args:
         system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
+
+    References:
+        - [`Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena`](https://arxiv.org/abs/2306.05685)
+        - [`BAAI/JudgeLM-7B-v1.0`](https://huggingface.co/BAAI/JudgeLM-7B-v1.0)
+        - [`BAAI/JudgeLM-13B-v1.0`](https://huggingface.co/BAAI/JudgeLM-13B-v1.0)
+        - [`BAAI/JudgeLM-33B-v1.0`](https://huggingface.co/BAAI/JudgeLM-33B-v1.0)
     """
 
     task_description: str = (
