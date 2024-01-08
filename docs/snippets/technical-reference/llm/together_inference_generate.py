@@ -1,5 +1,5 @@
-from distilabel.tasks import TextGenerationTask
 from distilabel.llm import TogetherInferenceLLM
+from distilabel.tasks import TextGenerationTask
 
 llm = TogetherInferenceLLM(
     model="togethercomputer/llama-2-70b-chat",

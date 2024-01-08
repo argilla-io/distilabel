@@ -1,5 +1,5 @@
-from distilabel.tasks import TextGenerationTask, Task
-from distilabel.llm import ProcessLLM, LLM
+from distilabel.llm import LLM, ProcessLLM
+from distilabel.tasks import Task, TextGenerationTask
 
 
 def load_gpt_4(task: Task) -> LLM:
