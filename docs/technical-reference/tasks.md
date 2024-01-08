@@ -76,14 +76,6 @@ The following snippet can be used as a simplified UltraFeedback Task, for which 
 --8<-- "docs/snippets/technical-reference/tasks/ultrafeedback.py"
 ```
 
-=== "Text Quality"
-
-    The following example uses a `LLM` to examinate the data for text quality criteria, which includes the different criteria from UltraFeedback (Correctness & Informativeness, Honesty & Uncertainty, Truthfulness & Hallucination and Instruction Following):
-
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/openai_for_text_quality.py"
-    ```
-
 === "Helpfulness"
 
     The following example creates a UltraFeedback task to emphasize helpfulness, that is overall quality and correctness of the output:
@@ -115,6 +107,17 @@ The following snippet can be used as a simplified UltraFeedback Task, for which 
     ```python
     --8<-- "docs/snippets/technical-reference/tasks/openai_for_instruction_following.py"
     ```
+
+Additionally, we at Argilla created a custom subtask for UltraFeedback, that generates an overall score evaluating all the aspects mentioned above but within a single subtask. Otherwise, in order to get an overall score, all the subtasks above should be run and the average of those scores to be calculated. 
+
+=== "Overall Quality"
+
+    The following example uses a `LLM` to examinate the data for our custom overall quality criteria, which includes the different criteria from UltraFeedback (Correctness & Informativeness, Honesty & Uncertainty, Truthfulness & Hallucination and Instruction Following):
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/openai_for_overall_quality.py"
+    ```
+
 
 For the API reference visit [UltraFeedbackTask][distilabel.tasks.preference.ultrafeedback.UltraFeedbackTask].
 
