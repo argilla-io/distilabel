@@ -139,7 +139,7 @@ class DatasetCheckpoint:
         >>> from distilabel.dataset import DatasetCheckpoint
         >>> # Save the dataset every 10% of the records generated.
         >>> checkpoint = DatasetCheckpoint(save_frequency=len(dataset) // 10)
-        >>> # Afterwards, we can access the checkpoint checkpoint.path.
+        >>> # Afterwards, we can access the checkpoint's checkpoint.path.
     """
 
     path: Path = Path.cwd() / "ckpt"
