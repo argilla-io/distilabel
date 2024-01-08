@@ -35,6 +35,12 @@ class PrometheusTask(CritiqueTask):
             the key is the rating value (ideally those should be consecutive), and the
             value is the description of each rating.
 
+    Disclaimer:
+        Since the Prometheus model has been trained with OpenAI API generated data, the prompting
+        strategy may just be consistent / compliant with either GPT-3.5 or GPT-4 from OpenAI API, or
+        with their own model. Any other model may fail on the generation of a structured output, as
+        well as providing an incorrect / inaccurate critique.
+
     References:
         - [`Prometheus: Inducing Fine-grained Evaluation Capability in Language Models`](https://arxiv.org/abs/2310.08491)
         - [`kaist-ai/prometheus-13b-v1.0`](https://huggingface.co/kaist-ai/prometheus-7b-v1.0)

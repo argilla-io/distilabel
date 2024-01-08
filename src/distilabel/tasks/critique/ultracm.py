@@ -33,6 +33,12 @@ class UltraCMTask(CritiqueTask):
     Args:
         system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
 
+    Disclaimer:
+        Since the UltraCM model has been trained with OpenAI API generated data, the prompting
+        strategy may just be consistent / compliant with either GPT-3.5 or GPT-4 from OpenAI API, or
+        with their own model. Any other model may fail on the generation of a structured output, as
+        well as providing an incorrect / inaccurate critique.
+
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
