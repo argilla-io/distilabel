@@ -40,8 +40,6 @@ class SelfInstructTask(TextGenerationTask):
     """A `TextGenerationTask` following the Self-Instruct specification for building
     the prompts.
 
-    Reference: https://github.com/yizhongw/self-instruct
-
     Args:
         system_prompt (str, optional): the system prompt to be used. Defaults to `None`.
         principles (Dict[str, List[str]], optional): the principles to be used for the system prompt.
@@ -52,6 +50,10 @@ class SelfInstructTask(TextGenerationTask):
             "AI assistant".
         num_instructions (int, optional): the number of instructions to be used for the prompt.
             Defaults to 5.
+
+    References:
+        - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
+        - [`Self-Instruct - GitHub Repository`](https://github.com/yizhongw/self-instruct)
     """
 
     system_prompt: str = (
@@ -79,7 +81,7 @@ class SelfInstructTask(TextGenerationTask):
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?")
             Prompt(
                 system_prompt="You are a helpful assistant.",
-                formatted_prompt="# Task Description\nDevelop 2 user queries that ...",
+                formatted_prompt="# Task Description ...",
             )
         """
         render_kwargs = {

@@ -47,6 +47,10 @@ class UltraJudgeTask(PreferenceTask):
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
         areas (List[str], optional): the areas to be used for the task. Defaults to a list of four areas:
             "Practical Accuracy", "Clarity & Transparency", "Authenticity & Reliability", and "Compliance with Intent".
+
+    References:
+        - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
+        - [`Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena`](https://arxiv.org/abs/2306.05685)
     """
 
     system_prompt: str = (

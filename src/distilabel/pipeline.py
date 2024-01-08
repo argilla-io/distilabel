@@ -78,7 +78,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
@@ -714,7 +714,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
@@ -746,7 +746,7 @@ def pipeline(
     *,
     generator: Optional["LLM"] = None,
     labeller: Optional["LLM"] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Pipeline:
     """Creates a `Pipeline` instance with the provided LLMs for a given task, which is useful
     whenever you want to use a pre-defined `Pipeline` for a given task, or if you want to

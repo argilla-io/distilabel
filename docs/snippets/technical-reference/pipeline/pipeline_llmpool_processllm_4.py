@@ -1,6 +1,6 @@
-from distilabel.tasks import UltraFeedbackTask
-from distilabel.pipeline import Pipeline
 from distilabel.llm import LLM, ProcessLLM
+from distilabel.pipeline import Pipeline
+from distilabel.tasks import UltraFeedbackTask
 
 
 def load_gpt_4(task: UltraFeedbackTask) -> LLM:

@@ -56,6 +56,10 @@ class UltraFeedbackTask(PreferenceTask):
         system_prompt (str, optional): the system prompt to be used for generation. Defaults to `None`.
         task_description (Union[str, None], optional): the description of the task. Defaults to `None`.
         ratings (Union[List[Rating], None], optional): the ratings to be used for the task. Defaults to `None`.
+
+    References:
+        - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
+        - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
     """
 
     ratings: List[Rating]
@@ -88,11 +92,11 @@ class UltraFeedbackTask(PreferenceTask):
 
         Examples:
             >>> from distilabel.tasks.preference import UltraFeedbackTask
-            >>> task = UltraFeedbackTask.for_text_quality()
+            >>> task = UltraFeedbackTask.for_overall_quality()
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
             Prompt(
                 system_prompt="Your role is to evaluate text quality based on given criteria.",
-                formatted_prompt="# General Text Quality Assessment\nEvaluate the model's ...",
+                formatted_prompt="# General Text Quality Assessment...",
             )
         """
         render_kwargs = {
@@ -138,12 +142,16 @@ class UltraFeedbackTask(PreferenceTask):
         )
 
     @classmethod
-    def for_text_quality(
+    def for_overall_quality(
         cls,
         system_prompt: Optional[str] = None,
         task_description: Optional[str] = None,
         ratings: Optional[List[Rating]] = None,
     ) -> "UltraFeedbackTask":
+        """Classmethod for the `UltraFeedbackTask` subtask defined by Argilla, in order to
+        evaluate all the criterias originally defined in UltraFeedback at once, in a single
+        subtask.
+        """
         kwargs = {}
         if system_prompt is not None:
             kwargs.update({"system_prompt": system_prompt})
