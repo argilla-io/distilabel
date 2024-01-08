@@ -624,6 +624,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dataset-checkpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset checkpoints
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1757,6 +1766,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/distilabel/utils/dicts/" class="md-nav__link">
         
   
@@ -1932,6 +1962,15 @@
   <a href="#running-several-generators-in-parallel" class="md-nav__link">
     <span class="md-ellipsis">
       Running several generators in parallel
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataset-checkpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset checkpoints
     </span>
   </a>
   
@@ -2351,88 +2390,110 @@
 </span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="n">dataset</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <p>With a few lines of code, we have easily generated a dataset with 2 generations per input, using 4 different <code>LLM</code>s, and labelled the generations using GPT-4. You can check the full code <a href="https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-preference-dataset-llmpool.py">here</a>.</p>
+<h3 id="dataset-checkpoints">Dataset checkpoints</h3>
+<p>With long pipelines, it may be useful to review the dataset during the process, or have it saved in case something fails before obtaining the final dataset. We can use the <code>checkpoint_strategy</code> in <code>Pipeline.generate</code> method for this end:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span> <span class="nn">distilabel.dataset</span> <span class="kn">import</span> <span class="n">DatasetCheckpoint</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Assuming we want to save the dataset every 10% of the records generated.</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="n">freq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="mi">10</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">dataset_checkpoint</span> <span class="o">=</span> <span class="n">DatasetCheckpoint</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;checkpoint_folder&quot;</span><span class="p">,</span> <span class="n">save_frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+</span></code></pre></div>
+<p>By passing the checkpoint strategy to the <code>generate</code> method, the dataset will be saved to disk automatically every <em>freq</em> generations:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">new_ds</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">checkpoint_strategy</span><span class="o">=</span><span class="n">dataset_checkpoint</span><span class="p">,</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>The dataset can be regenerated from the checkpoint by simply calling the <code>CustomDataset.load_from_disk</code> method.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span> <span class="nn">distilabel.dataset</span> <span class="kn">import</span> <span class="n">CustomDataset</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">new_ds</span> <span class="o">=</span> <span class="n">CustomDataset</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="n">dataset_checkpoint</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</span></code></pre></div>
+<p>And with the dataset regenerated we can easily call <code>push_to_argilla</code> on it to review it.</p>
 <h2 id="pipeline_1">pipeline</h2>
 <p>Considering recurring patterns in dataset creation, we can facilitate the process by utilizing the <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a>. This is made simpler through the <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.pipeline"><code>pipeline</code></a> function, which provides the necessary parameters for creating a <code>Pipeline</code>.</p>
 <p>In the code snippet below, we use the <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.pipeline"><code>pipeline</code></a> function to craft a <code>pipeline</code> tailored for a <em>preference task</em>, specifically focusing on <em>text-quality</em> as the <em>subtask</em>. If we don't initially provide a <em>labeller</em> <a class="autorefs autorefs-internal" href="../../reference/distilabel/llm/base/#distilabel.llm.base.LLM"><code>LLM</code></a>, we can specify the subtask we want our <code>pipeline</code> to address. By default, this corresponds to <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/preference/ultrafeedback/#distilabel.tasks.preference.ultrafeedback.UltraFeedbackTask"><code>UltraFeedbackTask</code></a>. It's mandatory to specify the generator of our choice; however, the labeller defaults to <code>gpt-3.5-turbo</code>. Optional parameters required for <a class="autorefs autorefs-internal" href="../../reference/distilabel/llm/openai/#distilabel.llm.openai.OpenAILLM">OpenAILLM</a> can also be passed as optional keyword arguments.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">pipeline</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">TextGenerationTask</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">pipe</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="s2">&quot;preference&quot;</span><span class="p">,</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="s2">&quot;text-quality&quot;</span><span class="p">,</span>
-</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="n">generator</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
-</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        <span class="n">endpoint_namespace</span><span class="o">=</span><span class="n">endpoint_namespace</span><span class="p">,</span>
-</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
-</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>        <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
-</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>        <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>        <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>        <span class="n">prompt_format</span><span class="o">=</span><span class="s2">&quot;notus&quot;</span><span class="p">,</span>
-</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="p">),</span>
-</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
-</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>    <span class="n">num_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
-</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">pipeline</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">TextGenerationTask</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="n">pipe</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="s2">&quot;preference&quot;</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>    <span class="s2">&quot;text-quality&quot;</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>    <span class="n">generator</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>        <span class="n">endpoint_namespace</span><span class="o">=</span><span class="n">endpoint_namespace</span><span class="p">,</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>        <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>        <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>        <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>        <span class="n">prompt_format</span><span class="o">=</span><span class="s2">&quot;notus&quot;</span><span class="p">,</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>    <span class="p">),</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>    <span class="n">num_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>For the dataset, we'll begin with three rows from <a href="https://huggingface.co/datasets/HuggingFaceH4/instruction-dataset">HuggingFaceH4/instruction-dataset</a>. We'll request two generations with checkpoints enabled to safeguard the data in the event of any failures, which is the default behavior.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">instruction_dataset</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test[:3]&quot;</span><span class="p">)</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="o">.</span><span class="n">remove_columns</span><span class="p">([</span><span class="s2">&quot;completion&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">])</span>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">)</span>
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
-</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="n">pipe_dataset</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
-</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="n">instruction_dataset</span><span class="p">,</span>
-</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">enable_checkpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    <span class="n">display_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">instruction_dataset</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test[:3]&quot;</span><span class="p">)</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="o">.</span><span class="n">remove_columns</span><span class="p">([</span><span class="s2">&quot;completion&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">])</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">)</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="n">pipe_dataset</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    <span class="n">instruction_dataset</span><span class="p">,</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    <span class="n">enable_checkpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    <span class="n">display_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>Finally, let's see one of the examples from the dataset:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># Create a 3 turn conversation between a customer and a grocery store clerk - that is, 3 per person. Then tell me what they talked about.</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1"># Customer: Hi there, I&#39;m looking for some fresh berries. Do you have any raspberries or blueberries in stock?</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Grocery Store Clerk: Yes, we have both raspberries and blueberries in stock today. Would you like me to grab some for you or can you find them yourself?</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1"># Customer: I&#39;d like your help getting some berries. Can you also suggest which variety is sweeter? Raspberries or blueberries?</span>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1"># Grocery Store Clerk: Raspberries and blueberries both have distinct flavors. Raspberries are more tart and a little sweeter whereas blueberries tend to be a little sweeter and have a milder taste. It ultimately depends on your personal preference. Let me grab some of each for you to try at home and see which one you like better.</span>
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="c1"># Customer: That sounds like a great plan. How often do you receive deliveries? Do you have some new varieties of berries arriving soon?</span>
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="c1"># Grocery Store Clerk: We receive deliveries twice a week, on Wednesdays and Sundays. We also have a rotation of different varieties of berries throughout the season, so keep an eye out for new arrivals. Thanks for shopping with us, can I help you with anything else today?</span>
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="c1"># Customer: No, that&#39;s all for now. I&#39;m always happy to support your local store.</span>
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="c1"># turn 1: berries, fresh produce availability, customer preference</span>
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="c1"># turn 2: product recommendations based on taste and personal preference, availability</span>
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="c1"># turn 3: store acknowledgment, shopping gratitude, loyalty and repeat business expectation.</span>
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="c1"># 5.0</span>
-</span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>
-</span><span id="__span-16-26"><a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;rationale&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="__span-16-27"><a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="c1"># The text accurately follows the given instructions and provides a conversation between a customer and a grocery store clerk. The information provided is correct, informative, and aligned with the user&#39;s intent. There are no hallucinations or misleading details.</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># Create a 3 turn conversation between a customer and a grocery store clerk - that is, 3 per person. Then tell me what they talked about.</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1"># Customer: Hi there, I&#39;m looking for some fresh berries. Do you have any raspberries or blueberries in stock?</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># Grocery Store Clerk: Yes, we have both raspberries and blueberries in stock today. Would you like me to grab some for you or can you find them yourself?</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="c1"># Customer: I&#39;d like your help getting some berries. Can you also suggest which variety is sweeter? Raspberries or blueberries?</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="c1"># Grocery Store Clerk: Raspberries and blueberries both have distinct flavors. Raspberries are more tart and a little sweeter whereas blueberries tend to be a little sweeter and have a milder taste. It ultimately depends on your personal preference. Let me grab some of each for you to try at home and see which one you like better.</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="c1"># Customer: That sounds like a great plan. How often do you receive deliveries? Do you have some new varieties of berries arriving soon?</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="c1"># Grocery Store Clerk: We receive deliveries twice a week, on Wednesdays and Sundays. We also have a rotation of different varieties of berries throughout the season, so keep an eye out for new arrivals. Thanks for shopping with us, can I help you with anything else today?</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="c1"># Customer: No, that&#39;s all for now. I&#39;m always happy to support your local store.</span>
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>
+</span><span id="__span-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="c1"># turn 1: berries, fresh produce availability, customer preference</span>
+</span><span id="__span-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="c1"># turn 2: product recommendations based on taste and personal preference, availability</span>
+</span><span id="__span-19-21"><a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="c1"># turn 3: store acknowledgment, shopping gratitude, loyalty and repeat business expectation.</span>
+</span><span id="__span-19-22"><a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>
+</span><span id="__span-19-23"><a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="__span-19-24"><a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="c1"># 5.0</span>
+</span><span id="__span-19-25"><a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a>
+</span><span id="__span-19-26"><a id="__codelineno-19-26" name="__codelineno-19-26" href="#__codelineno-19-26"></a><span class="nb">print</span><span class="p">(</span><span class="n">pipe_dataset</span><span class="p">[</span><span class="s2">&quot;rationale&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="__span-19-27"><a id="__codelineno-19-27" name="__codelineno-19-27" href="#__codelineno-19-27"></a><span class="c1"># The text accurately follows the given instructions and provides a conversation between a customer and a grocery store clerk. The information provided is correct, informative, and aligned with the user&#39;s intent. There are no hallucinations or misleading details.</span>
 </span></code></pre></div>
 <p>The API reference can be found here: <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.pipeline">pipeline</a></p>
 <h2 id="argilla-integration">Argilla integration</h2>
 <p>The <a class="autorefs autorefs-internal" href="../../reference/distilabel/dataset/#distilabel.dataset.CustomDataset">CustomDataset</a> generated entirely by AI models may require some additional human processing. To facilitate human feedback, the dataset can be uploaded to <a href="https://github.com/argilla-io/argilla"><code>Argilla</code></a>. This process involves logging into an <a href="https://docs.argilla.io/en/latest/getting_started/cheatsheet.html#connect-to-argilla"><code>Argilla</code></a> instance, converting the dataset to the required format using <code>CustomDataset.to_argilla()</code>, and subsequently using <code>push_to_argilla</code> on the resulting dataset:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;&lt;YOUR_ARGILLA_API_KEY&gt;&quot;</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;&lt;YOUR_ARGILLA_API_URL&gt;&quot;</span><span class="p">)</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">pipe_dataset</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;&lt;YOUR_ARGILLA_API_KEY&gt;&quot;</span><span class="p">,</span> <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;&lt;YOUR_ARGILLA_API_URL&gt;&quot;</span><span class="p">)</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">pipe_dataset</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 

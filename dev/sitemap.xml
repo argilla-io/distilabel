@@ -201,6 +201,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/dataset/</loc>
+         <lastmod>2024-01-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/dicts/</loc>
          <lastmod>2024-01-08</lastmod>
          <changefreq>daily</changefreq>
