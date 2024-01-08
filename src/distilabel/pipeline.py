@@ -78,7 +78,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
@@ -714,7 +714,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
