@@ -637,7 +637,9 @@ class Pipeline:
             if checkpoint_strategy and checkpoint_strategy.do_checkpoint(
                 batch_i * batch_size
             ):
-                logger.info(f"Saving dataset up to batch {batch_i}...")
+                logger.info(
+                    f"Saving dataset up to batch {batch_i} at {checkpoint_strategy.path}..."
+                )
                 ds = self._build_dataset(
                     dataset,
                     generations=generations,
@@ -655,11 +657,11 @@ class Pipeline:
             dataset, generations=generations, labels=labels, batch_size=batch_size
         )
         if checkpoint_strategy:
-            logger.info("Saving final dataset...")
             ds.save_to_disk(
                 checkpoint_strategy.path,
                 **checkpoint_strategy.extra_kwargs,
             )
+            logger.info(f"Final dataset saved at {checkpoint_strategy.path}")
 
         return ds
 

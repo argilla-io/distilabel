@@ -121,7 +121,7 @@ With a few lines of code, we have easily generated a dataset with 2 generations 
 
 ### Dataset checkpoints
 
-With long pipelines, it may be useful to review the dataset during the process, just to keep track and stop the process, or have it saved in case something fails before obtaining the final dataset. We can use the `checkpoint_strategy` in `Pipeline.generate` method for this end:
+With long pipelines, it may be useful to review the dataset during the process, or have it saved in case something fails before obtaining the final dataset. We can use the `checkpoint_strategy` in `Pipeline.generate` method for this end:
 
 ```python
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_1.py"
