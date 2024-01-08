@@ -171,6 +171,38 @@ See their release post with more details at [Announcing Together Inference Engin
 --8<-- "docs/snippets/technical-reference/llm/together_inference_generate.py"
 ```
 
+### Vertex AI LLMs
+
+Google Cloud Vertex AI platform allows to use Google proprietary models and deploy other models for online predictions. `distilabel` integrates with Vertex AI trough `VertexAILLM` and `VertexAIEndpointLLM` classes. 
+
+To use one of these classes you will need to have configured the Google Cloud authentication using one of these methods:
+
+- Settings `GOOGLE_CLOUD_CREDENTIALS` environment variable
+- Using `gcloud auth application-default login` command
+- Using `vertexai.init` Python SDK function from the `google-cloud-aiplatform` library before instantiating the `LLM`.
+
+
+#### Proprietary models (Gemini and PaLM)
+
+`VertexAILLM` allows to use Google proprietary models such as Gemini and PaLM. These models are served trough Vertex AI and its different APIs: 
+
+- **Gemini API**: which offers models from the Gemini family such as `gemini-pro` and `gemini-pro-vision` models. More information: [Vertex AI - Gemini API](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini).
+- **Text Generation API**: which offers models from the PaLM family such as `text-bison`. More information: [Vertex AI - PaLM 2 for text](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions).
+- **Code Generation API**: which offers models from the PaLM family for code-generation such as `code-bison`. More information: [Vertex AI - Codey for code generation](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/code-generation).
+
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/vertexaillm_generate.py"
+```
+
+#### Endpoints for online prediction
+
+`VertexAIEndpointLLM` class allows to use a model deployed in a Vertex AI Endpoint for online prediction to generate text. Unlike the rest of `LLM`s classes which comes with a set of pre-defined arguments in its `__init__` method, `VertexAIEndpointLLM` requires to provide the generation arguments to be used in a dictionary that will pased to the `generation_kwargs` argument. This is because the generation parameters will be different and have different names depending on the Docker image deployed on the Vertex AI Endpoint.
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/vertexaiendpointllm_generate.py"
+```
+
 ## `ProcessLLM` and `LLMPool`
 
 By default, `distilabel` uses a single process, so the generation loop is usually bottlenecked by the model inference time and Python GIL. To overcome this limitation, we provide the `ProcessLLM` class that allows to load an `LLM` in a different process, avoiding the GIL and allowing to parallelize the generation loop. Creating a `ProcessLLM` is easy as:

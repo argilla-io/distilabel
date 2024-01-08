@@ -1,5 +1,5 @@
-from distilabel.tasks import TextGenerationTask
 from distilabel.llm import vLLM
+from distilabel.tasks import TextGenerationTask
 from vllm import LLM
 
 llm = vLLM(
