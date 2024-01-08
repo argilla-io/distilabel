@@ -46,6 +46,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llm/anyscale/</loc>
+         <lastmod>2024-01-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llm/base/</loc>
          <lastmod>2024-01-08</lastmod>
          <changefreq>daily</changefreq>
