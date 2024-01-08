@@ -92,7 +92,7 @@ class UltraFeedbackTask(PreferenceTask):
 
         Examples:
             >>> from distilabel.tasks.preference import UltraFeedbackTask
-            >>> task = UltraFeedbackTask.for_text_quality()
+            >>> task = UltraFeedbackTask.for_overall_quality()
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
             Prompt(
                 system_prompt="Your role is to evaluate text quality based on given criteria.",

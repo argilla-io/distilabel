@@ -39,7 +39,7 @@ if __name__ == "__main__":
         ),
         labeller=OpenAILLM(
             model="gpt-3.5-turbo",
-            task=UltraFeedbackTask.for_text_quality(),
+            task=UltraFeedbackTask.for_overall_quality(),
             max_new_tokens=128,
             num_threads=2,
             openai_api_key="<OPENAI_API_KEY>",
