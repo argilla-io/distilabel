@@ -430,14 +430,6 @@ class Pipeline:
                 "raw_generation_responses",
             ] + self.generator.task.output_args_names
 
-            # if len(generations) < len(dataset):
-            #     generations.extend(
-            #         [
-            #             {key: None for key in generator_column_names}
-            #             for _ in range(len(dataset) - len(generations))
-            #         ]
-            #     )
-
             # Add missing keys/columns with a `None` value
             for generation in generations:
                 for key in generator_column_names:
