@@ -1,3 +1,6 @@
+---
+description: Orchestrate the dataset generation and labelling with the Pipeline.
+---
 # Pipelines
 
 This section will detail the [`Pipeline`][distilabel.pipeline.Pipeline], providing guidance on creating and using them.
@@ -18,7 +21,7 @@ We will create a [`Pipeline`][distilabel.pipeline.Pipeline] that will use [Notus
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_generator_1.py"
 ```
 
-We've set up our pipeline using a specialized [`TextGenerationTask`](distilabel.tasks.text_generation.base.TextGenerationTask) (refer to the [tasks section](./tasks.md) for more task details), and an [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM] configured for [`notus-7b-v1`](https://huggingface.co/argilla/notus-7b-v1), although any of the available `LLMs` will work.
+We've set up our pipeline using a specialized [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask] (refer to the [tasks section](./tasks.md) for more task details), and an [InferenceEndpointsLLM][distilabel.llm.huggingface.inference_endpoints.InferenceEndpointsLLM] configured for [`notus-7b-v1`](https://huggingface.co/argilla/notus-7b-v1), although any of the available `LLMs` will work.
 
 To use the [Pipeline][distilabel.pipeline.Pipeline] for dataset generation, we call the generate method. We provide it with the input dataset and specify the desired number of generations. In this example, we've prepared a `Dataset` with a single row to illustrate the process. This dataset contains one row, and we'll trigger 2 generations from it:
 
@@ -115,6 +118,28 @@ Then, we will load the dataset and call the `generate` method of the pipeline. F
 ```
 
 With a few lines of code, we have easily generated a dataset with 2 generations per input, using 4 different `LLM`s, and labelled the generations using GPT-4. You can check the full code [here](https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-preference-dataset-llmpool.py).
+
+### Dataset checkpoints
+
+With long pipelines, it may be useful to review the dataset during the process, or have it saved in case something fails before obtaining the final dataset. We can use the `checkpoint_strategy` in `Pipeline.generate` method for this end:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_1.py"
+```
+
+By passing the checkpoint strategy to the `generate` method, the dataset will be saved to disk automatically every *freq* generations:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_2.py"
+```
+
+The dataset can be regenerated from the checkpoint by simply calling the `CustomDataset.load_from_disk` method.
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_3.py"
+```
+
+And with the dataset regenerated we can easily call `push_to_argilla` on it to review it.
 
 ## pipeline
 

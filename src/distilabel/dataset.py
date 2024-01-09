@@ -13,10 +13,14 @@
 # limitations under the License.
 
 import warnings
-from typing import TYPE_CHECKING, Union
+from dataclasses import dataclass, field
+from os import PathLike
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from datasets import Dataset
 
+from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if TYPE_CHECKING:
@@ -90,3 +94,74 @@ class CustomDataset(Dataset):
                     stacklevel=2,
                 )
         return rg_dataset
+
+    def save_to_disk(self, dataset_path: PathLike, **kwargs: Any) -> None:
+        """Saves the datataset to disk, also saving the task.
+
+        Args:
+            dataset_path: Path to the dataset.
+            **kwargs: Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+        """
+        super().save_to_disk(dataset_path, **kwargs)
+        if self.task is not None:
+            save_task_to_disk(dataset_path, self.task)
+
+    @classmethod
+    def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
+        """Load a CustomDataset from disk, also reading the task.
+
+        Args:
+            dataset_path: Path to the dataset, as you would do with a standard Dataset.
+
+        Returns:
+            The loaded dataset.
+        """
+        ds = super().load_from_disk(dataset_path, *kwargs)
+        # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
+        ds.__class__ = cls
+        task = load_task_from_disk(dataset_path)
+        ds.task = task
+        return ds
+
+
+@dataclass
+class DatasetCheckpoint:
+    """A checkpoint class that contains the information of a checkpoint.
+
+    Args:
+        path (Path): The path to the checkpoint.
+        save_frequency (int): The frequency at which the checkpoint should be saved
+            By default is set to -1 (no checkpoint is saved to disk, but the dataset
+            is returned upon failure).
+        extra_kwargs (dict[str, Any]): Additional kwargs to be passed to the `save_to_disk` method of the Dataset.
+
+    Examples:
+        >>> from distilabel.dataset import DatasetCheckpoint
+        >>> # Save the dataset every 10% of the records generated.
+        >>> checkpoint = DatasetCheckpoint(save_frequency=len(dataset) // 10)
+        >>> # Afterwards, we can access the checkpoint's checkpoint.path.
+    """
+
+    path: Path = Path.cwd() / "ckpt"
+    save_frequency: int = -1
+    extra_kwargs: Dict[str, Any] = field(default_factory=dict)
+
+    # Internal fields to keep track of the number of records generated and when to check.
+    _total_checks: int = field(repr=False, default=0)
+
+    def do_checkpoint(self, step: int) -> bool:
+        """Determines if a checkpoint should be done.
+
+        Args:
+            step (int): The number of records generated.
+
+        Returns:
+            bool: Whether a checkpoint should be done.
+        """
+        if self.save_frequency == -1:
+            return False
+
+        if (step - self._total_checks * self.save_frequency) // self.save_frequency:
+            self._total_checks += 1
+            return True
+        return False

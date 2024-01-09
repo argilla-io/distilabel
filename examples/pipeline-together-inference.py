@@ -13,47 +13,38 @@
 # limitations under the License.
 
 import os
+import time
 
-from datasets import load_dataset
-from distilabel.llm import LlamaCppLLM, OpenAILLM
+from datasets import Dataset
+from distilabel.llm import TogetherInferenceLLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
-from llama_cpp import Llama
+from distilabel.tasks import TextGenerationTask
 
 if __name__ == "__main__":
-    dataset = (
-        load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
-        .remove_columns(["completion", "meta"])
-        .rename_column("prompt", "input")
+    dataset = Dataset.from_dict(
+        {
+            "input": ["Explain me the theory of relativity as if you were a pirate."],
+        }
     )
 
-    pipeline = Pipeline(
-        generator=LlamaCppLLM(
-            model=Llama(
-                model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=-1
-            ),  # e.g. download it from https://huggingface.co/TheBloke/notus-7b-v1-GGUF/blob/main/notus-7b-v1.Q4_0.gguf
-            task=TextGenerationTask(),
-            prompt_format="notus",
-            max_new_tokens=128,
-            temperature=0.3,
-        ),
-        labeller=OpenAILLM(
-            model="gpt-3.5-turbo",
-            task=UltraFeedbackTask.for_overall_quality(),
-            max_new_tokens=128,
-            num_threads=2,
-            openai_api_key="<OPENAI_API_KEY>",
-            temperature=0.0,
-        ),
+    llm = TogetherInferenceLLM(
+        model="togethercomputer/llama-2-70b-chat",
+        api_key=os.getenv("TOGETHER_API_KEY", None),
+        task=TextGenerationTask(),
+        prompt_format="llama2",
     )
+    pipeline = Pipeline(generator=llm)
 
+    start = time.time()
     dataset = pipeline.generate(
-        dataset,  # type: ignore
+        dataset=dataset,
+        shuffle_before_labelling=False,
         num_generations=2,
-        batch_size=1,
-        enable_checkpoints=True,
-        display_progress_bar=True,
-    )
+        skip_dry_run=True,
+        display_progress_bar=False,
+    )  # type: ignore
+    end = time.time()
+    print("Elapsed", end - start)
 
     # Push to the HuggingFace Hub
     dataset.push_to_hub(

@@ -63,7 +63,7 @@ if __name__ == "__main__":
     pipeline = Pipeline(
         generator=ProcessLLM(task=TextGenerationTask(), load_llm_fn=load_llama_cpp_llm),
         labeller=ProcessLLM(
-            task=UltraFeedbackTask.for_text_quality(), load_llm_fn=load_openai_llm
+            task=UltraFeedbackTask.for_overall_quality(), load_llm_fn=load_openai_llm
         ),
     )
 

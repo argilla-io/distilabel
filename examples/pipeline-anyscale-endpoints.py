@@ -15,48 +15,30 @@
 import os
 
 from datasets import load_dataset
-from distilabel.llm import LlamaCppLLM, OpenAILLM
+from distilabel.llm import AnyscaleLLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
-from llama_cpp import Llama
+from distilabel.tasks import TextGenerationTask
 
 if __name__ == "__main__":
     dataset = (
-        load_dataset("HuggingFaceH4/instruction-dataset", split="test[:10]")
+        load_dataset("HuggingFaceH4/instruction-dataset", split="test[10:12]")
         .remove_columns(["completion", "meta"])
         .rename_column("prompt", "input")
     )
-
-    pipeline = Pipeline(
-        generator=LlamaCppLLM(
-            model=Llama(
-                model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=-1
-            ),  # e.g. download it from https://huggingface.co/TheBloke/notus-7b-v1-GGUF/blob/main/notus-7b-v1.Q4_0.gguf
+    pipe = Pipeline(
+        generator=AnyscaleLLM(
+            model="HuggingFaceH4/zephyr-7b-beta",
             task=TextGenerationTask(),
-            prompt_format="notus",
-            max_new_tokens=128,
-            temperature=0.3,
-        ),
-        labeller=OpenAILLM(
-            model="gpt-3.5-turbo",
-            task=UltraFeedbackTask.for_overall_quality(),
-            max_new_tokens=128,
-            num_threads=2,
-            openai_api_key="<OPENAI_API_KEY>",
-            temperature=0.0,
-        ),
+            openai_api_key=os.environ.get("OPENAI_API_KEY"),
+        )
     )
-
-    dataset = pipeline.generate(
+    new_dataset = pipe.generate(
         dataset,  # type: ignore
-        num_generations=2,
-        batch_size=1,
-        enable_checkpoints=True,
-        display_progress_bar=True,
+        num_generations=1,
     )
 
     # Push to the HuggingFace Hub
-    dataset.push_to_hub(
+    new_dataset.push_to_hub(
         os.getenv("HF_REPO_ID"),  # type: ignore
         split="train",
         private=True,
@@ -74,7 +56,7 @@ if __name__ == "__main__":
         )
 
         # Convert into an Argilla dataset and push it to Argilla
-        rg_dataset = dataset.to_argilla()
+        rg_dataset = new_dataset.to_argilla()
         rg_dataset.push_to_argilla(
             name=f"my-dataset-{uuid4()}",
             workspace="admin",

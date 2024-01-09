@@ -1,3 +1,6 @@
+---
+description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
+---
 # distilabel
 
 AI Feedback (AIF) framework to build datasets with and for LLMs:
@@ -20,6 +23,7 @@ In addition, the following extras are available:
 - `openai`: for using OpenAI API models via the `OpenAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
+- `together`: for using [Together Inference](https://www.together.ai/products) via their Python client.
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
 ## Quick example
@@ -50,7 +54,7 @@ For a more complete example, check out our awesome notebook on Google Colab:
 
     Understand the components and their interactions.
 
--   <p align="center"> [**API Reference**](./reference/distilabel)</p>
+-   <p align="center"> [**API Reference**](./reference/distilabel/index.md)</p>
 
     ---
 

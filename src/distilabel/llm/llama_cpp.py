@@ -131,9 +131,7 @@ class LlamaCppLLM(LLM):
         Returns:
             List[List[LLMOutput]]: the generated outputs.
         """
-        prompts = self._generate_prompts(
-            inputs, default_format=None, expected_output_type=str
-        )
+        prompts = self._generate_prompts(inputs, default_format=None)
         outputs = []
         for prompt in prompts:
             output = []

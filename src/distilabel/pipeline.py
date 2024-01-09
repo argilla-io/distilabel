@@ -33,7 +33,7 @@ from typing import (
 
 from datasets import Dataset, Split
 
-from distilabel.dataset import CustomDataset
+from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
@@ -78,7 +78,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
@@ -281,7 +281,12 @@ class Pipeline:
             try:
                 processed_generation.update(
                     **combine_dicts(
-                        *[generation["parsed_output"] for generation in generations]
+                        *[
+                            generation["parsed_output"]
+                            if generation["parsed_output"] is not None
+                            else {}
+                            for generation in generations
+                        ]
                     )
                 )
             except Exception as e:
@@ -425,14 +430,6 @@ class Pipeline:
                 "raw_generation_responses",
             ] + self.generator.task.output_args_names
 
-            if len(generations) < len(dataset):
-                generations.extend(
-                    [
-                        {key: None for key in generator_column_names}
-                        for _ in range(len(dataset) - len(generations))
-                    ]
-                )
-
             # Add missing keys/columns with a `None` value
             for generation in generations:
                 for key in generator_column_names:
@@ -527,12 +524,11 @@ class Pipeline:
         num_generations: int = 1,
         batch_size: int = 1,
         shuffle_before_labelling: bool = True,
-        enable_checkpoints: bool = True,
+        checkpoint_strategy: Optional[DatasetCheckpoint] = DatasetCheckpoint(),
         display_progress_bar: bool = False,
     ) -> CustomDataset:
         """Generates the outputs for the given dataset using the LLMs provided to the
         `Pipeline`."""
-
         if (
             self.labeller is not None
             and self.generator is not None
@@ -581,14 +577,16 @@ class Pipeline:
                         progress_callback_func=generation_progress_func,
                     )
                     generations.extend(batch_generations)
+
                 except Exception as e:
-                    if not enable_checkpoints:
+                    if not checkpoint_strategy:
                         raise RuntimeError(
-                            "`Pipeline.generate` failed during generation step. Setting `enable_checkpoints=True` is recommended!"
+                            "`Pipeline.generate` failed during generation step. Passing a `DatasetCheckpoint` is recommended!"
                         ) from e
                     logger.error(
                         f"`Pipeline.generate` failed during generation step with exception: {e}"
                     )
+
                     return self._build_dataset(
                         dataset,
                         generations=generations,
@@ -611,14 +609,16 @@ class Pipeline:
                         labels.append(batch_labels)  # type: ignore
                     else:
                         labels.extend(batch_labels)  # type: ignore
+
                 except Exception as e:
-                    if not enable_checkpoints:
+                    if not checkpoint_strategy:
                         raise RuntimeError(
-                            "`Pipeline.generate` failed during labelling step. Setting `enable_checkpoints=True` is recommended!"
+                            "`Pipeline.generate` failed during labelling step. Passing a `DatasetCheckpoint` is recommended!"
                         ) from e
                     logger.error(
                         f"`Pipeline.generate` failed during labelling step with exception: {e}"
                     )
+
                     return self._build_dataset(
                         dataset,
                         generations=generations,
@@ -626,11 +626,36 @@ class Pipeline:
                         batch_size=batch_size,
                     )
 
+            if checkpoint_strategy and checkpoint_strategy.do_checkpoint(
+                batch_i * batch_size
+            ):
+                logger.info(
+                    f"Saving dataset up to batch {batch_i} at {checkpoint_strategy.path}..."
+                )
+                ds = self._build_dataset(
+                    dataset,
+                    generations=generations,
+                    labels=labels,
+                    batch_size=batch_size,
+                )
+                ds.save_to_disk(
+                    checkpoint_strategy.path,
+                    **checkpoint_strategy.extra_kwargs,
+                )
+
         _pipeline_progress.stop()
 
-        return self._build_dataset(
+        ds = self._build_dataset(
             dataset, generations=generations, labels=labels, batch_size=batch_size
         )
+        if checkpoint_strategy:
+            ds.save_to_disk(
+                checkpoint_strategy.path,
+                **checkpoint_strategy.extra_kwargs,
+            )
+            logger.info(f"Final dataset saved at {checkpoint_strategy.path}")
+
+        return ds
 
     def dry_run(self, dataset: Dataset) -> CustomDataset:
         """Performs a dry run over the provided dataset, which consists on generating the
@@ -655,7 +680,7 @@ class Pipeline:
                 # Default kwargs to make the process as simple as possible
                 num_generations=1,
                 batch_size=1,
-                enable_checkpoints=False,
+                checkpoint_strategy=None,
                 display_progress_bar=False,
             )
         except Exception as e:
@@ -670,7 +695,7 @@ class Pipeline:
         num_generations: int = 1,
         batch_size: int = 1,
         shuffle_before_labelling: bool = True,
-        enable_checkpoints: bool = True,
+        checkpoint_strategy: Optional[DatasetCheckpoint] = DatasetCheckpoint(),
         display_progress_bar: bool = False,
         skip_dry_run: bool = False,
     ) -> CustomDataset:
@@ -684,7 +709,9 @@ class Pipeline:
             shuffle_before_labelling: whether to shuffle the generations before labelling
                 or not. This is useful to avoid the labelling LLM to be biased by the order
                 of the generations. Defaults to `True`.
-            enable_checkpoints (bool, optional): whether to enable checkpoints or not. Defaults to `True`.
+            checkpoint_strategy (DatasetCheckpoint, optional): the checkpoint strategy.
+                If `None` is provided, no checkpoints will be saved. Defaults to `DatasetCheckpoint()`,
+                which won't save the dataset but returns the generated dataset upon failure.
             display_progress_bar (bool, optional): whether to display the progress bar or not. Defaults to `False`.
             skip_dry_run (bool, optional): whether to skip the dry run or not. Defaults to `False`.
 
@@ -694,7 +721,7 @@ class Pipeline:
         Raises:
             RuntimeError: if the `Pipeline` fails during the generation or labelling steps.
             UserWarning: if the `Pipeline` fails during the generation or labelling steps and
-                `enable_checkpoints` is set to `False`.
+                `checkpoint_strategy` is set to `None`.
 
         Examples:
             >>> from transformers import AutoModelForCaualLM, AutoTokenizer
@@ -709,7 +736,7 @@ class Pipeline:
             ... )
             >>> labeller = OpenAILLM(
             ...     model="gpt-3.5-turbo",
-            ...     task=UltraFeedbackTask.for_text_quality(),
+            ...     task=UltraFeedbackTask.for_overall_quality(),
             ... )
             >>> pipeline = Pipeline(generator=generator, labeller=labeller)
             >>> dataset = pipeline.generate(dataset=..., num_generations=1, batch_size=1)
@@ -725,7 +752,7 @@ class Pipeline:
             dataset=dataset,
             num_generations=num_generations,
             batch_size=batch_size,
-            enable_checkpoints=enable_checkpoints,
+            checkpoint_strategy=checkpoint_strategy,
             shuffle_before_labelling=shuffle_before_labelling,
             display_progress_bar=display_progress_bar,
         )
@@ -741,7 +768,7 @@ def pipeline(
     *,
     generator: Optional["LLM"] = None,
     labeller: Optional["LLM"] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Pipeline:
     """Creates a `Pipeline` instance with the provided LLMs for a given task, which is useful
     whenever you want to use a pre-defined `Pipeline` for a given task, or if you want to

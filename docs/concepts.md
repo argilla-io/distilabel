@@ -1,3 +1,6 @@
+---
+description: Get familiar with the Task, LLM and Pipeline concepts in distilabel.
+---
 This page aims to get you familiarized with the basic concepts of the framework, describing the most important
 components or classes and how they work together. The following sections will guide you through the primary components
 of the framework: `Pipeline`, `LLM` (both generator and labeller), and the `Task`.
