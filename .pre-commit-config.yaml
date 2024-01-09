@@ -8,9 +8,8 @@ repos:
         exclude: ^docs/snippets/
         args:
           - --license-filepath
-          - LICENSE
+          - LICENSE_HEADER
           - --fuzzy-match-generates-todo
-          # - --remove-header
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.4
