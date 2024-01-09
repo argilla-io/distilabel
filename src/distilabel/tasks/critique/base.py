@@ -67,12 +67,14 @@ class CritiqueTask(RatingToArgillaMixin, Task):
         generations_column: str = "generations",
         score_column: str = "score",
         critique_column: str = "critique",
+        score_values: Optional[List[int]] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"]]:
         return super().to_argilla_record(
             dataset_row=dataset_row,
             generations_column=generations_column,
             ratings_column=score_column,
             rationale_column=critique_column,
+            ratings_values=score_values or [1, 2, 3, 4, 5],
         )
 
 

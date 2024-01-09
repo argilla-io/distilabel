@@ -29,7 +29,7 @@ from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
-    from argilla import FeedbackDataset
+    from argilla import FeedbackDataset, FeedbackRecord
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
@@ -134,6 +134,25 @@ class UltraFeedbackTask(PreferenceTask):
         ratings_values: Optional[List[int]] = None,
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
+            dataset_row=dataset_row,
+            generations_column=generations_column,
+            ratings_column=ratings_column,
+            rationale_column=rationale_column,
+            ratings_values=ratings_values or [1, 2, 3, 4, 5],
+        )
+
+    # Override the default `to_argilla_record` method to provide the `ratings_values` of
+    # UltraFeedback, as the default goes from 1-10 while UltraFeedback's default is 1-5
+    # (0-4 actually, but Argilla doesn't support 0s).
+    def to_argilla_record(
+        self,
+        dataset_row: Dict[str, Any],
+        generations_column: str = "generations",
+        ratings_column: str = "rating",
+        rationale_column: str = "rationale",
+        ratings_values: Optional[List[int]] = None,
+    ) -> "FeedbackRecord":
+        return super().to_argilla_record(
             dataset_row=dataset_row,
             generations_column=generations_column,
             ratings_column=ratings_column,
