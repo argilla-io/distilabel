@@ -136,6 +136,7 @@ class RatingToArgillaMixin:
         generations_column: str = "generations",
         ratings_column: str = "rating",
         rationale_column: str = "rationale",
+        ratings_values: Optional[List[int]] = None,
     ) -> "FeedbackRecord":
         """Converts a dataset row to an Argilla `FeedbackRecord`."""
         # We start off with the fields, which are the inputs of the LLM, but also
@@ -189,7 +190,12 @@ class RatingToArgillaMixin:
                             "value": 1
                             if value < 1
                             else int(value)
-                            if value < 10
+                            if value
+                            <= (
+                                max(ratings_values)
+                                if ratings_values is not None
+                                else 10
+                            )
                             else None,
                         }
                     )
