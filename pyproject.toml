@@ -51,6 +51,7 @@ docs = [
     "mike >= 2.0.0",
     "Pillow >= 9.5.0",
     "CairoSVG >= 2.7.1",
+    "mknotebooks >= 0.8.0",
 ]
 
 [project.urls]
