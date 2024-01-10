@@ -75,6 +75,7 @@ plugins:
   - section-index
   - mkdocstrings
   - social
+  - mknotebooks
 
 nav:
   - Getting started: index.md
