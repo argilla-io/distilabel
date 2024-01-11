@@ -61,17 +61,21 @@ logger = get_logger()
 def is_severless_endpoint_available(model_id: str) -> bool:
     """Checks input is a valid Hugging Face model and if there is a serverless endpoint available for it."""
     # 1. First we check if input includes a "/" which is indicative of a model name
+    print(model_id)
     if "/" not in model_id:
         return False
     # 2. Then we check if the model is currently deployed
     try:
         client = InferenceClient()
-        if model_id in client.list_deployed_models():
+        deploy_llms = client.list_deployed_models("text-generation-inference")[
+            "text-generation"
+        ]
+        if model_id in deploy_llms:
             return True
     except Exception as e:
         logger.error(e)
-    finally:
-        return False
+
+    return False
 
 
 class InferenceEndpointsLLM(LLM):
@@ -153,22 +157,12 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        # if user provides and namespace, we use it to get the inference endpoint
-        if endpoint_namespace:
-            inference_endpoint = get_inference_endpoint(
-                name=endpoint_name_or_model_id,
-                namespace=endpoint_namespace,
-                token=token,
-            )
-            inference_endpoint.wait(timeout=30)
-
-            self.client = inference_endpoint.client
-            self._model_name = inference_endpoint.repository
-
-        elif is_severless_endpoint_available(model_id=endpoint_name_or_model_id):
+        if is_severless_endpoint_available(model_id=endpoint_name_or_model_id):
+            logger.info("Using Serverless Inference Endpoint")
             self.client = InferenceClient(model=endpoint_name_or_model_id, token=token)
             self._model_name = endpoint_name_or_model_id
         else:
+            logger.info("Using Dedicated Inference Endpoint")
             inference_endpoint = get_inference_endpoint(
                 name=endpoint_name_or_model_id,
                 namespace=endpoint_namespace,
