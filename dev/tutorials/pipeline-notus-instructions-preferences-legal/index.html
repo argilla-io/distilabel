@@ -15,8 +15,10 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/tutorials/pipeline-notus-instructions-preferences-legal/">
       
       
-        <link rel="prev" href="../../reference/distilabel/utils/types/">
+        <link rel="prev" href="../../concepts/">
       
+      
+        <link rel="next" href="../../technical-reference/">
       
       
       <link rel="icon" href="../../assets/logo.svg">
@@ -298,24 +300,6 @@
         
   
   
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../technical-reference/" class="md-tabs__link">
-          
-  
-  Technical References
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
     
   
   
@@ -326,6 +310,24 @@
           
   
   Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../technical-reference/" class="md-tabs__link">
+          
+  
+  Technical References
 
         </a>
       </li>
@@ -421,6 +423,254 @@
       
   
   
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Use Notus on inference endpoints to create a legal preference dataset
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Use Notus on inference endpoints to create a legal preference dataset
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-argilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Argilla
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-an-inference-endpoint-with-notus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up an inference endpoint with Notus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up an inference endpoint with Notus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining a custom generating task for a distilabel pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a RAG pipeline using Haystack for the European AI Act
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a RAG pipeline using Haystack for the European AI Act">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#downloading-the-ai-act-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Downloading the AI Act PDF
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-instructions-with-selfinstructtask" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating instructions with SelfInstructTask
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generating instructions with SelfInstructTask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pushing the instruction dataset to Argilla to visualize and annotate.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate a Preference Dataset using an Ultrafeedback text quality task.
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generate a Preference Dataset using an Ultrafeedback text quality task.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload-the-preference-dataset-to-argilla-to-annotate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upload the preference dataset to Argilla to annotate.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     
@@ -436,10 +686,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -450,8 +700,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Technical References
           </label>
@@ -473,7 +723,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
         
           
           
@@ -489,14 +739,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
             <span class="md-nav__icon md-icon"></span>
             Concept Guides
           </label>
@@ -589,10 +839,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -603,8 +853,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
             <span class="md-nav__icon md-icon"></span>
             API Reference
           </label>
@@ -626,7 +876,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
         
           
           
@@ -642,14 +892,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1" id="__nav_3_2_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
             <span class="md-nav__icon md-icon"></span>
             distilabel
           </label>
@@ -692,7 +942,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2" >
         
           
           
@@ -708,14 +958,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_2" id="__nav_3_2_1_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_2" id="__nav_4_2_1_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_1_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2">
             <span class="md-nav__icon md-icon"></span>
             llm
           </label>
@@ -779,7 +1029,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2_3" >
         
           
           
@@ -795,14 +1045,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_2_3" id="__nav_3_2_1_2_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_2_3" id="__nav_4_2_1_2_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_2_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2_3">
             <span class="md-nav__icon md-icon"></span>
             google
           </label>
@@ -853,7 +1103,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2_4" >
         
           
           
@@ -869,14 +1119,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_2_4" id="__nav_3_2_1_2_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_2_4" id="__nav_4_2_1_2_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_2_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2_4">
             <span class="md-nav__icon md-icon"></span>
             huggingface
           </label>
@@ -1124,7 +1374,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6" >
         
           
           
@@ -1140,14 +1390,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_6" id="__nav_3_2_1_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_6" id="__nav_4_2_1_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_1_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_6">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6">
             <span class="md-nav__icon md-icon"></span>
             tasks
           </label>
@@ -1190,7 +1440,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_6_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_2" >
         
           
           
@@ -1206,14 +1456,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_6_2" id="__nav_3_2_1_6_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_6_2" id="__nav_4_2_1_6_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_6_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_6_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_2">
             <span class="md-nav__icon md-icon"></span>
             critique
           </label>
@@ -1327,7 +1577,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_6_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_4" >
         
           
           
@@ -1343,14 +1593,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_6_4" id="__nav_3_2_1_6_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_6_4" id="__nav_4_2_1_6_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_6_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_6_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_4">
             <span class="md-nav__icon md-icon"></span>
             preference
           </label>
@@ -1485,7 +1735,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_6" >
         
           
           
@@ -1501,14 +1751,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_6_6" id="__nav_3_2_1_6_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_6_6" id="__nav_4_2_1_6_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_1_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_6_6">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_6">
             <span class="md-nav__icon md-icon"></span>
             text_generation
           </label>
@@ -1609,7 +1859,7 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_7" >
         
           
           
@@ -1625,14 +1875,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3_2_1_7" id="__nav_3_2_1_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_2_1_7" id="__nav_4_2_1_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_1_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_1_7">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_7">
             <span class="md-nav__icon md-icon"></span>
             utils
           </label>
@@ -1782,254 +2032,6 @@
             
           </ul>
         </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
-            
-  
-  <span class="md-ellipsis">
-    Tutorials
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            Tutorials
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Use Notus on inference endpoints to create a legal preference dataset
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    Use Notus on inference endpoints to create a legal preference dataset
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Introduction
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Introduction">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#running-argilla" class="md-nav__link">
-    <span class="md-ellipsis">
-      Running Argilla
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#import-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      Import dependencies
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#setting-up-an-inference-endpoint-with-notus" class="md-nav__link">
-    <span class="md-ellipsis">
-      Setting up an inference endpoint with Notus
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Setting up an inference endpoint with Notus">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      Defining a custom generating task for a distilabel pipeline
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" class="md-nav__link">
-    <span class="md-ellipsis">
-      Creating a RAG pipeline using Haystack for the European AI Act
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Creating a RAG pipeline using Haystack for the European AI Act">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#downloading-the-ai-act-pdf" class="md-nav__link">
-    <span class="md-ellipsis">
-      Downloading the AI Act PDF
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#generating-instructions-with-selfinstructtask" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generating instructions with SelfInstructTask
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Generating instructions with SelfInstructTask">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" class="md-nav__link">
-    <span class="md-ellipsis">
-      Pushing the instruction dataset to Argilla to visualize and annotate.
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate a Preference Dataset using an Ultrafeedback text quality task.
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Generate a Preference Dataset using an Ultrafeedback text quality task.">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#upload-the-preference-dataset-to-argilla-to-annotate" class="md-nav__link">
-    <span class="md-ellipsis">
-      Upload the preference dataset to Argilla to annotate.
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conclusions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conclusions
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -2258,7 +2260,8 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="use-notus-on-inference-endpoints-to-create-a-legal-preference-dataset">🤗 Use Notus on inference endpoints to create a legal preference dataset</h1>
+<h1 id="use-notus-on-inference-endpoints-to-create-a-legal-preference-dataset">🤗 Use Notus on inference endpoints to create a legal preference dataset<a class="headerlink" href="#use-notus-on-inference-endpoints-to-create-a-legal-preference-dataset" title="Permanent link">&para;</a></h1>
+<p><a href="https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a href="https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open Source in Github" src="https://img.shields.io/badge/github-view%20source-black.svg" /></a></p>
 <p>In this tutorial, you will learn how to use the Notus model on Inference Endpoints to create a legal preference dataset based on RAG instructions from the European AI Act. A full end-to-end example of how to use distilabel to leverage LLMs!</p>
 <p><a href="https://github.com/argilla-io/distilabel">distilabel</a> is an AI Feedback (AIF) framework that can generate and label datasets using LLMs, and can be used for many different use cases. Implemented with robustness, efficiency and scalability in mind, it allows anyone to build their synthetic datasets that can be used in many different scenarios. This tutorial shows an end-to-end example in which we will create a model expert in the new AI Act, to which we can make different types of questions and requests.</p>
 <p>The LLM model that we will fine-tune for this is <a href="https://argilla.io/blog/notus7b/">Notus 7B</a>, a fine-tuned version of Zephyr 7B that uses Direct Preference Optimization (DPO) and AIF techniques to outperform its foundation model in several benchmarks, and is completely open-source.</p>
@@ -2269,20 +2272,14 @@
 <li>Generating an instruction dataset with <code>SelfInstructTask</code>.</li>
 <li>Generating a preference dataset using an <code>UltraFeedback</code> text quality task.</li>
 </ul>
+<p>You can use the Open in Colab button at the top of this page. This option allows you to run the notebook directly on Google Colab. Don't forget to change the runtime type to GPU for faster model training and inference.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="https://drive.google.com/file/d/1sXOHbAScXk9QbnojHhjWb4pRf3s8YEM6/view?usp=sharing"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="introduction">Introduction</h2>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
 <p>Let's start by installing the required depencies to run distilabel, Argilla and the rest of the packages used in the tutorial; most notably, Haystack.</p>
 </div>
 </div>
@@ -2298,7 +2295,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="running-argilla">Running Argilla</h3>
+<h3 id="running-argilla">Running Argilla<a class="headerlink" href="#running-argilla" title="Permanent link">&para;</a></h3>
 <p>For this tutorial, you can use Argilla to visualize and annotate the different datasets created by distilabel. There are two main options for deploying and running Argilla:</p>
 <p><strong>Deploy Argilla on Hugging Face Spaces:</strong> If you want to run tutorials with external notebooks (e.g., Google Colab) and you have an account on Hugging Face, you can deploy Argilla on Spaces with a few clicks:</p>
 <p><a href="https://huggingface.co/new-space?template=argilla/argilla-template-space"><img alt="deploy on spaces" src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" /></a></p>
@@ -2320,7 +2317,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="import-dependencies">Import dependencies</h3>
+<h3 id="import-dependencies">Import dependencies<a class="headerlink" href="#import-dependencies" title="Permanent link">&para;</a></h3>
 <p>The main dependencies for this tutorial are distilabel for creating the synthetic datasets and Argilla for visualizing and annotating these datasets, and also for fine-tuning our model. The package <a href="https://haystack.deepset.ai/">Haystack</a> is used to creates batches from the original PDF document we want to create our datasets from.</p>
 </div>
 </div>
@@ -2385,9 +2382,9 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="setting-up-an-inference-endpoint-with-notus">Setting up an inference endpoint with Notus</h2>
+<h2 id="setting-up-an-inference-endpoint-with-notus">Setting up an inference endpoint with Notus<a class="headerlink" href="#setting-up-an-inference-endpoint-with-notus" title="Permanent link">&para;</a></h2>
 <p>Inference endpoints are a solution, managed by Hugging Face, to easily deploy any Transformer-like model. They are built from models on the Hugging Face Hub. Inference endpoints are really handy for making inference on LLMs without the hastle of trying to run the models locally. In this tutorial, we will use inference endpoints to generate text using our Notus model, as part of the <code>distilabel</code> workflow. The endpoint of choice has a <a href="https://ui.endpoints.huggingface.co/argilla/endpoints/aws-notus-7b-v1-4052">Notus 7B instance</a> running.</p>
-<h3 id="defining-a-custom-generating-task-for-a-distilabel-pipeline">Defining a custom generating task for a distilabel pipeline</h3>
+<h3 id="defining-a-custom-generating-task-for-a-distilabel-pipeline">Defining a custom generating task for a distilabel pipeline<a class="headerlink" href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" title="Permanent link">&para;</a></h3>
 <p>To kickstart this tutorial, let's see how to set up and endpoint for our Notus model. It's not part of the end-to-end example we'll see later, but an example of how to connect to a Hugging Face endpoint and a test of the <code>distilabel</code> pipeline.</p>
 <p>Let's dive into this quick example of how to use an inference endpoint. We have prepared an easy <code>Llama2QuestionAnsweringTask</code> to ask question to the model, in a very similar way as we talk with the LLMs using chatbots. First, we define a class for the question-answering task, with functions showing <code>distilabel</code> how the model should generate the prompts, parse the input and the output, etc.</p>
 </div>
@@ -2476,10 +2473,10 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="creating-a-rag-pipeline-using-haystack-for-the-european-ai-act">Creating a RAG pipeline using Haystack for the European AI Act</h2>
+<h2 id="creating-a-rag-pipeline-using-haystack-for-the-european-ai-act">Creating a RAG pipeline using Haystack for the European AI Act<a class="headerlink" href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" title="Permanent link">&para;</a></h2>
 <p>For this end-to-end example, we would like to create an expert model capable of answering question and filling up information about the new AI Act promoted by the European Union, which is the first regulation on artificial intelligence. As part of its digital strategy, the EU wants to regulate artificial AI to ensure better conditions for the development and use of this innovative technology. This act is a regulatory framework for AI, with different risk levels meaning more or less regulation. They are the world's first rules on AI.</p>
 <p>This RAG pipeline that we want to create downloads the PDF file, converts it to plain text and preprocess it, creating batches that we can feed <code>distilabel</code> to start creating instructions from it. Let's see this first part of the pipeline and get the input data. Note that this RAG part of the pipeline is not based on an active pipeline based queries or semantic properties, but a more brute-force approach in which we download the PDF and preprocess its contents.</p>
-<h3 id="downloading-the-ai-act-pdf">Downloading the AI Act PDF</h3>
+<h3 id="downloading-the-ai-act-pdf">Downloading the AI Act PDF<a class="headerlink" href="#downloading-the-ai-act-pdf" title="Permanent link">&para;</a></h3>
 <p>Firstly, we need to download the PDF document itself. We'll place it in our working directory, if it's not there already.</p>
 </div>
 </div>
@@ -2570,7 +2567,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="generating-instructions-with-selfinstructtask">Generating instructions with SelfInstructTask</h2>
+<h2 id="generating-instructions-with-selfinstructtask">Generating instructions with SelfInstructTask<a class="headerlink" href="#generating-instructions-with-selfinstructtask" title="Permanent link">&para;</a></h2>
 <p>With out Inference Endpoint up and running, we should be able to generate instructions with distilabel. These instructions, made by the LLM through our endpoint, will form an instruction dataset, with instructions created from the data we just extracted.</p>
 <p>For this example, we are using a subset of 50 batches generated in the section above, to be gentle on performance.</p>
 </div>
@@ -2707,7 +2704,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate">Pushing the instruction dataset to Argilla to visualize and annotate.</h3>
+<h3 id="pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate">Pushing the instruction dataset to Argilla to visualize and annotate.<a class="headerlink" href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" title="Permanent link">&para;</a></h3>
 <p>Let's take a quick look at the instructions generated by <code>SelfInstructTask</code>.</p>
 </div>
 </div>
@@ -2786,7 +2783,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task">Generate a Preference Dataset using an Ultrafeedback text quality task.</h2>
+<h2 id="generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task">Generate a Preference Dataset using an Ultrafeedback text quality task.<a class="headerlink" href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" title="Permanent link">&para;</a></h2>
 <p>Once we have our instruction dataset, we are going to create a preference dataset through the UltraFeedback text quality task. This is a type of task used in NLP used to evaluate the quality of text generated; our goal is to provide detailed feedback on the quality of the generated text, beyond a binary label.</p>
 <p>Our <code>pipeline()</code> method allows us to create a <code>Pipeline</code> instance with the provided LLMs for a given task, which is useful whenever you want to use a pre-defined or custom <code>Pipeline</code> for a given task. We will specify our task and subtask, the generator we want to use (in this case, one based in a Llama2 Text Generator Task) and our OpenAI API key.</p>
 </div>
@@ -2978,7 +2975,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="upload-the-preference-dataset-to-argilla-to-annotate">Upload the preference dataset to Argilla to annotate.</h3>
+<h3 id="upload-the-preference-dataset-to-argilla-to-annotate">Upload the preference dataset to Argilla to annotate.<a class="headerlink" href="#upload-the-preference-dataset-to-argilla-to-annotate" title="Permanent link">&para;</a></h3>
 <p>Once our preference dataset has been correctly generated, the Argilla UI is the best tool at our disposal to visualize it and annotate it. As for the instruction dataset, we just have to convert it to an Argilla Feedback Dataset, and push it to Argilla.</p>
 </div>
 </div>
@@ -3032,7 +3029,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="conclusions">Conclusions</h2>
+<h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
 <p>To conclude, we have gone through an end-to-end example of distilabel. We've set up an Inference Endpoint, defined a distilabel pipeline that extracts information from a PDF, created and manually reviewed the instruction and preference dataset created from that input. The final preference dataset is perfect for fine-tuning, and you can easily do this using the ArgillaTrainer from Argilla. Have a look at these resources if you want to go further:</p>
 <ul>
 <li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/end2end_examples/train-model-006.html">Train a Model with ArgillaTrainer</a></li>
