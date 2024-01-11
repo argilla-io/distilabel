@@ -14,6 +14,7 @@
 
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
+import requests
 
 from tenacity import (
     after_log,
@@ -34,6 +35,7 @@ if _HUGGINGFACE_HUB_AVAILABLE:
         InferenceTimeoutError,
         get_inference_endpoint,
         InferenceClient,
+        model_info,
     )
     from huggingface_hub.inference._text_generation import TextGenerationError
 
@@ -56,10 +58,26 @@ _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 logger = get_logger()
 
 
+def is_severless_endpoint_available(model_id: str) -> bool:
+    """Checks input is a valid Hugging Face model and if there is a serverless endpoint available for it."""
+    # 1. First we check if input includes a "/" which is indicative of a model name
+    if "/" not in model_id:
+        return False
+    # 2. Then we check if the model is currently deployed
+    try:
+        client = InferenceClient()
+        if model_id in client.list_deployed_models():
+            return True
+    except Exception as e:
+        logger.error(e)
+    finally:
+        return False
+
+
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
-        endpoint_name: str,
+        endpoint_name_or_model_id: str,
         task: "Task",
         endpoint_namespace: Union[str, None] = None,
         token: Union[str, None] = None,
@@ -78,7 +96,7 @@ class InferenceEndpointsLLM(LLM):
         """Initializes the InferenceEndpointsLLM class.
 
         Args:
-            endpoint_name (str): The name of the endpoint.
+            endpoint_name_or_model_id (str): The name of the endpoint or a Hugging Face Model Id.
             task (Task): The task to be performed by the LLM.
             endpoint_namespace (Union[str, None]): The namespace of the endpoint. Defaults to None.
             token (Union[str, None]): The token for the endpoint. Defaults to None.
@@ -95,11 +113,21 @@ class InferenceEndpointsLLM(LLM):
             prompt_formatting_fn (Union[Callable[..., str], None]): The function for formatting the prompt. Defaults to None.
 
         Examples:
+            >>> # Inference Endpoint example
             >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
             >>> from distilabel.llm import InferenceEndpointsLLM
             >>> task = Task()
             >>> llm = InferenceEndpointsLLM(
-            ...     endpoint_name="<INFERENCE_ENDPOINT_NAME>",
+            ...     endpoint_name_or_model_id="<INFERENCE_ENDPOINT_NAME>",
+            ...     task=task,
+            ... )
+            >>>
+            >>> # Inference API example
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import InferenceEndpointsLLM
+            >>> task = Task()
+            >>> llm = InferenceEndpointsLLM(
+            ...     endpoint_name_or_model_id="<MODEL_ID>",
             ...     task=task,
             ... )
         """
@@ -125,20 +153,31 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        try:
+        # if user provides and namespace, we use it to get the inference endpoint
+        if endpoint_namespace:
             inference_endpoint = get_inference_endpoint(
-                name=endpoint_name, namespace=endpoint_namespace, token=token
+                name=endpoint_name_or_model_id,
+                namespace=endpoint_namespace,
+                token=token,
             )
             inference_endpoint.wait(timeout=30)
 
             self.client = inference_endpoint.client
             self._model_name = inference_endpoint.repository
-        except Exception as e:
-            logger.info(
-                "Did not find an existing endpoint, trying to use serverless endpoint."
+
+        elif is_severless_endpoint_available(model_id=endpoint_name_or_model_id):
+            self.client = InferenceClient(model=endpoint_name_or_model_id, token=token)
+            self._model_name = endpoint_name_or_model_id
+        else:
+            inference_endpoint = get_inference_endpoint(
+                name=endpoint_name_or_model_id,
+                namespace=endpoint_namespace,
+                token=token,
             )
-            self.client = InferenceClient(model=endpoint_name, token=token)
-            self._model_name = endpoint_name
+            inference_endpoint.wait(timeout=30)
+
+            self.client = inference_endpoint.client
+            self._model_name = inference_endpoint.repository
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
