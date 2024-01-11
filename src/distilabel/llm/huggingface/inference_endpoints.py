@@ -58,7 +58,7 @@ _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 logger = get_logger()
 
 
-def is_severless_endpoint_available(model_id: str) -> bool:
+def is_serverless_endpoint_available(model_id: str) -> bool:
     """Checks input is a valid Hugging Face model and if there is a serverless endpoint available for it."""
     # 1. First we check if input includes a "/" which is indicative of a model name
     print(model_id)
