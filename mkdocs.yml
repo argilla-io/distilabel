@@ -64,6 +64,7 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - footnotes
+  # activating permalink: true makes the anchor link works in the notebooks
   - toc:
       permalink: true
 
