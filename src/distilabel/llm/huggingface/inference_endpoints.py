@@ -30,7 +30,11 @@ from distilabel.logger import get_logger
 from distilabel.utils.imports import _HUGGINGFACE_HUB_AVAILABLE
 
 if _HUGGINGFACE_HUB_AVAILABLE:
-    from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
+    from huggingface_hub import (
+        InferenceTimeoutError,
+        get_inference_endpoint,
+        InferenceClient,
+    )
     from huggingface_hub.inference._text_generation import TextGenerationError
 
     _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
@@ -121,10 +125,20 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        self.inference_endpoint = get_inference_endpoint(
-            name=endpoint_name, namespace=endpoint_namespace, token=token
-        )
-        self.inference_endpoint.wait(timeout=30)
+        try:
+            inference_endpoint = get_inference_endpoint(
+                name=endpoint_name, namespace=endpoint_namespace, token=token
+            )
+            inference_endpoint.wait(timeout=30)
+
+            self.client = inference_endpoint.client
+            self._model_name = inference_endpoint.repository
+        except Exception as e:
+            logger.info(
+                "Did not find an existing endpoint, trying to use serverless endpoint."
+            )
+            self.client = InferenceClient(model=endpoint_name, token=token)
+            self._model_name = endpoint_name
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -145,7 +159,7 @@ class InferenceEndpointsLLM(LLM):
     @property
     def model_name(self) -> str:
         """Returns the model name of the endpoint."""
-        return self.inference_endpoint.repository
+        return self._model_name
 
     @retry(
         retry=retry_if_exception_type(_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS),
@@ -159,7 +173,7 @@ class InferenceEndpointsLLM(LLM):
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
         """Performs text generation with backoff in case of an error."""
-        return self.inference_endpoint.client.text_generation(**kwargs)  # type: ignore
+        return self.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
