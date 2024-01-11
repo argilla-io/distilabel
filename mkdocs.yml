@@ -75,6 +75,7 @@ plugins:
   - section-index
   - mkdocstrings
   - social
+  - mknotebooks
 
 nav:
   - Getting started: index.md
@@ -86,3 +87,5 @@ nav:
           - Tasks: technical-reference/tasks.md
           - Pipelines: technical-reference/pipeline.md
       - API Reference: reference/
+  - Tutorials:
+      - Use Notus on inference endpoints to create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
