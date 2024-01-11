@@ -61,7 +61,6 @@ logger = get_logger()
 def is_serverless_endpoint_available(model_id: str) -> bool:
     """Checks input is a valid Hugging Face model and if there is a serverless endpoint available for it."""
     # 1. First we check if input includes a "/" which is indicative of a model name
-    print(model_id)
     if "/" not in model_id:
         return False
     # 2. Then we check if the model is currently deployed
