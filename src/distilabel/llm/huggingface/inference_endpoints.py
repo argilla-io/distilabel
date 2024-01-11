@@ -157,7 +157,7 @@ class InferenceEndpointsLLM(LLM):
         self.top_p = top_p
         self.typical_p = typical_p
 
-        if is_severless_endpoint_available(model_id=endpoint_name_or_model_id):
+        if is_serverless_endpoint_available(model_id=endpoint_name_or_model_id):
             logger.info("Using Serverless Inference Endpoint")
             self.client = InferenceClient(model=endpoint_name_or_model_id, token=token)
             self._model_name = endpoint_name_or_model_id
