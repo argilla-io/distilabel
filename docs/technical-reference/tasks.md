@@ -54,6 +54,25 @@ From the original [repository](https://github.com/yizhongw/self-instruct/tree/ma
 
 For the API reference visit  [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
 
+### EvolInstructTask
+
+The task specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
+Follow Complex Instructions](https://arxiv.org/pdf/2304.12244.pdf).
+
+Get more information at the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct): 
+
+*Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs*.
+
+Use this `Task` to build more complete and complex datasets starting from simple ones.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
+```
+
+You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
+
+For the API reference visit  [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
+
 ## Labelling
 
 Instead of generating text, you can instruct the `LLM` to label datasets. The existing tasks are designed specifically for creating both `PreferenceTask` and `CritiqueTask` datasets.
