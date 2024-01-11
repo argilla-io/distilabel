@@ -64,6 +64,9 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - footnotes
+  # activating permalink: true makes the anchor link works in the notebooks
+  - toc:
+      permalink: true
 
 plugins:
   - search
@@ -80,6 +83,8 @@ plugins:
 nav:
   - Getting started: index.md
   - Concepts: concepts.md
+  - Tutorials:
+      - Use Notus on inference endpoints to create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
   - Technical References:
       - Concept Guides:
           - technical-reference/index.md
@@ -87,5 +92,3 @@ nav:
           - Tasks: technical-reference/tasks.md
           - Pipelines: technical-reference/pipeline.md
       - API Reference: reference/
-  - Tutorials:
-      - Use Notus on inference endpoints to create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
