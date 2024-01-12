@@ -123,16 +123,7 @@ class InferenceEndpointsLLM(LLM):
             >>> from distilabel.llm import InferenceEndpointsLLM
             >>> task = Task()
             >>> llm = InferenceEndpointsLLM(
-            ...     endpoint_name_or_model_id="<INFERENCE_ENDPOINT_NAME>",
-            ...     task=task,
-            ... )
-            >>>
-            >>> # Inference API example
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
-            >>> from distilabel.llm import InferenceEndpointsLLM
-            >>> task = Task()
-            >>> llm = InferenceEndpointsLLM(
-            ...     endpoint_name_or_model_id="<MODEL_ID>",
+            ...     endpoint_name_or_model_id="<MODEL_ID_OR_INFERENCE_ENDPOINT>",
             ...     task=task,
             ... )
         """
