@@ -61,6 +61,8 @@ def is_serverless_endpoint_available(model_id: str) -> bool:
     # 1. First we check if input includes a "/" which is indicative of a model name
     if "/" not in model_id:
         return False
+    if model_id.startswith("https:"):
+        return False
     # 2. Then we check if the model is currently deployed
     try:
         client = InferenceClient()
