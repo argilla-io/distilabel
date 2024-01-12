@@ -92,6 +92,7 @@ class InferenceEndpointsLLM(LLM):
         top_k: Union[int, None] = None,
         top_p: Union[float, None] = None,
         typical_p: Union[float, None] = None,
+        stop_sequences: Union[List[str], None] = None,
         num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
@@ -111,6 +112,7 @@ class InferenceEndpointsLLM(LLM):
             top_k (Union[int, None]): The top_k for generation. Defaults to None.
             top_p (Union[float, None]): The top_p for generation. Defaults to None.
             typical_p (Union[float, None]): The typical_p for generation. Defaults to None.
+            stop_sequences (Union[List[str], None]): The stop sequences for generation. Defaults to None.
             num_threads (Union[int, None]): The number of threads. Defaults to None.
             prompt_format (Union["SupportedFormats", None]): The format of the prompt. Defaults to None.
             prompt_formatting_fn (Union[Callable[..., str], None]): The function for formatting the prompt. Defaults to None.
@@ -155,6 +157,7 @@ class InferenceEndpointsLLM(LLM):
         self.top_k = top_k
         self.top_p = top_p
         self.typical_p = typical_p
+        self.stop_sequences = stop_sequences
 
         if is_serverless_endpoint_available(model_id=endpoint_name_or_model_id):
             logger.info("Using Serverless Inference Endpoint")
@@ -185,6 +188,7 @@ class InferenceEndpointsLLM(LLM):
                 "top_k": self.top_k,
                 "top_p": self.top_p,
                 "typical_p": self.typical_p,
+                "stop_sequences": self.stop_sequences,
             },
         )
 
@@ -205,6 +209,7 @@ class InferenceEndpointsLLM(LLM):
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
         """Performs text generation with backoff in case of an error."""
+        print(kwargs)
         return self.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
@@ -234,6 +239,7 @@ class InferenceEndpointsLLM(LLM):
                     top_k=self.top_k,
                     top_p=self.top_p,
                     typical_p=self.typical_p,
+                    stop_sequences=self.stop_sequences,
                 )
                 for _ in range(num_generations)
             ]
