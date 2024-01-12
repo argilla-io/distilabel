@@ -31,10 +31,9 @@ from distilabel.utils.imports import _HUGGINGFACE_HUB_AVAILABLE
 
 if _HUGGINGFACE_HUB_AVAILABLE:
     from huggingface_hub import (
+        InferenceClient,
         InferenceTimeoutError,
         get_inference_endpoint,
-        InferenceClient,
-        model_info,
     )
     from huggingface_hub.inference._text_generation import TextGenerationError
 
