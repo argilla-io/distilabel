@@ -14,7 +14,6 @@
 
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
-import requests
 
 from tenacity import (
     after_log,
