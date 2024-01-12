@@ -46,7 +46,9 @@ For the API reference visit [TextGenerationTask][distilabel.tasks.text_generatio
 The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
 with Self-Generated Instructions](https://arxiv.org/pdf/2212.10560.pdf).
 
-From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works): *The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
+From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works):
+
+*The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_self_instruct.py"
@@ -59,7 +61,7 @@ For the API reference visit  [SelfInstructTask][distilabel.tasks.text_generation
 The task specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
 Follow Complex Instructions](https://arxiv.org/pdf/2304.12244.pdf).
 
-Get more information at the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct): 
+From the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct): 
 
 *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs*.
 
