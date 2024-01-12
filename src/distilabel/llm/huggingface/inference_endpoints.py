@@ -161,7 +161,9 @@ class InferenceEndpointsLLM(LLM):
                 namespace=endpoint_namespace,
                 token=token,
             )
-            inference_endpoint.resume().wait(timeout=30)
+            if inference_endpoint.status in ["paused", "scaledToZero"]:
+                logger.info("Waiting for Inference Endpoint to be ready...")
+                inference_endpoint.resume().wait(timeout=30)
 
             self.client = inference_endpoint.client
             self._model_name = inference_endpoint.repository
