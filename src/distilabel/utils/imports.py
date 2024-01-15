@@ -115,3 +115,4 @@ _AISTUDIO_AVAILABLE = _check_package_is_available(
     "google-generativeai", min_version="0.3.2", greater_or_equal=True
 )
 _TOGETHER_AVAILABLE = _check_package_is_available("together")
+_LITELLM_AVAILABLE: bool = _check_package_is_available("litellm", min_version="1.16.0")

@@ -17,6 +17,7 @@ from distilabel.llm.base import LLM, LLMPool, ProcessLLM
 from distilabel.llm.google.vertexai import VertexAIEndpointLLM, VertexAILLM
 from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
 from distilabel.llm.huggingface.transformers import TransformersLLM
+from distilabel.llm.litellm.ollama import OllamaLLM
 from distilabel.llm.llama_cpp import LlamaCppLLM
 from distilabel.llm.openai import OpenAILLM
 from distilabel.llm.together import TogetherInferenceLLM
@@ -33,6 +34,7 @@ __all__ = [
     "LlamaCppLLM",
     "TogetherInferenceLLM",
     "OpenAILLM",
+    "OllamaLLM",
     "vLLM",
     "AnyscaleLLM",
 ]
