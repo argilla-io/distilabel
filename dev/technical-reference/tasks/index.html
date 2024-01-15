@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.4">
     
     
       
@@ -2250,7 +2250,7 @@
 </ul>
 <p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/text_generation/base/#distilabel.tasks.text_generation.base.TextGenerationTask">TextGenerationTask</a>.</p>
 <h3 id="selfinstructtask">SelfInstructTask<a class="headerlink" href="#selfinstructtask" title="Permanent link">&para;</a></h3>
-<p>The task specially designed to build the prompts following the Self-Instruct paper: <a href="https://arxiv.org/pdf/2212.10560.pdf">SELF-INSTRUCT: Aligning Language Models
+<p>The task specially designed to build the prompts following the Self-Instruct paper: <a href="https://arxiv.org/abs/2212.10560">SELF-INSTRUCT: Aligning Language Models
 with Self-Generated Instructions</a>.</p>
 <p>From the original <a href="https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works">repository</a>: <em>The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances</em>, so this <code>Task</code> is specially interesting for generating new datasets from a set of predefined topics.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">os</span>
@@ -2274,7 +2274,7 @@ with Self-Generated Instructions</a>.</p>
 <p>Preference datasets for Language Models (LLMs) are sets of information that show how people rank or prefer one thing over another in a straightforward and clear manner. These datasets help train language models to understand and generate content that aligns with user preferences, enhancing the model's ability to generate contextually relevant and preferred outputs.</p>
 <p>Contrary to the <code>TextGenerationTask</code>, the <code>PreferenceTask</code> is not intended for direct use. It implements the default methods <code>input_args_names</code> and <code>output_args_names</code>, but <code>generate_prompt</code> and <code>parse_output</code> are specific to each <code>PreferenceTask</code>. Examining the <code>output_args_names</code> reveals that the generation will encompass both the rating and the rationale that influenced that rating.</p>
 <h4 id="ultrafeedbacktask">UltraFeedbackTask<a class="headerlink" href="#ultrafeedbacktask" title="Permanent link">&para;</a></h4>
-<p>This task is specifically designed to build the prompts following the format defined in the <a href="https://arxiv.org/pdf/2310.01377.pdf">"UltraFeedback: Boosting Language Models With High Quality Feedback"</a> paper.</p>
+<p>This task is specifically designed to build the prompts following the format defined in the <a href="https://arxiv.org/abs/2310.01377">"UltraFeedback: Boosting Language Models With High Quality Feedback"</a> paper.</p>
 <p>From the original <a href="https://github.com/OpenBMB/UltraFeedback">repository</a>: <em>To collect high-quality preference and textual feedback, we design a fine-grained annotation instruction, which contains 4 different aspects, namely instruction-following, truthfulness, honesty and helpfulness</em>. This <code>Task</code> is designed to label datasets following the different aspects defined for the UltraFeedback dataset creation.</p>
 <p>The following snippet can be used as a simplified UltraFeedback Task, for which we define 3 different ratings, but take into account the predefined versions are intended to be used out of the box:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
@@ -2381,7 +2381,7 @@ with Self-Generated Instructions</a>.</p>
 </div>
 <p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/preference/ultrafeedback/#distilabel.tasks.preference.ultrafeedback.UltraFeedbackTask">UltraFeedbackTask</a>.</p>
 <h4 id="judgelmtask">JudgeLMTask<a class="headerlink" href="#judgelmtask" title="Permanent link">&para;</a></h4>
-<p>The task specially designed to build the prompts following the UltraFeedback paper: <a href="https://arxiv.org/pdf/2310.17631.pdf">JudgeLM: Fine-tuned Large Language Models Are Scalable Judges</a>. This task is designed to evaluate the performance of AI assistants.</p>
+<p>The task specially designed to build the prompts following the UltraFeedback paper: <a href="https://arxiv.org/abs/2310.17631">JudgeLM: Fine-tuned Large Language Models Are Scalable Judges</a>. This task is designed to evaluate the performance of AI assistants.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span> <span class="nn">os</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
@@ -2506,10 +2506,10 @@ with Self-Generated Instructions</a>.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "toc.follow", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "toc.follow", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.c011b7c0.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.7389ff0e.min.js"></script>
       
     
   </body>
