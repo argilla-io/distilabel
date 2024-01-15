@@ -107,6 +107,8 @@ class EvolInstructTask(TextGenerationTask):
     def _elimination_evolving(self, output: str) -> Optional[str]:
         """Performs the elimination step of the Evol-Instruct task, steps 2-4 in the paper:
 
+        1. [NOT IMPLEMENTED] The evolved instruction does not provide any information gain compared
+        to the original one. Use ChatGPT to make this determination, this is outlined in Appendix G of the original paper.
         2. The evolved instruction makes it difficult for the LLM to generate a response. We found that
         when the generated response contains “sorry” and is relatively short in length (i.e., less than
         80 words), it often indicates that the LLM struggles to respond to the evolved instruction.
