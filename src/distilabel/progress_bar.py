@@ -30,7 +30,7 @@ _pipeline_progress = Progress(
     BarColumn(),
     TaskProgressColumn(),
     MofNCompleteColumn(),
-    TimeRemainingColumn(),
+    TimeRemainingColumn(elapsed_when_finished=True),
 )
 
 P = ParamSpec("P")
