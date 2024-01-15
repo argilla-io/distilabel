@@ -152,6 +152,16 @@ class EvolInstructTask(TextGenerationTask):
         return output
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
-        """Parses the output of the model into the desired format, applying the elimination step for bad generations."""
+        """Parses the output of the model into the desired format, applying the elimination step for bad generations.
+
+        Args:
+            output (str): the output of the model.
+
+        Note:
+            The eliminatin step is applied to the output, but only steps 2-4 in the paper are implemented.
+            Refer to point 3.2, Elimination Evolving section in the original paper for more information on the
+            elimination evolving step, and take a look at the `_elimination_evolving` method for more information
+            of the implementation.
+        """
         output = self._elimination_evolving(output)
         return {"instruction": output}
