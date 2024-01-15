@@ -1,14 +1,12 @@
+import json
 import os
 import time
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
+from urllib import request
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.utils.imports import _LITELLM_AVAILABLE
-
-if _LITELLM_AVAILABLE:
-    import requests
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -41,11 +39,6 @@ class OllamaLLM(LLM):
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
-        if not _LITELLM_AVAILABLE:
-            raise ImportError(
-                "`litellm` is not availble. Please install it using `pip install litellm` or `pip install 'distilabel[litellm]'."
-            )
-
         self.max_tokens = max_new_tokens
         self.frequency_penalty = frequency_penalty
         self.presence_penalty = presence_penalty
@@ -54,13 +47,13 @@ class OllamaLLM(LLM):
 
         self.model = model
 
-        self._api_is_running()
+        self._api_available()
         self._api_model_available()
 
-    def _api_is_running(self):
+    def _api_available(self):
         """calls GET {OLLAMA_HOST}"""
-        response = requests.get(self.OLLAMA_HOST)
-        if response.status_code != 200:
+        response = request.urlopen(self.OLLAMA_HOST)
+        if response.getcode() != 200:
             raise ValueError(
                 f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/jmorganca/ollama for deployment guide."
             )
@@ -89,21 +82,32 @@ class OllamaLLM(LLM):
             },
         }
 
-        # Send the request
-        response = requests.post(f"{self.OLLAMA_HOST}/api/chat", json=payload)
+        # Convert payload to JSON
+        data = json.dumps(payload).encode("utf-8")
 
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            # Parse and return the response JSON
-            return response.json()
-        elif response.status_code >= 500 and n < 5:
-            # If the request failed, try again
-            time.sleep(1)
-            return self._ollam_api_generate(prompt, n + 1)
-        else:
-            raise ValueError(
-                f"Ollama API request failed with status_code {response.status_code}."
-            )
+        # Create the request
+        url = f"{self.OLLAMA_HOST}/api/chat"
+        req = request.Request(
+            url, data=data, headers={"Content-Type": "application/json"}
+        )
+
+        try:
+            # Send the request
+            with request.urlopen(req) as response:
+                # Check if the request was successful (status code 200)
+                if response.getcode() == 200:
+                    # Parse and return the response JSON
+                    return json.loads(response.read().decode("utf-8"))
+                elif response.getcode() >= 500 and n < 5:
+                    # If the request failed, try again
+                    time.sleep(1)
+                    return self._api_generate(prompt, n + 1)
+                else:
+                    raise ValueError(
+                        f"Ollama API request failed with status_code {response.getcode()}."
+                    )
+        except Exception as e:
+            raise ValueError("Error in Ollama API request") from e
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -130,7 +134,7 @@ class OllamaLLM(LLM):
         outputs = []
         for prompt in prompts:
             responses = [
-                self._ollam_api_generate(prompt=prompt) for _ in range(num_generations)
+                self._api_generate(prompt=prompt) for _ in range(num_generations)
             ]
 
             output = []
