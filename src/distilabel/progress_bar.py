@@ -21,6 +21,7 @@ from rich.progress import (
     Progress,
     TaskProgressColumn,
     TextColumn,
+    TimeRemainingColumn,
 )
 from typing_extensions import ParamSpec
 
@@ -29,6 +30,7 @@ _pipeline_progress = Progress(
     BarColumn(),
     TaskProgressColumn(),
     MofNCompleteColumn(),
+    TimeRemainingColumn(),
 )
 
 P = ParamSpec("P")
