@@ -99,8 +99,8 @@ class OllamaLLM(LLM):
                     # Parse and return the response JSON
                     return json.loads(response.read().decode("utf-8"))
                 elif response.getcode() >= 500 and n < 5:
-                    # If the request failed, try again
-                    time.sleep(1)
+                    # If the request failed, try again with backoff
+                    time.sleep(1 + n)
                     return self._api_generate(prompt, n + 1)
                 else:
                     raise ValueError(
