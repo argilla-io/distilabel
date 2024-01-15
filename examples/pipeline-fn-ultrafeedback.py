@@ -31,7 +31,7 @@ if __name__ == "__main__":
         "preference",
         "text-quality",
         generator=InferenceEndpointsLLM(
-            endpoint_name=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
+            endpoint_name_or_model_id=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
             endpoint_namespace=os.getenv("HF_NAMESPACE", None),
             task=TextGenerationTask(),
             prompt_format="llama2",

@@ -106,7 +106,7 @@ class PrometheusTask(CritiqueTask):
         # We use a regex instead of splitting by the delimiter because the
         # critique may contain the delimiter, and using the regex is safer.
         pattern = r"(.+?)\. \[RESULT\] (\d+)"
-        match = re.match(pattern, output)
+        match = re.search(pattern, output)
         if match:
             return CritiqueTaskOutput(
                 score=float(match.group(2)),
