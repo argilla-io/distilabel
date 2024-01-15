@@ -44,7 +44,7 @@ For the API reference visit [TextGenerationTask][distilabel.tasks.text_generatio
 ### SelfInstructTask
 
 The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
-with Self-Generated Instructions](https://arxiv.org/pdf/2212.10560.pdf).
+with Self-Generated Instructions](https://arxiv.org/abs/2212.10560).
 
 From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works): *The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
 
@@ -66,7 +66,7 @@ Contrary to the `TextGenerationTask`, the `PreferenceTask` is not intended for d
 
 #### UltraFeedbackTask
 
-This task is specifically designed to build the prompts following the format defined in the ["UltraFeedback: Boosting Language Models With High Quality Feedback"](https://arxiv.org/pdf/2310.01377.pdf) paper.
+This task is specifically designed to build the prompts following the format defined in the ["UltraFeedback: Boosting Language Models With High Quality Feedback"](https://arxiv.org/abs/2310.01377) paper.
 
 From the original [repository](https://github.com/OpenBMB/UltraFeedback): *To collect high-quality preference and textual feedback, we design a fine-grained annotation instruction, which contains 4 different aspects, namely instruction-following, truthfulness, honesty and helpfulness*. This `Task` is designed to label datasets following the different aspects defined for the UltraFeedback dataset creation.
 
@@ -123,7 +123,7 @@ For the API reference visit [UltraFeedbackTask][distilabel.tasks.preference.ultr
 
 #### JudgeLMTask
 
-The task specially designed to build the prompts following the UltraFeedback paper: [JudgeLM: Fine-tuned Large Language Models Are Scalable Judges](https://arxiv.org/pdf/2310.17631.pdf). This task is designed to evaluate the performance of AI assistants.
+The task specially designed to build the prompts following the UltraFeedback paper: [JudgeLM: Fine-tuned Large Language Models Are Scalable Judges](https://arxiv.org/abs/2310.17631). This task is designed to evaluate the performance of AI assistants.
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/openai_judgelm.py"
