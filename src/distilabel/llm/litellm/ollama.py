@@ -1,4 +1,5 @@
 import os
+import time
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 
 from distilabel.llm.base import LLM
@@ -17,7 +18,7 @@ logger = get_logger()
 
 
 class OllamaLLM(LLM):
-    OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 
     def __init__(
         self,
@@ -47,24 +48,34 @@ class OllamaLLM(LLM):
 
         self.max_tokens = max_new_tokens
         self.frequency_penalty = frequency_penalty
-        # self.presence_penalty = presence_penalty
+        self.presence_penalty = presence_penalty
         self.temperature = temperature
         self.top_p = top_p
 
-        # if "ollama/" not in model and "ollama_chat/" not in model:
-        #     raise ValueError(
-        #         "ollama models must be prefixed with 'ollama/' or 'ollama_chat' for chat models."
-        #     )
-        # elif "ollama/" in model:
-        #     self.chat_model = False
-        # elif "ollama_chat/" in model:
-        #     self.chat_model = True
         self.model = model
 
-        # self.clean_model: str = model.replace("ollama/", "").replace("ollama_chat/", "")
+        self._api_is_running()
+        self._api_model_available()
 
-    def _ollam_api_generate(self, prompt: str, n: int = 0, **kwargs) -> str:
-        """Calls POST {OLLAMA_BASE_URL}/api/chat"""
+    def _api_is_running(self):
+        """calls GET {OLLAMA_HOST}"""
+        response = requests.get(self.OLLAMA_HOST)
+        if response.status_code != 200:
+            raise ValueError(
+                f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/jmorganca/ollama for deployment guide."
+            )
+
+    def _api_model_available(self):
+        if (
+            self._api_generate(prompt=[{"role": "user", "content": "hi"}], max_tokens=1)
+            is None
+        ):
+            raise ValueError(
+                f"Model {self.model} is not available. Run `ollama run {self.clean_model}` to serve the model."
+            )
+
+    def _api_generate(self, prompt: str, n: int = 0, **kwargs) -> str:
+        """Calls POST {OLLAMA_HOST}/api/chat"""
         # Request payload
         payload = {
             "model": self.model,
@@ -79,14 +90,15 @@ class OllamaLLM(LLM):
         }
 
         # Send the request
-        response = requests.post(f"{self.OLLAMA_BASE_URL}/api/chat", json=payload)
+        response = requests.post(f"{self.OLLAMA_HOST}/api/chat", json=payload)
 
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             # Parse and return the response JSON
             return response.json()
-        elif response.status_code >= 50 and n < 5:
+        elif response.status_code >= 500 and n < 5:
             # If the request failed, try again
+            time.sleep(1)
             return self._ollam_api_generate(prompt, n + 1)
         else:
             raise ValueError(
@@ -105,25 +117,6 @@ class OllamaLLM(LLM):
                 "top_p": self.top_p,
             },
         )
-
-    def _is_running(self):
-        """calls GET {OLLAMA_BASE_URL}"""
-        response = requests.get(self.OLLAMA_BASE_URL)
-        if response.status_code != 200:
-            raise ValueError(
-                "Could not connect to Ollama. Check https://github.com/jmorganca/ollama for usage guide."
-            )
-
-    def _is_model_available(self):
-        if (
-            self._ollam_api_generate(
-                prompt=[{"role": "user", "content": "hi"}], max_tokens=1
-            )
-            is None
-        ):
-            raise ValueError(
-                f"Model {self.model} is not available. Run `ollama run {self.clean_model}` to serve the model."
-            )
 
     @property
     def model_name(self) -> str:
