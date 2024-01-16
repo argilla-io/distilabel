@@ -13,7 +13,16 @@
 # limitations under the License.
 
 import pytest
-from distilabel.tasks.text_generation.evol_instruct import EvolInstructTask
+from distilabel.tasks.text_generation.evol_instruct import (
+    EvolInstructTask,
+    _get_stopwords,
+)
+
+
+def test_get_stopwords():
+    stopwords = _get_stopwords()
+    assert len(stopwords) == 179
+
 
 breadth = """I want you to act as a Prompt Creator.
 Your goal is to draw inspiration from the #Given Prompt# to create a brand new prompt.

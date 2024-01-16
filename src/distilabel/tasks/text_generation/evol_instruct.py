@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
 import random
 import string
 from dataclasses import dataclass
@@ -31,6 +38,21 @@ _EVOL_INSTRUCT_TEMPLATE = get_template("evol-instruct.jinja2")
 EvolutionMethod = Literal[
     "breadth", "constraints", "deepen", "concretizing", "reasoning"
 ]
+
+
+def _get_stopwords() -> List[str]:
+    """Gets the list of english stopwords from nltk package.
+
+    Returns:
+        List[str]: stopwords list.
+    """
+    try:
+        with (
+            importlib_resources.files("distilabel") / "tasks/_internal/stopwords_en.txt"
+        ).open("r") as f:
+            return f.read().split("\n")
+    except FileNotFoundError:
+        return []
 
 
 @dataclass
@@ -117,17 +139,21 @@ class EvolInstructTask(TextGenerationTask):
         4. The evolved instruction obviously copies some words from the evolving prompt, such as
         “given prompt”, “rewritten prompt”, “#Rewritten Prompt#”, etc.
         """
+        output = output.strip()
         if output == "":
             return
 
         # 2) The evolved instruction makes it difficult for the LLM to generate a response.
         if "sorry" in output.lower() and len(output.split(" ")) < 80:
+            logger.info(
+                f"Evolution step removed the output, it's hard for the LLM to generate a response: {output}"
+            )
             return
 
         # 3) The output only contains punctuation and stop words
-        if (
-            len(set(output).intersection(string.punctuation)) / len(set(output))
-        ) == 1.0:
+        stopwords = _get_stopwords()
+        clean_output = [word for word in output.split(" ") if word not in stopwords]
+        if set(clean_output).difference(set(string.punctuation)) == 0:
             logger.info(
                 f"Evolution step removed the output, it only contains punctuation and stop words: {output}"
             )
