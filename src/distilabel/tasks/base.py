@@ -18,16 +18,20 @@ if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
-
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
+from distilabel.utils.imports import _check_package_is_available
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
+    from argilla.client.feedback.integrations.textdescriptives import (
+        TextDescriptivesExtractor,
+    )
 
 
 def get_template(template_name: str) -> str:
@@ -118,6 +122,50 @@ class Task(ABC):
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."
         )
+
+    def add_vectors_to_dataset(
+        self,
+        records_or_dataset: Union[
+            "FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"
+        ],
+        vector_strategy: Union[bool, "TextDescriptivesExtractor"],
+    ) -> "FeedbackDataset":
+        if (
+            _check_package_is_available(
+                "argilla", min_version="1.22.0", greater_or_equal=True
+            )
+            and vector_strategy
+        ):
+            try:
+                from argilla import FeedbackDataset
+                from argilla.client.feedback.integrations.textdescriptives import (
+                    TextDescriptivesExtractor,
+                )
+
+                if isinstance(vector_strategy, bool):
+                    tde = TextDescriptivesExtractor(
+                        model="en",
+                        show_progress=True,
+                    )
+                else:
+                    tde = vector_strategy
+
+                if isinstance(records_or_dataset, FeedbackDataset):
+                    dataset = tde.update_dataset(dataset=records_or_dataset)
+                else:
+                    dataset = tde.update_records(records=records_or_dataset)
+            except Exception as e:
+                warnings.warn(
+                    f"An error occurred while adding vectors to the dataset: {e}",
+                    stacklevel=2,
+                )
+        else:
+            warnings.warn(
+                "The `argilla` package is not installed or the installed version is not compatible with the"
+                " required version. If you want to add vectors to your dataset, please install the `argilla==1.22.0`.",
+                stacklevel=2,
+            )
+        return dataset
 
     # Renamed to _to_argilla_record instead of renaming `to_argilla_record` to protected, as that would
     # imply more breaking changes.
