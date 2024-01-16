@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import wraps
+from functools import partial, wraps
 from typing import Any, Callable, Tuple, TypeVar, Union
 
 from rich.progress import (
@@ -77,10 +77,11 @@ def get_progress_bars_for_pipeline(
         def _generation_progress_func(has_generator: bool, advance=None) -> None:
             # If there's no generator, we are not showing the progress bar.
             # This information comes from pipelines.py
-            if has_generator:
+            return (
                 generation_progress_bar(advance=advance or num_generations)
-            else:
-                return None
+                if has_generator
+                else None
+            )
 
         labelling_progress_bar = get_progress_bar(
             description="Rows labelled", total=num_rows
@@ -89,11 +90,16 @@ def get_progress_bars_for_pipeline(
         def _labelling_progress_func(has_labeller: bool, advance=None) -> None:
             # If there's no labeller, we are not showing the progress bar.
             # This information comes from pipelines.py
-            if has_labeller:
-                labelling_progress_bar(advance=1)
-            else:
-                return None
+            return (
+                labelling_progress_bar(advance=advance or 1) if has_labeller else None
+            )
 
-        return _generation_progress_func, _labelling_progress_func
+        _partial_generation_progress_func = partial(
+            _generation_progress_func, has_generator=has_generator
+        )
+        _partial_labelling_progress_func = partial(
+            _labelling_progress_func, has_labeller=has_labeller
+        )
+        return _partial_generation_progress_func, _partial_labelling_progress_func
 
     return None, None
