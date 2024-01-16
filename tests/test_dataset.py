@@ -170,14 +170,23 @@ def test_do_checkpoint(
 
 
 @pytest.mark.parametrize(
-    "strategy, chosen, rejected, chosen_model, rejected_model",
+    "with_generation_model",
+    [True],
+)
+@pytest.mark.parametrize(
+    "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties",
     [
         (
             "random",
-            ["generation 2 4", "generation 3 3"],
-            ["generation 2 3", "generation 3 4"],
-            ["gpt-3.5-turbo", "WizardLM/WizardCoder-15B-V1.0"],
-            ["WizardLM/WizardCoder-15B-V1.0", "gpt-3.5-turbo"],
+            ["generation 1 2", "generation 2 4", "generation 3 3"],
+            ["generation 1 1", "generation 2 3", "generation 3 4"],
+            [
+                "WizardLM/WizardCoder-15B-V1.0",
+                "gpt-3.5-turbo",
+                "WizardLM/WizardCoder-15B-V1.0",
+            ],
+            ["argilla/notus-7b-v1", "WizardLM/WizardCoder-15B-V1.0", "gpt-3.5-turbo"],
+            True,
         ),
         (
             "worst",
@@ -193,6 +202,7 @@ def test_do_checkpoint(
                 "WizardLM/WizardCoder-15B-V1.0",
                 "ise-uiuc/Magicoder-S-DS-6.7B",
             ],
+            True,
         ),
     ],
 )
@@ -203,8 +213,16 @@ def test_prepare_dataset(
     rejected: List[str],
     chosen_model: List[str],
     rejected_model: List[str],
+    with_generation_model: bool,
+    keep_ties: bool,
 ):
-    ds = prepare_dataset(sample_preference_dataset, strategy=strategy)
+    if not with_generation_model:
+        sample_preference_dataset = sample_preference_dataset.remove_columns(
+            ["generation_model"]
+        )
+    ds = prepare_dataset(
+        sample_preference_dataset, strategy=strategy, seed=42, keep_ties=keep_ties
+    )
     assert isinstance(ds, CustomDataset)
     assert ds.column_names == [
         "prompt",
