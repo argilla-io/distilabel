@@ -81,7 +81,7 @@ class EvolInstructTask(TextGenerationTask):
         system_prompt (str, optional): the system prompt to be used. Not defined for this task.
 
     References:
-        - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/pdf/2304.12244.pdf)
+        - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
     """
 
     system_prompt: str = ""
@@ -185,9 +185,9 @@ class EvolInstructTask(TextGenerationTask):
 
         Note:
             The eliminatin step is applied to the output, but only steps 2-4 in the paper are implemented.
-            Refer to point 3.2, Elimination Evolving section in the original paper for more information on the
-            elimination evolving step, and take a look at the `_elimination_evolving` method for more information
-            of the implementation.
+            Refer to point 3.2, Elimination Evolving section in [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
+            for more information on the elimination evolving step, and take a look at the `_elimination_evolving`
+            method for more information of the implementation.
         """
         output = self._elimination_evolving(output)
         return {"instruction": output}
