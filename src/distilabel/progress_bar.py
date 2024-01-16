@@ -63,27 +63,38 @@ ProgressFunc = Union[Callable[[], None], None]
 
 
 def get_progress_bars_for_pipeline(
-    num_rows: int, num_generations: int, display_progress_bar: bool, has_labeller: bool
+    num_rows: int,
+    num_generations: int,
+    display_progress_bar: bool,
+    has_generator: bool,
+    has_labeller: bool,
 ) -> Tuple[ProgressFunc, ProgressFunc]:
     if display_progress_bar:
+
         generation_progress_bar = get_progress_bar(
             description="Texts Generated", total=num_rows * num_generations
         )
 
-        def _generation_progress_func(advance=None) -> None:
-            generation_progress_bar(advance=advance or num_generations)
+        def _generation_progress_func(has_generator:bool, advance=None) -> None:
+            # If there's no generator, we are not showing the progress bar.
+            # This information comes from pipelines.py
+            if has_generator:
+                generation_progress_bar(advance=advance or num_generations)
+            else:
+                return None
 
-        # If there's no labeller, we shouldn't show an empty progress bar.
-        # The information comes from pipeline.py, where self.labeller is None in this case
-        if not has_labeller:
-            return _generation_progress_func, None
 
         labelling_progress_bar = get_progress_bar(
             description="Rows labelled", total=num_rows
         )
 
-        def _labelling_progress_func(advance=None) -> None:
-            labelling_progress_bar(advance=1)
+        def _labelling_progress_func(has_labeller:bool, advance=None) -> None:
+            # If there's no labeller, we are not showing the progress bar.
+            # This information comes from pipelines.py
+            if has_labeller:
+                labelling_progress_bar(advance=1)
+            else:
+                return None
 
         return _generation_progress_func, _labelling_progress_func
 
