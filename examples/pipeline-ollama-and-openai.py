@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
 from datasets import load_dataset
 from distilabel.llm import OllamaLLM
@@ -27,7 +28,7 @@ if __name__ == "__main__":
 
     pipeline = Pipeline(
         generator=OllamaLLM(
-            model="mistral",
+            model="mistral",  # should be deployed separately via https://github.com/jmorganca/ollama
             task=TextGenerationTask(),
             max_new_tokens=128,
             temperature=0.3,
@@ -42,30 +43,30 @@ if __name__ == "__main__":
         checkpoint_strategy=False,
         display_progress_bar=True,
     )
-    print(dataset)
-    # # Push to the HuggingFace Hub
-    # dataset.push_to_hub(
-    #     os.getenv("HF_REPO_ID"),  # type: ignore
-    #     split="train",
-    #     private=True,
-    #     token=os.getenv("HF_TOKEN", None),
-    # )
 
-    # try:
-    #     from uuid import uuid4
+    # Push to the HuggingFace Hub
+    dataset.push_to_hub(
+        os.getenv("HF_REPO_ID"),  # type: ignore
+        split="train",
+        private=True,
+        token=os.getenv("HF_TOKEN", None),
+    )
 
-    #     import argilla as rg
+    try:
+        from uuid import uuid4
 
-    #     rg.init(
-    #         api_url=os.getenv("ARGILLA_API_URL"),
-    #         api_key=os.getenv("ARGILLA_API_KEY"),
-    #     )
+        import argilla as rg
 
-    #     # Convert into an Argilla dataset and push it to Argilla
-    #     rg_dataset = dataset.to_argilla()
-    #     rg_dataset.push_to_argilla(
-    #         name=f"my-dataset-{uuid4()}",
-    #         workspace="admin",
-    #     )
-    # except ImportError:
-    #     pass
+        rg.init(
+            api_url=os.getenv("ARGILLA_API_URL"),
+            api_key=os.getenv("ARGILLA_API_KEY"),
+        )
+
+        # Convert into an Argilla dataset and push it to Argilla
+        rg_dataset = dataset.to_argilla()
+        rg_dataset.push_to_argilla(
+            name=f"my-dataset-{uuid4()}",
+            workspace="admin",
+        )
+    except ImportError:
+        pass
