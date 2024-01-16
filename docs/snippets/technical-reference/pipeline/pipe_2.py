@@ -10,6 +10,6 @@ pipe_dataset = pipe.generate(
     instruction_dataset,
     num_generations=2,
     batch_size=1,
-    enable_checkpoints=True,
+    checkpoint_strategy=True,
     display_progress_bar=True,
 )
