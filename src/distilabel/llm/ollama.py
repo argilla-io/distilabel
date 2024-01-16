@@ -1,8 +1,17 @@
 import json
+import logging
 import os
-import time
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
-from urllib import request
+from urllib import error, request
+
+from tenacity import (
+    after_log,
+    before_sleep_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_random_exponential,
+)
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
@@ -13,6 +22,12 @@ if TYPE_CHECKING:
     from distilabel.tasks.prompt import SupportedFormats
 
 logger = get_logger()
+
+_OLLAMA_API_RETRY_ON_EXCEPTIONS = (error.HTTPError,)
+
+_OLLAMA_API_STOP_AFTER_ATTEMPT = 6
+_OLLAMA_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER = 1
+_OLLAMA_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 
 
 class OllamaLLM(LLM):
@@ -60,14 +75,26 @@ class OllamaLLM(LLM):
 
     def _api_model_available(self):
         if (
-            self._api_generate(prompt=[{"role": "user", "content": "hi"}], max_tokens=1)
+            self._text_generation_with_backoff(
+                prompt=[{"role": "user", "content": "hi"}], max_tokens=1
+            )
             is None
         ):
             raise ValueError(
                 f"Model {self.model} is not available. Run `ollama run {self.clean_model}` to serve the model."
             )
 
-    def _api_generate(self, prompt: str, n: int = 0, **kwargs) -> str:
+    @retry(
+        retry=retry_if_exception_type(_OLLAMA_API_RETRY_ON_EXCEPTIONS),
+        stop=stop_after_attempt(_OLLAMA_API_STOP_AFTER_ATTEMPT),
+        wait=wait_random_exponential(
+            multiplier=_OLLAMA_API_WAIT_RANDOM_EXPONENTIAL_MULTIPLIER,
+            max=_OLLAMA_API_WAIT_RANDOM_EXPONENTIAL_MAX,
+        ),
+        before_sleep=before_sleep_log(logger, logging.INFO),
+        after=after_log(logger, logging.INFO),
+    )
+    def _text_generation_with_backoff(self, prompt: str, **kwargs) -> str:
         """Calls POST {OLLAMA_HOST}/api/chat"""
         # Request payload
         payload = {
@@ -91,23 +118,24 @@ class OllamaLLM(LLM):
             url, data=data, headers={"Content-Type": "application/json"}
         )
 
-        try:
-            # Send the request
-            with request.urlopen(req) as response:
-                # Check if the request was successful (status code 200)
-                if response.getcode() == 200:
-                    # Parse and return the response JSON
-                    return json.loads(response.read().decode("utf-8"))
-                elif response.getcode() >= 500 and n < 5:
-                    # If the request failed, try again with backoff
-                    time.sleep(1 + n)
-                    return self._api_generate(prompt, n + 1)
-                else:
-                    raise ValueError(
-                        f"Ollama API request failed with status_code {response.getcode()}."
-                    )
-        except Exception as e:
-            raise ValueError("Error in Ollama API request") from e
+        with request.urlopen(req) as response:
+            # Check if the request was successful (status code 200)
+            if response.getcode() == 200:
+                # Parse and return the response JSON
+                return json.loads(response.read().decode("utf-8"))
+            elif response.getcode() >= 500:
+                # If the request failed, try again with backoff
+                raise error.HTTPError(
+                    url=url,
+                    code=response.getcode(),
+                    msg=f"Server Error {response.getcode()}",
+                    hdrs=response.getheaders(),
+                    fp=None,
+                )
+            else:
+                raise ValueError(
+                    f"Ollama API request failed with status_code {response.getcode()}."
+                )
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -134,7 +162,8 @@ class OllamaLLM(LLM):
         outputs = []
         for prompt in prompts:
             responses = [
-                self._api_generate(prompt=prompt) for _ in range(num_generations)
+                self._text_generation_with_backoff(prompt=prompt)
+                for _ in range(num_generations)
             ]
 
             output = []
