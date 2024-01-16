@@ -70,12 +70,11 @@ def get_progress_bars_for_pipeline(
     has_labeller: bool,
 ) -> Tuple[ProgressFunc, ProgressFunc]:
     if display_progress_bar:
-
         generation_progress_bar = get_progress_bar(
             description="Texts Generated", total=num_rows * num_generations
         )
 
-        def _generation_progress_func(has_generator:bool, advance=None) -> None:
+        def _generation_progress_func(has_generator: bool, advance=None) -> None:
             # If there's no generator, we are not showing the progress bar.
             # This information comes from pipelines.py
             if has_generator:
@@ -83,12 +82,11 @@ def get_progress_bars_for_pipeline(
             else:
                 return None
 
-
         labelling_progress_bar = get_progress_bar(
             description="Rows labelled", total=num_rows
         )
 
-        def _labelling_progress_func(has_labeller:bool, advance=None) -> None:
+        def _labelling_progress_func(has_labeller: bool, advance=None) -> None:
             # If there's no labeller, we are not showing the progress bar.
             # This information comes from pipelines.py
             if has_labeller:
