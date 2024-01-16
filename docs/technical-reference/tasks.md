@@ -7,7 +7,7 @@ In this section we will see what's a `Task` and the list of tasks available in `
 
 ## Task
 
-The `Task` class takes charge of setting how the LLM behaves, deciding whether it acts as a *generator* or a *labeller*. To accomplish this, the `Task` class creates a prompt using a template that will be sent to the [`LLM`](../technical-reference/llms.md). It specifies the necessary input arguments for generating the prompt and identifies the output arguments to be extracted from the `LLM` response. The `Task` class yields a `Prompt` that can generate a string with the format needed, depending on the specific `LLM` used. 
+The `Task` class takes charge of setting how the LLM behaves, deciding whether it acts as a *generator* or a *labeller*. To accomplish this, the `Task` class creates a prompt using a template that will be sent to the [`LLM`](../technical-reference/llms.md). It specifies the necessary input arguments for generating the prompt and identifies the output arguments to be extracted from the `LLM` response. The `Task` class yields a `Prompt` that can generate a string with the format needed, depending on the specific `LLM` used.
 
 All the `Task`s defines a `system_prompt` which serves as the initial instruction given to the LLM, guiding it on what kind of information or output is expected, and the following methods:
 
@@ -29,10 +29,10 @@ These set of classes are designed to steer a `LLM` in generating text with speci
 
 ### TextGenerationTask
 
-This is the base class for *text generation*, and includes the following fields for guiding the generation process: 
+This is the base class for *text generation*, and includes the following fields for guiding the generation process:
 
-- `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected. 
-- A list of `principles` to inject on the `system_prompt`, which by default correspond to those defined in the UltraFeedback paper[^1], 
+- `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected.
+- A list of `principles` to inject on the `system_prompt`, which by default correspond to those defined in the UltraFeedback paper[^1],
 - and lastly a distribution for these principles so the `LLM` can be directed towards the different principles with a more customized behaviour.
 
 [^1]:
@@ -46,13 +46,40 @@ For the API reference visit [TextGenerationTask][distilabel.tasks.text_generatio
 The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
 with Self-Generated Instructions](https://arxiv.org/abs/2212.10560).
 
-From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works): *The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
+From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works):
+
+*The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances*, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_self_instruct.py"
 ```
 
 For the API reference visit  [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
+
+### EvolInstructTask
+
+The task is specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
+Follow Complex Instructions](https://arxiv.org/abs/2304.12244).
+
+From the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct):
+
+*Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce open-domain instructions of various difficulty levels and skill range, to improve the performance of LLMs*.
+
+Use this `Task` to build more complete and complex datasets starting from simple ones.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
+```
+
+You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
+
+!!! note
+    The original definition of `EvolInstruct` considers an elimination evolving step with different
+    situations to remove the responses considered failures. Section 3.2, *Elimination Evolving* in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
+
+
+
+For the API reference visit  [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
 ## Labelling
 
@@ -108,7 +135,7 @@ The following snippet can be used as a simplified UltraFeedback Task, for which 
     --8<-- "docs/snippets/technical-reference/tasks/openai_for_instruction_following.py"
     ```
 
-Additionally, we at Argilla created a custom subtask for UltraFeedback, that generates an overall score evaluating all the aspects mentioned above but within a single subtask. Otherwise, in order to get an overall score, all the subtasks above should be run and the average of those scores to be calculated. 
+Additionally, we at Argilla created a custom subtask for UltraFeedback, that generates an overall score evaluating all the aspects mentioned above but within a single subtask. Otherwise, in order to get an overall score, all the subtasks above should be run and the average of those scores to be calculated.
 
 === "Overall Quality"
 
