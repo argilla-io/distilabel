@@ -29,8 +29,8 @@ from distilabel.utils.imports import _check_package_is_available
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
-    from argilla.client.feedback.integrations.textdescriptives import (
-        TextDescriptivesExtractor,
+    from argilla.client.feedback.integrations.sentencetransformers import (
+        SentenceTransformersExtractor,
     )
 
 
@@ -123,37 +123,37 @@ class Task(ABC):
             " `FeedbackDataset` you will need to implement this method first."
         )
 
-    def add_vectors_to_dataset(
+    def add_vectors_to_argilla_dataset(
         self,
-        records_or_dataset: Union[
-            "FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"
-        ],
-        vector_strategy: Union[bool, "TextDescriptivesExtractor"],
-    ) -> "FeedbackDataset":
+        dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if (
             _check_package_is_available(
                 "argilla", min_version="1.22.0", greater_or_equal=True
             )
+            and _check_package_is_available("sentence-transformers")
             and vector_strategy
         ):
             try:
-                from argilla import FeedbackDataset
-                from argilla.client.feedback.integrations.textdescriptives import (
-                    TextDescriptivesExtractor,
+                from argilla.client.feedback.integrations.sentencetransformers import (
+                    SentenceTransformersExtractor,
                 )
 
-                if isinstance(vector_strategy, bool):
-                    tde = TextDescriptivesExtractor(
+                if isinstance(vector_strategy, SentenceTransformersExtractor):
+                    ste = vector_strategy
+
+                elif vector_strategy is True:
+                    ste = SentenceTransformersExtractor(
                         model="en",
                         show_progress=True,
                     )
                 else:
-                    tde = vector_strategy
+                    raise ValueError(
+                        "The `vector_strategy` must be either `True` or a `SentenceTransformersExtractor` instance."
+                    )
 
-                if isinstance(records_or_dataset, FeedbackDataset):
-                    dataset = tde.update_dataset(dataset=records_or_dataset)
-                else:
-                    dataset = tde.update_records(records=records_or_dataset)
+                dataset = ste.update_dataset(dataset=dataset)
             except Exception as e:
                 warnings.warn(
                     f"An error occurred while adding vectors to the dataset: {e}",
@@ -161,8 +161,9 @@ class Task(ABC):
                 )
         else:
             warnings.warn(
-                "The `argilla` package is not installed or the installed version is not compatible with the"
-                " required version. If you want to add vectors to your dataset, please install the `argilla==1.22.0`.",
+                "An error occurred while adding vectors to the dataset: "
+                "The `argilla`/`sentence-transformers` packages are not installed or the installed version is not compatible with the"
+                " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[argilla]'`.",
                 stacklevel=2,
             )
         return dataset

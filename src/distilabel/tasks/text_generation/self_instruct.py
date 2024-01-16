@@ -15,7 +15,7 @@
 import re
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
@@ -31,6 +31,9 @@ if _ARGILLA_AVAILABLE:
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
+    from argilla.client.feedback.integrations.sentencetransformers import (
+        SentenceTransformersExtractor,
+    )
 
 _SELF_INSTRUCT_TEMPLATE = get_template("self-instruct.jinja2")
 
@@ -103,7 +106,11 @@ class SelfInstructTask(TextGenerationTask):
         pattern = re.compile(r"\d+\.\s*(.*?)\n")
         return {"instructions": pattern.findall(output)}
 
-    def to_argilla_dataset(self, dataset_row: Dict[str, Any]) -> "FeedbackDataset":
+    def to_argilla_dataset(
+        self,
+        dataset_row: Dict[str, Any],
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+    ) -> "FeedbackDataset":
         # First we infer the fields from the input_args_names, but we could also
         # create those manually instead using `rg.TextField(...)`
         fields = infer_fields_from_dataset_row(
@@ -149,11 +156,15 @@ class SelfInstructTask(TextGenerationTask):
         )  # type: ignore
         # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
         # defined above.
-        return rg.FeedbackDataset(
+        dataset = rg.FeedbackDataset(
             fields=fields,
             questions=questions,  # type: ignore
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
+        dataset = super().add_vectors_to_argilla_dataset(
+            dataset=dataset, vector_strategy=vector_strategy
+        )
+        return dataset
 
     def to_argilla_record(
         self,
