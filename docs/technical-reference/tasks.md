@@ -59,7 +59,7 @@ For the API reference visit  [SelfInstructTask][distilabel.tasks.text_generation
 ### EvolInstructTask
 
 The task specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
-Follow Complex Instructions](https://arxiv.org/pdf/2304.12244.pdf).
+Follow Complex Instructions](https://arxiv.org/abs/2304.12244).
 
 From the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct): 
 
@@ -72,6 +72,12 @@ Use this `Task` to build more complete and complex datasets starting from simple
 ```
 
 You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
+
+!!! note
+    The original definition of `EvolInstruct` considers an elimination evolving step with different
+    situations to remove the responses considered as failures. Section 3.2, *Elimination Evolving* in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. If the user wants to tackle this, an example can be seen in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-evol-instruct-alpaca.py).
+
+
 
 For the API reference visit  [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
