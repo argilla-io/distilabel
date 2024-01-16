@@ -61,7 +61,7 @@ The output of the method will be a list containing lists of `LLMOutput`. Each in
               "parsed_output": {
                   "generations":  "Dear Bob, ...",
               }
-          }, 
+          },
           {
               "model_name": "notus-7b-v1",
               "prompt_used": "Write a letter for my friend Bob...",
@@ -69,7 +69,7 @@ The output of the method will be a list containing lists of `LLMOutput`. Each in
               "parsed_output": {
                   "generations":  "Dear Bob, ...",
               }
-          }, 
+          },
       ],
       [...],
   ]
@@ -89,7 +89,7 @@ The `LLMOutput` is a `TypedDict` containing the keys `model_name`, `prompt_used`
       "parsed_output": { # (1)
           "generations":  "Dear Bob, ...",
       }
-  }, 
+  },
   ```
 
   1. The keys contained in `parsed_output` will depend on the `Task` used. In this case, we used `TextGenerationTask`, so the key `generations` is present.
@@ -122,8 +122,8 @@ For the API reference visit [LlammaCppLLM][distilabel.llm.llama_cpp.LlamaCppLLM]
 
 ### vLLM
 
-Highly recommended to use if you have a GPU available, as is the fastest solution out
-there for batch generation. Find more information about in [vLLM docs](https://docs.vllm.ai/en/latest/).
+Highly recommended to use if you have a GPU available, as it is the fastest solution out
+there for batch generation. Find more information about it in [vLLM docs](https://docs.vllm.ai/en/latest/).
 
 ```python
 --8<-- "docs/snippets/technical-reference/llm/vllm_generate.py"
@@ -131,6 +131,26 @@ there for batch generation. Find more information about in [vLLM docs](https://d
 
 For the API reference visit [vLLM][distilabel.llm.vllm.vLLM].
 
+### Ollama
+
+Highly recommended to use if you have a GPU available, as it is one of the fastest solutions out and also has metal support for the MacOS M1 chip and its follow-ups.
+Find more information about it in the [Ollama GitHub](https://github.com/jmorganca/ollama/).
+
+Before being able to use Ollama you first need to install it. After that, you can select [one of the models from their model library](https://ollama.ai/library) and use it as follows:
+
+```bash
+ollama serve
+ollama run notus # or other model name
+```
+
+!!! note
+    The `ollama run <model_name>` command will also set pre-defined generation parameters for the model. These can be found in their library and overridden by passing them as arguments to the command as shown [here](https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values).
+
+We can then re-use this model name as a reference within `distilabel` through our `OllamaLLM` implementation:
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/ollama_generate.py"
+```
 
 ### HuggingFace LLMs
 
@@ -173,7 +193,7 @@ See their release post with more details at [Announcing Together Inference Engin
 
 ### Vertex AI LLMs
 
-Google Cloud Vertex AI platform allows to use Google proprietary models and deploy other models for online predictions. `distilabel` integrates with Vertex AI trough `VertexAILLM` and `VertexAIEndpointLLM` classes. 
+Google Cloud Vertex AI platform allows to use Google proprietary models and deploy other models for online predictions. `distilabel` integrates with Vertex AI trough `VertexAILLM` and `VertexAIEndpointLLM` classes.
 
 To use one of these classes you will need to have configured the Google Cloud authentication using one of these methods:
 
@@ -184,7 +204,7 @@ To use one of these classes you will need to have configured the Google Cloud au
 
 #### Proprietary models (Gemini and PaLM)
 
-`VertexAILLM` allows to use Google proprietary models such as Gemini and PaLM. These models are served trough Vertex AI and its different APIs: 
+`VertexAILLM` allows to use Google proprietary models such as Gemini and PaLM. These models are served trough Vertex AI and its different APIs:
 
 - **Gemini API**: which offers models from the Gemini family such as `gemini-pro` and `gemini-pro-vision` models. More information: [Vertex AI - Gemini API](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini).
 - **Text Generation API**: which offers models from the PaLM family such as `text-bison`. More information: [Vertex AI - PaLM 2 for text](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text#model_versions).
@@ -223,7 +243,7 @@ By default, `distilabel` uses a single process, so the generation loop is usuall
 1. The `ProcessLLM` returns a `Future` containing a list of lists of `LLMOutput`s.
 2. The `ProcessLLM` needs to be terminated after usage. If the `ProcessLLM` is used by a `Pipeline`, it will be terminated automatically.
 
-You can directly use a `ProcessLLM` as the `generator` or `labeller` in a `Pipeline`. Apart from that, there would be situations in which you would like to generate texts using several `LLM`s in parallel. For this purpose, we provide the `LLMPool` class: 
+You can directly use a `ProcessLLM` as the `generator` or `labeller` in a `Pipeline`. Apart from that, there would be situations in which you would like to generate texts using several `LLM`s in parallel. For this purpose, we provide the `LLMPool` class:
 
 ```python
 --8<-- "docs/snippets/technical-reference/llm/llmpool.py"
