@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import partial, wraps
+from functools import wraps
 from typing import Any, Callable, Tuple, TypeVar, Union
 
 from rich.progress import (
@@ -70,36 +70,25 @@ def get_progress_bars_for_pipeline(
     has_labeller: bool,
 ) -> Tuple[ProgressFunc, ProgressFunc]:
     if display_progress_bar:
-        generation_progress_bar = get_progress_bar(
-            description="Texts Generated", total=num_rows * num_generations
-        )
+        _generation_progress_func = None
 
-        def _generation_progress_func(has_generator: bool, advance=None) -> None:
-            # If there's no generator, we are not showing the progress bar.
-            # This information comes from pipelines.py
-            return (
+        if has_generator:
+            generation_progress_bar = get_progress_bar(
+                description="Texts Generated", total=num_rows * num_generations
+            )
+
+            def _generation_progress_func(advance=None) -> None:
                 generation_progress_bar(advance=advance or num_generations)
-                if has_generator
-                else None
+
+        _labelling_progress_func = None
+        if has_labeller:
+            labelling_progress_bar = get_progress_bar(
+                description="Rows labelled", total=num_rows
             )
 
-        labelling_progress_bar = get_progress_bar(
-            description="Rows labelled", total=num_rows
-        )
+            def _labelling_progress_func(advance=None) -> None:
+                labelling_progress_bar(advance=1)
 
-        def _labelling_progress_func(has_labeller: bool, advance=None) -> None:
-            # If there's no labeller, we are not showing the progress bar.
-            # This information comes from pipelines.py
-            return (
-                labelling_progress_bar(advance=advance or 1) if has_labeller else None
-            )
-
-        _partial_generation_progress_func = partial(
-            _generation_progress_func, has_generator=has_generator
-        )
-        _partial_labelling_progress_func = partial(
-            _labelling_progress_func, has_labeller=has_labeller
-        )
-        return _partial_generation_progress_func, _partial_labelling_progress_func
+        return _generation_progress_func, _labelling_progress_func
 
     return None, None
