@@ -36,16 +36,51 @@ class OllamaLLM(LLM):
         self,
         model: str,
         task: "Task",
-        max_new_tokens: int = 128,
-        frequency_penalty: float = 0.0,
-        presence_penalty: float = 0.0,
-        temperature: float = 1.0,
-        top_p: float = 1.0,
+        max_new_tokens: int = None,  # num_predict
+        temperature: Union[float, None] = None,
+        top_k: Union[int, None] = None,
+        top_p: Union[float, None] = None,
         num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        """Initializes the OllamaLLM class and align with https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values"""
+        """
+        Initializes the OllamaLLM class and align with https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
+
+        Args:
+            model (str): the model to be used for generation.
+            task (Task): the task to be performed by the LLM.
+
+            max_new_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to `None`.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to `None`.
+            top_k (int, optional): the top-k value to be used for generation.
+                Defaults to `None`.
+            top_p (float, optional): the top-p value to be used for generation.
+                Defaults to `None`.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`..
+
+        Raises:
+            ValueError: if the model is not available.
+            ValueError: if the Ollama API request failed.
+
+        Examples:
+            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.llm import OllamaLLM
+            >>> task = Task()
+            >>> llm = OllamaLLM(model="notus", task=task)
+        """
         super().__init__(
             task=task,
             num_threads=num_threads,
@@ -53,13 +88,11 @@ class OllamaLLM(LLM):
             prompt_formatting_fn=prompt_formatting_fn,
         )
 
-        self.max_tokens = max_new_tokens
-        self.frequency_penalty = frequency_penalty
-        self.presence_penalty = presence_penalty
-        self.temperature = temperature
-        self.top_p = top_p
-
         self.model = model
+        self.max_new_tokens = max_new_tokens
+        self.temperature = temperature
+        self.top_k = top_k
+        self.top_p = top_p
 
         self._api_available()
         self._api_model_available()
@@ -100,13 +133,16 @@ class OllamaLLM(LLM):
             "model": self.model,
             "messages": prompt,
             "stream": False,
-            "options": {
-                "num_predict": kwargs.get("max_tokens") or self.max_tokens,
-                "repeat_penalty": self.frequency_penalty,
-                "temperature": self.temperature,
-                "top_p": self.top_p,
-            },
         }
+        options = {
+            "num_predict": kwargs.get("max_new_tokens") or self.max_new_tokens,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "top_k": self.top_k,
+        }
+        # remove None values
+        options = {k: v for k, v in options.items() if v is not None}
+        payload["options"] = options
 
         # Convert payload to JSON
         data = json.dumps(payload).encode("utf-8")
@@ -116,7 +152,6 @@ class OllamaLLM(LLM):
         req = request.Request(
             url, data=data, headers={"Content-Type": "application/json"}
         )
-
         with request.urlopen(req) as response:
             # Check if the request was successful (status code 200)
             if response.getcode() == 200:
@@ -141,10 +176,10 @@ class OllamaLLM(LLM):
         yield (
             "parameters",
             {
-                "num_ctx": self.max_tokens,
-                "frequency_penalty": self.frequency_penalty,
-                "repeat_penalty": self.presence_penalty,
+                "model": self.model,
+                "max_new_tokens": self.max_new_tokens,
                 "temperature": self.temperature,
+                "top_k": self.top_k,
                 "top_p": self.top_p,
             },
         )
@@ -164,7 +199,6 @@ class OllamaLLM(LLM):
                 self._text_generation_with_backoff(prompt=prompt)
                 for _ in range(num_generations)
             ]
-
             output = []
             for response in responses:
                 raw_output = response.get("message", {}).get("content")
