@@ -161,9 +161,9 @@ class SelfInstructTask(TextGenerationTask):
             questions=questions,  # type: ignore
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
-        dataset: FeedbackRecord | List[
-            FeedbackRecord
-        ] | FeedbackDataset = Task.add_vectors_to_argilla_dataset(
+        dataset: (
+            FeedbackRecord | List[FeedbackRecord] | FeedbackDataset
+        ) = Task.add_vectors_to_argilla_dataset(
             dataset=dataset, vector_strategy=vector_strategy
         )
         return dataset
