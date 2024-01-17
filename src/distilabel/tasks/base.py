@@ -154,13 +154,16 @@ class Task(ABC):
                     f"An error occurred while adding vectors to the dataset: {e}",
                     stacklevel=2,
                 )
-        else:
+
+        elif not _ARGILLA_AVAILABLE and vector_strategy:
             warnings.warn(
                 "An error occurred while adding vectors to the dataset: "
                 "The `argilla`/`sentence-transformers` packages are not installed or the installed version is not compatible with the"
                 " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[vectors]'`.",
                 stacklevel=2,
             )
+        else:
+            pass
         return dataset
 
     # Renamed to _to_argilla_record instead of renaming `to_argilla_record` to protected, as that would
