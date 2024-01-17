@@ -31,7 +31,7 @@ if __name__ == "__main__":
         "preference",
         "text-quality",
         generator=InferenceEndpointsLLM(
-            endpoint_name=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
+            endpoint_name_or_model_id=os.getenv("HF_INFERENCE_ENDPOINT_NAME"),  # type: ignore
             endpoint_namespace=os.getenv("HF_NAMESPACE", None),
             task=TextGenerationTask(),
             prompt_format="llama2",
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         dataset,  # type: ignore
         num_generations=2,
         batch_size=1,
-        enable_checkpoints=True,
+        checkpoint_strategy=True,
         display_progress_bar=True,
     )
     end = time.time()

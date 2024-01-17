@@ -8,7 +8,7 @@ pipe = pipeline(
     "preference",
     "text-quality",
     generator=InferenceEndpointsLLM(
-        endpoint_name=endpoint_name,
+        endpoint_name_or_model_id=endpoint_name,
         endpoint_namespace=endpoint_namespace,
         token=token,
         task=TextGenerationTask(),

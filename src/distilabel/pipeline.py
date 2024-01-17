@@ -559,6 +559,8 @@ class Pipeline:
             num_rows=len(dataset),
             num_generations=num_generations,
             display_progress_bar=display_progress_bar,
+            has_labeller=True if self.labeller else False,
+            has_generator=True if self.generator else False,
         )
 
         num_batches = math.ceil(len(dataset) / batch_size)

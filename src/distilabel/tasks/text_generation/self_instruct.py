@@ -162,37 +162,34 @@ class SelfInstructTask(TextGenerationTask):
     ) -> List["FeedbackRecord"]:
         """Converts a dataset row to a list of Argilla `FeedbackRecord`s."""
         records = []
-        for instructions in dataset_row[instructions_column]:  # type: ignore
-            for instruction in instructions:
-                fields, metadata = {}, {}
-                for arg_name in self.input_args_names:
-                    arg_value = dataset_row[arg_name]
-                    if isinstance(arg_value, list):
-                        for idx, value in enumerate(arg_value, start=1):
-                            value = value.strip() if isinstance(value, str) else ""
-                            fields[f"{arg_name}-{idx}"] = value
-                            if value is not None:
-                                metadata[f"length-{arg_name}-{idx}"] = len(value)
-                    elif isinstance(arg_value, str):
-                        fields[arg_name] = arg_value.strip() if arg_value else ""
-                        if arg_value is not None:
-                            metadata[f"length-{arg_name}"] = len(arg_value.strip())
-                    else:
-                        warnings.warn(
-                            f"Unsupported input type ({type(arg_value)}), skipping...",
-                            UserWarning,
-                            stacklevel=2,
-                        )
-                fields["instruction"] = instruction
-                metadata["length-instruction"] = len(instruction)
+        for instruction in dataset_row[instructions_column]:  # type: ignore
+            fields, metadata = {}, {}
+            for arg_name in self.input_args_names:
+                arg_value = dataset_row[arg_name]
+                if isinstance(arg_value, list):
+                    for idx, value in enumerate(arg_value, start=1):
+                        value = value.strip() if isinstance(value, str) else ""
+                        fields[f"{arg_name}-{idx}"] = value
+                        if value is not None:
+                            metadata[f"length-{arg_name}-{idx}"] = len(value)
+                elif isinstance(arg_value, str):
+                    fields[arg_name] = arg_value.strip() if arg_value else ""
+                    if arg_value is not None:
+                        metadata[f"length-{arg_name}"] = len(arg_value.strip())
+                else:
+                    warnings.warn(
+                        f"Unsupported input type ({type(arg_value)}), skipping...",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+            fields["instruction"] = instruction
+            metadata["length-instruction"] = len(instruction)
 
-                # Then we add the model metadata from the `generation_model` and `labelling_model`
-                # columns of the dataset, if they exist.
-                metadata.update(
-                    model_metadata_from_dataset_row(dataset_row=dataset_row)
-                )
-                # Finally, we append the `FeedbackRecord` with the fields and the metadata
-                records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
+            # Then we add the model metadata from the `generation_model` and `labelling_model`
+            # columns of the dataset, if they exist.
+            metadata.update(model_metadata_from_dataset_row(dataset_row=dataset_row))
+            # Finally, we append the `FeedbackRecord` with the fields and the metadata
+            records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
         if not records:
             raise ValueError(
                 f"Skipping the row {dataset_row} as the list of `FeedbackRecord` is empty as those could not be inferred."

@@ -30,7 +30,11 @@ from distilabel.logger import get_logger
 from distilabel.utils.imports import _HUGGINGFACE_HUB_AVAILABLE
 
 if _HUGGINGFACE_HUB_AVAILABLE:
-    from huggingface_hub import InferenceTimeoutError, get_inference_endpoint
+    from huggingface_hub import (
+        InferenceClient,
+        InferenceTimeoutError,
+        get_inference_endpoint,
+    )
     from huggingface_hub.inference._text_generation import TextGenerationError
 
     _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
@@ -52,10 +56,31 @@ _INFERENCE_ENDPOINTS_API_WAIT_RANDOM_EXPONENTIAL_MAX = 10
 logger = get_logger()
 
 
+def is_serverless_endpoint_available(model_id: str) -> bool:
+    """Checks input is a valid Hugging Face model and if there is a serverless endpoint available for it."""
+    # 1. First we check if input includes a "/" which is indicative of a model name
+    if "/" not in model_id:
+        return False
+    if model_id.startswith("https:"):
+        return False
+    # 2. Then we check if the model is currently deployed
+    try:
+        client = InferenceClient()
+        deploy_llms = client.list_deployed_models("text-generation-inference")[
+            "text-generation"
+        ]
+        if model_id in deploy_llms:
+            return True
+    except Exception as e:
+        logger.error(e)
+
+    return False
+
+
 class InferenceEndpointsLLM(LLM):
     def __init__(
         self,
-        endpoint_name: str,
+        endpoint_name_or_model_id: str,
         task: "Task",
         endpoint_namespace: Union[str, None] = None,
         token: Union[str, None] = None,
@@ -67,6 +92,7 @@ class InferenceEndpointsLLM(LLM):
         top_k: Union[int, None] = None,
         top_p: Union[float, None] = None,
         typical_p: Union[float, None] = None,
+        stop_sequences: Union[List[str], None] = None,
         num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
@@ -74,7 +100,7 @@ class InferenceEndpointsLLM(LLM):
         """Initializes the InferenceEndpointsLLM class.
 
         Args:
-            endpoint_name (str): The name of the endpoint.
+            endpoint_name_or_model_id (str): The name of the endpoint or a Hugging Face Model Id.
             task (Task): The task to be performed by the LLM.
             endpoint_namespace (Union[str, None]): The namespace of the endpoint. Defaults to None.
             token (Union[str, None]): The token for the endpoint. Defaults to None.
@@ -86,16 +112,18 @@ class InferenceEndpointsLLM(LLM):
             top_k (Union[int, None]): The top_k for generation. Defaults to None.
             top_p (Union[float, None]): The top_p for generation. Defaults to None.
             typical_p (Union[float, None]): The typical_p for generation. Defaults to None.
+            stop_sequences (Union[List[str], None]): The stop sequences for generation. Defaults to None.
             num_threads (Union[int, None]): The number of threads. Defaults to None.
             prompt_format (Union["SupportedFormats", None]): The format of the prompt. Defaults to None.
             prompt_formatting_fn (Union[Callable[..., str], None]): The function for formatting the prompt. Defaults to None.
 
         Examples:
+            >>> # Inference Endpoint example
             >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
             >>> from distilabel.llm import InferenceEndpointsLLM
             >>> task = Task()
             >>> llm = InferenceEndpointsLLM(
-            ...     endpoint_name="<INFERENCE_ENDPOINT_NAME>",
+            ...     endpoint_name_or_model_id="<MODEL_ID_OR_INFERENCE_ENDPOINT>",
             ...     task=task,
             ... )
         """
@@ -120,11 +148,25 @@ class InferenceEndpointsLLM(LLM):
         self.top_k = top_k
         self.top_p = top_p
         self.typical_p = typical_p
+        self.stop_sequences = stop_sequences
 
-        self.inference_endpoint = get_inference_endpoint(
-            name=endpoint_name, namespace=endpoint_namespace, token=token
-        )
-        self.inference_endpoint.wait(timeout=30)
+        if is_serverless_endpoint_available(model_id=endpoint_name_or_model_id):
+            logger.info("Using Serverless Inference Endpoint")
+            self.client = InferenceClient(model=endpoint_name_or_model_id, token=token)
+            self._model_name = endpoint_name_or_model_id
+        else:
+            logger.info("Using Dedicated Inference Endpoint")
+            inference_endpoint = get_inference_endpoint(
+                name=endpoint_name_or_model_id,
+                namespace=endpoint_namespace,
+                token=token,
+            )
+            if inference_endpoint.status in ["paused", "scaledToZero"]:
+                logger.info("Waiting for Inference Endpoint to be ready...")
+                inference_endpoint.resume().wait(timeout=30)
+
+            self.client = inference_endpoint.client
+            self._model_name = inference_endpoint.repository
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -139,13 +181,14 @@ class InferenceEndpointsLLM(LLM):
                 "top_k": self.top_k,
                 "top_p": self.top_p,
                 "typical_p": self.typical_p,
+                "stop_sequences": self.stop_sequences,
             },
         )
 
     @property
     def model_name(self) -> str:
         """Returns the model name of the endpoint."""
-        return self.inference_endpoint.repository
+        return self._model_name
 
     @retry(
         retry=retry_if_exception_type(_INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS),
@@ -159,7 +202,7 @@ class InferenceEndpointsLLM(LLM):
     )
     def _text_generation_with_backoff(self, **kwargs: Any) -> Any:
         """Performs text generation with backoff in case of an error."""
-        return self.inference_endpoint.client.text_generation(**kwargs)  # type: ignore
+        return self.client.text_generation(**kwargs)  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -188,6 +231,7 @@ class InferenceEndpointsLLM(LLM):
                     top_k=self.top_k,
                     top_p=self.top_p,
                     typical_p=self.typical_p,
+                    stop_sequences=self.stop_sequences,
                 )
                 for _ in range(num_generations)
             ]
