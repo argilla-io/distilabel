@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, get_args
+from typing import TYPE_CHECKING, Any, Literal, Optional, Tuple, get_args
 
 import dill as pickle
 
@@ -62,11 +63,45 @@ def load_task_from_disk(path: Path) -> "Task":
     return task
 
 
+def _get_best_response(
+    example: Any, rating_column: str = "rating", responses_column: str = "generations"
+) -> Tuple[str, int, str, str]:
+    """Helper function to get the best response from an example, this can be used
+    independent on the method to chose the rejected response.
+
+    Also, it removes the best response from the example.
+
+    Args:
+        example (Any): Each row in the dataset as passed when calling the map function on a datasets.Dataset.
+        rating_column (str, optional):
+            Column containing the rating in the CustomDataset. Defaults to "rating".
+        responses_column (str, optional):
+            Column containing the responses from a model in a CustomDataset. Defaults to "generations".
+
+    Returns:
+        Tuple[str, int, str, str]: Contains the prompt, best rating, chosen response, and chosen model.
+    """
+    # Pick the highest rating
+    prompt = example["input"]
+    best_rating = max(example[rating_column])
+    best_response_idx = example[rating_column].index(best_rating)
+    chosen_response = example[responses_column][best_response_idx]
+    chosen_model = example["generation_model"][best_response_idx]
+
+    # Remove best response
+    example[rating_column].pop(best_response_idx)
+    example[responses_column].pop(best_response_idx)
+    example["generation_model"].pop(best_response_idx)
+    return prompt, best_rating, chosen_response, chosen_model
+
+
 def _binarize_dataset(
     dataset: "CustomDataset",
     seed: int = None,
     strategy: BinarizationStrategies = "random",
-    keep_ties: bool = True,
+    keep_ties: bool = False,
+    rating_column: str = "rating",
+    responses_column: str = "generations",
     **kwargs: Any,
 ) -> "CustomDataset":
     """Binarizes a distilabel dataset.
@@ -77,7 +112,7 @@ def _binarize_dataset(
         strategy (BinarizationStrategies, optional): Method to binarize the data. Defaults to "random".
         keep_ties (bool, optional):
             Whether to keep ties in case the binarization method generated the chosen
-            and rejected responses to have the same rating. Defaults to True.
+            and rejected responses to have the same rating. Defaults to False.
         kwargs: Extra parameters passed to `datasets.Dataset.map`.
 
     Raises:
@@ -86,23 +121,15 @@ def _binarize_dataset(
     Returns:
         CustomDataset: Dataset binarized.
     """
-    rating_column = "rating"
-    responses_column = "generations"
+    get_best_response = functools.partial(
+        _get_best_response,
+        rating_column=rating_column,
+        responses_column=responses_column,
+    )
 
     def binarize_random(example):
+        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
         random.seed(seed)
-
-        # First pick the highest rating
-        prompt = example["input"]
-        best_rating = max(example[rating_column])
-        best_response_idx = example[rating_column].index(best_rating)
-        chosen_response = example[responses_column][best_response_idx]
-        chosen_model = example["generation_model"][best_response_idx]
-
-        # Remove best response
-        example[rating_column].pop(best_response_idx)
-        example[responses_column].pop(best_response_idx)
-        example["generation_model"].pop(best_response_idx)
 
         # Then you pick the rejected from the list of candidates with lower scores.
         example_lower = defaultdict(list)
@@ -123,7 +150,7 @@ def _binarize_dataset(
 
         random_model = example["generation_model"][random_response_idx]
 
-        binarized = {
+        return {
             "prompt": prompt,
             "chosen": chosen_response,
             "rejected": random_response,
@@ -132,25 +159,16 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": random_model,
         }
-        return binarized
 
     def binarize_worst(example):
-        random.seed(seed)
-
-        prompt = example["input"]
-        best_rating = max(example[rating_column])
-        best_response_idx = example[rating_column].index(best_rating)
-        chosen_response = example[responses_column][best_response_idx]
-
-        chosen_model = example["generation_model"][best_response_idx]
+        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
 
         worst_rating = min(example[rating_column])
         worst_response_idx = example[rating_column].index(worst_rating)
         worst_response = example[responses_column][worst_response_idx]
-
         worst_model = example["generation_model"][worst_response_idx]
 
-        binarized = {
+        return {
             "prompt": prompt,
             "chosen": chosen_response,
             "rejected": worst_response,
@@ -159,7 +177,6 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": worst_model,
         }
-        return binarized
 
     if strategy == "random":
         binarization_method = binarize_random
@@ -190,7 +207,7 @@ def prepare_dataset(
     dataset: "CustomDataset",
     strategy: BinarizationStrategies = "random",
     seed: Optional[int] = None,
-    keep_ties: bool = True,
+    keep_ties: bool = False,
     **kwargs: Any,
 ) -> "CustomDataset":
     """Helper function to prepare a distilabel dataset for training with the standard formats.
@@ -219,7 +236,7 @@ def prepare_dataset(
         seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.
         keep_ties (bool, optional):
             Whether to keep ties in case the binarization method generated the chosen
-            and rejected responses to have the same rating. Defaults to True.
+            and rejected responses to have the same rating. Defaults to False.
         kwargs: Extra parameters passed to `datasets.Dataset.map`.
 
     Returns:
@@ -262,7 +279,13 @@ def prepare_dataset(
         raise ValueError("The dataset must contain at least 2 generations per example.")
 
     ds = _binarize_dataset(
-        dataset, strategy=strategy, seed=seed, keep_ties=keep_ties, **kwargs
+        dataset,
+        strategy=strategy,
+        seed=seed,
+        keep_ties=keep_ties,
+        rating_column="rating",
+        responses_column="generations",
+        **kwargs,
     )
 
     # Imported here to avoid circular imports
