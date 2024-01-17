@@ -95,6 +95,18 @@ def _get_best_response(
     return prompt, best_rating, chosen_response, chosen_model
 
 
+def _format_message(prompt: str, response: str) -> list[dict[str, str]]:
+    """Helper function to format the messages (chosen/rejected) in OpenAI format.
+
+    Returns:
+        message: List of dictionaries with the OpenAI format.
+    """
+    return [
+        {"role": "user", "content": prompt},
+        {"role": "assistant", "content": response},
+    ]
+
+
 def _binarize_dataset(
     dataset: "CustomDataset",
     seed: int = None,
@@ -152,8 +164,8 @@ def _binarize_dataset(
 
         return {
             "prompt": prompt,
-            "chosen": chosen_response,
-            "rejected": random_response,
+            "chosen": _format_message(prompt, chosen_response),
+            "rejected": _format_message(prompt, random_response),
             "rating_chosen": int(best_rating),
             "rating_rejected": int(random_rating),
             "chosen_model": chosen_model,
@@ -170,8 +182,8 @@ def _binarize_dataset(
 
         return {
             "prompt": prompt,
-            "chosen": chosen_response,
-            "rejected": worst_response,
+            "chosen": _format_message(prompt, chosen_response),
+            "rejected": _format_message(prompt, worst_response),
             "rating_chosen": int(best_rating),
             "rating_rejected": int(worst_rating),
             "chosen_model": chosen_model,

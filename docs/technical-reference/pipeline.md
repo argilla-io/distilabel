@@ -219,7 +219,7 @@ We would want the following dataset format for fine-tuning:
 
 | prompt                                                   | chosen                        |   rejected |
 |:--------------------------------------------------------|:-----------------------------------|---------:|
-| Generate an approximately fifteen-word sentence that... | Midsummer House is a moderately... |   Sure! Here's a sentence that... |
+| Generate an approximately fifteen-word sentence that... | [{'content': 'Generate an approximately...', 'role': 'user'}, {'content': 'Midsummer House is a moderately...', 'role': 'assistant'}] |   [{'content': 'Generate an approximately...', 'role': 'user'}, {'content': ' Sure! Here\'s a sentence that...', 'role': 'assistant'}] |
 
 Take a look at this [explanation](https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences#dataset-processing) for the binarization of *UltraFeedback* done to train [Notus-7B-v1](https://huggingface.co/argilla/notus-7b-v1).
 
@@ -227,15 +227,17 @@ What does each column represents.
 
 - **prompt**: Instruction given to the model.
 
-- **chosen**: Response chosen.
+- **chosen**: Response chosen following the OpenAI format.
 
-- **rejected**: Response rejected.
+- **rejected**: Response rejected following the OpenAI format.
+
+We refer to the [OpenAI's chat format](https://platform.openai.com/docs/guides/text-generation) for more information on the chosen/rejected format.
 
 This dataset processing is called binarization. In the context of `distilabel`, this transformation (dataset prepartion) is done by [`dataset.utils.prepare_dataset`][distilabel.utils.dataset.prepare_dataset], and given that the generated datasets contain additional information, one can also see the following additional columns:
 
 | prompt                                                  | chosen                             | rejected                        |   rating_chosen |   rating_rejected | chosen_model   | rejected_model   |
 |:--------------------------------------------------------|:-----------------------------------|:--------------------------------|----------------:|------------------:|:---------------|:-----------------|
-| Generate an approximately fifteen-word sentence that... | Midsummer House is a moderately... | Sure! Here's a sentence that... |               9 |                 7 |                |                  |
+| Generate an approximately fifteen-word sentence that... | [{'content': 'Generate an approximately...', 'role': 'user'}, {'content': 'Midsummer House is a moderately...', 'role': 'assistant'}] | [{'content': 'Generate an approximately...', 'role': 'user'}, {'content': ' Sure! Here\'s a sentence that...', 'role': 'assistant'}] |               9 |                 7 |                |                  |
 
 - **rating_chosen**: Rating of the chosen instruction.
 

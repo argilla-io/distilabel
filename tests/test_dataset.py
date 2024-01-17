@@ -178,8 +178,34 @@ def test_do_checkpoint(
     [
         (
             "random",
-            ["generation 1 2", "generation 2 4", "generation 3 3"],
-            ["generation 1 1", "generation 2 3", "generation 3 4"],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 2", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 4", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 3", "role": "assistant"},
+                ],
+            ],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 1", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 3", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 4", "role": "assistant"},
+                ],
+            ],
             [
                 "WizardLM/WizardCoder-15B-V1.0",
                 "gpt-3.5-turbo",
@@ -190,8 +216,34 @@ def test_do_checkpoint(
         ),
         (
             "worst",
-            ["generation 1 2", "generation 2 4", "generation 3 3"],
-            ["generation 1 1", "generation 2 3", "generation 3 2"],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 2", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 4", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 3", "role": "assistant"},
+                ],
+            ],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 1", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 3", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 2", "role": "assistant"},
+                ],
+            ],
             [
                 "WizardLM/WizardCoder-15B-V1.0",
                 "gpt-3.5-turbo",
