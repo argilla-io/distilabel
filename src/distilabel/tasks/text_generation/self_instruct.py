@@ -17,7 +17,7 @@ import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from distilabel.tasks.base import get_template
+from distilabel.tasks.base import Task, get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
 from distilabel.utils.argilla import (
@@ -109,7 +109,7 @@ class SelfInstructTask(TextGenerationTask):
     def to_argilla_dataset(
         self,
         dataset_row: Dict[str, Any],
-        vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         # First we infer the fields from the input_args_names, but we could also
         # create those manually instead using `rg.TextField(...)`
@@ -161,7 +161,9 @@ class SelfInstructTask(TextGenerationTask):
             questions=questions,  # type: ignore
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
-        dataset = super().add_vectors_to_argilla_dataset(
+        dataset: FeedbackRecord | List[
+            FeedbackRecord
+        ] | FeedbackDataset = Task.add_vectors_to_argilla_dataset(
             dataset=dataset, vector_strategy=vector_strategy
         )
         return dataset

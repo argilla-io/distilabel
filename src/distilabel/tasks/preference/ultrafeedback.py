@@ -22,6 +22,7 @@ from typing import (
     List,
     Optional,
     TypedDict,
+    Union,
 )
 
 from distilabel.tasks.base import get_template
@@ -30,6 +31,9 @@ from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
+    from argilla.client.feedback.integrations.sentence_transformers import (
+        SentenceTransformersExtractor,
+    )
 
 _ULTRAFEEDBACK_TEMPLATE = get_template("ultrafeedback.jinja2")
 
@@ -132,6 +136,7 @@ class UltraFeedbackTask(PreferenceTask):
         ratings_column: str = "rating",
         rationale_column: str = "rationale",
         ratings_values: Optional[List[int]] = None,
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
             dataset_row=dataset_row,
@@ -139,6 +144,7 @@ class UltraFeedbackTask(PreferenceTask):
             ratings_column=ratings_column,
             rationale_column=rationale_column,
             ratings_values=ratings_values or [1, 2, 3, 4, 5],
+            vector_strategy=vector_strategy,
         )
 
     # Override the default `to_argilla_record` method to provide the `ratings_values` of

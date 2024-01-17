@@ -32,7 +32,7 @@ if _ARGILLA_AVAILABLE:
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
-    from argilla.client.feedback.integrations.sentence_transformers import (
+    from argilla.client.feedback.integrations.sentencetransformers import (
         SentenceTransformersExtractor,
     )
 
@@ -211,7 +211,7 @@ class TextGenerationTask(Task):
             questions=questions,
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
-        dataset = super().add_vectors_to_argilla_dataset(
+        dataset = Task.add_vectors_to_argilla_dataset(
             dataset=dataset, vector_strategy=vector_strategy
         )
         return dataset

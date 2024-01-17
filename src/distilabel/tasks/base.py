@@ -25,7 +25,12 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
-from distilabel.utils.imports import _check_package_is_available
+from distilabel.utils.imports import _ARGILLA_AVAILABLE
+
+if _ARGILLA_AVAILABLE:
+    from argilla.client.feedback.integrations.sentencetransformers import (
+        SentenceTransformersExtractor,
+    )
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
@@ -128,18 +133,8 @@ class Task(ABC):
         dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
         vector_strategy: Union[bool, "SentenceTransformersExtractor"],
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
-        if (
-            _check_package_is_available(
-                "argilla", min_version="1.22.0", greater_or_equal=True
-            )
-            and _check_package_is_available("sentence-transformers")
-            and vector_strategy
-        ):
+        if _ARGILLA_AVAILABLE and vector_strategy:
             try:
-                from argilla.client.feedback.integrations.sentencetransformers import (
-                    SentenceTransformersExtractor,
-                )
-
                 if isinstance(vector_strategy, SentenceTransformersExtractor):
                     ste = vector_strategy
 
@@ -163,7 +158,7 @@ class Task(ABC):
             warnings.warn(
                 "An error occurred while adding vectors to the dataset: "
                 "The `argilla`/`sentence-transformers` packages are not installed or the installed version is not compatible with the"
-                " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[argilla]'`.",
+                " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[vectors]'`.",
                 stacklevel=2,
             )
         return dataset
