@@ -228,6 +228,11 @@ def prepare_dataset(
     Expected format for a dataset to be trained with DPO as defined in trl's
     [dpo trainer](https://huggingface.co/docs/trl/main/en/dpo_trainer#expected-dataset-format).
 
+    Note:
+        Take a look at the
+        [Prepare datasets for fine-tuning](https://distilabel.argilla.io/latest/technical-reference/pipeline/#prepare-datasets-for-fine-tuning)
+        section in the Concept guides for more information on the binarization process.
+
     Args:
         dataset (CustomDataset):
             CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.
