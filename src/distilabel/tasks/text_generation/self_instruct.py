@@ -68,6 +68,7 @@ class SelfInstructTask(TextGenerationTask):
     application_description: str = "AI assistant"
     num_instructions: int = 5
 
+    criteria_for_query_generation = (
         "Incorporate a diverse range of verbs, avoiding repetition.\n"
         "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
         "Design queries to be self-contained and standalone.\n"
