@@ -68,11 +68,10 @@ class SelfInstructTask(TextGenerationTask):
     application_description: str = "AI assistant"
     num_instructions: int = 5
 
-    criteria_for_query_generation: str = (
-        "Incorporate a diverse range of verbs, avoiding repetition. "
-        "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences. "
-        "Design queries to be self-contained and standalone. "
-        """Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles. """
+        "Incorporate a diverse range of verbs, avoiding repetition.\n"
+        "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
+        "Design queries to be self-contained and standalone.\n"
+        """Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.\n"""
     )
 
     __jinja2_template__: str = _SELF_INSTRUCT_TEMPLATE
