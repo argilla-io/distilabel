@@ -41,7 +41,7 @@ if __name__ == "__main__":
         num_generations=2,
         batch_size=1,
         display_progress_bar=True,
-        enable_checkpoints=True,
+        checkpoint_strategy=True,
     )
     end = time.time()
     print("Elapsed", end - start)
