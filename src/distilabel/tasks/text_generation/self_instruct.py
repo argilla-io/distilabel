@@ -50,6 +50,9 @@ class SelfInstructTask(TextGenerationTask):
             "AI assistant".
         num_instructions (int, optional): the number of instructions to be used for the prompt.
             Defaults to 5.
+        criteria_for_query_generation (str, optional): the criteria for query generation that we want
+            our model to have. Default value covers default behaviour for SelfInstructTask. This value is
+            passed to the .jinja template, where extra instructions are added to ensure correct output format.
 
     References:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
@@ -61,8 +64,16 @@ class SelfInstructTask(TextGenerationTask):
         " You are given a task description and a set of instructions for how to write the prompts for an"
         " specific AI application."
     )
+
     application_description: str = "AI assistant"
     num_instructions: int = 5
+
+    criteria_for_query_generation: str = (
+        "Incorporate a diverse range of verbs, avoiding repetition.\n"
+        "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
+        "Design queries to be self-contained and standalone.\n"
+        'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
+    )
 
     __jinja2_template__: str = _SELF_INSTRUCT_TEMPLATE
 
@@ -87,6 +98,7 @@ class SelfInstructTask(TextGenerationTask):
         render_kwargs = {
             "application_description": self.application_description,
             "num_instructions": self.num_instructions,
+            "criteria_for_query_generation": self.criteria_for_query_generation,
             "input": input,
         }
         return Prompt(
@@ -163,37 +175,34 @@ class SelfInstructTask(TextGenerationTask):
     ) -> List["FeedbackRecord"]:
         """Converts a dataset row to a list of Argilla `FeedbackRecord`s."""
         records = []
-        for instructions in dataset_row[instructions_column]:  # type: ignore
-            for instruction in instructions:
-                fields, metadata = {}, {}
-                for arg_name in self.input_args_names:
-                    arg_value = dataset_row[arg_name]
-                    if isinstance(arg_value, list):
-                        for idx, value in enumerate(arg_value, start=1):
-                            value = value.strip() if isinstance(value, str) else ""
-                            fields[f"{arg_name}-{idx}"] = value
-                            if value is not None:
-                                metadata[f"length-{arg_name}-{idx}"] = len(value)
-                    elif isinstance(arg_value, str):
-                        fields[arg_name] = arg_value.strip() if arg_value else ""
-                        if arg_value is not None:
-                            metadata[f"length-{arg_name}"] = len(arg_value.strip())
-                    else:
-                        warnings.warn(
-                            f"Unsupported input type ({type(arg_value)}), skipping...",
-                            UserWarning,
-                            stacklevel=2,
-                        )
-                fields["instruction"] = instruction
-                metadata["length-instruction"] = len(instruction)
+        for instruction in dataset_row[instructions_column]:  # type: ignore
+            fields, metadata = {}, {}
+            for arg_name in self.input_args_names:
+                arg_value = dataset_row[arg_name]
+                if isinstance(arg_value, list):
+                    for idx, value in enumerate(arg_value, start=1):
+                        value = value.strip() if isinstance(value, str) else ""
+                        fields[f"{arg_name}-{idx}"] = value
+                        if value is not None:
+                            metadata[f"length-{arg_name}-{idx}"] = len(value)
+                elif isinstance(arg_value, str):
+                    fields[arg_name] = arg_value.strip() if arg_value else ""
+                    if arg_value is not None:
+                        metadata[f"length-{arg_name}"] = len(arg_value.strip())
+                else:
+                    warnings.warn(
+                        f"Unsupported input type ({type(arg_value)}), skipping...",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+            fields["instruction"] = instruction
+            metadata["length-instruction"] = len(instruction)
 
-                # Then we add the model metadata from the `generation_model` and `labelling_model`
-                # columns of the dataset, if they exist.
-                metadata.update(
-                    model_metadata_from_dataset_row(dataset_row=dataset_row)
-                )
-                # Finally, we append the `FeedbackRecord` with the fields and the metadata
-                records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
+            # Then we add the model metadata from the `generation_model` and `labelling_model`
+            # columns of the dataset, if they exist.
+            metadata.update(model_metadata_from_dataset_row(dataset_row=dataset_row))
+            # Finally, we append the `FeedbackRecord` with the fields and the metadata
+            records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
         if not records:
             raise ValueError(
                 f"Skipping the row {dataset_row} as the list of `FeedbackRecord` is empty as those could not be inferred."
