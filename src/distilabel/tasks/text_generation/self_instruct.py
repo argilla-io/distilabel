@@ -50,6 +50,9 @@ class SelfInstructTask(TextGenerationTask):
             "AI assistant".
         num_instructions (int, optional): the number of instructions to be used for the prompt.
             Defaults to 5.
+        criteria_for_query_generation (str, optional): the criteria for query generation that we want
+            our model to have. Default value covers default behaviour for SelfInstructTask. This value is
+            passed to the .jinja template, where extra instructions are added to ensure correct output format.
 
     References:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
