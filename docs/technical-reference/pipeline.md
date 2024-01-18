@@ -109,7 +109,7 @@ We will use this `LLMPool` as the generator for our pipeline and we will use GPT
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_4.py"
 ```
 
-1. We also will execute the calls to OpenAI API in a different process using the `ProcessLLM`. This will allow to not block the main process GIL, and allowing the generator to continue with the next batch.  
+1. We also will execute the calls to OpenAI API in a different process using the `ProcessLLM`. This will allow to not block the main process GIL, and allowing the generator to continue with the next batch.
 
 Then, we will load the dataset and call the `generate` method of the pipeline. For each input in the dataset, the `LLMPool` will randomly select two `LLM`s and will generate two generations for each of them. The generations will be labelled by GPT-4 using the `UltraFeedbackTask` for instruction-following. Finally, we will push the generated dataset to Argilla, in order to review the generations and labels that were automatically generated, and to manually correct them if needed.
 
@@ -167,7 +167,9 @@ The API reference can be found here: [pipeline][distilabel.pipeline.pipeline]
 
 ## Argilla integration
 
-The [CustomDataset][distilabel.dataset.CustomDataset] generated entirely by AI models may require some additional human processing. To facilitate human feedback, the dataset can be uploaded to [`Argilla`](https://github.com/argilla-io/argilla). This process involves logging into an [`Argilla`](https://docs.argilla.io/en/latest/getting_started/cheatsheet.html#connect-to-argilla) instance, converting the dataset to the required format using `CustomDataset.to_argilla()`, and subsequently using `push_to_argilla` on the resulting dataset:
+The [CustomDataset][distilabel.dataset.CustomDataset] generated entirely by AI models may require some additional human processing. To facilitate human feedback, the dataset can be uploaded to [`Argilla`](https://github.com/argilla-io/argilla). This process involves logging into an [`Argilla`](https://docs.argilla.io/en/latest/getting_started/cheatsheet.html#connect-to-argilla) instance, converting the dataset to the required format using `CustomDataset.to_argilla()`, and subsequently using `push_to_argilla` on the resulting dataset. This conversion automatically adds some out-of-the-box filtering and search parameters as semantic search `vectors` and through `MetadataProperties`. These can directly be used within the Argilla UI to help you find the most relevant examples. Let's briefly introduce the the parameters we may find:
+
+- `vector_strategy`: The strategy used to generate the semantic search vectors. By default, it is set to `True` which initializes a standard `SentenceTransformersExtractor()` that computes vectors for all fields in the dataset using `TaylorAI/bge-micro-v2`. Alternatively, you can pass a  `SentenceTransformersExtractor` by importing it from `argilla.client.feedback.integrations.sentencetransformers`.
 
 ```python
 --8<-- "docs/snippets/technical-reference/pipeline/argilla.py"
