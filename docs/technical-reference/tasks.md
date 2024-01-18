@@ -81,6 +81,9 @@ You can take a look at a [sample dataset](https://huggingface.co/datasets/argill
 
 For the API reference visit  [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
+### CustomTask
+
+
 ## Labelling
 
 Instead of generating text, you can instruct the `LLM` to label datasets. The existing tasks are designed specifically for creating both `PreferenceTask` and `CritiqueTask` datasets.
