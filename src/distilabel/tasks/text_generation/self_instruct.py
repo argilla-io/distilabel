@@ -50,6 +50,9 @@ class SelfInstructTask(TextGenerationTask):
             "AI assistant".
         num_instructions (int, optional): the number of instructions to be used for the prompt.
             Defaults to 5.
+        criteria_for_query_generation (str, optional): the criteria for query generation that we want
+            our model to have. Default value covers default behaviour for SelfInstructTask. This value is
+            passed to the .jinja template, where extra instructions are added to ensure correct output format.
 
     References:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
@@ -61,8 +64,16 @@ class SelfInstructTask(TextGenerationTask):
         " You are given a task description and a set of instructions for how to write the prompts for an"
         " specific AI application."
     )
+
     application_description: str = "AI assistant"
     num_instructions: int = 5
+
+    criteria_for_query_generation: str = (
+        "Incorporate a diverse range of verbs, avoiding repetition.\n"
+        "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
+        "Design queries to be self-contained and standalone.\n"
+        'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
+    )
 
     __jinja2_template__: str = _SELF_INSTRUCT_TEMPLATE
 
@@ -87,6 +98,7 @@ class SelfInstructTask(TextGenerationTask):
         render_kwargs = {
             "application_description": self.application_description,
             "num_instructions": self.num_instructions,
+            "criteria_for_query_generation": self.criteria_for_query_generation,
             "input": input,
         }
         return Prompt(
