@@ -22,4 +22,5 @@ instruction_task = SelfInstructTask(
     criteria_for_query_generation=criteria_queries,
 )
 
-print(instruction_task.generate_prompt("hello"))
+# Let's print the generated prompt to see the input of the LLM model
+print(instruction_task.generate_prompt("Haiku Poem").formatted_prompt)
