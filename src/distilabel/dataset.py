@@ -55,7 +55,7 @@ class CustomDataset(Dataset):
     def to_argilla(
         self,
         vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
-        metrics_strategy: Union[bool, "TextDescriptivesExtractor"] = True,
+        metric_strategy: Union[bool, "TextDescriptivesExtractor"] = True,
     ) -> "FeedbackDataset":
         """Converts the dataset to an Argilla `FeedbackDataset` instance, based on the
         task defined in the dataset as part of `Pipeline.generate`.
@@ -124,7 +124,7 @@ class CustomDataset(Dataset):
             dataset=rg_dataset, vector_strategy=vector_strategy
         )
         rg_dataset = self.add_metrics_to_argilla_dataset(
-            dataset=rg_dataset, metrics_strategy=metrics_strategy
+            dataset=rg_dataset, metric_strategy=metric_strategy
         )
 
         return rg_dataset
@@ -160,13 +160,13 @@ class CustomDataset(Dataset):
     def add_metrics_to_argilla_dataset(
         self,
         dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
-        metrics_strategy: Union[bool, "TextDescriptivesExtractor"],
+        metric_strategy: Union[bool, "TextDescriptivesExtractor"],
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
-        if _ARGILLA_AVAILABLE and metrics_strategy:
+        if _ARGILLA_AVAILABLE and metric_strategy:
             try:
-                if isinstance(metrics_strategy, TextDescriptivesExtractor):
-                    tde: TextDescriptivesExtractor = metrics_strategy
-                elif metrics_strategy:
+                if isinstance(metric_strategy, TextDescriptivesExtractor):
+                    tde: TextDescriptivesExtractor = metric_strategy
+                elif metric_strategy:
                     tde = TextDescriptivesExtractor()
 
                 dataset = tde.update_dataset(dataset=dataset)
@@ -176,7 +176,7 @@ class CustomDataset(Dataset):
                     stacklevel=2,
                 )
 
-        elif not _ARGILLA_AVAILABLE and metrics_strategy:
+        elif not _ARGILLA_AVAILABLE and metric_strategy:
             warnings.warn(
                 "An error occurred while adding metrics to the dataset: "
                 "The `argilla`/`text-descriptives` packages are not installed or the installed version is not compatible with the"
