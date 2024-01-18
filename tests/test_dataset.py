@@ -16,17 +16,26 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from argilla import FeedbackDataset
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import UltraFeedbackTask
 
 
 @pytest.fixture
 def custom_dataset():
-    ds = CustomDataset.from_dict({"input": ["a", "b"], "generations": ["c", "d"]})
+    ds = CustomDataset.from_dict(
+        {
+            "input": ["a", "b"],
+            "generations": ["c", "d"],
+            "rating": [1, 2],
+            "rationale": ["e", "f"],
+        }
+    )
     ds.task = UltraFeedbackTask.for_overall_quality()
     return ds
 
 
+@pytest.mark.usefixtures("custom_dataset")
 def test_dataset_save_to_disk(custom_dataset):
     with tempfile.TemporaryDirectory() as tmpdir:
         ds_name = Path(tmpdir) / "dataset_folder"
@@ -35,6 +44,7 @@ def test_dataset_save_to_disk(custom_dataset):
         assert (ds_name / "task.pkl").is_file()
 
 
+@pytest.mark.usefixtures("custom_dataset")
 def test_dataset_load_disk(custom_dataset):
     with tempfile.TemporaryDirectory() as tmpdir:
         ds_name = Path(tmpdir) / "dataset_folder"
@@ -44,6 +54,7 @@ def test_dataset_load_disk(custom_dataset):
         assert isinstance(ds_from_disk.task, UltraFeedbackTask)
 
 
+@pytest.mark.usefixtures("custom_dataset")
 @pytest.mark.parametrize(
     "save_frequency, dataset_len, batch_size, expected",
     [
@@ -74,3 +85,12 @@ def test_do_checkpoint(
 
                 ctr += 1
     assert ctr == expected == chk._total_checks
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla(custom_dataset: CustomDataset):
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    assert isinstance(rg_dataset, FeedbackDataset)
+    assert not rg_dataset.vectors_settings
+    rg_dataset = custom_dataset.to_argilla()
+    assert rg_dataset.vectors_settings
