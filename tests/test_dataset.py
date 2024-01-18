@@ -89,8 +89,11 @@ def test_do_checkpoint(
 
 @pytest.mark.usefixtures("custom_dataset")
 def test_to_argilla(custom_dataset: CustomDataset):
-    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)
+    basic_prop_len = len(rg_dataset.metadata_properties)
     assert isinstance(rg_dataset, FeedbackDataset)
     assert not rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla()
+    rg_dataset = custom_dataset.to_argilla(metric_strategy=False)
     assert rg_dataset.vectors_settings
+    rg_dataset: FeedbackDataset = custom_dataset.to_argilla(vector_strategy=False)
+    assert basic_prop_len < len(rg_dataset.metadata_properties)
