@@ -251,6 +251,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/tutorials/clean-preference-dataset-judgelm-gpt/</loc>
+         <lastmod>2024-01-18</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/tutorials/pipeline-notus-instructions-preferences-legal/</loc>
          <lastmod>2024-01-18</lastmod>
          <changefreq>daily</changefreq>
