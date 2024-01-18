@@ -22,9 +22,6 @@ from distilabel.tasks.mixins import RatingToArgillaMixin
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
-    from argilla.client.feedback.integrations.sentencetransformers import (
-        SentenceTransformersExtractor,
-    )
 
 
 @dataclass
@@ -55,7 +52,6 @@ class CritiqueTask(RatingToArgillaMixin, Task):
         score_column: str = "score",
         critique_column: str = "critique",
         score_values: Optional[List[int]] = None,
-        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
             dataset_row=dataset_row,
@@ -63,7 +59,6 @@ class CritiqueTask(RatingToArgillaMixin, Task):
             ratings_column=score_column,
             rationale_column=critique_column,
             ratings_values=score_values or [1, 2, 3, 4, 5],
-            vector_strategy=vector_strategy,
         )
 
     def to_argilla_record(

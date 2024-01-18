@@ -18,7 +18,6 @@ if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
-import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 
@@ -28,15 +27,10 @@ from distilabel.tasks.prompt import Prompt
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
 if _ARGILLA_AVAILABLE:
-    from argilla.client.feedback.integrations.sentencetransformers import (
-        SentenceTransformersExtractor,
-    )
+    pass
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
-    from argilla.client.feedback.integrations.sentencetransformers import (
-        SentenceTransformersExtractor,
-    )
 
 
 def get_template(template_name: str) -> str:
@@ -127,44 +121,6 @@ class Task(ABC):
             "`to_argilla_record` is not implemented, if you want to export your dataset as an Argilla"
             " `FeedbackDataset` you will need to implement this method first."
         )
-
-    def add_vectors_to_argilla_dataset(
-        self,
-        dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
-        vector_strategy: Union[bool, "SentenceTransformersExtractor"],
-    ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
-        if _ARGILLA_AVAILABLE and vector_strategy:
-            try:
-                if isinstance(vector_strategy, SentenceTransformersExtractor):
-                    ste = vector_strategy
-
-                elif vector_strategy is True:
-                    ste = SentenceTransformersExtractor(
-                        model="en",
-                        show_progress=True,
-                    )
-                else:
-                    raise ValueError(
-                        "The `vector_strategy` must be either `True` or a `SentenceTransformersExtractor` instance."
-                    )
-
-                dataset = ste.update_dataset(dataset=dataset)
-            except Exception as e:
-                warnings.warn(
-                    f"An error occurred while adding vectors to the dataset: {e}",
-                    stacklevel=2,
-                )
-
-        elif not _ARGILLA_AVAILABLE and vector_strategy:
-            warnings.warn(
-                "An error occurred while adding vectors to the dataset: "
-                "The `argilla`/`sentence-transformers` packages are not installed or the installed version is not compatible with the"
-                " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[vectors]'`.",
-                stacklevel=2,
-            )
-        else:
-            pass
-        return dataset
 
     # Renamed to _to_argilla_record instead of renaming `to_argilla_record` to protected, as that would
     # imply more breaking changes.

@@ -13,9 +13,8 @@
 # limitations under the License.
 
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol
 
-from distilabel.tasks.base import Task
 from distilabel.utils.argilla import (
     infer_fields_from_dataset_row,
     model_metadata_from_dataset_row,
@@ -27,9 +26,6 @@ if _ARGILLA_AVAILABLE:
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
-    from argilla.client.feedback.integrations.sentencetransformers import (
-        SentenceTransformersExtractor,
-    )
 
 
 class TaskProtocol(Protocol):
@@ -50,7 +46,6 @@ class RatingToArgillaMixin:
         ratings_column: str = "rating",
         rationale_column: str = "rationale",
         ratings_values: Optional[List[int]] = None,
-        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         # First we infer the fields from the input_args_names, but we could also
         # create those manually instead using `rg.TextField(...)`
@@ -121,15 +116,11 @@ class RatingToArgillaMixin:
         )
         # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
         # defined above.
-        dataset = rg.FeedbackDataset(
+        return rg.FeedbackDataset(
             fields=fields,
             questions=questions,
             metadata_properties=metadata_properties,  # Note that these are always optional
         )
-        dataset = Task.add_vectors_to_argilla_dataset(
-            dataset=dataset, vector_strategy=vector_strategy
-        )
-        return dataset
 
     def _merge_rationales(
         self, rationales: List[str], generations_column: str = "generations"

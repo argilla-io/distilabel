@@ -14,7 +14,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
 
 from distilabel.tasks.base import get_template
 from distilabel.tasks.critique.base import CritiqueTask, CritiqueTaskOutput
@@ -22,9 +22,6 @@ from distilabel.tasks.prompt import Prompt
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
-    from argilla.client.feedback.integrations.sentencetransformers import (
-        SentenceTransformersExtractor,
-    )
 
 _ULTRACM_TEMPLATE = get_template("ultracm.jinja2")
 
@@ -105,7 +102,6 @@ class UltraCMTask(CritiqueTask):
         score_column: str = "score",
         critique_column: str = "critique",
         score_values: Optional[List[int]] = None,
-        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         return super().to_argilla_dataset(
             dataset_row=dataset_row,
@@ -113,5 +109,4 @@ class UltraCMTask(CritiqueTask):
             score_column=score_column,
             critique_column=critique_column,
             score_values=score_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            vector_strategy=vector_strategy,
         )
