@@ -13,7 +13,7 @@ application_description = (
 criteria_queries = (
     "Incorporate a diverse range of verbs, avoiding repetition.\n"
     "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
-    "Design queries to be self-contained and standalone.\n"
+    "Design queries to be self-contained and standalone."
 )
 
 instruction_task = SelfInstructTask(
@@ -23,4 +23,4 @@ instruction_task = SelfInstructTask(
 )
 
 # Let's print the generated prompt to see the input of the LLM model
-print(instruction_task.generate_prompt("Haiku Poem").formatted_prompt)
+print(instruction_task.generate_prompt("mountain peaks").formatted_prompt)
