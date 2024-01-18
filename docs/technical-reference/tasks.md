@@ -70,6 +70,8 @@ Let's see an example of how to customise a SelfInstructTask to create Haikus:
 --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus.py"
 ```
 
+You can further reproduce this example using the [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+
 ### EvolInstructTask
 
 The task is specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to

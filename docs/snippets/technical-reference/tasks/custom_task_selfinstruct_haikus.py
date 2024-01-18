@@ -3,16 +3,17 @@ from distilabel.tasks import SelfInstructTask
 system_prompt: str = "You are an expert Haiku writer, writing the best and most diverse Haikus given topics as inputs."
 
 application_description = (
-    "An AI assistant adept at writing Haiku. "
-    "It expects complete suggestions from users providing details of the kind of haiku they want. "
+    "An AI assistant adept at writing Haiku.\n"
+    "It expects complete suggestions from users providing details of the kind of haiku they want.\n"
     "The AI assistant will help users write haiku about particular topics and is willing to accept requests related to a specific subject or object or a more abstract request"
-    "based on an emotion, theme or vibe."
+    "based on an emotion, theme or vibe.\n"
 )
 
+
 criteria_queries = (
-    "Incorporate a diverse range of verbs, avoiding repetition. "
-    "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences."
-    "Design queries to be self-contained and standalone."
+    "Incorporate a diverse range of verbs, avoiding repetition.\n"
+    "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
+    "Design queries to be self-contained and standalone.\n"
 )
 
 instruction_task = SelfInstructTask(
@@ -20,3 +21,5 @@ instruction_task = SelfInstructTask(
     application_description=application_description,
     criteria_for_query_generation=criteria_queries,
 )
+
+print(instruction_task.generate_prompt("hello"))
