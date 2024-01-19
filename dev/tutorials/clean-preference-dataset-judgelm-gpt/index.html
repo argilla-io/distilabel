@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/tutorials/clean-preference-dataset-judgelm-gpt/">
       
       
+        <link rel="prev" href="../pipeline-notus-instructions-preferences-legal/">
+      
+      
+        <link rel="next" href="../../technical-reference/">
       
       
       <link rel="icon" href="../../assets/logo.svg">
@@ -22,7 +26,7 @@
     
     
       
-        <title>Clean preference dataset judgelm gpt - distilabel</title>
+        <title>Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel</title>
       
     
     
@@ -67,7 +71,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Clean preference dataset judgelm gpt - distilabel" >
+        <meta  property="og:title"  content="Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel" >
       
         <meta  property="og:description"  content="AI Feedback framework" >
       
@@ -83,7 +87,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Clean preference dataset judgelm gpt - distilabel" >
+        <meta  name="twitter:title"  content="Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel" >
       
         <meta  name="twitter:description"  content="AI Feedback framework" >
       
@@ -147,7 +151,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Clean preference dataset judgelm gpt
+              Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
             
           </span>
         </div>
@@ -296,10 +300,12 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../pipeline-notus-instructions-preferences-legal/" class="md-tabs__link">
           
   
@@ -417,8 +423,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -427,12 +435,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -446,7 +454,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -469,6 +477,109 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-argilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Argilla
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1008,6 +1119,27 @@
   
   <span class="md-ellipsis">
     llama_cpp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/ollama/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ollama
   </span>
   
 
@@ -1999,7 +2131,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo">✨ Clean a Preference Dataset with <code>JudgeLMTask</code> and  <code>GPT4-turbo</code><a class="headerlink" href="#clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo" title="Permanent link">&para;</a></h1>
+<h1 id="clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo">✨ Clean a Preference Dataset with <code>JudgeLMTask</code> and <code>GPT4-turbo</code><a class="headerlink" href="#clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo" title="Permanent link">&para;</a></h1>
 <p><a href="https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/clean-preference-dataset-judgelm-gpt.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a href="https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/clean-preference-dataset-judgelm-gpt.ipynb"><img alt="Open Source in Github" src="https://img.shields.io/badge/github-view%20source-black.svg" /></a></p>
 </div>
 </div>

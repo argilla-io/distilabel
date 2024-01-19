@@ -61,6 +61,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llm/ollama/</loc>
+         <lastmod>2024-01-19</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llm/openai/</loc>
          <lastmod>2024-01-19</lastmod>
          <changefreq>daily</changefreq>
