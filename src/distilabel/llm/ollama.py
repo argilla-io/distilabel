@@ -1,3 +1,17 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import logging
 import os
@@ -97,24 +111,29 @@ class OllamaLLM(LLM):
         self._api_available()
         self._api_model_available()
 
+    @property
+    def model_name(self) -> str:
+        """Returns the name of the Ollama model."""
+        return self.model
+
     def _api_available(self):
         """calls GET {OLLAMA_HOST}"""
-        response = request.urlopen(self.OLLAMA_HOST)
-        if response.getcode() != 200:
-            raise ValueError(
-                f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/jmorganca/ollama for deployment guide."
-            )
+        msg = f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/jmorganca/ollama for deployment guide."
+        try:
+            response = request.urlopen(self.OLLAMA_HOST)
+            if response.getcode() != 200:
+                raise Exception
+        except Exception as e:
+            raise ValueError(msg) from e
 
     def _api_model_available(self):
-        if (
+        msg = f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
+        try:
             self._text_generation_with_backoff(
                 prompt=[{"role": "user", "content": "hi"}], max_tokens=1
             )
-            is None
-        ):
-            raise ValueError(
-                f"Model {self.model} is not available. Run `ollama run {self.clean_model}` to serve the model."
-            )
+        except Exception as e:
+            raise ValueError(msg) from e
 
     @retry(
         retry=retry_if_exception_type(_OLLAMA_API_RETRY_ON_EXCEPTIONS),
@@ -183,11 +202,6 @@ class OllamaLLM(LLM):
                 "top_p": self.top_p,
             },
         )
-
-    @property
-    def model_name(self) -> str:
-        """Returns the name of the Ollama model."""
-        return self.model
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
