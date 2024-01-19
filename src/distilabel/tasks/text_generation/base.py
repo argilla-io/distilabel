@@ -25,6 +25,7 @@ from distilabel.utils.argilla import (
     model_metadata_from_dataset_row,
 )
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
+from distilabel.utils.serialization import Serializable
 
 if _ARGILLA_AVAILABLE:
     import argilla as rg
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class TextGenerationTask(Task):
+class TextGenerationTask(Task, Serializable):
     """A base `Task` definition for text generation using LLMs.
 
     Args:
