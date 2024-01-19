@@ -16,7 +16,7 @@ import functools
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Tuple, get_args
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, get_args
 
 import dill as pickle
 
@@ -95,7 +95,7 @@ def _get_best_response(
     return prompt, best_rating, chosen_response, chosen_model
 
 
-def _format_message(prompt: str, response: str) -> list[dict[str, str]]:
+def _format_message(prompt: str, response: str) -> List[Dict[str, str]]:
     """Helper function to format the messages (chosen/rejected) in OpenAI format.
 
     Returns:
