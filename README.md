@@ -73,6 +73,15 @@ pipeline = pipeline("preference", "instruction-following", generator=generator)
 dataset = pipeline.generate(dataset)
 ```
 
+Then you can load dataset from checkpoint persisted on disk:
+
+```
+from distilabel.dataset import CustomDataset
+from pathlib import Path
+
+dataset = CustomDataset.load_from_disk(Path('./ckpt'))
+```
+
 Additionally, you can push the generated dataset to Argilla for further exploration and annotation:
 
 ```python
