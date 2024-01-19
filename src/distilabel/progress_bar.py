@@ -21,6 +21,7 @@ from rich.progress import (
     Progress,
     TaskProgressColumn,
     TextColumn,
+    TimeRemainingColumn,
 )
 from typing_extensions import ParamSpec
 
@@ -29,6 +30,7 @@ _pipeline_progress = Progress(
     BarColumn(),
     TaskProgressColumn(),
     MofNCompleteColumn(),
+    TimeRemainingColumn(elapsed_when_finished=True),
 )
 
 P = ParamSpec("P")
@@ -61,22 +63,35 @@ ProgressFunc = Union[Callable[[], None], None]
 
 
 def get_progress_bars_for_pipeline(
-    num_rows: int, num_generations: int, display_progress_bar: bool
+    num_rows: int,
+    num_generations: int,
+    display_progress_bar: bool,
+    has_generator: bool,
+    has_labeller: bool,
 ) -> Tuple[ProgressFunc, ProgressFunc]:
     if display_progress_bar:
-        generation_progress_bar = get_progress_bar(
-            description="Texts Generated", total=num_rows * num_generations
-        )
+        # Generator progress bar is generated in a function if there's a generator
+        # in pipeline.py. Else, is None.
+        _generation_progress_func = None
 
-        def _generation_progress_func(advance=None) -> None:
-            generation_progress_bar(advance=advance or num_generations)
+        if has_generator:
+            generation_progress_bar = get_progress_bar(
+                description="Texts Generated", total=num_rows * num_generations
+            )
 
-        labelling_progress_bar = get_progress_bar(
-            description="Rows labelled", total=num_rows
-        )
+            def _generation_progress_func(advance=None) -> None:
+                generation_progress_bar(advance=advance or num_generations)
 
-        def _labelling_progress_func(advance=None) -> None:
-            labelling_progress_bar(advance=1)
+        # Labeller progress bar is generated in a function if there's a labeller
+        # in pipeline.py. Else, is None.
+        _labelling_progress_func = None
+        if has_labeller:
+            labelling_progress_bar = get_progress_bar(
+                description="Rows labelled", total=num_rows
+            )
+
+            def _labelling_progress_func(advance=None) -> None:
+                labelling_progress_bar(advance=1)
 
         return _generation_progress_func, _labelling_progress_func
 

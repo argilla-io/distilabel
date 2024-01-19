@@ -719,9 +719,16 @@ class LLMPool:
         mros = [(type(llm.task), len(type(llm.task).mro())) for llm in llms]
         min_common_class = min(mros, key=lambda x: x[1])[0]
         if not all(isinstance(llm.task, min_common_class) for llm in llms):
-            raise ValueError(
-                "All the `ProcessLLM` in `llms` must share the same task (either as the instance or the parent class)."
-            )
+            # This can fail for example with 3 different TextGenerationTasks
+            # Task1(TextGenerationTask), Task2(TextGenerationTask), Task2(TextGenerationTask)
+            # because they share the same parent class but we don't check the common one
+            # TODO(plaguss): We check that they all have the same parent class, this should be simplified
+            # with the previous check
+            parent_classes = [type(llm.task).mro()[1] for llm in llms]
+            if not len(set(parent_classes)) == 1:
+                raise ValueError(
+                    "All the `ProcessLLM` in `llms` must share the same task (either as the instance or the parent class)."
+                )
 
         self.llms = llms
         self.num_llms = len(llms)
