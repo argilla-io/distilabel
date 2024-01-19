@@ -59,6 +59,14 @@ class DummySubtask(TextGenerationTask):
         )
 
 
+class SubtaskOne(TextGenerationTask):
+    pass
+
+
+class SubtaskTwo(TextGenerationTask):
+    pass
+
+
 class TestLLM:
     def test_get_valid_inputs(self) -> None:
         llm = DummyLLM(task=TextGenerationTask())
@@ -134,6 +142,7 @@ class TestLLMPool:
             (TextGenerationTask(), DummySubtask()),
             (TextGenerationTask(), TextGenerationTask(), DummySubtask()),
             (TextGenerationTask(), DummySubtask(), DummySubtask()),
+            (SubtaskOne(), SubtaskOne(), SubtaskTwo()),
         ],
     )
     def test_llmpool_with_subclass_of_tasks(self, tasks: Tuple[Task]) -> None:
