@@ -64,7 +64,7 @@ You can personalize the way in which your SelfInstructTask behaves by changing t
 
 Let's see an example of how to customise a SelfInstructTask to create Haikus in the snippet below. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
 
-```python
+````python
 --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus.py"
     ```
 
@@ -81,7 +81,7 @@ Use this `Task` to build more complete and complex datasets starting from simple
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
-```
+````
 
 You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
 
@@ -101,13 +101,17 @@ You can create your own Custom Text Generation Task, by creating a class that in
     --8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
     ```
 
-=== "Haiku Example for custom SelfInstructTask"
+=== "Template for custom programing task"
 
     ```python
-    --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_oss.py"
     ```
 
+=== "Template for WizardLM"
 
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_wizardlm.py"
+    ```
 
 ## Labelling
 
@@ -203,6 +207,8 @@ Which can be directly used in the following way:
 
 For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultrajudge.UltraJudgeTask].
 
+#### Custom Preference Task
+
 ### Critique
 
 The `CritiqueTask` is designed to be a labeller for generated text, while not only adding scores based on a rubric, but also critiques explaining the reasons why those scores have been provided. The critique can either be using a reference answer (gold answer) as e.g. Prometheus does, or just by generating the critique per each of the N provided generations.
@@ -236,3 +242,5 @@ The following snippet can be used out of the box to define a simple `PrometheusT
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/prometheus.py"
 ```
+
+#### Custom Critique Task
