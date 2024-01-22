@@ -12,12 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import sys
-
-# if sys.version_info < (3, 9):
-#     import importlib_resources
-# else:
-#     import importlib.resources as importlib_resources
 import importlib
 import json
 import os
