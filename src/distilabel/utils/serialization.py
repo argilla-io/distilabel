@@ -21,7 +21,7 @@ from typing import Any, Dict, Generic, TypeVar
 
 T = TypeVar("T")
 
-TASK_FILE_NAME = "task.json"
+TASK_FILE_NAME = "task-distilabel.json"
 
 
 def load_from_dict(template: Dict[str, Any]) -> Generic[T]:
@@ -37,6 +37,8 @@ def load_from_dict(template: Dict[str, Any]) -> Generic[T]:
     type_info = template.pop("__type_info__")
     mod = importlib.import_module(type_info["module"])
     cls = getattr(mod, type_info["name"])
+    print("TEMPLATE", template)
+    print("KEYS", template.keys())
     instance = cls(**template)
     return instance
 
@@ -51,7 +53,7 @@ def read_json(filename: Path) -> Dict[str, Any]:
         return json.load(file)
 
 
-class Serializable:
+class _Serializable:
     """Base class for serializable classes.
     It provides the means to serialize and deserialize.
     """
@@ -68,6 +70,8 @@ class Serializable:
             Dict[str, Any]: _description_
         """
         _dict = asdict(self)
+        print("DICT", _dict)
+        print("DICT_KEYS", _dict.keys())
         _dict["__type_info__"] = {
             "module": type(self).__module__,
             "name": type(self).__name__,
