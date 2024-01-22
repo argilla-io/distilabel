@@ -28,77 +28,76 @@ Given this explanation, `distilabel` distinguishes between two primary categorie
 
 These set of classes are designed to steer a `LLM` in generating text with specific guidelines. They provide a structured approach to instruct the LLM on generating content in a manner tailored to predefined criteria.
 
-=== "TextGenerationTask"
+### TextGenerationTask
 
-    This is the base class for _text generation_, and includes the following fields for guiding the generation process:
+This is the base class for _text generation_, and includes the following fields for guiding the generation process:
 
-    - `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected.
-    - A list of `principles` to inject on the `system_prompt`, which by default correspond to those defined in the UltraFeedback paper[^1],
-    - and lastly a distribution for these principles so the `LLM` can be directed towards the different principles with a more customized behaviour.
+- `system_prompt`, which serves as the initial instruction or query given to the LLM, guiding it on what kind of information or output is expected.
+- A list of `principles` to inject on the `system_prompt`, which by default correspond to those defined in the UltraFeedback paper[^1],
+- and lastly a distribution for these principles so the `LLM` can be directed towards the different principles with a more customized behaviour.
 
-    [^1]: The principles can be found [here][distilabel.tasks.text_generation.principles] in the codebase. More information on the _Principle Sampling_ can be found in the [UltraFeedfack repository](https://github.com/OpenBMB/UltraFeedback#principle-sampling).
+[^1]: The principles can be found [here][distilabel.tasks.text_generation.principles] in the codebase. More information on the _Principle Sampling_ can be found in the [UltraFeedfack repository](https://github.com/OpenBMB/UltraFeedback#principle-sampling).
 
-    For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
+For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
 
-=== "SelfInstructTask"
+### SelfInstructTask
 
-    The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
-    with Self-Generated Instructions](https://arxiv.org/abs/2212.10560).
+The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
+with Self-Generated Instructions](https://arxiv.org/abs/2212.10560).
 
-    From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works):
+From the original [repository](https://github.com/yizhongw/self-instruct/tree/main#how-self-instruct-works):
 
-    _The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances_, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
+_The Self-Instruct process is an iterative bootstrapping algorithm that starts with a seed set of manually-written instructions and uses them to prompt the language model to generate new instructions and corresponding input-output instances_, so this `Task` is specially interesting for generating new datasets from a set of predefined topics.
 
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/generic_openai_self_instruct.py"
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_self_instruct.py"
+```
+
+For the API reference visit [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
+
+You can personalize the way in which your SelfInstructTask behaves by changing the default values of the parameters to something that suits your use case. Let's go through them:
+
+- **System Prompt**: you can control the overall behaviour and expectations of your model.
+- **Application Description**: a description of the AI application. By default, we use "AI Assistant".
+- **Number of instructions**: number of instructions in the prompt.
+- **Criteria for Query Generation**: the criteria for query generation that we want our model to have. The default value covers default behaviour for SelfInstructTask. This value is passed to the .jinja template, where extra instructions are added to ensure correct output format.
+
+Let's see an example of how to customise a SelfInstructTask to create Haikus in the snippet below. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus.py"
     ```
 
-    For the API reference visit [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
+### EvolInstructTask
 
-    You can personalize the way in which your SelfInstructTask behaves by changing the default values of the parameters to something that suits your use case. Let's go through them:
+The task is specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
+Follow Complex Instructions](https://arxiv.org/abs/2304.12244).
 
-    - **System Prompt**: you can control the overall behaviour and expectations of your model.
-    - **Application Description**: a description of the AI application. By default, we use "AI Assistant".
-    - **Number of instructions**: number of instructions in the prompt.
-    - **Criteria for Query Generation**: the criteria for query generation that we want our model to have. The default value covers default behaviour for SelfInstructTask. This value is passed to the .jinja template, where extra instructions are added to ensure correct output format.
+From the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct):
 
-    Let's see an example of how to customise a SelfInstructTask to create Haikus in the snippet below. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+_Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce open-domain instructions of various difficulty levels and skill range, to improve the performance of LLMs_.
 
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus.py"
-    ```
+Use this `Task` to build more complete and complex datasets starting from simple ones.
 
-=== "EvolInstructTask"
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
+```
 
-    The task is specially designed to build the prompts following the Evol-Instruct strategy proposed in: [WizardLM: Empowering Large Language Models to
-    Follow Complex Instructions](https://arxiv.org/abs/2304.12244).
+You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
 
-    From the original [repository](https://github.com/nlpxucan/WizardLM/tree/main?tab=readme-ov-file#overview-of-evol-instruct):
+!!! note
+The original definition of `EvolInstruct` considers an elimination evolving step with different
+situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
 
-    _Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce open-domain instructions of various difficulty levels and skill range, to improve the performance of LLMs_.
+For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
-    Use this `Task` to build more complete and complex datasets starting from simple ones.
+### Custom TextGenerationTask
 
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
-    ```
+You can create your own Custom Text Generation Task, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a Task object suited to your specific needs, and also include custom functions.
 
-    You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
-
-    !!! note
-    The original definition of `EvolInstruct` considers an elimination evolving step with different
-    situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
-
-    For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
-
-=== "Custom TextGenerationTask"
-
-    You can create your own Custom Text Generation Task, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a `Task` object suited to your specific needs, and also include custom functions. 
-
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
-    ```
-
+```python
+--8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
+```
 
 ## Labelling
 
