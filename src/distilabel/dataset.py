@@ -48,12 +48,15 @@ class CustomDataset(Dataset):
 
     def to_argilla(
         self,
+        dataset_columns: List[str] = None,
         vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
     ) -> "FeedbackDataset":
         """Converts the dataset to an Argilla `FeedbackDataset` instance, based on the
         task defined in the dataset as part of `Pipeline.generate`.
 
         Args:
+            fields (List[str]): the fields to be used for the Argilla `FeedbackDataset` instance.
+                By default, the first 5 fields will be used.
             vector_strategy (Union[bool, SentenceTransformersExtractor]): the strategy to be used for
                 adding vectors to the dataset. If `True`, the default `SentenceTransformersExtractor`
                 will be used with the `TaylorAI/bge-micro-2` model. If `False`, no vectors will be added to the dataset.
@@ -110,8 +113,29 @@ class CustomDataset(Dataset):
                     UserWarning,
                     stacklevel=2,
                 )
+
+        selected_fields = []
+        optional_fields = [field.name for field in rg_dataset.fields]
+        if dataset_columns is None:
+            # get the first 5 fields to avoid overcomplicating the dataset
+            selected_fields = optional_fields
+        else:
+            # get the first 5 that align with column selection
+            selected_fields = [
+                column
+                for column in dataset_columns
+                if any(column in optional_field for optional_field in optional_fields)
+            ]
+            selected_fields = list(dict.fromkeys(selected_fields))
+        if selected_fields > 5:
+            selected_fields = selected_fields[:5]
+            warnings.warn(
+                f"More than 5 fields found from {optional_fields}, only the first 5 will be used: {selected_fields} for vectors.",
+                stacklevel=2,
+            )
+
         rg_dataset = self.add_vectors_to_argilla_dataset(
-            dataset=rg_dataset, vector_strategy=vector_strategy
+            dataset=rg_dataset, vector_strategy=vector_strategy, fields=selected_fields
         )
 
         return rg_dataset
@@ -120,6 +144,7 @@ class CustomDataset(Dataset):
         self,
         dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
         vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+        fields: List[str] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if _ARGILLA_AVAILABLE and vector_strategy:
             try:
@@ -127,8 +152,9 @@ class CustomDataset(Dataset):
                     ste: SentenceTransformersExtractor = vector_strategy
                 elif vector_strategy:
                     ste = SentenceTransformersExtractor()
-
-                dataset = ste.update_dataset(dataset=dataset)
+                dataset = ste.update_dataset(
+                    dataset=dataset, fields=[field.name for field in dataset.fields][:5]
+                )
             except Exception as e:
                 warnings.warn(
                     f"An error occurred while adding vectors to the dataset: {e}",

@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test
 
       - name: Install dependencies
-        # if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: pip install -e .[dev,tests,vertexai,openai,together,argilla]
       - name: Lint
         run: make lint
