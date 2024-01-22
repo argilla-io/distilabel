@@ -9,7 +9,6 @@ application_description = (
     "based on an emotion, theme or vibe.\n"
 )
 
-
 criteria_queries = (
     "Incorporate a diverse range of verbs, avoiding repetition.\n"
     "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
@@ -17,6 +16,7 @@ criteria_queries = (
 )
 
 instruction_task = SelfInstructTask(
+    system_prompt=system_prompt,
     num_instructions=15,
     application_description=application_description,
     criteria_for_query_generation=criteria_queries,

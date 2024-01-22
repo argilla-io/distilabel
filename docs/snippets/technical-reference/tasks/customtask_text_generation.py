@@ -9,10 +9,10 @@ class CustomTask(TextGenerationTask):
     system_prompt: str = "You are a text-generation assistant for ...."
     input_prompt: str = "Please, generate text given ..."
 
-    def generate_prompt(self, input: str) -> Prompt:
+    def generate_prompt(self) -> Prompt:
         return Prompt(
             system_prompt=self.system_prompt,
-            formatted_prompt=input_prompt
+            formatted_prompt=self.input_prompt
           )
 
     def parse_output(self, output: str) -> List[Dict[str, str]]:
