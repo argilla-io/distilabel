@@ -42,6 +42,8 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 
 For a more complete example, check out our awesome [tutorials](./tutorials/pipeline-notus-instructions-preferences-legal/) or the example below:
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb) [![Open Source in Github](https://img.shields.io/badge/github-view%20source-black.svg)](https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb)
+
 ## Navigation
 
 <div class="grid cards" markdown>
