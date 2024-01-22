@@ -158,7 +158,7 @@ class TestTextGenerationTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = TextGenerationTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: TextGenerationTask = TextGenerationTask.from_json(
                 template_name
@@ -184,7 +184,7 @@ class TestSelfInstructTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = SelfInstructTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: SelfInstructTask = SelfInstructTask.from_json(template_name)
             assert isinstance(task_loaded, SelfInstructTask)
@@ -208,7 +208,7 @@ class TestEvolInstructTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = EvolInstructTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: EvolInstructTask = EvolInstructTask.from_json(template_name)
             assert isinstance(task_loaded, EvolInstructTask)
@@ -232,7 +232,7 @@ class TestJudgeLMTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = JudgeLMTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: JudgeLMTask = JudgeLMTask.from_json(template_name)
             assert isinstance(task_loaded, JudgeLMTask)
@@ -261,7 +261,7 @@ class TestUltraFeedbackTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = UltraFeedbackTask.for_instruction_following()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: UltraFeedbackTask = UltraFeedbackTask.from_json(template_name)
             assert isinstance(task_loaded, UltraFeedbackTask)
@@ -289,7 +289,7 @@ class TestUltraJudgeTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = UltraJudgeTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: UltraJudgeTask = UltraJudgeTask.from_json(template_name)
             assert isinstance(task_loaded, UltraJudgeTask)
@@ -317,7 +317,7 @@ class TestPrometheusTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = sample_prompetheus_task
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: PrometheusTask = PrometheusTask.from_json(template_name)
             assert isinstance(task_loaded, PrometheusTask)
@@ -345,7 +345,7 @@ class TestUltraCMTaskSerialization:
         with tempfile.TemporaryDirectory() as tmpdirname:
             task = UltraCMTask()
             task.save(tmpdirname)
-            template_name = Path(tmpdirname, TASK_FILE_NAME)
+            template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
             task_loaded: UltraCMTask = UltraCMTask.from_json(template_name)
             assert isinstance(task_loaded, UltraCMTask)
