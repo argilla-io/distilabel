@@ -95,9 +95,19 @@ For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.
 
 You can create your own Custom Text Generation Task, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a Task object suited to your specific needs, and also include custom functions.
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
-```
+=== "Template for custom TextGenerationTask"
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
+    ```
+
+=== "Haiku Example for custom SelfInstructTask"
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
+    ```
+
+
 
 ## Labelling
 
