@@ -12,46 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# WARNING: to run this example in Mac OS use:
-# no_proxy=* OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES python examples/pipeline-llamacpp-and-openai-process.py
-# Otherwise you will get an error when loading the llama.cpp model
-
 import os
-from typing import TYPE_CHECKING
 
 from datasets import load_dataset
-from distilabel.llm import ProcessLLM
+from distilabel.llm import OllamaLLM
 from distilabel.pipeline import Pipeline
-from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
-from llama_cpp import Llama
-
-if TYPE_CHECKING:
-    from distilabel.llm import LLM
-    from distilabel.tasks import Task
-
-
-def load_llama_cpp_llm(task: "Task") -> "LLM":
-    from distilabel.llm import LlamaCppLLM
-
-    llama = Llama(
-        model_path="<PATH_TO_GGUF_MODEL>", n_gpu_layers=10, n_ctx=1024, verbose=False
-    )
-    return LlamaCppLLM(
-        model=llama, task=task, max_new_tokens=512, prompt_format="zephyr"
-    )
-
-
-def load_openai_llm(task: "Task") -> "LLM":
-    from distilabel.llm import OpenAILLM
-
-    return OpenAILLM(
-        model="gpt-3.5-turbo",
-        task=task,
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
-        num_threads=2,
-        max_new_tokens=512,
-    )
-
+from distilabel.tasks import TextGenerationTask
 
 if __name__ == "__main__":
     dataset = (
@@ -61,18 +27,21 @@ if __name__ == "__main__":
     )
 
     pipeline = Pipeline(
-        generator=ProcessLLM(task=TextGenerationTask(), load_llm_fn=load_llama_cpp_llm),
-        labeller=ProcessLLM(
-            task=UltraFeedbackTask.for_overall_quality(), load_llm_fn=load_openai_llm
-        ),
+        generator=OllamaLLM(
+            model="mistral",  # should be deployed separately via https://github.com/jmorganca/ollama
+            task=TextGenerationTask(),
+            max_new_tokens=128,
+            temperature=0.3,
+            prompt_format="openai",
+        )
     )
 
     dataset = pipeline.generate(
         dataset,  # type: ignore
         num_generations=2,
         batch_size=1,
-        checkpoint_strategy=True,
-        display_progress_bar=False,
+        checkpoint_strategy=False,
+        display_progress_bar=True,
     )
 
     # Push to the HuggingFace Hub
