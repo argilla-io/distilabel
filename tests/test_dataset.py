@@ -38,6 +38,7 @@ def custom_dataset():
     ds.task = UltraFeedbackTask.for_overall_quality()
     return ds
 
+
 @pytest.fixture
 def sample_preference_dataset():
     ds = CustomDataset.from_dict(
@@ -187,6 +188,7 @@ def test_to_argilla(custom_dataset: CustomDataset):
     assert not rg_dataset.vectors_settings
     rg_dataset = custom_dataset.to_argilla()
     assert rg_dataset.vectors_settings
+
 
 @pytest.mark.parametrize(
     "with_generation_model",
