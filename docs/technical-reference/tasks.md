@@ -93,7 +93,7 @@ For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.
 
 ### Custom TextGenerationTask
 
-You can create your own Custom Text Generation Task, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a Task object suited to your specific needs, and also include custom functions.
+You can create your own custom `TextGenerationTask`, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a Task object suited to your specific needs, and also include custom functions.
 
 === "Template for custom TextGenerationTask"
 
@@ -209,6 +209,12 @@ For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultraju
 
 #### Custom Preference Task
 
+You can craft your own tailored `PreferenceTask` by deriving a class from the base `PreferenceTask` class. This allows you to modify the default settings to fit your specific requirements and incorporate personalized functionality by overriding existing methods or introducing new ones.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/custom_task_preference.py"
+```
+
 ### Critique
 
 The `CritiqueTask` is designed to be a labeller for generated text, while not only adding scores based on a rubric, but also critiques explaining the reasons why those scores have been provided. The critique can either be using a reference answer (gold answer) as e.g. Prometheus does, or just by generating the critique per each of the N provided generations.
@@ -244,3 +250,9 @@ The following snippet can be used out of the box to define a simple `PrometheusT
 ```
 
 #### Custom Critique Task
+
+You can craft your own tailored `CritiqueTask` by deriving a class from the `CritiqueTask` class. This allows you to modify the default settings to fit your unique requirements and incorporate specialized functionality by including personalized functions.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/custom_task_critique.py"
+```
