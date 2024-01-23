@@ -121,7 +121,7 @@ class CustomDataset(Dataset):
             )
         # get the first 5 that align with column selection + f"{column_name}_idx"
         selected_fields = []
-        optional_fields: list[str] = [field.name for field in rg_dataset.fields]
+        optional_fields = [field.name for field in rg_dataset.fields]
         selected_fields = [
             column
             for column in dataset_columns
