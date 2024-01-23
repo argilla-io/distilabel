@@ -114,20 +114,21 @@ class CustomDataset(Dataset):
                     stacklevel=2,
                 )
 
-        selected_fields = []
-        optional_fields = [field.name for field in rg_dataset.fields]
+        # set columns to all input and output columns for the task
         if dataset_columns is None:
-            # get the first 5 fields to avoid overcomplicating the dataset
-            selected_fields = optional_fields
-        else:
-            # get the first 5 that align with column selection
-            selected_fields = [
-                column
-                for column in dataset_columns
-                if any(column in optional_field for optional_field in optional_fields)
-            ]
-            selected_fields = list(dict.fromkeys(selected_fields))
-        if selected_fields > 5:
+            dataset_columns = getattr(self.task, "input_args_names", []) + getattr(
+                self.task, "output_args_names", []
+            )
+        # get the first 5 that align with column selection + f"{column_name}_idx"
+        selected_fields = []
+        optional_fields: list[str] = [field.name for field in rg_dataset.fields]
+        selected_fields = [
+            column
+            for column in dataset_columns
+            if any(column in optional_field for optional_field in optional_fields)
+        ]
+        selected_fields = list(dict.fromkeys(selected_fields))
+        if len(selected_fields) > 5:
             selected_fields = selected_fields[:5]
             warnings.warn(
                 f"More than 5 fields found from {optional_fields}, only the first 5 will be used: {selected_fields} for vectors.",
