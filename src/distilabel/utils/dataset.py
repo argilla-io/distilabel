@@ -15,52 +15,17 @@
 import functools
 import random
 from collections import defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, get_args
-
-import dill as pickle
 
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.dataset import CustomDataset
-    from distilabel.tasks.base import Task
 
-
-TASK_FILE_NAME = "task.pkl"
 
 logger = get_logger()
 
 BinarizationStrategies = Literal["random", "worst"]
-
-
-def save_task_to_disk(path: Path, task: "Task") -> None:
-    """Saves a task to disk.
-
-    Args:
-        path: The path to the task.
-        task: The task.
-    """
-    task_path = path / TASK_FILE_NAME
-    with open(task_path, "wb") as f:
-        f.write(pickle.dumps(task))
-
-
-def load_task_from_disk(path: Path) -> "Task":
-    """Loads a task from disk.
-
-    Args:
-        path: The path to the task.
-
-    Returns:
-        Task: The task.
-    """
-    task_path = path / "task.pkl"
-    if not task_path.exists():
-        raise FileNotFoundError(f"The task file does not exist: {task_path}")
-    with open(task_path, "rb") as f:
-        task = pickle.loads(f.read())
-    return task
 
 
 def _get_best_response(

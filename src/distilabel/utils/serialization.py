@@ -17,7 +17,11 @@ import json
 import os
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, TypeVar
+
+if TYPE_CHECKING:
+    from distilabel.tasks.base import Task
+
 
 T = TypeVar("T")
 
@@ -39,6 +43,24 @@ def load_from_dict(template: Dict[str, Any]) -> Generic[T]:
     cls = getattr(mod, type_info["name"])
     instance = cls(**template)
     return instance
+
+
+def load_task_from_disk(path: Path) -> "Task":
+    """Loads a task from disk.
+
+    Args:
+        path: The path to the task.
+
+    Returns:
+        Task: The task.
+    """
+    task_path = path / TASK_FILE_NAME
+    if not task_path.exists():
+        raise FileNotFoundError(f"The task file does not exist: {task_path}")
+
+    task_content = read_json(task_path)
+    task = load_from_dict(task_content)
+    return task
 
 
 def write_json(filename: Path, data: Dict[str, Any]) -> None:

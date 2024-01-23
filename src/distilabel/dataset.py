@@ -20,8 +20,8 @@ from typing import TYPE_CHECKING, Any, Dict, Union
 
 from datasets import Dataset
 
-from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
+from distilabel.utils.serialization import load_task_from_disk
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset
@@ -104,7 +104,7 @@ class CustomDataset(Dataset):
         """
         super().save_to_disk(dataset_path, **kwargs)
         if self.task is not None:
-            save_task_to_disk(dataset_path, self.task)
+            self.task.save(Path(dataset_path))
 
     @classmethod
     def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
