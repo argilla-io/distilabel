@@ -21,13 +21,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, get
 import dill as pickle
 
 from distilabel.logger import get_logger
+from distilabel.utils.dataset import TASK_FILE_NAME
 
 if TYPE_CHECKING:
     from distilabel.dataset import CustomDataset
     from distilabel.tasks.base import Task
 
-
-TASK_FILE_NAME = "task.pkl"
 
 logger = get_logger()
 
