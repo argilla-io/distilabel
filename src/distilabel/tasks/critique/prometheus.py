@@ -59,7 +59,7 @@ class PrometheusTask(CritiqueTask):
         return super().input_args_names + ["ref_completion"]
 
     def generate_prompt(
-        self, input: str, generations: str, ref_completion: str, **_: Any
+        self, input: str, generations: List[str], ref_completion: str, **_: Any
     ) -> Prompt:
         """Generates a prompt following the Prometheus specification.
 
