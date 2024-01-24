@@ -42,7 +42,7 @@ class EvolComplexityTask(EvolInstructTask):
     The task is defined as follows:
     Starting from an initial (simpler) instruction, select in-depth or in-breadth evolving to upgrade the simple instruction
     to a more complex one or create a new one (to increase diversity).
-    The In-depth Evolving includes the following operations: concretizing and increase reasoning.
+    The In-depth Evolving includes the following operations: "constraints", "deepen", "concretizing" or "reasoning".
     The In-breadth Evolving is mutation, i.e., generating a completely new instruction based on the given instruction.
 
     Given the evolved instructions are generated from LLMs, sometimes the evolving will fail. We adopt an instruction eliminator
@@ -74,7 +74,7 @@ class EvolComplexityTask(EvolInstructTask):
         Args:
             input (str): the input to be used for the prompt.
             evolution_method (str, optional): The evolution method to be used. If not provided (the default), a random one is chosen
-                like the original paper. Available ones are "concretizing" and "reasoning".
+                like the original paper. Available ones are "constraints", "deepen", "concretizing" or "reasoning".
 
         Returns:
             Prompt: the generated prompt.
