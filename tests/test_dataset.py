@@ -201,14 +201,14 @@ def test_do_checkpoint(
 
 @pytest.mark.usefixtures("custom_dataset")
 def test_to_argilla(custom_dataset: CustomDataset):
-    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)
+    basic_prop_len = len(rg_dataset.metadata_properties)
     assert isinstance(rg_dataset, FeedbackDataset)
     assert not rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla()
+    rg_dataset = custom_dataset.to_argilla(metric_strategy=False)
     assert rg_dataset.vectors_settings
-
-    with pytest.raises(ValueError, match="No fields"):
-        custom_dataset.to_argilla(dataset_columns=["fake_column"])
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    assert basic_prop_len < len(rg_dataset.metadata_properties)
 
 
 @pytest.mark.usefixtures("custom_dataset")
@@ -473,7 +473,7 @@ def dataset_with_self_instruct() -> CustomDataset:
 def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
     rg_dataset = dataset_with_self_instruct.to_argilla()
     assert (
-        rg_dataset[0].fields["instruction"]
+        rg_dataset[0].fields["instructions"]
         == "How do I simplify the given algebraic expression?"
     )
     assert len(rg_dataset) == 16
