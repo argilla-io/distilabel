@@ -158,7 +158,6 @@ def test_self_instruct_task_to_argilla_dataset(custom_self_instruct_dataset):
 
 def test_self_instruct_task_to_argilla_record(custom_self_instruct_dataset):
     ds_row = custom_self_instruct_dataset[0]
-    print(ds_row.keys())
     task = custom_self_instruct_dataset.task
     records = task.to_argilla_record(ds_row)
     assert isinstance(records, list)

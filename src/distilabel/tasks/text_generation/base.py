@@ -29,6 +29,7 @@ from distilabel.utils.imports import _ARGILLA_AVAILABLE
 if _ARGILLA_AVAILABLE:
     import argilla as rg
 
+
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
 
