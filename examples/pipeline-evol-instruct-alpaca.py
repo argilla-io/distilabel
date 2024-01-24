@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
 import os
 import time
 
-from datasets import concatenate_datasets, load_dataset
-from distilabel.llm import OpenAILLM
+from datasets import Dataset, load_dataset
+from distilabel.llm import LLM, OpenAILLM
 from distilabel.pipeline import Pipeline
 from distilabel.tasks import EvolInstructTask
 
@@ -44,26 +45,51 @@ if __name__ == "__main__":
     # In the original paper there is defined a number of evolutions M that determines
     # the number of evolutions that will be used for each instruction. We will use M=2
     # The most direct way of obtaining this is to concatenate the dataset M times.
-    M = 4
-    dataset = concatenate_datasets([dataset] * M).shuffle()
+    # M = 4
+    # dataset = concatenate_datasets([dataset] * M).shuffle()
 
     # Let's define the pipeline using OpenAI ChatGPT and the EvolInstruct task
-    pipe = Pipeline(
-        generator=OpenAILLM(
-            task=EvolInstructTask(),
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
-            num_threads=4,
-            max_new_tokens=1024,
-        )
+    # pipe = Pipeline(
+    #     generator=OpenAILLM(
+    #         task=EvolInstructTask(),
+    #         openai_api_key=os.getenv("OPENAI_API_KEY", None),
+    #         num_threads=4,
+    #         max_new_tokens=1024,
+    #     )
+    # )
+
+    llm = OpenAILLM(
+        task=EvolInstructTask(),
+        openai_api_key=os.getenv("OPENAI_API_KEY", None),
+        num_threads=4,
+        max_new_tokens=1024,
     )
 
     start = time.time()
-    ds_evol_instruct_alpaca = pipe.generate(dataset, batch_size=8)
+
+    def make_evol_instruct_dataset(
+        llm: LLM, dataset: Dataset, evolution_steps: int = 4
+    ) -> "Dataset":
+        pipe = Pipeline(generator=llm)
+        ds = dataset
+        for step in range(1, evolution_steps + 1):
+            print(f"Evolving dataset step: {step}/{evolution_steps}")
+            dataset = pipe.generate(ds, batch_size=8)
+            instructions = itertools.chain(*dataset["instruction"])
+            instructions = [
+                instruction for instruction in instructions if instruction is not None
+            ]
+            ds = Dataset.from_dict({"input": instructions})
+
+        return dataset
+
+    ds_evol_instruct = make_evol_instruct_dataset(llm, dataset, evolution_steps=4)
+
     end = time.time()
     print("Elapsed", end - start)
 
     # Push to the HuggingFace Hub
-    ds_evol_instruct_alpaca.push_to_hub(
+    ds_evol_instruct.push_to_hub(
         HF_REPO_ID,  # type: ignore
         split="train",
         private=False,
@@ -79,7 +105,7 @@ if __name__ == "__main__":
         )
 
         # Convert into an Argilla dataset and push it to Argilla
-        rg_dataset = ds_evol_instruct_alpaca.to_argilla()
+        rg_dataset = ds_evol_instruct.to_argilla()
         rg_dataset.push_to_argilla(
             name="distilabel-sample-evol-instruct",
             workspace="admin",
