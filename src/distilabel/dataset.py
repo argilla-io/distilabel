@@ -66,17 +66,6 @@ class CustomDataset(Dataset):
                 f"Error while converting the dataset to an Argilla `FeedbackDataset` instance: {e}"
             ) from e
 
-        # try:
-        #     rg_dataset = infer_model_metadata_properties(
-        #         hf_dataset=self, rg_dataset=rg_dataset
-        #     )
-        # except Exception as e:
-        #     warnings.warn(
-        #         f"Error while adding the model metadata properties: {e}",
-        #         UserWarning,
-        #         stacklevel=2,
-        #     )
-
         for dataset_row in self:
             if any(
                 dataset_row[input_arg_name] is None  # type: ignore
