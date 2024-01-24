@@ -418,7 +418,7 @@ def dataset_with_self_instruct() -> CustomDataset:
 def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
     rg_dataset = dataset_with_self_instruct.to_argilla()
     assert (
-        rg_dataset[0].fields["instruction"]
+        rg_dataset[0].fields["instructions"]
         == "How do I simplify the given algebraic expression?"
     )
     assert len(rg_dataset) == 16
