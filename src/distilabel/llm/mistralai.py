@@ -43,12 +43,52 @@ class MistralAILLM(LLM):
         max_tokens: int = 128,
         temperature: float = 1.0,
         top_p: float = 1.0,
-        seed: Optional[int] = None,  # random_seed in MistralAI
-        safe_prompt: bool = False,  # Different param, https://docs.mistral.ai/platform/guardrailing/
+        seed: Optional[int] = None,
+        safe_prompt: bool = False,
         num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
+        """Initializes the MistralAILLM class.
+
+        Args:
+            task (Task): the task to be performed by the LLM.
+            model (str, optional): the model to be used for generation. Defaults to "mistral-medium".
+            client (MistralClient, optional):
+                A MistralClient client to be used for generation. Defaults to None.
+            api_key (Optional[str], optional):
+                The MistralAI API key to be used for generation. Will try to grab it from the environment variable
+                if not informed. Visit "https://docs.mistral.ai/#api-access" for more information.
+            max_tokens (int, optional): the maximum number of tokens to be generated.
+                Defaults to 128.
+            temperature (float, optional): the temperature to be used for generation.
+                Defaults to 1.0.
+            top_p (float, optional): the top-p value to be used for generation. Defaults to 1.0.
+            seed (Optional[int], optional): the random seed to use for sampling, e.g. 42. Defaults to None.
+            safe_prompt (_type_, optional):
+                whether to use safe prompt, e.g. True. Defaults to False.
+                Visit "https://docs.mistral.ai/platform/guardrailing/" for more information.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            prompt_format (Union[SupportedFormats, None], optional): the format to be used
+                for the prompt. If `None`, the default format of the task will be used, available
+                formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
+                but `default` (concatenation of `system_prompt` and `formatted_prompt` with a line-break)
+                will be used if no `prompt_formatting_fn` is provided.
+            prompt_formatting_fn (Union[Callable[..., str], None], optional): a function to be
+                applied to the prompt before generation. If `None`, no formatting will be applied.
+                Defaults to `None`.
+        Raises:
+            AssertionError: if the provided `model` is not available in your MistralAI account.
+
+        Examples:
+            >>> import os
+            >>> from distilabel.tasks import TextGenerationTask
+            >>> from distilabel.llm import MistralAILLM
+            >>> llm = MistralAILLM(model="mistral-medium", task=TextGenerationTask(), api_key=os.getenv("MISTRALAI_API_KEY"))
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
+        """
         super().__init__(
             task=task,
             num_threads=num_threads,
