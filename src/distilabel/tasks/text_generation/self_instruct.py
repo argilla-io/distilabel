@@ -161,6 +161,7 @@ class SelfInstructTask(TextGenerationTask):
         )  # type: ignore
         # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
         # defined above.
+
         return rg.FeedbackDataset(
             fields=fields,
             questions=questions,  # type: ignore
