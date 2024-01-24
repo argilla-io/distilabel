@@ -36,6 +36,9 @@ def infer_field_from_dataset_columns(
         dataset_columns = getattr(task, "input_args_names", []) + getattr(
             task, "output_args_names", []
         )
+    elif dataset_columns is False or len(dataset_columns) == 0:
+        dataset_columns = []
+
     # get the first 5 that align with column selection + f"{column_name}_idx"
     selected_fields = []
     optional_fields = [field.name for field in dataset.fields]
