@@ -43,11 +43,8 @@ class InstructTaskMixin:
         )
         # Once the input fields have been defined, then we also include the instruction
         # field which will be fulfilled with each of the instructions generated.
-        fields.append(
-            rg.TextField(
-                name=self.output_args_names[0], title=self.output_args_names[0]
-            )
-        )  # type: ignore
+        for arg_name in self.output_args_names:
+            fields.append(rg.TextField(name=arg_name, title=arg_name))  # type: ignore
         # Then we add a default `RatingQuestion` which asks the users to provide a
         # rating for each of the generations, differing from the scenario where the inputs
         # are the fields and the outputs the ones used to formulate the quesstions. So on,
