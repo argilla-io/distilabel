@@ -167,7 +167,7 @@ class MistralAILLM(LLM):
                     temperature=self.temperature,
                     max_tokens=self.max_tokens,
                     top_p=self.top_p,
-                    seed=self.seed,
+                    random_seed=self.seed,
                     safe_prompt=self.safe_prompt,
                 )
                 responses.append(chat_completion_response)
