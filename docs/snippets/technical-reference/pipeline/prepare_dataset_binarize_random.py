@@ -1,6 +1,6 @@
 from datasets import load_dataset
 from distilabel.tasks import JudgeLMTask
-from distilabel.dataset import prepare_dataset
+from distilabel.utils import prepare_dataset
 
 dataset = load_dataset("argilla/distilabel-intel-orca-dpo-pairs", split="train")
 dataset.task = JudgeLMTask()

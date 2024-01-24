@@ -85,6 +85,7 @@ nav:
   - Concepts: concepts.md
   - Tutorials:
       - Use Notus on inference endpoints to create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
+      - Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo: tutorials/clean-preference-dataset-judgelm-gpt.ipynb
   - Technical References:
       - Concept Guides:
           - technical-reference/index.md
