@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from datasets import Dataset
 
+from distilabel.utils.argilla import infer_field_from_dataset_columns
 from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
@@ -32,6 +33,7 @@ if _ARGILLA_AVAILABLE:
     )
 
 
+
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
     from argilla.client.feedback.integrations.sentencetransformers import (
@@ -40,6 +42,7 @@ if TYPE_CHECKING:
     from argilla.client.feedback.integrations.textdescriptives import (
         TextDescriptivesExtractor,
     )
+
 
     from distilabel.tasks.base import Task
 
@@ -54,6 +57,7 @@ class CustomDataset(Dataset):
 
     def to_argilla(
         self,
+        dataset_columns: List[str] = None,
         vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
         metric_strategy: Union[bool, "TextDescriptivesExtractor"] = True,
     ) -> "FeedbackDataset":
@@ -61,13 +65,15 @@ class CustomDataset(Dataset):
         task defined in the dataset as part of `Pipeline.generate`.
 
         Args:
+            dataset_columns (List[str]): the dataset columns or fields to be used for the Argilla `FeedbackDataset` instance.
+                By default, the first 5 columns or fields will be used.
             vector_strategy (Union[bool, SentenceTransformersExtractor]): the strategy to be used for
                 adding vectors to the dataset. If `True`, the default `SentenceTransformersExtractor`
                 will be used with the `TaylorAI/bge-micro-2` model. If `False`, no vectors will be added to the dataset.
             metrics_strategy (Union[bool, TextDescriptivesExtractor]): the strategy to be used for
                 adding metrics to the dataset. If `True`, the default `TextDescriptivesExtractor`
                 will be used. If `False`, no metrics will be added to the dataset.
-
+                
         Raises:
             ImportError: if the argilla library is not installed.
             ValueError: if the task is not set.
@@ -120,19 +126,23 @@ class CustomDataset(Dataset):
                     UserWarning,
                     stacklevel=2,
                 )
+
+        selected_fields = infer_field_from_dataset_columns(
+            dataset_columns=dataset_columns, dataset=rg_dataset, task=self.task
+        )
         rg_dataset = self.add_vectors_to_argilla_dataset(
-            dataset=rg_dataset, vector_strategy=vector_strategy
+            dataset=rg_dataset, vector_strategy=vector_strategy, fields=selected_fields
         )
         rg_dataset = self.add_metrics_to_argilla_dataset(
             dataset=rg_dataset, metric_strategy=metric_strategy
         )
-
         return rg_dataset
 
     def add_vectors_to_argilla_dataset(
         self,
         dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
         vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+        fields: List[str] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if _ARGILLA_AVAILABLE and vector_strategy:
             try:
@@ -140,8 +150,7 @@ class CustomDataset(Dataset):
                     ste: SentenceTransformersExtractor = vector_strategy
                 elif vector_strategy:
                     ste = SentenceTransformersExtractor()
-
-                dataset = ste.update_dataset(dataset=dataset)
+                dataset = ste.update_dataset(dataset=dataset, fields=fields)
             except Exception as e:
                 warnings.warn(
                     f"An error occurred while adding vectors to the dataset: {e}",

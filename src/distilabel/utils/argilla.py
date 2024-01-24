@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
@@ -23,6 +24,40 @@ if TYPE_CHECKING:
     from argilla import FeedbackDataset
     from argilla.client.feedback.schemas.types import AllowedFieldTypes
     from datasets import Dataset
+
+    from distilabel.tasks.base import Task
+
+
+def infer_field_from_dataset_columns(
+    task: "Task", dataset: "FeedbackDataset", dataset_columns: List[str] = None
+) -> List[str]:
+    # set columns to all input and output columns for the task
+    if dataset_columns is None:
+        dataset_columns = getattr(task, "input_args_names", []) + getattr(
+            task, "output_args_names", []
+        )
+    elif dataset_columns is False or len(dataset_columns) == 0:
+        dataset_columns = []
+
+    # get the first 5 that align with column selection + f"{column_name}_idx"
+    selected_fields = []
+    optional_fields = [field.name for field in dataset.fields]
+    for column in dataset_columns:
+        selected_fields += [field for field in optional_fields if column in field]
+
+    selected_fields = list(dict.fromkeys(selected_fields))
+    if len(selected_fields) > 5:
+        selected_fields = selected_fields[:5]
+        warnings.warn(
+            f"More than 5 fields found from {optional_fields}, only the first 5 will be used: {selected_fields} for vectors.",
+            stacklevel=2,
+        )
+    elif len(selected_fields) == 0:
+        raise ValueError(
+            f"No fields found from {optional_fields} for vectors, please check your dataset and task configuration."
+        )
+
+    return selected_fields
 
 
 def infer_fields_from_dataset_row(
