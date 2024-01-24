@@ -86,7 +86,7 @@ Use this `Task` to build more complete and complex datasets starting from simple
 You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
 
 !!! note 
-The original definition of `EvolInstruct` considers an elimination evolving step with different situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
+    The original definition of `EvolInstruct` considers an elimination evolving step with different situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
 
 For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
