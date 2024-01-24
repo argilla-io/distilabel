@@ -186,10 +186,7 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
     ) -> None:
         if not chosen_method:
             evolution_method = random.choice(get_args(available_methods))
-        elif evolution_method not in available_methods:
-            raise ValueError(
-                f"Evolution method {evolution_method} is not available for this {self}. Available ones are {available_methods}."
-            )
+
         return evolution_method
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
