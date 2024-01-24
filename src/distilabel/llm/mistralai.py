@@ -37,7 +37,7 @@ class MistralAILLM(LLM):
     def __init__(
         self,
         task: "Task",
-        model: str = "mistral-tiny",
+        model: str = "mistral-medium",
         client: Optional["MistralClient"] = None,
         api_key: Optional[str] = os.environ.get("MISTRALAI_API_KEY"),
         max_tokens: int = 128,
