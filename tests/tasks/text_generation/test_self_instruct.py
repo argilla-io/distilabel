@@ -166,6 +166,8 @@ def test_self_instruct_task_to_argilla_record(custom_self_instruct_dataset):
 
 
 def test_self_instruct_task_to_argilla(custom_self_instruct_dataset):
-    rg_dataset = custom_self_instruct_dataset.to_argilla()
+    rg_dataset = custom_self_instruct_dataset.to_argilla(
+        vector_strategy=False, metric_strategy=False
+    )
     assert isinstance(rg_dataset, rg.FeedbackDataset)
     assert len(rg_dataset.records) == 8
