@@ -95,6 +95,8 @@ class RatingToArgillaMixin:
                     metadata_properties.append(
                         rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
                     )
+
+                    # HERE
                     if arg_name == generations_column:
                         metadata_properties.append(
                             rg.FloatMetadataProperty(
@@ -199,6 +201,8 @@ class RatingToArgillaMixin:
                             else None,
                         }
                     )
+
+                    # HERE
                     metadata[f"{ratings_column}-{generations_column}-{idx}"] = value
                 if len(ratings) >= 2:  # type: ignore
                     sorted_ratings = sorted(ratings, reverse=True)  # type: ignore
