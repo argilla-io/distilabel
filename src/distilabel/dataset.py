@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from datasets import Dataset
 
+from distilabel.utils.argilla import infer_field_from_dataset_columns
 from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
@@ -114,26 +115,9 @@ class CustomDataset(Dataset):
                     stacklevel=2,
                 )
 
-        # set columns to all input and output columns for the task
-        if dataset_columns is None:
-            dataset_columns = getattr(self.task, "input_args_names", []) + getattr(
-                self.task, "output_args_names", []
-            )
-        # get the first 5 that align with column selection + f"{column_name}_idx"
-        selected_fields = []
-        optional_fields = [field.name for field in rg_dataset.fields]
-        selected_fields = [
-            column
-            for column in dataset_columns
-            if any(column in optional_field for optional_field in optional_fields)
-        ]
-        selected_fields = list(dict.fromkeys(selected_fields))
-        if len(selected_fields) > 5:
-            selected_fields = selected_fields[:5]
-            warnings.warn(
-                f"More than 5 fields found from {optional_fields}, only the first 5 will be used: {selected_fields} for vectors.",
-                stacklevel=2,
-            )
+        selected_fields = infer_field_from_dataset_columns(
+            dataset_columns=dataset_columns, dataset=rg_dataset, task=self.task
+        )
 
         rg_dataset = self.add_vectors_to_argilla_dataset(
             dataset=rg_dataset, vector_strategy=vector_strategy, fields=selected_fields
@@ -153,9 +137,7 @@ class CustomDataset(Dataset):
                     ste: SentenceTransformersExtractor = vector_strategy
                 elif vector_strategy:
                     ste = SentenceTransformersExtractor()
-                dataset = ste.update_dataset(
-                    dataset=dataset, fields=[field.name for field in dataset.fields][:5]
-                )
+                dataset = ste.update_dataset(dataset=dataset, fields=fields)
             except Exception as e:
                 warnings.warn(
                     f"An error occurred while adding vectors to the dataset: {e}",

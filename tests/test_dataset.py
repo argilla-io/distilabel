@@ -22,7 +22,7 @@ from argilla import FeedbackDataset
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
-from distilabel.utils.dataset import prepare_dataset
+from distilabel.utils.dataset import TASK_FILE_NAME, prepare_dataset
 
 
 @pytest.fixture
@@ -33,6 +33,24 @@ def custom_dataset():
             "generations": ["c", "d"],
             "rating": [1, 2],
             "rationale": ["e", "f"],
+        }
+    )
+    ds.task = UltraFeedbackTask.for_overall_quality()
+    return ds
+
+
+@pytest.fixture
+def large_custom_dataset():
+    ds = CustomDataset.from_dict(
+        {
+            "input": ["a", "b"],
+            "generations": [["c"] * 10, ["d"] * 10],
+            "rating": [1, 2],
+            "rationale": ["e", "f"],
+            "input_2": ["a", "b"],
+            "generations_2": ["c", "d"],
+            "rating_2": [1, 2],
+            "rationale_2": ["e", "f"],
         }
     )
     ds.task = UltraFeedbackTask.for_overall_quality()
@@ -135,7 +153,7 @@ def test_dataset_save_to_disk(custom_dataset):
         ds_name = Path(tmpdir) / "dataset_folder"
         custom_dataset.save_to_disk(ds_name)
         assert ds_name.is_dir()
-        assert (ds_name / "task.pkl").is_file()
+        assert (ds_name / TASK_FILE_NAME).is_file()
 
 
 @pytest.mark.usefixtures("custom_dataset")
@@ -188,6 +206,23 @@ def test_to_argilla(custom_dataset: CustomDataset):
     assert not rg_dataset.vectors_settings
     rg_dataset = custom_dataset.to_argilla()
     assert rg_dataset.vectors_settings
+
+    with pytest.raises(ValueError, match="No fields"):
+        custom_dataset.to_argilla(dataset_columns=["fake_column"])
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla_with_wrong_dataset_columns(custom_dataset: CustomDataset):
+    with pytest.raises(ValueError, match="No fields"):
+        custom_dataset.to_argilla(dataset_columns=["fake_column"])
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
+    with pytest.warns(UserWarning, match="More than 5 fields"):
+        large_custom_dataset.to_argilla(
+            dataset_columns=large_custom_dataset.column_names
+        )
 
 
 @pytest.mark.parametrize(
