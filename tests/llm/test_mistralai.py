@@ -36,8 +36,8 @@ system_prompt = ""
     "distilabel.llm.mistralai.MistralAILLM.available_models",
     [MODEL_NAME],
 )
-class TestAnyscaleLLM:
-    def test_llm_anyscale(self, mock_mistralai):
+class TestMistralAILLM:
+    def test_llm_mistralai(self, mock_mistralai):
         llm = MistralAILLM(
             model=MODEL_NAME,
             task=TextGenerationTask(),

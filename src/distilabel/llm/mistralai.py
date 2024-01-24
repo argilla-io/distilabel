@@ -39,7 +39,7 @@ class MistralAILLM(LLM):
         task: "Task",
         model: str = "mistral-tiny",
         client: Optional["MistralClient"] = None,
-        api_key: Union[str, None] = None,
+        api_key: Optional[str] = os.environ.get("MISTRALAI_API_KEY"),
         max_tokens: int = 128,
         temperature: float = 1.0,
         top_p: float = 1.0,
@@ -67,9 +67,6 @@ class MistralAILLM(LLM):
         self.seed = seed
         self.safe_prompt = safe_prompt
 
-        # If the api key is not given, try to get it from the environment
-        if not api_key:
-            api_key = os.environ.get("MISTRALAI_API_KEY")
         # Explicitly write the default parameters of the model
         self.client = client or MistralClient(
             api_key=api_key, max_retries=5, timeout=120
