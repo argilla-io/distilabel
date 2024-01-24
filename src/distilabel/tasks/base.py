@@ -24,10 +24,6 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
-from distilabel.utils.imports import _ARGILLA_AVAILABLE
-
-if _ARGILLA_AVAILABLE:
-    pass
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
