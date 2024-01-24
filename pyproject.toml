@@ -42,6 +42,7 @@ vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 together = ["together"]
 argilla = ["argilla >= 1.18.0"]
 tests = ["pytest >= 7.4.0"]
+mistralai = ["mistralai"]
 docs = [
     "mkdocs-material >= 9.5.0",
     "mkdocstrings[python] >= 0.24.0",
