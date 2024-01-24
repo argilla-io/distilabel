@@ -22,7 +22,6 @@ from distilabel.logger import get_logger
 if TYPE_CHECKING:
     from distilabel.dataset import CustomDataset
 
-
 logger = get_logger()
 
 BinarizationStrategies = Literal["random", "worst"]
@@ -249,12 +248,22 @@ def prepare_dataset(
         "raw_labelling_response",
         "rationale",
     ]
+
     # Remove the rows for which there is no rating
+    def remove_incomplete_rows(example):
+        if not example["rating"]:
+            return False
+        if len(example["generations"]) != len(example["rating"]):
+            return False
+        # TODO(plaguss): Maybe we should remove the examples with less than 2 generations
+        # instead of checking after the filtering
+        return True
+
     initial_length = len(dataset)
-    dataset = dataset.filter(lambda example: example["rating"])
+    dataset = dataset.filter(remove_incomplete_rows)
     if len(dataset) != initial_length:
         logger.info(
-            f"Found {initial_length - len(dataset)} examples with no rating, removing them."
+            f"Found {initial_length - len(dataset)} examples with no rating or different number of ratings than generations, removing them."
         )
 
     if len(dataset[0]["generations"]) < 2:
