@@ -33,7 +33,6 @@ if _ARGILLA_AVAILABLE:
     )
 
 
-
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
     from argilla.client.feedback.integrations.sentencetransformers import (
@@ -42,7 +41,6 @@ if TYPE_CHECKING:
     from argilla.client.feedback.integrations.textdescriptives import (
         TextDescriptivesExtractor,
     )
-
 
     from distilabel.tasks.base import Task
 
@@ -73,7 +71,7 @@ class CustomDataset(Dataset):
             metrics_strategy (Union[bool, TextDescriptivesExtractor]): the strategy to be used for
                 adding metrics to the dataset. If `True`, the default `TextDescriptivesExtractor`
                 will be used. If `False`, no metrics will be added to the dataset.
-                
+
         Raises:
             ImportError: if the argilla library is not installed.
             ValueError: if the task is not set.
@@ -170,6 +168,7 @@ class CustomDataset(Dataset):
         self,
         dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
         metric_strategy: Union[bool, "TextDescriptivesExtractor"],
+        fields: List[str] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if _ARGILLA_AVAILABLE and metric_strategy:
             try:
@@ -178,7 +177,7 @@ class CustomDataset(Dataset):
                 elif metric_strategy:
                     tde = TextDescriptivesExtractor()
 
-                dataset = tde.update_dataset(dataset=dataset)
+                dataset = tde.update_dataset(dataset=dataset, fields=fields)
             except Exception as e:
                 warnings.warn(
                     f"An error occurred while adding metrics to the dataset: {e}",
