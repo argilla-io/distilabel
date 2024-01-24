@@ -35,13 +35,13 @@ logger = get_logger()
 _EVOL_COMPLEXITY_TEMPLATE = get_template("evol-instruct.jinja2")
 
 
-EvolutionMethod = Literal["concretizing", "reasoning"]
+EvolutionMethod = Literal["constraints", "deepen", "concretizing", "reasoning"]
 
 
 @dataclass
 class EvolComplexityTask(EvolInstructTask):
     """A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case
-    of the original EvolInstructTask, where the evolution method is fixed to "concretizing" or "reasoning".
+    of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
 
     From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce
     open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs.*
