@@ -8,6 +8,7 @@ from argilla.client.feedback.integrations.textdescriptives import (
 
 rg.init(api_key="<YOUR_ARGILLA_API_KEY>", api_url="<YOUR_ARGILLA_API_URL>")
 
+# with default `vector_strategy` and `metric_strategy`
 rg_dataset = pipe_dataset.to_argilla()
 rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
 
@@ -18,3 +19,6 @@ rg_dataset = pipe_dataset.to_argilla(vector_strategy=vector_strategy)
 # with a custom `metric_strategy`
 metric_strategy = TextDescriptivesExtractor(model="en_core_web_sm")
 rg_dataset = pipe_dataset.to_argilla(metric_strategy=vector_strategy)
+
+# without `vector_strategy` and `metric_strategy`
+rg_dataset = pipe_dataset.to_argilla(metric_strategy=None, vector_strategy=None)
