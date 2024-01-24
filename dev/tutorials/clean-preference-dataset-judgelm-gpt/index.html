@@ -18,7 +18,7 @@
         <link rel="prev" href="../pipeline-notus-instructions-preferences-legal/">
       
       
-        <link rel="next" href="../../technical-reference/">
+        <link rel="next" href="../create-a-math-preference-dataset/">
       
       
       <link rel="icon" href="../../assets/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel</title>
+        <title>🧼 Clean an existing preference dataset - distilabel</title>
       
     
     
@@ -71,7 +71,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel" >
+        <meta  property="og:title"  content="🧼 Clean an existing preference dataset - distilabel" >
       
         <meta  property="og:description"  content="AI Feedback framework" >
       
@@ -87,7 +87,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo - distilabel" >
+        <meta  name="twitter:title"  content="🧼 Clean an existing preference dataset - distilabel" >
       
         <meta  name="twitter:description"  content="AI Feedback framework" >
       
@@ -114,7 +114,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo" class="md-skip">
+        <a href="#clean-an-existing-preference-dataset" class="md-skip">
           Skip to content
         </a>
       
@@ -151,7 +151,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
+              🧼 Clean an existing preference dataset
             
           </span>
         </div>
@@ -472,7 +472,7 @@
         
   
   <span class="md-ellipsis">
-    Use Notus on inference endpoints to create a legal preference dataset
+    ⚖️ Create a legal preference dataset
   </span>
   
 
@@ -502,7 +502,7 @@
           
   
   <span class="md-ellipsis">
-    Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
+    🧼 Clean an existing preference dataset
   </span>
   
 
@@ -513,7 +513,7 @@
         
   
   <span class="md-ellipsis">
-    Clean a Preference Dataset with the JudgeLMTask and GPT4-turbo
+    🧼 Clean an existing preference dataset
   </span>
   
 
@@ -554,18 +554,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#running-argilla" class="md-nav__link">
+  <a href="#install-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      Running Argilla
+      Install Dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#install-dependencies" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      Install Dependencies
+      Environment variables
     </span>
   </a>
   
@@ -580,6 +580,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../create-a-math-preference-dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    🧮 Create a mathematical preference dataset
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2079,18 +2100,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#running-argilla" class="md-nav__link">
+  <a href="#install-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      Running Argilla
+      Install Dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#install-dependencies" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      Install Dependencies
+      Environment variables
     </span>
   </a>
   
@@ -2152,7 +2173,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo">✨ Clean a Preference Dataset with <code>JudgeLMTask</code> and <code>GPT4-turbo</code><a class="headerlink" href="#clean-a-preference-dataset-with-judgelmtask-and-gpt4-turbo" title="Permanent link">&para;</a></h1>
+<h1 id="clean-an-existing-preference-dataset">🧼 Clean an existing preference dataset<a class="headerlink" href="#clean-an-existing-preference-dataset" title="Permanent link">&para;</a></h1>
 <p><a href="https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/clean-preference-dataset-judgelm-gpt.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a href="https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/clean-preference-dataset-judgelm-gpt.ipynb"><img alt="Open Source in Github" src="https://img.shields.io/badge/github-view%20source-black.svg" /></a></p>
 </div>
 </div>
@@ -2197,28 +2218,6 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="running-argilla">Running Argilla<a class="headerlink" href="#running-argilla" title="Permanent link">&para;</a></h3>
-<p>For this tutorial, you can use Argilla to visualize and annotate the dataset cleaned by distilabel. There are two main options for deploying and running Argilla:</p>
-<p><strong>Deploy Argilla on Hugging Face Spaces:</strong> If you want to run tutorials with external notebooks (e.g., Google Colab) and you have an account on Hugging Face, you can deploy Argilla on Spaces with a few clicks:</p>
-<p><a href="https://huggingface.co/new-space?template=argilla/argilla-template-space"><img alt="deploy on spaces" src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" /></a></p>
-<p>For details about configuring your deployment, check the <a href="https://huggingface.co/docs/hub/spaces-sdks-docker-argilla">official Hugging Face Hub guide</a>.</p>
-<p><strong>Launch Argilla using Argilla's quickstart Docker image</strong>: This is the recommended option if you want <a href="../../getting_started/quickstart.ipynb">Argilla running on your local machine</a>. Note that this option will only let you run the tutorial locally and not with an external notebook service.</p>
-<p>For more information on deployment options, please check the Deployment section of the documentation.</p>
-<div class="alert alert-info">
-
-Tip
-
-This tutorial is a Jupyter Notebook. There are two options to run it:
-
-- Use the Open in Colab button at the top of this page. This option allows you to run the notebook directly on Google Colab. Don't forget to change the runtime type to GPU for faster model training and inference.
-- Download the .ipynb file by clicking on the View source link at the top of the page. This option allows you to download the notebook and run it on your local machine or on a Jupyter notebook tool of your choice.
-</div>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="install-dependencies">Install Dependencies<a class="headerlink" href="#install-dependencies" title="Permanent link">&para;</a></h3>
 </div>
 </div>
@@ -2233,7 +2232,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[openai,argilla]&quot;</span> <span class="o">--</span><span class="n">upgrade</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[openai]&quot;</span> <span class="o">--</span><span class="n">upgrade</span>
 </span></code></pre></div>
 
 </div>
@@ -2258,12 +2257,11 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">cosine_similarity</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">JudgeLMTask</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;punkt&#39;</span><span class="p">)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">JudgeLMTask</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;punkt&#39;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -2271,54 +2269,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>If you are running Argilla using the Docker quickstart image or Hugging Face Spaces, you need to init the Argilla client with the <code>URL</code> and <code>API_KEY</code>:</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
-</span></code></pre></div>
-
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>If you’re running a private Hugging Face Space, you will also need to set the <a href="https://huggingface.co/settings/tokens">HF_TOKEN</a> as follows:</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># # Set the HF_TOKEN environment variable</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># import os</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># os.environ[&#39;HF_TOKEN&#39;] = &quot;your-hf-token&quot;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># # Replace api_url with the url to your HF Spaces URL</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># # Replace api_key if you configured a custom API key</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># # Replace workspace with the name of your workspace</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># rg.init(</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1">#     api_url=&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;,</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1">#     api_key=&quot;owner.apikey&quot;,</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1">#     workspace=&quot;admin&quot;,</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1">#     extra_headers={&quot;Authorization&quot;: f&quot;Bearer {os.environ[&#39;HF_TOKEN&#39;]}&quot;},</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1"># )</span>
-</span></code></pre></div>
-
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>Finally, we will also need to provide a HF_TOKEN and the OPENAI_API_KEY to run the distilabel pipeline.</p>
 </div>
 </div>
@@ -2326,12 +2277,12 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># HF Token</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HF_TOKEN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hf_...&quot;</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># OpenAI API Key</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sk-...&#39;</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">openai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># HF Token</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HF_TOKEN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hf_...&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># OpenAI API Key</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sk-...&#39;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">openai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span>
 </span></code></pre></div>
 
 </div>
@@ -2357,8 +2308,8 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Load the dataset</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;Intel/orca_dpo_pairs&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Load the dataset</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;Intel/orca_dpo_pairs&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -2366,7 +2317,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">dataset</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">dataset</span>
 </span></code></pre></div>
 
 </div>
@@ -2395,15 +2346,15 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Shuffle &#39;chosen&#39; and &#39;rejected&#39;</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">def</span> <span class="nf">shuffle_and_track</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">):</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">}</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># Apply the function to the dataset</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">shuffle_and_track</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]))</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Shuffle &#39;chosen&#39; and &#39;rejected&#39;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span> <span class="nf">shuffle_and_track</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">):</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">pair</span> <span class="o">=</span> <span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="n">rejected</span><span class="p">]</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chosen&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">chosen</span> <span class="k">else</span> <span class="s2">&quot;rejected&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">]</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="n">pair</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="n">order</span><span class="p">}</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># Apply the function to the dataset</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">shuffle_and_track</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;rejected&quot;</span><span class="p">]))</span>
 </span></code></pre></div>
 
 </div>
@@ -2418,8 +2369,8 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Rename the column</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;input&quot;</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Rename the column</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;input&quot;</span><span class="p">})</span>
 </span></code></pre></div>
 
 </div>
@@ -2427,7 +2378,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">dataset</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">dataset</span>
 </span></code></pre></div>
 
 </div>
@@ -2470,13 +2421,13 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Initialize the labeller</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">labeler</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">task</span><span class="o">=</span><span class="n">JudgeLMTask</span><span class="p">(),</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-1106-preview&quot;</span><span class="p">,</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">num_threads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Initialize the labeller</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">labeler</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">task</span><span class="o">=</span><span class="n">JudgeLMTask</span><span class="p">(),</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-1106-preview&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">num_threads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -2491,11 +2442,11 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Create the pipeline</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">distipipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">labeller</span><span class="o">=</span><span class="n">labeler</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">)</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">distipipe</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Create the pipeline</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">distipipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">labeller</span><span class="o">=</span><span class="n">labeler</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">distipipe</span>
 </span></code></pre></div>
 
 </div>
@@ -2525,8 +2476,8 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Compute ratings and natural language critiques for each pair</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">disti_dataset</span> <span class="o">=</span> <span class="n">distipipe</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Compute ratings and natural language critiques for each pair</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">disti_dataset</span> <span class="o">=</span> <span class="n">distipipe</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -2541,7 +2492,7 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">disti_dataset</span><span class="o">.</span><span class="n">select_columns</span><span class="p">([</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="s2">&quot;rationale&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">disti_dataset</span><span class="o">.</span><span class="n">select_columns</span><span class="p">([</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="s2">&quot;rationale&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 </span></code></pre></div>
 
 </div>
@@ -2549,7 +2500,53 @@ This tutorial is a Jupyter Notebook. There are two options to run it:
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Optionally, if you want to further filter and curate the dataset, you can push the dataset to <a href="https://github.com/argilla-io/argilla">Argilla</a> as follows:</p>
+<h2 id="human-feedback-with-argilla">Human Feedback with Argilla<a class="headerlink" href="#human-feedback-with-argilla" title="Permanent link">&para;</a></h2>
+<p>You can use the AI Feedback created by distilabel directly but we hae ve seen that enhancing it with human feedback will improve the quality of your LLM. We provide a <code>to_argilla</code> method which creates a dataset for Argilla along with out-of-the-box tailored metadata filters and semantic search to allow you to provide human feedback as quickly and engaging as possible. You can check <a href="https://docs.argilla.io/en/latest/getting_started/quickstart_installation.html">the Argilla docs</a> to get it up and running.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First, install it.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[argilla]&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you are running Argilla using the Docker quickstart image or Hugging Face Spaces, you need to init the Argilla client with the URL and API_KEY:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can now push the dataset to Argilla as follows:</p>
 </div>
 </div>
 </div>

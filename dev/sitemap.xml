@@ -266,6 +266,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/tutorials/create-a-math-preference-dataset/</loc>
+         <lastmod>2024-01-24</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/tutorials/pipeline-notus-instructions-preferences-legal/</loc>
          <lastmod>2024-01-24</lastmod>
          <changefreq>daily</changefreq>
