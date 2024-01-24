@@ -21,25 +21,14 @@ else:
 
 import random
 import string
-import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, get_args
+from typing import Any, Dict, List, Literal, Optional, get_args
 
 from distilabel.logger import get_logger
 from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
-from distilabel.utils.argilla import (
-    infer_fields_from_dataset_row,
-    model_metadata_from_dataset_row,
-)
-from distilabel.utils.imports import _ARGILLA_AVAILABLE
-
-if _ARGILLA_AVAILABLE:
-    import argilla as rg
-
-if TYPE_CHECKING:
-    from argilla import FeedbackDataset, FeedbackRecord
+from distilabel.tasks.text_generation.mixins import InstructTaskMixin
 
 logger = get_logger()
 
@@ -68,7 +57,7 @@ def _get_stopwords() -> List[str]:
 
 
 @dataclass
-class EvolInstructTask(TextGenerationTask):
+class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
     """A `TextGenerationTask` following the `EvolInstruct` specification for building the prompts.
 
     From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce
@@ -203,96 +192,3 @@ class EvolInstructTask(TextGenerationTask):
         """
         output = self._elimination_evolving(output)
         return {"instruction": output}
-
-    def to_argilla_dataset(self, dataset_row: Dict[str, Any]) -> "FeedbackDataset":
-        # First we infer the fields from the input_args_names, but we could also
-        # create those manually instead using `rg.TextField(...)`
-        fields = infer_fields_from_dataset_row(
-            field_names=self.input_args_names,
-            dataset_row=dataset_row,
-        )
-        # Once the input fields have been defined, then we also include the instruction
-        # field which will be fulfilled with each of the instructions generated.
-        fields.append(rg.TextField(name="instruction", title="instruction"))  # type: ignore
-        # Then we add a default `RatingQuestion` which asks the users to provide a
-        # rating for each of the generations, differing from the scenario where the inputs
-        # are the fields and the outputs the ones used to formulate the quesstions. So on,
-        # in this scenario we won't have suggestions, as the questions will be related to the
-        # combination of inputs and outputs.
-        questions = [
-            rg.RatingQuestion(  # type: ignore
-                name="instruction-rating",
-                title="How would you rate the generated instruction?",
-                values=list(range(1, 11)),
-            )
-        ]
-        # Finally, we define some metadata properties that can be potentially used
-        # while exploring the dataset within Argilla to get more insights on the data.
-        metadata_properties = []
-        for arg_name in self.input_args_names:
-            if isinstance(dataset_row[arg_name], list):
-                for idx in range(1, len(dataset_row[arg_name]) + 1):
-                    metadata_properties.append(
-                        rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
-                    )
-            elif isinstance(dataset_row[arg_name], str):
-                metadata_properties.append(
-                    rg.IntegerMetadataProperty(name=f"length-{arg_name}")  # type: ignore
-                )
-            else:
-                warnings.warn(
-                    f"Unsupported input type ({type(dataset_row[arg_name])}), skipping...",
-                    UserWarning,
-                    stacklevel=2,
-                )
-        metadata_properties.append(
-            rg.IntegerMetadataProperty(name="length-instruction")  # type: ignore
-        )  # type: ignore
-        # Then we just return the `FeedbackDataset` with the fields, questions, and metadata properties
-        # defined above.
-        return rg.FeedbackDataset(
-            fields=fields,
-            questions=questions,  # type: ignore
-            metadata_properties=metadata_properties,  # Note that these are always optional
-        )
-
-    def to_argilla_record(
-        self,
-        dataset_row: Dict[str, Any],
-        instructions_column: Optional[str] = "instruction",
-    ) -> List["FeedbackRecord"]:
-        """Converts a dataset row to a list of Argilla `FeedbackRecord`s."""
-        records = []
-        for instruction in dataset_row[instructions_column]:  # type: ignore
-            fields, metadata = {}, {}
-            for arg_name in self.input_args_names:
-                arg_value = dataset_row[arg_name]
-                if isinstance(arg_value, list):
-                    for idx, value in enumerate(arg_value, start=1):
-                        value = value.strip() if isinstance(value, str) else ""
-                        fields[f"{arg_name}-{idx}"] = value
-                        if value is not None:
-                            metadata[f"length-{arg_name}-{idx}"] = len(value)
-                elif isinstance(arg_value, str):
-                    fields[arg_name] = arg_value.strip() if arg_value else ""
-                    if arg_value is not None:
-                        metadata[f"length-{arg_name}"] = len(arg_value.strip())
-                else:
-                    warnings.warn(
-                        f"Unsupported input type ({type(arg_value)}), skipping...",
-                        UserWarning,
-                        stacklevel=2,
-                    )
-            fields["instruction"] = instruction
-            metadata["length-instruction"] = len(instruction)
-
-            # Then we add the model metadata from the `generation_model` and `labelling_model`
-            # columns of the dataset, if they exist.
-            metadata.update(model_metadata_from_dataset_row(dataset_row=dataset_row))
-            # Finally, we append the `FeedbackRecord` with the fields and the metadata
-            records.append(rg.FeedbackRecord(fields=fields, metadata=metadata))
-        if not records:
-            raise ValueError(
-                f"Skipping the row {dataset_row} as the list of `FeedbackRecord` is empty as those could not be inferred."
-            )
-        return records
