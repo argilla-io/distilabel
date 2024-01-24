@@ -185,9 +185,9 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
         self, chosen_method: EvolutionMethod, available_methods: EvolutionMethod
     ) -> None:
         if not chosen_method:
-            evolution_method = random.choice(get_args(available_methods))
+            chosen_method = random.choice(get_args(available_methods))
 
-        return evolution_method
+        return chosen_method
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the model into the desired format, applying the elimination step for bad generations.
