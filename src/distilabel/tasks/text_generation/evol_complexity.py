@@ -12,16 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info < (3, 9):
-    pass
-else:
-    pass
-
-import random
 from dataclasses import dataclass
-from typing import Any, Literal, Optional, get_args
+from typing import Any, Literal, Optional
 
 from distilabel.logger import get_logger
 from distilabel.tasks.base import get_template
@@ -42,6 +34,7 @@ EvolutionMethod = Literal["constraints", "deepen", "concretizing", "reasoning"]
 class EvolComplexityTask(EvolInstructTask):
     """A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case
     of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
+    Additionally, an additional elimation step should be executed to screen out instructions that are not useful.
 
     From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce
     open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs.*
@@ -95,12 +88,6 @@ class EvolComplexityTask(EvolInstructTask):
                 formatted_prompt="I want you to act as a Prompt ...",
             )
         """
-        if not evolution_method:
-            evolution_method = random.choice(get_args(self.EvolutionMethod))
-        else:
-            if evolution_method not in self.EvolutionMethod:
-                raise ValueError(
-                    f"Evolution method {evolution_method} is not available for this {self}. Available ones are {self.EvolutionMethod}."
-                )
+        evolution_method = self._get_evolution_method(evolution_method, EvolutionMethod)
 
         return super().generate_prompt(input, evolution_method=evolution_method, **_)

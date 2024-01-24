@@ -111,8 +111,7 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
                 formatted_prompt="I want you to act as a Prompt ...",
             )
         """
-        if not evolution_method:
-            evolution_method = random.choice(get_args(EvolutionMethod))
+        evolution_method = self._get_evolution_method(evolution_method, EvolutionMethod)
 
         render_kwargs = {
             "evol_method": evolution_method,
@@ -127,7 +126,9 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
     def output_args_names(self) -> List[str]:
         return ["instruction"]
 
-    def _elimination_evolving(self, output: str) -> Optional[str]:
+    def _elimination_evolving(
+        self, output: str, response_words: Optional[List[str]] = None
+    ) -> Optional[str]:
         """Performs the elimination step of the Evol-Instruct task, steps 2-4 in the paper:
 
         1. [NOT IMPLEMENTED] The evolved instruction does not provide any information gain compared
@@ -170,6 +171,8 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             "#Rewritten Prompt#",
             "rewritten prompt",
         }
+        if response_words:
+            prompt_words = prompt_words.union(response_words)
         if any(word in output for word in prompt_words):
             logger.info(
                 f"Evolution step removed the output due to word repetition from the prompt: {output}"
@@ -177,6 +180,17 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             return
 
         return output
+
+    def _get_evolution_method(
+        self, chosen_method: EvolutionMethod, available_methods: EvolutionMethod
+    ) -> None:
+        if not chosen_method:
+            evolution_method = random.choice(get_args(available_methods))
+        elif evolution_method not in available_methods:
+            raise ValueError(
+                f"Evolution method {evolution_method} is not available for this {self}. Available ones are {available_methods}."
+            )
+        return evolution_method
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the model into the desired format, applying the elimination step for bad generations.
@@ -191,4 +205,4 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             method for more information of the implementation.
         """
         output = self._elimination_evolving(output)
-        return {"instruction": output}
+        return {self.output_args_names[0]: output}
