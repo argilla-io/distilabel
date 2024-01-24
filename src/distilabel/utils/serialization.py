@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 
-TASK_FILE_NAME = "task-distilabel.json"
+TASK_FILE_NAME = "distilabel-task.json"
 
 
 def load_from_dict(template: Dict[str, Any]) -> Generic[T]:
@@ -115,8 +115,8 @@ class _Serializable:
         }
         return _dict
 
-    def save(self, path: Optional[os.PathLike] = None) -> None:
-        """Writes to a file the content.
+    def save(self, path: Optional[os.PathLike] = Path.cwd() / TASK_FILE_NAME) -> None:
+        """Writes the content to a file.
 
         Args:
             path (Optional[os.PathLike], optional):
@@ -124,17 +124,14 @@ class _Serializable:
                 inside. If None is given, the file will be created at the current
                 working directory. Defaults to None.
         """
-        if path is None:
-            path = Path.cwd() / TASK_FILE_NAME
-        else:
-            path = Path(path)
-            if path.suffix == "":
-                # If the path has no suffix, assume the user just wants a folder to write the task
-                path = path / TASK_FILE_NAME
+        path = Path(path)
+        if path.suffix == "":
+            # If the path has no suffix, assume the user just wants a folder to write the task
+            path = path / TASK_FILE_NAME
         write_json(path, self.dump())
 
     @classmethod
-    def from_json(cls, template_path: os.PathLike) -> Generic[T]:
+    def from_json(cls, path: os.PathLike) -> Generic[T]:
         """Loads a template from a file and returns the instance contained.
 
         Args:
@@ -146,9 +143,7 @@ class _Serializable:
         Returns:
             Generic[T]: _description_
         """
-        if Path(template_path).is_dir():
-            raise ValueError(
-                f"You must provide a file path, not a directory: {template_path}"
-            )
-        template = read_json(template_path)
+        if Path(path).is_dir():
+            raise ValueError(f"You must provide a file path, not a directory: {path}")
+        template = read_json(path)
         return load_from_dict(template)
