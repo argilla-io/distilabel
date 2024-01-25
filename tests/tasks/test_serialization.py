@@ -149,6 +149,8 @@ class TestTextGenerationTaskSerialization:
             "module": "distilabel.tasks.text_generation.base",
             "name": "TextGenerationTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, text_generation_task_as_dict):
         task: TextGenerationTask = load_from_dict(text_generation_task_as_dict)
@@ -175,6 +177,8 @@ class TestSelfInstructTaskSerialization:
             "module": "distilabel.tasks.text_generation.self_instruct",
             "name": "SelfInstructTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, self_instruct_task_as_dict):
         task: SelfInstructTask = load_from_dict(self_instruct_task_as_dict)
@@ -199,6 +203,8 @@ class TestEvolInstructTaskSerialization:
             "module": "distilabel.tasks.text_generation.evol_instruct",
             "name": "EvolInstructTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, evol_instruct_task_as_dict):
         task: EvolInstructTask = load_from_dict(evol_instruct_task_as_dict)
@@ -223,6 +229,8 @@ class TestJudgeLMTaskSerialization:
             "module": "distilabel.tasks.preference.judgelm",
             "name": "JudgeLMTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, judgelm_task_as_dict):
         task: JudgeLMTask = load_from_dict(judgelm_task_as_dict)
@@ -250,6 +258,8 @@ class TestUltraFeedbackTaskSerialization:
             "module": "distilabel.tasks.preference.ultrafeedback",
             "name": "UltraFeedbackTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, ultrafeedback_for_instruction_following_task_as_dict):
         task: UltraFeedbackTask = load_from_dict(
@@ -278,6 +288,8 @@ class TestUltraJudgeTaskSerialization:
             "module": "distilabel.tasks.preference.ultrajudge",
             "name": "UltraJudgeTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, ultrajudge_for_instruction_following_task_as_dict):
         task: UltraJudgeTask = load_from_dict(
@@ -306,6 +318,8 @@ class TestPrometheusTaskSerialization:
             "module": "distilabel.tasks.critique.prometheus",
             "name": "PrometheusTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, prometheus_for_instruction_following_task_as_dict):
         task: PrometheusTask = load_from_dict(
@@ -334,6 +348,8 @@ class TestUltraCMTaskSerialization:
             "module": "distilabel.tasks.critique.ultracm",
             "name": "UltraCMTask",
         }
+        task_as_dict.pop("__type_info__")
+        assert all(not k.startswith("__") for k in task_as_dict.keys())
 
     def test_load_from_dict(self, ultracm_for_instruction_following_task_as_dict):
         task: UltraCMTask = load_from_dict(
