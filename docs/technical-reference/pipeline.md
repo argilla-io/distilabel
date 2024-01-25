@@ -267,3 +267,5 @@ On the other hand, this will be useful when downloading datasets from the hub wh
 ```python
 --8<-- "docs/snippets/technical-reference/pipeline/load_dataset.py"
 ```
+
+A sample task can be seen [here](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct/blob/main/distilabel-task.json).
