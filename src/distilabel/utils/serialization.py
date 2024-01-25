@@ -109,6 +109,8 @@ class _Serializable:
             Dict[str, Any]: Serializable content of the class.
         """
         _dict = asdict(self)
+        # Remove private variables from the dump
+        _dict = {k: v for k, v in _dict.items() if not k.startswith("__")}
         _dict["__type_info__"] = {
             "module": type(self).__module__,
             "name": type(self).__name__,
