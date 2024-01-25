@@ -62,7 +62,7 @@ def test_evol_complexity_scorer_task(input: List[str], expected: str):
         ("[1] Score: 4\n[2] Score: 3\n[3] Score: 2\n[4] Score: 1", [4, 3, 2, 1]),
     ],
 )
-def test_evol_quality_scorer_task_parsing(input: str, expected: str):
+def test_evolcomplexity_scorer_task_parsing(input: str, expected: str):
     task = EvolComplexityScorerTask()
     result = task.parse_output(input)
     assert result["ranks"] == expected
@@ -115,3 +115,15 @@ def test_evol_quality_scorer_task(
     task = EvolQualityScorerTask()
     result = task.generate_prompt(instruction, responses).formatted_prompt
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        ("[Response 1] Score: 2\n[Response 2] Score: 3", [2, 3]),
+    ],
+)
+def test_evol_quality_scorer_task_parsing(input: str, expected: str):
+    task = EvolQualityScorerTask()
+    result = task.parse_output(input)
+    assert result["ranks"] == expected

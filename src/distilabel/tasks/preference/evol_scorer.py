@@ -81,5 +81,7 @@ class EvolQualityScorerTask(PreferenceTask):
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the task."""
         output = output.lower().split("\n")
-        scores = [int(re.sub(r"\[\d+\] score:", "", o).strip()) for o in output]
+        scores = [
+            int(re.sub(r"\[response \d+\] score:", "", o).strip()) for o in output
+        ]
         return {self.output_args_names[0]: scores}
