@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # Map the sample dataset to contain in the input both the original instruction and the
     # Evol Instructed generation:
     def prepare_to_for_equal_prompts(example):
-        return {"input": [example["input"], example["instruction"][0]]}
+        return {"input": [example["input"], example["instructions"][0]]}
 
     # Prepare the dataset and remove the previous columns but the "input" one.
     new_ds = (

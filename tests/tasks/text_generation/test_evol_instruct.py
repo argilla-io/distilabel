@@ -154,7 +154,7 @@ def custom_evol_instruct_dataset() -> CustomDataset:
                     "Design comprehensive and detailed plumbing diagrams for a two-story house that include separate diagrams for each floor, showcasing the layout, dimensions, and connections of all plumbing fixtures, pipelines, drains, vents, water supply sources, and sewage disposal systems. These diagrams should consider the specific requirements and codes of local building regulations while providing a clear and accurate representation of the plumbing infrastructure throughout the entire house."
                 ],
             ],
-            "instruction": [
+            "instructions": [
                 [
                     'Compose a concise and articulate sentence that incorporates the terms "ecstatic," "exhilarated," "blissful," and "overjoyed."'
                 ],
