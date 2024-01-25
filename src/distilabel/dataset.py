@@ -121,7 +121,7 @@ class CustomDataset(Dataset):
             dataset=rg_dataset, vector_strategy=vector_strategy, fields=selected_fields
         )
         rg_dataset = self.add_metrics_to_argilla_dataset(
-            dataset=rg_dataset, metric_strategy=metric_strategy
+            dataset=rg_dataset, metric_strategy=metric_strategy, fields=selected_fields
         )
         return rg_dataset
 
@@ -132,17 +132,11 @@ class CustomDataset(Dataset):
         fields: List[str] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if _ARGILLA_AVAILABLE and vector_strategy:
-            try:
-                if isinstance(vector_strategy, SentenceTransformersExtractor):
-                    ste: SentenceTransformersExtractor = vector_strategy
-                elif vector_strategy:
-                    ste = SentenceTransformersExtractor()
-                dataset = ste.update_dataset(dataset=dataset, fields=fields)
-            except Exception as e:
-                warnings.warn(
-                    f"An error occurred while adding vectors to the dataset: {e}",
-                    stacklevel=2,
-                )
+            if isinstance(vector_strategy, SentenceTransformersExtractor):
+                ste: SentenceTransformersExtractor = vector_strategy
+            elif vector_strategy:
+                ste = SentenceTransformersExtractor()
+            dataset = ste.update_dataset(dataset=dataset, fields=fields)
 
         elif not _ARGILLA_AVAILABLE and vector_strategy:
             warnings.warn(
@@ -160,19 +154,12 @@ class CustomDataset(Dataset):
         fields: List[str] = None,
     ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
         if _ARGILLA_AVAILABLE and metric_strategy:
-            try:
-                if isinstance(metric_strategy, TextDescriptivesExtractor):
-                    tde: TextDescriptivesExtractor = metric_strategy
-                elif metric_strategy:
-                    tde = TextDescriptivesExtractor()
+            if isinstance(metric_strategy, TextDescriptivesExtractor):
+                tde: TextDescriptivesExtractor = metric_strategy
+            elif metric_strategy:
+                tde = TextDescriptivesExtractor()
 
-                dataset = tde.update_dataset(dataset=dataset, fields=fields)
-            except Exception as e:
-                warnings.warn(
-                    f"An error occurred while adding metrics to the dataset: {e}",
-                    stacklevel=2,
-                )
-
+            dataset = tde.update_dataset(dataset=dataset, fields=fields)
         elif not _ARGILLA_AVAILABLE and metric_strategy:
             warnings.warn(
                 "An error occurred while adding metrics to the dataset: "

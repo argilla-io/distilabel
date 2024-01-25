@@ -19,10 +19,54 @@ from typing import List
 
 import pytest
 from argilla import FeedbackDataset
+from argilla.client.feedback.integrations.sentencetransformers import (
+    SentenceTransformersExtractor,
+)
+from argilla.client.feedback.integrations.textdescriptives import (
+    TextDescriptivesExtractor,
+)
+from argilla.client.feedback.schemas.metadata import TermsMetadataProperty
+from argilla.client.feedback.schemas.vector_settings import VectorSettings
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 from distilabel.utils.dataset import TASK_FILE_NAME, prepare_dataset
+
+
+class SentenceTransformersExtractorMock(SentenceTransformersExtractor):
+    def __init__(self) -> None:
+        pass
+
+    def update_dataset(
+        self, dataset: FeedbackDataset, fields: List[str]
+    ) -> FeedbackDataset:
+        for field in fields:
+            dataset.add_vector_settings(VectorSettings(name=field, dimensions=1))
+        return dataset
+
+
+class TextDescriptivesExtractorMock(TextDescriptivesExtractor):
+    def __init__(self) -> None:
+        pass
+
+    def update_dataset(
+        self, dataset: FeedbackDataset, fields: List[str]
+    ) -> FeedbackDataset:
+        for field in fields:
+            dataset.add_metadata_property(
+                TermsMetadataProperty(name=field, values=["field"])
+            )
+        return dataset
+
+
+@pytest.fixture
+def vector_strategy():
+    return SentenceTransformersExtractorMock()
+
+
+@pytest.fixture
+def metric_strategy():
+    return TextDescriptivesExtractorMock()
 
 
 @pytest.fixture
@@ -200,14 +244,22 @@ def test_do_checkpoint(
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_to_argilla(custom_dataset: CustomDataset):
+def test_to_argilla(
+    custom_dataset: CustomDataset,
+    vector_strategy: SentenceTransformersExtractorMock,
+    metric_strategy,
+):
     rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)
     basic_prop_len = len(rg_dataset.metadata_properties)
     assert isinstance(rg_dataset, FeedbackDataset)
     assert not rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla(metric_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(
+        metric_strategy=False, vector_strategy=vector_strategy
+    )
     assert rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(
+        metric_strategy=metric_strategy, vector_strategy=False
+    )
     assert basic_prop_len < len(rg_dataset.metadata_properties)
 
 
@@ -218,10 +270,14 @@ def test_to_argilla_with_wrong_dataset_columns(custom_dataset: CustomDataset):
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
+def test_to_argilla_with_too_many_fields(
+    large_custom_dataset: CustomDataset, vector_strategy, metric_strategy
+):
     with pytest.warns(UserWarning, match="More than 5 fields"):
         large_custom_dataset.to_argilla(
-            dataset_columns=large_custom_dataset.column_names
+            dataset_columns=large_custom_dataset.column_names,
+            metric_strategy=metric_strategy,
+            vector_strategy=vector_strategy,
         )
 
 
@@ -471,7 +527,9 @@ def dataset_with_self_instruct() -> CustomDataset:
 
 
 def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
-    rg_dataset = dataset_with_self_instruct.to_argilla()
+    rg_dataset = dataset_with_self_instruct.to_argilla(
+        vector_strategy=False, metric_strategy=False
+    )
     assert (
         rg_dataset[0].fields["instructions"]
         == "How do I simplify the given algebraic expression?"
