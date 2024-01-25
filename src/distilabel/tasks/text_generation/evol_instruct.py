@@ -124,7 +124,7 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
 
     @property
     def output_args_names(self) -> List[str]:
-        return ["instruction"]
+        return ["instructions"]
 
     def _elimination_evolving(
         self, output: str, response_words: Optional[List[str]] = None

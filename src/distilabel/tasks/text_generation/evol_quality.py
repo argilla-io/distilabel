@@ -43,7 +43,7 @@ EvolutionMethod = Literal[
 
 
 @dataclass
-class EvolQualityTask(EvolInstructTask):
+class EvolQualityGeneratorTask(EvolInstructTask):
     """A `TextGenerationTask` following the `Deita` specification for improving the responses.
 
     From the reference repository: *DEITA (short for Data-Efficient Instruction Tuning for Alignment),
@@ -93,8 +93,8 @@ class EvolQualityTask(EvolInstructTask):
             Prompt: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import EvolQualityTask
-            >>> task = EvolQualityTask()
+            >>> from distilabel.tasks.text_generation import EvolQualityGeneratorTask
+            >>> task = EvolQualityGeneratorTask()
             >>> task.generate_prompt("Give three tips for staying healthy.", "1. Eat healthy food. 2. Exercise. 3. Sleep well.")
             Prompt(
                 system_prompt="",
@@ -119,7 +119,7 @@ class EvolQualityTask(EvolInstructTask):
 
     @property
     def output_args_names(self) -> List[str]:
-        return ["evolved_generation"]
+        return ["generations"]
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the model into the desired format, applying the elimination step for bad generations.

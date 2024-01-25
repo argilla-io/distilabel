@@ -31,7 +31,7 @@ EvolutionMethod = Literal["constraints", "deepen", "concretizing", "reasoning"]
 
 
 @dataclass
-class EvolComplexityTask(EvolInstructTask):
+class EvolComplexityGeneratorTask(EvolInstructTask):
     """A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case
     of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
     Additionally, an additional elimation step should be executed to screen out instructions that are not useful.
@@ -80,8 +80,8 @@ class EvolComplexityTask(EvolInstructTask):
             Prompt: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import EvolInstructTask
-            >>> task = EvolInstructTask()
+            >>> from distilabel.tasks.text_generation import EvolComplexityGeneratorTask
+            >>> task = EvolComplexityGeneratorTask()
             >>> task.generate_prompt("Give three tips for staying healthy.")
             Prompt(
                 system_prompt="",
