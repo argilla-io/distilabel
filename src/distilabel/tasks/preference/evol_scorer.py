@@ -21,6 +21,7 @@ from distilabel.tasks.preference.base import PreferenceTask
 from distilabel.tasks.prompt import Prompt
 
 _EVOL_COMPLEXITY_SCORER_TEMPLATE = get_template("evol-complexity-scorer.jinja2")
+_EVOL_QUALITY_SCORER_TEMPLATE = get_template("evol-quality-scorer.jinja2")
 
 
 @dataclass
@@ -30,9 +31,7 @@ class EvolComplexityScorerTask(PreferenceTask):
     __jinja2_template__: str = _EVOL_COMPLEXITY_SCORER_TEMPLATE
 
     def generate_prompt(self, generations: List[str], **_: Any) -> Prompt:
-        render_kwargs = {
-            "instructions": generations,
-        }
+        render_kwargs = {"instructions": generations}
         return Prompt(
             system_prompt=self.system_prompt,
             formatted_prompt=self.template.render(**render_kwargs),
@@ -42,6 +41,38 @@ class EvolComplexityScorerTask(PreferenceTask):
     def input_args_names(self) -> List[str]:
         """Returns the names of the input arguments of the task."""
         return ["generations"]
+
+    @property
+    def output_args_names(self) -> List[str]:
+        return ["ranks"]
+
+    def parse_output(self, output: str) -> Dict[str, List[str]]:
+        """Parses the output of the task."""
+        output = output.lower().split("\n")
+        scores = [int(re.sub(r"\[\d+\] score:", "", o).strip()) for o in output]
+        return {self.output_args_names[0]: scores}
+
+
+@dataclass
+class EvolQualityScorerTask(PreferenceTask):
+    system_prompt: str = ""
+
+    __jinja2_template__: str = _EVOL_QUALITY_SCORER_TEMPLATE
+
+    def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
+        render_kwargs = {
+            "instruction": input,
+            "responses": generations,
+        }
+        return Prompt(
+            system_prompt=self.system_prompt,
+            formatted_prompt=self.template.render(**render_kwargs),
+        )
+
+    @property
+    def input_args_names(self) -> List[str]:
+        """Returns the names of the input arguments of the task."""
+        return ["input", "generations"]
 
     @property
     def output_args_names(self) -> List[str]:
