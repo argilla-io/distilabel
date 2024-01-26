@@ -18,15 +18,41 @@ from pathlib import Path
 from typing import List
 
 import pytest
+from argilla import FeedbackDataset
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
-from distilabel.utils.dataset import prepare_dataset
+from distilabel.utils.dataset import TASK_FILE_NAME, prepare_dataset
 
 
 @pytest.fixture
 def custom_dataset():
-    ds = CustomDataset.from_dict({"input": ["a", "b"], "generations": ["c", "d"]})
+    ds = CustomDataset.from_dict(
+        {
+            "input": ["a", "b"],
+            "generations": ["c", "d"],
+            "rating": [1, 2],
+            "rationale": ["e", "f"],
+        }
+    )
+    ds.task = UltraFeedbackTask.for_overall_quality()
+    return ds
+
+
+@pytest.fixture
+def large_custom_dataset():
+    ds = CustomDataset.from_dict(
+        {
+            "input": ["a", "b"],
+            "generations": [["c"] * 10, ["d"] * 10],
+            "rating": [1, 2],
+            "rationale": ["e", "f"],
+            "input_2": ["a", "b"],
+            "generations_2": ["c", "d"],
+            "rating_2": [1, 2],
+            "rationale_2": ["e", "f"],
+        }
+    )
     ds.task = UltraFeedbackTask.for_overall_quality()
     return ds
 
@@ -121,14 +147,16 @@ def sample_preference_dataset():
     return ds
 
 
+@pytest.mark.usefixtures("custom_dataset")
 def test_dataset_save_to_disk(custom_dataset):
     with tempfile.TemporaryDirectory() as tmpdir:
         ds_name = Path(tmpdir) / "dataset_folder"
         custom_dataset.save_to_disk(ds_name)
         assert ds_name.is_dir()
-        assert (ds_name / "task.pkl").is_file()
+        assert (ds_name / TASK_FILE_NAME).is_file()
 
 
+@pytest.mark.usefixtures("custom_dataset")
 def test_dataset_load_disk(custom_dataset):
     with tempfile.TemporaryDirectory() as tmpdir:
         ds_name = Path(tmpdir) / "dataset_folder"
@@ -138,6 +166,7 @@ def test_dataset_load_disk(custom_dataset):
         assert isinstance(ds_from_disk.task, UltraFeedbackTask)
 
 
+@pytest.mark.usefixtures("custom_dataset")
 @pytest.mark.parametrize(
     "save_frequency, dataset_len, batch_size, expected",
     [
@@ -168,6 +197,32 @@ def test_do_checkpoint(
 
                 ctr += 1
     assert ctr == expected == chk._total_checks
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla(custom_dataset: CustomDataset):
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)
+    basic_prop_len = len(rg_dataset.metadata_properties)
+    assert isinstance(rg_dataset, FeedbackDataset)
+    assert not rg_dataset.vectors_settings
+    rg_dataset = custom_dataset.to_argilla(metric_strategy=False)
+    assert rg_dataset.vectors_settings
+    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    assert basic_prop_len < len(rg_dataset.metadata_properties)
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla_with_wrong_dataset_columns(custom_dataset: CustomDataset):
+    with pytest.raises(ValueError, match="No fields"):
+        custom_dataset.to_argilla(dataset_columns=["fake_column"])
+
+
+@pytest.mark.usefixtures("custom_dataset")
+def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
+    with pytest.warns(UserWarning, match="More than 5 fields"):
+        large_custom_dataset.to_argilla(
+            dataset_columns=large_custom_dataset.column_names
+        )
 
 
 @pytest.mark.parametrize(
@@ -418,7 +473,7 @@ def dataset_with_self_instruct() -> CustomDataset:
 def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
     rg_dataset = dataset_with_self_instruct.to_argilla()
     assert (
-        rg_dataset[0].fields["instruction"]
+        rg_dataset[0].fields["instructions"]
         == "How do I simplify the given algebraic expression?"
     )
     assert len(rg_dataset) == 16
