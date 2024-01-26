@@ -187,6 +187,32 @@ Which can be directly used in the following way:
 
 For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultrajudge.UltraJudgeTask].
 
+#### EvolComplexityScorerTask
+
+This class implements a `PreferenceTask` to rank and score a list of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the ranking of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired tine `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity_scorer.py"
+```
+
+For the API reference visit [EvolComplexityScorerTask][distilabel.tasks.preference.evol_complexity_scorer.EvolComplexityScorerTask].
+
+#### EvolQualityScorerTask
+
+This class implements a `PreferenceTask` to rank and score a list of instructions according to its quality. Follows the same idea defined in the `EvolComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it ranks instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality_scorer.py"
+```
+
+By default, the quality is defined as the following the paper prompt, but can be modified updating the `task_description` as in the following example (keep in mind the default `task_description` corresponds to the `EvolQuality` criteria defined to evolve the initial instructions, so this should be taken into account):
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality_scorer_custom.py"
+```
+
+For the API reference visit [EvolQualityScorerTask][distilabel.tasks.preference.evol_quality_scorer.EvolQualityScorerTask].
+
 ### Critique
 
 The `CritiqueTask` is designed to be a labeller for generated text, while not only adding scores based on a rubric, but also critiques explaining the reasons why those scores have been provided. The critique can either be using a reference answer (gold answer) as e.g. Prometheus does, or just by generating the critique per each of the N provided generations.
