@@ -189,7 +189,7 @@ For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultraju
 
 #### EvolComplexityScorerTask
 
-This class implements a `PreferenceTask` to rank and score a list of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the ranking of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired tine `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
+This class implements a `PreferenceTask` to rate a of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the scoring of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired on the `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity_scorer.py"
@@ -199,7 +199,7 @@ For the API reference visit [EvolComplexityScorerTask][distilabel.tasks.preferen
 
 #### EvolQualityScorerTask
 
-This class implements a `PreferenceTask` to rank and score a list of instructions according to its quality. Follows the same idea defined in the `EvolComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it ranks instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
+This class implements a `PreferenceTask` to rate a list of instructions according to its quality. Follows the same idea defined in the `EvolComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it rates the instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality_scorer.py"

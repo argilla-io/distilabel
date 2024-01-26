@@ -25,7 +25,7 @@ _EVOL_QUALITY_SCORER_TEMPLATE = get_template("evol-quality-scorer.jinja2")
 
 @dataclass
 class EvolQualityScorerTask(PreferenceTaskNoRationale):
-    """A `PreferenceTask` following the `Quality Scorer` specification for ranking and scoring instructions
+    """A `PreferenceTask` following the `Quality Scorer` specification for rating instructions
     in terms of quality.
 
     This task is inspired by the Evol Quality Scorer in the Deita framework: *Deita is an open-sourced project
@@ -80,13 +80,13 @@ creativity, and level of detail of the response."""
         )
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
-        """Parses the output of the task, returning a list with the rank/score of each instruction.
+        """Parses the output of the task, returning a list with the rating of each instruction.
 
         Args:
             output (str): The output of the LLM raw.
 
         Returns:
-            Dict[str, List[str]]: A dict with containing the ranks/scores of each instruction.
+            Dict[str, List[str]]: A dict with containing the ratings of each instruction.
         """
         output = output.lower().split("\n")
         scores = [

@@ -25,14 +25,14 @@ _EVOL_COMPLEXITY_SCORER_TEMPLATE = get_template("evol-complexity-scorer.jinja2")
 
 @dataclass
 class EvolComplexityScorerTask(PreferenceTaskNoRationale):
-    """A `PreferenceTask` following the `Complexity Scorer` specification for ranking and scoring instructions
+    """A `PreferenceTask` following the `Complexity Scorer` specification for rating instructions
     in terms of complexity.
 
     This task is inspired by the Evol Complexity Scorer in the Deita framework: *Deita is an open-sourced project
     designed to facilitate Automatic Data Selection for instruction tuning in Large Language Models (LLMs).*
 
     The task is defined as follows:
-    Ask an LLM (in the original paper they used ChatGPT) to rank and score the instructions (the number of instructions
+    Ask an LLM (in the original paper they used ChatGPT) to rate the instructions (the number of instructions
     is dynamic in the sense that you can compare any number, in *Deita* the chose 6) to obtain a complexity
     score *c* for each instruction.
 
