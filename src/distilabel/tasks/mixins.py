@@ -219,3 +219,109 @@ class RatingToArgillaMixin:
         return rg.FeedbackRecord(
             fields=fields, suggestions=suggestions, metadata=metadata
         )
+
+
+class EvolScorerToArgillaMixin:
+    def to_argilla_dataset(
+        self: TaskProtocol,
+        dataset_row: Dict[str, Any],
+        generations_column: str = "generations",
+        score_column: str = "ranks",
+        scoring_values: Optional[List[int]] = None,
+    ) -> "FeedbackDataset":
+        # First we infer the fields from the input_args_names, but we could also
+        # create those manually instead using `rg.TextField(...)`
+        fields = infer_fields_from_dataset_row(
+            field_names=self.input_args_names, dataset_row=dataset_row
+        )
+        # Then we add the questions, which cannot be easily inferred in this case,
+        # because those depend neither on the outputs nor on the inputs, but in a combination
+        # of both, since the questions will be formulated using the inputs, but assigned to the
+        # outputs.
+        if generations_column is None or generations_column not in dataset_row:
+            raise ValueError(
+                f"The `generations_column='{generations_column}'` is not present in the"
+                f" dataset row. Please provide any of {list(dataset_row.keys())}.",
+            )
+        if score_column is None or score_column not in dataset_row:
+            raise ValueError(
+                f"The `score_column='{score_column}'` is not present in the dataset"
+                f" row. Please provide any of {list(dataset_row.keys())}.",
+            )
+
+        questions = []
+        for idx in range(1, len(dataset_row[generations_column]) + 1):
+            questions.append(
+                rg.RatingQuestion(  # type: ignore
+                    name=f"{generations_column}-{idx}-{score_column}",
+                    title=f"What's the {score_column} for {generations_column}-{idx}?",
+                    values=scoring_values or list(range(1, 11)),
+                )
+            )
+
+        return rg.FeedbackDataset(
+            fields=fields,
+            questions=questions,
+        )
+
+    def to_argilla_record(  # noqa: C901
+        self: TaskProtocol,
+        dataset_row: Dict[str, Any],
+        generations_column: str = "generations",
+        score_column: str = "ranks",
+        scoring_values: Optional[List[int]] = None,
+    ) -> "FeedbackRecord":
+        """Converts a dataset row to an Argilla `FeedbackRecord`."""
+        # We start off with the fields, which are the inputs of the LLM, but also
+        # build the metadata from them, as previously specified within the
+        fields = {}
+        for arg_name in self.input_args_names:
+            arg_value = dataset_row[arg_name]
+            if isinstance(arg_value, list):
+                for idx, value in enumerate(arg_value, start=1):
+                    fields[f"{arg_name}-{idx}"] = value.strip() if value else ""
+            elif isinstance(arg_value, str):
+                fields[arg_name] = arg_value.strip() if arg_value else ""
+            else:
+                warnings.warn(
+                    f"Unsupported input type ({type(arg_value)}), skipping...",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        # Then we include the suggestions, which are generated from the outputs
+        # of the LLM instead.
+        suggestions = []
+
+        if score_column is None or score_column not in dataset_row:
+            raise ValueError(
+                f"The score column {score_column} is not present in the dataset row."
+            )
+        if dataset_row.get(score_column) is not None:
+            ratings = dataset_row.get(score_column)
+            if isinstance(ratings, list):
+                for idx, value in enumerate(ratings, start=1):  # type: ignore
+                    suggestions.append(
+                        {
+                            "question_name": f"{generations_column}-{idx}-{score_column}",
+                            "value": 1
+                            if value < 1
+                            else int(value)
+                            if value
+                            <= (
+                                max(scoring_values)
+                                if scoring_values is not None
+                                else 10
+                            )
+                            else None,
+                        }
+                    )
+            elif isinstance(ratings, (str, float, int)):
+                suggestions.append(
+                    {
+                        "question_name": f"{generations_column}-1-{score_column}",
+                        "value": int(ratings),
+                    }
+                )
+
+        # Finally, we return the `FeedbackRecord`
+        return rg.FeedbackRecord(fields=fields, suggestions=suggestions)
