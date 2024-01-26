@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Literal, Union
 from jinja2 import Template
 
 from distilabel.tasks.prompt import Prompt
+from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from argilla import FeedbackDataset, FeedbackRecord
@@ -35,7 +36,7 @@ def get_template(template_name: str) -> str:
     )
 
 
-class Task(ABC):
+class Task(ABC, _Serializable):
     """Abstract class used to define the methods required to create a `Task`, to be used
     within an `LLM`.
 

@@ -22,7 +22,8 @@ from argilla import FeedbackDataset
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
-from distilabel.utils.dataset import TASK_FILE_NAME, prepare_dataset
+from distilabel.utils.dataset import prepare_dataset
+from distilabel.utils.serialization import TASK_FILE_NAME
 
 
 @pytest.fixture
