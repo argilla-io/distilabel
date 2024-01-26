@@ -17,15 +17,14 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from distilabel.tasks.base import get_template
-from distilabel.tasks.mixins import EvolScorerToArgillaMixin
-from distilabel.tasks.preference.base import PreferenceTask
+from distilabel.tasks.preference.base import PreferenceTaskNoRationale
 from distilabel.tasks.prompt import Prompt
 
 _EVOL_QUALITY_SCORER_TEMPLATE = get_template("evol-quality-scorer.jinja2")
 
 
 @dataclass
-class EvolQualityScorerTask(EvolScorerToArgillaMixin, PreferenceTask):
+class EvolQualityScorerTask(PreferenceTaskNoRationale):
     """A `PreferenceTask` following the `Quality Scorer` specification for ranking and scoring instructions
     in terms of quality.
 
@@ -80,16 +79,6 @@ creativity, and level of detail of the response."""
             formatted_prompt=self.template.render(**render_kwargs),
         )
 
-    @property
-    def input_args_names(self) -> List[str]:
-        """Returns the names of the input arguments of the task."""
-        return ["input", "generations"]
-
-    @property
-    def output_args_names(self) -> List[str]:
-        """Returns the names of the output arguments of the task."""
-        return ["score"]
-
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the task, returning a list with the rank/score of each instruction.
 
@@ -101,6 +90,6 @@ creativity, and level of detail of the response."""
         """
         output = output.lower().split("\n")
         scores = [
-            int(re.sub(r"\[response \d+\] score:", "", o).strip()) for o in output
+            float(re.sub(r"\[response \d+\] score:", "", o).strip()) for o in output
         ]
         return {self.output_args_names[0]: scores}

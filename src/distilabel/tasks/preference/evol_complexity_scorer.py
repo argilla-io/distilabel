@@ -17,15 +17,14 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from distilabel.tasks.base import get_template
-from distilabel.tasks.mixins import EvolScorerToArgillaMixin
-from distilabel.tasks.preference.base import PreferenceTask
+from distilabel.tasks.preference.base import PreferenceTaskNoRationale
 from distilabel.tasks.prompt import Prompt
 
 _EVOL_COMPLEXITY_SCORER_TEMPLATE = get_template("evol-complexity-scorer.jinja2")
 
 
 @dataclass
-class EvolComplexityScorerTask(EvolScorerToArgillaMixin, PreferenceTask):
+class EvolComplexityScorerTask(PreferenceTaskNoRationale):
     """A `PreferenceTask` following the `Complexity Scorer` specification for ranking and scoring instructions
     in terms of complexity.
 
@@ -79,11 +78,6 @@ class EvolComplexityScorerTask(EvolScorerToArgillaMixin, PreferenceTask):
         """Returns the names of the input arguments of the task."""
         return ["generations"]
 
-    @property
-    def output_args_names(self) -> List[str]:
-        """Returns the names of the output arguments of the task."""
-        return ["score"]
-
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the task, returning a list with the rank/score of each instruction.
 
@@ -94,5 +88,5 @@ class EvolComplexityScorerTask(EvolScorerToArgillaMixin, PreferenceTask):
             Dict[str, List[str]]: A dict with containing the ranks/scores of each instruction.
         """
         output = output.lower().split("\n")
-        scores = [int(re.sub(r"\[\d+\] score:", "", o).strip()) for o in output]
+        scores = [float(re.sub(r"\[\d+\] score:", "", o).strip()) for o in output]
         return {self.output_args_names[0]: scores}

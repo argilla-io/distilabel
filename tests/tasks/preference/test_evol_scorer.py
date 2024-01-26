@@ -65,7 +65,7 @@ def test_evol_complexity_scorer_task(input: List[str], expected: str):
 def test_evolcomplexity_scorer_task_parsing(input: str, expected: str):
     task = EvolComplexityScorerTask()
     result = task.parse_output(input)
-    assert result["score"] == expected
+    assert result["rating"] == expected
 
 
 prompt_quality_1 = """Rank the following responses provided by different AI assistants to the user’s question
@@ -126,7 +126,7 @@ def test_evol_quality_scorer_task(
 def test_evol_quality_scorer_task_parsing(input: str, expected: str):
     task = EvolQualityScorerTask()
     result = task.parse_output(input)
-    assert result["score"] == expected
+    assert result["rating"] == expected
 
 
 @pytest.fixture
@@ -147,7 +147,7 @@ def custom_dataset() -> CustomDataset:
                     ' Sure! Here\'s a sentence that describes all the data you provided:\n\n"Midsummer House is a moderately priced Chinese restaurant with a customer rating of 3 out of 5, located near All Bar One, offering a variety of delicious dishes."',
                 ],
             ],
-            "ranks": [[1, 2], [1, 2]],
+            "rating": [[1.0, 2.0], [1.0, 2.0]],
         }
     )
     return ds
