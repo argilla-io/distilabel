@@ -16,6 +16,8 @@ from distilabel.tasks.base import Task
 from distilabel.tasks.critique.base import CritiqueTask
 from distilabel.tasks.critique.prometheus import PrometheusTask
 from distilabel.tasks.critique.ultracm import UltraCMTask
+from distilabel.tasks.preference.evol_complexity_scorer import EvolComplexityScorerTask
+from distilabel.tasks.preference.evol_quality_scorer import EvolQualityScorerTask
 from distilabel.tasks.preference.judgelm import JudgeLMTask
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
@@ -36,4 +38,6 @@ __all__ = [
     "TextGenerationTask",
     "SelfInstructTask",
     "EvolInstructTask",
+    "EvolComplexityScorerTask",
+    "EvolQualityScorerTask",
 ]
