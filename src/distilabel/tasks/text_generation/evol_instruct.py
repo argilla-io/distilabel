@@ -28,6 +28,7 @@ from distilabel.logger import get_logger
 from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
+from distilabel.tasks.text_generation.mixins import InstructTaskMixin
 
 logger = get_logger()
 
@@ -56,7 +57,7 @@ def _get_stopwords() -> List[str]:
 
 
 @dataclass
-class EvolInstructTask(TextGenerationTask):
+class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
     """A `TextGenerationTask` following the `EvolInstruct` specification for building the prompts.
 
     From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce

@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from distilabel.dataset import CustomDataset
     from distilabel.tasks.base import Task
 
-
 TASK_FILE_NAME = "task.pkl"
 
 logger = get_logger()
@@ -55,7 +54,7 @@ def load_task_from_disk(path: Path) -> "Task":
     Returns:
         Task: The task.
     """
-    task_path = path / "task.pkl"
+    task_path = path / TASK_FILE_NAME
     if not task_path.exists():
         raise FileNotFoundError(f"The task file does not exist: {task_path}")
     with open(task_path, "rb") as f:

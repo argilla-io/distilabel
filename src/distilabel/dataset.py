@@ -16,15 +16,31 @@ import warnings
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from datasets import Dataset
 
+from distilabel.utils.argilla import infer_field_from_dataset_columns
 from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
 
+if _ARGILLA_AVAILABLE:
+    from argilla.client.feedback.integrations.sentencetransformers import (
+        SentenceTransformersExtractor,
+    )
+    from argilla.client.feedback.integrations.textdescriptives import (
+        TextDescriptivesExtractor,
+    )
+
+
 if TYPE_CHECKING:
-    from argilla import FeedbackDataset
+    from argilla import FeedbackDataset, FeedbackRecord
+    from argilla.client.feedback.integrations.sentencetransformers import (
+        SentenceTransformersExtractor,
+    )
+    from argilla.client.feedback.integrations.textdescriptives import (
+        TextDescriptivesExtractor,
+    )
 
     from distilabel.tasks.base import Task
 
@@ -37,9 +53,24 @@ class CustomDataset(Dataset):
 
     task: Union["Task", None] = None
 
-    def to_argilla(self) -> "FeedbackDataset":
+    def to_argilla(
+        self,
+        dataset_columns: List[str] = None,
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"] = True,
+        metric_strategy: Union[bool, "TextDescriptivesExtractor"] = True,
+    ) -> "FeedbackDataset":
         """Converts the dataset to an Argilla `FeedbackDataset` instance, based on the
         task defined in the dataset as part of `Pipeline.generate`.
+
+        Args:
+            dataset_columns (List[str]): the dataset columns or fields to be used for the Argilla `FeedbackDataset` instance.
+                By default, the first 5 columns or fields will be used.
+            vector_strategy (Union[bool, SentenceTransformersExtractor]): the strategy to be used for
+                adding vectors to the dataset. If `True`, the default `SentenceTransformersExtractor`
+                will be used with the `TaylorAI/bge-micro-2` model. If `False`, no vectors will be added to the dataset.
+            metrics_strategy (Union[bool, TextDescriptivesExtractor]): the strategy to be used for
+                adding metrics to the dataset. If `True`, the default `TextDescriptivesExtractor`
+                will be used. If `False`, no metrics will be added to the dataset.
 
         Raises:
             ImportError: if the argilla library is not installed.
@@ -66,17 +97,6 @@ class CustomDataset(Dataset):
                 f"Error while converting the dataset to an Argilla `FeedbackDataset` instance: {e}"
             ) from e
 
-        # try:
-        #     rg_dataset = infer_model_metadata_properties(
-        #         hf_dataset=self, rg_dataset=rg_dataset
-        #     )
-        # except Exception as e:
-        #     warnings.warn(
-        #         f"Error while adding the model metadata properties: {e}",
-        #         UserWarning,
-        #         stacklevel=2,
-        #     )
-
         for dataset_row in self:
             if any(
                 dataset_row[input_arg_name] is None  # type: ignore
@@ -93,7 +113,74 @@ class CustomDataset(Dataset):
                     UserWarning,
                     stacklevel=2,
                 )
+
+        selected_fields = infer_field_from_dataset_columns(
+            dataset_columns=dataset_columns, dataset=rg_dataset, task=self.task
+        )
+        rg_dataset = self.add_vectors_to_argilla_dataset(
+            dataset=rg_dataset, vector_strategy=vector_strategy, fields=selected_fields
+        )
+        rg_dataset = self.add_metrics_to_argilla_dataset(
+            dataset=rg_dataset, metric_strategy=metric_strategy
+        )
         return rg_dataset
+
+    def add_vectors_to_argilla_dataset(
+        self,
+        dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
+        vector_strategy: Union[bool, "SentenceTransformersExtractor"],
+        fields: List[str] = None,
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
+        if _ARGILLA_AVAILABLE and vector_strategy:
+            try:
+                if isinstance(vector_strategy, SentenceTransformersExtractor):
+                    ste: SentenceTransformersExtractor = vector_strategy
+                elif vector_strategy:
+                    ste = SentenceTransformersExtractor()
+                dataset = ste.update_dataset(dataset=dataset, fields=fields)
+            except Exception as e:
+                warnings.warn(
+                    f"An error occurred while adding vectors to the dataset: {e}",
+                    stacklevel=2,
+                )
+
+        elif not _ARGILLA_AVAILABLE and vector_strategy:
+            warnings.warn(
+                "An error occurred while adding vectors to the dataset: "
+                "The `argilla`/`sentence-transformers` packages are not installed or the installed version is not compatible with the"
+                " required version. If you want to add vectors to your dataset, please run `pip install 'distilabel[argilla]'`.",
+                stacklevel=2,
+            )
+        return dataset
+
+    def add_metrics_to_argilla_dataset(
+        self,
+        dataset: Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"],
+        metric_strategy: Union[bool, "TextDescriptivesExtractor"],
+        fields: List[str] = None,
+    ) -> Union["FeedbackRecord", List["FeedbackRecord"], "FeedbackDataset"]:
+        if _ARGILLA_AVAILABLE and metric_strategy:
+            try:
+                if isinstance(metric_strategy, TextDescriptivesExtractor):
+                    tde: TextDescriptivesExtractor = metric_strategy
+                elif metric_strategy:
+                    tde = TextDescriptivesExtractor()
+
+                dataset = tde.update_dataset(dataset=dataset, fields=fields)
+            except Exception as e:
+                warnings.warn(
+                    f"An error occurred while adding metrics to the dataset: {e}",
+                    stacklevel=2,
+                )
+
+        elif not _ARGILLA_AVAILABLE and metric_strategy:
+            warnings.warn(
+                "An error occurred while adding metrics to the dataset: "
+                "The `argilla`/`text-descriptives` packages are not installed or the installed version is not compatible with the"
+                " required version. If you want to add metrics to your dataset, please run `pip install 'distilabel[argilla]'`.",
+                stacklevel=2,
+            )
+        return dataset
 
     def save_to_disk(self, dataset_path: PathLike, **kwargs: Any) -> None:
         """Saves the datataset to disk, also saving the task.
