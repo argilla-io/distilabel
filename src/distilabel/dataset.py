@@ -18,7 +18,7 @@ import warnings
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from datasets import Dataset
 from huggingface_hub import HfApi, hf_hub_download
@@ -222,7 +222,11 @@ class CustomDataset(Dataset):
         return ds
 
     def push_to_hub(
-        self, repo_id: str, *args: Any, push_task: bool = True, **kwargs: Any
+        self,
+        repo_id: str,
+        *args: Optional[Any],
+        push_task: bool = True,
+        **kwargs: Optional[Any],
     ) -> None:
         """Same method as `datasets.Dataset.push_to_hub`, but also pushes the task to simplify
         creating a CustomDataset from HuggingFace hub.
@@ -257,12 +261,10 @@ class CustomDataset(Dataset):
                         token=kwargs.get("token"),
                     )
             except Exception as e:
-                logger.error(
-                    f"Error while pushing the task to the hub: {e}, task won't be pushed."
-                )
+                logger.info(f"Error while pushing the task to the hub: {e}.")
 
 
-def load_dataset(path: str, *args: Any, **kwargs: Any) -> CustomDataset:
+def load_dataset(path: str, *args: Any, **kwargs: Any) -> Union[Dataset, CustomDataset]:
     """Load a dataset from HuggingFace hub.
 
     Overloads the `datasets.load_dataset` method to return a `CustomDataset` instance,
@@ -273,7 +275,7 @@ def load_dataset(path: str, *args: Any, **kwargs: Any) -> CustomDataset:
         args, kwargs: and any other arguments used by `datasets.load_dataset`
 
     Returns:
-        dataset: CustomDataset instance.
+        dataset: CustomDataset instance, with the `Task` stored if available.
 
     Examples:
         >>> from distilabel.dataset import load_dataset
@@ -291,9 +293,7 @@ def load_dataset(path: str, *args: Any, **kwargs: Any) -> CustomDataset:
         task = load_from_dict(read_json(task_path))
         cds.task = task
     except Exception as e:
-        logger.error(
-            f"Error while downloading the task from the hub: {e}, the task won't be loaded."
-        )
+        logger.info(f"Error while downloading the task from the hub: {e}.")
     return cds
 
 
