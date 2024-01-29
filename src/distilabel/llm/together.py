@@ -49,7 +49,7 @@ class TogetherInferenceLLM(LLM):
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
-        """Initializes the OpenAILLM class.
+        """Initializes the TogetherInferenceLLM class.
 
         Args:
             task (Task): the task to be performed by the LLM.
@@ -96,7 +96,7 @@ class TogetherInferenceLLM(LLM):
             AssertionError: if the provided `model` is not available in Together Inference.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask as Task
             >>> from distilabel.llm import TogetherInferenceLLM
             >>> task = Task()
             >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=task, prompt_format="llama2")
@@ -152,8 +152,11 @@ class TogetherInferenceLLM(LLM):
     @cached_property
     def available_models(self) -> List[str]:
         """Returns the list of available models in Together Inference."""
-        # TODO: exclude the image models
-        return [model["name"] for model in together.Models.list()]
+        return [
+            model["name"]
+            for model in together.Models.list()
+            if model["display_type"] != "image"
+        ]
 
     @property
     def model_name(self) -> str:

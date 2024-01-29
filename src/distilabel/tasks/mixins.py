@@ -114,12 +114,6 @@ class RatingToArgillaMixin:
                     metadata_properties.append(
                         rg.IntegerMetadataProperty(name=f"length-{arg_name}-{idx}")  # type: ignore
                     )
-                    if arg_name == generations_column:
-                        metadata_properties.append(
-                            rg.FloatMetadataProperty(
-                                name=f"{ratings_column}-{arg_name}-{idx}"
-                            )  # type: ignore
-                        )
             elif isinstance(dataset_row[arg_name], str):
                 metadata_properties.append(
                     rg.IntegerMetadataProperty(name=f"length-{arg_name}")  # type: ignore
@@ -214,7 +208,7 @@ class RatingToArgillaMixin:
                             else None,
                         }
                     )
-                    metadata[f"{ratings_column}-{generations_column}-{idx}"] = value
+
                 if len(ratings) >= 2:  # type: ignore
                     sorted_ratings = sorted(ratings, reverse=True)  # type: ignore
                     metadata[f"distance-best-{ratings_column}"] = (
