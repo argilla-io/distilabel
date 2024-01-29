@@ -62,11 +62,9 @@ You can personalize the way in which your SelfInstructTask behaves by changing t
 - **Number of instructions**: number of instructions in the prompt.
 - **Criteria for Query Generation**: the criteria for query generation that we want our model to have. The default value covers default behaviour for SelfInstructTask. This value is passed to the .jinja template, where extra instructions are added to ensure correct output format.
 
-Let's see an example of how to customise a SelfInstructTask to create Haikus in the snippet below. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+You can see an example of how to customise a SelfInstructTask to create Haikus in the snippet in the subsection Custom TextGenerationTask.
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
-```
+
 
 ### EvolInstructTask
 
@@ -104,6 +102,13 @@ You can create your own custom `TextGenerationTask`, by creating a class that in
 
     ```python
     --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_oss.py"
+    ```
+=== "Template for Custom SelfInstructTask"
+
+    Here you cn see an example of how to customise a SelfInstructTask to create Haikus. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
     ```
 
 === "Template for WizardLM"
