@@ -105,6 +105,9 @@ _OPENAI_AVAILABLE = _check_package_is_available(
 _LLAMA_CPP_AVAILABLE = _check_package_is_available(
     "llama_cpp_python", min_version="0.2.0", greater_or_equal=True
 )
+_OLLAMA_AVAILABLE = _check_package_is_available(
+    "ollama", min_version="0.1.4", greater_or_equal=True
+)
 _VLLM_AVAILABLE = _check_package_is_available(
     "vllm", min_version="0.2.1", greater_or_equal=True
 )

@@ -17,7 +17,6 @@ import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 from urllib import error
 
-import ollama
 from tenacity import (
     after_log,
     before_sleep_log,
@@ -30,6 +29,10 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.utils.imports import _OLLAMA_AVAILABLE
+
+if _OLLAMA_AVAILABLE:
+    import ollama
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
