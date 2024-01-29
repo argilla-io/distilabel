@@ -50,7 +50,7 @@ class OllamaLLM(LLM):
         self,
         model: str,
         task: "Task",
-        max_new_tokens: int = None,  # num_predict
+        max_new_tokens: Union[int, None] = None,
         temperature: Union[float, None] = None,
         top_k: Union[int, None] = None,
         top_p: Union[float, None] = None,
@@ -64,7 +64,6 @@ class OllamaLLM(LLM):
         Args:
             model (str): the model to be used for generation.
             task (Task): the task to be performed by the LLM.
-
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to `None`.
             temperature (float, optional): the temperature to be used for generation.
@@ -90,7 +89,7 @@ class OllamaLLM(LLM):
             ValueError: if the Ollama API request failed.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask as Task
             >>> from distilabel.llm import OllamaLLM
             >>> task = Task()
             >>> llm = OllamaLLM(model="notus", task=task)
@@ -117,8 +116,8 @@ class OllamaLLM(LLM):
         return self.model
 
     def _api_available(self):
-        """calls GET {OLLAMA_HOST}"""
-        msg = f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/jmorganca/ollama for deployment guide."
+        """Calls GET {OLLAMA_HOST}"""
+        msg = f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/ollama/ollama for deployment guide."
         try:
             response = request.urlopen(self.OLLAMA_HOST)
             if response.getcode() != 200:
@@ -145,7 +144,9 @@ class OllamaLLM(LLM):
         before_sleep=before_sleep_log(logger, logging.INFO),
         after=after_log(logger, logging.INFO),
     )
-    def _text_generation_with_backoff(self, prompt: str, **kwargs) -> str:
+    def _text_generation_with_backoff(
+        self, prompt: List[Dict[str, str]], **kwargs
+    ) -> str:
         """Calls POST {OLLAMA_HOST}/api/chat"""
         # Request payload
         payload = {
@@ -215,7 +216,7 @@ class OllamaLLM(LLM):
             ]
             output = []
             for response in responses:
-                raw_output = response.get("message", {}).get("content")
+                raw_output = response.get("message", {}).get("content")  # type: ignore
                 try:
                     parsed_response = self.task.parse_output(raw_output.strip())
                 except Exception as e:
