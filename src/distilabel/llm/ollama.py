@@ -59,7 +59,7 @@ class OllamaLLM(LLM):
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         """
-        Initializes the OllamaLLM class and align with https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
+        Initializes the OllamaLLM class and aligns with https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
 
         Args:
             model (str): the model to be used for generation.
