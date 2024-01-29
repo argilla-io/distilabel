@@ -40,9 +40,9 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 !!! note
     To run the script successfully, ensure you have assigned your OpenAI API key to the `OPENAI_API_KEY` environment variable.
 
-For a more complete example, check out our awesome notebook on Google Colab:
+For a more complete example, check out our awesome [tutorials](./tutorials/pipeline-notus-instructions-preferences-legal/) or the example below:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb) [![Open Source in Github](https://img.shields.io/badge/github-view%20source-black.svg)](https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb)
 
 ## Navigation
 
