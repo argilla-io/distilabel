@@ -152,8 +152,11 @@ class TogetherInferenceLLM(LLM):
     @cached_property
     def available_models(self) -> List[str]:
         """Returns the list of available models in Together Inference."""
-        # TODO: exclude the image models
-        return [model["name"] for model in together.Models.list()]
+        return [
+            model["name"]
+            for model in together.Models.list()
+            if model["display_type"] != "image"
+        ]
 
     @property
     def model_name(self) -> str:
