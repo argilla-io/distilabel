@@ -16,8 +16,8 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
 from urllib import error
-import ollama
 
+import ollama
 from tenacity import (
     after_log,
     before_sleep_log,
@@ -106,7 +106,7 @@ class OllamaLLM(LLM):
                 Defaults to `None`.
             stop (Union[str, None], optional): the stop token to be used for generation. If `None`,
                 no stop token will be used. Defaults to `None`.
-            tfs_z (Union[float, None], optional): the z value to be used for TFS. 
+            tfs_z (Union[float, None], optional): the z value to be used for TFS.
                 Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
@@ -218,7 +218,7 @@ class OllamaLLM(LLM):
             else:
                 raise ValueError(
                     f"Ollama API request failed with status_code {e.status_code}."
-                )
+                ) from e
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
