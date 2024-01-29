@@ -171,7 +171,11 @@ class OllamaLLM(LLM):
         """Checks if the Ollama model is available"""
         msg = f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
         try:
-            ollama.chat(model=self.model, messages=[{"role": "user", "content": "hi"}], options={"num_predict": 1})
+            ollama.chat(
+                model=self.model,
+                messages=[{"role": "user", "content": "hi"}],
+                options={"num_predict": 1},
+            )
         except ollama.ResponseError as e:
             raise ValueError(msg) from e
 
@@ -209,7 +213,7 @@ class OllamaLLM(LLM):
                     "seed": self.seed,
                     "stop": self.stop,
                     "tfs_z": self.tfs_z,
-                }
+                },
             )
             return response
         except ollama.ResponseError as e:
