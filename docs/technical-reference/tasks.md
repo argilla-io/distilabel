@@ -187,31 +187,31 @@ Which can be directly used in the following way:
 
 For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultrajudge.UltraJudgeTask].
 
-#### EvolComplexityScorerTask
+#### ComplexityScorerTask
 
 This class implements a `PreferenceTask` to rate a of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the scoring of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired on the `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
 
 ```python
---8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity_scorer.py"
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_complexity_scorer.py"
 ```
 
-For the API reference visit [EvolComplexityScorerTask][distilabel.tasks.preference.evol_complexity_scorer.EvolComplexityScorerTask].
+For the API reference visit [ComplexityScorerTask][distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask].
 
-#### EvolQualityScorerTask
+#### QualityScorerTask
 
-This class implements a `PreferenceTask` to rate a list of instructions according to its quality. Follows the same idea defined in the `EvolComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it rates the instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
+This class implements a `PreferenceTask` to rate a list of instructions according to its quality. Follows the same idea defined in the `ComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it rates the instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
 
 ```python
---8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality_scorer.py"
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_quality_scorer.py"
 ```
 
 By default, the quality is defined as the following the paper prompt, but can be modified updating the `task_description` as in the following example (keep in mind the default `task_description` corresponds to the `EvolQuality` criteria defined to evolve the initial instructions, so this should be taken into account):
 
 ```python
---8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality_scorer_custom.py"
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_quality_scorer_custom.py"
 ```
 
-For the API reference visit [EvolQualityScorerTask][distilabel.tasks.preference.evol_quality_scorer.EvolQualityScorerTask].
+For the API reference visit [QualityScorerTask][distilabel.tasks.preference.quality_scorer.QualityScorerTask].
 
 ### Critique
 

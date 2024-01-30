@@ -20,11 +20,11 @@ from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTaskNoRationale
 from distilabel.tasks.prompt import Prompt
 
-_EVOL_COMPLEXITY_SCORER_TEMPLATE = get_template("evol-complexity-scorer.jinja2")
+_COMPLEXITY_SCORER_TEMPLATE = get_template("complexity-scorer.jinja2")
 
 
 @dataclass
-class EvolComplexityScorerTask(PreferenceTaskNoRationale):
+class ComplexityScorerTask(PreferenceTaskNoRationale):
     """A `PreferenceTask` following the `Complexity Scorer` specification for rating instructions
     in terms of complexity.
 
@@ -45,7 +45,7 @@ class EvolComplexityScorerTask(PreferenceTaskNoRationale):
 
     system_prompt: str = ""
 
-    __jinja2_template__: str = _EVOL_COMPLEXITY_SCORER_TEMPLATE
+    __jinja2_template__: str = _COMPLEXITY_SCORER_TEMPLATE
 
     def generate_prompt(self, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the *Evol Complexity* specification in *Deita*.
@@ -57,15 +57,10 @@ class EvolComplexityScorerTask(PreferenceTaskNoRationale):
             Prompt: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.preference import EvolComplexityScorerTask
-            >>> task = EvolComplexityScorerTask()
+            >>> from distilabel.tasks import ComplexityScorerTask
+            >>> task = ComplexityScorerTask()
             >>> task.generate_prompt(["instruction 1", "instruction 2"])
-            Prompt(
-                system_prompt='',
-                formatted_prompt='Ranking the following questions according to the difficulty and complexity. Score 1-2.\nYou
-            can give a score of 3 if the question is too complex for you to answer it. You should\nrespond with the
-            format:\n[1] Score: 1\n[2] Score: 2\n...\n\n[1] instruction 1\n[2] instruction 2'
-            )
+            Prompt(system_prompt="", formatted_prompt="Ranking the following questions...")
         """
         render_kwargs = {"instructions": generations}
         return Prompt(

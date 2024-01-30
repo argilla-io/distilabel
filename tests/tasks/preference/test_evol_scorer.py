@@ -17,8 +17,8 @@ from typing import List, Union
 import argilla as rg
 import pytest
 from distilabel.dataset import CustomDataset
-from distilabel.tasks.preference.evol_complexity_scorer import EvolComplexityScorerTask
-from distilabel.tasks.preference.evol_quality_scorer import EvolQualityScorerTask
+from distilabel.tasks.preference.complexity_scorer import ComplexityScorerTask
+from distilabel.tasks.preference.quality_scorer import QualityScorerTask
 
 prompt_complexity_1 = """Ranking the following questions according to the difficulty and complexity. Score 1-2.
 You can give a score of 3 if the question is too complex for you to answer it. You should
@@ -51,7 +51,7 @@ respond with the format:
     ],
 )
 def test_evol_complexity_scorer_task(input: List[str], expected: str):
-    task = EvolComplexityScorerTask()
+    task = ComplexityScorerTask()
     result = task.generate_prompt(input).formatted_prompt
     assert result == expected
 
@@ -63,7 +63,7 @@ def test_evol_complexity_scorer_task(input: List[str], expected: str):
     ],
 )
 def test_evolcomplexity_scorer_task_parsing(input: str, expected: str):
-    task = EvolComplexityScorerTask()
+    task = ComplexityScorerTask()
     result = task.parse_output(input)
     assert result["rating"] == expected
 
@@ -112,7 +112,7 @@ Use the following format:
 def test_evol_quality_scorer_task(
     instruction: str, responses: List[str], expected: str
 ):
-    task = EvolQualityScorerTask()
+    task = QualityScorerTask()
     result = task.generate_prompt(instruction, responses).formatted_prompt
     assert result == expected
 
@@ -124,7 +124,7 @@ def test_evol_quality_scorer_task(
     ],
 )
 def test_evol_quality_scorer_task_parsing(input: str, expected: str):
-    task = EvolQualityScorerTask()
+    task = QualityScorerTask()
     result = task.parse_output(input)
     assert result["rating"] == expected
 
@@ -153,10 +153,10 @@ def custom_dataset() -> CustomDataset:
     return ds
 
 
-@pytest.mark.parametrize("task", [EvolComplexityScorerTask(), EvolQualityScorerTask()])
+@pytest.mark.parametrize("task", [ComplexityScorerTask(), QualityScorerTask()])
 def test_evol_scorers_task_to_argilla_dataset(
     custom_dataset: CustomDataset,
-    task: Union[EvolComplexityScorerTask, EvolQualityScorerTask],
+    task: Union[ComplexityScorerTask, QualityScorerTask],
 ):
     custom_dataset.task = task
     ds_row = custom_dataset[0]
@@ -167,11 +167,11 @@ def test_evol_scorers_task_to_argilla_dataset(
 
 
 @pytest.mark.parametrize(
-    "task, num_fields", [(EvolComplexityScorerTask(), 2), (EvolQualityScorerTask(), 3)]
+    "task, num_fields", [(ComplexityScorerTask(), 2), (QualityScorerTask(), 3)]
 )
 def test_evol_complexity_scorer_task_to_argilla_record(
     custom_dataset: CustomDataset,
-    task: Union[EvolComplexityScorerTask, EvolQualityScorerTask],
+    task: Union[ComplexityScorerTask, QualityScorerTask],
     num_fields: int,
 ):
     custom_dataset.task = task
@@ -182,10 +182,10 @@ def test_evol_complexity_scorer_task_to_argilla_record(
     assert len(record.fields) == num_fields
 
 
-@pytest.mark.parametrize("task", [EvolComplexityScorerTask(), EvolQualityScorerTask()])
+@pytest.mark.parametrize("task", [ComplexityScorerTask(), QualityScorerTask()])
 def test_evol_complexity_scorer_task_to_argilla(
     custom_dataset: CustomDataset,
-    task: Union[EvolComplexityScorerTask, EvolQualityScorerTask],
+    task: Union[ComplexityScorerTask, QualityScorerTask],
 ):
     custom_dataset.task = task
     rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)

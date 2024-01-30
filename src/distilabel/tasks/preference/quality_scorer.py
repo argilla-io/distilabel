@@ -20,11 +20,11 @@ from distilabel.tasks.base import get_template
 from distilabel.tasks.preference.base import PreferenceTaskNoRationale
 from distilabel.tasks.prompt import Prompt
 
-_EVOL_QUALITY_SCORER_TEMPLATE = get_template("evol-quality-scorer.jinja2")
+_QUALITY_SCORER_TEMPLATE = get_template("quality-scorer.jinja2")
 
 
 @dataclass
-class EvolQualityScorerTask(PreferenceTaskNoRationale):
+class QualityScorerTask(PreferenceTaskNoRationale):
     """A `PreferenceTask` following the `Quality Scorer` specification for rating instructions
     in terms of quality.
 
@@ -44,7 +44,7 @@ class EvolQualityScorerTask(PreferenceTaskNoRationale):
     system_prompt: str = ""
     task_description: str = """Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth,
 creativity, and level of detail of the response."""
-    __jinja2_template__: str = _EVOL_QUALITY_SCORER_TEMPLATE
+    __jinja2_template__: str = _QUALITY_SCORER_TEMPLATE
 
     def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the *Evol Quality* specification in *Deita*.
@@ -57,16 +57,12 @@ creativity, and level of detail of the response."""
             Prompt: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.preference import EvolQualityScorerTask
-            >>> task = EvolQualityScorerTask()
+            >>> from distilabel.tasks.preference import QualityScorerTask
+            >>> task = QualityScorerTask()
             >>> task.generate_prompt("What are the first 5 Fibonacci numbers?", ["0 1 1 2 3", "0 1 1 2 3"])
             Prompt(
-                system_prompt='',
-                formatted_prompt='Rank the following responses provided by different AI assistants to the user’s
-            question\naccording to the quality of their response. Score each response from 1 to 2, with 3\nreserved for
-            responses that are already very well written and cannot be improved further.\n\nUse the following
-            format:\n[Response 1] Score:\n[Response 2] Score:\n...\n#Question#: What are the first 5 Fibonacci
-            numbers?\n#Response List#:\n\n[Response 1] 0 1 1 2 3\n[Response 2] 0 1 1 6 9'
+                system_prompt="",
+                formatted_prompt="Rank the following responses provided ..."
             )
         """
         render_kwargs = {

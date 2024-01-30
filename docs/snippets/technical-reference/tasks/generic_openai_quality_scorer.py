@@ -1,9 +1,9 @@
 import os
 
 from distilabel.llm import OpenAILLM
-from distilabel.tasks import EvolComplexityScorerTask
+from distilabel.tasks import QualityScorerTask
 
 labeller = OpenAILLM(
-    task=EvolComplexityScorerTask(),
+    task=QualityScorerTask(),
     openai_api_key=os.getenv("OPENAI_API_KEY"),
 )
