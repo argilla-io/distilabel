@@ -231,6 +231,5 @@ def test_validate_prompts(
 ) -> None:
     llm = DummyLLM(task=task, prompt_format=prompt_format)
     result = llm.validate_prompts([input])
-    print(result)
 
     assert result[0] == expected

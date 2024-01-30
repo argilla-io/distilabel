@@ -96,6 +96,25 @@ The `LLMOutput` is a `TypedDict` containing the keys `model_name`, `prompt_used`
 
 If the `LLM` uses a thread pool, then the output of the `generate` method will be a [Future](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Future) having as result a list of lists of `LLMOutput` as described above.
 
+### Validate prompts
+
+Before calling the LLM with your dataset we can take a look at the prompts that will be sent to the engine without actually making the call, to check the data is as expected. The following examples show two different `LLM` cases, but just take into account the input will have to be in the format expected from the `Task`:
+
+!!! Validation
+
+    === "Generator"
+        
+        ```python
+        --8<-- "docs/snippets/technical-reference/llm/validate_prompts_1.py"
+        ```
+
+    === "Labeller"
+
+        ```python
+        --8<-- "docs/snippets/technical-reference/llm/validate_prompts_2.py"
+        ```
+
+
 ## Integrations
 
 ### OpenAI
