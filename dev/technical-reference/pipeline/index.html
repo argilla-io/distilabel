@@ -814,6 +814,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#customdataset-in-huggingface-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      CustomDataset in HuggingFace hub
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2265,6 +2274,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#customdataset-in-huggingface-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      CustomDataset in HuggingFace hub
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2931,6 +2949,20 @@
 </li>
 </ul>
 <p>Need more information? Take a look at <a href="https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences">argilla/ultrafeedback-binarized-preferences</a> to get an idea of how <a href="https://huggingface.co/datasets/openbmb/UltraFeedback">openbmb/UltraFeedback</a> can be binarized to prepare it for <em>DPO</em>.</p>
+<h2 id="customdataset-in-huggingface-hub">CustomDataset in HuggingFace hub<a class="headerlink" href="#customdataset-in-huggingface-hub" title="Permanent link">&para;</a></h2>
+<p>Since <code>distilabel 0.5.0</code> when a <code>CustomDataset</code> is pushed to the HuggingFace Hub, the <code>Task</code> that comes with it will be pushed to the hub too. The <a class="autorefs autorefs-internal" href="../../reference/distilabel/dataset/#distilabel.dataset.CustomDataset.push_to_hub"><code>CustomDataset.push_to_hub</code></a> method will by default upload the <code>Task</code> to the huggingface hub:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">dataset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;path/to/hub&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="c1"># ...</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1"># 7:30:20 INFO     [PID: 52657] Pushing task to the hub...                                            dataset.py:247</span>
+</span></code></pre></div>
+<p>On the other hand, this will be useful when downloading datasets from the hub which already have the <code>Task</code> to be downloaded (by default if there's a <code>Task</code> in the repository it will be downloaded, no error will appear if that's not possible). Just import the corresponding <a class="autorefs autorefs-internal" href="../../reference/distilabel/dataset/#distilabel.dataset.load_dataset">distilabel.dataset.load_dataset</a> function instead of the <code>datasets.load_dataset</code> version.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span> <span class="nn">distilabel.dataset</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="n">dataset</span><span class="p">:</span> <span class="s2">&quot;CustomDataset&quot;</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;argilla/distilabel-sample-evol-instruct&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="c1"># EvolInstructTask(system_prompt=&quot;&quot;, task_description=...)</span>
+</span></code></pre></div>
+<p>A sample task can be seen <a href="https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct/blob/main/distilabel-task.json">here</a>.</p>
 
 
 
