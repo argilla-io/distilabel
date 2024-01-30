@@ -93,6 +93,9 @@ def get_progress_bars_for_pipeline(
             def _labelling_progress_func(advance=None) -> None:
                 labelling_progress_bar(advance=1)
 
+            # Start the labelling progress bar from 1 instead of 0 to ensure it ends
+            _labelling_progress_func()
+
         return _generation_progress_func, _labelling_progress_func
 
     return None, None
