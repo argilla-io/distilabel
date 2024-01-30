@@ -23,7 +23,6 @@ from distilabel.tasks.preference.judgelm import JudgeLMTask
 from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
-from distilabel.tasks.text_generation.evol_instruct import EvolInstructTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
 
@@ -207,10 +206,10 @@ class TestLLMPool:
             "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\nYour input",
         ),
         (
-            EvolInstructTask(),
+            TextGenerationTask(),
             "notus",
             {"input": "Your input"},
-            "<|system|>\n</s>\n<|user|>\nI want you to act as a Prompt Rewriter.\nYour objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.\nBut the rewritten prompt must be reasonable and must be understood and responded by humans.\nYour rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.\nYou SHOULD complicate the given prompt using the following method:\nIf #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning.\nYou should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.\n'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#\n#The Given Prompt#:\nYour input\n\n#Rewritten Prompt#:\n</s>\n<|assistant|>\n",
+            "<|system|>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.</s>\n<|user|>\nYour input</s>\n<|assistant|>\n",
         ),
         (
             SelfInstructTask(),
