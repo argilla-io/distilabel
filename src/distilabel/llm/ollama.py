@@ -174,7 +174,7 @@ class OllamaLLM(LLM):
     def _api_model_available(self):
         """Checks if the Ollama model is available"""
         try:
-            ollama.show(f"{self.model}")
+            ollama.show(self.model)
         except ollama.ResponseError as e:
             raise ValueError(
                 f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
