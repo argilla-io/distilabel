@@ -230,6 +230,7 @@ def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
     "with_generation_model",
     [True],
 )
+@pytest.mark.parametrize("sft", [True, False])
 @pytest.mark.parametrize(
     "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties",
     [
@@ -324,16 +325,22 @@ def test_prepare_dataset(
     rejected_model: List[str],
     with_generation_model: bool,
     keep_ties: bool,
+    sft: bool,
 ):
     if not with_generation_model:
         sample_preference_dataset = sample_preference_dataset.remove_columns(
             ["generation_model"]
         )
     ds = prepare_dataset(
-        sample_preference_dataset, strategy=strategy, seed=42, keep_ties=keep_ties
+        sample_preference_dataset,
+        strategy=strategy,
+        sft=sft,
+        seed=42,
+        keep_ties=keep_ties,
     )
     assert isinstance(ds, CustomDataset)
-    assert ds.column_names == [
+
+    expected_columns = [
         "prompt",
         "chosen",
         "rejected",
@@ -342,11 +349,19 @@ def test_prepare_dataset(
         "chosen_model",
         "rejected_model",
     ]
+
+    if sft:
+        expected_columns += ["messages"]
+
+    assert set(ds.column_names) == set(expected_columns)
+
     for i, row in enumerate(ds):
         assert row["chosen"] == chosen[i]
         assert row["rejected"] == rejected[i]
         assert row["chosen_model"] == chosen_model[i]
         assert row["rejected_model"] == rejected_model[i]
+        if sft:
+            assert row["messages"] == chosen[i]
 
 
 def test_prepare_dataset_wrong_task(sample_preference_dataset: CustomDataset):
