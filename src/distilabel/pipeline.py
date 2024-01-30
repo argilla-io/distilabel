@@ -217,8 +217,8 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         progress_callback_func: Union[Callable, None] = None,
+        batch_size: Optional[int] = None,
     ) -> List[List["LLMOutput"]]:
-        # ) -> Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]:
         """Gets the batch labels for the given inputs.
 
         Args:
@@ -227,6 +227,8 @@ class Pipeline:
             progress_callback_func (Union[Callable, None], optional): the callback function
                 to be called when the progress of the labelling process changes. Defaults
                 to `None`.
+            batch_size (Optional[int], optional): the batch size to be used in case of error
+                in the Future processing.
 
         Returns:
             List[List["LLMOutput"]]: the batch labels.
@@ -240,7 +242,23 @@ class Pipeline:
         )
         batch_outputs = []
         if isinstance(outputs, Future):
-            batch_outputs.extend(outputs.result())
+            try:
+                batch_outputs.extend(outputs.result())
+            except Exception as e:
+                logger.error(
+                    f"An error occurred when getting the result from the labeller: {e}"
+                )
+                batch_outputs.append(
+                    [
+                        LLMOutput(
+                            model_name=self.labeller.model_name,
+                            prompt_used=None,
+                            raw_output=None,
+                            parsed_output=None,
+                        )
+                        for _ in range(batch_size)
+                    ]
+                )
         else:
             batch_outputs = outputs
 
@@ -438,30 +456,8 @@ class Pipeline:
             processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
             batch_labels = []
-            if self.labeller.return_futures:
-                for i, future in enumerate(labels, start=1):  # type: ignore
-                    try:
-                        batch_labels.extend(future)
-                    except Exception as e:
-                        logger.error(
-                            f"An error occurred when getting the result from the labeller: {e}"
-                        )
-                        num_outputs = (
-                            batch_size
-                            if i * batch_size <= len(dataset)
-                            else len(dataset) % batch_size
-                        )
-                        batch_labels.append(
-                            [
-                                LLMOutput(
-                                    model_name=self.labeller.model_name,
-                                    prompt_used=None,
-                                    raw_output=None,
-                                    parsed_output=None,
-                                )
-                                for _ in range(num_outputs)
-                            ]
-                        )
+            for label in labels:
+                batch_labels.extend(label)
 
             processed_labels = self._process_batch_labels(
                 batch_labels=batch_labels or cast(List[List["LLMOutput"]], labels)
@@ -602,14 +598,11 @@ class Pipeline:
                 logger.info(f"Calling labeller for batch {batch_i}...")
                 try:
                     batch_labels = self._get_batch_labels(
-                        inputs=inputs, progress_callback_func=labelling_progress_func
+                        inputs=inputs,
+                        progress_callback_func=labelling_progress_func,
+                        batch_size=batch_size,
                     )
                     labels.extend(batch_labels)  # type: ignore
-
-                    # if is_future(batch_labels):
-                    #     labels.append(batch_labels)  # type: ignore
-                    # else:
-                    #     labels.extend(batch_labels)  # type: ignore
 
                 except Exception as e:
                     if not checkpoint_strategy:
