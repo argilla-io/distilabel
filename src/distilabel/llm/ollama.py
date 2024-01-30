@@ -164,23 +164,21 @@ class OllamaLLM(LLM):
 
     def _api_available(self):
         """Checks if the Ollama API is available."""
-        msg = f"Could not connect to Ollama at {self.OLLAMA_HOST}. Check https://github.com/ollama/ollama-python/tree/main for deployment guide."
         try:
             ollama.list()
         except ollama.ResponseError as e:
-            raise ValueError(msg) from e
+            raise ValueError(
+                f"Could not connect to Ollama at {self.OLLAMA_HOST}. Check https://github.com/ollama/ollama-python/tree/main for deployment guide."
+            ) from e
 
     def _api_model_available(self):
         """Checks if the Ollama model is available"""
-        msg = f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
         try:
-            ollama.chat(
-                model=self.model,
-                messages=[{"role": "user", "content": "hi"}],
-                options={"num_predict": 1},
-            )
+            ollama.show(f"{self.model}")
         except ollama.ResponseError as e:
-            raise ValueError(msg) from e
+            raise ValueError(
+                f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
+            ) from e
 
     @retry(
         retry=retry_if_exception_type(_OLLAMA_API_RETRY_ON_EXCEPTIONS),
@@ -197,11 +195,11 @@ class OllamaLLM(LLM):
     ) -> str:
         """Generates text using the Ollama API with backoff."""
         try:
-            response = ollama.chat(
+            return ollama.chat(
                 model=self.model,
                 messages=prompt,
                 options={
-                    "num_predict": kwargs.get("max_new_tokens") or self.max_new_tokens,
+                    "num_predict": self.max_new_tokens,
                     "temperature": self.temperature,
                     "top_p": self.top_p,
                     "top_k": self.top_k,
@@ -218,7 +216,6 @@ class OllamaLLM(LLM):
                     "tfs_z": self.tfs_z,
                 },
             )
-            return response
         except ollama.ResponseError as e:
             if e.status_code >= 500:
                 raise
