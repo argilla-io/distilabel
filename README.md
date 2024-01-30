@@ -33,6 +33,7 @@ In addition, the following extras are available:
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
 - `together`: for using [Together Inference](https://www.together.ai/products) via their Python client.
+- `vertexai`: for using both [Google Vertex AI](https://cloud.google.com/vertex-ai/?&gad_source=1&hl=es) offerings: their proprietary models and endpoints via their Python client [`google-cloud-aiplatform`](https://github.com/googleapis/python-aiplatform).
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
 ## Example
