@@ -78,16 +78,16 @@ class TransformersLLM(LLM):
 
         Examples:
             >>> from transformers import AutoModelForCausalLM, AutoTokenizer
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import TransformersLLM
             >>> model = AutoModelForCausalLM.from_pretrained("gpt2")
             >>> tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            >>> task = Task()
             >>> llm = TransformersLLM(
             ...     model=model,
             ...     tokenizer=tokenizer,
-            ...     task=task,
+            ...     task=TextGenerationTask(),
             ... )
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,

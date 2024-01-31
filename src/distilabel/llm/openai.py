@@ -81,10 +81,10 @@ class OpenAILLM(LLM):
             AssertionError: if the provided `model` is not available in your OpenAI account.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import OpenAILLM
-            >>> task = Task()
-            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=task)
+            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=TextGenerationTask())
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,

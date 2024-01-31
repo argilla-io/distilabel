@@ -82,10 +82,9 @@ class AnyscaleLLM(OpenAILLM):
             AssertionError: if the provided `model` is not available in your OpenAI account.
 
         Examples:
-            >>> import os
             >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import AnyscaleLLM
-            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask(), openai_api_key=os.getenv("ANYSCALE_API_KEY", None))
+            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask())
             >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         LLM.__init__(

@@ -73,11 +73,11 @@ class LlamaCppLLM(LLM):
 
         Examples:
             >>> from llama_cpp import Llama
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import LlamaCppLLM
             >>> model = Llama(model_path="path/to/model")
-            >>> task = Task()
-            >>> llm = LlamaCppLLM(model=model, task=task)
+            >>> llm = LlamaCppLLM(model=model, task=TextGenerationTask())
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,

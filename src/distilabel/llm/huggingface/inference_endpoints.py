@@ -119,13 +119,13 @@ class InferenceEndpointsLLM(LLM):
 
         Examples:
             >>> # Inference Endpoint example
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import InferenceEndpointsLLM
-            >>> task = Task()
             >>> llm = InferenceEndpointsLLM(
             ...     endpoint_name_or_model_id="<MODEL_ID_OR_INFERENCE_ENDPOINT>",
-            ...     task=task,
+            ...     task=TextGenerationTask(),
             ... )
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,

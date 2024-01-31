@@ -96,10 +96,10 @@ class TogetherInferenceLLM(LLM):
             AssertionError: if the provided `model` is not available in Together Inference.
 
         Examples:
-            >>> from distilabel.tasks import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import TogetherInferenceLLM
-            >>> task = Task()
-            >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=task, prompt_format="llama2")
+            >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=TextGenerationTask(), prompt_format="llama2")
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         if not _TOGETHER_AVAILABLE:
             raise ImportError(
