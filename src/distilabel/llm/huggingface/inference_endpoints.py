@@ -118,7 +118,6 @@ class InferenceEndpointsLLM(LLM):
             prompt_formatting_fn (Union[Callable[..., str], None]): The function for formatting the prompt. Defaults to None.
 
         Examples:
-            >>> # Inference Endpoint example
             >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import InferenceEndpointsLLM
             >>> llm = InferenceEndpointsLLM(
