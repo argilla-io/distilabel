@@ -12,12 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info < (3, 9):
-    pass
-else:
-    pass
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
@@ -43,31 +37,32 @@ EvolutionMethod = Literal[
 
 
 @dataclass
-class EvolQualityGeneratorTask(EvolInstructTask):
+class EvolQualityTask(EvolInstructTask):
     """A `TextGenerationTask` following the `Deita` specification for improving the responses.
 
     From the reference repository: *DEITA (short for Data-Efficient Instruction Tuning for Alignment),
     a series of models fine-tuned from LLaMA and Mistral models using data samples automatically selected with our proposed approach*
 
     The task is defined as follows:
-    Starting from an initial (simpler) instruction, select in-depth or in-breadth evolving to upgrade the simple instruction
-    to a more complex one or create a new one (to increase diversity).
-    The In-depth Evolving includes the following operations: add constraints, deepening, concretizing and increase reasoning.
-    The In-breadth Evolving is mutation, i.e., generating a completely new instruction based on the given instruction.
+    Starting from an initial (simpler) instruction response, select an evolving-method to upgrade the simple response
+    to a more complex one or create..
+    The Evolving methods includes the following operations: add "helpfulness", "relevance", "deepen", "creativity" and "details".
 
-    Given the evolved instructions are generated from LLMs, sometimes the evolving will fail. We adopt an instruction eliminator
+    Given the evolved reposnes are generated from LLMs, sometimes the evolving will fail. We adopt an responses eliminator
     to filter the failed instructions, called Elimination Evolving, but we don't apply the step of asking again to the LLM it the
-    answer is a copy from the same used prompt.
+    answer is a copy from the same used prompt. Note that we slightly modify the elimination evolving step, from the original paper,
+    to allow for filtering of the responses.
 
     This evolutionary process can be repeated for several rounds to obtain instruction data containing various complexities.
     Currently the task is implemented as a single step, so to generate multiple evolutions you can "repeat" the instructions
-    in the original dataset. An example can be seen at the following script:
+    in the original dataset. An example of a similar implementation with EvolInstruct can be seen at the following script:
     [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)
 
     Args:
         system_prompt (str, optional): the system prompt to be used. Not defined for this task.
 
     References:
+        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
         - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
     """
 
@@ -128,7 +123,7 @@ class EvolQualityGeneratorTask(EvolInstructTask):
             output (str): the output of the model.
 
         Note:
-            The eliminatin step is applied to the output, but only steps 2-4 in the paper are implemented.
+            The elimination step is applied to the output, but only steps 2-4 in the paper are implemented.
             Refer to point 3.2, Elimination Evolving section in [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
             for more information on the elimination evolving step, and take a look at the `_elimination_evolving`
             method for more information of the implementation.

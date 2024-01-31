@@ -31,7 +31,7 @@ EvolutionMethod = Literal["constraints", "deepen", "concretizing", "reasoning"]
 
 
 @dataclass
-class EvolComplexityGeneratorTask(EvolInstructTask):
+class EvolComplexityTask(EvolInstructTask):
     """A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case
     of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
     Additionally, an additional elimation step should be executed to screen out instructions that are not useful.

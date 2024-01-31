@@ -15,10 +15,12 @@
 import argilla as rg
 import pytest
 from distilabel.dataset import CustomDataset
+from distilabel.tasks.text_generation.evol_complexity import EvolComplexityTask
 from distilabel.tasks.text_generation.evol_instruct import (
     EvolInstructTask,
     _get_stopwords,
 )
+from distilabel.tasks.text_generation.evol_quality import EvolQualityTask
 
 
 def test_get_stopwords():
@@ -34,91 +36,104 @@ The #Created Prompt# must be reasonable and must be understood and responded by 
 '#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear in #Created Prompt#
 #Given Prompt#:
 HELLO
-
 #Created Prompt#:
 """
 
-constraints = """I want you to act as a Prompt Rewriter.
+base_evol_instruct = """I want you to act as a Prompt Rewriter.
 Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.
 But the rewritten prompt must be reasonable and must be understood and responded by humans.
 Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.
 You SHOULD complicate the given prompt using the following method:
-Please add one more constraints/requirements into #The Given Prompt#
+"""
+
+end_evol_instruct = """
 You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.
 '#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#
 #The Given Prompt#:
 HELLO
-
 #Rewritten Prompt#:
+# """
+
+constraints = f"{base_evol_instruct}Please add one more constraints/requirements into #The Given Prompt#{end_evol_instruct}"
+deepen = f"{base_evol_instruct}If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased.{end_evol_instruct}"
+concretizing = f"{base_evol_instruct}Please replace general concepts with more specific concepts.{end_evol_instruct}"
+reasoning = f"{base_evol_instruct}If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning.{end_evol_instruct}"
+
+base_evol_quality = """I want you to act as a Response Rewriter
+Your goal is to enhance the quality of the response given by an AI assistant
+to the #Given Prompt# through rewriting.
+But the rewritten response must be reasonable and must be understood by humans.
+Your rewriting cannot omit the non-text parts such as the table and code in
+#Given Prompt# and #Given Response#. Also, please do not omit the input
+in #Given Prompt#.
+You Should enhance the quality of the response using the following method:
 """
 
-deepen = """I want you to act as a Prompt Rewriter.
-Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.
-But the rewritten prompt must be reasonable and must be understood and responded by humans.
-Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.
-You SHOULD complicate the given prompt using the following method:
-If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased.
-You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.
-'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#
-#The Given Prompt#:
+end_evol_quality = """
+You should try your best not to make the #Rewritten Response# become verbose,
+#Rewritten Response# can only add 10 to 20 words into #Given Response#.
+'#Given Response#', '#Rewritten Response#', 'given response' and 'rewritten response'
+are not allowed to appear in #Rewritten Response#
+#Given Prompt#:
 HELLO
-
-#Rewritten Prompt#:
-"""
-
-concretizing = """I want you to act as a Prompt Rewriter.
-Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.
-But the rewritten prompt must be reasonable and must be understood and responded by humans.
-Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.
-You SHOULD complicate the given prompt using the following method:
-Please replace general concepts with more specific concepts.
-You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.
-'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#
-#The Given Prompt#:
+#Given Response#:
 HELLO
-
-#Rewritten Prompt#:
+#Rewritten Response#:
 """
 
-reasoning = """I want you to act as a Prompt Rewriter.
-Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.
-But the rewritten prompt must be reasonable and must be understood and responded by humans.
-Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.
-You SHOULD complicate the given prompt using the following method:
-If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning.
-You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.
-'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#
-#The Given Prompt#:
-HELLO
-
-#Rewritten Prompt#:
-"""
+helpfulness = f"{base_evol_quality}Please make the Response more helpful to the user.{end_evol_quality}"
+relevance = f"{base_evol_quality}Please make the Response more relevant to #Given Prompt#.{end_evol_quality}"
+depth = f"{base_evol_quality}Please make the Response more in-depth.{end_evol_quality}"
+creativity = f"{base_evol_quality}Please increase the creativity of the response.{end_evol_quality}"
+details = f"{base_evol_quality}Please increase the detail level of Response.{end_evol_quality}"
 
 
 @pytest.mark.parametrize(
-    "evolution_method, expected",
+    "evolution_method, expected, instruct_type",
     [
-        ("breadth", breadth),
-        ("constraints", constraints),
-        ("deepen", deepen),
-        ("concretizing", concretizing),
-        ("reasoning", reasoning),
+        ("breadth", breadth, EvolInstructTask),
+        ("constraints", constraints, EvolInstructTask),
+        ("deepen", deepen, EvolInstructTask),
+        ("concretizing", concretizing, EvolInstructTask),
+        ("reasoning", reasoning, EvolInstructTask),
+        ("constraints", constraints, EvolComplexityTask),
+        ("deepen", deepen, EvolComplexityTask),
+        ("concretizing", concretizing, EvolComplexityTask),
+        ("reasoning", reasoning, EvolComplexityTask),
+        ("helpfulness", helpfulness, EvolQualityTask),
+        ("relevance", relevance, EvolQualityTask),
+        ("depth", depth, EvolQualityTask),
+        ("creativity", creativity, EvolQualityTask),
+        ("details", details, EvolQualityTask),
+        ("fake", ValueError, EvolInstructTask),
+        ("fake", ValueError, EvolQualityTask),
+        (
+            "breadth",
+            ValueError,
+            EvolComplexityTask,
+        ),  # breadth is not a valid evolution method for EvolComplexityGeneratorTask
     ],
 )
-def test_evol_instruct_task(evolution_method: str, expected: str):
-    task = EvolInstructTask()
-    assert isinstance(task, EvolInstructTask)
+def test_evol_task(evolution_method: str, expected: str, instruct_type: object):
+    mock_kwargs = {"input": "HELLO", "generation": "HELLO"}
+    task = instruct_type()
+    assert isinstance(task, instruct_type)
     assert task.system_prompt == ""
-    assert (
-        task.generate_prompt(
-            input="HELLO", evolution_method=evolution_method
-        ).formatted_prompt
-        == expected
-    )
+    if isinstance(expected, str):
+        assert (
+            task.generate_prompt(
+                **mock_kwargs, evolution_method=evolution_method
+            ).formatted_prompt
+            == expected
+        )
+    else:
+        with pytest.raises(expected):
+            task.generate_prompt(**mock_kwargs, evolution_method=evolution_method)
 
 
-@pytest.fixture
-def custom_evol_instruct_dataset() -> CustomDataset:
+def get_custom_evol_dataset(
+    instruction_type: object,
+) -> CustomDataset:
     ds = CustomDataset.from_dict(
         {
             "input": [
@@ -164,30 +179,58 @@ def custom_evol_instruct_dataset() -> CustomDataset:
             ],
         }
     )
-    ds.task = EvolInstructTask()
+    ds.task = instruction_type()
     return ds
 
 
-def test_evol_instruct_task_to_argilla_dataset(custom_evol_instruct_dataset):
-    ds_row = custom_evol_instruct_dataset[0]
-    task = custom_evol_instruct_dataset.task
+@pytest.mark.parametrize(
+    "instruction_type",
+    [
+        EvolInstructTask,
+        EvolComplexityTask,
+    ],
+)
+def test_evol_task_to_argilla_dataset(
+    instruction_type,
+):
+    ds = get_custom_evol_dataset(instruction_type)
+    ds_row = ds[0]
+    task = ds.task
     rg_dataset = task.to_argilla_dataset(ds_row)
     assert isinstance(rg_dataset, rg.FeedbackDataset)
     assert len(rg_dataset.records) == 0
 
 
-def test_evol_instruct_task_to_argilla_record(custom_evol_instruct_dataset):
-    ds_row = custom_evol_instruct_dataset[0]
-    task = custom_evol_instruct_dataset.task
+@pytest.mark.parametrize(
+    "instruction_type",
+    [
+        EvolInstructTask,
+        EvolComplexityTask,
+    ],
+)
+def test_evol_task_to_argilla_record(
+    instruction_type,
+):
+    ds: CustomDataset = get_custom_evol_dataset(instruction_type)
+    ds_row = ds[0]
+    task = ds.task
     records = task.to_argilla_record(ds_row)
     assert isinstance(records, list)
     assert len(records) == 1
     assert isinstance(records[0], rg.FeedbackRecord)
 
 
-def test_evol_instruct_task_to_argilla(custom_evol_instruct_dataset):
-    rg_dataset = custom_evol_instruct_dataset.to_argilla(
-        vector_strategy=False, metric_strategy=False
-    )
+@pytest.mark.parametrize(
+    "instruction_type",
+    [
+        EvolInstructTask,
+        EvolComplexityTask,
+    ],
+)
+def test_evol_task_to_argilla(
+    instruction_type,
+):
+    ds = get_custom_evol_dataset(instruction_type)
+    rg_dataset = ds.to_argilla(vector_strategy=False, metric_strategy=False)
     assert isinstance(rg_dataset, rg.FeedbackDataset)
     assert len(rg_dataset.records) == 2

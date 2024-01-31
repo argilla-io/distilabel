@@ -184,9 +184,13 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
     def _get_evolution_method(
         self, chosen_method: EvolutionMethod, available_methods: EvolutionMethod
     ) -> None:
+        available_methods = get_args(available_methods)
         if not chosen_method:
-            chosen_method = random.choice(get_args(available_methods))
-
+            chosen_method = random.choice(available_methods)
+        if chosen_method not in available_methods:
+            raise ValueError(
+                f"Evolution method {chosen_method} is not available. Available ones are: {available_methods}"
+            )
         return chosen_method
 
     def parse_output(self, output: str) -> Dict[str, List[str]]:
@@ -196,7 +200,7 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             output (str): the output of the model.
 
         Note:
-            The eliminatin step is applied to the output, but only steps 2-4 in the paper are implemented.
+            The elimination step is applied to the output, but only steps 2-4 in the paper are implemented.
             Refer to point 3.2, Elimination Evolving section in [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
             for more information on the elimination evolving step, and take a look at the `_elimination_evolving`
             method for more information of the implementation.

@@ -1,13 +1,13 @@
 {%- if evol_method == "helpfulness" -%}
 {% set depth_rewriter = "Please make the Response more helpful to the user." %}
 {%- elif evol_method == "relevance" -%}
-{% set depth_rewriter = "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased." %}
+{% set depth_rewriter = "Please make the Response more relevant to #Given Prompt#." %}
 {%- elif evol_method == "depth" -%}
-{% set depth_rewriter = "Please replace general concepts with more specific concepts." %}
+{% set depth_rewriter = "Please make the Response more in-depth." %}
 {%- elif evol_method == "creativity" -%}
-{% set depth_rewriter = "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning." %}
+{% set depth_rewriter = "Please increase the creativity of the response." %}
 {%- elif evol_method == "details" -%}
-{% set depth_rewriter = "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning." %}
+{% set depth_rewriter = "Please increase the detail level of Response." %}
 {%- endif -%}
 I want you to act as a Response Rewriter
 Your goal is to enhance the quality of the response given by an AI assistant
@@ -27,3 +27,4 @@ are not allowed to appear in #Rewritten Response#
 #Given Response#:
 {{ generation }}
 #Rewritten Response#:
+
