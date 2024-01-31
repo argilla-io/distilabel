@@ -2591,12 +2591,12 @@ Follow Complex Instructions</a>.</p>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>You can take a look at a <a href="https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19">sample dataset</a> generated using the script the following script: <a href="../../examples/pipeline-evol-instruct-alpaca.py">examples/pipeline-evol-instruct-alpaca.py</a>.</p>
+<p>You can take a look at a <a href="https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct">sample dataset</a> generated using <code>EvolInstructTask</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 </div>
 <p>The original definition of <code>EvolInstruct</code> considers an elimination evolving step with different
-situations to remove the responses considered failures. Section 3.2, <em>Elimination Evolving</em> in <a href="https://arxiv.org/abs/2304.12244">WizardLM paper</a> shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in <code>distilabel</code>, an example implementation can be found in the following script: <a href="../../examples/pipeline-openai-wizardl-equal-prompts.py">examples/pipeline-openai-wizardl-equal-prompts.py</a>.</p>
+situations to remove the responses considered failures. Section 3.2, <em>Elimination Evolving</em> in <a href="https://arxiv.org/abs/2304.12244">WizardLM paper</a> shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in <code>distilabel</code>.</p>
 <p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/text_generation/evol_instruct/#distilabel.tasks.text_generation.evol_instruct.EvolInstructTask">EvolInstructTask</a>.</p>
 <h2 id="labelling">Labelling<a class="headerlink" href="#labelling" title="Permanent link">&para;</a></h2>
 <p>Instead of generating text, you can instruct the <code>LLM</code> to label datasets. The existing tasks are designed specifically for creating both <code>PreferenceTask</code> and <code>CritiqueTask</code> datasets.</p>
