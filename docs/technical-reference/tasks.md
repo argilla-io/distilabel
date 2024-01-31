@@ -81,41 +81,63 @@ Use this `Task` to build more complete and complex datasets starting from simple
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_instruct.py"
 ```
 
-You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct?row=19) generated using the script the following script: [examples/pipeline-evol-instruct-alpaca.py](../../examples/pipeline-evol-instruct-alpaca.py).
+You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct) generated using `EvolInstructTask`.
 
-!!! note 
-    The original definition of `EvolInstruct` considers an elimination evolving step with different situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`, an example implementation can be found in the following script: [examples/pipeline-openai-wizardl-equal-prompts.py](../../examples/pipeline-openai-wizardl-equal-prompts.py).
+!!! note
+    The original definition of `EvolInstruct` considers an elimination evolving step with different
+    situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`.
 
 For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
+#### EvolComplexity
+
+The [Deita framework](https://arxiv.org/abs/2312.15685) presents a data selection framework composed of two initial steps that consist on adopting an evolution-based approach as defined in [WizardLM](https://arxiv.org/abs/2304.12244). The first of the evolution steps, related to the *complexity* is the same `EvolInstruct` task, exposed with the same name given in the paper:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity.py"
+```
+
+For the API reference visit [EvolComplexityTask][distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask].
+
+#### EvolQuality
+
+The second step from the [Deita framework](https://arxiv.org/abs/2312.15685) consists on enhancing the *quality* of the instructions, in the same spirit from `EvolComplexityTask`. The `EvolQualityTask` can be used to augment the *quality* of the instructions by *enhancing helpfulness, augmenting relevance, enriching depth, fostering creativity, and supplying additional details*, following the *Deita* implementation:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality.py"
+```
+
+For the API reference visit [EvolQualityTask][distilabel.tasks.text_generation.evol_quality.EvolQualityTask].
+
+
 ### Custom TextGenerationTask
 
-You can create your own custom `TextGenerationTask`, by creating a class that inherits from `TextGenerationTask` itself. There, you can override the default parameters to create a Task object suited to your specific needs, and also include custom functions.
+The following examples show different cases of creating your custom `TextGenerationTask`. Inherit from `TextGenerationTask` and implement the `generate_prompt` and `parse_output` to customise the behavior of the `LLM`.
 
-=== "Template for custom TextGenerationTask"
+=== "OSS Instruct Task"
 
-    ```python
-    --8<-- "docs/snippets/technical-reference/tasks/customtask_text_generation.py"
-    ```
-
-=== "Template for custom programing task"
+    This task implements the OSS Instruct from [Magicoder: Source Code Is All You Need](https://arxiv.org/abs/2312.02120). Generate problems and solutions from seed problems following the paper implementation:
 
     ```python
     --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_oss.py"
     ```
-=== "Template for Custom SelfInstructTask"
 
-    Here you cn see an example of how to customise a SelfInstructTask to create Haikus. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+=== "Haiku SelfInstructTask"
+
+    Here you cn see an example of how to customise a `SelfInstructTask` to create Haikus. The following [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo) contains more information on how this dataset was created.
 
     ```python
     --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
     ```
 
-=== "Template for WizardLM"
+=== "WizardLM Equal Prompts Task"
+
+    The following task, obtained from [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244), can be used to check whether two instructions are equal or different to decide whether to keep in your dataset or remove redundant instructions:
 
     ```python
     --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_wizardlm.py"
     ```
+
 
 ## Labelling
 
@@ -211,13 +233,31 @@ Which can be directly used in the following way:
 
 For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultrajudge.UltraJudgeTask].
 
-#### Custom Preference Task
+#### ComplexityScorerTask
 
-You can craft your own tailored `PreferenceTask` by deriving a class from the base `PreferenceTask` class. This allows you to modify the default settings to fit your specific requirements and incorporate personalized functionality by overriding existing methods or introducing new ones.
+This class implements a `PreferenceTask` to rate a of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the scoring of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired on the `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
 
 ```python
---8<-- "docs/snippets/technical-reference/tasks/custom_task_preference.py"
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_complexity_scorer.py"
 ```
+
+For the API reference visit [ComplexityScorerTask][distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask].
+
+#### QualityScorerTask
+
+This class implements a `PreferenceTask` to rate a list of instructions according to its quality. Follows the same idea defined in the `ComplexityScorerTask` from the [Deita framework](https://arxiv.org/abs/2312.15685), but in this case it rates the instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_quality_scorer.py"
+```
+
+By default, the quality is defined as the following the paper prompt, but can be modified updating the `task_description` as in the following example (keep in mind the default `task_description` corresponds to the `EvolQuality` criteria defined to evolve the initial instructions, so this should be taken into account):
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_quality_scorer_custom.py"
+```
+
+For the API reference visit [QualityScorerTask][distilabel.tasks.preference.quality_scorer.QualityScorerTask].
 
 ### Critique
 
@@ -251,12 +291,4 @@ The following snippet can be used out of the box to define a simple `PrometheusT
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/prometheus.py"
-```
-
-#### Custom Critique Task
-
-You can craft your own tailored `CritiqueTask` by deriving a class from the `CritiqueTask` class. This allows you to modify the default settings to fit your unique requirements and incorporate specialized functionality by including personalized functions.
-
-```python
---8<-- "docs/snippets/technical-reference/tasks/custom_task_critique.py"
 ```

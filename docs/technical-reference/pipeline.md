@@ -253,3 +253,19 @@ This dataset processing is called binarization. In the context of `distilabel`, 
 - **rejected_model**: (*Optional*, only returned if the dataset contains it, otherwise it's a null string like here) The model used to generate the rejected instruction.
 
 Need more information? Take a look at [argilla/ultrafeedback-binarized-preferences](https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences) to get an idea of how [openbmb/UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) can be binarized to prepare it for *DPO*.
+
+## CustomDataset in HuggingFace hub
+
+Since `distilabel 0.5.0` when a `CustomDataset` is pushed to the HuggingFace Hub, the `Task` that comes with it will be pushed to the hub too. The [`CustomDataset.push_to_hub`][distilabel.dataset.CustomDataset.push_to_hub] method will by default upload the `Task` to the huggingface hub:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/push_to_hub.py"
+```
+
+On the other hand, this will be useful when downloading datasets from the hub which already have the `Task` to be downloaded (by default if there's a `Task` in the repository it will be downloaded, no error will appear if that's not possible). Just import the corresponding [distilabel.dataset.load_dataset][distilabel.dataset.load_dataset] function instead of the `datasets.load_dataset` version.
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/load_dataset.py"
+```
+
+A sample task can be seen [here](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct/blob/main/distilabel-task.json).

@@ -24,6 +24,7 @@ In addition, the following extras are available:
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
 - `together`: for using [Together Inference](https://www.together.ai/products) via their Python client.
+- `vertexai`: for using both [Google Vertex AI](https://cloud.google.com/vertex-ai/?&gad_source=1&hl=es) offerings: their proprietary models and endpoints via their Python client [`google-cloud-aiplatform`](https://github.com/googleapis/python-aiplatform).
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
 ## Quick example
@@ -40,7 +41,7 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 !!! note
     To run the script successfully, ensure you have assigned your OpenAI API key to the `OPENAI_API_KEY` environment variable.
 
-For a more complete example, check out our awesome [tutorials](./tutorials/pipeline-notus-instructions-preferences-legal/) or the example below:
+For a more complete example, check out our awesome tutorials in the docs or the example below:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb) [![Open Source in Github](https://img.shields.io/badge/github-view%20source-black.svg)](https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb)
 

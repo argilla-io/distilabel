@@ -43,7 +43,6 @@ from distilabel.progress_bar import (
     use_progress_bar,
 )
 from distilabel.utils.dicts import combine_dicts
-from distilabel.utils.types import is_future
 
 logger = get_logger()
 
@@ -218,7 +217,8 @@ class Pipeline:
         self,
         inputs: List[Dict[str, Any]],
         progress_callback_func: Union[Callable, None] = None,
-    ) -> Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]:
+        batch_size: Optional[int] = None,
+    ) -> List[List["LLMOutput"]]:
         """Gets the batch labels for the given inputs.
 
         Args:
@@ -227,19 +227,42 @@ class Pipeline:
             progress_callback_func (Union[Callable, None], optional): the callback function
                 to be called when the progress of the labelling process changes. Defaults
                 to `None`.
+            batch_size (Optional[int], optional): the batch size to be used in case of error
+                in the Future processing.
 
         Returns:
-            Union[List[List["LLMOutput"]], Future[List[List["LLMOutput"]]]]: the batch
-                labels.
+            List[List["LLMOutput"]]: the batch labels.
         """
-
-        return self.labeller.generate(  # type: ignore
+        # `num_generations` is always 1 because labelling the same input multiple times
+        # using the same LLM may not make sense
+        outputs = self.labeller.generate(  # type: ignore
             inputs=inputs,
-            # `num_generations` is always 1 because labelling the same input multiple times
-            # using the same LLM may not make sense
             num_generations=1,
             progress_callback_func=progress_callback_func,
         )
+        batch_outputs = []
+        if isinstance(outputs, Future):
+            try:
+                batch_outputs.extend(outputs.result())
+            except Exception as e:
+                logger.error(
+                    f"An error occurred when getting the result from the labeller: {e}"
+                )
+                batch_outputs.append(
+                    [
+                        LLMOutput(
+                            model_name=self.labeller.model_name,
+                            prompt_used=None,
+                            raw_output=None,
+                            parsed_output=None,
+                        )
+                        for _ in range(batch_size)
+                    ]
+                )
+        else:
+            batch_outputs = outputs
+
+        return batch_outputs
 
     def _process_batch_generations(
         self,
@@ -335,34 +358,31 @@ class Pipeline:
             List[Dict[str, Any]]: the processed batch labels.
         """
         processed_labels = []
-        for labels in batch_labels:
-            for label in labels:
-                if label["parsed_output"] is not None and not isinstance(
-                    label["parsed_output"], (list, dict)
-                ):
-                    raise ValueError(
-                        f"Unsupported type: {type(label['parsed_output'])}"
-                    )
+        for label in batch_labels:
+            if label["parsed_output"] is not None and not isinstance(
+                label["parsed_output"], (list, dict)
+            ):
+                raise ValueError(f"Unsupported type: {type(label['parsed_output'])}")
 
-                processed_label = {
-                    # Since all the generations for the same `model_name` also share the same
-                    # `prompt_used`, then we just keep the first element in `generations`
-                    "labelling_model": label["model_name"],
-                    "labelling_prompt": label["prompt_used"],
-                    "raw_labelling_response": label["raw_output"],
-                }
-                try:
-                    if isinstance(label["parsed_output"], list):
-                        processed_label.update(**combine_dicts(*label["parsed_output"]))
-                    elif isinstance(label["parsed_output"], dict):
-                        processed_label.update(**label["parsed_output"])
-                except Exception as e:
-                    warnings.warn(
-                        f"Label processing step failed when combining dicts: {e}",
-                        UserWarning,
-                        stacklevel=2,
-                    )
-                processed_labels.append(processed_label)
+            processed_label = {
+                # Since all the generations for the same `model_name` also share the same
+                # `prompt_used`, then we just keep the first element in `generations`
+                "labelling_model": label["model_name"],
+                "labelling_prompt": label["prompt_used"],
+                "raw_labelling_response": label["raw_output"],
+            }
+            try:
+                if isinstance(label["parsed_output"], list):
+                    processed_label.update(**combine_dicts(*label["parsed_output"]))
+                elif isinstance(label["parsed_output"], dict):
+                    processed_label.update(**label["parsed_output"])
+            except Exception as e:
+                warnings.warn(
+                    f"Label processing step failed when combining dicts: {e}",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            processed_labels.append(processed_label)
         return processed_labels
 
     def _transform_dataset_to_expected_format(
@@ -400,10 +420,7 @@ class Pipeline:
         self,
         dataset: Dataset,
         generations: List[Dict[str, Any]],
-        labels: Union[
-            List[List["LLMOutput"]],
-            Future[List[List["LLMOutput"]]],
-        ],
+        labels: List[List["LLMOutput"]],
         batch_size: int,
     ) -> CustomDataset:
         """Builds the final dataset with either the generations, the labels, or both, depending
@@ -412,8 +429,7 @@ class Pipeline:
         Args:
             dataset (Dataset): the original dataset.
             generations (List[Dict[str, Any]]): the processed generations.
-            labels (Union[List[List[LLMOutput]], Future[List[List[LLMOutput]]]]): the
-                processed labels.
+            labels (List[List[LLMOutput]]): the processed labels.
 
         Returns:
             CustomDataset: the final dataset.
@@ -440,30 +456,8 @@ class Pipeline:
             processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
             batch_labels = []
-            if self.labeller.return_futures:
-                for i, future in enumerate(labels, start=1):  # type: ignore
-                    try:
-                        batch_labels.extend(future.result())
-                    except Exception as e:
-                        logger.error(
-                            f"An error occurred when getting the result from the labeller: {e}"
-                        )
-                        num_outputs = (
-                            batch_size
-                            if i * batch_size <= len(dataset)
-                            else len(dataset) % batch_size
-                        )
-                        batch_labels.append(
-                            [
-                                LLMOutput(
-                                    model_name=self.labeller.model_name,
-                                    prompt_used=None,
-                                    raw_output=None,
-                                    parsed_output=None,
-                                )
-                                for _ in range(num_outputs)
-                            ]
-                        )
+            for label in labels:
+                batch_labels.extend(label)
 
             processed_labels = self._process_batch_labels(
                 batch_labels=batch_labels or cast(List[List["LLMOutput"]], labels)
@@ -561,6 +555,7 @@ class Pipeline:
             display_progress_bar=display_progress_bar,
             has_labeller=True if self.labeller else False,
             has_generator=True if self.generator else False,
+            batch_size=batch_size,
         )
 
         num_batches = math.ceil(len(dataset) / batch_size)
@@ -604,13 +599,11 @@ class Pipeline:
                 logger.info(f"Calling labeller for batch {batch_i}...")
                 try:
                     batch_labels = self._get_batch_labels(
-                        inputs=inputs, progress_callback_func=labelling_progress_func
+                        inputs=inputs,
+                        progress_callback_func=labelling_progress_func,
+                        batch_size=batch_size,
                     )
-
-                    if is_future(batch_labels):
-                        labels.append(batch_labels)  # type: ignore
-                    else:
-                        labels.extend(batch_labels)  # type: ignore
+                    labels.extend(batch_labels)  # type: ignore
 
                 except Exception as e:
                     if not checkpoint_strategy:

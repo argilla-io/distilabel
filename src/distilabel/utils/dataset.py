@@ -15,51 +15,16 @@
 import functools
 import random
 from collections import defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, get_args
-
-import dill as pickle
 
 from distilabel.logger import get_logger
 
 if TYPE_CHECKING:
     from distilabel.dataset import CustomDataset
-    from distilabel.tasks.base import Task
-
-TASK_FILE_NAME = "task.pkl"
 
 logger = get_logger()
 
 BinarizationStrategies = Literal["random", "worst"]
-
-
-def save_task_to_disk(path: Path, task: "Task") -> None:
-    """Saves a task to disk.
-
-    Args:
-        path: The path to the task.
-        task: The task.
-    """
-    task_path = path / TASK_FILE_NAME
-    with open(task_path, "wb") as f:
-        f.write(pickle.dumps(task))
-
-
-def load_task_from_disk(path: Path) -> "Task":
-    """Loads a task from disk.
-
-    Args:
-        path: The path to the task.
-
-    Returns:
-        Task: The task.
-    """
-    task_path = path / TASK_FILE_NAME
-    if not task_path.exists():
-        raise FileNotFoundError(f"The task file does not exist: {task_path}")
-    with open(task_path, "rb") as f:
-        task = pickle.loads(f.read())
-    return task
 
 
 def _get_best_response(
@@ -217,6 +182,7 @@ def _binarize_dataset(
 def prepare_dataset(
     dataset: "CustomDataset",
     strategy: BinarizationStrategies = "random",
+    sft: bool = False,
     seed: Optional[int] = None,
     keep_ties: bool = False,
     **kwargs: Any,
@@ -249,6 +215,10 @@ def prepare_dataset(
             CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.
         strategy (BinarizationStrategies, optional):
             Strategy to binarize the data. Defaults to "random".
+        sft (bool, optional):
+            Whether to add a `messages` column to the dataset, to be used for Supervised Fine Tuning.
+            If set to True, this messages column will contain the same information as the chosen response.
+            Defaults to False.
         seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.
         keep_ties (bool, optional):
             Whether to keep ties in case the binarization method generated the chosen
@@ -314,6 +284,14 @@ def prepare_dataset(
         **kwargs,
     )
 
+    if sft:
+        # Adds a column to be used for Supervised Fine Tuning based on the chosen response
+        ds = ds.map(
+            lambda example: {
+                **example,
+                "messages": example["chosen"],
+            }
+        )
     # Imported here to avoid circular imports
     from distilabel.dataset import CustomDataset
 
