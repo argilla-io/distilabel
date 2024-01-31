@@ -289,7 +289,7 @@ def test_to_argilla_with_too_many_fields(
 )
 @pytest.mark.parametrize("sft", [True, False])
 @pytest.mark.parametrize(
-    "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties",
+    "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties, with_rationale",
     [
         (
             "random",
@@ -327,6 +327,7 @@ def test_to_argilla_with_too_many_fields(
                 "WizardLM/WizardCoder-15B-V1.0",
             ],
             ["argilla/notus-7b-v1", "WizardLM/WizardCoder-15B-V1.0", "gpt-3.5-turbo"],
+            True,
             True,
         ),
         (
@@ -370,6 +371,50 @@ def test_to_argilla_with_too_many_fields(
                 "ise-uiuc/Magicoder-S-DS-6.7B",
             ],
             True,
+            True,
+        ),
+        (
+            "worst",
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 2", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 4", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 3", "role": "assistant"},
+                ],
+            ],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 1", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 3", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 2", "role": "assistant"},
+                ],
+            ],
+            [
+                "WizardLM/WizardCoder-15B-V1.0",
+                "gpt-3.5-turbo",
+                "WizardLM/WizardCoder-15B-V1.0",
+            ],
+            [
+                "argilla/notus-7b-v1",
+                "WizardLM/WizardCoder-15B-V1.0",
+                "ise-uiuc/Magicoder-S-DS-6.7B",
+            ],
+            True,
+            False,
         ),
     ],
 )
@@ -383,20 +428,8 @@ def test_prepare_dataset(
     with_generation_model: bool,
     keep_ties: bool,
     sft: bool,
+    with_rationale: bool,
 ):
-    if not with_generation_model:
-        sample_preference_dataset = sample_preference_dataset.remove_columns(
-            ["generation_model"]
-        )
-    ds = prepare_dataset(
-        sample_preference_dataset,
-        strategy=strategy,
-        sft=sft,
-        seed=42,
-        keep_ties=keep_ties,
-    )
-    assert isinstance(ds, CustomDataset)
-
     expected_columns = [
         "prompt",
         "chosen",
@@ -406,6 +439,28 @@ def test_prepare_dataset(
         "chosen_model",
         "rejected_model",
     ]
+    if not with_generation_model:
+        sample_preference_dataset = sample_preference_dataset.remove_columns(
+            ["generation_model"]
+        )
+    if not with_rationale:
+        sample_preference_dataset = sample_preference_dataset.remove_columns(
+            ["rationale"]
+        )
+    else:
+        expected_columns += ["chosen_rationale", "rejected_rationale"]
+
+    print("COLUMNS")
+    print(sample_preference_dataset.column_names)
+
+    ds = prepare_dataset(
+        sample_preference_dataset,
+        strategy=strategy,
+        sft=sft,
+        seed=42,
+        keep_ties=keep_ties,
+    )
+    assert isinstance(ds, CustomDataset)
 
     if sft:
         expected_columns += ["messages"]

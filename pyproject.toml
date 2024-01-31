@@ -68,7 +68,7 @@ ignore = ["E501", "B905", "B008"]
 exclude = ["docs"]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 12
+max-complexity = 14
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

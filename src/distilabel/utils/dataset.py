@@ -132,7 +132,9 @@ def _binarize_dataset(
             if rating < best_rating:
                 example_lower[responses_column].append(example[responses_column][i])
                 example_lower[rating_column].append(rating)
-
+                # Add the rationale if found
+                if chosen_rationale:
+                    example_lower[rationale_column].append(example[rationale_column][i])
         # Otherwise you declare that a tie
         if len(example_lower[rating_column]) == 0:
             # In this case we don't have any response with a lower rating, so we just
@@ -145,7 +147,7 @@ def _binarize_dataset(
 
         random_model = example["generation_model"][random_response_idx]
 
-        example = {
+        bin_example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, random_response),
@@ -155,12 +157,12 @@ def _binarize_dataset(
             "rejected_model": random_model,
         }
         if chosen_rationale:
-            example["chosen_rationale"] = chosen_rationale
-            example["rejected_rationale"] = example[rationale_column][
+            bin_example["chosen_rationale"] = chosen_rationale
+            bin_example["rejected_rationale"] = example[rationale_column][
                 random_response_idx
             ]
 
-        return example
+        return bin_example
 
     def binarize_worst(example):
         (
@@ -176,7 +178,7 @@ def _binarize_dataset(
         worst_response = example[responses_column][worst_response_idx]
         worst_model = example["generation_model"][worst_response_idx]
 
-        example = {
+        bin_example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, worst_response),
@@ -186,12 +188,12 @@ def _binarize_dataset(
             "rejected_model": worst_model,
         }
         if chosen_rationale:
-            example["chosen_rationale"] = chosen_rationale
-            example["rejected_rationale"] = example[rationale_column][
+            bin_example["chosen_rationale"] = chosen_rationale
+            bin_example["rejected_rationale"] = example[rationale_column][
                 worst_response_idx
             ]
 
-        return example
+        return bin_example
 
     if strategy == "random":
         binarization_method = binarize_random
@@ -290,7 +292,6 @@ def prepare_dataset(
         "labelling_model",
         "labelling_prompt",
         "raw_labelling_response",
-        "rationale",
     ]
 
     # Remove the rows for which there is no rating
@@ -314,7 +315,11 @@ def prepare_dataset(
         raise ValueError("The dataset must contain at least 2 generations per example.")
 
     # If the dataset contains the rationale, grab the content
-    rationale_column = "rationale" if "rationale" in dataset.column_names else None
+    if "rationale" in dataset.column_names:
+        rationale_column = "rationale"
+        remove_columns.append("rationale")
+    else:
+        rationale_column = None
 
     ds = _binarize_dataset(
         dataset,
