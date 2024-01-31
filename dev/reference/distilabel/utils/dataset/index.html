@@ -2224,7 +2224,7 @@
 
 
 <h2 id="distilabel.utils.dataset.prepare_dataset" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">prepare_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_ties</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">prepare_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">sft</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_ties</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#distilabel.utils.dataset.prepare_dataset" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2292,6 +2292,22 @@ section in the Concept guides for more information on the binarization process.<
           </td>
           <td>
                 <code>&#39;random&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sft</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Whether to add a <code>messages</code> column to the dataset, to be used for Supervised Fine Tuning.
+If set to True, this messages column will contain the same information as the chosen response.
+Defaults to False.</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
           </td>
         </tr>
         <tr>
@@ -2483,113 +2499,139 @@ and rejected responses to have the same rating. Defaults to False.</p>
 <span class="normal"><a href="#__codelineno-0-285">285</a></span>
 <span class="normal"><a href="#__codelineno-0-286">286</a></span>
 <span class="normal"><a href="#__codelineno-0-287">287</a></span>
-<span class="normal"><a href="#__codelineno-0-288">288</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="k">def</span> <span class="nf">prepare_dataset</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-288">288</a></span>
+<span class="normal"><a href="#__codelineno-0-289">289</a></span>
+<span class="normal"><a href="#__codelineno-0-290">290</a></span>
+<span class="normal"><a href="#__codelineno-0-291">291</a></span>
+<span class="normal"><a href="#__codelineno-0-292">292</a></span>
+<span class="normal"><a href="#__codelineno-0-293">293</a></span>
+<span class="normal"><a href="#__codelineno-0-294">294</a></span>
+<span class="normal"><a href="#__codelineno-0-295">295</a></span>
+<span class="normal"><a href="#__codelineno-0-296">296</a></span>
+<span class="normal"><a href="#__codelineno-0-297">297</a></span>
+<span class="normal"><a href="#__codelineno-0-298">298</a></span>
+<span class="normal"><a href="#__codelineno-0-299">299</a></span>
+<span class="normal"><a href="#__codelineno-0-300">300</a></span>
+<span class="normal"><a href="#__codelineno-0-301">301</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="k">def</span> <span class="nf">prepare_dataset</span><span class="p">(</span>
 </span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">dataset</span><span class="p">:</span> <span class="s2">&quot;CustomDataset&quot;</span><span class="p">,</span>
 </span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="n">strategy</span><span class="p">:</span> <span class="n">BinarizationStrategies</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">keep_ties</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CustomDataset&quot;</span><span class="p">:</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to prepare a distilabel dataset for training with the standard formats.</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="sd">    Currently supports the `PreferenceTask`, and binarizes the responses assuming</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">    one of two strategies:</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="sd">    - `random`: Selects the *chosen* response based on the highest rating, and for the</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a><span class="sd">        *rejected* selects a random response from the remaining ones. Filters the examples in which</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="sd">        the chosen rating is equal to the rejected one.</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">    - `worst`: Selects the *chosen* response based on the highest rating, and for the</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">        *rejected* selects the response with the lowest rating. Filters the examples in which the</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">        chosen rating is equal to the rejected one.</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">    Take a look at [argilla/ultrafeedback-binarized-preferences](https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences)</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">    for more information on binarizing a dataset to prepare it for DPO fine-tuning.</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>
-</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">    Expected format for a dataset to be trained with DPO as defined in trl&#39;s</span>
-</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">    [dpo trainer](https://huggingface.co/docs/trl/main/en/dpo_trainer#expected-dataset-format).</span>
-</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>
-</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">    Note:</span>
-</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">        Take a look at the</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">        [Prepare datasets for fine-tuning](https://distilabel.argilla.io/latest/technical-reference/pipeline/#prepare-datasets-for-fine-tuning)</span>
-</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">        section in the Concept guides for more information on the binarization process.</span>
-</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>
-</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="sd">        dataset (CustomDataset):</span>
-</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">            CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.</span>
-</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">        strategy (BinarizationStrategies, optional):</span>
-</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">            Strategy to binarize the data. Defaults to &quot;random&quot;.</span>
-</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">        seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.</span>
-</span><span id="__span-0-218"><a id="__codelineno-0-218" name="__codelineno-0-218"></a><span class="sd">        keep_ties (bool, optional):</span>
-</span><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="sd">            Whether to keep ties in case the binarization method generated the chosen</span>
-</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="sd">            and rejected responses to have the same rating. Defaults to False.</span>
-</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="sd">        kwargs: Extra parameters passed to `datasets.Dataset.map`.</span>
-</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>
-</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">        CustomDataset: Dataset formatted for training with DPO.</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="sd">    Examples:</span>
-</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">        &gt;&gt;&gt; from datasets import load_dataset</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        &gt;&gt;&gt; from distilabel.tasks import UltraFeedbackTask</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">        &gt;&gt;&gt; import os</span>
-</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">        &gt;&gt;&gt; dataset = load_dataset(&quot;argilla/DistiCoder-dpo&quot;, token=os.getenv(&quot;HF_API_TOKEN&quot;), split=&quot;train&quot;)</span>
-</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="sd">        &gt;&gt;&gt; dataset.task = UltraFeedbackTask.for_instruction_following()</span>
-</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        &gt;&gt;&gt; dataset_binarized = prepare_dataset(dataset, strategy=&quot;worst&quot;)</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="kn">from</span> <span class="nn">distilabel.tasks.preference.base</span> <span class="kn">import</span> <span class="n">PreferenceTask</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>
-</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">task</span><span class="p">,</span> <span class="n">PreferenceTask</span><span class="p">):</span>
-</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="s2">&quot;This functionality is currently implemented for `PreferenceTask` only.&quot;</span>
-</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>        <span class="p">)</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">sft</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">keep_ties</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CustomDataset&quot;</span><span class="p">:</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to prepare a distilabel dataset for training with the standard formats.</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">    Currently supports the `PreferenceTask`, and binarizes the responses assuming</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="sd">    one of two strategies:</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a><span class="sd">    - `random`: Selects the *chosen* response based on the highest rating, and for the</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="sd">        *rejected* selects a random response from the remaining ones. Filters the examples in which</span>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">        the chosen rating is equal to the rejected one.</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">    - `worst`: Selects the *chosen* response based on the highest rating, and for the</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">        *rejected* selects the response with the lowest rating. Filters the examples in which the</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">        chosen rating is equal to the rejected one.</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">    Take a look at [argilla/ultrafeedback-binarized-preferences](https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences)</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">    for more information on binarizing a dataset to prepare it for DPO fine-tuning.</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">    Expected format for a dataset to be trained with DPO as defined in trl&#39;s</span>
+</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">    [dpo trainer](https://huggingface.co/docs/trl/main/en/dpo_trainer#expected-dataset-format).</span>
+</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>
+</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">    Note:</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">        Take a look at the</span>
+</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">        [Prepare datasets for fine-tuning](https://distilabel.argilla.io/latest/technical-reference/pipeline/#prepare-datasets-for-fine-tuning)</span>
+</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">        section in the Concept guides for more information on the binarization process.</span>
+</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>
+</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">        dataset (CustomDataset):</span>
+</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">            CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.</span>
+</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">        strategy (BinarizationStrategies, optional):</span>
+</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">            Strategy to binarize the data. Defaults to &quot;random&quot;.</span>
+</span><span id="__span-0-218"><a id="__codelineno-0-218" name="__codelineno-0-218"></a><span class="sd">        sft (bool, optional):</span>
+</span><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="sd">            Whether to add a `messages` column to the dataset, to be used for Supervised Fine Tuning.</span>
+</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="sd">            If set to True, this messages column will contain the same information as the chosen response.</span>
+</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="sd">            Defaults to False.</span>
+</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a><span class="sd">        seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.</span>
+</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">        keep_ties (bool, optional):</span>
+</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">            Whether to keep ties in case the binarization method generated the chosen</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">            and rejected responses to have the same rating. Defaults to False.</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="sd">        kwargs: Extra parameters passed to `datasets.Dataset.map`.</span>
+</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">        CustomDataset: Dataset formatted for training with DPO.</span>
+</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>
+</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="sd">    Examples:</span>
+</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        &gt;&gt;&gt; from datasets import load_dataset</span>
+</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">        &gt;&gt;&gt; from distilabel.tasks import UltraFeedbackTask</span>
+</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">        &gt;&gt;&gt; import os</span>
+</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="sd">        &gt;&gt;&gt; dataset = load_dataset(&quot;argilla/DistiCoder-dpo&quot;, token=os.getenv(&quot;HF_API_TOKEN&quot;), split=&quot;train&quot;)</span>
+</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="sd">        &gt;&gt;&gt; dataset.task = UltraFeedbackTask.for_instruction_following()</span>
+</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="sd">        &gt;&gt;&gt; dataset_binarized = prepare_dataset(dataset, strategy=&quot;worst&quot;)</span>
+</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>    <span class="kn">from</span> <span class="nn">distilabel.tasks.preference.base</span> <span class="kn">import</span> <span class="n">PreferenceTask</span>
 </span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="n">remove_columns</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>        <span class="s2">&quot;input&quot;</span><span class="p">,</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>        <span class="s2">&quot;generation_model&quot;</span><span class="p">,</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="s2">&quot;generations&quot;</span><span class="p">,</span>
-</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="s2">&quot;rating&quot;</span><span class="p">,</span>
-</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>        <span class="s2">&quot;labelling_model&quot;</span><span class="p">,</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="s2">&quot;labelling_prompt&quot;</span><span class="p">,</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="s2">&quot;raw_labelling_response&quot;</span><span class="p">,</span>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="s2">&quot;rationale&quot;</span><span class="p">,</span>
-</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="p">]</span>
-</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>
-</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>    <span class="c1"># Remove the rows for which there is no rating</span>
-</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>    <span class="k">def</span> <span class="nf">remove_incomplete_rows</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
-</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">example</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]:</span>
-</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]):</span>
-</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>        <span class="c1"># TODO(plaguss): Maybe we should remove the examples with less than 2 generations</span>
-</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>        <span class="c1"># instead of checking after the filtering</span>
-</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>
-</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="n">initial_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">remove_incomplete_rows</span><span class="p">)</span>
-</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">!=</span> <span class="n">initial_length</span><span class="p">:</span>
-</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">initial_length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s2"> examples with no rating or different number of ratings than generations, removing them.&quot;</span>
-</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>        <span class="p">)</span>
-</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>
-</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generations&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The dataset must contain at least 2 generations per example.&quot;</span><span class="p">)</span>
-</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>
-</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>    <span class="n">ds</span> <span class="o">=</span> <span class="n">_binarize_dataset</span><span class="p">(</span>
-</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>        <span class="n">dataset</span><span class="p">,</span>
-</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span>
-</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
-</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a>        <span class="n">keep_ties</span><span class="o">=</span><span class="n">keep_ties</span><span class="p">,</span>
-</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>        <span class="n">rating_column</span><span class="o">=</span><span class="s2">&quot;rating&quot;</span><span class="p">,</span>
-</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a>        <span class="n">responses_column</span><span class="o">=</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span>
-</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a>    <span class="p">)</span>
-</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>
-</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>    <span class="c1"># Imported here to avoid circular imports</span>
-</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>    <span class="kn">from</span> <span class="nn">distilabel.dataset</span> <span class="kn">import</span> <span class="n">CustomDataset</span>
-</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>
-</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a>    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">remove_columns</span><span class="p">(</span><span class="n">remove_columns</span><span class="p">)</span>
-</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a>    <span class="n">ds</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">CustomDataset</span>
-</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a>    <span class="n">ds</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">task</span>
-</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a>    <span class="k">return</span> <span class="n">ds</span>
+</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">task</span><span class="p">,</span> <span class="n">PreferenceTask</span><span class="p">):</span>
+</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>            <span class="s2">&quot;This functionality is currently implemented for `PreferenceTask` only.&quot;</span>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="p">)</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="n">remove_columns</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="s2">&quot;input&quot;</span><span class="p">,</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="s2">&quot;generation_model&quot;</span><span class="p">,</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="s2">&quot;generations&quot;</span><span class="p">,</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>        <span class="s2">&quot;rating&quot;</span><span class="p">,</span>
+</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>        <span class="s2">&quot;labelling_model&quot;</span><span class="p">,</span>
+</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>        <span class="s2">&quot;labelling_prompt&quot;</span><span class="p">,</span>
+</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>        <span class="s2">&quot;raw_labelling_response&quot;</span><span class="p">,</span>
+</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>        <span class="s2">&quot;rationale&quot;</span><span class="p">,</span>
+</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>    <span class="p">]</span>
+</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>
+</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>    <span class="c1"># Remove the rows for which there is no rating</span>
+</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>    <span class="k">def</span> <span class="nf">remove_incomplete_rows</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
+</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">example</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]:</span>
+</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]):</span>
+</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>        <span class="c1"># TODO(plaguss): Maybe we should remove the examples with less than 2 generations</span>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>        <span class="c1"># instead of checking after the filtering</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>    <span class="n">initial_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">remove_incomplete_rows</span><span class="p">)</span>
+</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">!=</span> <span class="n">initial_length</span><span class="p">:</span>
+</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">initial_length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s2"> examples with no rating or different number of ratings than generations, removing them.&quot;</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>        <span class="p">)</span>
+</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generations&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The dataset must contain at least 2 generations per example.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a>
+</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>    <span class="n">ds</span> <span class="o">=</span> <span class="n">_binarize_dataset</span><span class="p">(</span>
+</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a>        <span class="n">dataset</span><span class="p">,</span>
+</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a>        <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span>
+</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a>        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="n">keep_ties</span><span class="o">=</span><span class="n">keep_ties</span><span class="p">,</span>
+</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>        <span class="n">rating_column</span><span class="o">=</span><span class="s2">&quot;rating&quot;</span><span class="p">,</span>
+</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>        <span class="n">responses_column</span><span class="o">=</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span>
+</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a>    <span class="p">)</span>
+</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a>
+</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a>    <span class="k">if</span> <span class="n">sft</span><span class="p">:</span>
+</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a>        <span class="c1"># Adds a column to be used for Supervised Fine Tuning based on the chosen response</span>
+</span><span id="__span-0-289"><a id="__codelineno-0-289" name="__codelineno-0-289"></a>        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+</span><span id="__span-0-290"><a id="__codelineno-0-290" name="__codelineno-0-290"></a>            <span class="k">lambda</span> <span class="n">example</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-0-291"><a id="__codelineno-0-291" name="__codelineno-0-291"></a>                <span class="o">**</span><span class="n">example</span><span class="p">,</span>
+</span><span id="__span-0-292"><a id="__codelineno-0-292" name="__codelineno-0-292"></a>                <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">example</span><span class="p">[</span><span class="s2">&quot;chosen&quot;</span><span class="p">],</span>
+</span><span id="__span-0-293"><a id="__codelineno-0-293" name="__codelineno-0-293"></a>            <span class="p">}</span>
+</span><span id="__span-0-294"><a id="__codelineno-0-294" name="__codelineno-0-294"></a>        <span class="p">)</span>
+</span><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a>    <span class="c1"># Imported here to avoid circular imports</span>
+</span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>    <span class="kn">from</span> <span class="nn">distilabel.dataset</span> <span class="kn">import</span> <span class="n">CustomDataset</span>
+</span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a>
+</span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a>    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">remove_columns</span><span class="p">(</span><span class="n">remove_columns</span><span class="p">)</span>
+</span><span id="__span-0-299"><a id="__codelineno-0-299" name="__codelineno-0-299"></a>    <span class="n">ds</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">CustomDataset</span>
+</span><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a>    <span class="n">ds</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">task</span>
+</span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>    <span class="k">return</span> <span class="n">ds</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>
