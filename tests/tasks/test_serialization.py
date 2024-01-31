@@ -14,6 +14,7 @@
 
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict
 
 import pytest
 from distilabel.tasks.critique.prometheus import PrometheusTask
@@ -26,8 +27,10 @@ from distilabel.tasks.text_generation.evol_instruct import EvolInstructTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 from distilabel.utils.serialization import TASK_FILE_NAME, load_from_dict
 
+if TYPE_CHECKING:
+    from distilabel.tasks import Task
 
-@pytest.fixture
+
 def text_generation_task_as_dict():
     return {
         "__type_info__": {
@@ -40,7 +43,6 @@ def text_generation_task_as_dict():
     }
 
 
-@pytest.fixture
 def self_instruct_task_as_dict():
     return {
         "__type_info__": {
@@ -54,7 +56,6 @@ def self_instruct_task_as_dict():
     }
 
 
-@pytest.fixture
 def evol_instruct_task_as_dict():
     return {
         "__type_info__": {
@@ -65,7 +66,6 @@ def evol_instruct_task_as_dict():
     }
 
 
-@pytest.fixture
 def judgelm_task_as_dict():
     return {
         "__type_info__": {
@@ -77,7 +77,6 @@ def judgelm_task_as_dict():
     }
 
 
-@pytest.fixture
 def ultrafeedback_for_instruction_following_task_as_dict():
     # Just one of the cases should be enough
     return {
@@ -91,7 +90,6 @@ def ultrafeedback_for_instruction_following_task_as_dict():
     }
 
 
-@pytest.fixture
 def ultrajudge_for_instruction_following_task_as_dict():
     return {
         "__type_info__": {
@@ -116,7 +114,6 @@ sample_prompetheus_task = PrometheusTask(
 )
 
 
-@pytest.fixture
 def prometheus_for_instruction_following_task_as_dict():
     return {
         "__type_info__": {
@@ -129,7 +126,6 @@ def prometheus_for_instruction_following_task_as_dict():
     }
 
 
-@pytest.fixture
 def ultracm_for_instruction_following_task_as_dict():
     return {
         "__type_info__": {
@@ -140,228 +136,129 @@ def ultracm_for_instruction_following_task_as_dict():
     }
 
 
-class TestTextGenerationTaskSerialization:
-    def test_dump(self, text_generation_task_as_dict):
-        task = TextGenerationTask()
-        task_as_dict = task.dump()
-        assert all(k in task_as_dict for k in text_generation_task_as_dict)
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.text_generation.base",
-            "name": "TextGenerationTask",
-        }
+@pytest.mark.parametrize(
+    "task_as_dict, task_class, type_info",
+    [
+        (
+            text_generation_task_as_dict(),
+            TextGenerationTask,
+            {
+                "module": "distilabel.tasks.text_generation.base",
+                "name": "TextGenerationTask",
+            },
+        ),
+        (
+            self_instruct_task_as_dict(),
+            SelfInstructTask,
+            {
+                "module": "distilabel.tasks.text_generation.self_instruct",
+                "name": "SelfInstructTask",
+            },
+        ),
+        (
+            evol_instruct_task_as_dict(),
+            EvolInstructTask,
+            {
+                "module": "distilabel.tasks.text_generation.evol_instruct",
+                "name": "EvolInstructTask",
+            },
+        ),
+        (
+            judgelm_task_as_dict(),
+            JudgeLMTask,
+            {
+                "module": "distilabel.tasks.preference.judgelm",
+                "name": "JudgeLMTask",
+            },
+        ),
+        (
+            ultrafeedback_for_instruction_following_task_as_dict(),
+            UltraFeedbackTask,
+            {
+                "module": "distilabel.tasks.preference.ultrafeedback",
+                "name": "UltraFeedbackTask",
+            },
+        ),
+        (
+            ultrajudge_for_instruction_following_task_as_dict(),
+            UltraJudgeTask,
+            {
+                "module": "distilabel.tasks.preference.ultrajudge",
+                "name": "UltraJudgeTask",
+            },
+        ),
+        (
+            prometheus_for_instruction_following_task_as_dict(),
+            sample_prompetheus_task,
+            {
+                "module": "distilabel.tasks.critique.prometheus",
+                "name": "PrometheusTask",
+            },
+        ),
+        (
+            ultracm_for_instruction_following_task_as_dict(),
+            UltraCMTask,
+            {
+                "module": "distilabel.tasks.critique.ultracm",
+                "name": "UltraCMTask",
+            },
+        ),
+    ],
+)
+class TestTaskSerialization:
+    def test_dump(
+        self,
+        task_as_dict: Dict[str, Any],
+        task_class: "Task",
+        type_info: Dict[str, Any],
+    ):
+        if task_class == UltraFeedbackTask:
+            task_class = UltraFeedbackTask.for_instruction_following
+            task_as_dict = task_class().dump()
+        elif isinstance(task_class, PrometheusTask):
+            task_class = sample_prompetheus_task
+            task_as_dict = sample_prompetheus_task.dump()
+        else:
+            task_as_dict = task_class().dump()
+
+        assert all(k in task_as_dict for k in task_as_dict)
+        assert task_as_dict["__type_info__"] == type_info
         task_as_dict.pop("__type_info__")
         assert all(not k.startswith("__") for k in task_as_dict.keys())
 
-    def test_load_from_dict(self, text_generation_task_as_dict):
-        task: TextGenerationTask = load_from_dict(text_generation_task_as_dict)
-        assert isinstance(task, TextGenerationTask)
+    def test_load_from_dict(
+        self,
+        task_as_dict: Dict[str, Any],
+        task_class: "Task",
+        type_info: Dict[str, Any],
+    ):
+        task: "Task" = load_from_dict(task_as_dict)
+        if isinstance(task_class, PrometheusTask):
+            task_class = type(task_class)
+        assert isinstance(task, task_class)
 
-    def test_save_and_load(self):
+    def test_save_and_load(
+        self,
+        task_as_dict: Dict[str, Any],
+        task_class: "Task",
+        type_info: Dict[str, Any],
+    ):
+        if task_class == UltraFeedbackTask:
+            task_class = UltraFeedbackTask.for_instruction_following
         with tempfile.TemporaryDirectory() as tmpdirname:
-            task = TextGenerationTask()
-            task.save(tmpdirname)
+            if isinstance(task_class, PrometheusTask):
+                task_class = sample_prompetheus_task
+                task_class.save(tmpdirname)
+            else:
+                task_class().save(tmpdirname)
+
             template_name = Path(tmpdirname) / TASK_FILE_NAME
             assert template_name.exists()
-            task_loaded: TextGenerationTask = TextGenerationTask.from_json(
-                template_name
-            )
-            assert isinstance(task_loaded, TextGenerationTask)
-
-
-class TestSelfInstructTaskSerialization:
-    def test_dump(self, self_instruct_task_as_dict):
-        task = SelfInstructTask()
-        task_as_dict = task.dump()
-        assert all(k in task_as_dict for k in self_instruct_task_as_dict)
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.text_generation.self_instruct",
-            "name": "SelfInstructTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, self_instruct_task_as_dict):
-        task: SelfInstructTask = load_from_dict(self_instruct_task_as_dict)
-        assert isinstance(task, SelfInstructTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = SelfInstructTask()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: SelfInstructTask = SelfInstructTask.from_json(template_name)
-            assert isinstance(task_loaded, SelfInstructTask)
-
-
-class TestEvolInstructTaskSerialization:
-    def test_dump(self, evol_instruct_task_as_dict):
-        task = EvolInstructTask()
-        task_as_dict = task.dump()
-        assert all(k in task_as_dict for k in evol_instruct_task_as_dict)
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.text_generation.evol_instruct",
-            "name": "EvolInstructTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, evol_instruct_task_as_dict):
-        task: EvolInstructTask = load_from_dict(evol_instruct_task_as_dict)
-        assert isinstance(task, EvolInstructTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = EvolInstructTask()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: EvolInstructTask = EvolInstructTask.from_json(template_name)
-            assert isinstance(task_loaded, EvolInstructTask)
-
-
-class TestJudgeLMTaskSerialization:
-    def test_dump(self, judgelm_task_as_dict):
-        task = JudgeLMTask()
-        task_as_dict = task.dump()
-        assert all(k in task_as_dict for k in judgelm_task_as_dict)
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.preference.judgelm",
-            "name": "JudgeLMTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, judgelm_task_as_dict):
-        task: JudgeLMTask = load_from_dict(judgelm_task_as_dict)
-        assert isinstance(task, JudgeLMTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = JudgeLMTask()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: JudgeLMTask = JudgeLMTask.from_json(template_name)
-            assert isinstance(task_loaded, JudgeLMTask)
-
-
-class TestUltraFeedbackTaskSerialization:
-    def test_dump(self, ultrafeedback_for_instruction_following_task_as_dict):
-        task = UltraFeedbackTask.for_instruction_following()
-        task_as_dict = task.dump()
-        assert all(
-            k in task_as_dict
-            for k in ultrafeedback_for_instruction_following_task_as_dict
-        )
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.preference.ultrafeedback",
-            "name": "UltraFeedbackTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, ultrafeedback_for_instruction_following_task_as_dict):
-        task: UltraFeedbackTask = load_from_dict(
-            ultrafeedback_for_instruction_following_task_as_dict
-        )
-        assert isinstance(task, UltraFeedbackTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = UltraFeedbackTask.for_instruction_following()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: UltraFeedbackTask = UltraFeedbackTask.from_json(template_name)
-            assert isinstance(task_loaded, UltraFeedbackTask)
-
-
-class TestUltraJudgeTaskSerialization:
-    def test_dump(self, ultrajudge_for_instruction_following_task_as_dict):
-        task = UltraJudgeTask()
-        task_as_dict = task.dump()
-        assert all(
-            k in task_as_dict for k in ultrajudge_for_instruction_following_task_as_dict
-        )
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.preference.ultrajudge",
-            "name": "UltraJudgeTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, ultrajudge_for_instruction_following_task_as_dict):
-        task: UltraJudgeTask = load_from_dict(
-            ultrajudge_for_instruction_following_task_as_dict
-        )
-        assert isinstance(task, UltraJudgeTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = UltraJudgeTask()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: UltraJudgeTask = UltraJudgeTask.from_json(template_name)
-            assert isinstance(task_loaded, UltraJudgeTask)
-
-
-class TestPrometheusTaskSerialization:
-    def test_dump(self, prometheus_for_instruction_following_task_as_dict):
-        task = sample_prompetheus_task
-        task_as_dict = task.dump()
-        assert all(
-            k in task_as_dict for k in prometheus_for_instruction_following_task_as_dict
-        )
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.critique.prometheus",
-            "name": "PrometheusTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, prometheus_for_instruction_following_task_as_dict):
-        task: PrometheusTask = load_from_dict(
-            prometheus_for_instruction_following_task_as_dict
-        )
-        assert isinstance(task, PrometheusTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = sample_prompetheus_task
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: PrometheusTask = PrometheusTask.from_json(template_name)
-            assert isinstance(task_loaded, PrometheusTask)
-
-
-class TestUltraCMTaskSerialization:
-    def test_dump(self, ultracm_for_instruction_following_task_as_dict):
-        task = UltraCMTask()
-        task_as_dict = task.dump()
-        assert all(
-            k in task_as_dict for k in ultracm_for_instruction_following_task_as_dict
-        )
-        assert task_as_dict["__type_info__"] == {
-            "module": "distilabel.tasks.critique.ultracm",
-            "name": "UltraCMTask",
-        }
-        task_as_dict.pop("__type_info__")
-        assert all(not k.startswith("__") for k in task_as_dict.keys())
-
-    def test_load_from_dict(self, ultracm_for_instruction_following_task_as_dict):
-        task: UltraCMTask = load_from_dict(
-            ultracm_for_instruction_following_task_as_dict
-        )
-        assert isinstance(task, UltraCMTask)
-
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            task = UltraCMTask()
-            task.save(tmpdirname)
-            template_name = Path(tmpdirname) / TASK_FILE_NAME
-            assert template_name.exists()
-            task_loaded: UltraCMTask = UltraCMTask.from_json(template_name)
-            assert isinstance(task_loaded, UltraCMTask)
+            if task_class == UltraFeedbackTask.for_instruction_following:
+                task_class = task_class()
+            elif isinstance(task_class, PrometheusTask):
+                task_class = type(task_class)
+            task_loaded: "Task" = task_class.from_json(template_name)
+            if isinstance(task_class, UltraFeedbackTask):
+                task_class = UltraFeedbackTask
+            assert isinstance(task_loaded, task_class)

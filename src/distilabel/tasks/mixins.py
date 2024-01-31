@@ -39,6 +39,29 @@ class RatingToArgillaMixin:
     that generate both ratings and rationales i.e. `PreferenceTask` or `CritiqueTask`.
     """
 
+    def _check_column_is_present(
+        self,
+        column_name: str,
+        dataset_row: Dict[str, Any],
+        column_type: str = "generations",
+    ) -> None:
+        """Helper function to check if a column is present in the dataset row.
+
+        Args:
+            column_name (str): Name of the column to check.
+            dataset_row (Dict[str, Any]): Row from the dataset.
+            column_type (str, optional): Type of column expected in the dataset. Defaults to "generations".
+
+        Raises:
+            ValueError: If the column is not present in the dataset row when it should be.
+        """
+        # The function is added mainly to simplify the code in the `to_argilla_dataset` to pass the mccabe complexity check.
+        if column_name is None or column_name not in dataset_row:
+            raise ValueError(
+                f"The `{column_type}_column='{column_name}'` is not present in the"
+                f" dataset row. Please provide any of {list(dataset_row.keys())}.",
+            )
+
     def to_argilla_dataset(
         self: TaskProtocol,
         dataset_row: Dict[str, Any],
@@ -56,21 +79,13 @@ class RatingToArgillaMixin:
         # because those depend neither on the outputs nor on the inputs, but in a combination
         # of both, since the questions will be formulated using the inputs, but assigned to the
         # outputs.
-        if generations_column is None or generations_column not in dataset_row:
-            raise ValueError(
-                f"The `generations_column='{generations_column}'` is not present in the"
-                f" dataset row. Please provide any of {list(dataset_row.keys())}.",
-            )
-        if ratings_column is None or ratings_column not in dataset_row:
-            raise ValueError(
-                f"The `ratings_column='{ratings_column}'` is not present in the dataset"
-                f" row. Please provide any of {list(dataset_row.keys())}.",
-            )
-        if rationale_column is None or rationale_column not in dataset_row:
-            raise ValueError(
-                f"The `rationale_column='{rationale_column}'` is not present in the dataset"
-                f" row. Please provide any of {list(dataset_row.keys())}.",
-            )
+        self._check_column_is_present(
+            generations_column, dataset_row, column_type="generations"
+        )
+        self._check_column_is_present(
+            ratings_column, dataset_row, column_type="ratings"
+        )
+
         questions = []
         for idx in range(1, len(dataset_row[generations_column]) + 1):
             questions.append(
@@ -80,12 +95,16 @@ class RatingToArgillaMixin:
                     values=ratings_values or [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 )
             )
-        questions.append(
-            rg.TextQuestion(  # type: ignore
-                name=f"{ratings_column}-{rationale_column}",
-                title=f"What's the {rationale_column} behind each {ratings_column}?",
+        if rationale_column:
+            self._check_column_is_present(
+                rationale_column, dataset_row, column_type="rationale"
             )
-        )
+            questions.append(
+                rg.TextQuestion(  # type: ignore
+                    name=f"{ratings_column}-{rationale_column}",
+                    title=f"What's the {rationale_column} behind each {ratings_column}?",
+                )
+            )
         # Finally, we define some metadata properties that can be potentially used
         # while exploring the dataset within Argilla to get more insights on the data.
         metadata_properties = []
@@ -156,10 +175,6 @@ class RatingToArgillaMixin:
         # Then we include the suggestions, which are generated from the outputs
         # of the LLM instead.
         suggestions = []
-        if rationale_column is None or rationale_column not in dataset_row:
-            raise ValueError(
-                f"The rationale column {rationale_column} is not present in the dataset row."
-            )
         if dataset_row.get(rationale_column) is not None:
             rationales = dataset_row.get(rationale_column)
             suggestions.append(
@@ -170,7 +185,7 @@ class RatingToArgillaMixin:
                     else rationales,
                 }
             )
-        if ratings_column is None or ratings_column not in dataset_row:
+        if ratings_column and ratings_column not in dataset_row:
             raise ValueError(
                 f"The ratings column {ratings_column} is not present in the dataset row."
             )

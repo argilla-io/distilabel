@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import re
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import pytest
 from argilla import FeedbackDataset
@@ -478,3 +479,55 @@ def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
         == "How do I simplify the given algebraic expression?"
     )
     assert len(rg_dataset) == 16
+
+
+def file_exists(
+    repo_id: str,
+    filename: str,
+    repo_type: Optional[str] = "dataset",
+    revision: Optional[str] = None,
+    token: Optional[str] = None,
+) -> bool:
+    # Use like: assert file_exists("user/repo", "config.json")
+    # Copied from https://github.com/huggingface/huggingface_hub/issues/36#issuecomment-1619942423
+    from huggingface_hub import get_hf_file_metadata, hf_hub_url
+    from huggingface_hub.hf_api import (
+        EntryNotFoundError,
+        RepositoryNotFoundError,
+        RevisionNotFoundError,
+    )
+
+    url = hf_hub_url(
+        repo_id=repo_id, repo_type=repo_type, revision=revision, filename=filename
+    )
+    try:
+        get_hf_file_metadata(url, token=token)
+        return True
+    except (RepositoryNotFoundError, EntryNotFoundError, RevisionNotFoundError):
+        return False
+
+
+@pytest.mark.skipif(
+    os.getenv("HF_API_TOKEN") is None, reason="`HF_API_TOKEN` is not set"
+)
+@pytest.mark.parametrize("push_task", [True, False])
+def test_push_to_huggingface(
+    dataset_with_self_instruct: CustomDataset, push_task: bool
+):
+    from distilabel.dataset import TASK_FILE_NAME, load_dataset
+    from huggingface_hub import HfApi
+
+    dataset_name = "argilla/test-cds-push-to-huggingface"
+    try:
+        dataset_with_self_instruct.push_to_hub(dataset_name, push_task=push_task)
+        if push_task:
+            assert file_exists(dataset_name, TASK_FILE_NAME)
+            ds = load_dataset(dataset_name, split="train")
+            assert isinstance(ds, CustomDataset)
+            assert isinstance(ds.task, SelfInstructTask)
+        else:
+            assert not file_exists(dataset_name, TASK_FILE_NAME)
+    finally:
+        HfApi().delete_repo(
+            dataset_name, repo_type="dataset", token=os.getenv("HF_API_TOKEN")
+        )
