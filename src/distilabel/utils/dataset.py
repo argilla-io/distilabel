@@ -182,6 +182,7 @@ def _binarize_dataset(
 def prepare_dataset(
     dataset: "CustomDataset",
     strategy: BinarizationStrategies = "random",
+    sft: bool = False,
     seed: Optional[int] = None,
     keep_ties: bool = False,
     **kwargs: Any,
@@ -214,6 +215,10 @@ def prepare_dataset(
             CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.
         strategy (BinarizationStrategies, optional):
             Strategy to binarize the data. Defaults to "random".
+        sft (bool, optional):
+            Whether to add a `messages` column to the dataset, to be used for Supervised Fine Tuning.
+            If set to True, this messages column will contain the same information as the chosen response.
+            Defaults to False.
         seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.
         keep_ties (bool, optional):
             Whether to keep ties in case the binarization method generated the chosen
@@ -279,6 +284,14 @@ def prepare_dataset(
         **kwargs,
     )
 
+    if sft:
+        # Adds a column to be used for Supervised Fine Tuning based on the chosen response
+        ds = ds.map(
+            lambda example: {
+                **example,
+                "messages": example["chosen"],
+            }
+        )
     # Imported here to avoid circular imports
     from distilabel.dataset import CustomDataset
 
