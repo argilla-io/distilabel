@@ -196,7 +196,17 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/evol_complexity/</loc>
+         <lastmod>2024-01-31</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/evol_instruct/</loc>
+         <lastmod>2024-01-31</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/evol_quality/</loc>
          <lastmod>2024-01-31</lastmod>
          <changefreq>daily</changefreq>
     </url>

@@ -12,13 +12,13 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/preference/complexity_scorer/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/evol_complexity/">
       
       
         <link rel="prev" href="../base/">
       
       
-        <link rel="next" href="../judgelm/">
+        <link rel="next" href="../evol_instruct/">
       
       
       <link rel="icon" href="../../../../../assets/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>complexity_scorer - distilabel</title>
+        <title>evol_complexity - distilabel</title>
       
     
     
@@ -71,11 +71,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="complexity_scorer - distilabel" >
+        <meta  property="og:title"  content="evol_complexity - distilabel" >
       
         <meta  property="og:description"  content="AI Feedback framework" >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/tasks/preference/complexity_scorer.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/tasks/text_generation/evol_complexity.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -83,15 +83,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/preference/complexity_scorer/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/reference/distilabel/tasks/text_generation/evol_complexity/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="complexity_scorer - distilabel" >
+        <meta  name="twitter:title"  content="evol_complexity - distilabel" >
       
         <meta  name="twitter:description"  content="AI Feedback framework" >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/tasks/preference/complexity_scorer.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/tasks/text_generation/evol_complexity.png" >
       
     
     
@@ -114,7 +114,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#distilabel.tasks.preference.complexity_scorer" class="md-skip">
+        <a href="#distilabel.tasks.text_generation.evol_complexity" class="md-skip">
           Skip to content
         </a>
       
@@ -151,7 +151,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              complexity_scorer
+              evol_complexity
             
           </span>
         </div>
@@ -1456,26 +1456,24 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_4" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../preference/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1492,7 +1490,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_2_1_6_4">
             <span class="md-nav__icon md-icon"></span>
             preference
@@ -1506,7 +1504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../base/" class="md-nav__link">
+      <a href="../../preference/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1524,28 +1522,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    complexity_scorer
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../preference/complexity_scorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1554,75 +1534,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer" class="md-nav__link">
-    <span class="md-ellipsis">
-      complexity_scorer
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask" class="md-nav__link">
-    <span class="md-ellipsis">
-      ComplexityScorerTask
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="ComplexityScorerTask">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.input_args_names" class="md-nav__link">
-    <span class="md-ellipsis">
-      input_args_names
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.generate_prompt" class="md-nav__link">
-    <span class="md-ellipsis">
-      generate_prompt
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.parse_output" class="md-nav__link">
-    <span class="md-ellipsis">
-      parse_output
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1635,7 +1546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../judgelm/" class="md-nav__link">
+      <a href="../../preference/judgelm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1656,7 +1567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../quality_scorer/" class="md-nav__link">
+      <a href="../../preference/quality_scorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1677,7 +1588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ultrafeedback/" class="md-nav__link">
+      <a href="../../preference/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1698,7 +1609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ultrajudge/" class="md-nav__link">
+      <a href="../../preference/ultrajudge/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1745,24 +1656,26 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_6" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../text_generation/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1779,7 +1692,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_2_1_6_6">
             <span class="md-nav__icon md-icon"></span>
             text_generation
@@ -1793,7 +1706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/base/" class="md-nav__link">
+      <a href="../base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1811,10 +1724,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../text_generation/evol_complexity/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    evol_complexity
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1823,6 +1754,57 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#distilabel.tasks.text_generation.evol_complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      evol_complexity
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask" class="md-nav__link">
+    <span class="md-ellipsis">
+      EvolComplexityTask
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EvolComplexityTask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask.generate_prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_prompt
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1835,7 +1817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/evol_instruct/" class="md-nav__link">
+      <a href="../evol_instruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1856,7 +1838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/evol_quality/" class="md-nav__link">
+      <a href="../evol_quality/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1877,7 +1859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/mixins/" class="md-nav__link">
+      <a href="../mixins/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1898,7 +1880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/principles/" class="md-nav__link">
+      <a href="../principles/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1919,7 +1901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../text_generation/self_instruct/" class="md-nav__link">
+      <a href="../self_instruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2197,46 +2179,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer" class="md-nav__link">
+  <a href="#distilabel.tasks.text_generation.evol_complexity" class="md-nav__link">
     <span class="md-ellipsis">
-      complexity_scorer
+      evol_complexity
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask" class="md-nav__link">
+  <a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask" class="md-nav__link">
     <span class="md-ellipsis">
-      ComplexityScorerTask
+      EvolComplexityTask
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="ComplexityScorerTask">
+    <nav class="md-nav" aria-label="EvolComplexityTask">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.input_args_names" class="md-nav__link">
-    <span class="md-ellipsis">
-      input_args_names
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.generate_prompt" class="md-nav__link">
+  <a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask.generate_prompt" class="md-nav__link">
     <span class="md-ellipsis">
       generate_prompt
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.parse_output" class="md-nav__link">
-    <span class="md-ellipsis">
-      parse_output
     </span>
   </a>
   
@@ -2265,13 +2229,13 @@
   
 
 
-  <h1>complexity_scorer</h1>
+  <h1>evol_complexity</h1>
 
 <div class="doc doc-object doc-module">
 
 
 
-<a id="distilabel.tasks.preference.complexity_scorer"></a>
+<a id="distilabel.tasks.text_generation.evol_complexity"></a>
   <div class="doc doc-contents first">
 
   
@@ -2289,30 +2253,39 @@
 
 
 
-<h2 id="distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask" class="doc doc-heading">
-          <code>ComplexityScorerTask</code>
+<h2 id="distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask" class="doc doc-heading">
+          <code>EvolComplexityTask</code>
 
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
   </span>
 
-<a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
   <div class="doc doc-contents ">
           <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="distilabel.tasks.preference.base.PreferenceTaskNoRationale" href="../base/#distilabel.tasks.preference.base.PreferenceTaskNoRationale">PreferenceTaskNoRationale</a></code></p>
+            Bases: <code><a class="autorefs autorefs-internal" title="distilabel.tasks.text_generation.evol_instruct.EvolInstructTask" href="../evol_instruct/#distilabel.tasks.text_generation.evol_instruct.EvolInstructTask">EvolInstructTask</a></code></p>
 
   
-      <p>A <code>PreferenceTask</code> following the <code>Complexity Scorer</code> specification for rating instructions
-in terms of complexity.</p>
-<p>This task is inspired by the Evol Complexity Scorer in the Deita framework: <em>Deita is an open-sourced project
-designed to facilitate Automatic Data Selection for instruction tuning in Large Language Models (LLMs).</em></p>
+      <p>A <code>TextGenerationTask</code> following the <code>EvolComplexity</code> specification for building prompts. This is a special case
+of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
+Additionally, an additional elimation step should be executed to screen out instructions that are not useful.</p>
+<p>From the reference repository: <em>Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce
+open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs.</em></p>
 <p>The task is defined as follows:
-Ask an LLM (in the original paper they used ChatGPT) to rate the instructions (the number of instructions
-is dynamic in the sense that you can compare any number, in <em>Deita</em> the chose 6) to obtain a complexity
-score <em>c</em> for each instruction.</p>
+Starting from an initial (simpler) instruction, select in-depth or in-breadth evolving to upgrade the simple instruction
+to a more complex one or create a new one (to increase diversity).
+The In-depth Evolving includes the following operations: "constraints", "deepen", "concretizing" or "reasoning".
+The In-breadth Evolving is mutation, i.e., generating a completely new instruction based on the given instruction.</p>
+<p>Given the evolved instructions are generated from LLMs, sometimes the evolving will fail. We adopt an instruction eliminator
+to filter the failed instructions, called Elimination Evolving, but we don't apply the step of asking again to the LLM it the
+answer is a copy from the same used prompt.</p>
+<p>This evolutionary process can be repeated for several rounds to obtain instruction data containing various complexities.
+Currently the task is implemented as a single step, so to generate multiple evolutions you can "repeat" the instructions
+in the original dataset. An example can be seen at the following script:
+<a href="https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py">examples/pipeline-evol-instruct-alpaca.py</a></p>
 
 
 
@@ -2347,15 +2320,13 @@ score <em>c</em> for each instruction.</p>
 <details class="references" open>
   <summary>References</summary>
   <ul>
+<li><a href="https://arxiv.org/abs/2304.12244"><code>WizardLM: Empowering Large Language Models to Follow Complex Instructions</code></a></li>
 <li><a href="https://arxiv.org/abs/2312.15685"><code>What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning</code></a></li>
 </ul>
 </details>
             <details class="quote">
-              <summary>Source code in <code>src/distilabel/tasks/preference/complexity_scorer.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+              <summary>Source code in <code>src/distilabel/tasks/text_generation/evol_complexity.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29">29</a></span>
 <span class="normal"><a href="#__codelineno-0-30">30</a></span>
 <span class="normal"><a href="#__codelineno-0-31">31</a></span>
 <span class="normal"><a href="#__codelineno-0-32">32</a></span>
@@ -2413,68 +2384,69 @@ score <em>c</em> for each instruction.</p>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
 <span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="nd">@dataclass</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="k">class</span> <span class="nc">ComplexityScorerTask</span><span class="p">(</span><span class="n">PreferenceTaskNoRationale</span><span class="p">):</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A `PreferenceTask` following the `Complexity Scorer` specification for rating instructions</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    in terms of complexity.</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    This task is inspired by the Evol Complexity Scorer in the Deita framework: *Deita is an open-sourced project</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    designed to facilitate Automatic Data Selection for instruction tuning in Large Language Models (LLMs).*</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    The task is defined as follows:</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">    Ask an LLM (in the original paper they used ChatGPT) to rate the instructions (the number of instructions</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">    is dynamic in the sense that you can compare any number, in *Deita* the chose 6) to obtain a complexity</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    score *c* for each instruction.</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        system_prompt (str, optional): the system prompt to be used. Not defined for this task.</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">    References:</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="nd">@dataclass</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="k">class</span> <span class="nc">EvolComplexityTask</span><span class="p">(</span><span class="n">EvolInstructTask</span><span class="p">):</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    of the original EvolInstructTask, where the evolution method is fixed to &quot;constraints&quot;, &quot;deepen&quot;, &quot;concretizing&quot; or &quot;reasoning&quot;.</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    Additionally, an additional elimation step should be executed to screen out instructions that are not useful.</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">    From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">    open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs.*</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">    The task is defined as follows:</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    Starting from an initial (simpler) instruction, select in-depth or in-breadth evolving to upgrade the simple instruction</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    to a more complex one or create a new one (to increase diversity).</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">    The In-depth Evolving includes the following operations: &quot;constraints&quot;, &quot;deepen&quot;, &quot;concretizing&quot; or &quot;reasoning&quot;.</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">    The In-breadth Evolving is mutation, i.e., generating a completely new instruction based on the given instruction.</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">    Given the evolved instructions are generated from LLMs, sometimes the evolving will fail. We adopt an instruction eliminator</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">    to filter the failed instructions, called Elimination Evolving, but we don&#39;t apply the step of asking again to the LLM it the</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">    answer is a copy from the same used prompt.</span>
 </span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="n">__jinja2_template__</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_COMPLEXITY_SCORER_TEMPLATE</span>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="k">def</span> <span class="nf">generate_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a prompt following the *Evol Complexity* specification in *Deita*.</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">    This evolutionary process can be repeated for several rounds to obtain instruction data containing various complexities.</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    Currently the task is implemented as a single step, so to generate multiple evolutions you can &quot;repeat&quot; the instructions</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    in the original dataset. An example can be seen at the following script:</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">    [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)</span>
 </span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        Args:</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">            generations (List[str]): the generations to be used for the prompt.</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        system_prompt (str, optional): the system prompt to be used. Not defined for this task.</span>
 </span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>
-</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">        Returns:</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">            Prompt: the generated prompt.</span>
-</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        Examples:</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">            &gt;&gt;&gt; from distilabel.tasks import ComplexityScorerTask</span>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">            &gt;&gt;&gt; task = ComplexityScorerTask()</span>
-</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">            &gt;&gt;&gt; task.generate_prompt([&quot;instruction 1&quot;, &quot;instruction 2&quot;])</span>
-</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">            Prompt(system_prompt=&quot;&quot;, formatted_prompt=&quot;Ranking the following questions...&quot;)</span>
-</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="n">render_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instructions&quot;</span><span class="p">:</span> <span class="n">generations</span><span class="p">}</span>
-</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="k">return</span> <span class="n">Prompt</span><span class="p">(</span>
-</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>            <span class="n">system_prompt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span><span class="p">,</span>
-</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a>            <span class="n">formatted_prompt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">render_kwargs</span><span class="p">),</span>
-</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>        <span class="p">)</span>
-</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a>
-</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="k">def</span> <span class="nf">input_args_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the names of the input arguments of the task.&quot;&quot;&quot;</span>
-</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">]</span>
-</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>
-</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a>    <span class="k">def</span> <span class="nf">parse_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Parses the output of the task, returning a list with the rank/score of each instruction.</span>
-</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        Args:</span>
-</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">            output (str): The output of the LLM raw.</span>
-</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">        Returns:</span>
-</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">            Dict[str, List[str]]: A dict with containing the ranks/scores of each instruction.</span>
-</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[\d+\] score:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">output</span><span class="p">]</span>
-</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_args_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">scores</span><span class="p">}</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    References:</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="n">__jinja2_template__</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_EVOL_COMPLEXITY_TEMPLATE</span>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>
+</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="k">def</span> <span class="nf">generate_prompt</span><span class="p">(</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">evolution_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EvolutionMethod</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a prompt following the Evol-Complexity specification of the Deita Paper.</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">        Args:</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">            input (str): the input to be used for the prompt.</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">            evolution_method (str, optional): The evolution method to be used. If not provided (the default), a random one is chosen</span>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">                like the original paper. Available ones are &quot;constraints&quot;, &quot;deepen&quot;, &quot;concretizing&quot; or &quot;reasoning&quot;.</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">        Returns:</span>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">            Prompt: the generated prompt.</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        Examples:</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">            &gt;&gt;&gt; from distilabel.tasks.text_generation import EvolComplexityGeneratorTask</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">            &gt;&gt;&gt; task = EvolComplexityGeneratorTask()</span>
+</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">            &gt;&gt;&gt; task.generate_prompt(&quot;Give three tips for staying healthy.&quot;)</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">            Prompt(</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">                system_prompt=&quot;&quot;,</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">                formatted_prompt=&quot;I want you to act as a Prompt ...&quot;,</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">            )</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="n">evolution_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_evolution_method</span><span class="p">(</span><span class="n">evolution_method</span><span class="p">,</span> <span class="n">EvolutionMethod</span><span class="p">)</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate_prompt</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">evolution_method</span><span class="o">=</span><span class="n">evolution_method</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
 
@@ -2488,27 +2460,6 @@ score <em>c</em> for each instruction.</p>
 
 
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.input_args_names" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">input_args_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-  </span>
-
-<a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.input_args_names" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Returns the names of the input arguments of the task.</p>
-  </div>
-
-</div>
-
 
 
 
@@ -2516,15 +2467,15 @@ score <em>c</em> for each instruction.</p>
 
 
 
-<h3 id="distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.generate_prompt" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">generate_prompt</span><span class="p">(</span><span class="n">generations</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span></code>
+<h3 id="distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask.generate_prompt" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">generate_prompt</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">evolution_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span></code>
 
-<a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.generate_prompt" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask.generate_prompt" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Generates a prompt following the <em>Evol Complexity</em> specification in <em>Deita</em>.</p>
+      <p>Generates a prompt following the Evol-Complexity specification of the Deita Paper.</p>
 
 
 
@@ -2540,17 +2491,32 @@ score <em>c</em> for each instruction.</p>
     </thead>
     <tbody>
         <tr>
-          <td><code>generations</code></td>
+          <td><code>input</code></td>
           <td>
-                <code><span title="typing.List">List</span>[str]</code>
+                <code>str</code>
           </td>
           <td>
             <div class="doc-md-description">
-              <p>the generations to be used for the prompt.</p>
+              <p>the input to be used for the prompt.</p>
             </div>
           </td>
           <td>
               <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>evolution_method</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The evolution method to be used. If not provided (the default), a random one is chosen
+like the original paper. Available ones are "constraints", "deepen", "concretizing" or "reasoning".</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
           </td>
         </tr>
     </tbody>
@@ -2583,131 +2549,29 @@ score <em>c</em> for each instruction.</p>
 
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">ComplexityScorerTask</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">ComplexityScorerTask</span><span class="p">()</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span><span class="o">.</span><span class="n">generate_prompt</span><span class="p">([</span><span class="s2">&quot;instruction 1&quot;</span><span class="p">,</span> <span class="s2">&quot;instruction 2&quot;</span><span class="p">])</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">Prompt(system_prompt=&quot;&quot;, formatted_prompt=&quot;Ranking the following questions...&quot;)</span>
+    <div class="highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">distilabel.tasks.text_generation</span> <span class="kn">import</span> <span class="n">EvolComplexityGeneratorTask</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">EvolComplexityGeneratorTask</span><span class="p">()</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span><span class="o">.</span><span class="n">generate_prompt</span><span class="p">(</span><span class="s2">&quot;Give three tips for staying healthy.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">Prompt(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="go">    system_prompt=&quot;&quot;,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="go">    formatted_prompt=&quot;I want you to act as a Prompt ...&quot;,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="go">)</span>
 </span></code></pre></div>
 
           <details class="quote">
-            <summary>Source code in <code>src/distilabel/tasks/preference/complexity_scorer.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+            <summary>Source code in <code>src/distilabel/tasks/text_generation/evol_complexity.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-65">65</a></span>
 <span class="normal"><a href="#__codelineno-0-66">66</a></span>
 <span class="normal"><a href="#__codelineno-0-67">67</a></span>
 <span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="k">def</span> <span class="nf">generate_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a prompt following the *Evol Complexity* specification in *Deita*.</span>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        generations (List[str]): the generations to be used for the prompt.</span>
-</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>
-</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        Prompt: the generated prompt.</span>
-</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    Examples:</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        &gt;&gt;&gt; from distilabel.tasks import ComplexityScorerTask</span>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">        &gt;&gt;&gt; task = ComplexityScorerTask()</span>
-</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        &gt;&gt;&gt; task.generate_prompt([&quot;instruction 1&quot;, &quot;instruction 2&quot;])</span>
-</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        Prompt(system_prompt=&quot;&quot;, formatted_prompt=&quot;Ranking the following questions...&quot;)</span>
-</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="n">render_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instructions&quot;</span><span class="p">:</span> <span class="n">generations</span><span class="p">}</span>
-</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">return</span> <span class="n">Prompt</span><span class="p">(</span>
-</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>        <span class="n">system_prompt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span><span class="p">,</span>
-</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="n">formatted_prompt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">render_kwargs</span><span class="p">),</span>
-</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
-<h3 id="distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.parse_output" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></code>
-
-<a href="#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask.parse_output" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Parses the output of the task, returning a list with the rank/score of each instruction.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>output</code></td>
-          <td>
-                <code>str</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The output of the LLM raw.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-                <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[str]]</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Dict[str, List[str]]: A dict with containing the ranks/scores of each instruction.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>src/distilabel/tasks/preference/complexity_scorer.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#__codelineno-0-72">72</a></span>
+<span class="normal"><a href="#__codelineno-0-73">73</a></span>
+<span class="normal"><a href="#__codelineno-0-74">74</a></span>
+<span class="normal"><a href="#__codelineno-0-75">75</a></span>
+<span class="normal"><a href="#__codelineno-0-76">76</a></span>
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
 <span class="normal"><a href="#__codelineno-0-78">78</a></span>
 <span class="normal"><a href="#__codelineno-0-79">79</a></span>
@@ -2718,18 +2582,33 @@ score <em>c</em> for each instruction.</p>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
 <span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="k">def</span> <span class="nf">parse_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parses the output of the task, returning a list with the rank/score of each instruction.</span>
-</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        output (str): The output of the LLM raw.</span>
-</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">        Dict[str, List[str]]: A dict with containing the ranks/scores of each instruction.</span>
-</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[\d+\] score:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">output</span><span class="p">]</span>
-</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_args_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">scores</span><span class="p">}</span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="k">def</span> <span class="nf">generate_prompt</span><span class="p">(</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">evolution_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EvolutionMethod</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a prompt following the Evol-Complexity specification of the Deita Paper.</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">        input (str): the input to be used for the prompt.</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">        evolution_method (str, optional): The evolution method to be used. If not provided (the default), a random one is chosen</span>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">            like the original paper. Available ones are &quot;constraints&quot;, &quot;deepen&quot;, &quot;concretizing&quot; or &quot;reasoning&quot;.</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        Prompt: the generated prompt.</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">    Examples:</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        &gt;&gt;&gt; from distilabel.tasks.text_generation import EvolComplexityGeneratorTask</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        &gt;&gt;&gt; task = EvolComplexityGeneratorTask()</span>
+</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">        &gt;&gt;&gt; task.generate_prompt(&quot;Give three tips for staying healthy.&quot;)</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">        Prompt(</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">            system_prompt=&quot;&quot;,</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">            formatted_prompt=&quot;I want you to act as a Prompt ...&quot;,</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">        )</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="n">evolution_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_evolution_method</span><span class="p">(</span><span class="n">evolution_method</span><span class="p">,</span> <span class="n">EvolutionMethod</span><span class="p">)</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate_prompt</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">evolution_method</span><span class="o">=</span><span class="n">evolution_method</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>
