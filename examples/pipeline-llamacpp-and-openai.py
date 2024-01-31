@@ -51,7 +51,6 @@ if __name__ == "__main__":
         dataset,  # type: ignore
         num_generations=2,
         batch_size=1,
-        checkpoint_strategy=True,
         display_progress_bar=True,
     )
 
