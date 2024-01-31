@@ -2558,9 +2558,13 @@
 <p><code>frequency_penalty</code> and <code>presence_penalty</code>: the frequency penalty penalizes tokens that have already appeared in the generated text, limiting the possibility of those appearing again, and the <code>presence_penalty</code> penalizes regardless of the frequency.</p>
 </li>
 <li>
+<p><code>num_threads</code>: some LLMs work better when using several threads to generate text, this parameter allows to specify the number of threads to use.</p>
+</li>
+<li>
 <p><code>prompt_format</code> and <code>prompt_formatting_fn</code>: these two parameters allow to tweak the prompt of our models, for example we can direct the <code>LLM</code> to format the prompt according to one of the defined formats, while <code>prompt_formatting_fn</code> allows to pass a function that will be applied to the prompt before the generation, for extra control of what we ingest to the model.</p>
 </li>
 </ul>
+<p>Besides the general parameters, some <code>LLM</code> subclasses also have some implementation specific parameters to control the text generation, but those will be explained in the corresponding section.</p>
 <h3 id="generate-method"><code>generate</code> method<a class="headerlink" href="#generate-method" title="Permanent link">&para;</a></h3>
 <p>Once you create an <code>LLM</code>, you use the <code>generate</code> method to interact with it. This method accepts two parameters:</p>
 <ul>
@@ -2718,7 +2722,7 @@
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">prompt_format</span><span class="o">=</span><span class="s2">&quot;openai&quot;</span><span class="p">,</span>
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
 </span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
 </span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">)</span>
 </span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">result</span> <span class="o">=</span> <span class="n">openaillm</span><span class="o">.</span><span class="n">generate</span><span class="p">([{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;What is OpenAI?&quot;</span><span class="p">}])</span>
@@ -2759,7 +2763,7 @@ there for batch generation. Find more information about it in <a href="https://d
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">vllm</span> <span class="kn">import</span> <span class="n">LLM</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">vLLM</span><span class="p">(</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">vllm</span><span class="o">=</span><span class="n">LLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;argilla/notus-7b-v1&quot;</span><span class="p">),</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">model</span><span class="o">=</span><span class="n">LLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;argilla/notus-7b-v1&quot;</span><span class="p">),</span>
 </span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
 </span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
 </span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
@@ -3053,7 +3057,7 @@ Find more information about it in the <a href="https://github.com/jmorganca/olla
 <hr />
 <ol>
 <li id="fn:1">
-<p>You can take a look at this blog post from <a href="https://txt.cohere.com/llm-parameters-best-outputs-language-ai/">cohere</a> for a thorough explanation of the different parameters.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<p>You can take a look at this blog post from <a href="https://txt.cohere.com/llm-parameters-best-outputs-language-ai/">Cohere</a> for a thorough explanation of the different parameters.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>

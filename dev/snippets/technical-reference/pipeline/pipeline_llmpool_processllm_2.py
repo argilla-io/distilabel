@@ -11,7 +11,7 @@ def load_notus(task: Task) -> LLM:
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
     return vLLM(
-        vllm=LLM(model="argilla/notus-7b-v1"),
+        model=LLM(model="argilla/notus-7b-v1"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
@@ -28,7 +28,7 @@ def load_zephyr(task: Task) -> LLM:
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
     return vLLM(
-        vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
+        model=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
@@ -45,7 +45,7 @@ def load_starling(task: Task) -> LLM:
     os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
     return vLLM(
-        vllm=LLM(model="berkeley-nest/Starling-LM-7B-alpha"),
+        model=LLM(model="berkeley-nest/Starling-LM-7B-alpha"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
@@ -62,7 +62,7 @@ def load_neural_chat(task: Task) -> LLM:
     os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
     return vLLM(
-        vllm=LLM(model="Intel/neural-chat-7b-v3-3"),
+        model=LLM(model="Intel/neural-chat-7b-v3-3"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
