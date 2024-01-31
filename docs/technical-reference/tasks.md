@@ -40,7 +40,7 @@ This is the base class for _text generation_, and includes the following fields 
 
 For the API reference visit [TextGenerationTask][distilabel.tasks.text_generation.base.TextGenerationTask].
 
-### SelfInstructTask
+### SelfInstructTask
 
 The task specially designed to build the prompts following the Self-Instruct paper: [SELF-INSTRUCT: Aligning Language Models
 with Self-Generated Instructions](https://arxiv.org/abs/2212.10560).
@@ -55,8 +55,6 @@ _The Self-Instruct process is an iterative bootstrapping algorithm that starts w
 
 For the API reference visit [SelfInstructTask][distilabel.tasks.text_generation.self_instruct.SelfInstructTask].
 
-#### Customise your SelfInstructTask
-
 You can personalize the way in which your SelfInstructTask behaves by changing the default values of the parameters to something that suits your use case. Let's go through them:
 
 - **System Prompt**: you can control the overall behaviour and expectations of your model.
@@ -64,11 +62,9 @@ You can personalize the way in which your SelfInstructTask behaves by changing t
 - **Number of instructions**: number of instructions in the prompt.
 - **Criteria for Query Generation**: the criteria for query generation that we want our model to have. The default value covers default behaviour for SelfInstructTask. This value is passed to the .jinja template, where extra instructions are added to ensure correct output format.
 
-Let's see an example of how to customise a SelfInstructTask to create Haikus in the snippet below. You can take a look at this dataset as an example of a [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo).
+You can see an example of how to customise a SelfInstructTask to create Haikus in the snippet in the subsection Custom TextGenerationTask.
 
-```python
---8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus.py"
-```
+
 
 ### EvolInstructTask
 
@@ -112,6 +108,36 @@ The second step from the [Deita framework](https://arxiv.org/abs/2312.15685) con
 ```
 
 For the API reference visit [EvolQualityTask][distilabel.tasks.text_generation.evol_quality.EvolQualityTask].
+
+
+### Custom TextGenerationTask
+
+The following examples show different cases of creating your custom `TextGenerationTask`. Inherit from `TextGenerationTask` and implement the `generate_prompt` and `parse_output` to customise the behavior of the `LLM`.
+
+=== "OSS Instruct Task"
+
+    This task implements the OSS Instruct from [Magicoder: Source Code Is All You Need](https://arxiv.org/abs/2312.02120). Generate problems and solutions from seed problems following the paper implementation:
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_oss.py"
+    ```
+
+=== "Haiku SelfInstructTask"
+
+    Here you cn see an example of how to customise a `SelfInstructTask` to create Haikus. The following [Haiku DPO dataset](https://huggingface.co/datasets/davanstrien/haiku_dpo) contains more information on how this dataset was created.
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_selfinstruct_haikus_docs.py"
+    ```
+
+=== "WizardLM Equal Prompts Task"
+
+    The following task, obtained from [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244), can be used to check whether two instructions are equal or different to decide whether to keep in your dataset or remove redundant instructions:
+
+    ```python
+    --8<-- "docs/snippets/technical-reference/tasks/custom_task_text_generation_wizardlm.py"
+    ```
+
 
 ## Labelling
 
