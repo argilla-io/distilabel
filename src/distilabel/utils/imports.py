@@ -91,7 +91,7 @@ def _check_package_is_available(
 
 
 _ARGILLA_AVAILABLE = (
-    _check_package_is_available("argilla", min_version="1.22.0", greater_or_equal=True)
+    _check_package_is_available("argilla", min_version="1.23.0", greater_or_equal=True)
     and _check_package_is_available(
         "sentence-transformers", min_version="2.0.0", greater_or_equal=True
     )
