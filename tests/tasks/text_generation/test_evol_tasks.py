@@ -127,6 +127,18 @@ def test_evol_task(evolution_method: str, expected: str, instruct_type: object):
             task.generate_prompt(**mock_kwargs, evolution_method=evolution_method)
 
 
+@pytest.mark.parametrize(
+    "response, expected",
+    [
+        ("Some common response", "Some common response"),
+        ("This contains #Given Response#, which is a response word", None),
+    ],
+)
+def test_evol_quality_elimination_evolving(response: str, expected: str):
+    task = EvolQualityTask()
+    assert task.parse_output(response)["generations"] == expected
+
+
 def get_custom_evol_dataset(
     instruction_type: object,
 ) -> CustomDataset:
