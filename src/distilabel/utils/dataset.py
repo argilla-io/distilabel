@@ -28,7 +28,10 @@ BinarizationStrategies = Literal["random", "worst"]
 
 
 def _get_best_response(
-    example: Any, rating_column: str = "rating", responses_column: str = "generations"
+    example: Any,
+    rating_column: str = "rating",
+    responses_column: str = "generations",
+    rationale_column: Optional[str] = "rationale",
 ) -> Tuple[str, int, str, str]:
     """Helper function to get the best response from an example, this can be used
     independent on the method to chose the rejected response.
@@ -41,6 +44,9 @@ def _get_best_response(
             Column containing the rating in the CustomDataset. Defaults to "rating".
         responses_column (str, optional):
             Column containing the responses from a model in a CustomDataset. Defaults to "generations".
+        rationale_column (Optional[str], optional):
+            Column containing the rationale from a model in a CustomDataset, if found, otherwise
+            will be None. Defaults to "rationale".
 
     Returns:
         Tuple[str, int, str, str]: Contains the prompt, best rating, chosen response, and chosen model.
@@ -51,12 +57,17 @@ def _get_best_response(
     best_response_idx = example[rating_column].index(best_rating)
     chosen_response = example[responses_column][best_response_idx]
     chosen_model = example["generation_model"][best_response_idx]
+    chosen_rationale = (
+        example[rationale_column][best_response_idx] if rationale_column else None
+    )
 
     # Remove best response
     example[rating_column].pop(best_response_idx)
     example[responses_column].pop(best_response_idx)
     example["generation_model"].pop(best_response_idx)
-    return prompt, best_rating, chosen_response, chosen_model
+    if chosen_rationale:
+        example[rationale_column].pop(best_response_idx)
+    return prompt, best_rating, chosen_response, chosen_model, chosen_rationale
 
 
 def _format_message(prompt: str, response: str) -> List[Dict[str, str]]:
@@ -78,6 +89,7 @@ def _binarize_dataset(
     keep_ties: bool = False,
     rating_column: str = "rating",
     responses_column: str = "generations",
+    rationale_column: Optional[str] = "rationale",
     **kwargs: Any,
 ) -> "CustomDataset":
     """Binarizes a distilabel dataset.
@@ -101,10 +113,17 @@ def _binarize_dataset(
         _get_best_response,
         rating_column=rating_column,
         responses_column=responses_column,
+        rationale_column=rationale_column,
     )
 
     def binarize_random(example):
-        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
+        (
+            prompt,
+            best_rating,
+            chosen_response,
+            chosen_model,
+            chosen_rationale,
+        ) = get_best_response(example)
         random.seed(seed)
 
         # Then you pick the rejected from the list of candidates with lower scores.
@@ -126,7 +145,7 @@ def _binarize_dataset(
 
         random_model = example["generation_model"][random_response_idx]
 
-        return {
+        example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, random_response),
@@ -135,16 +154,29 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": random_model,
         }
+        if chosen_rationale:
+            example["chosen_rationale"] = chosen_rationale
+            example["rejected_rationale"] = example[rationale_column][
+                random_response_idx
+            ]
+
+        return example
 
     def binarize_worst(example):
-        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
+        (
+            prompt,
+            best_rating,
+            chosen_response,
+            chosen_model,
+            chosen_rationale,
+        ) = get_best_response(example)
 
         worst_rating = min(example[rating_column])
         worst_response_idx = example[rating_column].index(worst_rating)
         worst_response = example[responses_column][worst_response_idx]
         worst_model = example["generation_model"][worst_response_idx]
 
-        return {
+        example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, worst_response),
@@ -153,6 +185,13 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": worst_model,
         }
+        if chosen_rationale:
+            example["chosen_rationale"] = chosen_rationale
+            example["rejected_rationale"] = example[rationale_column][
+                worst_response_idx
+            ]
+
+        return example
 
     if strategy == "random":
         binarization_method = binarize_random
@@ -274,6 +313,9 @@ def prepare_dataset(
     if len(dataset[0]["generations"]) < 2:
         raise ValueError("The dataset must contain at least 2 generations per example.")
 
+    # If the dataset contains the rationale, grab the content
+    rationale_column = "rationale" if "rationale" in dataset.column_names else None
+
     ds = _binarize_dataset(
         dataset,
         strategy=strategy,
@@ -281,6 +323,7 @@ def prepare_dataset(
         keep_ties=keep_ties,
         rating_column="rating",
         responses_column="generations",
+        rationale_column=rationale_column,
         **kwargs,
     )
 
