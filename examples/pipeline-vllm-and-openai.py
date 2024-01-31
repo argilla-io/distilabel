@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     pipeline = Pipeline(
         generator=vLLM(
-            vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
+            model=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
             task=TextGenerationTask(),
             max_new_tokens=128,
             temperature=0.3,
