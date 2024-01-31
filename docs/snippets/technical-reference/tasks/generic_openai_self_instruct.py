@@ -10,5 +10,5 @@ generator = OpenAILLM(
         num_instructions=3,
         criteria_for_query_generation="Design queries to be... ",
     ),
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY", None),
 )

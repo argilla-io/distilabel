@@ -47,7 +47,7 @@ def load_openai_llm(task: "Task") -> "LLM":
     return OpenAILLM(
         model="gpt-3.5-turbo",
         task=task,
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        api_key=os.getenv("api_key"),
         num_threads=2,
         max_new_tokens=512,
     )

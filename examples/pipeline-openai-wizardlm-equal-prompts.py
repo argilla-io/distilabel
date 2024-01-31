@@ -73,7 +73,7 @@ if __name__ == "__main__":
     pipe = Pipeline(
         generator=OpenAILLM(
             task=WizardLMEqualPrompts(),
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
+            api_key=os.getenv("OPENAI_API_KEY", None),
             temperature=0.3,
         )
     )

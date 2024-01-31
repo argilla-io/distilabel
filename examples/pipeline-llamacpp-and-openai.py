@@ -42,7 +42,7 @@ if __name__ == "__main__":
             task=UltraFeedbackTask.for_overall_quality(),
             max_new_tokens=128,
             num_threads=2,
-            openai_api_key="<OPENAI_API_KEY>",
+            api_key=os.getenv("OPENAI_API_KEY", None),
             temperature=0.0,
         ),
     )

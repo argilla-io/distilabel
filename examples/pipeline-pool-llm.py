@@ -39,7 +39,7 @@ def load_openai(task):
     return OpenAILLM(
         model="gpt-3.5-turbo",
         task=task,
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        api_key=os.getenv("OPENAI_API_KEY", None),
         max_new_tokens=512,
     )
 
