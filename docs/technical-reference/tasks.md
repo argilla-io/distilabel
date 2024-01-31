@@ -88,10 +88,30 @@ Use this `Task` to build more complete and complex datasets starting from simple
 You can take a look at a [sample dataset](https://huggingface.co/datasets/argilla/distilabel-sample-evol-instruct) generated using `EvolInstructTask`.
 
 !!! note
-The original definition of `EvolInstruct` considers an elimination evolving step with different
-situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`.
+    The original definition of `EvolInstruct` considers an elimination evolving step with different
+    situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`.
 
 For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
+
+#### EvolComplexity
+
+The [Deita framework](https://arxiv.org/abs/2312.15685) presents a data selection framework composed of two initial steps that consist on adopting an evolution-based approach as defined in [WizardLM](https://arxiv.org/abs/2304.12244). The first of the evolution steps, related to the *complexity* is the same `EvolInstruct` task, exposed with the same name given in the paper:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity.py"
+```
+
+For the API reference visit [EvolComplexityTask][distilabel.tasks.text_generation.evol_complexity.EvolComplexityTask].
+
+#### EvolQuality
+
+The second step from the [Deita framework](https://arxiv.org/abs/2312.15685) consists on enhancing the *quality* of the instructions, in the same spirit from `EvolComplexityTask`. The `EvolQualityTask` can be used to augment the *quality* of the instructions by *enhancing helpfulness, augmenting relevance, enriching depth, fostering creativity, and supplying additional details*, following the *Deita* implementation:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality.py"
+```
+
+For the API reference visit [EvolQualityTask][distilabel.tasks.text_generation.evol_quality.EvolQualityTask].
 
 ## Labelling
 

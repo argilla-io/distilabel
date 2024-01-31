@@ -7,7 +7,6 @@ The #Created Prompt# must be reasonable and must be understood and responded by 
 '#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear in #Created Prompt#
 #Given Prompt#:
 {{ instruction }}
-
 #Created Prompt#:
 {% else %}{%- if evol_method == "constraints" -%}
 {% set depth_rewriter = "Please add one more constraints/requirements into #The Given Prompt#" %}
@@ -28,6 +27,5 @@ You should try your best not to make the #Rewritten Prompt# become verbose, #Rew
 '#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#
 #The Given Prompt#:
 {{ instruction }}
-
 #Rewritten Prompt#:
 {% endif %}

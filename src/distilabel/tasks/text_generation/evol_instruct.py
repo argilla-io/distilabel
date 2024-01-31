@@ -111,8 +111,7 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
                 formatted_prompt="I want you to act as a Prompt ...",
             )
         """
-        if not evolution_method:
-            evolution_method = random.choice(get_args(EvolutionMethod))
+        evolution_method = self._get_evolution_method(evolution_method, EvolutionMethod)
 
         render_kwargs = {
             "evol_method": evolution_method,
@@ -125,9 +124,11 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
 
     @property
     def output_args_names(self) -> List[str]:
-        return ["instruction"]
+        return ["instructions"]
 
-    def _elimination_evolving(self, output: str) -> Optional[str]:
+    def _elimination_evolving(
+        self, output: str, response_words: Optional[List[str]] = None
+    ) -> Optional[str]:
         """Performs the elimination step of the Evol-Instruct task, steps 2-4 in the paper:
 
         1. [NOT IMPLEMENTED] The evolved instruction does not provide any information gain compared
@@ -170,6 +171,8 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             "#Rewritten Prompt#",
             "rewritten prompt",
         }
+        if response_words:
+            prompt_words = prompt_words.union(response_words)
         if any(word in output for word in prompt_words):
             logger.info(
                 f"Evolution step removed the output due to word repetition from the prompt: {output}"
@@ -178,6 +181,18 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
 
         return output
 
+    def _get_evolution_method(
+        self, chosen_method: EvolutionMethod, available_methods: EvolutionMethod
+    ) -> None:
+        available_methods = get_args(available_methods)
+        if not chosen_method:
+            chosen_method = random.choice(available_methods)
+        if chosen_method not in available_methods:
+            raise ValueError(
+                f"Evolution method {chosen_method} is not available. Available ones are: {available_methods}"
+            )
+        return chosen_method
+
     def parse_output(self, output: str) -> Dict[str, List[str]]:
         """Parses the output of the model into the desired format, applying the elimination step for bad generations.
 
@@ -185,10 +200,10 @@ class EvolInstructTask(InstructTaskMixin, TextGenerationTask):
             output (str): the output of the model.
 
         Note:
-            The eliminatin step is applied to the output, but only steps 2-4 in the paper are implemented.
+            The elimination step is applied to the output, but only steps 2-4 in the paper are implemented.
             Refer to point 3.2, Elimination Evolving section in [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
             for more information on the elimination evolving step, and take a look at the `_elimination_evolving`
             method for more information of the implementation.
         """
         output = self._elimination_evolving(output)
-        return {"instruction": output}
+        return {self.output_args_names[0]: output}

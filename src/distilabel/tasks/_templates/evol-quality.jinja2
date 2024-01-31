@@ -1,0 +1,29 @@
+{%- if evol_method == "helpfulness" -%}
+{% set depth_rewriter = "Please make the Response more helpful to the user." %}
+{%- elif evol_method == "relevance" -%}
+{% set depth_rewriter = "Please make the Response more relevant to #Given Prompt#." %}
+{%- elif evol_method == "depth" -%}
+{% set depth_rewriter = "Please make the Response more in-depth." %}
+{%- elif evol_method == "creativity" -%}
+{% set depth_rewriter = "Please increase the creativity of the response." %}
+{%- elif evol_method == "details" -%}
+{% set depth_rewriter = "Please increase the detail level of Response." %}
+{%- endif -%}
+I want you to act as a Response Rewriter
+Your goal is to enhance the quality of the response given by an AI assistant
+to the #Given Prompt# through rewriting.
+But the rewritten response must be reasonable and must be understood by humans.
+Your rewriting cannot omit the non-text parts such as the table and code in
+#Given Prompt# and #Given Response#. Also, please do not omit the input
+in #Given Prompt#.
+You Should enhance the quality of the response using the following method:
+{{ depth_rewriter }}
+You should try your best not to make the #Rewritten Response# become verbose,
+#Rewritten Response# can only add 10 to 20 words into #Given Response#.
+'#Given Response#', '#Rewritten Response#', 'given response' and 'rewritten response'
+are not allowed to appear in #Rewritten Response#
+#Given Prompt#:
+{{ instruction }}
+#Given Response#:
+{{ generation }}
+#Rewritten Response#:

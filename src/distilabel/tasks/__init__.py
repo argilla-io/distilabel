@@ -23,7 +23,9 @@ from distilabel.tasks.preference.ultrafeedback import UltraFeedbackTask
 from distilabel.tasks.preference.ultrajudge import UltraJudgeTask
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.base import TextGenerationTask
+from distilabel.tasks.text_generation.evol_complexity import EvolComplexityTask
 from distilabel.tasks.text_generation.evol_instruct import EvolInstructTask
+from distilabel.tasks.text_generation.evol_quality import EvolQualityTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 
 __all__ = [
@@ -38,6 +40,8 @@ __all__ = [
     "TextGenerationTask",
     "SelfInstructTask",
     "EvolInstructTask",
+    "EvolComplexityTask",
+    "EvolQualityTask",
     "ComplexityScorerTask",
     "QualityScorerTask",
 ]
