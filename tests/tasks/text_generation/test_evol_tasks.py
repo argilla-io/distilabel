@@ -116,16 +116,6 @@ def test_evol_task(evolution_method: str, expected: str, instruct_type: object):
     assert isinstance(task, instruct_type)
     assert task.system_prompt == ""
     if isinstance(expected, str):
-        print("---COSA")
-        print(
-            task.generate_prompt(
-                **mock_kwargs, evolution_method=evolution_method
-            ).formatted_prompt
-        )
-        print("----")
-        print("---EXPE")
-        print(expected)
-        print("---")
         assert (
             task.generate_prompt(
                 **mock_kwargs, evolution_method=evolution_method
