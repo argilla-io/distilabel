@@ -23,7 +23,9 @@ from distilabel.tasks.text_generation.base import TextGenerationTask
 class TestTogetherInferenceLLM:
     def test_available_models(self) -> None:
         together.Models.list = mock.MagicMock(
-            return_value=[{"name": "togethercomputer/llama-2-7b"}]
+            return_value=[
+                {"name": "togethercomputer/llama-2-7b", "display_type": "chat"}
+            ]
         )
         llm = TogetherInferenceLLM(
             model="togethercomputer/llama-2-7b",
@@ -34,7 +36,9 @@ class TestTogetherInferenceLLM:
 
     def test_inference_kwargs(self) -> None:
         together.Models.list = mock.MagicMock(
-            return_value=[{"name": "togethercomputer/llama-2-7b"}]
+            return_value=[
+                {"name": "togethercomputer/llama-2-7b", "display_type": "chat"}
+            ]
         )
         llm = TogetherInferenceLLM(
             model="togethercomputer/llama-2-7b",
@@ -60,7 +64,9 @@ class TestTogetherInferenceLLM:
 
     def test__generate_single_output(self) -> None:
         together.Models.list = mock.MagicMock(
-            return_value=[{"name": "togethercomputer/llama-2-7b"}]
+            return_value=[
+                {"name": "togethercomputer/llama-2-7b", "display_type": "chat"}
+            ]
         )
         llm = TogetherInferenceLLM(
             model="togethercomputer/llama-2-7b",
@@ -87,7 +93,9 @@ class TestTogetherInferenceLLM:
 
     def test__generate(self) -> None:
         together.Models.list = mock.MagicMock(
-            return_value=[{"name": "togethercomputer/llama-2-7b"}]
+            return_value=[
+                {"name": "togethercomputer/llama-2-7b", "display_type": "chat"}
+            ]
         )
         llm = TogetherInferenceLLM(
             model="togethercomputer/llama-2-7b",

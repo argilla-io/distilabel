@@ -12,17 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import tempfile
 import warnings
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from datasets import Dataset
+from huggingface_hub import HfApi, hf_hub_download
 
+from distilabel.logger import get_logger
 from distilabel.utils.argilla import infer_field_from_dataset_columns
-from distilabel.utils.dataset import load_task_from_disk, save_task_to_disk
 from distilabel.utils.imports import _ARGILLA_AVAILABLE
+from distilabel.utils.serialization import (
+    TASK_FILE_NAME,
+    load_from_dict,
+    load_task_from_disk,
+    read_json,
+)
 
 if _ARGILLA_AVAILABLE:
     from argilla.client.feedback.integrations.sentencetransformers import (
@@ -43,6 +52,8 @@ if TYPE_CHECKING:
     )
 
     from distilabel.tasks.base import Task
+
+logger = get_logger()
 
 
 class CustomDataset(Dataset):
@@ -178,7 +189,7 @@ class CustomDataset(Dataset):
         """
         super().save_to_disk(dataset_path, **kwargs)
         if self.task is not None:
-            save_task_to_disk(dataset_path, self.task)
+            self.task.save(Path(dataset_path))
 
     @classmethod
     def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
@@ -196,6 +207,81 @@ class CustomDataset(Dataset):
         task = load_task_from_disk(dataset_path)
         ds.task = task
         return ds
+
+    def push_to_hub(
+        self,
+        repo_id: str,
+        *args: Optional[Any],
+        push_task: bool = True,
+        **kwargs: Optional[Any],
+    ) -> None:
+        """Same method as `datasets.Dataset.push_to_hub`, but also pushes the task to simplify
+        creating a CustomDataset from HuggingFace hub.
+
+        Args:
+            repo_id (str):
+                The ID of the repository to push to in the following format: `<user>/<dataset_name>` or
+                `<org>/<dataset_name>`. Also accepts `<dataset_name>`, which will default to the namespace
+                of the logged-in user.
+            args (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
+            push_task (bool, optional): _description_. Defaults to True.
+            kwargs (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
+
+        Examples:
+            >>> from distilabel.dataset import CustomDataset
+            >>> dataset = CustomDataset(...)
+            >>> dataset.push_to_hub("path/to/dataset")
+        """
+        super().push_to_hub(repo_id, *args, **kwargs)
+        if self.task is not None and push_task:
+            try:
+                logger.info("Pushing task to the hub...")
+                with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+                    f.write(json.dumps(self.task.dump(), indent=2))
+                    f.flush()
+
+                    HfApi().upload_file(
+                        path_or_fileobj=f.name,
+                        path_in_repo=TASK_FILE_NAME,
+                        repo_id=repo_id,
+                        repo_type="dataset",
+                        token=kwargs.get("token"),
+                    )
+            except Exception as e:
+                logger.info(f"Error while pushing the task to the hub: {e}.")
+
+
+def load_dataset(path: str, *args: Any, **kwargs: Any) -> Union[Dataset, CustomDataset]:
+    """Load a dataset from HuggingFace hub.
+
+    Overloads the `datasets.load_dataset` method to return a `CustomDataset` instance,
+    downloading the `Task` from the hub (if any).
+
+    Args:
+        path (str): Path to the dataset in the hub.
+        args, kwargs: and any other arguments used by `datasets.load_dataset`
+
+    Returns:
+        dataset: CustomDataset instance, with the `Task` stored if available.
+
+    Examples:
+        >>> from distilabel.dataset import load_dataset
+        >>> dataset: CustomDataset = load_dataset("argilla/distilabel-sample-evol-instruct", split="train")
+    """
+    from datasets import load_dataset as _load_dataset
+
+    ds = _load_dataset(path, *args, **kwargs)
+    cds = CustomDataset(ds.data.table)
+    # download the task
+    try:
+        task_path = hf_hub_download(
+            repo_id=path, filename=TASK_FILE_NAME, repo_type="dataset"
+        )
+        task = load_from_dict(read_json(task_path))
+        cds.task = task
+    except Exception as e:
+        logger.info(f"Error while downloading the task from the hub: {e}.")
+    return cds
 
 
 @dataclass

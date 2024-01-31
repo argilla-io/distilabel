@@ -324,8 +324,7 @@ class VertexAIEndpointLLM(LLM):
     """An `LLM` which uses a Vertex AI Online prediction endpoint for the generation.
 
     More information about Vertex AI Endpoints can be found here:
-
-        - https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint
+    https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint
     """
 
     def __init__(

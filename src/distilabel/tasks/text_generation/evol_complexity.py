@@ -15,13 +15,9 @@
 from dataclasses import dataclass
 from typing import Any, Literal, Optional
 
-from distilabel.logger import get_logger
 from distilabel.tasks.base import get_template
 from distilabel.tasks.prompt import Prompt
 from distilabel.tasks.text_generation.evol_instruct import EvolInstructTask
-
-logger = get_logger()
-
 
 # inherits from evol-instruct with limited evolution methods
 _EVOL_COMPLEXITY_TEMPLATE = get_template("evol-instruct.jinja2")
