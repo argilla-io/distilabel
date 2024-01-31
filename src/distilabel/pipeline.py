@@ -837,8 +837,7 @@ def pipeline(
                 task=task_cls(**task_kwargs),  # type: ignore
                 max_new_tokens=kwargs.get("max_new_tokens") or 256,
                 num_threads=kwargs.get("num_threads") or 4,
-                openai_api_key=kwargs.get("openai_api_key")
-                or os.getenv("OPENAI_API_KEY"),
+                api_key=kwargs.get("api_key") or os.getenv("OPENAI_API_KEY"),
                 temperature=kwargs.get("temperature") or 0.0,
             )
         else:

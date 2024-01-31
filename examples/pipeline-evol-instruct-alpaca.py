@@ -51,7 +51,7 @@ if __name__ == "__main__":
     pipe = Pipeline(
         generator=OpenAILLM(
             task=EvolInstructTask(),
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
+            api_key=os.getenv("OPENAI_API_KEY", None),
             num_threads=4,
             max_new_tokens=1024,
         )

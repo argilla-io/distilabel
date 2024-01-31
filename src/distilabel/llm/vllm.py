@@ -34,7 +34,7 @@ logger = get_logger()
 class vLLM(LLM):
     def __init__(
         self,
-        vllm: "_vLLM",
+        model: "_vLLM",
         task: "Task",
         max_new_tokens: int = 128,
         presence_penalty: float = 0.0,
@@ -42,13 +42,14 @@ class vLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
+        num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
         """Initializes the vLLM class.
 
         Args:
-            vllm (_vLLM): the vLLM model to be used.
+            model (_vLLM): the vLLM model to be used.
             task (Task): the task to be performed by the LLM.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
@@ -62,6 +63,9 @@ class vLLM(LLM):
                 Defaults to 1.0.
             top_k (int, optional): the top-k value to be used for generation.
                 Defaults to -1.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
                 formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
@@ -72,14 +76,15 @@ class vLLM(LLM):
 
         Examples:
             >>> from vllm import LLM
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import vLLM
             >>> model = LLM(model="gpt2")
-            >>> task = Task()
-            >>> llm = vLLM(model=model, task=task)
+            >>> llm = vLLM(model=model, task=TextGenerationTask())
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,
+            num_threads=num_threads,
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )
@@ -97,7 +102,7 @@ class vLLM(LLM):
         self.top_k = top_k
         self.max_tokens = max_new_tokens
 
-        self.vllm = vllm
+        self.model = model
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -116,7 +121,7 @@ class vLLM(LLM):
     @property
     def model_name(self) -> str:
         """Returns the name of the vLLM model."""
-        return self.vllm.llm_engine.model_config.model  # type: ignore
+        return self.model.llm_engine.model_config.model  # type: ignore
 
     def _generate(
         self, inputs: List[Dict[str, Any]], num_generations: int = 1
@@ -132,7 +137,7 @@ class vLLM(LLM):
             List[List[LLMOutput]]: the outputs of the LLM.
         """
         prompts = self._generate_prompts(inputs, default_format=None)
-        requests = self.vllm.generate(
+        requests = self.model.generate(
             prompts,
             SamplingParams(  # type: ignore
                 n=num_generations,

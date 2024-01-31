@@ -49,7 +49,7 @@ if __name__ == "__main__":
             task=UltraFeedbackTask.for_instruction_following(),
             max_new_tokens=128,
             num_threads=2,
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
+            api_key=os.getenv("OPENAI_API_KEY", None),
             temperature=0.0,
         ),
     )
@@ -58,7 +58,6 @@ if __name__ == "__main__":
         dataset,  # type: ignore
         num_generations=2,
         batch_size=1,
-        checkpoint_strategy=True,
         display_progress_bar=True,
     )
 

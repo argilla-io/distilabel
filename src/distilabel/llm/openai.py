@@ -36,7 +36,7 @@ class OpenAILLM(LLM):
         task: "Task",
         model: str = "gpt-3.5-turbo",
         client: Union["OpenAI", None] = None,
-        openai_api_key: Union[str, None] = None,
+        api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -53,7 +53,7 @@ class OpenAILLM(LLM):
             model (str, optional): the model to be used for generation. Defaults to "gpt-3.5-turbo".
             client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
                 If `None`, a new client will be created. Defaults to `None`.
-            openai_api_key (Union[str, None], optional): the OpenAI API key to be used for generation.
+            api_key (Union[str, None], optional): the OpenAI API key to be used for generation.
                 If `None`, the `OPENAI_API_KEY` environment variable will be used. Defaults to `None`.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
@@ -81,10 +81,10 @@ class OpenAILLM(LLM):
             AssertionError: if the provided `model` is not available in your OpenAI account.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import OpenAILLM
-            >>> task = Task()
-            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=task)
+            >>> llm = OpenAILLM(model="gpt-3.5-turbo", task=TextGenerationTask())
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,
@@ -105,7 +105,7 @@ class OpenAILLM(LLM):
         self.temperature = temperature
         self.top_p = top_p
 
-        self.client = client or OpenAI(api_key=openai_api_key, max_retries=6)
+        self.client = client or OpenAI(api_key=api_key, max_retries=6)
 
         assert (
             model in self.available_models
