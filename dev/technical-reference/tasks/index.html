@@ -804,6 +804,24 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#complexityscorertask" class="md-nav__link">
+    <span class="md-ellipsis">
+      ComplexityScorerTask
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qualityscorertask" class="md-nav__link">
+    <span class="md-ellipsis">
+      QualityScorerTask
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1717,11 +1735,53 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/complexity_scorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    complexity_scorer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/distilabel/tasks/preference/judgelm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     judgelm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/quality_scorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    quality_scorer
   </span>
   
 
@@ -2330,6 +2390,24 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#complexityscorertask" class="md-nav__link">
+    <span class="md-ellipsis">
+      ComplexityScorerTask
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qualityscorertask" class="md-nav__link">
+    <span class="md-ellipsis">
+      QualityScorerTask
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2668,6 +2746,43 @@ situations to remove the responses considered failures. Section 3.2, <em>Elimina
 </span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">labeller</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">UltraJudgeTask</span><span class="p">(),</span> <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">))</span>
 </span></code></pre></div>
 <p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/preference/ultrajudge/#distilabel.tasks.preference.ultrajudge.UltraJudgeTask">UltraJudgeTask</a>.</p>
+<h4 id="complexityscorertask">ComplexityScorerTask<a class="headerlink" href="#complexityscorertask" title="Permanent link">&para;</a></h4>
+<p>This class implements a <code>PreferenceTask</code> to rate a of instructions according to its complexity difficulty. Defined in <a href="https://arxiv.org/abs/2312.15685">Deita framework</a>, it's intended use is the scoring of instructions whose complexity has been enhanced by means of the <code>EvolComplexity</code> method defined, inspired on the <code>EvolInstruct</code> method from <a href="https://arxiv.org/abs/2304.12244">WizardLM</a>.  </p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">ComplexityScorerTask</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="n">labeller</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="n">task</span><span class="o">=</span><span class="n">ComplexityScorerTask</span><span class="p">(),</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/preference/complexity_scorer/#distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask">ComplexityScorerTask</a>.</p>
+<h4 id="qualityscorertask">QualityScorerTask<a class="headerlink" href="#qualityscorertask" title="Permanent link">&para;</a></h4>
+<p>This class implements a <code>PreferenceTask</code> to rate a list of instructions according to its quality. Follows the same idea defined in the <code>ComplexityScorerTask</code> from the <a href="https://arxiv.org/abs/2312.15685">Deita framework</a>, but in this case it rates the instructions in terms of concepts like helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">QualityScorerTask</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="n">labeller</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">task</span><span class="o">=</span><span class="n">QualityScorerTask</span><span class="p">(),</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>By default, the quality is defined as the following the paper prompt, but can be modified updating the <code>task_description</code> as in the following example (keep in mind the default <code>task_description</code> corresponds to the <code>EvolQuality</code> criteria defined to evolve the initial instructions, so this should be taken into account):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">QualityScorerTask</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="n">labeller</span> <span class="o">=</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="n">task</span><span class="o">=</span><span class="n">QualityScorerTask</span><span class="p">(</span><span class="n">task_description</span><span class="o">=</span><span class="s2">&quot;Take into account the expressiveness of the answers.&quot;</span><span class="p">),</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/tasks/preference/quality_scorer/#distilabel.tasks.preference.quality_scorer.QualityScorerTask">QualityScorerTask</a>.</p>
 <h3 id="critique">Critique<a class="headerlink" href="#critique" title="Permanent link">&para;</a></h3>
 <p>The <code>CritiqueTask</code> is designed to be a labeller for generated text, while not only adding scores based on a rubric, but also critiques explaining the reasons why those scores have been provided. The critique can either be using a reference answer (gold answer) as e.g. Prometheus does, or just by generating the critique per each of the N provided generations.</p>
 <p>The resulting datasets after running a pipeline with the <code>CritiqueTask</code> are useful towards either training a model to generate critiques based on the critiques generated by a more powerful model as e.g. GPT-4 from OpenAI, or to be used directly for DPO fine-tuning. The fact that the critique is generated per each pair, a balanced dataset could be generated with individual critiques and their scores, so that then we can e.g. define a threshold on what's considered chosen and rejected, to then run DPO fine-tunes.</p>
@@ -2677,29 +2792,29 @@ situations to remove the responses considered failures. Section 3.2, <em>Elimina
 <p>UltraCM is a model that has been fine-tuned using the UltraFeedback dataset, so as to produce critiques for the generated content, as the authors claim in their paper: "Moreover, since ULTRAFEEDBACK provides detailed textual feedback, we also fine-tune a model that could critique model responses automatically. Our critique model, UltraCM, generates reasonable and detailed comments on various tasks.".</p>
 <p>Ideally, the <code>UltraCMTask</code> will be more consistent when used with either their fine-tuned model UltraCM or with OpenAI, as both have been proven to produce successfully the structured content following the prompt formatting, and not only structured, but also meaningful and reasonable.</p>
 <p>See the following snippet, with an example on how to instantiate the <code>UltraCMTask</code> which only requires the system prompt, and it can be modified based on how is the critique intended to be formulated, while the system prompt shown below is the default one as of the UltraFeedback paper.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">UltraCMTask</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">task</span> <span class="o">=</span> <span class="n">UltraCMTask</span><span class="p">(</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;User: A one-turn chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, very detailed, and polite answers to the user&#39;s questions.&lt;/s&gt;&quot;</span><span class="p">,</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">UltraCMTask</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">task</span> <span class="o">=</span> <span class="n">UltraCMTask</span><span class="p">(</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;User: A one-turn chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, very detailed, and polite answers to the user&#39;s questions.&lt;/s&gt;&quot;</span><span class="p">,</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="prometheustask">PrometheusTask<a class="headerlink" href="#prometheustask" title="Permanent link">&para;</a></h4>
 <p>This task is specifically designed to build the prompts following the format defined in the <a href="https://arxiv.org/abs/2310.08491">"Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"</a> paper.</p>
 <p>Ideally, the <code>PrometheusTask</code> should only be used to format the prompts for the Prometheus models as those are the ones that have been fine-tuned to follow the same formatting and will produce consistent results compared to other base models or fine-tuned with different formats. In this case, since the formatting used by Prometheus follows the Llama 2 format, those are recommended. Otherwise, OpenAI has also proved to produce consistent results.</p>
 <p>The following snippet can be used out of the box to define a simple <code>PrometheusTask</code> with the system prompt, the scoring criteria and the score descriptions, but those can be modified while keeping in mind that Prometheus always expects 5 scores from 1-5 with a meaningful description, as well as with a criteria relevant to the scores defined.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">PrometheusTask</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">task</span> <span class="o">=</span> <span class="n">PrometheusTask</span><span class="p">(</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;You are a fair evaluator language model.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">scoring_criteria</span><span class="o">=</span><span class="s2">&quot;Relevance, Grammar, Informativeness, Engagement&quot;</span><span class="p">,</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">score_descriptions</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;The response is not relevant to the prompt.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, but it is not grammatical.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt and it is grammatical, but it is not informative.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, it is grammatical, and it is informative, but it is not engaging.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, it is grammatical, it is informative, and it is engaging.&quot;</span><span class="p">,</span>
-</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="p">},</span>
-</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">PrometheusTask</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">task</span> <span class="o">=</span> <span class="n">PrometheusTask</span><span class="p">(</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;You are a fair evaluator language model.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">scoring_criteria</span><span class="o">=</span><span class="s2">&quot;Relevance, Grammar, Informativeness, Engagement&quot;</span><span class="p">,</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">score_descriptions</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;The response is not relevant to the prompt.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, but it is not grammatical.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt and it is grammatical, but it is not informative.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, it is grammatical, and it is informative, but it is not engaging.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;The response is relevant to the prompt, it is grammatical, it is informative, and it is engaging.&quot;</span><span class="p">,</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="p">},</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="p">)</span>
 </span></code></pre></div>
 <div class="footnote">
 <hr />
