@@ -52,7 +52,7 @@ You should try your best not to make the #Rewritten Prompt# become verbose, #Rew
 #The Given Prompt#:
 HELLO
 #Rewritten Prompt#:
-# """
+"""
 
 constraints = f"{base_evol_instruct}Please add one more constraints/requirements into #The Given Prompt#{end_evol_instruct}"
 deepen = f"{base_evol_instruct}If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased.{end_evol_instruct}"
@@ -78,8 +78,7 @@ are not allowed to appear in #Rewritten Response#
 HELLO
 #Given Response#:
 HELLO
-#Rewritten Response#:
-"""
+#Rewritten Response#:"""
 
 helpfulness = f"{base_evol_quality}Please make the Response more helpful to the user.{end_evol_quality}"
 relevance = f"{base_evol_quality}Please make the Response more relevant to #Given Prompt#.{end_evol_quality}"
@@ -107,11 +106,8 @@ details = f"{base_evol_quality}Please increase the detail level of Response.{end
         ("details", details, EvolQualityTask),
         ("fake", ValueError, EvolInstructTask),
         ("fake", ValueError, EvolQualityTask),
-        (
-            "breadth",
-            ValueError,
-            EvolComplexityTask,
-        ),  # breadth is not a valid evolution method for EvolComplexityGeneratorTask
+        # # breadth is not a valid evolution method for EvolComplexityTask
+        ("breadth", ValueError, EvolComplexityTask),
     ],
 )
 def test_evol_task(evolution_method: str, expected: str, instruct_type: object):
@@ -120,6 +116,16 @@ def test_evol_task(evolution_method: str, expected: str, instruct_type: object):
     assert isinstance(task, instruct_type)
     assert task.system_prompt == ""
     if isinstance(expected, str):
+        print("---COSA")
+        print(
+            task.generate_prompt(
+                **mock_kwargs, evolution_method=evolution_method
+            ).formatted_prompt
+        )
+        print("----")
+        print("---EXPE")
+        print(expected)
+        print("---")
         assert (
             task.generate_prompt(
                 **mock_kwargs, evolution_method=evolution_method
