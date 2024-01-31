@@ -42,6 +42,7 @@ class vLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
+        num_threads: Union[int, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
@@ -62,6 +63,9 @@ class vLLM(LLM):
                 Defaults to 1.0.
             top_k (int, optional): the top-k value to be used for generation.
                 Defaults to -1.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
                 formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
@@ -80,6 +84,7 @@ class vLLM(LLM):
         """
         super().__init__(
             task=task,
+            num_threads=num_threads,
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )

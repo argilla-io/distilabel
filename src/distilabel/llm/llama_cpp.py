@@ -41,6 +41,7 @@ class LlamaCppLLM(LLM):
         top_k: int = 40,
         repeat_penalty: float = 1.1,
         seed: int = 1337,
+        num_threads: Union[int, None] = None,
         prompt_format: Union[SupportedFormats, None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
@@ -62,6 +63,9 @@ class LlamaCppLLM(LLM):
             seed (int, optional): the seed to be used for generation, setting it to -1 implies
                 that a different response will be generated on each generation, similarly to
                 HuggingFace's `do_sample` arg. Defaults to 1337.
+            num_threads (Union[int, None], optional): the number of threads to be used
+                for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
                 formats are `openai`, `chatml`, `llama2`, `zephyr`, and `default`. Defaults to `None`,
@@ -81,6 +85,7 @@ class LlamaCppLLM(LLM):
         """
         super().__init__(
             task=task,
+            num_threads=num_threads,
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )
