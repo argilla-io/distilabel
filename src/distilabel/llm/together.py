@@ -35,8 +35,8 @@ logger = get_logger()
 class TogetherInferenceLLM(LLM):
     def __init__(
         self,
-        task: "Task",
         model: str,
+        task: "Task",
         api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         repetition_penalty: float = 1.0,
@@ -52,8 +52,8 @@ class TogetherInferenceLLM(LLM):
         """Initializes the TogetherInferenceLLM class.
 
         Args:
-            task (Task): the task to be performed by the LLM.
             model (str): the model to be used for generation.
+            task (Task): the task to be performed by the LLM.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
             temperature (float, optional): the temperature to be used for generation. From the Together
