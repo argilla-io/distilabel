@@ -20,7 +20,7 @@ LLM classes share several general parameters and define implementation-specific 
 Let's briefly introduce the general parameters we may find[^1]:
 
 [^1]:
-    You can take a look at this blog post from [cohere](https://txt.cohere.com/llm-parameters-best-outputs-language-ai/) for a thorough explanation of the different parameters.
+    You can take a look at this blog post from [Cohere](https://txt.cohere.com/llm-parameters-best-outputs-language-ai/) for a thorough explanation of the different parameters.
 
 - `max_new_tokens`: this parameter controls the maximum number of tokens the LLM is allowed to use.
 
@@ -30,7 +30,11 @@ Let's briefly introduce the general parameters we may find[^1]:
 
 - `frequency_penalty` and `presence_penalty`: the frequency penalty penalizes tokens that have already appeared in the generated text, limiting the possibility of those appearing again, and the `presence_penalty` penalizes regardless of the frequency.
 
+- `num_threads`: some LLMs work better when using several threads to generate text, this parameter allows to specify the number of threads to use.
+
 - `prompt_format` and `prompt_formatting_fn`: these two parameters allow to tweak the prompt of our models, for example we can direct the `LLM` to format the prompt according to one of the defined formats, while `prompt_formatting_fn` allows to pass a function that will be applied to the prompt before the generation, for extra control of what we ingest to the model.
+
+Besides the general parameters, some `LLM` subclasses also have some implementation specific parameters to control the text generation, but those will be explained in the corresponding section.
 
 ### `generate` method
 
