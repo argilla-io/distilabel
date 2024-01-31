@@ -34,25 +34,27 @@ EvolutionMethod = Literal[
 
 @dataclass
 class EvolQualityTask(EvolInstructTask):
-    """A `TextGenerationTask` following the `Deita` specification for improving the responses.
+    """A `TextGenerationTask` following the `Deita` specification for improving the *quality* of instructions.
 
     From the reference repository: *DEITA (short for Data-Efficient Instruction Tuning for Alignment),
-    a series of models fine-tuned from LLaMA and Mistral models using data samples automatically selected with our proposed approach*
+    a series of models fine-tuned from LLaMA and Mistral models using data samples automatically
+    selected with our proposed approach*.
 
     The task is defined as follows:
-    Starting from an initial (simpler) instruction response, select an evolving-method to upgrade the simple response
-    to a more complex one or create..
-    The Evolving methods includes the following operations: add "helpfulness", "relevance", "deepen", "creativity" and "details".
+    Starting from an initial (simpler) instruction response, select an evolving-method to upgrade the quality
+    of the instruction. The Evolving methods includes the following operations: add "helpfulness", "relevance",
+    "depth", "creativity" and "details".
 
-    Given the evolved reposnes are generated from LLMs, sometimes the evolving will fail. We adopt an responses eliminator
-    to filter the failed instructions, called Elimination Evolving, but we don't apply the step of asking again to the LLM it the
-    answer is a copy from the same used prompt. Note that we slightly modify the elimination evolving step, from the original paper,
-    to allow for filtering of the responses.
+    Given the evolved responses are generated from LLMs, sometimes the evolving will fail.
+    We adopt an responses eliminator to filter the failed instructions, called Elimination Evolving,
+    but we don't apply the step of asking again to the LLM it the answer is a copy from the same used
+    prompt. Note that we slightly modify the elimination evolving step, from the original paper, to
+    allow for filtering of the responses.
 
-    This evolutionary process can be repeated for several rounds to obtain instruction data containing various complexities.
-    Currently the task is implemented as a single step, so to generate multiple evolutions you can "repeat" the instructions
-    in the original dataset. An example of a similar implementation with EvolInstruct can be seen at the following script:
-    [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)
+    This evolutionary process can be repeated for several rounds to obtain instruction data containing various
+    complexities. Currently the task is implemented as a single step, so to generate multiple evolutions you
+    can "repeat" the instructions in the original dataset. An example of a similar implementation with
+    `EvolInstruct` can be seen at the following script: [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)
 
     Args:
         system_prompt (str, optional): the system prompt to be used. Not defined for this task.
