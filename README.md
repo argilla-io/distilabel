@@ -34,9 +34,9 @@ In addition, the following extras are available:
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
 - `together`: for using [Together Inference](https://www.together.ai/products) via their Python client.
 - `anyscale`: for using [Anyscale endpoints](https://www.anyscale.com/endpoints).
-- `vertexai`: for using [Google Cloud Vertex AI platform](https://cloud.google.com/vertex-ai?hl=en).
 - `ollama`: for using [Ollama](https://ollama.ai/).
 - `mistralai`: for using [Mistral AI](https://docs.mistral.ai/platform/endpoints/) via their Python client.
+- `vertexai`: for using both [Google Vertex AI](https://cloud.google.com/vertex-ai/?&gad_source=1&hl=es) offerings: their proprietary models and endpoints via their Python client [`google-cloud-aiplatform`](https://github.com/googleapis/python-aiplatform).
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
 ## Example
