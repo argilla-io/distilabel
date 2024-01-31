@@ -3031,6 +3031,12 @@
 <li>
 <p><strong>rejected_model</strong>: (<em>Optional</em>, only returned if the dataset contains it, otherwise it's a null string like here) The model used to generate the rejected instruction.</p>
 </li>
+<li>
+<p><strong>chosen_rationale</strong>: (<em>Optional</em>, only returned if the dataset contains the <em>rationale</em>, otherwise it's not added) The rationale behind the rating of the chosen response.</p>
+</li>
+<li>
+<p><strong>rejected_rationale</strong>: (Optional<em>, only returned if the dataset contains the </em>rationale*, otherwise it's not added) The rationale behind the rating of the rejected response.</p>
+</li>
 </ul>
 <p>Need more information? Take a look at <a href="https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences">argilla/ultrafeedback-binarized-preferences</a> to get an idea of how <a href="https://huggingface.co/datasets/openbmb/UltraFeedback">openbmb/UltraFeedback</a> can be binarized to prepare it for <em>DPO</em>.</p>
 <h2 id="customdataset-in-huggingface-hub">CustomDataset in HuggingFace hub<a class="headerlink" href="#customdataset-in-huggingface-hub" title="Permanent link">&para;</a></h2>
