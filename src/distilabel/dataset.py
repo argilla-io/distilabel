@@ -18,7 +18,7 @@ import warnings
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union, get_args
 
 from datasets import Dataset
 from huggingface_hub import HfApi, hf_hub_download
@@ -284,6 +284,9 @@ def load_dataset(path: str, *args: Any, **kwargs: Any) -> Union[Dataset, CustomD
     return cds
 
 
+CheckpointStrategies = Literal["disk", "hf-hub"]
+
+
 @dataclass
 class DatasetCheckpoint:
     """A checkpoint class that contains the information of a checkpoint.
@@ -293,6 +296,9 @@ class DatasetCheckpoint:
         save_frequency (int): The frequency at which the checkpoint should be saved
             By default is set to -1 (no checkpoint is saved to disk, but the dataset
             is returned upon failure).
+        strategy (CheckpointStrategies): The strategy to be used to save the checkpoint.
+            Available options are: "disk" (to save the dataset to disk) and "hf-hub"
+            (to push the dataset to the HuggingFace hub). By default is set to "disk".
         extra_kwargs (dict[str, Any]): Additional kwargs to be passed to the `save_to_disk` method of the Dataset.
 
     Examples:
@@ -304,10 +310,30 @@ class DatasetCheckpoint:
 
     path: Path = Path.cwd() / "ckpt"
     save_frequency: int = -1
+    strategy: CheckpointStrategies = "disk"
     extra_kwargs: Dict[str, Any] = field(default_factory=dict)
 
     # Internal fields to keep track of the number of records generated and when to check.
     _total_checks: int = field(repr=False, default=0)
+
+    def __post_init__(self) -> None:
+        """Checks validity of arguments.
+
+        Raises:
+            ValueError:
+                - If the strategy is not valid.
+                - If the `repo_id` is not passed when using the `hf-hub` strategy.
+        """
+        if self.strategy not in get_args(CheckpointStrategies):
+            raise ValueError(
+                f"Invalid strategy, valid ones are: {get_args(CheckpointStrategies)}"
+            )
+
+        if self.strategy == "hf-hub" and not self.extra_kwargs.get("repo_id"):
+            raise ValueError(
+                "The `repo_id` is required when using the `hf-hub` strategy, please pass it as on 'extra_kwargs' argument."
+            )
+        # TODO(plaguss): If strategy is "hf-hub", check we are logged (or the token is passed as an argument).
 
     def do_checkpoint(self, step: int) -> bool:
         """Determines if a checkpoint should be done.
@@ -325,3 +351,55 @@ class DatasetCheckpoint:
             self._total_checks += 1
             return True
         return False
+
+    def save(self, dataset: CustomDataset) -> None:
+        """Save the dataset given the strategy selected.
+
+        Args:
+            dataset (CustomDataset): Dataset to be saved.
+
+        Raises:
+            ValueError: If the strategy is not valid.
+        """
+        if self.strategy == "disk":
+            self._save_to_disk(dataset, **self.extra_kwargs)
+
+        elif self.strategy == "hf-hub":
+            self._push_to_hub(dataset, **self.extra_kwargs)
+
+        else:
+            # We shouldn't reach this point after __post_init__, but just in case.
+            raise ValueError(
+                f"Invalid strategy, valid ones are: {get_args(CheckpointStrategies)}"
+            )
+
+    def _save_to_disk(
+        self, dataset: Union[Dataset, CustomDataset], **kwargs: Any
+    ) -> None:
+        """Saves the dataset to disk.
+
+        Args:
+            dataset (Union[Dataset, CustomDataset]): The dataset to be saved.
+        """
+        dataset.save_to_disk(self.path, **kwargs)
+        logger.info(f"Checkpoint saved to disk: {self.path}.")
+
+    def _push_to_hub(self, dataset: CustomDataset, **kwargs: Any) -> None:
+        """Pushes the dataset to the hub.
+
+        Args:
+            dataset (Union[Dataset, CustomDataset]): The dataset to be pushed.
+        """
+        repo_id = kwargs.pop("repo_id", None)
+        if not repo_id:
+            raise ValueError(
+                "The `repo_id` is required when pushing to the hub, please pass it as on 'extra_kwargs' argument."
+            )
+
+        try:
+            dataset.push_to_hub(repo_id, **kwargs)
+            logger.info(f"Checkpoint saved to hub: {repo_id}.")
+        except Exception as e:
+            # TODO(plaguss): Check possible errors to provide a more informative message.
+            # And maybe save to disk as a fallback.
+            logger.info(f"Error while pushing the dataset to the hub: {e}.")
