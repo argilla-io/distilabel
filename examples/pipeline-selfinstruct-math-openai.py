@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     instruction_generator = OpenAILLM(
         task=instruction_task,
-        openai_api_key=os.getenv("OPENAI_API_KEY", None),
+        api_key=os.getenv("OPENAI_API_KEY", None),
         num_threads=4,
         max_new_tokens=1024,
     )

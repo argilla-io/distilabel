@@ -20,7 +20,7 @@ LLM classes share several general parameters and define implementation-specific 
 Let's briefly introduce the general parameters we may find[^1]:
 
 [^1]:
-    You can take a look at this blog post from [cohere](https://txt.cohere.com/llm-parameters-best-outputs-language-ai/) for a thorough explanation of the different parameters.
+    You can take a look at this blog post from [Cohere](https://txt.cohere.com/llm-parameters-best-outputs-language-ai/) for a thorough explanation of the different parameters.
 
 - `max_new_tokens`: this parameter controls the maximum number of tokens the LLM is allowed to use.
 
@@ -30,7 +30,11 @@ Let's briefly introduce the general parameters we may find[^1]:
 
 - `frequency_penalty` and `presence_penalty`: the frequency penalty penalizes tokens that have already appeared in the generated text, limiting the possibility of those appearing again, and the `presence_penalty` penalizes regardless of the frequency.
 
+- `num_threads`: some LLMs work better when using several threads to generate text, this parameter allows to specify the number of threads to use.
+
 - `prompt_format` and `prompt_formatting_fn`: these two parameters allow to tweak the prompt of our models, for example we can direct the `LLM` to format the prompt according to one of the defined formats, while `prompt_formatting_fn` allows to pass a function that will be applied to the prompt before the generation, for extra control of what we ingest to the model.
+
+Besides the general parameters, some `LLM` subclasses also have some implementation specific parameters to control the text generation, but those will be explained in the corresponding section.
 
 ### `generate` method
 
@@ -95,6 +99,25 @@ The `LLMOutput` is a `TypedDict` containing the keys `model_name`, `prompt_used`
   1. The keys contained in `parsed_output` will depend on the `Task` used. In this case, we used `TextGenerationTask`, so the key `generations` is present.
 
 If the `LLM` uses a thread pool, then the output of the `generate` method will be a [Future](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Future) having as result a list of lists of `LLMOutput` as described above.
+
+### Validate prompts
+
+Before calling the LLM with your dataset we can take a look at the prompts that will be sent to the engine without actually making the call, to check the data is as expected. The following examples show two different `LLM` cases, but just take into account the input will have to be in the format expected from the `Task`:
+
+!!! Validation
+
+    === "Generator"
+        
+        ```python
+        --8<-- "docs/snippets/technical-reference/llm/validate_prompts_1.py"
+        ```
+
+    === "Labeller"
+
+        ```python
+        --8<-- "docs/snippets/technical-reference/llm/validate_prompts_2.py"
+        ```
+
 
 ## Integrations
 
@@ -231,6 +254,16 @@ Anyscale Endpoints offers open source large language models (LLMs) as fully mana
 ```
 
 For the API reference visit [AnyscaleLLM][distilabel.llm.anyscale.AnyscaleLLM].
+
+### MistralAI
+
+[Mistral.ai](https://mistral.ai/), the company behind awesome Open Source models like [Mixtral 8x7B](https://mistral.ai/news/mixtral-of-experts/), offers their models in their AI platform. Visit their [available models](https://docs.mistral.ai/platform/endpoints/#generative-endpoints) and start creating `distilabel` datasets with them.
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/mistralai_generate.py"
+```
+
+For the API reference visit [MistralAILLM][distilabel.llm.mistralai.MistralAILLM].
 
 ## `ProcessLLM` and `LLMPool`
 

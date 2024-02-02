@@ -68,15 +68,17 @@ def get_progress_bars_for_pipeline(
     display_progress_bar: bool,
     has_generator: bool,
     has_labeller: bool,
+    batch_size: int,
 ) -> Tuple[ProgressFunc, ProgressFunc]:
     if display_progress_bar:
         # Generator progress bar is generated in a function if there's a generator
         # in pipeline.py. Else, is None.
         _generation_progress_func = None
-
+        quotient, remainder = divmod(num_rows, batch_size)
+        total_rows = quotient + remainder
         if has_generator:
             generation_progress_bar = get_progress_bar(
-                description="Texts Generated", total=num_rows * num_generations
+                description="Texts Generated", total=total_rows * num_generations
             )
 
             def _generation_progress_func(advance=None) -> None:
@@ -87,11 +89,13 @@ def get_progress_bars_for_pipeline(
         _labelling_progress_func = None
         if has_labeller:
             labelling_progress_bar = get_progress_bar(
-                description="Rows labelled", total=num_rows
+                description="Rows labelled", total=total_rows
             )
 
             def _labelling_progress_func(advance=None) -> None:
                 labelling_progress_bar(advance=1)
+
+            _labelling_progress_func()
 
         return _generation_progress_func, _labelling_progress_func
 

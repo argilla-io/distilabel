@@ -11,7 +11,7 @@ def load_notus(task: Task) -> LLM:  # (1)
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # (2)
 
     return vLLM(
-        vllm=LLM(model="argilla/notus-7b-v1"),
+        model=LLM(model="argilla/notus-7b-v1"),
         task=task,
         max_new_tokens=512,
         temperature=0.7,
