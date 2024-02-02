@@ -14,6 +14,7 @@
 
 from unittest.mock import Mock
 
+import httpx
 import pytest
 from distilabel.llm import OllamaLLM
 from distilabel.tasks.text_generation.base import TextGenerationTask
@@ -22,13 +23,13 @@ from distilabel.tasks.text_generation.base import TextGenerationTask
 @pytest.fixture(scope="module")
 def mock_ollama_llm():
     task = TextGenerationTask()
-    with pytest.raises(ValueError):
+    with pytest.raises(httpx.ConnectError):
         OllamaLLM(
             model="test_model",
             task=task,
         )
     OllamaLLM._api_available = Mock(return_value=None)
-    with pytest.raises(ValueError):
+    with pytest.raises(httpx.ConnectError):
         OllamaLLM(
             model="test_model",
             task=task,
