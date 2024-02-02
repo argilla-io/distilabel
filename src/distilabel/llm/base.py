@@ -37,7 +37,6 @@ import multiprocess as mp
 
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
-from distilabel.tasks.prompt import Prompt
 from distilabel.utils.futures import when_all_complete
 
 if TYPE_CHECKING:
@@ -135,17 +134,9 @@ class LLM(ABC):
         prompts = []
         for input in inputs:
             prompt = self.task.generate_prompt(**input)
-            if not isinstance(prompt, Prompt) and self.prompt_formatting_fn is not None:
-                warnings.warn(
-                    "The method `generate_prompt` is not returning a `Prompt` class but a prompt"
-                    f" of `type={type(prompt)}`, meaning that a pre-formatting has already been"
-                    " applied in the `task.generate_prompt` method, so the usage of a `prompt_formatting_fn`"
-                    " is discouraged.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+            if self.prompt_formatting_fn is not None:
                 prompt = self.prompt_formatting_fn(prompt)
-            elif isinstance(prompt, Prompt) and self.prompt_formatting_fn is None:
+            else:
                 if self.prompt_format is not None or default_format is not None:
                     prompt = prompt.format_as(
                         format=self.prompt_format or default_format  # type: ignore
