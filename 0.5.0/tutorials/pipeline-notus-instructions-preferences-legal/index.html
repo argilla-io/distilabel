@@ -1,0 +1,3341 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="AI Feedback framework">
+      
+      
+        <meta name="author" content="Argilla, Inc.">
+      
+      
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/0.5.0/tutorials/pipeline-notus-instructions-preferences-legal/">
+      
+      
+        <link rel="prev" href="../../concepts/">
+      
+      
+        <link rel="next" href="../clean-preference-dataset-judgelm-gpt/">
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>⚖️ Create a legal preference dataset - distilabel</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../css/pandas-dataframe.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="⚖️ Create a legal preference dataset - distilabel" >
+      
+        <meta  property="og:description"  content="AI Feedback framework" >
+      
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/0.5.0/assets/images/social/tutorials/pipeline-notus-instructions-preferences-legal.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/0.5.0/tutorials/pipeline-notus-instructions-preferences-legal/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="⚖️ Create a legal preference dataset - distilabel" >
+      
+        <meta  name="twitter:description"  content="AI Feedback framework" >
+      
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/0.5.0/assets/images/social/tutorials/pipeline-notus-instructions-preferences-legal.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#create-a-legal-preference-dataset" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="distilabel" class="md-header__button md-logo" aria-label="distilabel" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            distilabel
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ⚖️ Create a legal preference dataset
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/argilla-io/distilabel" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    argilla-io/distilabel
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../concepts/" class="md-tabs__link">
+        
+  
+    
+  
+  Concepts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../technical-reference/" class="md-tabs__link">
+          
+  
+  Technical References
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="distilabel" class="md-nav__button md-logo" aria-label="distilabel" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    distilabel
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/argilla-io/distilabel" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    argilla-io/distilabel
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concepts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ⚖️ Create a legal preference dataset
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    ⚖️ Create a legal preference dataset
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-an-inference-endpoint-with-notus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up an inference endpoint with Notus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up an inference endpoint with Notus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining a custom generating task for a distilabel pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a RAG pipeline using Haystack for the European AI Act
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a RAG pipeline using Haystack for the European AI Act">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#downloading-the-ai-act-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Downloading the AI Act PDF
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-instructions-with-selfinstructtask" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating instructions with SelfInstructTask
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generating instructions with SelfInstructTask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pushing the instruction dataset to Argilla to visualize and annotate.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate a Preference Dataset using an Ultrafeedback text quality task.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#human-feedback-with-argilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      Human Feedback with Argilla
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clean-preference-dataset-judgelm-gpt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    🧼 Clean an existing preference dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../create-a-math-preference-dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    🧮 Create a mathematical preference dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../improving-text-embeddings-with-llms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    🦒 Improving Text Embeddings with LLMs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Technical References
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Technical References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../technical-reference/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Concept Guides
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Concept Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-reference/llms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLMs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-reference/tasks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tasks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-reference/pipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    distilabel
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            distilabel
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/llm/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    llm
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_2" id="__nav_4_2_1_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            llm
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/anyscale/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    anyscale
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/llm/google/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    google
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_2_3" id="__nav_4_2_1_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            google
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/google/vertexai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    vertexai
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_2_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/llm/huggingface/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    huggingface
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_2_4" id="__nav_4_2_1_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            huggingface
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/huggingface/inference_endpoints/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    inference_endpoints
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/huggingface/transformers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    transformers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/llama_cpp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    llama_cpp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/mistralai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mistralai
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/ollama/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ollama
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/openai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    openai
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/together/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    together
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/vllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    vllm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/logger/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    logger
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/pipeline/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pipeline
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/progress_bar/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    progress_bar
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/tasks/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    tasks
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_6" id="__nav_4_2_1_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            tasks
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/tasks/critique/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    critique
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_6_2" id="__nav_4_2_1_6_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            critique
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/critique/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/critique/prometheus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    prometheus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/critique/ultracm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ultracm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/mixins/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mixins
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/tasks/preference/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    preference
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_6_4" id="__nav_4_2_1_6_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            preference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/complexity_scorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    complexity_scorer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/judgelm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    judgelm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/quality_scorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    quality_scorer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/ultrafeedback/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ultrafeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/preference/ultrajudge/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ultrajudge
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/prompt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    prompt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_6_6" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/tasks/text_generation/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    text_generation
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_6_6" id="__nav_4_2_1_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_4_2_1_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            text_generation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/evol_complexity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    evol_complexity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/evol_instruct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    evol_instruct
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/evol_quality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    evol_quality
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/mixins/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mixins
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/principles/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    principles
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/tasks/text_generation/self_instruct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    self_instruct
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1_7" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/distilabel/utils/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_1_7" id="__nav_4_2_1_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_1_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1_7">
+            <span class="md-nav__icon md-icon"></span>
+            utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/argilla/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    argilla
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    dataset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/dicts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    dicts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/futures/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    futures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/imports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    imports
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/serialization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    serialization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/utils/types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-an-inference-endpoint-with-notus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up an inference endpoint with Notus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up an inference endpoint with Notus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining a custom generating task for a distilabel pipeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a RAG pipeline using Haystack for the European AI Act
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a RAG pipeline using Haystack for the European AI Act">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#downloading-the-ai-act-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Downloading the AI Act PDF
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-instructions-with-selfinstructtask" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating instructions with SelfInstructTask
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generating instructions with SelfInstructTask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pushing the instruction dataset to Argilla to visualize and annotate.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate a Preference Dataset using an Ultrafeedback text quality task.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#human-feedback-with-argilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      Human Feedback with Argilla
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+(function() {
+  function addWidgetsRenderer() {
+    var requireJsScript = document.createElement('script');
+    requireJsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js';
+
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var jupyterWidgetsScript = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    jupyterWidgetsScript.src = widgetRendererSrc;
+
+    document.body.appendChild(requireJsScript);
+    document.body.appendChild(jupyterWidgetsScript);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="create-a-legal-preference-dataset">⚖️ Create a legal preference dataset<a class="headerlink" href="#create-a-legal-preference-dataset" title="Permanent link">&para;</a></h1>
+<p><a href="https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a href="https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open Source in Github" src="https://img.shields.io/badge/github-view%20source-black.svg" /></a></p>
+<p>In this tutorial, you will learn how to use the Notus model on Inference Endpoints to create a legal preference dataset based on RAG instructions from the European AI Act. A full end-to-end example of how to use distilabel to leverage LLMs!</p>
+<p><a href="https://github.com/argilla-io/distilabel">distilabel</a> is an AI Feedback (AIF) framework that can generate and label datasets using LLMs, and can be used for many different use cases. Implemented with robustness, efficiency and scalability in mind, it allows anyone to build their synthetic datasets that can be used in many different scenarios. This tutorial shows an end-to-end example in which we will create a model expert in the new AI Act, to which we can make different types of questions and requests.</p>
+<p>The LLM model that we will fine-tune for this is <a href="https://argilla.io/blog/notus7b/">Notus 7B</a>, a fine-tuned version of Zephyr 7B that uses Direct Preference Optimization (DPO) and AIF techniques to outperform its foundation model in several benchmarks, and is completely open-source.</p>
+<p>This tutorial includes the following steps:</p>
+<ul>
+<li>Defining a custom generating task for a <code>distilabel</code> pipeline.</li>
+<li>Creating a RAG pipeline using Haystack for the EU AI Act.</li>
+<li>Generating an instruction dataset with <code>SelfInstructTask</code>.</li>
+<li>Generating a preference dataset using an <code>UltraFeedback</code> text quality task.</li>
+</ul>
+<p>You can use the Open in Colab button at the top of this page. This option allows you to run the notebook directly on Google Colab. Don't forget to change the runtime type to GPU for faster model training and inference.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>Let's start by installing the required depencies to run distilabel, Argilla and the rest of the packages used in the tutorial; most notably, Haystack.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span>  <span class="n">distilabel</span> <span class="s2">&quot;farm-haystack[preprocessing]&quot;</span> <span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[hf-inference-endpoints]&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="import-dependencies">Import dependencies<a class="headerlink" href="#import-dependencies" title="Permanent link">&para;</a></h3>
+<p>The main dependencies for this tutorial are distilabel for creating the synthetic datasets and Argilla for visualizing and annotating these datasets, and also for fine-tuning our model. The package <a href="https://haystack.deepset.ai/">Haystack</a> is used to creates batches from the original PDF document we want to create our datasets from.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">pipeline</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">TextGenerationTask</span><span class="p">,</span> <span class="n">SelfInstructTask</span><span class="p">,</span> <span class="n">Prompt</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">Dataset</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kn">from</span> <span class="nn">haystack.nodes</span> <span class="kn">import</span> <span class="n">PDFToTextConverter</span><span class="p">,</span> <span class="n">PreProcessor</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Additionally, we need to provide our HuggingFace and OpenAI accest token. To later instatiate an <code>InferenceEndpointsLLM</code> object, we need to pass as parameters the HF Inference Endpoint name and the HF namespace. One very convenient way to do so is also through environment variables.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_INFERENCE_ENDPOINT_NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;aws-notus-7b-v1-3184&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_NAMESPACE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;argilla&quot;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="setting-up-an-inference-endpoint-with-notus">Setting up an inference endpoint with Notus<a class="headerlink" href="#setting-up-an-inference-endpoint-with-notus" title="Permanent link">&para;</a></h2>
+<p>Inference endpoints are a solution, managed by Hugging Face, to easily deploy any Transformer-like model. They are built from models on the Hugging Face Hub. Inference endpoints are really handy for making inference on LLMs without the hastle of trying to run the models locally. In this tutorial, we will use inference endpoints to generate text using our Notus model, as part of the <code>distilabel</code> workflow. The endpoint of choice has a <a href="https://ui.endpoints.huggingface.co/argilla/endpoints/aws-notus-7b-v1-4052">Notus 7B instance</a> running.</p>
+<h3 id="defining-a-custom-generating-task-for-a-distilabel-pipeline">Defining a custom generating task for a distilabel pipeline<a class="headerlink" href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" title="Permanent link">&para;</a></h3>
+<p>To kickstart this tutorial, let's see how to set up and endpoint for our Notus model. It's not part of the end-to-end example we'll see later, but an example of how to connect to a Hugging Face endpoint and a test of the <code>distilabel</code> pipeline.</p>
+<p>Let's dive into this quick example of how to use an inference endpoint. We have prepared an easy <code>TextGenerationTask</code> to ask question to the model, in a very similar way as we talk with the LLMs using chatbots. First, we define a class for the question-answering task, with functions showing <code>distilabel</code> how the model should generate the prompts, parse the input and the output, etc.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span> <span class="nc">QuestionAnsweringTask</span><span class="p">(</span><span class="n">TextGenerationTask</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">def</span> <span class="nf">generate_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="k">return</span> <span class="n">Prompt</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>            <span class="n">system_prompt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>            <span class="n">formatted_prompt</span><span class="o">=</span><span class="n">question</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="p">)</span><span class="o">.</span><span class="n">format_as</span><span class="p">(</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="s2">&quot;llama2&quot;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="p">)</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="k">def</span> <span class="nf">parse_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()}</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="nd">@property</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="k">def</span> <span class="nf">input_args_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="nd">@property</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="k">def</span> <span class="nf">output_args_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>llm</code> is an object of the <code>InferenceEndpointsLLM</code> class, and by using it we can start generating answers to question using the <code>llm.generate()</code> method.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">endpoint_name_or_model_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_INFERENCE_ENDPOINT_NAME&quot;</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">endpoint_namespace</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_NAMESPACE&quot;</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">task</span><span class="o">=</span><span class="n">QuestionAnsweringTask</span><span class="p">(),</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With the <code>InferenceEndpointsLLM</code> object defined with the endpoint information and the Task, we can go ahead and start generating text. Let's ask this LLM what's, for example, the second most populated city in Denmark. The answer should be Aarhus.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">generation</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="p">[{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the second most populated city in Denmark?&quot;</span><span class="p">}]</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">generation</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;parsed_output&quot;</span><span class="p">][</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>'The second most populated city in Denmark is Aarhus, with a population of around 340,000 people. It is located on the east coast of Jutland, and is known for its vibrant cultural scene, beautiful beaches, and historic landmarks. Aarhus is also home to Aarhus University, one of the largest universities in Scandinavia.'</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The endpoint is working correctly! We have succesfully set up a custom generating task for a <code>distilabel</code> pipeline.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="creating-a-rag-pipeline-using-haystack-for-the-european-ai-act">Creating a RAG pipeline using Haystack for the European AI Act<a class="headerlink" href="#creating-a-rag-pipeline-using-haystack-for-the-european-ai-act" title="Permanent link">&para;</a></h2>
+<p>For this end-to-end example, we would like to create an expert model capable of answering question and filling up information about the new AI Act promoted by the European Union, which is the first regulation on artificial intelligence. As part of its digital strategy, the EU wants to regulate artificial AI to ensure better conditions for the development and use of this innovative technology. This act is a regulatory framework for AI, with different risk levels meaning more or less regulation. They are the world's first rules on AI.</p>
+<p>This RAG pipeline that we want to create downloads the PDF file, converts it to plain text and preprocess it, creating batches that we can feed <code>distilabel</code> to start creating instructions from it. Let's see this first part of the pipeline and get the input data. Note that this RAG part of the pipeline is not based on an active pipeline based queries or semantic properties, but a more brute-force approach in which we download the PDF and preprocess its contents.</p>
+<h3 id="downloading-the-ai-act-pdf">Downloading the AI Act PDF<a class="headerlink" href="#downloading-the-ai-act-pdf" title="Permanent link">&para;</a></h3>
+<p>Firstly, we need to download the PDF document itself. We'll place it in our working directory, if it's not there already.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>%%bash
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;The-AI-Act.pdf&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>wget<span class="w"> </span>-q<span class="w"> </span>https://artificialintelligenceact.eu/wp-content/uploads/2021/08/The-AI-Act.pdf
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">fi</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once we have it in our working directory, we can use Haystack's Converter and Pipeline features to extract the textual data, clean it and divide it in different batches. Afterwards, these batches will be used to start creating synthetic instructions.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># The converter turns the PDF into text we can process easily</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">converter</span> <span class="o">=</span> <span class="n">PDFToTextConverter</span><span class="p">(</span><span class="n">remove_numeric_tables</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">valid_languages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;en&quot;</span><span class="p">])</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Preprocessing pipelines can have several steps.</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># Ours clean empty lines, header, footers and whitespaces</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># and split the text into 150-char long batches, respecting</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># where the sentences naturally end and begin.</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">PreProcessor</span><span class="p">(</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">clean_empty_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="n">clean_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">clean_header_footer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">split_by</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">split_length</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="n">split_respect_sentence_boundary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">)</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">doc</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;The-AI-Act.pdf&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">docs</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">process</span><span class="p">([</span><span class="n">doc</span><span class="p">])</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Documents: 1</span><span class="se">\n</span><span class="s2">Batches: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>pdftotext version 4.04 [www.xpdfreader.com]
+Copyright 1996-2022 Glyph &amp; Cog, LLC
+Preprocessing:   0%|          | 0/1 [00:00&lt;?, ?docs/s]</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_html rendered_html output_subarea">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #7fbfbf; text-decoration-color: #7fbfbf">[01/18/24 09:00:15] </span><span style="color: #800000; text-decoration-color: #800000">WARNING </span> WARNING:haystack.nodes.preprocessor.preprocessor:We found one or   <a href="file:///Users/ignacio/Documents/recognai/distilabel/.venv/lib/python3.10/site-packages/haystack/nodes/preprocessor/preprocessor.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">preprocessor.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///Users/ignacio/Documents/recognai/distilabel/.venv/lib/python3.10/site-packages/haystack/nodes/preprocessor/preprocessor.py#516" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">516</span></a>
+<span style="color: #7fbfbf; text-decoration-color: #7fbfbf">                    </span>         more sentences whose split count is higher than the split length.  <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">                   </span>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>Preprocessing: 100%|██████████| 1/1 [00:00&lt;00:00,  5.05docs/s]</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>Documents: 1
+Batches: 355
+</code>
+</pre>
+</div>
+</div>
+<div class="output_area">
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>
+<code>
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take a quick look at the batches we just generated.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">content</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">500</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>'EN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Int'</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The document has been correctly batched, from one big document to 355 strings, 150-character long at maximum. This list of strings can now be used as input to generate a instruction dataset using <code>distilabel</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="generating-instructions-with-selfinstructtask">Generating instructions with SelfInstructTask<a class="headerlink" href="#generating-instructions-with-selfinstructtask" title="Permanent link">&para;</a></h2>
+<p>With out Inference Endpoint up and running, we should be able to generate instructions with distilabel. These instructions, made by the LLM through our endpoint, will form an instruction dataset, with instructions created from the data we just extracted.</p>
+<p>For this example, we are using a subset of 50 batches generated in the section above, to be gentle on performance.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">instructions_dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">50</span><span class="p">]})</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">instructions_dataset</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>Dataset({
+    features: ['input'],
+    num_rows: 50
+})</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With the <code>SelfInstructTask</code> class we can generate a Self-Instruct specitification for building the prompts, as done in the <a href="https://arxiv.org/abs/2212.10560">Self-Instruct paper</a>. <code>distilabel</code> will start from human-made input, in this case, the batches we created from the AI Act pdf, and it will generate instructions based on it. These instructions can then be reviewed using Argilla to keep the best ones.</p>
+<p>An application description can be passed as a parameter to specify the behaviour of the model; we want a model capable of answering our questions about the AI Act.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">instructions_task</span> <span class="o">=</span> <span class="n">SelfInstructTask</span><span class="p">(</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">application_description</span><span class="o">=</span><span class="s2">&quot;A assistant that can answer questions about the AI Act made by the European Union.&quot;</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's now define a generator, passing the <code>SelfInstructTask</code> object, and create a <code>Pipeline</code> object.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">instructions_generator</span> <span class="o">=</span> <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">endpoint_name_or_model_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_INFERENCE_ENDPOINT_NAME&quot;</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">endpoint_namespace</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_NAMESPACE&quot;</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">task</span><span class="o">=</span><span class="n">instructions_task</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">instructions_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="n">instructions_generator</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Our pipeline is ready to be used to generate instructions. Let's do it!</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">generated_instructions</span> <span class="o">=</span> <span class="n">instructions_pipeline</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">dataset</span><span class="o">=</span><span class="n">instructions_dataset</span><span class="p">,</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The pipeline has succesfully generated instructions given the topics and the behaviour passed as input. Let's gather all those instructions and see how the look.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">instructions</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">for</span> <span class="n">generations</span> <span class="ow">in</span> <span class="n">generated_instructions</span><span class="p">[</span><span class="s2">&quot;instructions&quot;</span><span class="p">]:</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="k">for</span> <span class="n">generation</span> <span class="ow">in</span> <span class="n">generations</span><span class="p">:</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        <span class="n">instructions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">generation</span><span class="p">)</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of generated instructions: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">instructions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">instructions</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>Number of generated instructions: 178
+What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?
+How can artificial intelligence improve prediction, optimise operations and resource allocation, and personalise service delivery?
+What benefits can artificial intelligence bring to the European economy and society as a whole?
+How can the use of artificial intelligence support socially and environmentally beneficial outcomes?
+What are the high-impact sectors that require AI action according to the AI Act by the European Union?
+</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These initial intructions form our instruction dataset. Following the human-in-the-loop approach, we should push the instructions to Argilla to visualize them and be able to rank them in terms of quality. Those annotations are essential to make quality data, ensuring a better performance of the final model. Nevertheless, this step is optional.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate">Pushing the instruction dataset to Argilla to visualize and annotate.<a class="headerlink" href="#pushing-the-instruction-dataset-to-argilla-to-visualize-and-annotate" title="Permanent link">&para;</a></h3>
+<p>Let's take a quick look at the instructions generated by <code>SelfInstructTask</code>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">generated_instructions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>{'input': 'EN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Intelligence\n(AI) is a fast evolving family of technologies that can bring a wide array of economic and\nsocietal benefits across the entire spectrum of industries and social activities. By improving\nprediction, optimising operations and resource allocation, and personalising service delivery,\nthe use of artificial intelligence can support socially and environmentally beneficial outcomes\nand provide key competitive advantages to companies and the European economy. ',
+ 'generation_model': ['argilla/notus-7b-v1'],
+ 'generation_prompt': ['You are an expert prompt writer, writing the best and most diverse prompts for a variety of tasks. You are given a task description and a set of instructions for how to write the prompts for an specific AI application.\n# Task Description\nDevelop 5 user queries that can be received by the given AI application and applicable to the provided context. Emphasize diversity in verbs and linguistic structures within the model\'s textual capabilities.\n\n# Criteria for Queries\nIncorporate a diverse range of verbs, avoiding repetition.\nEnsure queries are compatible with AI model\'s text generation functions and are limited to 1-2 sentences.\nDesign queries to be self-contained and standalone.\nBlend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.\nWrite each query on a separate line and avoid using numbered lists or bullet points.\n\n# AI Application\nA assistant that can answer questions about the AI Act made by the European Union.\n\n# Context\nEN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Intelligence\n(AI) is a fast evolving family of technologies that can bring a wide array of economic and\nsocietal benefits across the entire spectrum of industries and social activities. By improving\nprediction, optimising operations and resource allocation, and personalising service delivery,\nthe use of artificial intelligence can support socially and environmentally beneficial outcomes\nand provide key competitive advantages to companies and the European economy. \n\n# Output\n'],
+ 'raw_generation_responses': ['1. What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?\n2. How can artificial intelligence improve prediction, optimise operations and resource allocation, and personalise service delivery?\n3. What benefits can artificial intelligence bring to the European economy and society as a whole?\n4. How can the use of artificial intelligence support socially and environmentally beneficial outcomes?\n5. What competitive advantages can companies gain from using artificial intelligence?'],
+ 'instructions': [['What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?',
+   'How can artificial intelligence improve prediction, optimise operations and resource allocation, and personalise service delivery?',
+   'What benefits can artificial intelligence bring to the European economy and society as a whole?',
+   'How can the use of artificial intelligence support socially and environmentally beneficial outcomes?']]}</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For each input, i.e., each batch of the AI Act pdf file, we have a generator prompt, with general guidelines on how to behave, as well as the application description parameter. 4 instructions per input have been generated.</p>
+<p>Now it's the perfect time to upload the instruction dataset to Argilla, review it and manually annotate it.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">instructions_rg_dataset</span> <span class="o">=</span> <span class="n">generated_instructions</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">instructions_rg_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>FeedbackRecord(fields={'input': 'EN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Intelligence\n(AI) is a fast evolving family of technologies that can bring a wide array of economic and\nsocietal benefits across the entire spectrum of industries and social activities. By improving\nprediction, optimising operations and resource allocation, and personalising service delivery,\nthe use of artificial intelligence can support socially and environmentally beneficial outcomes\nand provide key competitive advantages to companies and the European economy.', 'instruction': 'What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?'}, metadata={'length-input': 964, 'length-instruction': 129, 'generation-model': 'argilla/notus-7b-v1'}, vectors={}, responses=[], suggestions=(), external_id=None)</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">instructions_rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;notus_AI_instructions&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the Argilla UI, each tuple input-instruction is visualized individually, and can be individually annotated.</p>
+<p><img alt="" src="../../assets/tutorials-assets/instrucion_dataset_notus_ui.png" /></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task">Generate a Preference Dataset using an Ultrafeedback text quality task.<a class="headerlink" href="#generate-a-preference-dataset-using-an-ultrafeedback-text-quality-task" title="Permanent link">&para;</a></h2>
+<p>Once we have our instruction dataset, we are going to create a preference dataset through the UltraFeedback text quality task. This is a type of task used in NLP used to evaluate the quality of text generated; our goal is to provide detailed feedback on the quality of the generated text, beyond a binary label.</p>
+<p>Our <code>pipeline()</code> method allows us to create a <code>Pipeline</code> instance with the provided LLMs for a given task, which is useful whenever you want to use a pre-defined or custom <code>Pipeline</code> for a given task. We will specify our task and subtask, the generator we want to use (in this case, one based in a Text Generator Task) and our OpenAI API key.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">preference_pipeline</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="s2">&quot;preference&quot;</span><span class="p">,</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="s2">&quot;instruction-following&quot;</span><span class="p">,</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">generator</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        <span class="n">endpoint_name_or_model_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_INFERENCE_ENDPOINT_NAME&quot;</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>        <span class="n">endpoint_namespace</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_NAMESPACE&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>    <span class="p">),</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    <span class="n">num_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We also need to retrieve our instruction dataset from Argilla, as it will be the input of this pipeline.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">remote_dataset</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">FeedbackDataset</span><span class="o">.</span><span class="n">from_argilla</span><span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="s2">&quot;notus_AI_instructions&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="p">)</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">instructions_dataset</span> <span class="o">=</span> <span class="n">remote_dataset</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">max_records</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># get first 100 records</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="n">instructions_dataset</span> <span class="o">=</span> <span class="n">instructions_dataset</span><span class="o">.</span><span class="n">format_as</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="n">instructions_dataset</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>Dataset({
+    features: ['input', 'instruction', 'instruction-rating', 'instruction-rating-suggestion', 'instruction-rating-suggestion-metadata', 'external_id', 'metadata'],
+    num_rows: 100
+})</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">instructions_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>{'input': 'EN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Intelligence\n(AI) is a fast evolving family of technologies that can bring a wide array of economic and\nsocietal benefits across the entire spectrum of industries and social activities. By improving\nprediction, optimising operations and resource allocation, and personalising service delivery,\nthe use of artificial intelligence can support socially and environmentally beneficial outcomes\nand provide key competitive advantages to companies and the European economy.',
+ 'instruction': 'What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?',
+ 'instruction-rating': [],
+ 'instruction-rating-suggestion': None,
+ 'instruction-rating-suggestion-metadata': {'type': None,
+  'score': None,
+  'agent': None},
+ 'external_id': None,
+ 'metadata': '{"length-input": 964, "length-instruction": 129, "generation-model": "argilla/notus-7b-v1"}'}</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Before generating the text based on our instructions, we need to mingle a little bit with the dataset. From the previous section, we still have our old input, the batches from the PDF. We have to change that to the instructions that we generated.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">instructions_dataset</span> <span class="o">=</span> <span class="n">instructions_dataset</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">({</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;input&quot;</span><span class="p">})</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, let's build a dataset by using the pipeline we just created, and the topics from which our instructions were generated.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">preference_dataset</span> <span class="o">=</span> <span class="n">preference_pipeline</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="n">instructions_dataset</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="n">display_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take a look at an instance of the preference dataset</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">preference_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>{'context': 'EN EN\nEUROPEAN\nCOMMISSION\nProposal for a\nREGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL\nLAYING DOWN HARMONISED RULES ON ARTIFICIAL INTELLIGENCE\n(ARTIFICIAL INTELLIGENCE ACT) AND AMENDING CERTAIN UNION\nLEGISLATIVE ACTS\x0cEN\nEXPLANATORY MEMORANDUM\n1. CONTEXT OF THE PROPOSAL\n1.1. Reasons for and objectives of the proposal\nThis explanatory memorandum accompanies the proposal for a Regulation laying down\nharmonised rules on artificial intelligence (Artificial Intelligence Act). Artificial Intelligence\n(AI) is a fast evolving family of technologies that can bring a wide array of economic and\nsocietal benefits across the entire spectrum of industries and social activities. By improving\nprediction, optimising operations and resource allocation, and personalising service delivery,\nthe use of artificial intelligence can support socially and environmentally beneficial outcomes\nand provide key competitive advantages to companies and the European economy.',
+ 'input': 'What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?',
+ 'instruction-rating': [],
+ 'instruction-rating-suggestion': None,
+ 'instruction-rating-suggestion-metadata': {'agent': None,
+  'score': None,
+  'type': None},
+ 'external_id': None,
+ 'metadata': '{"length-input": 964, "length-instruction": 129, "generation-model": "argilla/notus-7b-v1"}',
+ 'generation_model': ['argilla/notus-7b-v1', 'argilla/notus-7b-v1'],
+ 'generation_prompt': ["You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\nWhat are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?",
+  "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\nWhat are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?"],
+ 'raw_generation_responses': ["\nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure the trustworthy use of AI in the EU. It seeks to create a single market for AI applications and services, while ensuring that they are safe and respect fundamental rights. The proposal is part of the EU's broader strategy on AI, which aims to put the EU at the forefront of global AI development and deployment.\nThe objectives of the proposal are to:\n\n1. Ensure that AI systems are designed, developed, and deployed in a way that respects fundamental rights and values, including human dignity, freedom, and privacy.\n2. Ensure that AI systems are safe and secure, and do not pose unacceptable risks to people, property, or the environment.\n3. Ensure that AI systems are robust, reliable, and accurate, and can be trusted to deliver the intended functionality.\n4. Ensure that AI systems are traceable, meaning that it is possible to track how they work and how they make decisions.\n5. Ensure that AI systems are transparent, meaning that it is possible to understand how they work and how they make decisions.\n6. Ensure that AI systems are fair, meaning that they do not discriminate against individuals",
+  '\nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure a high level of safety and security of AI systems and to establish a horizontal and technology-neutral framework for AI applications. This will help to create a single market for AI and to ensure that AI systems are developed and deployed in a responsible manner. The proposal will also help to strengthen the competitiveness of the EU industry in the global AI market.\nThe objectives of the proposal are:\n1. To ensure that AI systems are safe and secure by establishing a risk-based framework for the development, placement on the market and use of AI systems.\n2. To establish a horizontal and technology-neutral framework for AI applications that is applicable to all sectors and types of AI systems.\n3. To ensure that AI systems are developed and deployed in a responsible manner by establishing requirements for transparency, robustness, security, accuracy, controllability and privacy protection.\n4. To create a single market for AI by ensuring that AI systems are developed and deployed in a harmonised manner across the EU.\n5. To strengthen the competitiveness of the EU industry in the global AI market by creating a level playing field for businesses and by promoting the'],
+ 'generations': ["\nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure the trustworthy use of AI in the EU. It seeks to create a single market for AI applications and services, while ensuring that they are safe and respect fundamental rights. The proposal is part of the EU's broader strategy on AI, which aims to put the EU at the forefront of global AI development and deployment.\nThe objectives of the proposal are to:\n\n1. Ensure that AI systems are designed, developed, and deployed in a way that respects fundamental rights and values, including human dignity, freedom, and privacy.\n2. Ensure that AI systems are safe and secure, and do not pose unacceptable risks to people, property, or the environment.\n3. Ensure that AI systems are robust, reliable, and accurate, and can be trusted to deliver the intended functionality.\n4. Ensure that AI systems are traceable, meaning that it is possible to track how they work and how they make decisions.\n5. Ensure that AI systems are transparent, meaning that it is possible to understand how they work and how they make decisions.\n6. Ensure that AI systems are fair, meaning that they do not discriminate against individuals",
+  '\nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure a high level of safety and security of AI systems and to establish a horizontal and technology-neutral framework for AI applications. This will help to create a single market for AI and to ensure that AI systems are developed and deployed in a responsible manner. The proposal will also help to strengthen the competitiveness of the EU industry in the global AI market.\nThe objectives of the proposal are:\n1. To ensure that AI systems are safe and secure by establishing a risk-based framework for the development, placement on the market and use of AI systems.\n2. To establish a horizontal and technology-neutral framework for AI applications that is applicable to all sectors and types of AI systems.\n3. To ensure that AI systems are developed and deployed in a responsible manner by establishing requirements for transparency, robustness, security, accuracy, controllability and privacy protection.\n4. To create a single market for AI by ensuring that AI systems are developed and deployed in a harmonised manner across the EU.\n5. To strengthen the competitiveness of the EU industry in the global AI market by creating a level playing field for businesses and by promoting the'],
+ 'labelling_model': 'gpt-3.5-turbo',
+ 'labelling_prompt': [{'content': 'Your role is to evaluate text quality based on given criteria.',
+   'role': 'system'},
+  {'content': "\n# Instruction Following Assessment\nEvaluate alignment between output and intent. Assess understanding of task goal and restrictions.\n**Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).\n\n**Scoring**: Rate outputs 1 to 5:\n\n1. **Irrelevant**: No alignment.\n2. **Partial Focus**: Addresses one aspect poorly.\n3. **Partial Compliance**:\n\t- (1) Meets goal or restrictions, neglecting other.\n\t- (2) Acknowledges both but slight deviations.\n4. **Almost There**: Near alignment, minor deviations.\n5. **Comprehensive Compliance**: Fully aligns, meets all requirements.\n\n---\n\n## Format\n\n### Input\nInstruction: [Specify task goal and restrictions]\n\nTexts:\n\n&lt;text 1&gt; [Text 1]\n&lt;text 2&gt; [Text 2]\n\n### Output\n\n#### Output for Text 1\nRating: [Rating for text 1]\nRationale: [Rationale for the rating in short sentences]\n\n#### Output for Text 2\nRating: [Rating for text 2]\nRationale: [Rationale for the rating in short sentences]\n\n---\n\n## Annotation\n\n### Input\nInstruction: What are the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence?\n\nTexts:\n\n&lt;text 1&gt; \nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure the trustworthy use of AI in the EU. It seeks to create a single market for AI applications and services, while ensuring that they are safe and respect fundamental rights. The proposal is part of the EU's broader strategy on AI, which aims to put the EU at the forefront of global AI development and deployment.\nThe objectives of the proposal are to:\n\n1. Ensure that AI systems are designed, developed, and deployed in a way that respects fundamental rights and values, including human dignity, freedom, and privacy.\n2. Ensure that AI systems are safe and secure, and do not pose unacceptable risks to people, property, or the environment.\n3. Ensure that AI systems are robust, reliable, and accurate, and can be trusted to deliver the intended functionality.\n4. Ensure that AI systems are traceable, meaning that it is possible to track how they work and how they make decisions.\n5. Ensure that AI systems are transparent, meaning that it is possible to understand how they work and how they make decisions.\n6. Ensure that AI systems are fair, meaning that they do not discriminate against individuals\n&lt;text 2&gt; \nThe proposal for a Regulation laying down harmonised rules on artificial intelligence (AI) aims to ensure a high level of safety and security of AI systems and to establish a horizontal and technology-neutral framework for AI applications. This will help to create a single market for AI and to ensure that AI systems are developed and deployed in a responsible manner. The proposal will also help to strengthen the competitiveness of the EU industry in the global AI market.\nThe objectives of the proposal are:\n1. To ensure that AI systems are safe and secure by establishing a risk-based framework for the development, placement on the market and use of AI systems.\n2. To establish a horizontal and technology-neutral framework for AI applications that is applicable to all sectors and types of AI systems.\n3. To ensure that AI systems are developed and deployed in a responsible manner by establishing requirements for transparency, robustness, security, accuracy, controllability and privacy protection.\n4. To create a single market for AI by ensuring that AI systems are developed and deployed in a harmonised manner across the EU.\n5. To strengthen the competitiveness of the EU industry in the global AI market by creating a level playing field for businesses and by promoting the\n\n### Output ",
+   'role': 'user'}],
+ 'raw_labelling_response': '#### Output for Text 1\nRating: 5\nRationale: The text fully aligns with the task goal and restrictions. It clearly states the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence, including ensuring the trustworthy use of AI, creating a single market for AI applications and services, and ensuring safety, respect for fundamental rights, robustness, transparency, and fairness of AI systems.\n\n#### Output for Text 2\nRating: 4\nRationale: The text mostly aligns with the task goal and restrictions. It addresses the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence, including ensuring safety and security of AI systems, establishing a horizontal and technology-neutral framework, promoting responsible development and deployment of AI systems, creating a single market for AI, and strengthening the competitiveness of the EU industry in the global AI market. However, it does not explicitly mention the need to respect fundamental rights, accuracy of AI systems, and traceability of AI systems, which are mentioned in the task goal and restrictions.',
+ 'rating': [5.0, 4.0],
+ 'rationale': ['The text fully aligns with the task goal and restrictions. It clearly states the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence, including ensuring the trustworthy use of AI, creating a single market for AI applications and services, and ensuring safety, respect for fundamental rights, robustness, transparency, and fairness of AI systems.',
+  'The text mostly aligns with the task goal and restrictions. It addresses the reasons for and objectives of the proposal for a Regulation laying down harmonised rules on artificial intelligence, including ensuring safety and security of AI systems, establishing a horizontal and technology-neutral framework, promoting responsible development and deployment of AI systems, creating a single market for AI, and strengthening the competitiveness of the EU industry in the global AI market. However, it does not explicitly mention the need to respect fundamental rights, accuracy of AI systems, and traceability of AI systems, which are mentioned in the task goal and restrictions.']}</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="human-feedback-with-argilla">Human Feedback with Argilla<a class="headerlink" href="#human-feedback-with-argilla" title="Permanent link">&para;</a></h2>
+<p>You can use the AI Feedback created by distilabel directly but we hae ve seen that enhancing it with human feedback will improve the quality of your LLM. We provide a <code>to_argilla</code> method which creates a dataset for Argilla along with out-of-the-box tailored metadata filters and semantic search to allow you to provide human feedback as quickly and engaging as possible. You can check <a href="https://docs.argilla.io/en/latest/getting_started/quickstart_installation.html">the Argilla docs</a> to get it up and running.</p>
+<p>First, install it.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[argilla]&quot;</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you are running Argilla using the Docker quickstart image or Hugging Face Spaces, you need to init the Argilla client with the URL and API_KEY:</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once our preference dataset has been correctly generated, the Argilla UI is the best tool at our disposal to visualize it and annotate it. As for the instruction dataset, we just have to convert it to an Argilla Feedback Dataset, and push it to Argilla.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># Uploading the Preference Dataset</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">preference_rg_dataset</span> <span class="o">=</span> <span class="n">preference_dataset</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="c1"># Adding the context as a metadata property in the new Feedback dataset, as this</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="c1"># information will be useful later.</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="k">for</span> <span class="n">record_feedback</span><span class="p">,</span> <span class="n">record_huggingface</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    <span class="n">preference_rg_dataset</span><span class="p">,</span> <span class="n">preference_dataset</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="p">):</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="n">record_feedback</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record_huggingface</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">]</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="n">preference_rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;notus_AI_preference&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the Argilla UI, we can see the input (an instruction), and the two generations that the LLM created out of it.</p>
+<p><img alt="" src="../../assets/tutorials-assets/preference_dataset_notus_ui.png" /></p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
+<p>To conclude, we have gone through an end-to-end example of distilabel. We've set up an Inference Endpoint, defined a distilabel pipeline that extracts information from a PDF, created and manually reviewed the instruction and preference dataset created from that input. The final preference dataset is perfect for fine-tuning, and you can easily do this using the ArgillaTrainer from Argilla. Have a look at these resources if you want to go further:</p>
+<ul>
+<li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/end2end_examples/train-model-006.html">Train a Model with ArgillaTrainer</a></li>
+<li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/training-llm-mistral-sft.html">Ⓜ️ Finetuning LLMs as chat assistants: Supervised Finetuning on Mistral 7B</a></li>
+<li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/fine-tuning-sentencesimilarity-rag.html">🌠 Improving RAG by Optimizing Retrieval and Reranking Models</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "toc.follow", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+    
+  </body>
+</html>
