@@ -32,6 +32,7 @@ In addition, the following extras are available:
 - `openai`: for using OpenAI API models via the `OpenAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
+- `ollama`: for using [Ollama](https://github.com/ollama/ollama) and their available models via their Python client.
 - `together`: for using [Together Inference](https://www.together.ai/products) via their Python client.
 - `anyscale`: for using [Anyscale endpoints](https://www.anyscale.com/endpoints).
 - `ollama`: for using [Ollama](https://ollama.ai/).
