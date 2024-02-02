@@ -252,6 +252,10 @@ This dataset processing is called binarization. In the context of `distilabel`, 
 
 - **rejected_model**: (*Optional*, only returned if the dataset contains it, otherwise it's a null string like here) The model used to generate the rejected instruction.
 
+- **chosen_rationale**: (*Optional*, only returned if the dataset contains the *rationale*, otherwise it's not added) The rationale behind the rating of the chosen response.
+
+- **rejected_rationale**: (Optional*, only returned if the dataset contains the *rationale*, otherwise it's not added) The rationale behind the rating of the rejected response.
+
 Need more information? Take a look at [argilla/ultrafeedback-binarized-preferences](https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences) to get an idea of how [openbmb/UltraFeedback](https://huggingface.co/datasets/openbmb/UltraFeedback) can be binarized to prepare it for *DPO*.
 
 ## CustomDataset in HuggingFace hub

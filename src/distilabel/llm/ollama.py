@@ -89,10 +89,10 @@ class OllamaLLM(LLM):
             ValueError: if the Ollama API request failed.
 
         Examples:
-            >>> from distilabel.tasks import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import OllamaLLM
-            >>> task = Task()
-            >>> llm = OllamaLLM(model="notus", task=task)
+            >>> llm = OllamaLLM(model="notus", task=TextGenerationTask())
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         super().__init__(
             task=task,

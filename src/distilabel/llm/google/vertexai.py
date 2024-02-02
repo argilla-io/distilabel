@@ -329,8 +329,8 @@ class VertexAIEndpointLLM(LLM):
 
     def __init__(
         self,
-        task: "Task",
         endpoint_id: str,
+        task: "Task",
         project: Optional[str] = None,
         location: str = "us-central1",
         generation_kwargs: Optional[Dict[str, Any]] = None,
@@ -343,8 +343,8 @@ class VertexAIEndpointLLM(LLM):
         """Initializes the `VertexAIEndpointLLM` class.
 
         Args:
-            task (Task): the task to be performed by the LLM.
             endpoint_id (str): the ID of the Vertex AI endpoint to be used for generation.
+            task (Task): the task to be performed by the LLM.
             project (Optional[str], optional): the project to be used for generation. If `None`,
                 the default project will be used. Defaults to `None`.
             location (str, optional): the location of the Vertex AI endpoint to be used for

@@ -28,7 +28,10 @@ BinarizationStrategies = Literal["random", "worst"]
 
 
 def _get_best_response(
-    example: Any, rating_column: str = "rating", responses_column: str = "generations"
+    example: Any,
+    rating_column: str = "rating",
+    responses_column: str = "generations",
+    rationale_column: Optional[str] = "rationale",
 ) -> Tuple[str, int, str, str]:
     """Helper function to get the best response from an example, this can be used
     independent on the method to chose the rejected response.
@@ -41,6 +44,9 @@ def _get_best_response(
             Column containing the rating in the CustomDataset. Defaults to "rating".
         responses_column (str, optional):
             Column containing the responses from a model in a CustomDataset. Defaults to "generations".
+        rationale_column (Optional[str], optional):
+            Column containing the rationale from a model in a CustomDataset, if found, otherwise
+            will be None. Defaults to "rationale".
 
     Returns:
         Tuple[str, int, str, str]: Contains the prompt, best rating, chosen response, and chosen model.
@@ -51,12 +57,17 @@ def _get_best_response(
     best_response_idx = example[rating_column].index(best_rating)
     chosen_response = example[responses_column][best_response_idx]
     chosen_model = example["generation_model"][best_response_idx]
+    chosen_rationale = (
+        example[rationale_column][best_response_idx] if rationale_column else None
+    )
 
     # Remove best response
     example[rating_column].pop(best_response_idx)
     example[responses_column].pop(best_response_idx)
     example["generation_model"].pop(best_response_idx)
-    return prompt, best_rating, chosen_response, chosen_model
+    if chosen_rationale:
+        example[rationale_column].pop(best_response_idx)
+    return prompt, best_rating, chosen_response, chosen_model, chosen_rationale
 
 
 def _format_message(prompt: str, response: str) -> List[Dict[str, str]]:
@@ -78,6 +89,7 @@ def _binarize_dataset(
     keep_ties: bool = False,
     rating_column: str = "rating",
     responses_column: str = "generations",
+    rationale_column: Optional[str] = "rationale",
     **kwargs: Any,
 ) -> "CustomDataset":
     """Binarizes a distilabel dataset.
@@ -101,10 +113,17 @@ def _binarize_dataset(
         _get_best_response,
         rating_column=rating_column,
         responses_column=responses_column,
+        rationale_column=rationale_column,
     )
 
     def binarize_random(example):
-        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
+        (
+            prompt,
+            best_rating,
+            chosen_response,
+            chosen_model,
+            chosen_rationale,
+        ) = get_best_response(example)
         random.seed(seed)
 
         # Then you pick the rejected from the list of candidates with lower scores.
@@ -113,7 +132,9 @@ def _binarize_dataset(
             if rating < best_rating:
                 example_lower[responses_column].append(example[responses_column][i])
                 example_lower[rating_column].append(rating)
-
+                # Add the rationale if found
+                if chosen_rationale:
+                    example_lower[rationale_column].append(example[rationale_column][i])
         # Otherwise you declare that a tie
         if len(example_lower[rating_column]) == 0:
             # In this case we don't have any response with a lower rating, so we just
@@ -126,7 +147,7 @@ def _binarize_dataset(
 
         random_model = example["generation_model"][random_response_idx]
 
-        return {
+        bin_example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, random_response),
@@ -135,16 +156,29 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": random_model,
         }
+        if chosen_rationale:
+            bin_example["chosen_rationale"] = chosen_rationale
+            bin_example["rejected_rationale"] = example[rationale_column][
+                random_response_idx
+            ]
+
+        return bin_example
 
     def binarize_worst(example):
-        prompt, best_rating, chosen_response, chosen_model = get_best_response(example)
+        (
+            prompt,
+            best_rating,
+            chosen_response,
+            chosen_model,
+            chosen_rationale,
+        ) = get_best_response(example)
 
         worst_rating = min(example[rating_column])
         worst_response_idx = example[rating_column].index(worst_rating)
         worst_response = example[responses_column][worst_response_idx]
         worst_model = example["generation_model"][worst_response_idx]
 
-        return {
+        bin_example = {
             "prompt": prompt,
             "chosen": _format_message(prompt, chosen_response),
             "rejected": _format_message(prompt, worst_response),
@@ -153,6 +187,13 @@ def _binarize_dataset(
             "chosen_model": chosen_model,
             "rejected_model": worst_model,
         }
+        if chosen_rationale:
+            bin_example["chosen_rationale"] = chosen_rationale
+            bin_example["rejected_rationale"] = example[rationale_column][
+                worst_response_idx
+            ]
+
+        return bin_example
 
     if strategy == "random":
         binarization_method = binarize_random
@@ -182,6 +223,7 @@ def _binarize_dataset(
 def prepare_dataset(
     dataset: "CustomDataset",
     strategy: BinarizationStrategies = "random",
+    sft: bool = False,
     seed: Optional[int] = None,
     keep_ties: bool = False,
     **kwargs: Any,
@@ -214,6 +256,10 @@ def prepare_dataset(
             CustomDataset with a PreferenceTask to prepare for Direct Preference Optimization.
         strategy (BinarizationStrategies, optional):
             Strategy to binarize the data. Defaults to "random".
+        sft (bool, optional):
+            Whether to add a `messages` column to the dataset, to be used for Supervised Fine Tuning.
+            If set to True, this messages column will contain the same information as the chosen response.
+            Defaults to False.
         seed (int, optional): Seed for the random generator, in case of `random` strategy. Defaults to None.
         keep_ties (bool, optional):
             Whether to keep ties in case the binarization method generated the chosen
@@ -246,7 +292,6 @@ def prepare_dataset(
         "labelling_model",
         "labelling_prompt",
         "raw_labelling_response",
-        "rationale",
     ]
 
     # Remove the rows for which there is no rating
@@ -269,6 +314,13 @@ def prepare_dataset(
     if len(dataset[0]["generations"]) < 2:
         raise ValueError("The dataset must contain at least 2 generations per example.")
 
+    # If the dataset contains the rationale, grab the content
+    if "rationale" in dataset.column_names:
+        rationale_column = "rationale"
+        remove_columns.append("rationale")
+    else:
+        rationale_column = None
+
     ds = _binarize_dataset(
         dataset,
         strategy=strategy,
@@ -276,9 +328,18 @@ def prepare_dataset(
         keep_ties=keep_ties,
         rating_column="rating",
         responses_column="generations",
+        rationale_column=rationale_column,
         **kwargs,
     )
 
+    if sft:
+        # Adds a column to be used for Supervised Fine Tuning based on the chosen response
+        ds = ds.map(
+            lambda example: {
+                **example,
+                "messages": example["chosen"],
+            }
+        )
     # Imported here to avoid circular imports
     from distilabel.dataset import CustomDataset
 

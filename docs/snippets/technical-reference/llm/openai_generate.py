@@ -8,7 +8,7 @@ openaillm = OpenAILLM(
     task=TextGenerationTask(),
     prompt_format="openai",
     max_new_tokens=256,
-    openai_api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY", None),
     temperature=0.3,
 )
 result = openaillm.generate([{"input": "What is OpenAI?"}])

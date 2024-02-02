@@ -5,5 +5,5 @@ from distilabel.tasks import UltraFeedbackTask
 
 labeller = OpenAILLM(
     task=UltraFeedbackTask.for_instruction_following(),
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY", None),
 )

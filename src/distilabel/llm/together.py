@@ -35,8 +35,8 @@ logger = get_logger()
 class TogetherInferenceLLM(LLM):
     def __init__(
         self,
-        task: "Task",
         model: str,
+        task: "Task",
         api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         repetition_penalty: float = 1.0,
@@ -52,8 +52,8 @@ class TogetherInferenceLLM(LLM):
         """Initializes the TogetherInferenceLLM class.
 
         Args:
-            task (Task): the task to be performed by the LLM.
             model (str): the model to be used for generation.
+            task (Task): the task to be performed by the LLM.
             max_new_tokens (int, optional): the maximum number of tokens to be generated.
                 Defaults to 128.
             temperature (float, optional): the temperature to be used for generation. From the Together
@@ -96,10 +96,10 @@ class TogetherInferenceLLM(LLM):
             AssertionError: if the provided `model` is not available in Together Inference.
 
         Examples:
-            >>> from distilabel.tasks import TextGenerationTask as Task
+            >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import TogetherInferenceLLM
-            >>> task = Task()
-            >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=task, prompt_format="llama2")
+            >>> llm = TogetherInferenceLLM(model="togethercomputer/llama-2-7b", task=TextGenerationTask(), prompt_format="llama2")
+            >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         if not _TOGETHER_AVAILABLE:
             raise ImportError(

@@ -5,5 +5,5 @@ from distilabel.tasks import QualityScorerTask
 
 labeller = OpenAILLM(
     task=QualityScorerTask(),
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY", None),
 )

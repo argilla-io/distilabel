@@ -33,8 +33,8 @@ logger = get_logger()
 class AnyscaleLLM(OpenAILLM):
     def __init__(
         self,
-        task: "Task",
         model: str,
+        task: "Task",
         client: Union["OpenAI", None] = None,
         api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
@@ -49,8 +49,8 @@ class AnyscaleLLM(OpenAILLM):
         """Initializes the AnyscaleLLM class.
 
         Args:
+            model (str): the model to be used for generation.
             task (Task): the task to be performed by the LLM.
-            model (str, optional): the model to be used for generation.
             client (Union[OpenAI, None], optional): an OpenAI client to be used for generation.
                 If `None`, a new client will be created. Defaults to `None`.
             api_key (Union[str, None], optional): the Anyscale API key to be used for generation.
@@ -82,10 +82,9 @@ class AnyscaleLLM(OpenAILLM):
             AssertionError: if the provided `model` is not available in your OpenAI account.
 
         Examples:
-            >>> import os
             >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import AnyscaleLLM
-            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask(), openai_api_key=os.getenv("ANYSCALE_API_KEY", None))
+            >>> llm = AnyscaleLLM(model="HuggingFaceH4/zephyr-7b-beta", task=TextGenerationTask())
             >>> llm.generate([{"input": "What's the capital of Spain?"}])
         """
         LLM.__init__(
