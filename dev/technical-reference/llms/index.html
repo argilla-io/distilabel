@@ -863,6 +863,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mistralai" class="md-nav__link">
+    <span class="md-ellipsis">
+      MistralAI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1307,6 +1316,27 @@
   
   <span class="md-ellipsis">
     llama_cpp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/distilabel/llm/mistralai/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mistralai
   </span>
   
 
@@ -2524,6 +2554,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mistralai" class="md-nav__link">
+    <span class="md-ellipsis">
+      MistralAI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2999,80 +3038,103 @@ Find more information about it in the <a href="https://github.com/jmorganca/olla
 </span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c1"># greater value from their ML investments.&#39;</span>
 </span></code></pre></div>
 <p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/llm/anyscale/#distilabel.llm.anyscale.AnyscaleLLM">AnyscaleLLM</a>.</p>
+<h3 id="mistralai">MistralAI<a class="headerlink" href="#mistralai" title="Permanent link">&para;</a></h3>
+<p><a href="https://mistral.ai/">Mistral.ai</a>, the company behind awesome Open Source models like <a href="https://mistral.ai/news/mixtral-of-experts/">Mixtral 8x7B</a>, offers their models in their AI platform. Visit their <a href="https://docs.mistral.ai/platform/endpoints/#generative-endpoints">available models</a> and start creating <code>distilabel</code> datasets with them.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">MistralAILLM</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">TextGenerationTask</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">mistralai_llm</span> <span class="o">=</span> <span class="n">MistralAILLM</span><span class="p">(</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral-tiny&quot;</span><span class="p">,</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MISTRALAI_API_KEY&quot;</span><span class="p">),</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="p">)</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">result</span> <span class="o">=</span> <span class="n">mistralai_llm</span><span class="o">.</span><span class="n">generate</span><span class="p">([{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;What is Anyscale?&quot;</span><span class="p">}])</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1"># &gt;&gt;&gt; print(result[0][0][&quot;parsed_output&quot;][&quot;generations&quot;])</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="c1"># I&#39;d be happy to help answer your question, but it&#39;s important to note</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="c1"># that the &quot;best&quot; French cheese can be subjective as it depends on personal</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="c1"># taste preferences. Some popular and highly regarded French cheeses include</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="c1"># Roquefort for its strong, tangy flavor and distinct blue veins; Camembert</span>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="c1"># for its earthy, mushroomy taste and soft, runny texture; and Brie for its</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="c1"># creamy, buttery, and slightly sweet taste. I&#39;d recommend trying different</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="c1"># types to find the one you enjoy the most.</span>
+</span></code></pre></div>
+<p>For the API reference visit <a class="autorefs autorefs-internal" href="../../reference/distilabel/llm/mistralai/#distilabel.llm.mistralai.MistralAILLM">MistralAILLM</a>.</p>
 <h2 id="processllm-and-llmpool"><code>ProcessLLM</code> and <code>LLMPool</code><a class="headerlink" href="#processllm-and-llmpool" title="Permanent link">&para;</a></h2>
 <p>By default, <code>distilabel</code> uses a single process, so the generation loop is usually bottlenecked by the model inference time and Python GIL. To overcome this limitation, we provide the <code>ProcessLLM</code> class that allows to load an <code>LLM</code> in a different process, avoiding the GIL and allowing to parallelize the generation loop. Creating a <code>ProcessLLM</code> is easy as:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">ProcessLLM</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TextGenerationTask</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="k">def</span> <span class="nf">load_gpt_4</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    <span class="p">)</span>
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
-</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_4</span><span class="p">)</span>
-</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="n">future</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
-</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>    <span class="n">inputs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a letter for Bob&quot;</span><span class="p">}],</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span>
-</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="p">)</span>  <span class="c1"># (1)</span>
-</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="n">llm</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>  <span class="c1"># (2)</span>
-</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="c1"># &gt;&gt;&gt; print(result[0][0][&quot;parsed_output&quot;][&quot;generations&quot;])</span>
-</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="c1"># Dear Bob,</span>
-</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="c1"># I hope this letter finds you in good health and high spirits. I know it&#39;s been a while since we last caught up, and I wanted to take the time to connect and share a few updates.</span>
-</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="c1"># Life has been keeping me pretty busy lately. [Provide a brief overview of what you&#39;ve been up to: work, school, family, hobbies, etc.]</span>
-</span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="c1"># I&#39;ve often found myself reminiscing about the good old days, like when we [include a memorable moment or shared experience with Bob].</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">ProcessLLM</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TextGenerationTask</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">def</span> <span class="nf">load_gpt_4</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="p">)</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_4</span><span class="p">)</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="n">future</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>    <span class="n">inputs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a letter for Bob&quot;</span><span class="p">}],</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">1</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="p">)</span>  <span class="c1"># (1)</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="n">llm</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>  <span class="c1"># (2)</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="c1"># &gt;&gt;&gt; print(result[0][0][&quot;parsed_output&quot;][&quot;generations&quot;])</span>
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="c1"># Dear Bob,</span>
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="c1"># I hope this letter finds you in good health and high spirits. I know it&#39;s been a while since we last caught up, and I wanted to take the time to connect and share a few updates.</span>
+</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a><span class="c1"># Life has been keeping me pretty busy lately. [Provide a brief overview of what you&#39;ve been up to: work, school, family, hobbies, etc.]</span>
+</span><span id="__span-17-25"><a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="c1"># I&#39;ve often found myself reminiscing about the good old days, like when we [include a memorable moment or shared experience with Bob].</span>
 </span></code></pre></div>
 <ol>
 <li>The <code>ProcessLLM</code> returns a <code>Future</code> containing a list of lists of <code>LLMOutput</code>s.</li>
 <li>The <code>ProcessLLM</code> needs to be terminated after usage. If the <code>ProcessLLM</code> is used by a <code>Pipeline</code>, it will be terminated automatically.</li>
 </ol>
 <p>You can directly use a <code>ProcessLLM</code> as the <code>generator</code> or <code>labeller</code> in a <code>Pipeline</code>. Apart from that, there would be situations in which you would like to generate texts using several <code>LLM</code>s in parallel. For this purpose, we provide the <code>LLMPool</code> class:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">LLMPool</span><span class="p">,</span> <span class="n">ProcessLLM</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TextGenerationTask</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">def</span> <span class="nf">load_gpt_3</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="p">)</span>
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
-</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>
-</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="k">def</span> <span class="nf">load_gpt_4</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
-</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>
-</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
-</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
-</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
-</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>    <span class="p">)</span>
-</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>
-</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
-</span><span id="__span-17-25"><a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="n">pool</span> <span class="o">=</span> <span class="n">LLMPool</span><span class="p">(</span>
-</span><span id="__span-17-26"><a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a>    <span class="n">llms</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-17-27"><a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a>        <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_3</span><span class="p">),</span>
-</span><span id="__span-17-28"><a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a>        <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_4</span><span class="p">),</span>
-</span><span id="__span-17-29"><a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a>    <span class="p">]</span>
-</span><span id="__span-17-30"><a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a><span class="p">)</span>
-</span><span id="__span-17-31"><a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a><span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a letter for Bob&quot;</span><span class="p">}],</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="__span-17-32"><a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a><span class="n">pool</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
-</span><span id="__span-17-33"><a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a><span class="c1"># &gt;&gt;&gt; print(result[0][0][&quot;parsed_output&quot;][&quot;generations&quot;], end=&quot;\n\n\n\n\n\n----&gt;&quot;)</span>
-</span><span id="__span-17-34"><a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a><span class="c1"># Dear Bob,</span>
-</span><span id="__span-17-35"><a id="__codelineno-17-35" name="__codelineno-17-35" href="#__codelineno-17-35"></a><span class="c1"># I hope this letter finds you in good health and high spirits. I know it&#39;s been a while since we last caught up, and I wanted to take the time to connect and share a few updates.</span>
-</span><span id="__span-17-36"><a id="__codelineno-17-36" name="__codelineno-17-36" href="#__codelineno-17-36"></a><span class="c1"># Life has been keeping me pretty busy lately. [Provide a brief overview of what you&#39;ve been up to: work, school, family, hobbies, etc.]</span>
-</span><span id="__span-17-37"><a id="__codelineno-17-37" name="__codelineno-17-37" href="#__codelineno-17-37"></a><span class="c1"># I&#39;ve often found myself reminiscing about the good old days, like when we [include a memorable moment or shared experience with Bob].</span>
-</span><span id="__span-17-38"><a id="__codelineno-17-38" name="__codelineno-17-38" href="#__codelineno-17-38"></a><span class="c1"># &gt;&gt;&gt; print(result[0][1][&quot;parsed_output&quot;][&quot;generations&quot;])</span>
-</span><span id="__span-17-39"><a id="__codelineno-17-39" name="__codelineno-17-39" href="#__codelineno-17-39"></a><span class="c1"># Of course, I&#39;d be happy to draft a sample letter for you. However, I would need some additional</span>
-</span><span id="__span-17-40"><a id="__codelineno-17-40" name="__codelineno-17-40" href="#__codelineno-17-40"></a><span class="c1"># information including who &quot;Bob&quot; is, the subject matter of the letter, the tone (formal or informal),</span>
-</span><span id="__span-17-41"><a id="__codelineno-17-41" name="__codelineno-17-41" href="#__codelineno-17-41"></a><span class="c1"># and any specific details or points you&#39;d like to include. Please provide some more context and I&#39;ll do my best to assist you.</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">LLMPool</span><span class="p">,</span> <span class="n">ProcessLLM</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span> <span class="nn">distilabel.tasks</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TextGenerationTask</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">def</span> <span class="nf">load_gpt_3</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="p">)</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="k">def</span> <span class="nf">load_gpt_4</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLM</span><span class="p">:</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    <span class="kn">from</span> <span class="nn">distilabel.llm</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>    <span class="k">return</span> <span class="n">OpenAILLM</span><span class="p">(</span>
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+</span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>        <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+</span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>        <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+</span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>    <span class="p">)</span>
+</span><span id="__span-18-23"><a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>
+</span><span id="__span-18-24"><a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a>
+</span><span id="__span-18-25"><a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a><span class="n">pool</span> <span class="o">=</span> <span class="n">LLMPool</span><span class="p">(</span>
+</span><span id="__span-18-26"><a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>    <span class="n">llms</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-18-27"><a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a>        <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_3</span><span class="p">),</span>
+</span><span id="__span-18-28"><a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a>        <span class="n">ProcessLLM</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">TextGenerationTask</span><span class="p">(),</span> <span class="n">load_llm_fn</span><span class="o">=</span><span class="n">load_gpt_4</span><span class="p">),</span>
+</span><span id="__span-18-29"><a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a>    <span class="p">]</span>
+</span><span id="__span-18-30"><a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a><span class="p">)</span>
+</span><span id="__span-18-31"><a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a><span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a letter for Bob&quot;</span><span class="p">}],</span> <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-18-32"><a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a><span class="n">pool</span><span class="o">.</span><span class="n">teardown</span><span class="p">()</span>
+</span><span id="__span-18-33"><a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a><span class="c1"># &gt;&gt;&gt; print(result[0][0][&quot;parsed_output&quot;][&quot;generations&quot;], end=&quot;\n\n\n\n\n\n----&gt;&quot;)</span>
+</span><span id="__span-18-34"><a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a><span class="c1"># Dear Bob,</span>
+</span><span id="__span-18-35"><a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a><span class="c1"># I hope this letter finds you in good health and high spirits. I know it&#39;s been a while since we last caught up, and I wanted to take the time to connect and share a few updates.</span>
+</span><span id="__span-18-36"><a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a><span class="c1"># Life has been keeping me pretty busy lately. [Provide a brief overview of what you&#39;ve been up to: work, school, family, hobbies, etc.]</span>
+</span><span id="__span-18-37"><a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a><span class="c1"># I&#39;ve often found myself reminiscing about the good old days, like when we [include a memorable moment or shared experience with Bob].</span>
+</span><span id="__span-18-38"><a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a><span class="c1"># &gt;&gt;&gt; print(result[0][1][&quot;parsed_output&quot;][&quot;generations&quot;])</span>
+</span><span id="__span-18-39"><a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a><span class="c1"># Of course, I&#39;d be happy to draft a sample letter for you. However, I would need some additional</span>
+</span><span id="__span-18-40"><a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a><span class="c1"># information including who &quot;Bob&quot; is, the subject matter of the letter, the tone (formal or informal),</span>
+</span><span id="__span-18-41"><a id="__codelineno-18-41" name="__codelineno-18-41" href="#__codelineno-18-41"></a><span class="c1"># and any specific details or points you&#39;d like to include. Please provide some more context and I&#39;ll do my best to assist you.</span>
 </span></code></pre></div>
 <div class="footnote">
 <hr />
