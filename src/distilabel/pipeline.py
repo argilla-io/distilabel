@@ -634,10 +634,6 @@ class Pipeline:
                     batch_size=batch_size,
                 )
                 checkpoint_strategy.save(ds)
-                # ds.save_to_disk(
-                #     checkpoint_strategy.path,
-                #     **checkpoint_strategy.extra_kwargs,
-                # )
 
         _pipeline_progress.stop()
 
@@ -646,10 +642,6 @@ class Pipeline:
         )
         if checkpoint_strategy:
             checkpoint_strategy.save(ds)
-            # ds.save_to_disk(
-            #     checkpoint_strategy.path,
-            #     **checkpoint_strategy.extra_kwargs,
-            # )
             logger.info(f"Final dataset saved at {checkpoint_strategy.path}")
 
         return ds
