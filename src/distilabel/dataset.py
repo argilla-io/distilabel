@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import json
+import os
 import tempfile
 import warnings
 from dataclasses import dataclass, field
-from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union, get_args
 
 from datasets import Dataset
 from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import login as hf_hub_login
 
 from distilabel.logger import get_logger
 from distilabel.utils.argilla import infer_field_from_dataset_columns
@@ -180,7 +181,7 @@ class CustomDataset(Dataset):
             )
         return dataset
 
-    def save_to_disk(self, dataset_path: PathLike, **kwargs: Any) -> None:
+    def save_to_disk(self, dataset_path: os.PathLike, **kwargs: Any) -> None:
         """Saves the datataset to disk, also saving the task.
 
         Args:
@@ -192,7 +193,7 @@ class CustomDataset(Dataset):
             self.task.save(Path(dataset_path))
 
     @classmethod
-    def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
+    def load_from_disk(cls, dataset_path: os.PathLike, **kwargs: Any):
         """Load a CustomDataset from disk, also reading the task.
 
         Args:
@@ -329,11 +330,21 @@ class DatasetCheckpoint:
                 f"Invalid strategy, valid ones are: {get_args(CheckpointStrategies)}"
             )
 
-        if self.strategy == "hf-hub" and not self.extra_kwargs.get("repo_id"):
-            raise ValueError(
-                "The `repo_id` is required when using the `hf-hub` strategy, please pass it as on 'extra_kwargs' argument."
-            )
-        # TODO(plaguss): If strategy is "hf-hub", check we are logged (or the token is passed as an argument).
+        if self.strategy == "hf-hub":
+            if not self.extra_kwargs.get("repo_id"):
+                raise ValueError(
+                    "The `repo_id` is required when using the `hf-hub` strategy, please pass it as on 'extra_kwargs' argument."
+                )
+            if token := os.getenv("HF_API_TOKEN") or (
+                token := self.extra_kwargs.get("token")
+            ):
+                hf_hub_login(token=token)
+            else:
+                raise ValueError(
+                    "To use the `hf-hub` strategy, a token is required, you can either set it "
+                    "as an environment variable `HF_API_TOKEN` or pass it as an argument `token` "
+                    "via the `extra_kwargs`."
+                )
 
     def do_checkpoint(self, step: int) -> bool:
         """Determines if a checkpoint should be done.
