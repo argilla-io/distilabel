@@ -36,6 +36,8 @@ class ComplexityScorerTask(PreferenceTaskNoRationale):
     is dynamic in the sense that you can compare any number, in *Deita* the chose 6) to obtain a complexity
     score *c* for each instruction.
 
+    This task will only need to receive the list of `generations` in a dataset to generate the scores.
+
     Args:
         system_prompt (str, optional): the system prompt to be used. Not defined for this task.
 
