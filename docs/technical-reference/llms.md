@@ -255,6 +255,16 @@ Anyscale Endpoints offers open source large language models (LLMs) as fully mana
 
 For the API reference visit [AnyscaleLLM][distilabel.llm.anyscale.AnyscaleLLM].
 
+### MistralAI
+
+[Mistral.ai](https://mistral.ai/), the company behind awesome Open Source models like [Mixtral 8x7B](https://mistral.ai/news/mixtral-of-experts/), offers their models in their AI platform. Visit their [available models](https://docs.mistral.ai/platform/endpoints/#generative-endpoints) and start creating `distilabel` datasets with them.
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/mistralai_generate.py"
+```
+
+For the API reference visit [MistralAILLM][distilabel.llm.mistralai.MistralAILLM].
+
 ## `ProcessLLM` and `LLMPool`
 
 By default, `distilabel` uses a single process, so the generation loop is usually bottlenecked by the model inference time and Python GIL. To overcome this limitation, we provide the `ProcessLLM` class that allows to load an `LLM` in a different process, avoiding the GIL and allowing to parallelize the generation loop. Creating a `ProcessLLM` is easy as:

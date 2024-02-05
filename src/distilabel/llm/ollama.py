@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
-from urllib import error, request
+from urllib import error
 
 from tenacity import (
     after_log,
@@ -30,6 +29,10 @@ from tenacity import (
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
 from distilabel.logger import get_logger
+from distilabel.utils.imports import _OLLAMA_AVAILABLE
+
+if _OLLAMA_AVAILABLE:
+    import ollama
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -54,7 +57,18 @@ class OllamaLLM(LLM):
         temperature: Union[float, None] = None,
         top_k: Union[int, None] = None,
         top_p: Union[float, None] = None,
+        mirostat: Union[int, None] = None,
+        mirostat_eta: Union[float, None] = None,
+        mirostat_tau: Union[float, None] = None,
+        num_ctx: Union[int, None] = None,
+        num_gqa: Union[int, None] = None,
+        num_gpu: Union[int, None] = None,
         num_threads: Union[int, None] = None,
+        repeat_last_n: Union[int, None] = None,
+        repeat_penalty: Union[float, None] = None,
+        seed: Union[int, None] = None,
+        stop: Union[str, None] = None,
+        tfs_z: Union[float, None] = None,
         prompt_format: Union["SupportedFormats", None] = None,
         prompt_formatting_fn: Union[Callable[..., str], None] = None,
     ) -> None:
@@ -72,8 +86,30 @@ class OllamaLLM(LLM):
                 Defaults to `None`.
             top_p (float, optional): the top-p value to be used for generation.
                 Defaults to `None`.
+            mirostat (int, optional): the Mirostat value to enable it or set the version.
+                Defaults to `None`.
+            mirostat_eta (float, optional): the eta value to be used for Mirostat.
+                Defaults to `None`.
+            mirostat_tau (float, optional): the tau value to be used for Mirostat.
+                Defaults to `None`.
+            num_ctx (int, optional): the number of contexts to be used for generation.
+                Defaults to `None`.
+            num_gqa (int, optional): the number of GQA to be used for generation.
+                Defaults to `None`.
+            num_gpu (int, optional): the number of GPUs to be used for generation.
+                Defaults to `None`.
             num_threads (Union[int, None], optional): the number of threads to be used
                 for parallel generation. If `None`, no parallel generation will be performed.
+                Defaults to `None`.
+            repeat_last_n (Union[int, None], optional): the number of tokens to be used
+                for RepeatLastN. Defaults to `None`.
+            repeat_penalty (Union[float, None], optional): the penalty to be used for RepeatLastN.
+                Defaults to `None`.
+            seed (Union[int, None], optional): the seed to be used for generation.
+                Defaults to `None`.
+            stop (Union[str, None], optional): the stop token to be used for generation. If `None`,
+                no stop token will be used. Defaults to `None`.
+            tfs_z (Union[float, None], optional): the z value to be used for TFS.
                 Defaults to `None`.
             prompt_format (Union[SupportedFormats, None], optional): the format to be used
                 for the prompt. If `None`, the default format of the task will be used, available
@@ -106,6 +142,17 @@ class OllamaLLM(LLM):
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
+        self.mirostat = mirostat
+        self.mirostat_eta = mirostat_eta
+        self.mirostat_tau = mirostat_tau
+        self.num_ctx = num_ctx
+        self.num_gqa = num_gqa
+        self.num_gpu = num_gpu
+        self.repeat_last_n = repeat_last_n
+        self.repeat_penalty = repeat_penalty
+        self.seed = seed
+        self.stop = stop
+        self.tfs_z = tfs_z
 
         self._api_available()
         self._api_model_available()
@@ -116,23 +163,22 @@ class OllamaLLM(LLM):
         return self.model
 
     def _api_available(self):
-        """Calls GET {OLLAMA_HOST}"""
-        msg = f"Could not connect to Ollama as {self.OLLAMA_HOST}. Check https://github.com/ollama/ollama for deployment guide."
+        """Checks if the Ollama API is available."""
         try:
-            response = request.urlopen(self.OLLAMA_HOST)
-            if response.getcode() != 200:
-                raise Exception
-        except Exception as e:
-            raise ValueError(msg) from e
+            ollama.list()
+        except ollama.ResponseError as e:
+            raise ValueError(
+                f"Could not connect to Ollama at {self.OLLAMA_HOST}. Check https://github.com/ollama/ollama-python/tree/main for deployment guide."
+            ) from e
 
     def _api_model_available(self):
-        msg = f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
+        """Checks if the Ollama model is available"""
         try:
-            self._text_generation_with_backoff(
-                prompt=[{"role": "user", "content": "hi"}], max_tokens=1
-            )
-        except Exception as e:
-            raise ValueError(msg) from e
+            ollama.show(self.model)
+        except ollama.ResponseError as e:
+            raise ValueError(
+                f"Model {self.model} is not available. Run `ollama run {self.model}` to serve the model."
+            ) from e
 
     @retry(
         retry=retry_if_exception_type(_OLLAMA_API_RETRY_ON_EXCEPTIONS),
@@ -147,49 +193,36 @@ class OllamaLLM(LLM):
     def _text_generation_with_backoff(
         self, prompt: List[Dict[str, str]], **kwargs
     ) -> str:
-        """Calls POST {OLLAMA_HOST}/api/chat"""
-        # Request payload
-        payload = {
-            "model": self.model,
-            "messages": prompt,
-            "stream": False,
-        }
-        options = {
-            "num_predict": kwargs.get("max_new_tokens") or self.max_new_tokens,
-            "temperature": self.temperature,
-            "top_p": self.top_p,
-            "top_k": self.top_k,
-        }
-        # remove None values
-        options = {k: v for k, v in options.items() if v is not None}
-        payload["options"] = options
-
-        # Convert payload to JSON
-        data = json.dumps(payload).encode("utf-8")
-
-        # Create the request
-        url = f"{self.OLLAMA_HOST}/api/chat"
-        req = request.Request(
-            url, data=data, headers={"Content-Type": "application/json"}
-        )
-        with request.urlopen(req) as response:
-            # Check if the request was successful (status code 200)
-            if response.getcode() == 200:
-                # Parse and return the response JSON
-                return json.loads(response.read().decode("utf-8"))
-            elif response.getcode() >= 500:
-                # If the request failed, try again with backoff
-                raise error.HTTPError(
-                    url=url,
-                    code=response.getcode(),
-                    msg=f"Server Error {response.getcode()}",
-                    hdrs=response.getheaders(),
-                    fp=None,
-                )
+        """Generates text using the Ollama API with backoff."""
+        try:
+            return ollama.chat(
+                model=self.model,
+                messages=prompt,
+                options={
+                    "num_predict": self.max_new_tokens,
+                    "temperature": self.temperature,
+                    "top_p": self.top_p,
+                    "top_k": self.top_k,
+                    "mirostat": self.mirostat,
+                    "mirostat_eta": self.mirostat_eta,
+                    "mirostat_tau": self.mirostat_tau,
+                    "num_ctx": self.num_ctx,
+                    "num_gqa": self.num_gqa,
+                    "num_gpu": self.num_gpu,
+                    "repeat_last_n": self.repeat_last_n,
+                    "repeat_penalty": self.repeat_penalty,
+                    "seed": self.seed,
+                    "stop": self.stop,
+                    "tfs_z": self.tfs_z,
+                },
+            )
+        except ollama.ResponseError as e:
+            if e.status_code >= 500:
+                raise
             else:
                 raise ValueError(
-                    f"Ollama API request failed with status_code {response.getcode()}."
-                )
+                    f"Ollama API request failed with status_code {e.status_code}."
+                ) from e
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
         yield from super().__rich_repr__()
@@ -201,6 +234,17 @@ class OllamaLLM(LLM):
                 "temperature": self.temperature,
                 "top_k": self.top_k,
                 "top_p": self.top_p,
+                "mirostat": self.mirostat,
+                "mirostat_eta": self.mirostat_eta,
+                "mirostat_tau": self.mirostat_tau,
+                "num_ctx": self.num_ctx,
+                "num_gqa": self.num_gqa,
+                "num_gpu": self.num_gpu,
+                "repeat_last_n": self.repeat_last_n,
+                "repeat_penalty": self.repeat_penalty,
+                "seed": self.seed,
+                "stop": self.stop,
+                "tfs_z": self.tfs_z,
             },
         )
 
