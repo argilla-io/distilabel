@@ -307,6 +307,17 @@ class DatasetCheckpoint:
         >>> # Save the dataset every 10% of the records generated.
         >>> checkpoint = DatasetCheckpoint(save_frequency=len(dataset) // 10)
         >>> # Afterwards, we can access the checkpoint's checkpoint.path.
+        >>> # You can also push the dataset to the hub by setting the strategy to `hf-hub`.
+        >>> checkpoint = DatasetCheckpoint(
+        ...     strategy="hf-hub",
+        ...     extra_kwargs={"repo_id": "username/dataset-name"}
+        ... )
+        >>> # Keep in mind, if the environmnet variable "HF_API_TOKEN" is not set, you are required
+        >>> # to pass the token as an argument to the `extra_kwargs`.
+        >>> checkpoint = DatasetCheckpoint(
+        ...     strategy="hf-hub",
+        ...     extra_kwargs={"repo_id": "username/dataset-name", "token": "hf_..."}
+        ... )
     """
 
     path: Path = Path.cwd() / "ckpt"
