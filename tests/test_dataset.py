@@ -17,6 +17,7 @@ import re
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from unittest import mock
 
 import pytest
 from argilla import FeedbackDataset
@@ -212,6 +213,13 @@ def test_dataset_load_disk(custom_dataset):
         assert isinstance(ds_from_disk.task, UltraFeedbackTask)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def mock_hf_hub_login():
+    # Mock hf_hub_login to avoid actual login
+    with mock.patch("distilabel.dataset.hf_hub_login"):
+        yield
+
+
 class TestDatasetCheckpoint:
     @pytest.mark.usefixtures("custom_dataset")
     @pytest.mark.parametrize(
@@ -263,6 +271,20 @@ class TestDatasetCheckpoint:
                 assert DatasetCheckpoint(strategy=strategy, extra_kwargs=extra_kwargs)
         else:
             assert DatasetCheckpoint(strategy=strategy, extra_kwargs=extra_kwargs)
+
+    @mock.patch.dict(os.environ, {"HF_API_TOKEN": ""})
+    def test_checkpoint_strategies_no_hf_token(self):
+        with pytest.raises(ValueError):
+            assert DatasetCheckpoint(
+                strategy="hf-hub", extra_kwargs={"repo_id": "org/repo_name"}
+            )
+
+    @mock.patch.dict(os.environ, {"HF_API_TOKEN": ""})
+    def test_checkpoint_strategies_hf_token_from_extra_kwargs(self):
+        assert DatasetCheckpoint(
+            strategy="hf-hub",
+            extra_kwargs={"repo_id": "org/repo_name", "token": "token"},
+        )
 
 
 @pytest.mark.usefixtures("custom_dataset")
@@ -469,9 +491,6 @@ def test_prepare_dataset(
         )
     else:
         expected_columns += ["chosen_rationale", "rejected_rationale"]
-
-    print("COLUMNS")
-    print(sample_preference_dataset.column_names)
 
     ds = prepare_dataset(
         sample_preference_dataset,
