@@ -257,7 +257,7 @@ class TestDatasetCheckpoint:
         "strategy, extra_kwargs",
         (
             ("disk", {}),
-            ("hf-hub", {"repo_id": "org/repo_name"}),
+            ("hf-hub", {"repo_id": "org/repo_name", "token": "token"}),
             ("hf-hub", {}),
             ("unknown", {}),
         ),
