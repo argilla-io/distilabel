@@ -15,7 +15,15 @@
 import json
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, List, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Union,
+)
 
 from distilabel.llm.base import LLM
 from distilabel.llm.utils import LLMOutput
@@ -314,7 +322,9 @@ class JSONOpenAILLM(OpenAILLM):
                     json.loads(chat_completion.message.content)
                 except json.JSONDecodeError:
                     warnings.warn(
-                        "The response is not a valid JSON.", UserWarning, stacklevel=2
+                        "The response is not a valid JSON.",
+                        UserWarning,
+                        stacklevel=2,
                     )
                     parsed_response = None
                 output.append(
