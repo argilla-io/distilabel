@@ -250,7 +250,7 @@ class JSONOpenAILLM(OpenAILLM):
         Examples:
             >>> from distilabel.tasks import TextGenerationTask
             >>> from distilabel.llm import JSONOpenAILLM
-            >>> llm = OpenAILLM(task=TextGenerationTask())
+            >>> llm = JSONOpenAILLM(task=TextGenerationTask())
             >>> llm.generate([{"input": "json for 'What's the capital of Spain?'"}])
         """
         super().__init__(
