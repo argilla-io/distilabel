@@ -41,8 +41,9 @@ def test_generate(mock_json_openai_llm):
     prompt = "write a json object with a key 'answer' and value 'Paris'"
     inputs = [{"input": prompt}]
     outputs = mock_json_openai_llm.generate(inputs)
-    json_response = json.loads(outputs[0][0]["parsed_output"]["generations"])
     assert len(outputs) == 1
+    assert isinstance(outputs[0], list)
+    json_response = json.loads(outputs[0][0]["parsed_output"]["generations"])
     assert isinstance(json_response, dict)
     assert json_response["answer"] == "Madrid"
 
