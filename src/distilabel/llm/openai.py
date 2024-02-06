@@ -274,7 +274,16 @@ class JSONOpenAILLM(OpenAILLM):
             "gpt-3.5-turbo-1106",
         ]
         assert model in self.json_supporting_models, f"Provided `model` does not support JSON input, \
-            available models are {self.json_supporting_models}"
+            available models are {self.available_models}"
+
+    @cached_property
+    def available_models(self) -> List[str]:
+        """Returns the list of available models in your OpenAI account."""
+        all_available_models = super().available_models
+        available_json_supporting_models = list(
+            set(all_available_models) & set(self.json_supporting_models)
+        )
+        return available_json_supporting_models
 
     def _generate(
         self,

@@ -19,14 +19,15 @@ import pytest
 from distilabel.llm.openai import JSONOpenAILLM
 from distilabel.tasks import TextGenerationTask
 
+JSON_SUPPORTING_MODEL = "gpt-3.5-turbo-1106"
+NON_JSON_SUPPORTING_MODEL = "gpt-4"
 
-@pytest.fixture(scope="module", autouse=True)
+
+@pytest.fixture(scope="function", autouse=True)
 def mock_json_openai_llm():
     # Mocking available models and models that support JSON
-    json_supporting_model = "gpt-3.5-turbo-1106"
-    available_models = [json_supporting_model]
+    available_models = [JSON_SUPPORTING_MODEL, NON_JSON_SUPPORTING_MODEL]
     JSONOpenAILLM.available_models = available_models
-    JSONOpenAILLM._available_models = Mock(return_value=available_models)
 
     # Mocking the OpenAI client and chat method
     mocked_chat_return_value = Mock(
@@ -40,7 +41,7 @@ def mock_json_openai_llm():
     )
     text_generation_task = TextGenerationTask()
     yield JSONOpenAILLM(
-        model=json_supporting_model,
+        model=JSON_SUPPORTING_MODEL,
         task=text_generation_task,
         client=mocked_openai_client,
     )
@@ -60,7 +61,9 @@ def test_generate(mock_json_openai_llm):
     mock_json_openai_llm.client.chat.completions.create.assert_called_once()
 
 
-def test_available_models(mock_json_openai_llm):
-    assert mock_json_openai_llm._available_models() == ["gpt-3.5-turbo-1106"]
-    assert "gpt-3.5-turbo-1106" in mock_json_openai_llm.available_models
-    mock_json_openai_llm._available_models.assert_called_once()
+def test_json_openai_llm_with_non_json_model():
+    with pytest.raises(AssertionError):
+        JSONOpenAILLM(
+            model=NON_JSON_SUPPORTING_MODEL,
+            task=TextGenerationTask(),
+        )
