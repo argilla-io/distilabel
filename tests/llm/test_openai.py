@@ -21,7 +21,7 @@ from distilabel.tasks import TextGenerationTask
 
 class TestJSONOpenAILLM(TestCase):
     @patch("distilabel.llm.openai.OpenAILLM.available_models")
-    def test_avaailable_models(self, mock_available_models):
+    def test_available_models(self, mock_available_models):
         # Mock the available_models property
         mock_available_models.return_value = ["gpt-3.5-turbo-1106"]
 
