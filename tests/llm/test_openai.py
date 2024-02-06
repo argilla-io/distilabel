@@ -19,14 +19,13 @@ import pytest
 from distilabel.llm.openai import JSONOpenAILLM
 from distilabel.tasks import TextGenerationTask
 
-JSON_SUPPORTING_MODEL = "gpt-3.5-turbo-1106"
-NON_JSON_SUPPORTING_MODEL = "gpt-4"
-
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_json_openai_llm():
+    json_supporting_model = "gpt-3.5-turbo-1106"
+    non_json_supporting_model = "gpt-4"
     # Mocking available models and models that support JSON
-    available_models = [JSON_SUPPORTING_MODEL, NON_JSON_SUPPORTING_MODEL]
+    available_models = [json_supporting_model, non_json_supporting_model]
     JSONOpenAILLM.available_models = available_models
 
     # Mocking the OpenAI client and chat method
@@ -42,11 +41,12 @@ def mock_json_openai_llm():
     text_generation_task = TextGenerationTask()
     with pytest.raises(AssertionError):
         JSONOpenAILLM(
-            model=NON_JSON_SUPPORTING_MODEL,
+            model=non_json_supporting_model,
             task=TextGenerationTask(),
+            client=mocked_openai_client,
         )
     yield JSONOpenAILLM(
-        model=JSON_SUPPORTING_MODEL,
+        model=json_supporting_model,
         task=text_generation_task,
         client=mocked_openai_client,
     )
