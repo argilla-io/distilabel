@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-from unittest.mock import Mock, patch, TestCase
+from unittest.mock import Mock, TestCase, patch
 
 from distilabel.llm.openai import JSONOpenAILLM
 from distilabel.tasks import TextGenerationTask
@@ -30,13 +30,13 @@ class TestJSONOpenAILLM(TestCase):
 
         # Check the available_models property
         self.assertEqual(llm.available_models, ["gpt-3.5-turbo-1106"])
-        
+
     @patch("distilabel.llm.openai.OpenAILLM.available_models")
     @patch("openai.resources.chat.Completions.create")
     def test_generate(self, mock_create):
         # Mock the available_models property
         mock_create.return_value = ["gpt-3.5-turbo-1106"]
-        
+
         # Mock the response from the OpenAI API
         mock_create.return_value = Mock(
             choices=[Mock(message=Mock(content='{"answer": "Madrid"}'))]
