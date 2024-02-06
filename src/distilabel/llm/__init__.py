@@ -20,7 +20,7 @@ from distilabel.llm.huggingface.transformers import TransformersLLM
 from distilabel.llm.llama_cpp import LlamaCppLLM
 from distilabel.llm.mistralai import MistralAILLM
 from distilabel.llm.ollama import OllamaLLM
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llm.openai import OpenAILLM, JSONOpenAILLM
 from distilabel.llm.together import TogetherInferenceLLM
 from distilabel.llm.vllm import vLLM
 
@@ -36,6 +36,7 @@ __all__ = [
     "MistralAILLM",
     "TogetherInferenceLLM",
     "OpenAILLM",
+    "JSONOpenAILLM",
     "OllamaLLM",
     "vLLM",
     "AnyscaleLLM",
