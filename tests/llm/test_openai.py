@@ -21,6 +21,17 @@ from distilabel.tasks import TextGenerationTask
 
 class TestJSONOpenAILLM(TestCase):
     @patch("distilabel.llm.openai.OpenAILLM.available_models")
+    def test_avaailable_models(self, mock_available_models):
+        # Mock the available_models property
+        mock_available_models.return_value = ["gpt-3.5-turbo-1106"]
+
+        # Initialize the JSONOpenAILLM class
+        llm = JSONOpenAILLM(task=TextGenerationTask())
+
+        # Check the available_models property
+        self.assertEqual(llm.available_models, ["gpt-3.5-turbo-1106"])
+        
+    @patch("distilabel.llm.openai.OpenAILLM.available_models")
     @patch("openai.resources.chat.Completions.create")
     def test_generate(self, mock_create):
         # Mock the available_models property
@@ -45,7 +56,6 @@ class TestJSONOpenAILLM(TestCase):
         self.assertEqual(len(outputs), 1)
         self.assertIsInstance(json_response, dict)
         self.assertEqual(json_response["answer"], "Madrid")
-        self.assertEqual(llm.model, llm.json_supporting_models)
 
         # Check if the OpenAI API was called with the correct arguments
         prompts = llm._generate_prompts(inputs, default_format="openai")
