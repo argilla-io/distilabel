@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import json
-import pytest
 from unittest.mock import Mock, patch
 
+import pytest
 from distilabel.llm.openai import JSONOpenAILLM
 from distilabel.tasks import TextGenerationTask
 
