@@ -40,6 +40,11 @@ def mock_json_openai_llm():
         models=Mock(list=Mock(return_value=available_models)),
     )
     text_generation_task = TextGenerationTask()
+    with pytest.raises(AssertionError):
+        JSONOpenAILLM(
+            model=NON_JSON_SUPPORTING_MODEL,
+            task=TextGenerationTask(),
+        )
     yield JSONOpenAILLM(
         model=JSON_SUPPORTING_MODEL,
         task=text_generation_task,
@@ -47,7 +52,7 @@ def mock_json_openai_llm():
     )
 
 
-def test_generate(mock_json_openai_llm):
+def test_generate_json(mock_json_openai_llm):
     # Setup inputs
     _prompt = "write a json object with a key 'answer' and value 'Paris'"
     inputs = [{"input": _prompt}]
@@ -59,11 +64,3 @@ def test_generate(mock_json_openai_llm):
     assert isinstance(json_response, dict)
     assert json_response["answer"] == "Madrid"
     mock_json_openai_llm.client.chat.completions.create.assert_called_once()
-
-
-def test_json_openai_llm_with_non_json_model(mock_json_openai_llm):
-    with pytest.raises(AssertionError):
-        JSONOpenAILLM(
-            model=NON_JSON_SUPPORTING_MODEL,
-            task=TextGenerationTask(),
-        )
