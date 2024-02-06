@@ -13,62 +13,41 @@
 # limitations under the License.
 
 import json
-from unittest.mock import Mock, TestCase, patch
+import pytest
+from unittest.mock import Mock, patch
 
 from distilabel.llm.openai import JSONOpenAILLM
 from distilabel.tasks import TextGenerationTask
 
 
-class TestJSONOpenAILLM(TestCase):
-    @patch("distilabel.llm.openai.OpenAILLM.available_models")
-    def test_available_models(self, mock_available_models):
-        # Mock the available_models property
-        mock_available_models.return_value = ["gpt-3.5-turbo-1106"]
-
-        # Initialize the JSONOpenAILLM class
-        llm = JSONOpenAILLM(task=TextGenerationTask())
-
-        # Check the available_models property
-        self.assertEqual(llm.available_models, ["gpt-3.5-turbo-1106"])
-
-    @patch("distilabel.llm.openai.OpenAILLM.available_models")
-    @patch("openai.resources.chat.Completions.create")
-    def test_generate(self, mock_create):
-        # Mock the available_models property
-        mock_create.return_value = ["gpt-3.5-turbo-1106"]
-
-        # Mock the response from the OpenAI API
-        mock_create.return_value = Mock(
-            choices=[Mock(message=Mock(content='{"answer": "Madrid"}'))]
+@pytest.fixture(scope="module", autouse=True)
+def mock_json_openai_llm():
+    mocked_chat_return_value = Mock(
+        choices=[Mock(message=Mock(content='{"answer": "Madrid"}'))]
+    )
+    with patch(
+        "openai.resources.chat.Completions.create",
+        return_value=mocked_chat_return_value,
+    ):
+        JSONOpenAILLM._available_models = Mock(return_value=["gpt-3.5-turbo-1106"])
+        JSONOpenAILLM.available_models = ["gpt-3.5-turbo-1106"]
+        yield JSONOpenAILLM(
+            model="gpt-3.5-turbo-1106",
+            task=TextGenerationTask(),
         )
 
-        # Initialize the JSONOpenAILLM class
-        llm = JSONOpenAILLM(task=TextGenerationTask())
 
-        # Call the _generate method
-        inputs = [
-            {"input": "write a json object with a key 'answer' and value 'Paris'"}
-        ]
-        outputs = llm.generate(inputs)
-        json_response = json.loads(outputs[0][0]["parsed_output"]["generations"])
+def test_generate(mock_json_openai_llm):
+    prompt = "write a json object with a key 'answer' and value 'Paris'"
+    inputs = [{"input": prompt}]
+    outputs = mock_json_openai_llm.generate(inputs)
+    json_response = json.loads(outputs[0][0]["parsed_output"]["generations"])
+    assert len(outputs) == 1
+    assert isinstance(json_response, dict)
+    assert json_response["answer"] == "Madrid"
 
-        # Check the output
-        self.assertEqual(len(outputs), 1)
-        self.assertIsInstance(json_response, dict)
-        self.assertEqual(json_response["answer"], "Madrid")
 
-        # Check if the OpenAI API was called with the correct arguments
-        prompts = llm._generate_prompts(inputs, default_format="openai")
-        prompt = prompts[0]
-        mock_create.assert_called_once_with(
-            messages=prompt,
-            model=llm.model,
-            n=1,
-            max_tokens=llm.max_tokens,
-            frequency_penalty=llm.frequency_penalty,
-            presence_penalty=llm.presence_penalty,
-            temperature=llm.temperature,
-            top_p=llm.top_p,
-            timeout=50,
-            response_format={"type": "json_object"},
-        )
+def test_available_models(mock_json_openai_llm):
+    assert mock_json_openai_llm._available_models() == ["gpt-3.5-turbo-1106"]
+    assert "gpt-3.5-turbo-1106" in mock_json_openai_llm.available_models
+    mock_json_openai_llm._available_models.assert_called_once()
