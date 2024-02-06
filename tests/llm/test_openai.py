@@ -22,23 +22,28 @@ from distilabel.tasks import TextGenerationTask
 
 @pytest.fixture(scope="function", autouse=True)
 def mock_json_openai_llm():
+    # Mocking available models and models that support JSON
     json_supporting_model = "gpt-3.5-turbo-1106"
     non_json_supporting_model = "gpt-4"
-    # Mocking available models and models that support JSON
-    available_models = [json_supporting_model, non_json_supporting_model]
-    JSONOpenAILLM.available_models = available_models
-
+    available_models = [
+        Mock(id=json_supporting_model),
+        Mock(id=non_json_supporting_model),
+    ]
     # Mocking the OpenAI client and chat method
-    mocked_chat_return_value = Mock(
-        choices=[Mock(message=Mock(content='{"answer": "Madrid"}'))]
+    mocked_chat = Mock(
+        completions=Mock(
+            create=Mock(
+                return_value=Mock(
+                    choices=[Mock(message=Mock(content='{"answer": "Madrid"}'))]
+                )
+            )
+        )
     )
+    mocked_models = Mock(list=Mock(return_value=Mock(data=available_models)))
     mocked_openai_client = Mock(
-        chat=Mock(completions=Mock(create=Mock(return_value=mocked_chat_return_value))),
-        api_key="api_key",
-        organization="organization",
-        models=Mock(list=Mock(return_value=available_models)),
+        chat=mocked_chat,
+        models=mocked_models,
     )
-    text_generation_task = TextGenerationTask()
     with pytest.raises(AssertionError):
         JSONOpenAILLM(
             model=non_json_supporting_model,
@@ -47,7 +52,7 @@ def mock_json_openai_llm():
         )
     yield JSONOpenAILLM(
         model=json_supporting_model,
-        task=text_generation_task,
+        task=TextGenerationTask(),
         client=mocked_openai_client,
     )
 

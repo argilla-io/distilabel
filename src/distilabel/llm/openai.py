@@ -267,21 +267,19 @@ class JSONOpenAILLM(OpenAILLM):
             prompt_format=prompt_format,
             prompt_formatting_fn=prompt_formatting_fn,
         )
-        self.json_supporting_models = [
+
+    @cached_property
+    def available_models(self) -> List[str]:
+        """Returns the list of available models in your OpenAI account."""
+        all_available_models = [model.id for model in self.client.models.list().data]
+        json_supporting_models = [
             "gpt-4-0125-preview",
             "gpt-4-turbo-preview",
             "gpt-4-1106-preview",
             "gpt-3.5-turbo-1106",
         ]
-        assert model in self.json_supporting_models, f"Provided `model` does not support JSON input, \
-            available models are {self.available_models}"
-
-    @cached_property
-    def available_models(self) -> List[str]:
-        """Returns the list of available models in your OpenAI account."""
-        all_available_models = super().available_models
         available_json_supporting_models = list(
-            set(all_available_models) & set(self.json_supporting_models)
+            set(all_available_models) & set(json_supporting_models)
         )
         return available_json_supporting_models
 
