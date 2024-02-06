@@ -79,7 +79,7 @@ class CustomDataset(Dataset):
             vector_strategy (Union[bool, SentenceTransformersExtractor]): the strategy to be used for
                 adding vectors to the dataset. If `True`, the default `SentenceTransformersExtractor`
                 will be used with the `TaylorAI/bge-micro-2` model. If `False`, no vectors will be added to the dataset.
-            metrics_strategy (Union[bool, TextDescriptivesExtractor]): the strategy to be used for
+            metric_strategy (Union[bool, TextDescriptivesExtractor]): the strategy to be used for
                 adding metrics to the dataset. If `True`, the default `TextDescriptivesExtractor`
                 will be used. If `False`, no metrics will be added to the dataset.
 
