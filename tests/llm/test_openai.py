@@ -61,7 +61,7 @@ def test_generate(mock_json_openai_llm):
     mock_json_openai_llm.client.chat.completions.create.assert_called_once()
 
 
-def test_json_openai_llm_with_non_json_model():
+def test_json_openai_llm_with_non_json_model(mock_json_openai_llm):
     with pytest.raises(AssertionError):
         JSONOpenAILLM(
             model=NON_JSON_SUPPORTING_MODEL,
