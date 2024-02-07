@@ -131,6 +131,14 @@ For the API reference visit [OpenAILLM][distilabel.llm.openai.OpenAILLM].
 --8<-- "docs/snippets/technical-reference/llm/openai_generate.py"
 ```
 
+To generate JSON objects with OpenAI's `json_response` feature you can use the `JSONOpenAILLM` class:
+
+```python
+--8<-- "docs/snippets/technical-reference/llm/openai_json_generate.py"
+```
+
+Refer to the [Open AI API documentation](https://platform.openai.com/docs/api-reference/chat/create#chat-create-response_format) for more information.
+
 ### Llama.cpp
 
 Applicable for local execution of Language Models (LLMs). Use this LLM when you have access to the quantized weights of your selected model for interaction.
