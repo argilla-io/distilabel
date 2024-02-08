@@ -2397,35 +2397,10 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">distilabel</span><span class="p">[</span><span class="n">openai</span><span class="p">]</span> <span class="n">ipython</span><span class="o">-</span><span class="n">autotime</span> <span class="o">-</span><span class="n">qqq</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">distilabel</span><span class="p">[</span><span class="n">openai</span><span class="p">,</span><span class="n">argilla</span><span class="p">]</span> <span class="n">ipython</span><span class="o">-</span><span class="n">autotime</span> <span class="o">-</span><span class="n">qqq</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">%</span><span class="n">load_ext</span> <span class="n">autotime</span>
 </span></code></pre></div>
 
-</div>
-<div class="output_wrapper">
-<div class="output">
-<div class="output_area">
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-<code>     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">60.1/60.1 kB</span> <span class="ansi-red-fg">2.1 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">521.2/521.2 kB</span> <span class="ansi-red-fg">9.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">2.9/2.9 MB</span> <span class="ansi-red-fg">17.1 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">220.8/220.8 kB</span> <span class="ansi-red-fg">20.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">75.7/75.7 kB</span> <span class="ansi-red-fg">9.6 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">115.3/115.3 kB</span> <span class="ansi-red-fg">14.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">134.8/134.8 kB</span> <span class="ansi-red-fg">17.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">1.6/1.6 MB</span> <span class="ansi-red-fg">27.1 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">76.0/76.0 kB</span> <span class="ansi-red-fg">9.8 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">58.3/58.3 kB</span> <span class="ansi-red-fg">7.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
-<span class="ansi-red-fg">ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-llmx 0.0.15a0 requires cohere, which is not installed.
-llmx 0.0.15a0 requires tiktoken, which is not installed.</span><span class="ansi-red-fg">
-</span>time: 330 µs (started: 2023-11-28 13:21:16 +00:00)
-</code>
-</pre>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
@@ -2664,87 +2639,6 @@ time: 692 µs (started: 2023-11-28 13:21:50 +00:00)
 </span></code></pre></div>
 
 </div>
-<div class="output_wrapper">
-<div class="output">
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Output()</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>
-<code>INFO:distilabel:Processing batch 1 of 12...
-INFO:distilabel:Calling generator for batch 1...
-INFO:distilabel:Processing batch 2 of 12...
-INFO:distilabel:Calling generator for batch 2...
-INFO:distilabel:Processing batch 3 of 12...
-INFO:distilabel:Calling generator for batch 3...
-INFO:distilabel:Processing batch 4 of 12...
-INFO:distilabel:Calling generator for batch 4...
-INFO:distilabel:Processing batch 5 of 12...
-INFO:distilabel:Calling generator for batch 5...
-INFO:distilabel:Processing batch 6 of 12...
-INFO:distilabel:Calling generator for batch 6...
-INFO:distilabel:Processing batch 7 of 12...
-INFO:distilabel:Calling generator for batch 7...
-INFO:distilabel:Processing batch 8 of 12...
-INFO:distilabel:Calling generator for batch 8...
-INFO:distilabel:Processing batch 9 of 12...
-INFO:distilabel:Calling generator for batch 9...
-INFO:distilabel:Processing batch 10 of 12...
-INFO:distilabel:Calling generator for batch 10...
-INFO:distilabel:Processing batch 11 of 12...
-INFO:distilabel:Calling generator for batch 11...
-INFO:distilabel:Processing batch 12 of 12...
-INFO:distilabel:Calling generator for batch 12...
-</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Flattening the indices:   0%|          | 0/46 [00:00&lt;?, ? examples/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Map:   0%|          | 0/46 [00:00&lt;?, ? examples/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-<code>time: 2min 13s (started: 2023-11-28 13:21:58 +00:00)
-</code>
-</pre>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -2838,39 +2732,6 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 </span></code></pre></div>
 
 </div>
-<div class="output_wrapper">
-<div class="output">
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Uploading the dataset shards:   0%|          | 0/1 [00:00&lt;?, ?it/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Creating parquet from Arrow format:   0%|          | 0/5 [00:00&lt;?, ?ba/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>README.md:   0%|          | 0.00/444 [00:00&lt;?, ?B/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-<code>time: 1.15 s (started: 2023-11-23 13:55:36 +00:00)
-</code>
-</pre>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
@@ -2894,53 +2755,6 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;instructions&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
-</div>
-<div class="output_wrapper">
-<div class="output">
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Downloading readme:   0%|          | 0.00/461 [00:00&lt;?, ?B/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Downloading data files:   0%|          | 0/1 [00:00&lt;?, ?it/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Downloading data:   0%|          | 0.00/151k [00:00&lt;?, ?B/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Extracting data files:   0%|          | 0/1 [00:00&lt;?, ?it/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Generating train split:   0%|          | 0/4699 [00:00&lt;?, ? examples/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-<code>time: 16.2 s (started: 2023-11-28 13:28:42 +00:00)
-</code>
-</pre>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
@@ -3052,99 +2866,6 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 </span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
-</div>
-<div class="output_wrapper">
-<div class="output">
-<div class="output_area">
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>
-<code>INFO:distilabel:Processing batch 1 of 13...
-INFO:distilabel:Calling generator for batch 1...
-INFO:distilabel:Calling labeller for batch 1...
-INFO:distilabel:Processing batch 2 of 13...
-INFO:distilabel:Calling generator for batch 2...
-INFO:distilabel:Calling labeller for batch 2...
-INFO:distilabel:Processing batch 3 of 13...
-INFO:distilabel:Calling generator for batch 3...
-ERROR:distilabel:Error parsing OpenAI response: list index out of range
-INFO:distilabel:Calling labeller for batch 3...
-INFO:distilabel:Processing batch 4 of 13...
-INFO:distilabel:Calling generator for batch 4...
-INFO:distilabel:Calling labeller for batch 4...
-INFO:distilabel:Processing batch 5 of 13...
-INFO:distilabel:Calling generator for batch 5...
-ERROR:distilabel:Error parsing OpenAI response: list index out of range
-INFO:distilabel:Calling labeller for batch 5...
-INFO:distilabel:Processing batch 6 of 13...
-INFO:distilabel:Calling generator for batch 6...
-INFO:distilabel:Calling labeller for batch 6...
-INFO:distilabel:Processing batch 7 of 13...
-INFO:distilabel:Calling generator for batch 7...
-ERROR:distilabel:Error parsing OpenAI response: list index out of range
-INFO:distilabel:Calling labeller for batch 7...
-INFO:distilabel:Processing batch 8 of 13...
-INFO:distilabel:Calling generator for batch 8...
-ERROR:distilabel:Error parsing OpenAI response: list index out of range
-INFO:distilabel:Calling labeller for batch 8...
-INFO:distilabel:Processing batch 9 of 13...
-INFO:distilabel:Calling generator for batch 9...
-INFO:distilabel:Calling labeller for batch 9...
-INFO:distilabel:Processing batch 10 of 13...
-INFO:distilabel:Calling generator for batch 10...
-INFO:distilabel:Calling labeller for batch 10...
-INFO:distilabel:Processing batch 11 of 13...
-INFO:distilabel:Calling generator for batch 11...
-INFO:distilabel:Calling labeller for batch 11...
-INFO:distilabel:Processing batch 12 of 13...
-INFO:distilabel:Calling generator for batch 12...
-INFO:distilabel:Calling labeller for batch 12...
-INFO:distilabel:Processing batch 13 of 13...
-INFO:distilabel:Calling generator for batch 13...
-INFO:distilabel:Calling labeller for batch 13...
-</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Flattening the indices:   0%|          | 0/100 [00:00&lt;?, ? examples/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_text output_subarea">
-<pre>
-<code>Map:   0%|          | 0/100 [00:00&lt;?, ? examples/s]</code>
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_html rendered_html output_subarea">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
-</pre>
-</div>
-</div>
-<div class="output_area">
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-<code>time: 5min 8s (started: 2023-11-28 13:29:07 +00:00)
-</code>
-</pre>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
@@ -3290,16 +3011,7 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="human-feedback-with-argilla">Human Feedback with Argilla<a class="headerlink" href="#human-feedback-with-argilla" title="Permanent link">&para;</a></h2>
 <p>You can use the AI Feedback created by distilabel directly but we hae ve seen that enhancing it with human feedback will improve the quality of your LLM. We provide a <code>to_argilla</code> method which creates a dataset for Argilla along with out-of-the-box tailored metadata filters and semantic search to allow you to provide human feedback as quickly and engaging as possible. You can check <a href="https://docs.argilla.io/en/latest/getting_started/quickstart_installation.html">the Argilla docs</a> to get it up and running.</p>
-<p>First, install it.</p>
 </div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[argilla]&quot;</span>
-</span></code></pre></div>
-
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
@@ -3312,15 +3024,15 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
-</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
-</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
-</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -3328,14 +3040,14 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we can convert our dataset to a formatted Argilla dataset.</p>
+<p>Now we can convert our dataset to a formatted Argilla dataset and push it.</p>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">distiset_pref</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">distiset_pref</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
 </span></code></pre></div>
 
 </div>
@@ -3355,7 +3067,7 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;math-preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;math-preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
