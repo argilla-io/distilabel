@@ -12,18 +12,63 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import re
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import pytest
 from argilla import FeedbackDataset
+from argilla.client.feedback.integrations.sentencetransformers import (
+    SentenceTransformersExtractor,
+)
+from argilla.client.feedback.integrations.textdescriptives import (
+    TextDescriptivesExtractor,
+)
+from argilla.client.feedback.schemas.metadata import TermsMetadataProperty
+from argilla.client.feedback.schemas.vector_settings import VectorSettings
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
 from distilabel.tasks import TextGenerationTask, UltraFeedbackTask
 from distilabel.tasks.text_generation.self_instruct import SelfInstructTask
 from distilabel.utils.dataset import prepare_dataset
 from distilabel.utils.serialization import TASK_FILE_NAME
+
+
+class SentenceTransformersExtractorMock(SentenceTransformersExtractor):
+    def __init__(self) -> None:
+        pass
+
+    def update_dataset(
+        self, dataset: FeedbackDataset, fields: List[str]
+    ) -> FeedbackDataset:
+        for field in fields:
+            dataset.add_vector_settings(VectorSettings(name=field, dimensions=1))
+        return dataset
+
+
+class TextDescriptivesExtractorMock(TextDescriptivesExtractor):
+    def __init__(self) -> None:
+        pass
+
+    def update_dataset(
+        self, dataset: FeedbackDataset, fields: List[str]
+    ) -> FeedbackDataset:
+        for field in fields:
+            dataset.add_metadata_property(
+                TermsMetadataProperty(name=field, values=["field"])
+            )
+        return dataset
+
+
+@pytest.fixture
+def vector_strategy():
+    return SentenceTransformersExtractorMock()
+
+
+@pytest.fixture
+def metric_strategy():
+    return TextDescriptivesExtractorMock()
 
 
 @pytest.fixture
@@ -201,14 +246,22 @@ def test_do_checkpoint(
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_to_argilla(custom_dataset: CustomDataset):
+def test_to_argilla(
+    custom_dataset: CustomDataset,
+    vector_strategy: SentenceTransformersExtractorMock,
+    metric_strategy,
+):
     rg_dataset = custom_dataset.to_argilla(vector_strategy=False, metric_strategy=False)
     basic_prop_len = len(rg_dataset.metadata_properties)
     assert isinstance(rg_dataset, FeedbackDataset)
     assert not rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla(metric_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(
+        metric_strategy=False, vector_strategy=vector_strategy
+    )
     assert rg_dataset.vectors_settings
-    rg_dataset = custom_dataset.to_argilla(vector_strategy=False)
+    rg_dataset = custom_dataset.to_argilla(
+        metric_strategy=metric_strategy, vector_strategy=False
+    )
     assert basic_prop_len < len(rg_dataset.metadata_properties)
 
 
@@ -219,10 +272,14 @@ def test_to_argilla_with_wrong_dataset_columns(custom_dataset: CustomDataset):
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
+def test_to_argilla_with_too_many_fields(
+    large_custom_dataset: CustomDataset, vector_strategy, metric_strategy
+):
     with pytest.warns(UserWarning, match="More than 5 fields"):
         large_custom_dataset.to_argilla(
-            dataset_columns=large_custom_dataset.column_names
+            dataset_columns=large_custom_dataset.column_names,
+            metric_strategy=metric_strategy,
+            vector_strategy=vector_strategy,
         )
 
 
@@ -230,8 +287,9 @@ def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
     "with_generation_model",
     [True],
 )
+@pytest.mark.parametrize("sft", [True, False])
 @pytest.mark.parametrize(
-    "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties",
+    "strategy, chosen, rejected, chosen_model, rejected_model, keep_ties, with_rationale",
     [
         (
             "random",
@@ -269,6 +327,7 @@ def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
                 "WizardLM/WizardCoder-15B-V1.0",
             ],
             ["argilla/notus-7b-v1", "WizardLM/WizardCoder-15B-V1.0", "gpt-3.5-turbo"],
+            True,
             True,
         ),
         (
@@ -312,6 +371,50 @@ def test_to_argilla_with_too_many_fields(large_custom_dataset: CustomDataset):
                 "ise-uiuc/Magicoder-S-DS-6.7B",
             ],
             True,
+            True,
+        ),
+        (
+            "worst",
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 2", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 4", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 3", "role": "assistant"},
+                ],
+            ],
+            [
+                [
+                    {"content": "input 1", "role": "user"},
+                    {"content": "generation 1 1", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 2", "role": "user"},
+                    {"content": "generation 2 3", "role": "assistant"},
+                ],
+                [
+                    {"content": "input 3", "role": "user"},
+                    {"content": "generation 3 2", "role": "assistant"},
+                ],
+            ],
+            [
+                "WizardLM/WizardCoder-15B-V1.0",
+                "gpt-3.5-turbo",
+                "WizardLM/WizardCoder-15B-V1.0",
+            ],
+            [
+                "argilla/notus-7b-v1",
+                "WizardLM/WizardCoder-15B-V1.0",
+                "ise-uiuc/Magicoder-S-DS-6.7B",
+            ],
+            True,
+            False,
         ),
     ],
 )
@@ -324,16 +427,10 @@ def test_prepare_dataset(
     rejected_model: List[str],
     with_generation_model: bool,
     keep_ties: bool,
+    sft: bool,
+    with_rationale: bool,
 ):
-    if not with_generation_model:
-        sample_preference_dataset = sample_preference_dataset.remove_columns(
-            ["generation_model"]
-        )
-    ds = prepare_dataset(
-        sample_preference_dataset, strategy=strategy, seed=42, keep_ties=keep_ties
-    )
-    assert isinstance(ds, CustomDataset)
-    assert ds.column_names == [
+    expected_columns = [
         "prompt",
         "chosen",
         "rejected",
@@ -342,11 +439,41 @@ def test_prepare_dataset(
         "chosen_model",
         "rejected_model",
     ]
+    if not with_generation_model:
+        sample_preference_dataset = sample_preference_dataset.remove_columns(
+            ["generation_model"]
+        )
+    if not with_rationale:
+        sample_preference_dataset = sample_preference_dataset.remove_columns(
+            ["rationale"]
+        )
+    else:
+        expected_columns += ["chosen_rationale", "rejected_rationale"]
+
+    print("COLUMNS")
+    print(sample_preference_dataset.column_names)
+
+    ds = prepare_dataset(
+        sample_preference_dataset,
+        strategy=strategy,
+        sft=sft,
+        seed=42,
+        keep_ties=keep_ties,
+    )
+    assert isinstance(ds, CustomDataset)
+
+    if sft:
+        expected_columns += ["messages"]
+
+    assert set(ds.column_names) == set(expected_columns)
+
     for i, row in enumerate(ds):
         assert row["chosen"] == chosen[i]
         assert row["rejected"] == rejected[i]
         assert row["chosen_model"] == chosen_model[i]
         assert row["rejected_model"] == rejected_model[i]
+        if sft:
+            assert row["messages"] == chosen[i]
 
 
 def test_prepare_dataset_wrong_task(sample_preference_dataset: CustomDataset):
@@ -472,9 +599,63 @@ def dataset_with_self_instruct() -> CustomDataset:
 
 
 def test_dataset_with_self_instruct_to_argilla(dataset_with_self_instruct):
-    rg_dataset = dataset_with_self_instruct.to_argilla()
+    rg_dataset = dataset_with_self_instruct.to_argilla(
+        vector_strategy=False, metric_strategy=False
+    )
     assert (
         rg_dataset[0].fields["instructions"]
         == "How do I simplify the given algebraic expression?"
     )
     assert len(rg_dataset) == 16
+
+
+def file_exists(
+    repo_id: str,
+    filename: str,
+    repo_type: Optional[str] = "dataset",
+    revision: Optional[str] = None,
+    token: Optional[str] = None,
+) -> bool:
+    # Use like: assert file_exists("user/repo", "config.json")
+    # Copied from https://github.com/huggingface/huggingface_hub/issues/36#issuecomment-1619942423
+    from huggingface_hub import get_hf_file_metadata, hf_hub_url
+    from huggingface_hub.hf_api import (
+        EntryNotFoundError,
+        RepositoryNotFoundError,
+        RevisionNotFoundError,
+    )
+
+    url = hf_hub_url(
+        repo_id=repo_id, repo_type=repo_type, revision=revision, filename=filename
+    )
+    try:
+        get_hf_file_metadata(url, token=token)
+        return True
+    except (RepositoryNotFoundError, EntryNotFoundError, RevisionNotFoundError):
+        return False
+
+
+@pytest.mark.skipif(
+    os.getenv("HF_API_TOKEN") is None, reason="`HF_API_TOKEN` is not set"
+)
+@pytest.mark.parametrize("push_task", [True, False])
+def test_push_to_huggingface(
+    dataset_with_self_instruct: CustomDataset, push_task: bool
+):
+    from distilabel.dataset import TASK_FILE_NAME, load_dataset
+    from huggingface_hub import HfApi
+
+    dataset_name = "argilla/test-cds-push-to-huggingface"
+    try:
+        dataset_with_self_instruct.push_to_hub(dataset_name, push_task=push_task)
+        if push_task:
+            assert file_exists(dataset_name, TASK_FILE_NAME)
+            ds = load_dataset(dataset_name, split="train")
+            assert isinstance(ds, CustomDataset)
+            assert isinstance(ds.task, SelfInstructTask)
+        else:
+            assert not file_exists(dataset_name, TASK_FILE_NAME)
+    finally:
+        HfApi().delete_repo(
+            dataset_name, repo_type="dataset", token=os.getenv("HF_API_TOKEN")
+        )

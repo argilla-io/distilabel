@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     pipeline = Pipeline(
         generator=vLLM(
-            vllm=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
+            model=LLM(model="HuggingFaceH4/zephyr-7b-beta"),
             task=TextGenerationTask(),
             max_new_tokens=128,
             temperature=0.3,
@@ -40,7 +40,7 @@ if __name__ == "__main__":
             task=UltraFeedbackTask.for_overall_quality(),
             max_new_tokens=128,
             num_threads=2,
-            openai_api_key=os.getenv("OPENAI_API_KEY", None),
+            api_key=os.getenv("OPENAI_API_KEY", None),
             temperature=0.0,
         ),
     )
@@ -49,7 +49,6 @@ if __name__ == "__main__":
         dataset,  # type: ignore
         num_generations=2,
         batch_size=1,
-        checkpoint_strategy=True,
         display_progress_bar=True,
     )
 

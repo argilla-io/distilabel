@@ -324,14 +324,13 @@ class VertexAIEndpointLLM(LLM):
     """An `LLM` which uses a Vertex AI Online prediction endpoint for the generation.
 
     More information about Vertex AI Endpoints can be found here:
-
-        - https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint
+    https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint
     """
 
     def __init__(
         self,
-        task: "Task",
         endpoint_id: str,
+        task: "Task",
         project: Optional[str] = None,
         location: str = "us-central1",
         generation_kwargs: Optional[Dict[str, Any]] = None,
@@ -344,8 +343,8 @@ class VertexAIEndpointLLM(LLM):
         """Initializes the `VertexAIEndpointLLM` class.
 
         Args:
-            task (Task): the task to be performed by the LLM.
             endpoint_id (str): the ID of the Vertex AI endpoint to be used for generation.
+            task (Task): the task to be performed by the LLM.
             project (Optional[str], optional): the project to be used for generation. If `None`,
                 the default project will be used. Defaults to `None`.
             location (str, optional): the location of the Vertex AI endpoint to be used for

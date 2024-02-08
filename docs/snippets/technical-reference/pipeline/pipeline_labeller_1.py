@@ -10,7 +10,7 @@ pipe_labeller = Pipeline(
         task=UltraFeedbackTask.for_instruction_following(),
         max_new_tokens=256,
         num_threads=8,
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        api_key=os.getenv("OPENAI_API_KEY", None),
         temperature=0.3,
     ),
 )

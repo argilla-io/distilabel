@@ -87,6 +87,7 @@ nav:
       - ⚖️ Create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
       - 🧼 Clean an existing preference dataset: tutorials/clean-preference-dataset-judgelm-gpt.ipynb
       - 🧮 Create a mathematical preference dataset : tutorials/create-a-math-preference-dataset.ipynb
+      - 🦒 Improving Text Embeddings with LLMs : tutorials/improving-text-embeddings-with-llms.ipynb
   - Technical References:
       - Concept Guides:
           - technical-reference/index.md

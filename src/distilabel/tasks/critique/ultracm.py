@@ -53,7 +53,7 @@ class UltraCMTask(CritiqueTask):
         " the user's questions.</s>"
     )
 
-    def generate_prompt(self, input: str, generations: str, **_: Any) -> Prompt:
+    def generate_prompt(self, input: str, generations: List[str], **_: Any) -> Prompt:
         """Generates a prompt following the UltraCM specification.
 
         Args:

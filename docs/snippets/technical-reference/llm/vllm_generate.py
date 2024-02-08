@@ -3,7 +3,7 @@ from distilabel.tasks import TextGenerationTask
 from vllm import LLM
 
 llm = vLLM(
-    vllm=LLM(model="argilla/notus-7b-v1"),
+    model=LLM(model="argilla/notus-7b-v1"),
     task=TextGenerationTask(),
     max_new_tokens=512,
     temperature=0.3,

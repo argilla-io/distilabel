@@ -287,6 +287,29 @@ class LLM(ABC):
         """Whether the `LLM` returns futures"""
         return self.thread_pool_executor is not None
 
+    def validate_prompts(
+        self,
+        inputs: List[Dict[str, Any]],
+        default_format: Union["SupportedFormats", None] = None,
+    ) -> str:
+        """Generates the prompts to be used for generation, can be used to check the prompts visually.
+
+        Args:
+            inputs (List[Dict[str, Any]]):
+                The inputs to be used for generation.
+
+        Returns:
+            str: The prompts that would be used for the generation.
+
+        Examples:
+            >>> from distilabel.tasks import TextGenerationTask
+            >>> llm.validate_prompts([{"input": "Your input"}])[0]
+            You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.
+            If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+            I'm valid for text generation task
+        """
+        return self._generate_prompts(inputs, default_format=default_format)
+
 
 MAX_MODEL_NAME_LENGTH = 256
 

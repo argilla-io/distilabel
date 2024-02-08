@@ -35,12 +35,14 @@ dev = ["black == 23.10.0", "ruff == 0.1.0", "pre-commit >= 3.5.0"]
 hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
 llama-cpp = ["llama-cpp-python >= 0.2.0"]
+ollama = ["ollama >= 0.1.4"]
 openai = ["openai >= 1.0.0"]
 vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 together = ["together"]
-argilla = ["argilla >= 1.22.0", "sentence-transformers >= 2.0.0", "textdescriptives >= 2.0.0"]
+argilla = ["argilla >= 1.23.0", "sentence-transformers >= 2.0.0", "textdescriptives >= 2.0.0"]
 tests = ["pytest >= 7.4.0"]
+mistralai = ["mistralai >= 0.0.11"]
 docs = [
     "mkdocs-material >= 9.5.0",
     "mkdocstrings[python] >= 0.24.0",
@@ -66,6 +68,9 @@ line-length = 88
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
 exclude = ["docs"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 14
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

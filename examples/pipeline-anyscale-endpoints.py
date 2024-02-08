@@ -29,7 +29,7 @@ if __name__ == "__main__":
         generator=AnyscaleLLM(
             model="HuggingFaceH4/zephyr-7b-beta",
             task=TextGenerationTask(),
-            openai_api_key=os.environ.get("OPENAI_API_KEY"),
+            api_key=os.getenv("ANYSCALE_API_KEY", None),
         )
     )
     new_dataset = pipe.generate(
