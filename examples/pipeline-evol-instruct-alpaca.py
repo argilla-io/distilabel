@@ -167,7 +167,7 @@ if __name__ == "__main__":
         evolver_llm=evolver_llm,
         elimination_llm=elimination_llm,
         dataset=dataset,
-        evolution_steps=1,
+        evolution_steps=4,
     )
 
     end = time.time()
