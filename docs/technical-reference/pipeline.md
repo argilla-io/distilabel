@@ -141,6 +141,18 @@ The dataset can be regenerated from the checkpoint by simply calling the `Custom
 
 And with the dataset regenerated we can easily call `push_to_argilla` on it to review it.
 
+Since `distilabel 0.6.0`, the `DatasetCheckpoint` includes a new argument `strategy` to determine how the dataset should be saved during the generation process.
+
+By default, the strategy will be set to `disk`, and the dataset will be saved to disk as we saw in the previous example. Now it also includes `hf-hub` strategy, to push the dataset to the hub. Everything else remains the same, but now you can push your dataset to the HuggingFace hub every `freq` iterations. Let's see an example:
+
+```python
+--8<-- "docs/snippets/technical-reference/pipeline/pipeline_dataset_checkpoint_4.py"
+```
+
+To ensure the dataset is indeed saved once the generation process starts, the `DatasetCheckpoint` will check the token for HuggingFace is set, either via the `HF_API_TOKEN` environment variable, or you'll be required to pass the `token` variable with your token via the `extra_kwargs` argument.
+
+Take a look at the API reference at [DatasetCheckpoint][distilabel.dataset.DatasetCheckpoint].
+
 ## pipeline
 
 Considering recurring patterns in dataset creation, we can facilitate the process by utilizing the [`Pipeline`][distilabel.pipeline.Pipeline]. This is made simpler through the [`pipeline`][distilabel.pipeline.pipeline] function, which provides the necessary parameters for creating a `Pipeline`.
