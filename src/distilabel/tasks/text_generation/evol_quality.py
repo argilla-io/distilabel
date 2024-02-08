@@ -52,8 +52,8 @@ class EvolQualityTask(EvolInstructTask):
     allow for filtering of the responses.
 
     This evolutionary process can be repeated for several rounds to obtain instruction data containing various
-    complexities. Currently the task is implemented as a single step, so to generate multiple evolutions you
-    can "repeat" the instructions in the original dataset. An example of a similar implementation with
+    complexities. Currently the task is implemented as a single step, so to generate multiple evolutions you can
+    iterate over the different tasks. An example of a similar implementation with
     `EvolInstruct` can be seen at the following script: [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)
 
     Args:

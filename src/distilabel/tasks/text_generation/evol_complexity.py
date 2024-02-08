@@ -30,7 +30,7 @@ EvolutionMethod = Literal["constraints", "deepen", "concretizing", "reasoning"]
 class EvolComplexityTask(EvolInstructTask):
     """A `TextGenerationTask` following the `EvolComplexity` specification for building prompts. This is a special case
     of the original EvolInstructTask, where the evolution method is fixed to "constraints", "deepen", "concretizing" or "reasoning".
-    Additionally, an additional elimation step should be executed to screen out instructions that are not useful.
+    Additionally, an additional elimination step should be executed to screen out instructions that are not useful.
 
     From the reference repository: *Evol-Instruct is a novel method using LLMs instead of humans to automatically mass-produce
     open-domain instructions of various difficulty levels and skills range, to improve the performance of LLMs.*
@@ -42,12 +42,12 @@ class EvolComplexityTask(EvolInstructTask):
     The In-breadth Evolving is mutation, i.e., generating a completely new instruction based on the given instruction.
 
     Given the evolved instructions are generated from LLMs, sometimes the evolving will fail. We adopt an instruction eliminator
-    to filter the failed instructions, called Elimination Evolving, but we don't apply the step of asking again to the LLM it the
+    to filter the failed instructions, called Elimination Evolving, but we don't apply the step of asking again to the LLM if the
     answer is a copy from the same used prompt.
 
     This evolutionary process can be repeated for several rounds to obtain instruction data containing various complexities.
-    Currently the task is implemented as a single step, so to generate multiple evolutions you can "repeat" the instructions
-    in the original dataset. An example can be seen at the following script:
+    Currently the task is implemented as a single step, so to generate multiple evolutions you can iterate over the evolving
+    and elimination phases (from 1-4). An example can be seen at the following script:
     [examples/pipeline-evol-instruct-alpaca.py](https://github.com/argilla-io/distilabel/tree/main/examples/pipeline-evol-instruct-alpaca.py)
 
     Args:
