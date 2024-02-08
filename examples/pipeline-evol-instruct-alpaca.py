@@ -69,7 +69,7 @@ if __name__ == "__main__":
         [WizardLM paper](https://arxiv.org/abs/2304.12244).
         """
 
-        system_prompt: str = "You are an AI judge in charge of determining the equality of two instructions. "
+        system_prompt: str = "You are an AI judge in charge of determining the equality of two instructions."
 
         def generate_prompt(self, input: List[str]) -> Prompt:
             return Prompt(
@@ -86,6 +86,15 @@ if __name__ == "__main__":
                     str.maketrans("", "", string.punctuation)
                 ).lower()
             }
+
+    # Helper function to prepare the dataset for the elimination task with the original
+    # instructions and the evolved ones. If the evolved instruction is None,
+    # we use the original instruction (to make sure it will be removed)
+    def prepare_for_equal_prompts(example):
+        if example["instructions"][0] is None:
+            return {"input": [example["input"], example["input"]]}
+        else:
+            return {"input": [example["input"], example["instructions"][0]]}
 
     # Define our LLM for the elimination task
     elimination_llm = OpenAILLM(
@@ -121,15 +130,7 @@ if __name__ == "__main__":
             # Generate new instructions
             evolved_dataset = evolver_pipe.generate(input_dataset, batch_size=8)
 
-            # Prepare the dataset for the second pipeline with the original
-            # instructions and the evolved ones. If the evolved instruction is None,
-            # we use the original instruction (to make sure it will be removed)
-            def prepare_for_equal_prompts(example):
-                if example["instructions"][0] is None:
-                    return {"input": [example["input"], example["input"]]}
-                else:
-                    return {"input": [example["input"], example["instructions"][0]]}
-
+            # Prepare the dataset for the elimination process
             prepared_dataset = evolved_dataset.map(
                 prepare_for_equal_prompts
             ).select_columns(["input"])
