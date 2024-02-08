@@ -111,7 +111,7 @@ We will use this `LLMPool` as the generator for our pipeline and we will use GPT
 
 1. We also will execute the calls to OpenAI API in a different process using the `ProcessLLM`. This will allow to not block the main process GIL, and allowing the generator to continue with the next batch.
 
-Then, we will load the dataset and call the `generate` method of the pipeline. For each input in the dataset, the `LLMPool` will randomly select two `LLM`s and will generate two generations for each of them. The generations will be labelled by GPT-4 using the `UltraFeedbackTask` for instruction-following. Finally, we will push the generated dataset to Argilla, in order to review the generations and labels that were automatically generated, and to manually correct them if needed.
+Then, we will load the dataset and call the `generate` method of the pipeline. For each input in the dataset, the `LLMPool` will randomly select two `LLM`s and will generate 1 generation from each of them to generate 2 generations in total. The generations will be labelled by GPT-4 using the `UltraFeedbackTask` for instruction-following. Finally, we will push the generated dataset to Argilla, in order to review the generations and labels that were automatically generated, and to manually correct them if needed.
 
 ```python
 --8<-- "docs/snippets/technical-reference/pipeline/pipeline_llmpool_processllm_5.py"
