@@ -73,7 +73,7 @@ def metric_strategy():
 
 
 @pytest.fixture
-def custom_dataset():
+def custom_dataset() -> CustomDataset:
     ds = CustomDataset.from_dict(
         {
             "input": ["a", "b"],
@@ -195,20 +195,55 @@ def sample_preference_dataset():
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_dataset_save_to_disk(custom_dataset):
+@pytest.mark.parametrize(
+    "extra_kwargs",
+    [
+        {},
+        # Just any kwarg to test it's properly passed down to the next function
+        {"max_shard_size": None},
+    ],
+)
+@pytest.mark.parametrize(
+    "path_transform",
+    [
+        lambda x: x,
+        lambda x: Path(x),
+    ],
+)
+def test_dataset_save_to_disk(
+    custom_dataset: CustomDataset, path_transform: os.PathLike, extra_kwargs: Any
+):
     with tempfile.TemporaryDirectory() as tmpdir:
-        ds_name = Path(tmpdir) / "dataset_folder"
-        custom_dataset.save_to_disk(ds_name)
+        ds_name = path_transform(tmpdir)
+        custom_dataset.save_to_disk(ds_name, **extra_kwargs)
+        ds_name = Path(ds_name)
         assert ds_name.is_dir()
         assert (ds_name / TASK_FILE_NAME).is_file()
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_dataset_load_disk(custom_dataset):
+@pytest.mark.parametrize(
+    "extra_kwargs",
+    [
+        {},
+        # Just any kwarg to test it's properly passed down to the next function
+        {"keep_in_memory": True},
+    ],
+)
+@pytest.mark.parametrize(
+    "path_transform",
+    [
+        lambda x: x,
+        lambda x: Path(x),
+    ],
+)
+def test_dataset_load_disk(
+    custom_dataset: CustomDataset, path_transform: os.PathLike, extra_kwargs: Any
+):
     with tempfile.TemporaryDirectory() as tmpdir:
-        ds_name = Path(tmpdir) / "dataset_folder"
+        ds_name = path_transform(tmpdir)
         custom_dataset.save_to_disk(ds_name)
-        ds_from_disk = CustomDataset.load_from_disk(ds_name)
+        ds_from_disk = CustomDataset.load_from_disk(ds_name, **extra_kwargs)
         assert isinstance(ds_from_disk, CustomDataset)
         assert isinstance(ds_from_disk.task, UltraFeedbackTask)
 

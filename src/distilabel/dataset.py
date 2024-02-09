@@ -197,12 +197,13 @@ class CustomDataset(Dataset):
         """Load a CustomDataset from disk, also reading the task.
 
         Args:
-            dataset_path: Path to the dataset, as you would do with a standard Dataset.
+            dataset_path (os.PathLike): Path to the dataset.
+            kwargs (Any): Keyword arguments passed to Dataset.load_from_disk.
 
         Returns:
             The loaded dataset.
         """
-        ds = super().load_from_disk(dataset_path, *kwargs)
+        ds = super().load_from_disk(dataset_path, **kwargs)
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         ds.__class__ = cls
         task = load_task_from_disk(dataset_path)
