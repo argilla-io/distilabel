@@ -185,15 +185,22 @@ class CustomDataset(Dataset):
         """Saves the datataset to disk, also saving the task.
 
         Args:
-            dataset_path: Path to the dataset.
-            **kwargs: Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+            dataset_path (os.PathLike): Path to the dataset.
+            kwargs (Any): Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+
+        Examples:
+            >>> from distilabel.dataset import CustomDataset
+            >>> dataset = CustomDataset(...)
+            >>> dataset.save_to_disk("path/to/dataset")
         """
         super().save_to_disk(dataset_path, **kwargs)
         if self.task is not None:
             self.task.save(Path(dataset_path))
 
     @classmethod
-    def load_from_disk(cls, dataset_path: os.PathLike, **kwargs: Any):
+    def load_from_disk(
+        cls, dataset_path: os.PathLike, **kwargs: Any
+    ) -> "CustomDataset":
         """Load a CustomDataset from disk, also reading the task.
 
         Args:
@@ -201,7 +208,11 @@ class CustomDataset(Dataset):
             kwargs (Any): Keyword arguments passed to Dataset.load_from_disk.
 
         Returns:
-            The loaded dataset.
+            dataset: The loaded dataset.
+
+        Examples:
+            >>> from distilabel.dataset import CustomDataset
+            >>> dataset: CustomDataset = CustomDataset.load_from_disk("path/to/dataset")
         """
         ds = super().load_from_disk(dataset_path, **kwargs)
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
@@ -226,13 +237,17 @@ class CustomDataset(Dataset):
                 `<org>/<dataset_name>`. Also accepts `<dataset_name>`, which will default to the namespace
                 of the logged-in user.
             args (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
-            push_task (bool, optional): _description_. Defaults to True.
+            push_task (bool, optional):
+                Whether to push the `Task` contained in the `CustomDataset`. Useful if you want to resuse
+                the functionality of the `CustomDataset` out of the box. It will upload a json
+                file (distilabel-task.json) containing the task to the hub.
+                Defaults to True.
             kwargs (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
 
         Examples:
             >>> from distilabel.dataset import CustomDataset
             >>> dataset = CustomDataset(...)
-            >>> dataset.push_to_hub("path/to/dataset")
+            >>> dataset.push_to_hub("org/dataset-name")
         """
         super().push_to_hub(repo_id, *args, **kwargs)
         if self.task is not None and push_task:
