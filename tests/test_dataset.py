@@ -16,7 +16,8 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
+from unittest import mock
 
 import pytest
 from argilla import FeedbackDataset
@@ -72,7 +73,7 @@ def metric_strategy():
 
 
 @pytest.fixture
-def custom_dataset():
+def custom_dataset() -> CustomDataset:
     ds = CustomDataset.from_dict(
         {
             "input": ["a", "b"],
@@ -194,55 +195,131 @@ def sample_preference_dataset():
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_dataset_save_to_disk(custom_dataset):
+@pytest.mark.parametrize(
+    "extra_kwargs",
+    [
+        {},
+        # Just any kwarg to test it's properly passed down to the next function
+        {"max_shard_size": None},
+    ],
+)
+@pytest.mark.parametrize(
+    "path_transform",
+    [
+        lambda x: x,
+        lambda x: Path(x),
+    ],
+)
+def test_dataset_save_to_disk(
+    custom_dataset: CustomDataset, path_transform: os.PathLike, extra_kwargs: Any
+):
     with tempfile.TemporaryDirectory() as tmpdir:
-        ds_name = Path(tmpdir) / "dataset_folder"
-        custom_dataset.save_to_disk(ds_name)
+        ds_name = path_transform(tmpdir)
+        custom_dataset.save_to_disk(ds_name, **extra_kwargs)
+        ds_name = Path(ds_name)
         assert ds_name.is_dir()
         assert (ds_name / TASK_FILE_NAME).is_file()
 
 
 @pytest.mark.usefixtures("custom_dataset")
-def test_dataset_load_disk(custom_dataset):
+@pytest.mark.parametrize(
+    "extra_kwargs",
+    [
+        {},
+        # Just any kwarg to test it's properly passed down to the next function
+        {"keep_in_memory": True},
+    ],
+)
+@pytest.mark.parametrize(
+    "path_transform",
+    [
+        lambda x: x,
+        lambda x: Path(x),
+    ],
+)
+def test_dataset_load_disk(
+    custom_dataset: CustomDataset, path_transform: os.PathLike, extra_kwargs: Any
+):
     with tempfile.TemporaryDirectory() as tmpdir:
-        ds_name = Path(tmpdir) / "dataset_folder"
+        ds_name = path_transform(tmpdir)
         custom_dataset.save_to_disk(ds_name)
-        ds_from_disk = CustomDataset.load_from_disk(ds_name)
+        ds_from_disk = CustomDataset.load_from_disk(ds_name, **extra_kwargs)
         assert isinstance(ds_from_disk, CustomDataset)
         assert isinstance(ds_from_disk.task, UltraFeedbackTask)
 
 
-@pytest.mark.usefixtures("custom_dataset")
-@pytest.mark.parametrize(
-    "save_frequency, dataset_len, batch_size, expected",
-    [
-        (1, 10, 1, 10),
-        (3, 10, 1, 3),
-        (8, 32, 8, 4),
-        (8, 64, 16, 4),
-        (20, 100, 7, 5),
-    ],
-)
-def test_do_checkpoint(
-    save_frequency: int, dataset_len: int, batch_size: int, expected: int
-):
-    ds = CustomDataset.from_dict(
-        {"input": ["a"] * dataset_len, "generations": ["a"] * dataset_len}
-    )
-    ds.task = UltraFeedbackTask.for_overall_quality()
-    chk = DatasetCheckpoint(save_frequency=save_frequency)
-    ctr = 0
-    with tempfile.TemporaryDirectory() as tmpdir:
-        ds_name = Path(tmpdir) / "dataset_folder"
-        for batch_i, _ in enumerate(ds.iter(batch_size=batch_size), start=1):
-            step = batch_i * batch_size
-            if chk.do_checkpoint(step):
-                ds.save_to_disk(ds_name)
-                ds_from_disk = CustomDataset.load_from_disk(ds_name)
-                assert ds_from_disk.to_pandas()["generations"].isna().sum() == 0
+@pytest.fixture(scope="session", autouse=True)
+def mock_hf_hub_login():
+    # Mock hf_hub_login to avoid actual login
+    with mock.patch("distilabel.dataset.hf_hub_login"):
+        yield
 
-                ctr += 1
-    assert ctr == expected == chk._total_checks
+
+class TestDatasetCheckpoint:
+    @pytest.mark.usefixtures("custom_dataset")
+    @pytest.mark.parametrize(
+        "save_frequency, dataset_len, batch_size, expected",
+        [
+            (1, 10, 1, 10),
+            (3, 10, 1, 3),
+            (8, 32, 8, 4),
+            (8, 64, 16, 4),
+            (20, 100, 7, 5),
+        ],
+    )
+    def test_do_checkpoint(
+        self, save_frequency: int, dataset_len: int, batch_size: int, expected: int
+    ):
+        ds = CustomDataset.from_dict(
+            {"input": ["a"] * dataset_len, "generations": ["a"] * dataset_len}
+        )
+        ds.task = UltraFeedbackTask.for_overall_quality()
+        chk = DatasetCheckpoint(save_frequency=save_frequency)
+        ctr = 0
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ds_name = Path(tmpdir) / "dataset_folder"
+            for batch_i, _ in enumerate(ds.iter(batch_size=batch_size), start=1):
+                step = batch_i * batch_size
+                if chk.do_checkpoint(step):
+                    ds.save_to_disk(ds_name)
+                    ds_from_disk = CustomDataset.load_from_disk(ds_name)
+                    assert ds_from_disk.to_pandas()["generations"].isna().sum() == 0
+
+                    ctr += 1
+        assert ctr == expected == chk._total_checks
+
+    @pytest.mark.parametrize(
+        "strategy, extra_kwargs",
+        (
+            ("disk", {}),
+            ("hf-hub", {"repo_id": "org/repo_name", "token": "token"}),
+            ("hf-hub", {}),
+            ("unknown", {}),
+        ),
+    )
+    def test_checkpoint_strategies(self, strategy: str, extra_kwargs: Dict[str, Any]):
+        if strategy == "unknown":
+            with pytest.raises(ValueError):
+                assert DatasetCheckpoint(strategy=strategy, extra_kwargs=extra_kwargs)
+        elif strategy == "hf-hub" and not extra_kwargs.get("repo_id"):
+            with pytest.raises(ValueError):
+                assert DatasetCheckpoint(strategy=strategy, extra_kwargs=extra_kwargs)
+        else:
+            assert DatasetCheckpoint(strategy=strategy, extra_kwargs=extra_kwargs)
+
+    @mock.patch.dict(os.environ, {"HF_API_TOKEN": ""})
+    def test_checkpoint_strategies_no_hf_token(self):
+        with pytest.raises(ValueError):
+            assert DatasetCheckpoint(
+                strategy="hf-hub", extra_kwargs={"repo_id": "org/repo_name"}
+            )
+
+    @mock.patch.dict(os.environ, {"HF_API_TOKEN": ""})
+    def test_checkpoint_strategies_hf_token_from_extra_kwargs(self):
+        assert DatasetCheckpoint(
+            strategy="hf-hub",
+            extra_kwargs={"repo_id": "org/repo_name", "token": "token"},
+        )
 
 
 @pytest.mark.usefixtures("custom_dataset")
@@ -449,9 +526,6 @@ def test_prepare_dataset(
         )
     else:
         expected_columns += ["chosen_rationale", "rejected_rationale"]
-
-    print("COLUMNS")
-    print(sample_preference_dataset.column_names)
 
     ds = prepare_dataset(
         sample_preference_dataset,

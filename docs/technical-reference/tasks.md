@@ -107,8 +107,13 @@ The second step from the [Deita framework](https://arxiv.org/abs/2312.15685) con
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_quality.py"
 ```
 
-For the API reference visit [EvolQualityTask][distilabel.tasks.text_generation.evol_quality.EvolQualityTask].
+The following example shows an example of dataset after evolving it's quality with this task. For the initial dataset we have chosen [argilla/distilabel-intel-orca-dpo-pairs](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) for simplicity, the dataset needs to have both "input" and "generation" columns in order to allow for the evolution strategy proposed in the Deita paper:
 
+```python
+--8<-- "docs/snippets/technical-reference/tasks/evol_quality_example.py"
+```
+
+For the API reference visit [EvolQualityTask][distilabel.tasks.text_generation.evol_quality.EvolQualityTask].
 
 ### Custom TextGenerationTask
 
@@ -235,10 +240,16 @@ For the API reference visit [UltraJudgeTask][distilabel.tasks.preference.ultraju
 
 #### ComplexityScorerTask
 
-This class implements a `PreferenceTask` to rate a of instructions according to its complexity difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the scoring of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired on the `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
+This class implements a `PreferenceTask` to rate a list of instructions according to its complexity or difficulty. Defined in [Deita framework](https://arxiv.org/abs/2312.15685), it's intended use is the scoring of instructions whose complexity has been enhanced by means of the `EvolComplexity` method defined, inspired on the `EvolInstruct` method from [WizardLM](https://arxiv.org/abs/2304.12244).  
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_complexity_scorer.py"
+```
+
+Differently to other tasks, this case doesn't need a reference input to valuate the complexity of the instructions. The following example shows how it works with a small sample dataset:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/complexity_scorer_example.py"
 ```
 
 For the API reference visit [ComplexityScorerTask][distilabel.tasks.preference.complexity_scorer.ComplexityScorerTask].
@@ -256,6 +267,13 @@ By default, the quality is defined as the following the paper prompt, but can be
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_quality_scorer_custom.py"
 ```
+
+The following is an example pipeline to label a dataset using `QualityScorerTask`:
+
+```python
+--8<-- "docs/snippets/technical-reference/tasks/quality_scorer_example.py"
+```
+
 
 For the API reference visit [QualityScorerTask][distilabel.tasks.preference.quality_scorer.QualityScorerTask].
 
