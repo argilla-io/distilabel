@@ -2365,7 +2365,7 @@
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
 <p>We will start off by installing <code>distilabel</code> with the <code>openai</code> extra, as the authors used both GPT-4 and GPT-3.5 to generate the synthetic data, so no other LLMs were used. Install <strong>Argilla</strong> for a better visualization and curation of the results</p>
-<p>Note that we upgrade <code>typing_extensions</code> first, since <code>openai</code> may have conflicts with the default installed version of <code>typing_extensions</code> if outdated.</p>
+<p>Note that we upgrade <code>typing_extensions</code> first, since <code>openai</code> may have conflicts with the default installed version of <code>typing_extensions</code> if it's outdated.</p>
 </div>
 </div>
 </div>
@@ -2382,10 +2382,10 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h3>
-<p>In "Improving Text Embeddings with Large Language Models" the authors leverage OpenAI proprietary LLMs as GPT-4 and GPT-3.5 to generate synthetic data for a wide range of diverse text embedding tasks, achieving competitive performance without using any labeled data. While when fine-tuning with a mixture of sythetic data and data from MS-Marco, their model sets SOTA results on BEIR and MTEB benchmarks.</p>
-<p>So on, the authors divide the generation process in two steps/phases:
-* Synthetic generation of the task definition/name, following a certain criteria.
-* Synthetic generation of the data for the task (to be used for fine-tuning) using the task definition and some other sampling params.</p>
+<p>In "Improving Text Embeddings with Large Language Models" the authors leverage OpenAI proprietary LLMs such as GPT-4 and GPT-3.5 to generate synthetic data for a wide range of diverse text embedding tasks, achieving competitive performance without using any labeled data. When fine-tuning with a mixture of synthetic data and data from MS-Marco, their model sets SOTA results on BEIR and MTEB benchmarks.</p>
+<p>So on, the authors divide the generation process into two steps/phases:
+* Synthetic generation of the task definition/name, following certain criteria.
+* Synthetic generation of the data for the task (to be used for fine-tuning) using the task definition and some other sampling parameters.</p>
 <p>So that after those phases, the authors end up with a dataset that is suitable for model fine-tuning.</p>
 </div>
 </div>
@@ -2447,7 +2447,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Once the default <code>Task</code> is created (<code>TaskGenerationTask</code>) we can already initialize the <code>LLM</code>, in this case <code>OpenAILLM</code> using GPT-4, and provide the recently defined task as an argument to it. Additionally, we will also include some generation kwargs, <code>temperature</code> and <code>top_p</code>, defined within the Appendix C of the paper, to encourage more diversity within the generation.</p>
+<p>Once the default <code>Task</code> is created (<code>TaskGenerationTask</code>) we can already initialize the <code>LLM</code>, in this case, <code>OpenAILLM</code> using GPT-4, and provide the recently defined task as an argument to it. Additionally, we will also include some generation kwargs, <code>temperature</code> and <code>top_p</code>, defined within the Appendix C of the paper, to encourage more diversity within the generation.</p>
 </div>
 </div>
 </div>
@@ -2518,7 +2518,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, once the generation has been completed, we will apply some post processing before proceeding to the next phase. The post-processing is to remove the columns that are not required, and to explore the columns with the tasks, so that we unwrap those lists and end up with a dataset with N rows, where N is the total number of tasks, initially contained within one row in nested lists.</p>
+<p>Finally, once the generation has been completed, we will apply some post-processing before proceeding to the next phase. The post-processing is to remove the columns that are not required and to explore the columns with the tasks, so that we unwrap those lists and end up with a dataset with N rows, where N is the total number of tasks, initially contained within one row in nested lists.</p>
 </div>
 </div>
 </div>
@@ -2561,7 +2561,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Once all the task definitions have been generated, we can proceed to the next phase, which consists on generating the data for a given task.</p>
+<p>Once all the task definitions have been generated, we can proceed to the next phase, which consists of generating the data for a given task.</p>
 <p>In this case, the LLM will need to generate data that suits each task along with a label for that entry, and a misleading label for it too. Besides that, we will also sample some of the arguments within each prompt, so that the generation is ensured to be diverse.</p>
 <p>The prompt to be used is the following:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>You have been assigned a text classification task: {task}
@@ -2628,7 +2628,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Just as before, we now need to create a custom <code>Task</code> to not only parse the output via <code>parse_output</code>, which in this case we are conducting the LLM to generate a valid JSON already, but also to generate the prompt via <code>generate_prompt</code>, since we need to introduce the sampling mentioned in the paper there.</p>
+<p>Just as before, we now need to create a custom <code>Task</code> to not only parse the output via <code>parse_output</code>, which in this case we are conducting the LLM to generate a valid JSON already but also to generate the prompt via <code>generate_prompt</code>, since we need to introduce the sampling mentioned in the paper there.</p>
 </div>
 </div>
 </div>
@@ -2767,9 +2767,9 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h3>
-<p>With <code>distilabel</code> generating synthetic dataset is easier than ever, and also customizable to a wide variety of use cases. In this tutorial, we showcased how to replicate "Improving Text Embeddings with Large Language Models", but could be adapted to your own needs.</p>
+<p>With <code>distilabel</code> generating synthetic datasets is easier than ever, and also customizable to a wide variety of use cases. In this tutorial, we showcased how to replicate "Improving Text Embeddings with Large Language Models", but could be adapted to your own needs.</p>
 <p>The authors mention that for future work, they aim to further improve the multilingual performance of our model and explore the possibility of using open-source LLMs to generate synthetic data, instead of OpenAI proprietary ones.</p>
-<p>Additionally, they also intend to investigate ways to improve the inference efficiency and lower the storage cost for LLM based text embeddings.</p>
+<p>Additionally, they also intend to investigate ways to improve the inference efficiency and lower the storage cost for LLM-based text embeddings.</p>
 </div>
 </div>
 </div>

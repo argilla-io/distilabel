@@ -2372,16 +2372,16 @@
 <li>GitHub: <a href="https://github.com/argilla-io/distilabel">argilla-io/distilabel</a></li>
 <li>Docs: <a href="http://distilabel.argilla.io">distilabel.argilla.io</a></li>
 </ul>
-<p>And also don't forget to follow us on social media to keep up to date with the latest news about Argilla and distilabel:</p>
+<p>Also, don't forget to follow us on social media to keep up to date with the latest news about Argilla and distilabel:</p>
 <ul>
 <li>Twitter: <a href="https://twitter.com/argilla_io">@argilla_io</a></li>
 <li>LinkedIn: <a href="https://www.linkedin.com/company/argilla-io">Argilla</a></li>
 </ul>
 <h2 id="demo">Demo<a class="headerlink" href="#demo" title="Permanent link">&para;</a></h2>
-<p>In this demo, we will create a preference dataset that can be later used to fine-tune an LLM using DPO. First, we will define a list of math topics and we will create a pipeline for generating a list of instructions using <code>self-instruct</code> and OpenAI <code>gpt-3.5-turbo</code>. After that, we will create another pipeline in which we will ask <code>gpt-3.5-turbo</code> to generate 3 texts for each instruction, and finally we will ask it again to rate these responses, given us our preference dataset.</p>
+<p>In this demo, we will create a preference dataset that can be later used to fine-tune an LLM using DPO. First, we will define a list of math topics and we will create a pipeline for generating a list of instructions using <code>self-instruct</code> and OpenAI <code>gpt-3.5-turbo</code>. After that, we will create another pipeline in which we will ask <code>gpt-3.5-turbo</code> to generate 3 texts for each instruction, and finally, we will ask it again to rate these responses, giving us our preference dataset.</p>
 <h3 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h3>
-<p>For this tutorial you will need an API key associated to your OpenAI account. After that, you will need to create a Google Colab secret clicking the icon key in the left side bar and create a secret called <code>api_key</code> with your OpenAI API key as value.</p>
-<p>&gt; Google Colab secrets has been released a few weeks ago and it's very useful to reuse and not leak your API Keys!</p>
+<p>For this tutorial, you will need an API key associated with your OpenAI account. After that, you will need to create a Google Colab secret by clicking the icon key in the left sidebar and creating a secret called <code>api_key</code> with your OpenAI API key as a value.</p>
+<p>&gt; Google Colab secrets were released a few weeks ago and it's very useful to reuse and not leak your API Keys!</p>
 </div>
 </div>
 </div>
@@ -2417,7 +2417,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="instruction-generation">Instruction generation<a class="headerlink" href="#instruction-generation" title="Permanent link">&para;</a></h3>
-<p>As mentioned above, we will first create a <code>Pipeline</code> for generating instructions using <code>self-instruct</code> and <code>gpt-3.5-turbo</code>. For that we will create an instance of <code>SelfInstructTask</code>, which defines a prompt template for generating instructions given an application description. We will also create an instance of <code>OpenAILLM</code> for using <code>gpt-3.5-turbo</code> and we will pass it the <code>SelfInstructTask</code> instance that we created before.</p>
+<p>As mentioned above, we will first create a <code>Pipeline</code> for generating instructions using <code>self-instruct</code> and <code>gpt-3.5-turbo</code>. For that, we will create an instance of <code>SelfInstructTask</code>, which defines a prompt template for generating instructions given an application description. We will also create an instance of <code>OpenAILLM</code> for using <code>gpt-3.5-turbo</code> and we will pass it to the <code>SelfInstructTask</code> instance that we created before.</p>
 <p>&gt; As we're passing a <code>Task</code> for generating texts to the <code>OpenAILLM</code> we can denominate this one as a <code>generator</code>.</p>
 </div>
 </div>
@@ -2448,7 +2448,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>First of all, we will create a Hugging Face 🤗 <code>dataset</code> that will contain a single column called <code>input</code>. This column will contain the math topics from which we want our LLM to generate instructions.</p>
-<p>&gt; It's important that the column is called <code>input</code>, because the <code>Task</code> that we will create later expects an input argument called <code>input</code>.</p>
+<p>&gt; It's important that the column is called <code>input</code> because the <code>Task</code> that we will create later expects an input argument called <code>input</code>.</p>
 </div>
 </div>
 </div>
@@ -2530,7 +2530,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Next, we will a <code>SelfInstructTask</code> that will guide the <code>LLM</code> using the prompt to generate instructions from the given list of inputs.</p>
-<p>&gt; All the <code>Task</code>s have two properties <code>input_args_names</code> and <code>output_args_names</code> that indicates which arguments expects as inputs and outputs will generate respectively.</p>
+<p>&gt; All the <code>Task</code>s have two properties <code>input_args_names</code> and <code>output_args_names</code> that indicates which arguments expect as inputs and outputs will generate respectively.</p>
 </div>
 </div>
 </div>
@@ -2575,7 +2575,7 @@ time: 692 µs (started: 2023-11-28 13:21:50 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Next step, we will create an <code>LLM</code>, in this case an instance of <code>OpenAILLM</code> as we want to use <code>gpt-3.5-turbo</code> to generate the instructions. We will pass the <code>instruction_task</code> for generating the prompts that we need for generating the instructions given the <code>input</code>s of our dataset.</p>
+<p>Next step, we will create an <code>LLM</code>, in this case, an instance of <code>OpenAILLM</code> as we want to use <code>gpt-3.5-turbo</code> to generate the instructions. We will pass the <code>instruction_task</code> for generating the prompts that we need for generating the instructions given the <code>input</code>s of our dataset.</p>
 </div>
 </div>
 </div>
@@ -2607,7 +2607,7 @@ time: 692 µs (started: 2023-11-28 13:21:50 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, we will create a <code>Pipeline</code> to orchestrate the whole generation process. In this case we will only pass a <code>generator</code>.</p>
+<p>Finally, we will create a <code>Pipeline</code> to orchestrate the whole generation process. In this case, we will only pass a <code>generator</code>.</p>
 </div>
 </div>
 </div>
@@ -2634,7 +2634,7 @@ time: 692 µs (started: 2023-11-28 13:21:50 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>and we trigger the generation process calling the <code>generate</code> method of the pipeline... We specify that we want <code>10</code> generations for each input</p>
+<p>And then we trigger the generation process by calling the <code>generate</code> method of the pipeline... We specify that we want <code>10</code> generations for each input.</p>
 </div>
 </div>
 </div>
@@ -2747,11 +2747,11 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="preference-dataset">Preference dataset<a class="headerlink" href="#preference-dataset" title="Permanent link">&para;</a></h3>
-<p>We have the instructions, but we still need the responses for these instructions, and more importally, evaluate how good these responses are.</p>
-<p>To do so, we will create a new <code>Pipeline</code> for generating and labelling the generated texts:</p>
+<p>We have the instructions, but we still need the responses for these instructions, and more importantly, evaluate how good these responses are.</p>
+<p>To do so, we will create a new <code>Pipeline</code> for generating and labeling the generated texts:</p>
 <ol>
 <li>We will a <code>generator</code> LLM using <code>OpenAILLM</code> and the <code>TextGenerationTask</code> to generate responses for a given instruction.</li>
-<li>We will create a <code>labeller</code> LLM using <code>OpenAILLM</code> and the <code>UltraFeedbackTask</code> task to a rating telling us how good was a response for a given instruction.</li>
+<li>We will create a <code>labeler</code> LLM using <code>OpenAILLM</code> and the <code>UltraFeedbackTask</code> task to a rating telling us how good was a response for a given instruction.</li>
 </ol>
 </div>
 </div>
@@ -2770,7 +2770,7 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We create a <code>generator</code> that will use <code>gpt-3.5-turbo</code> for generating text. We also use the <code>principles</code> feature of the <code>TextGenerationTask</code>, that will inject a principle in the generated prompt to make the LLM generate a text focusing on the provided principle and that will allow us to generate a more heterogeneous dataset.</p>
+<p>We create a <code>generator</code> that will use <code>gpt-3.5-turbo</code> for generating text. We also use the <code>principles</code> feature of the <code>TextGenerationTask</code>, which will inject a principle in the generated prompt to make the LLM generate a text focusing on the provided principle, and that will allow us to generate a more heterogeneous dataset.</p>
 </div>
 </div>
 </div>
@@ -2813,7 +2813,7 @@ time: 8.4 ms (started: 2023-11-28 14:38:11 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Next we create a <code>labeller</code> that will evaluate how good the texts that the <code>generator</code> gave us are. In this case we have decided to use the <code>UltraFeedbackTask</code> which defines a prompt template for generating preference datasets.</p>
+<p>Next, we create a <code>labeler</code> that will evaluate how good the texts that the <code>generator</code> gave us are. In this case, we have decided to use the <code>UltraFeedbackTask</code> which defines a prompt template for generating preference datasets.</p>
 </div>
 </div>
 </div>
@@ -3020,8 +3020,17 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="human-feedback-with-argilla">Human Feedback with Argilla<a class="headerlink" href="#human-feedback-with-argilla" title="Permanent link">&para;</a></h2>
-<p>You can use the AI Feedback created by distilabel directly but we hae ve seen that enhancing it with human feedback will improve the quality of your LLM. We provide a <code>to_argilla</code> method which creates a dataset for Argilla along with out-of-the-box tailored metadata filters and semantic search to allow you to provide human feedback as quickly and engaging as possible. You can check <a href="https://docs.argilla.io/en/latest/getting_started/quickstart_installation.html">the Argilla docs</a> to get it up and running.</p>
+<p>You can use the AI Feedback created by distilabel directly but we have seen that enhancing it with human feedback will improve the quality of your LLM. We provide a <code>to_argilla</code> method which creates a dataset for Argilla along with out-of-the-box tailored metadata filters and semantic search to allow you to provide human feedback as quickly and engaging as possible. You can check <a href="https://docs.argilla.io/en/latest/getting_started/quickstart_installation.html">the Argilla docs</a> to get it up and running.</p>
+<p>First, install it.</p>
 </div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;distilabel[argilla]&quot;</span>
+</span></code></pre></div>
+
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
@@ -3034,15 +3043,15 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1"># Replace api_url with the url to your HF Spaces URL if using Spaces</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Replace api_key if you configured a custom API key</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">rg</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6900&quot;</span><span class="p">,</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;owner.apikey&quot;</span><span class="p">,</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -3057,7 +3066,7 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">distiset_pref</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">rg_dataset</span> <span class="o">=</span> <span class="n">distiset_pref</span><span class="o">.</span><span class="n">to_argilla</span><span class="p">()</span>
 </span></code></pre></div>
 
 </div>
@@ -3077,7 +3086,7 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;math-preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">rg_dataset</span><span class="o">.</span><span class="n">push_to_argilla</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;math-preference-dataset&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -3111,7 +3120,7 @@ time: 1.99 ms (started: 2023-11-23 16:38:05 +00:00)
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can now jump in the UI and start providing human feedback to improve the quality of the synthetic dataset. </p>
+<p>We can now jump into the UI and start providing human feedback to improve the quality of the synthetic dataset. </p>
 </div>
 </div>
 </div>

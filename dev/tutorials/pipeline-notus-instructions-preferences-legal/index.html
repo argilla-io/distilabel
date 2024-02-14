@@ -2513,8 +2513,8 @@
 <h1 id="create-a-legal-preference-dataset">⚖️ Create a legal preference dataset<a class="headerlink" href="#create-a-legal-preference-dataset" title="Permanent link">&para;</a></h1>
 <p><a href="https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a> <a href="https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb"><img alt="Open Source in Github" src="https://img.shields.io/badge/github-view%20source-black.svg" /></a></p>
 <p>In this tutorial, you will learn how to use the Notus model on Inference Endpoints to create a legal preference dataset based on RAG instructions from the European AI Act. A full end-to-end example of how to use distilabel to leverage LLMs!</p>
-<p><a href="https://github.com/argilla-io/distilabel">distilabel</a> is an AI Feedback (AIF) framework that can generate and label datasets using LLMs, and can be used for many different use cases. Implemented with robustness, efficiency and scalability in mind, it allows anyone to build their synthetic datasets that can be used in many different scenarios. This tutorial shows an end-to-end example in which we will create a model expert in the new AI Act, to which we can make different types of questions and requests.</p>
-<p>The LLM model that we will fine-tune for this is <a href="https://argilla.io/blog/notus7b/">Notus 7B</a>, a fine-tuned version of Zephyr 7B that uses Direct Preference Optimization (DPO) and AIF techniques to outperform its foundation model in several benchmarks, and is completely open-source.</p>
+<p><a href="https://github.com/argilla-io/distilabel">distilabel</a> is an AI Feedback (AIF) framework that can generate and label datasets using LLMs and can be used for many different use cases. Implemented with robustness, efficiency, and scalability in mind, it allows anyone to build their synthetic datasets that can be used in many different scenarios. This tutorial shows an end-to-end example in which we will create a model expert in the new AI Act, to which we can make different types of questions and requests.</p>
+<p>The LLM model that we will fine-tune for this is <a href="https://argilla.io/blog/notus7b/">Notus 7B</a>, a fine-tuned version of Zephyr 7B that uses Direct Preference Optimization (DPO) and AIF techniques to outperform its foundation model in several benchmarks and is completely open-source.</p>
 <p>This tutorial includes the following steps:</p>
 <ul>
 <li>Defining a custom generating task for a <code>distilabel</code> pipeline.</li>
@@ -2571,7 +2571,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
-<p>Additionally, we need to provide our HuggingFace and OpenAI accest token. To later instatiate an <code>InferenceEndpointsLLM</code> object, we need to pass as parameters the HF Inference Endpoint name and the HF namespace. One very convenient way to do so is also through environment variables.</p>
+<p>Additionally, we need to provide our HuggingFace and OpenAI access token. To later instantiate an <code>InferenceEndpointsLLM</code> object, we need to pass as parameters the HF Inference Endpoint name and the HF namespace. One very convenient way to do so is also through environment variables.</p>
 </div>
 </div>
 </div>
@@ -2590,10 +2590,10 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="setting-up-an-inference-endpoint-with-notus">Setting up an inference endpoint with Notus<a class="headerlink" href="#setting-up-an-inference-endpoint-with-notus" title="Permanent link">&para;</a></h2>
-<p>Inference endpoints are a solution, managed by Hugging Face, to easily deploy any Transformer-like model. They are built from models on the Hugging Face Hub. Inference endpoints are really handy for making inference on LLMs without the hastle of trying to run the models locally. In this tutorial, we will use inference endpoints to generate text using our Notus model, as part of the <code>distilabel</code> workflow. The endpoint of choice has a <a href="https://ui.endpoints.huggingface.co/argilla/endpoints/aws-notus-7b-v1-4052">Notus 7B instance</a> running.</p>
+<p>Inference endpoints are a solution, managed by Hugging Face, to easily deploy any Transformer-like model. They are built from models on the Hugging Face Hub. Inference endpoints are handy for making inference on LLMs without the hassle of trying to run the models locally. In this tutorial, we will use inference endpoints to generate text using our Notus model, as part of the <code>distilabel</code> workflow. The endpoint of choice has a <a href="https://ui.endpoints.huggingface.co/argilla/endpoints/aws-notus-7b-v1-4052">Notus 7B instance</a> running.</p>
 <h3 id="defining-a-custom-generating-task-for-a-distilabel-pipeline">Defining a custom generating task for a distilabel pipeline<a class="headerlink" href="#defining-a-custom-generating-task-for-a-distilabel-pipeline" title="Permanent link">&para;</a></h3>
-<p>To kickstart this tutorial, let's see how to set up and endpoint for our Notus model. It's not part of the end-to-end example we'll see later, but an example of how to connect to a Hugging Face endpoint and a test of the <code>distilabel</code> pipeline.</p>
-<p>Let's dive into this quick example of how to use an inference endpoint. We have prepared an easy <code>TextGenerationTask</code> to ask question to the model, in a very similar way as we talk with the LLMs using chatbots. First, we define a class for the question-answering task, with functions showing <code>distilabel</code> how the model should generate the prompts, parse the input and the output, etc.</p>
+<p>To kickstart this tutorial, let's see how to set up an endpoint for our Notus model. It's not part of the end-to-end example we'll see later, but an example of how to connect to a Hugging Face endpoint and a test of the <code>distilabel</code> pipeline.</p>
+<p>Let's dive into this quick example of how to use an inference endpoint. We have prepared an easy <code>TextGenerationTask</code> to ask questions to the model, in a very similar way as we talk with the LLMs using chatbots. First, we define a class for the question-answering task, with functions showing <code>distilabel</code> how the model should generate the prompts, parse the input and the output, etc.</p>
 </div>
 </div>
 </div>
@@ -3116,7 +3116,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's take a look at an instance of the preference dataset</p>
+<p>Let's take a look at an instance of the preference dataset:</p>
 </div>
 </div>
 </div>
@@ -3197,7 +3197,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Once our preference dataset has been correctly generated, the Argilla UI is the best tool at our disposal to visualize it and annotate it. As for the instruction dataset, we just have to convert it to an Argilla Feedback Dataset, and push it to Argilla.</p>
+<p>Once our preference dataset has been correctly generated, the Argilla UI is the best tool at our disposal to visualize and annotate it. As for the instruction dataset, we just have to convert it to an Argilla Feedback Dataset, and push it to Argilla.</p>
 </div>
 </div>
 </div>
@@ -3231,7 +3231,7 @@ What are the high-impact sectors that require AI action according to the AI Act 
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="conclusions">Conclusions<a class="headerlink" href="#conclusions" title="Permanent link">&para;</a></h2>
-<p>To conclude, we have gone through an end-to-end example of distilabel. We've set up an Inference Endpoint, defined a distilabel pipeline that extracts information from a PDF, created and manually reviewed the instruction and preference dataset created from that input. The final preference dataset is perfect for fine-tuning, and you can easily do this using the ArgillaTrainer from Argilla. Have a look at these resources if you want to go further:</p>
+<p>To conclude, we have gone through an end-to-end example of distilabel. We've set up an Inference Endpoint, defined a distilabel pipeline that extracts information from a PDF, and created and manually reviewed the instruction and preference dataset created from that input. The final preference dataset is perfect for fine-tuning, and you can easily do this using the ArgillaTrainer from Argilla. Have a look at these resources if you want to go further:</p>
 <ul>
 <li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/end2end_examples/train-model-006.html">Train a Model with ArgillaTrainer</a></li>
 <li><a href="https://docs.argilla.io/en/latest/tutorials_and_integrations/tutorials/feedback/training-llm-mistral-sft.html">Ⓜ️ Finetuning LLMs as chat assistants: Supervised Finetuning on Mistral 7B</a></li>
