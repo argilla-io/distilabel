@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.base import _GlobalPipelineManager
-from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 
 
 class TestGlobalPipelineManager:
@@ -21,7 +20,7 @@ class TestGlobalPipelineManager:
         _GlobalPipelineManager.set_pipeline(None)
 
     def test_set_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = BasePipeline()
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -30,7 +29,7 @@ class TestGlobalPipelineManager:
         assert _GlobalPipelineManager.get_pipeline() is None
 
     def test_get_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = BasePipeline()
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -39,7 +38,7 @@ class TestBasePipeline:
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
-        with Pipeline() as pipeline:
+        with BasePipeline() as pipeline:
             assert pipeline is not None
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 

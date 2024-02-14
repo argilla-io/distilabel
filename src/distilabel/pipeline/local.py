@@ -22,4 +22,4 @@ if TYPE_CHECKING:
 
 class Pipeline(BasePipeline):
     def run(self, configuration: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
-        pass
+        super().run(configuration)

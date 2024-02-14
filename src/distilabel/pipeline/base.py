@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from typing_extensions import Self
@@ -35,7 +34,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(ABC):
+class BasePipeline:
     def __init__(self) -> None:
         self.dag = DAG()
 
@@ -52,9 +51,8 @@ class BasePipeline(ABC):
     def _add_edge(self, from_step: str, to_step: str) -> None:
         self.dag.add_edge(from_step, to_step)
 
-    @abstractmethod
     def run(self, configuration: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
-        pass
+        self.dag.validate()
 
     def _get_step_runtime_params(
         self, step_name: str, configuration: Optional[Dict[str, Dict[str, Any]]] = None
