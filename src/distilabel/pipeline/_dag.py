@@ -14,9 +14,10 @@
 
 import inspect
 from collections import defaultdict
-from typing import TYPE_CHECKING, Annotated, Iterable, List, get_args, get_origin
+from typing import TYPE_CHECKING, Iterable, List, get_args, get_origin
 
 import networkx as nx
+from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from distilabel.step.base import Step
