@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from distilabel.pipeline.base import BasePipeline
+
+if TYPE_CHECKING:
+    pass
 
 
 class Pipeline(BasePipeline):
-    pass
+    def run(self, configuration: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        pass
