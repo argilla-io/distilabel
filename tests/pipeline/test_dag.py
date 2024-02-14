@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
 from distilabel.step.base import GeneratorStep, Step, StepInput
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.local import Pipeline
 
 
 class DummyGeneratorStep(GeneratorStep):
@@ -58,86 +61,116 @@ class DummyStep2(Step):
         return ["evol_response"]
 
 
+@pytest.fixture(name="dummy_step_1")
+def dummy_step_1_fixture(pipeline: "Pipeline") -> DummyStep1:
+    return DummyStep1(name="dummy_step_1", pipeline=pipeline)
+
+
+@pytest.fixture(name="dummy_step_2")
+def dummy_step_2_fixture(pipeline: "Pipeline") -> DummyStep2:
+    return DummyStep2(name="dummy_step_2", pipeline=pipeline)
+
+
+@pytest.fixture(name="dummy_generator_step")
+def dummy_generator_step_fixture(pipeline: "Pipeline") -> DummyGeneratorStep:
+    return DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+
+
 class TestDAG:
-    def test_add_step(self) -> None:
+    def test_add_step(self, dummy_step_1: "Step") -> None:
         dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
+        dag.add_step(dummy_step_1)
 
-        assert "step1" in dag.dag
+        assert "dummy_step_1" in dag.dag
 
-    def test_add_step_with_existing_name(self) -> None:
+    def test_add_step_with_existing_name(self, dummy_step_1: "Step") -> None:
         dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-
-        with pytest.raises(ValueError, match="Step with name 'step1' already exists"):
-            dag.add_step(DummyStep1(), "step1")
-
-    def test_add_edge(self) -> None:
-        dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-        dag.add_step(DummyStep2(), "step2")
-        dag.add_edge("step1", "step2")
-
-        assert "step2" in dag.dag["step1"]
-
-    def test_add_edge_with_nonexistent_step(self) -> None:
-        dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-
-        with pytest.raises(ValueError, match="Step with name 'step2' does not exist"):
-            dag.add_edge("step1", "step2")
-
-        with pytest.raises(ValueError, match="Step with name 'step2' does not exist"):
-            dag.add_edge("step2", "step1")
-
-    def test_add_edge_duplicate(self) -> None:
-        dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-        dag.add_step(DummyStep2(), "step2")
-        dag.add_edge("step1", "step2")
+        dag.add_step(dummy_step_1)
 
         with pytest.raises(
-            ValueError, match="There is already a edge from 'step2' to 'step1'"
+            ValueError, match="Step with name 'dummy_step_1' already exists"
         ):
-            dag.add_edge("step1", "step2")
+            dag.add_step(dummy_step_1)
 
-    def test_add_edge_cycle(self) -> None:
+    def test_add_edge(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
         dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-        dag.add_step(DummyStep2(), "step2")
-        dag.add_edge("step1", "step2")
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        assert "dummy_step_2" in dag.dag["dummy_step_1"]
+
+    def test_add_edge_with_nonexistent_step(self, dummy_step_1: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+
+        with pytest.raises(
+            ValueError, match="Step with name 'dummy_step_2' does not exist"
+        ):
+            dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with pytest.raises(
+            ValueError, match="Step with name 'dummy_step_2' does not exist"
+        ):
+            dag.add_edge("dummy_step_2", "dummy_step_1")
+
+    def test_add_edge_duplicate(
+        self, dummy_step_1: "Step", dummy_step_2: "Step"
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
 
         with pytest.raises(
             ValueError,
-            match="Cannot add edge from 'step2' to 'step1' as it would create a cycle.",
+            match="There is already a edge from 'dummy_step_2' to 'dummy_step_1'",
         ):
-            dag.add_edge("step2", "step1")
+            dag.add_edge("dummy_step_1", "dummy_step_2")
 
-    def test_validate_first_step_not_generator(self) -> None:
+    def test_add_edge_cycle(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
         dag = DAG()
-        dag.add_step(DummyStep1(), "step1")
-        dag.add_step(DummyStep2(), "step2")
-        dag.add_edge("step1", "step2")
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
 
         with pytest.raises(
             ValueError,
-            match="Step 'step1' should be `GeneratorStep` as it doesn't have any previous steps",
+            match="Cannot add edge from 'dummy_step_2' to 'dummy_step_1' as it would create a cycle.",
+        ):
+            dag.add_edge("dummy_step_2", "dummy_step_1")
+
+    def test_validate_first_step_not_generator(
+        self, dummy_step_1: "Step", dummy_step_2: "Step"
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with pytest.raises(
+            ValueError,
+            match="Step 'dummy_step_1' should be `GeneratorStep` as it doesn't have any previous steps",
         ):
             dag.validate()
 
-    def test_validate_inputs_not_available(self) -> None:
+    def test_validate_inputs_not_available(
+        self, dummy_generator_step: "GeneratorStep", dummy_step_2: "Step"
+    ) -> None:
         dag = DAG()
-        dag.add_step(DummyGeneratorStep(), "step1")
-        dag.add_step(DummyStep2(), "step2")
-        dag.add_edge("step1", "step2")
+        dag.add_step(dummy_generator_step)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_generator_step", "dummy_step_2")
 
         with pytest.raises(
             ValueError,
-            match="Step 'step2' requires inputs 'response'",
+            match="Step 'dummy_step_2' requires inputs 'response'",
         ):
             dag.validate()
 
-    def test_validate_missing_step_input(self) -> None:
+    def test_validate_missing_step_input(
+        self, dummy_generator_step: "GeneratorStep", pipeline: "Pipeline"
+    ) -> None:
         class DummyStep3(Step):
             @property
             def inputs(self) -> List[str]:
@@ -151,17 +184,19 @@ class TestDAG:
                 return [{"response": "response1"}]
 
         dag = DAG()
-        dag.add_step(DummyGeneratorStep(), "step1")
-        dag.add_step(DummyStep3(), "step3")
-        dag.add_edge("step1", "step3")
+        dag.add_step(dummy_generator_step)
+        dag.add_step(DummyStep3(name="dummy_step_3", pipeline=pipeline))
+        dag.add_edge("dummy_generator_step", "dummy_step_3")
 
         with pytest.raises(
             ValueError,
-            match="Step 'step3' should have a parameter with type hint `StepInput`",
+            match="Step 'dummy_step_3' should have a parameter with type hint `StepInput`",
         ):
             dag.validate()
 
-    def test_validate_missing_var_positional_step_input(self) -> None:
+    def test_validate_missing_var_positional_step_input(
+        self, pipeline: "Pipeline"
+    ) -> None:
         class DummyStep3(Step):
             @property
             def inputs(self) -> List[str]:
@@ -175,15 +210,19 @@ class TestDAG:
                 return []
 
         dag = DAG()
-        dag.add_step(DummyGeneratorStep(), "step11")
-        dag.add_step(DummyGeneratorStep(), "step12")
-        dag.add_step(DummyStep3(), "step3")
+        dag.add_step(
+            DummyGeneratorStep(name="dummy_generator_step_11", pipeline=pipeline)
+        )
+        dag.add_step(
+            DummyGeneratorStep(name="dummy_generator_step_12", pipeline=pipeline)
+        )
+        dag.add_step(DummyStep3(name="dummy_step_3", pipeline=pipeline))
 
-        dag.add_edge("step11", "step3")
-        dag.add_edge("step12", "step3")
+        dag.add_edge("dummy_generator_step_11", "dummy_step_3")
+        dag.add_edge("dummy_generator_step_12", "dummy_step_3")
 
         with pytest.raises(
             ValueError,
-            match=r"Step 'step3' should have a `\*args` parameter with type hint `StepInput`",
+            match=r"Step 'dummy_step_3' should have a `\*args` parameter with type hint `StepInput`",
         ):
             dag.validate()

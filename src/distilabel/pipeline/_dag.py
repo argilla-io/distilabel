@@ -33,7 +33,8 @@ class DAG:
     def __init__(self) -> None:
         self.dag = nx.DiGraph()
 
-    def add_step(self, step: "Step", name: str) -> None:
+    def add_step(self, step: "Step") -> None:
+        name = step.name
         if name in self.dag:
             raise ValueError(f"Step with name '{name}' already exists")
         self.dag.add_node(name, step=step)
@@ -89,7 +90,7 @@ class DAG:
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
-                    if not step.is_generator():
+                    if not step.is_generator:
                         raise ValueError(
                             f"Step '{step_name}' should be `GeneratorStep` as it doesn't have any previous steps"
                         )
