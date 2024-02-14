@@ -31,6 +31,7 @@ from typing import (
     cast,
 )
 
+import pandas as pd
 from datasets import Dataset, Split
 
 from distilabel.dataset import CustomDataset, DatasetCheckpoint
@@ -485,12 +486,19 @@ class Pipeline:
                     if key not in label:
                         label.update({key: None})
 
+        # Rebuild the final dataset with the processed generations and labels
         _flattened_dataset = dataset.flatten_indices()
-        _dataset = Dataset.from_dict({}, split=Split.TRAIN)
-        for row, generation, processed_label in zip(
-            _flattened_dataset, generations, processed_labels
-        ):
-            _dataset = _dataset.add_item({**row, **generation, **processed_label})  # type: ignore
+        df = pd.concat(
+            [
+                _flattened_dataset.to_pandas(),
+                pd.DataFrame(generations),
+                pd.DataFrame(processed_labels),
+            ],
+            axis=1,
+        )
+        df = df.loc[:, ~df.columns.duplicated()]
+        _dataset = Dataset.from_pandas(df, split=Split.TRAIN)
+
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         _dataset.__class__ = CustomDataset
         if self.generator is not None and self.labeller is None:
