@@ -51,8 +51,8 @@ class BasePipeline:
     def _add_edge(self, from_step: str, to_step: str) -> None:
         self.dag.add_edge(from_step, to_step)
 
-    def run(self, configuration: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
-        self.dag.validate()
+    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        self.dag.validate(runtime_parameters=parameters)
 
     def _get_step_runtime_params(
         self, step_name: str, configuration: Optional[Dict[str, Dict[str, Any]]] = None

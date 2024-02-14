@@ -21,5 +21,5 @@ if TYPE_CHECKING:
 
 
 class Pipeline(BasePipeline):
-    def run(self, configuration: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
-        super().run(configuration)
+    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        super().run(parameters)
