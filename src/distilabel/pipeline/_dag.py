@@ -94,7 +94,18 @@ class DAG:
     def validate(
         self, runtime_parameters: Optional[Dict[str, Dict[str, Any]]] = None
     ) -> None:
-        """"""
+        """Validates that the `Step`s included in the pipeline are correctly connected and
+        have the correct inputs and outputs.
+
+        Args:
+            runtime_parameters: A dictionary with the runtime parameters for each step. The
+                keys are the step names and the values are dictionaries with the runtime
+                parameters for the step.
+
+        Raises:
+            ValueError: If the pipeline is not valid.
+        """
+
         runtime_parameters = runtime_parameters or {}
 
         for trophic_level, steps in enumerate(
