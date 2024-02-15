@@ -136,7 +136,16 @@ class DAG:
             )
 
     def _validate_step_process_arguments(self, step: "Step") -> None:
-        """Validates the arguments of the `Step.process` method."""
+        """Validates the arguments of the `Step.process` method, checking there is an
+        argument with type hint `StepInput` and that all the required runtime parameters
+        are provided.
+
+        Args:
+            step: The step to validate.
+
+        Raises:
+            ValueError: If the arguments of the `process` method of the step are not valid.
+        """
         signature = inspect.signature(step.process)
 
         step_input_parameter = None
@@ -160,6 +169,17 @@ class DAG:
         step_name: str,
         step_input_parameter: Union[inspect.Parameter, None] = None,
     ) -> None:
+        """Validates that the `Step.process` method has a parameter with type hint `StepInput`
+
+        Args:
+            step_name: The name of the step.
+            step_input_parameter: The parameter with type hint `StepInput` of the `process`
+                method of the step.
+
+        Raises:
+            ValueError: If the `step_input_parameter` is not valid.
+        """
+
         predecessors = {
             step_name: self.get_step(step_name)
             for step_name in self.dag.predecessors(step_name)
@@ -195,6 +215,16 @@ class DAG:
     def _validate_step_process_runtime_parameters(
         self, step: "Step", parameters: List[inspect.Parameter]
     ) -> None:
+        """Validates that the required runtime parameters of the step are provided.
+
+        Args:
+            step: The step to validate.
+            parameters: The runtime parameters of the `Step.process` method.
+
+        Raises:
+            ValueError: If not all the required runtime parameters haven't been provided
+                with a value.
+        """
         runtime_parameters_values = step._runtime_parameters
         for parameter in parameters:
             if (
