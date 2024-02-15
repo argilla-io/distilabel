@@ -226,3 +226,30 @@ class TestDAG:
             match=r"Step 'dummy_step_3' should have a `\*args` parameter with type hint `StepInput`",
         ):
             dag.validate()
+
+    def test_validate_missing_runtime_parameter(self, pipeline: "Pipeline") -> None:
+        class DummyGeneratorStep(GeneratorStep):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(
+                self, runtime_argument1: str, runtime_argument2: int = 5
+            ) -> List[Dict[str, Any]]:
+                return [{"response": "response1"}]
+
+        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+        step._set_runtime_parameters({})
+
+        dag = DAG()
+        dag.add_step(step)
+
+        with pytest.raises(
+            ValueError,
+            match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
+        ):
+            dag.validate()

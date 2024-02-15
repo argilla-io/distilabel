@@ -15,7 +15,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generator, List, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
@@ -80,6 +80,8 @@ class Step(BaseModel, ABC):
     name: str
     pipeline: Annotated[Union[BasePipeline, None], Field(exclude=True)] = None
 
+    _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
+
     def model_post_init(self, _: Any) -> None:
         if self.pipeline is None:
             self.pipeline = _GlobalPipelineManager.get_pipeline()
@@ -116,6 +118,14 @@ class Step(BaseModel, ABC):
         """
         pass
 
+    def _set_runtime_parameters(self, runtime_parameters: Dict[str, Any]) -> None:
+        """Sets the runtime parameters of the step.
+
+        Args:
+            runtime_parameters: A dictionary with the runtime parameters for the step.
+        """
+        self._runtime_parameters = runtime_parameters
+
     @property
     def is_generator(self) -> bool:
         """Whether the step is a generator step or not.
@@ -145,7 +155,6 @@ class Step(BaseModel, ABC):
         pass
 
     @property
-    @abstractmethod
     def outputs(self) -> List[str]:
         """List of strings with the names of the columns that the step will produce as
         output.
@@ -154,7 +163,7 @@ class Step(BaseModel, ABC):
             List of strings with the names of the columns that the step will produce as
             output.
         """
-        pass
+        return []
 
     @abstractmethod
     def process(
