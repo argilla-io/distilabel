@@ -242,11 +242,14 @@ class TestDAG:
             ) -> List[Dict[str, Any]]:
                 return [{"response": "response1"}]
 
+        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+        step._set_runtime_parameters({})
+
         dag = DAG()
-        dag.add_step(DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline))
+        dag.add_step(step)
 
         with pytest.raises(
             ValueError,
             match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
         ):
-            dag.validate(runtime_parameters={"dummy_generator_step": {}})
+            dag.validate()

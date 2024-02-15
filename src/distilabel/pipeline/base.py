@@ -45,18 +45,16 @@ class BasePipeline:
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         _GlobalPipelineManager.set_pipeline(None)
 
+    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        self._set_runtime_parameters(parameters or {})
+        self.dag.validate()
+
     def _add_step(self, step: "Step") -> None:
         self.dag.add_step(step)
 
     def _add_edge(self, from_step: str, to_step: str) -> None:
         self.dag.add_edge(from_step, to_step)
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
-        self.dag.validate(runtime_parameters=parameters)
-
-    def _get_step_runtime_params(
-        self, step_name: str, configuration: Optional[Dict[str, Dict[str, Any]]] = None
-    ) -> Union[Dict[str, Any], None]:
-        if configuration is None:
-            return None
-        return configuration.get(step_name, None)
+    def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
+        for step_name, step_parameters in parameters.items():
+            self.dag.get_step(step_name)._set_runtime_parameters(step_parameters)

@@ -16,11 +16,8 @@ import inspect
 from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
-    Any,
-    Dict,
     Iterable,
     List,
-    Optional,
     Union,
     get_args,
     get_origin,
@@ -91,22 +88,13 @@ class DAG:
         for trophic_level in sorted(v.keys()):
             yield v[trophic_level]
 
-    def validate(
-        self, runtime_parameters: Optional[Dict[str, Dict[str, Any]]] = None
-    ) -> None:
+    def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and
         have the correct inputs and outputs.
-
-        Args:
-            runtime_parameters: A dictionary with the runtime parameters for each step. The
-                keys are the step names and the values are dictionaries with the runtime
-                parameters for the step.
 
         Raises:
             ValueError: If the pipeline is not valid.
         """
-
-        runtime_parameters = runtime_parameters or {}
 
         for trophic_level, steps in enumerate(
             self.iter_based_on_trophic_levels(), start=1
@@ -123,9 +111,7 @@ class DAG:
                 else:
                     self._step_inputs_are_available(step)
 
-                step_runtime_parameters = runtime_parameters.get(step_name, {})
-
-                self._validate_step_process_arguments(step, step_runtime_parameters)
+                self._validate_step_process_arguments(step)
 
     def _step_inputs_are_available(self, step: "Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
@@ -149,11 +135,7 @@ class DAG:
                 f" the required inputs."
             )
 
-    def _validate_step_process_arguments(
-        self,
-        step: "Step",
-        runtime_parameters_values: Dict[str, Dict[str, Any]],
-    ) -> None:
+    def _validate_step_process_arguments(self, step: "Step") -> None:
         """Validates the arguments of the `Step.process` method."""
         signature = inspect.signature(step.process)
 
@@ -171,9 +153,7 @@ class DAG:
                 runtime_parameters.append(parameter)
 
         self._validate_process_step_input_parameter(step.name, step_input_parameter)
-        self._validate_step_process_runtime_parameters(
-            step.name, runtime_parameters, runtime_parameters_values
-        )
+        self._validate_step_process_runtime_parameters(step, runtime_parameters)
 
     def _validate_process_step_input_parameter(
         self,
@@ -213,16 +193,15 @@ class DAG:
             )
 
     def _validate_step_process_runtime_parameters(
-        self,
-        step_name: str,
-        parameters: List[inspect.Parameter],
-        runtime_parameters_values: Dict[str, Dict[str, Any]],
+        self, step: "Step", parameters: List[inspect.Parameter]
     ) -> None:
+        runtime_parameters_values = step._runtime_parameters
         for parameter in parameters:
-            if parameter.default == inspect.Parameter.empty:
-                if parameter.name not in runtime_parameters_values:
-                    raise ValueError(
-                        f"Step '{step_name}' is missing required runtime parameter"
-                        f" '{parameter.name}'. Please, provide a value for it when"
-                        " calling `Pipeline.run`"
-                    )
+            if (
+                parameter.default == inspect.Parameter.empty
+                and parameter.name not in runtime_parameters_values
+            ):
+                raise ValueError(
+                    f"Step '{step.name}' is missing required runtime parameter '{parameter.name}'."
+                    " Please, provide a value for it when calling `Pipeline.run`"
+                )
