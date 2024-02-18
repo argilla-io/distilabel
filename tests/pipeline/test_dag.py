@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
-from distilabel.step.base import GeneratorStep, Step, StepInput
+from distilabel.pipeline.step.base import GeneratorStep, Step, StepInput
 
 if TYPE_CHECKING:
     from distilabel.pipeline.local import Pipeline

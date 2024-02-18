@@ -31,7 +31,7 @@ import networkx as nx
 from typing_extensions import Annotated
 
 if TYPE_CHECKING:
-    from distilabel.step.base import Step
+    from distilabel.pipeline.step.base import Step
 
 
 class DAG:

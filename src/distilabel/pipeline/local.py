@@ -18,13 +18,14 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.step.base import Step
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
     from multiprocessing.pool import Pool
     from queue import Queue
 
-    from distilabel.step.base import GeneratorStep, Step
+    from distilabel.pipeline.step.base import GeneratorStep
 
 
 def error_callback(e: Exception) -> None:

@@ -19,7 +19,7 @@ from typing_extensions import Self
 from distilabel.pipeline._dag import DAG
 
 if TYPE_CHECKING:
-    from distilabel.step.base import Step
+    from distilabel.pipeline.step.base import Step
 
 
 class _GlobalPipelineManager:
