@@ -57,4 +57,5 @@ class BasePipeline:
 
     def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
         for step_name, step_parameters in parameters.items():
-            self.dag.get_step(step_name)._set_runtime_parameters(step_parameters)
+            step = self.dag.get_step(step_name)["step"]
+            step._set_runtime_parameters(step_parameters)
