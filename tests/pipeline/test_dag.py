@@ -40,7 +40,7 @@ class DummyStep1(Step):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def process(self, StepInput) -> List[Dict[str, Any]]:
+    def process(self, input: StepInput) -> List[Dict[str, Any]]:
         return [{"response": "response1"}]
 
     @property
@@ -81,7 +81,7 @@ class TestDAG:
         dag = DAG()
         dag.add_step(dummy_step_1)
 
-        assert "dummy_step_1" in dag.dag
+        assert "dummy_step_1" in dag.G
 
     def test_add_step_with_existing_name(self, dummy_step_1: "Step") -> None:
         dag = DAG()
@@ -92,13 +92,39 @@ class TestDAG:
         ):
             dag.add_step(dummy_step_1)
 
+    def test_get_step(self, dummy_step_1: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+
+        assert dag.get_step("dummy_step_1")["step"] == dummy_step_1
+
+    def test_get_step_nonexistent(self) -> None:
+        dag = DAG()
+        with pytest.raises(
+            ValueError, match="Step with name 'dummy_step_1' does not exist"
+        ):
+            dag.get_step("dummy_step_1")
+
+    def test_set_step_attr(self, dummy_step_1: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.set_step_attr("dummy_step_1", "attr", "value")
+        assert dag.get_step("dummy_step_1")["attr"] == "value"
+
+    def test_set_step_attr_nonexistent(self) -> None:
+        dag = DAG()
+        with pytest.raises(
+            ValueError, match="Step with name 'dummy_step_1' does not exist"
+        ):
+            dag.set_step_attr("dummy_step_1", "attr", "value")
+
     def test_add_edge(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
         dag = DAG()
         dag.add_step(dummy_step_1)
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
-        assert "dummy_step_2" in dag.dag["dummy_step_1"]
+        assert "dummy_step_2" in dag.G["dummy_step_1"]
 
     def test_add_edge_with_nonexistent_step(self, dummy_step_1: "Step") -> None:
         dag = DAG()
@@ -139,6 +165,29 @@ class TestDAG:
             match="Cannot add edge from 'dummy_step_2' to 'dummy_step_1' as it would create a cycle.",
         ):
             dag.add_edge("dummy_step_2", "dummy_step_1")
+
+    def test_root_steps(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+        assert dag.root_steps == {"dummy_step_1"}
+
+    def test_leaf_steps(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+        assert dag.leaf_steps == {"dummy_step_2"}
+
+    def test_get_step_successors(
+        self, dummy_step_1: "Step", dummy_step_2: "Step"
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+        assert list(dag.get_step_successors("dummy_step_1")) == ["dummy_step_2"]
 
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"

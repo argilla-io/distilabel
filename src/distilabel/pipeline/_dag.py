@@ -14,10 +14,14 @@
 
 import inspect
 from collections import defaultdict
+from functools import cached_property
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Dict,
     Iterable,
     List,
+    Set,
     Union,
     get_args,
     get_origin,
@@ -30,46 +34,123 @@ if TYPE_CHECKING:
     from distilabel.step.base import Step
 
 
-def _is_step_input(parameter: inspect.Parameter) -> bool:
-    return (
-        get_origin(parameter.annotation) is Annotated
-        and get_args(parameter.annotation)[-1] == "StepInput"
-    )
-
-
 class DAG:
+    """A Directed Acyclic Graph (DAG) to represent the pipeline.
+
+    Attributes:
+        G: The graph representing the pipeline.
+    """
+
     def __init__(self) -> None:
-        self.dag = nx.DiGraph()
+        self.G = nx.DiGraph()
+
+    def __iter__(self) -> Iterable[str]:
+        yield from self.G
 
     def add_step(self, step: "Step") -> None:
-        name = step.name
-        if name in self.dag:
-            raise ValueError(f"Step with name '{name}' already exists")
-        self.dag.add_node(name, step=step)
+        """Add a step to the DAG.
 
-    def get_step(self, name: str) -> "Step":
-        if name not in self.dag:
+        Args:
+            step: The step to add to the DAG.
+
+        Raises:
+            ValueError: If a step with the same name already exists in the DAG.
+        """
+        name = step.name
+        if name in self.G:
+            raise ValueError(f"Step with name '{name}' already exists")
+        self.G.add_node(name, step=step)
+
+    def get_step(self, name: str) -> Dict[str, Any]:
+        """Get a step from the DAG.
+
+        Args:
+            name: The name of the step to get.
+
+        Returns:
+            The step with the given name.
+
+        Raises:
+            ValueError: If the step with the given name does not exist.
+        """
+        if name not in self.G:
             raise ValueError(f"Step with name '{name}' does not exist")
-        return self.dag.nodes[name]["step"]
+        return self.G.nodes[name]
+
+    def set_step_attr(self, name: str, attr: str, value: Any) -> None:
+        """Set an attribute of a step in the DAG.
+
+        Args:
+            name: The name of the step.
+            attr: The attribute to set.
+            value: The value to set.
+
+        Raises:
+            ValueError: If the step with the given name does not exist.
+        """
+        if name not in self.G:
+            raise ValueError(f"Step with name '{name}' does not exist")
+        self.G.nodes[name][attr] = value
 
     def add_edge(self, from_step: str, to_step: str) -> None:
-        if from_step not in self.dag:
+        """Add an edge between two steps in the DAG.
+
+        Args:
+            from_step: The name of the step from which the edge starts.
+            to_step: The name of the step to which the edge ends.
+
+        Raises:
+            ValueError: If the edge cannot be added.
+        """
+        if from_step not in self.G:
             raise ValueError(f"Step with name '{from_step}' does not exist")
 
-        if to_step not in self.dag:
+        if to_step not in self.G:
             raise ValueError(f"Step with name '{to_step}' does not exist")
 
-        if to_step in self.dag[from_step]:
+        if to_step in self.G[from_step]:
             raise ValueError(
                 f"There is already a edge from '{to_step}' to '{from_step}'"
             )
 
-        if to_step in nx.ancestors(self.dag, from_step):
+        if to_step in nx.ancestors(self.G, from_step):
             raise ValueError(
                 f"Cannot add edge from '{from_step}' to '{to_step}' as it would create a cycle."
             )
 
-        self.dag.add_edge(from_step, to_step)
+        self.G.add_edge(from_step, to_step)
+
+    @cached_property
+    def root_steps(self) -> Set[str]:
+        """The steps that don't have any predecessors i.e. generator steps.
+
+        Returns:
+            A list with the names of the steps that don't have any predecessors.
+        """
+        return {node for node, degree in self.G.in_degree() if degree == 0}
+
+    @cached_property
+    def leaf_steps(self) -> Set[str]:
+        """The steps that don't have any successors.
+
+        Returns:
+            A list with the names of the steps that don't have any successors.
+        """
+        return {node for node, degree in self.G.out_degree() if degree == 0}
+
+    def get_step_successors(self, step_name: str) -> Iterable[str]:
+        """Gets the successors of a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            An iterable with the names of the steps that are successors of the given step.
+        """
+
+        if step_name not in self.G:
+            raise ValueError(f"Step '{step_name}' does not exist")
+        return self.G.successors(step_name)
 
     def iter_based_on_trophic_levels(self) -> Iterable[List[str]]:
         """Iterate over steps names in the DAG based on their trophic levels. This is similar
@@ -79,7 +160,7 @@ class DAG:
         Yields:
             A list containing the names of the steps that can be run in parallel.
         """
-        trophic_levels = nx.trophic_levels(self.dag)
+        trophic_levels = nx.trophic_levels(self.G)
 
         v = defaultdict(list)
         for step, trophic_level in trophic_levels.items():
@@ -100,7 +181,9 @@ class DAG:
             self.iter_based_on_trophic_levels(), start=1
         ):
             for step_name in steps:
-                step = self.get_step(step_name)
+                step = self.get_step(step_name)["step"]
+
+                self._validate_step_process_arguments(step)
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
@@ -110,8 +193,6 @@ class DAG:
                         )
                 else:
                     self._step_inputs_are_available(step)
-
-                self._validate_step_process_arguments(step)
 
     def _step_inputs_are_available(self, step: "Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
@@ -123,8 +204,8 @@ class DAG:
         """
         inputs_available_for_step = [
             output
-            for step_name in nx.ancestors(self.dag, step.name)
-            for output in self.get_step(step_name).outputs
+            for step_name in nx.ancestors(self.G, step.name)
+            for output in self.get_step(step_name)["step"].outputs
         ]
         if not all(input in inputs_available_for_step for input in step.inputs):
             step_inputs = ", ".join([f"'{input}'" for input in step.inputs])
@@ -132,7 +213,7 @@ class DAG:
                 f"Step '{step.name}' requires inputs {step_inputs} which are not"
                 f" available when the step gets to be executed in the pipeline."
                 f" Please make sure previous steps to '{step.name}' are generating"
-                f" the required inputs."
+                f" the required inputs. Available inputs are: {inputs_available_for_step}"
             )
 
     def _validate_step_process_arguments(self, step: "Step") -> None:
@@ -181,8 +262,8 @@ class DAG:
         """
 
         predecessors = {
-            step_name: self.get_step(step_name)
-            for step_name in self.dag.predecessors(step_name)
+            step_name: self.get_step(step_name)["step"]
+            for step_name in self.G.predecessors(step_name)
         }
         num_predecessors = len(predecessors)
 
@@ -235,3 +316,18 @@ class DAG:
                     f"Step '{step.name}' is missing required runtime parameter '{parameter.name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
+
+
+def _is_step_input(parameter: inspect.Parameter) -> bool:
+    """Check if the parameter has type hint `StepInput`.
+
+    Args:
+        parameter: The parameter to check.
+
+    Returns:
+        `True` if the parameter has type hint `StepInput`, `False` otherwise.
+    """
+    return (
+        get_origin(parameter.annotation) is Annotated
+        and get_args(parameter.annotation)[-1] == "StepInput"
+    )
