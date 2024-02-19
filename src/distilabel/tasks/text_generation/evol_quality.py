@@ -78,16 +78,22 @@ class EvolQualityTask(EvolInstructTask):
         """Generates a prompt following the Evol-Instruct specification.
 
         Args:
-            input (str): the input to be used for the prompt.
-            evolution_method (str, optional): The evolution method to be used. If not provided (the default), a random one is chosen
-                like the original paper. Available ones are "helpfulness", "relevance", "deepen", "creativity" and "details".
+            input (str):
+                The input to be used for the prompt. Corresponds to the instruction in the prompt.
+            generation (str):
+                The generation to be used for the prompt, which corresponds to a generated response
+                given the instruction given in the input.
+            evolution_method (str, optional):
+                The evolution method to be used. If not provided (the default), a random one is chosen
+                like the original paper. Available ones are "helpfulness", "relevance", "deepen",
+                "creativity" and "details".
 
         Returns:
             Prompt: the generated prompt.
 
         Examples:
-            >>> from distilabel.tasks.text_generation import EvolQualityGeneratorTask
-            >>> task = EvolQualityGeneratorTask()
+            >>> from distilabel.tasks.text_generation import EvolQualityTask
+            >>> task = EvolQualityTask()
             >>> task.generate_prompt("Give three tips for staying healthy.", "1. Eat healthy food. 2. Exercise. 3. Sleep well.")
             Prompt(
                 system_prompt="",

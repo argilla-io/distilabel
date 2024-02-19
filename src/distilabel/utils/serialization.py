@@ -45,7 +45,7 @@ def load_from_dict(template: Dict[str, Any]) -> Generic[T]:
     return instance
 
 
-def load_task_from_disk(path: Path) -> "Task":
+def load_task_from_disk(path: os.PathLike) -> "Task":
     """Loads a task from disk.
 
     Args:
@@ -54,7 +54,7 @@ def load_task_from_disk(path: Path) -> "Task":
     Returns:
         Task: The task.
     """
-    task_path = path / TASK_FILE_NAME
+    task_path = Path(path) / TASK_FILE_NAME
     if not task_path.exists():
         raise FileNotFoundError(f"The task file does not exist: {task_path}")
 

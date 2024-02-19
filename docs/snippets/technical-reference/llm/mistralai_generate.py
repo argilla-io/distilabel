@@ -8,7 +8,7 @@ mistralai_llm = MistralAILLM(
     task=TextGenerationTask(),
     api_key=os.environ.get("MISTRALAI_API_KEY"),
 )
-result = mistralai_llm.generate([{"input": "What is Anyscale?"}])
+result = mistralai_llm.generate([{"input": "What's the best french cheese?"}])
 # >>> print(result[0][0]["parsed_output"]["generations"])
 # I'd be happy to help answer your question, but it's important to note
 # that the "best" French cheese can be subjective as it depends on personal

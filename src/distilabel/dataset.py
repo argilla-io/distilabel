@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import json
+import os
 import tempfile
 import warnings
 from dataclasses import dataclass, field
-from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union, get_args
 
 from datasets import Dataset
 from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import login as hf_hub_login
 
 from distilabel.logger import get_logger
 from distilabel.utils.argilla import infer_field_from_dataset_columns
@@ -180,28 +181,40 @@ class CustomDataset(Dataset):
             )
         return dataset
 
-    def save_to_disk(self, dataset_path: PathLike, **kwargs: Any) -> None:
+    def save_to_disk(self, dataset_path: os.PathLike, **kwargs: Any) -> None:
         """Saves the datataset to disk, also saving the task.
 
         Args:
-            dataset_path: Path to the dataset.
-            **kwargs: Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+            dataset_path (os.PathLike): Path to the dataset.
+            kwargs (Any): Additional arguments to be passed to `datasets.Dataset.save_to_disk`.
+
+        Examples:
+            >>> from distilabel.dataset import CustomDataset
+            >>> dataset = CustomDataset(...)
+            >>> dataset.save_to_disk("path/to/dataset")
         """
         super().save_to_disk(dataset_path, **kwargs)
         if self.task is not None:
             self.task.save(Path(dataset_path))
 
     @classmethod
-    def load_from_disk(cls, dataset_path: PathLike, **kwargs: Any):
+    def load_from_disk(
+        cls, dataset_path: os.PathLike, **kwargs: Any
+    ) -> "CustomDataset":
         """Load a CustomDataset from disk, also reading the task.
 
         Args:
-            dataset_path: Path to the dataset, as you would do with a standard Dataset.
+            dataset_path (os.PathLike): Path to the dataset.
+            kwargs (Any): Keyword arguments passed to Dataset.load_from_disk.
 
         Returns:
-            The loaded dataset.
+            dataset: The loaded dataset.
+
+        Examples:
+            >>> from distilabel.dataset import CustomDataset
+            >>> dataset: CustomDataset = CustomDataset.load_from_disk("path/to/dataset")
         """
-        ds = super().load_from_disk(dataset_path, *kwargs)
+        ds = super().load_from_disk(dataset_path, **kwargs)
         # Dynamically remaps the `datasets.Dataset` to be a `CustomDataset` instance
         ds.__class__ = cls
         task = load_task_from_disk(dataset_path)
@@ -224,13 +237,17 @@ class CustomDataset(Dataset):
                 `<org>/<dataset_name>`. Also accepts `<dataset_name>`, which will default to the namespace
                 of the logged-in user.
             args (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
-            push_task (bool, optional): _description_. Defaults to True.
+            push_task (bool, optional):
+                Whether to push the `Task` contained in the `CustomDataset`. Useful if you want to resuse
+                the functionality of the `CustomDataset` out of the box. It will upload a json
+                file (distilabel-task.json) containing the task to the hub.
+                Defaults to True.
             kwargs (Any): Additional arguments to be passed to `datasets.Dataset.push_to_hub`.
 
         Examples:
             >>> from distilabel.dataset import CustomDataset
             >>> dataset = CustomDataset(...)
-            >>> dataset.push_to_hub("path/to/dataset")
+            >>> dataset.push_to_hub("org/dataset-name")
         """
         super().push_to_hub(repo_id, *args, **kwargs)
         if self.task is not None and push_task:
@@ -284,6 +301,9 @@ def load_dataset(path: str, *args: Any, **kwargs: Any) -> Union[Dataset, CustomD
     return cds
 
 
+CheckpointStrategies = Literal["disk", "hf-hub"]
+
+
 @dataclass
 class DatasetCheckpoint:
     """A checkpoint class that contains the information of a checkpoint.
@@ -293,6 +313,9 @@ class DatasetCheckpoint:
         save_frequency (int): The frequency at which the checkpoint should be saved
             By default is set to -1 (no checkpoint is saved to disk, but the dataset
             is returned upon failure).
+        strategy (CheckpointStrategies): The strategy to be used to save the checkpoint.
+            Available options are: "disk" (to save the dataset to disk) and "hf-hub"
+            (to push the dataset to the HuggingFace hub). By default is set to "disk".
         extra_kwargs (dict[str, Any]): Additional kwargs to be passed to the `save_to_disk` method of the Dataset.
 
     Examples:
@@ -300,14 +323,55 @@ class DatasetCheckpoint:
         >>> # Save the dataset every 10% of the records generated.
         >>> checkpoint = DatasetCheckpoint(save_frequency=len(dataset) // 10)
         >>> # Afterwards, we can access the checkpoint's checkpoint.path.
+        >>> # You can also push the dataset to the hub by setting the strategy to `hf-hub`.
+        >>> checkpoint = DatasetCheckpoint(
+        ...     strategy="hf-hub",
+        ...     extra_kwargs={"repo_id": "username/dataset-name"}
+        ... )
+        >>> # Keep in mind, if the environmnet variable "HF_API_TOKEN" is not set, you are required
+        >>> # to pass the token as an argument to the `extra_kwargs`.
+        >>> checkpoint = DatasetCheckpoint(
+        ...     strategy="hf-hub",
+        ...     extra_kwargs={"repo_id": "username/dataset-name", "token": "hf_..."}
+        ... )
     """
 
     path: Path = Path.cwd() / "ckpt"
     save_frequency: int = -1
+    strategy: CheckpointStrategies = "disk"
     extra_kwargs: Dict[str, Any] = field(default_factory=dict)
 
     # Internal fields to keep track of the number of records generated and when to check.
     _total_checks: int = field(repr=False, default=0)
+
+    def __post_init__(self) -> None:
+        """Checks validity of arguments.
+
+        Raises:
+            ValueError:
+                - If the strategy is not valid.
+                - If the `repo_id` is not passed when using the `hf-hub` strategy.
+        """
+        if self.strategy not in get_args(CheckpointStrategies):
+            raise ValueError(
+                f"Invalid strategy, valid ones are: {get_args(CheckpointStrategies)}"
+            )
+
+        if self.strategy == "hf-hub":
+            if not self.extra_kwargs.get("repo_id"):
+                raise ValueError(
+                    "The `repo_id` is required when using the `hf-hub` strategy, please pass it as on 'extra_kwargs' argument."
+                )
+            if token := os.getenv("HF_API_TOKEN") or (
+                token := self.extra_kwargs.get("token")
+            ):
+                hf_hub_login(token=token)
+            else:
+                raise ValueError(
+                    "To use the `hf-hub` strategy, a token is required, you can either set it "
+                    "as an environment variable `HF_API_TOKEN` or pass it as an argument `token` "
+                    "via the `extra_kwargs`."
+                )
 
     def do_checkpoint(self, step: int) -> bool:
         """Determines if a checkpoint should be done.
@@ -325,3 +389,55 @@ class DatasetCheckpoint:
             self._total_checks += 1
             return True
         return False
+
+    def save(self, dataset: CustomDataset) -> None:
+        """Save the dataset given the strategy selected.
+
+        Args:
+            dataset (CustomDataset): Dataset to be saved.
+
+        Raises:
+            ValueError: If the strategy is not valid.
+        """
+        if self.strategy == "disk":
+            self._save_to_disk(dataset, **self.extra_kwargs)
+
+        elif self.strategy == "hf-hub":
+            self._push_to_hub(dataset, **self.extra_kwargs)
+
+        else:
+            # We shouldn't reach this point after __post_init__, but just in case.
+            raise ValueError(
+                f"Invalid strategy, valid ones are: {get_args(CheckpointStrategies)}"
+            )
+
+    def _save_to_disk(
+        self, dataset: Union[Dataset, CustomDataset], **kwargs: Any
+    ) -> None:
+        """Saves the dataset to disk.
+
+        Args:
+            dataset (Union[Dataset, CustomDataset]): The dataset to be saved.
+        """
+        dataset.save_to_disk(self.path, **kwargs)
+        logger.info(f"Checkpoint saved to disk: {self.path}.")
+
+    def _push_to_hub(self, dataset: CustomDataset, **kwargs: Any) -> None:
+        """Pushes the dataset to the hub.
+
+        Args:
+            dataset (Union[Dataset, CustomDataset]): The dataset to be pushed.
+        """
+        repo_id = kwargs.pop("repo_id", None)
+        if not repo_id:
+            raise ValueError(
+                "The `repo_id` is required when pushing to the hub, please pass it as on 'extra_kwargs' argument."
+            )
+
+        try:
+            dataset.push_to_hub(repo_id, **kwargs)
+            logger.info(f"Checkpoint saved to hub: {repo_id}.")
+        except Exception as e:
+            # TODO(plaguss): Check possible errors to provide a more informative message.
+            # And maybe save to disk as a fallback.
+            logger.info(f"Error while pushing the dataset to the hub: {e}.")
