@@ -128,6 +128,17 @@ class DAG:
         """
         return {node for node, degree in self.G.out_degree() if degree == 0}
 
+    def get_step_predecessors(self, step_name: str) -> Iterable[str]:
+        """Gets the predecessors of a step.
+        Args:
+            step_name: The name of the step.
+        Returns:
+            An iterable with the names of the steps that are predecessors of the given step.
+        """
+        if step_name not in self.G:
+            raise ValueError(f"Step '{step_name}' does not exist")
+        return self.G.predecessors(step_name)
+
     def get_step_successors(self, step_name: str) -> Iterable[str]:
         """Gets the successors of a step.
 

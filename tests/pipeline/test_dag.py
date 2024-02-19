@@ -180,6 +180,13 @@ class TestDAG:
         dag.add_edge("dummy_step_1", "dummy_step_2")
         assert dag.leaf_steps == {"dummy_step_2"}
 
+    def get_step_predecessors(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+        assert list(dag.get_step_predecessors("dummy_step_2")) == ["dummy_step_1"]
+
     def test_get_step_successors(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
     ) -> None:
