@@ -15,7 +15,17 @@
 import inspect
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Union, get_args
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Set,
+    Union,
+    get_args,
+)
 
 import networkx as nx
 from typing_extensions import Annotated, get_origin
@@ -34,7 +44,7 @@ class DAG:
     def __init__(self) -> None:
         self.G = nx.DiGraph()
 
-    def __iter__(self) -> Iterable[str]:
+    def __iter__(self) -> Generator[str, None, None]:
         yield from self.G
 
     def add_step(self, step: "Step") -> None:

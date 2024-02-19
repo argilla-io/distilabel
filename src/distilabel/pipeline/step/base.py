@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 from abc import ABC, abstractmethod
+from functools import cached_property
 from typing import Any, Dict, Generator, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -174,6 +176,18 @@ class Step(BaseModel, ABC):
     ) -> Generator[List[Dict[str, Any]], None, None]:
         """Method that defines the processing logic of the step."""
         pass
+
+    @cached_property
+    def has_multiple_inputs(self) -> bool:
+        """Whether the `process` method of the step receives more than one input or not.
+
+        Returns:
+            `True` if the `process` method of the step receives more than one input,
+            `False` otherwise.
+        """
+        sig = inspect.signature(self.process)
+        params = sig.parameters.values()
+        return any(param.kind == param.VAR_POSITIONAL for param in params)
 
 
 class GeneratorStep(Step, ABC):
