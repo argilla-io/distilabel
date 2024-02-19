@@ -28,7 +28,7 @@ dependencies = [
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "pydantic >= 2.0",
     "networkx >= 3.0",
-    "scipy >= 1.12.0",
+    "scipy >= 1.10.0",
 ]
 dynamic = ["version"]
 
