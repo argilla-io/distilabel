@@ -15,20 +15,10 @@
 import inspect
 from collections import defaultdict
 from functools import cached_property
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Set,
-    Union,
-    get_args,
-    get_origin,
-)
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Union, get_args
 
 import networkx as nx
-from typing_extensions import Annotated
+from typing_extensions import Annotated, get_origin
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import Step
