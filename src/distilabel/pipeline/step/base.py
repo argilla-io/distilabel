@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generator, List, Union
+from functools import cached_property
+from typing import Any, Dict, Generator, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated
@@ -78,9 +80,12 @@ class Step(BaseModel, ABC):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str
-    pipeline: Annotated[Union[BasePipeline, None], Field(exclude=True)] = None
+    pipeline: Annotated[
+        Union[BasePipeline, None], Field(exclude=True, repr=False)
+    ] = None
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, _: Any) -> None:
         if self.pipeline is None:
@@ -172,15 +177,35 @@ class Step(BaseModel, ABC):
         """Method that defines the processing logic of the step."""
         pass
 
+    @cached_property
+    def has_multiple_inputs(self) -> bool:
+        """Whether the `process` method of the step receives more than one input or not.
+
+        Returns:
+            `True` if the `process` method of the step receives more than one input,
+            `False` otherwise.
+        """
+        sig = inspect.signature(self.process)
+        params = sig.parameters.values()
+        return any(param.kind == param.VAR_POSITIONAL for param in params)
+
 
 class GeneratorStep(Step, ABC):
     """A special kind of `Step` that is able to generate data i.e. it doesn't receive
     any input from the previous steps.
     """
 
+    batch_size: int = 50
+
     @property
     def inputs(self) -> List[str]:
         return []
+
+    @abstractmethod
+    def process(  # type: ignore
+        self, *args: Any, **kwargs: Any
+    ) -> Generator[Tuple[List[Dict[str, Any]], bool], None, None]:
+        pass
 
 
 class GlobalStep(Step, ABC):
