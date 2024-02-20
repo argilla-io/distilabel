@@ -14,18 +14,18 @@
 
 import json
 import multiprocessing as mp
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
-from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.pipeline.step.base import Step
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
     from multiprocessing.pool import Pool
+    from os import PathLike
     from queue import Queue
 
-    from distilabel.pipeline._dag import DAG
     from distilabel.pipeline.step.base import GeneratorStep
 
 
@@ -114,116 +114,11 @@ class Pipeline(BasePipeline):
         print("ERROR", e)
 
 
-@dataclass
-class _Batch:
-    """Dataclass to represent a batch of data to be processed by a `Step`.
-
-    Attributes:
-        step_name: The name of the step that will process the batch.
-        last_batch: A flag to indicate if the batch is the last one.
-        data: The data to be processed.
-    """
-
-    step_name: str
-    last_batch: bool
-    data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
-
-
-class _BatchManager:
-    """Class to manage the batches received from the steps. It keeps track of the
-    received batches and returns the list of batches to be processed when all the inputs
-    for a step are received.
-
-    Attributes:
-        _batches: A dictionary with the step name as the key and a dictionary with the
-        predecessor step name as the key and the batch as the value.
-    """
-
-    def __init__(self, batches: Dict[str, Dict[str, Union["_Batch", None]]]) -> None:
-        self._batches = batches
-
-    def add_batch(
-        self, to_step: str, from_step: str, batch: _Batch
-    ) -> Union[List[_Batch], None]:
-        """Add an output batch from `from_step` to `to_step`. If all the inputs for
-        `to_step` are received, then return the list of batches to be processed.
-
-        Args:
-            to_step: The name of the step that will process the batch.
-            from_step: The name of the step that generated the batch.
-            batch: The output batch to be added to `to_step` from `from_step`.
-
-        Returns:
-            If all the inputs for `to_step` are received, then return the list of batches
-            to be processed. Otherwise, return `None`.
-        """
-
-        if self._batches[to_step][from_step] is not None:
-            raise ValueError(
-                f"Step '{to_step}' already had a batch waiting from '{from_step}'"
-            )
-        self._batches[to_step][from_step] = batch
-
-        if self._step_input_batches_received(to_step):
-            batches = []
-            for batch in self._batches[to_step].values():  # type: ignore
-                batches.append(batch)
-            self._clean_step_input_batches(to_step)
-            return batches
-
-        return None
-
-    @classmethod
-    def from_dag(cls, dag: "DAG") -> "_BatchManager":
-        """Create a `_BatchManager` instance from a `DAG` instance.
-
-        Args:
-            dag: The `DAG` instance.
-
-        Returns:
-            A `_BatchManager` instance.
-        """
-        batches = {}
-        for step_name in dag:
-            # Skip generator steps as they don't have predecessors
-            if dag.get_step(step_name)["step"].is_generator:
-                continue
-            batches[step_name] = {}
-            for predecessor in dag.get_step_predecessors(step_name):
-                batches[step_name][predecessor] = None
-        return cls(batches)
-
-    def _step_input_batches_received(self, step_name: str) -> bool:
-        """Check if all the input batches for a step have been received.
-
-        Args:
-            step_name: The name of the step.
-
-        Returns:
-            A boolean indicating if all the inputs for the step have been received.
-        """
-
-        return all(self._batches[step_name].values())
-
-    def _clean_step_input_batches(self, step_name: str) -> None:
-        """Clean the input batches for a step.
-
-        Args:
-            step_name: The name of the step.
-        """
-        self._batches[step_name] = {step: None for step in self._batches[step_name]}
-
-
 class _WriteBuffer:
-    """Buffer to store a batch from each leaf step until the buffer. When the buffer is
-    full, the batches will be combined and appended to a JSONL file, and the buffer will
-    be cleaned.
-
-    Attributes
-        _buffers: A dictionary with the step name as the key and the batch as the value.
-    """
-
-    def __init__(self, path, leaf_steps: List[str]) -> None:
+    def __init__(self, path: "PathLike", leaf_steps: List[str]) -> None:
+        path = Path(path)
+        # if path.exists() and not path.is_dir():
+        #     raise ValueError(f"Path '{path}' already exists and is not a directory")
         self._path = path
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
 
@@ -248,7 +143,7 @@ class _WriteBuffer:
 
     def _combine_batches(self) -> List[Dict[str, Any]]:
         for _, data in self._buffers.items():
-            return data
+            return data[0]
 
     def _clean_buffers(self) -> None:
         self._buffers = {step: None for step in self._buffers.keys()}
