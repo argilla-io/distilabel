@@ -43,3 +43,30 @@ class TestBasePipeline:
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
         assert _GlobalPipelineManager.get_pipeline() is None
+
+
+class TestPipelineSerialization:
+    def test_base_pipeline_dump(self):
+        pipeline = BasePipeline()
+        dump = pipeline.dump()
+        assert len(dump.keys()) == 2
+        assert "dag" in dump
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline.base"
+        assert dump["_type_info_"]["name"] == "BasePipeline"
+
+    def test_base_pipeline_from_dict(self):
+        pipeline = BasePipeline()
+        pipe = BasePipeline.from_dict(pipeline.dump())
+        assert isinstance(pipe, BasePipeline)
+
+    def test_pipeline_dump(self):
+        from distilabel.pipeline.local import Pipeline
+
+        pipeline = Pipeline()
+        dump = pipeline.dump()
+        assert len(dump.keys()) == 2
+        assert "dag" in dump
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline.local"
+        assert dump["_type_info_"]["name"] == "Pipeline"

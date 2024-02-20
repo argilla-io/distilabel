@@ -253,3 +253,39 @@ class TestDAG:
             match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
         ):
             dag.validate()
+
+    def test_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        assert "dummy_step_2" in dag.dag["dummy_step_1"]
+
+
+class TestDagSerialization:
+    def test_dag_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        dump = dag.dump()
+        # Check the type info is preserved
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline._dag"
+        assert dump["_type_info_"]["name"] == "DAG"
+
+        assert len(dump["nodes"]) == 2
+        # TODO: This will have to be tested with the actual step dump
+        assert isinstance(dump["nodes"][0]["step"], dict)
+
+    def test_dag_from_dict(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        new_dag = DAG.from_dict(dag.dump())
+        assert isinstance(new_dag, DAG)
+        assert "dummy_step_2" in new_dag.dag
