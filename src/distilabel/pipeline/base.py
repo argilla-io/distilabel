@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
+from distilabel.utils.serialization_v2 import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.step.base import Step
@@ -34,7 +35,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline:
+class BasePipeline(_Serializable):
     def __init__(self) -> None:
         self.dag = DAG()
 
@@ -58,3 +59,28 @@ class BasePipeline:
     def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
         for step_name, step_parameters in parameters.items():
             self.dag.get_step(step_name)._set_runtime_parameters(step_parameters)
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        return {"dag": self.dag.dump()}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
+        """Create a Pipeline from a dict containing the serialized data.
+
+        Note:
+            It's intended for internal use.
+
+        Args:
+            data (Dict[str, Any]): Dict containing the serialized data from a Pipeline.
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            pipeline (BasePipeline): _description_
+        """
+        pipe = cls()
+        if dag := data.get("dag"):
+            pipe.dag = DAG.from_dict(dag)
+            return pipe
+        else:
+            raise ValueError("No DAG found in the data dictionary")
