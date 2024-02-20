@@ -16,64 +16,12 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
-from distilabel.pipeline.step.base import GeneratorStep, Step, StepInput
+from distilabel.pipeline.step.base import GeneratorStep, Step
+
+from tests.pipeline.utils import DummyGeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.pipeline.local import Pipeline
-
-
-class DummyGeneratorStep(GeneratorStep):
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    def process(self) -> List[Dict[str, Any]]:
-        return [{"instruction": "Generate an email..."}]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["instruction"]
-
-
-class DummyStep1(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    def process(self, input: StepInput) -> List[Dict[str, Any]]:
-        return [{"response": "response1"}]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
-
-
-class DummyStep2(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["response"]
-
-    def process(self, *inputs: StepInput) -> List[Dict[str, Any]]:
-        return [{"response": "response1"}]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["evol_response"]
-
-
-@pytest.fixture(name="dummy_step_1")
-def dummy_step_1_fixture(pipeline: "Pipeline") -> DummyStep1:
-    return DummyStep1(name="dummy_step_1", pipeline=pipeline)
-
-
-@pytest.fixture(name="dummy_step_2")
-def dummy_step_2_fixture(pipeline: "Pipeline") -> DummyStep2:
-    return DummyStep2(name="dummy_step_2", pipeline=pipeline)
-
-
-@pytest.fixture(name="dummy_generator_step")
-def dummy_generator_step_fixture(pipeline: "Pipeline") -> DummyGeneratorStep:
-    return DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
 
 
 class TestDAG:
