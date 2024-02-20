@@ -117,9 +117,12 @@ class OpenAILLM(LLM):
 
         self.client = client or OpenAI(api_key=api_key, max_retries=6)
 
-        assert (
-            model in self.available_models
-        ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
+        try:
+            assert (
+                model in self.available_models
+            ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
+        except AttributeError:
+            logger.warning("Unable to check if model is available in your account.")
         self.model = model
 
     def __rich_repr__(self) -> Generator[Any, None, None]:
