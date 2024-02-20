@@ -33,6 +33,14 @@ class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
     def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        """Runs the pipeline.
+
+        Args:
+            parameters: a dictionary containing the runtime parameters for each step.
+                The keys are the step names and the values are dictionaries in which the
+                keys are the parameter names (defined in the `process` method of the step)
+                and the values are the parameter values.
+        """
         super().run(parameters)
 
         leaf_steps_received_last_batch = {
@@ -45,12 +53,11 @@ class Pipeline(BasePipeline):
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
             output_queue: "Queue[_Batch]" = manager.Queue()
-            self._create_processes(pool, manager, output_queue)
+            self._run_steps_in_loop(pool, manager, output_queue)
 
-            # Send initial empty batch to trigger the batch flow between the steps
-            for step_name in self.dag.root_steps:
-                self._request_batch_to_generator(step_name)
+            self._request_initial_batches()
 
+            # TODO: write code for handling output batch to new method and write unit test
             while True:
                 batch = output_queue.get()
 
@@ -85,20 +92,48 @@ class Pipeline(BasePipeline):
                     if all(leaf_steps_received_last_batch.values()):
                         break
 
+    def _request_initial_batches(self) -> None:
+        """Requests the initial batches to the generator steps."""
+        for step_name in self.dag.root_steps:
+            self._request_batch_to_generator(step_name)
+
     def _send_batch_to_step(self, step_name: str, batch: "_Batch") -> None:
+        """Sends a batch to the input queue of a step.
+
+        Args:
+            step_name: The name of the step.
+            batch: The batch to send.
+        """
         input_queue = self.dag.get_step(step_name)["input_queue"]
         input_queue.put(
             _Batch(step_name=step_name, last_batch=batch.last_batch, data=batch.data)
         )
 
     def _request_batch_to_generator(self, step_name: str) -> None:
+        """Requests a batch to a generator step.
+
+        Args:
+            step_name: The name of the step.
+        """
         self._send_batch_to_step(
             step_name, _Batch(step_name=step_name, last_batch=False)
         )
 
-    def _create_processes(
+    def _run_steps_in_loop(
         self, pool: "Pool", manager: "SyncManager", output_queue: "Queue[_Batch]"
     ) -> None:
+        """Using the `pool`, runs the steps in the DAG in an infinite loop waiting for
+        input batches and sending the output batches to the `output_queue`.
+
+        Each `Step` is wrapped in a `_ProcessWrapper`, which will handle the lifecycle of
+        the `Step` and the communication with the `input_queue` and `output_queue`. The
+        `_ProcessWrapper.run` method is the target function of the process.
+
+        Args:
+            pool: The pool of processes.
+            manager: The manager to create the queues.
+            output_queue: The queue to send the output batches.
+        """
         for step_name in self.dag:
             step = self.dag.get_step(step_name)["step"]
             input_queue = manager.Queue()
@@ -108,9 +143,16 @@ class Pipeline(BasePipeline):
                 step=step, input_queue=input_queue, output_queue=output_queue
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
 
-    def _error_callback(self, e: Exception) -> None:
+    def _error_callback(self, e: "_ProcessWrapperException") -> None:
+        """Error callback that will be called when an error occurs in a `Step` process.
+
+        Args:
+            e: The `_ProcessWrapperException` containing the error message and the `Step`
+                that raised the error.
+        """
+        # TODO: handle the errors in a better way
         print("ERROR", e)
 
 
@@ -174,6 +216,13 @@ class _ProcessWrapper:
     def __init__(
         self, step: "Step", input_queue: "Queue[_Batch]", output_queue: "Queue[_Batch]"
     ) -> None:
+        """Initializes the `_ProcessWrapper`.
+
+        Args:
+            step: The step to run.
+            input_queue: The queue to receive the input data.
+            output_queue: The queue to send the output data.
+        """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
@@ -204,6 +253,16 @@ class _ProcessWrapper:
             raise _ProcessWrapperException(str(e), self.step) from e
 
     def _process_generator_step(self, batch: _Batch) -> None:
+        """Processes a batch in a generator step. It will call the `process` method of the
+        step and send the output data to the `output_queue` and block until the next batch
+        request is received (i.e. receiving an empty batch from the `input_queue`).
+
+        If the `last_batch` attribute of the batch is `True`, the loop will stop and the
+        process will finish.
+
+        Args:
+            batch: The batch to process.
+        """
         step = cast("GeneratorStep", self.step)
         for data, last_batch in step.process(**self.step._runtime_parameters):
             batch.data = [data]
@@ -214,6 +273,13 @@ class _ProcessWrapper:
             batch = self.input_queue.get()
 
     def _process_non_generator_step(self, batch: _Batch) -> None:
+        """Processes a batch in a non-generator step. It will call the `process` method
+        of the step and send the output data to the `output_queue`. It will take care of
+        the case when the step has multiple inputs.
+
+        Args:
+            batch: The batch to process.
+        """
         if self.step.has_multiple_inputs:
             result = next(
                 self.step.process(*batch.data, **self.step._runtime_parameters)
