@@ -16,6 +16,8 @@ import inspect
 from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Dict,
     Iterable,
     List,
     Union,
@@ -25,6 +27,8 @@ from typing import (
 
 import networkx as nx
 from typing_extensions import Annotated
+
+from distilabel.utils.serialization_v2 import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.step.base import Step
@@ -37,7 +41,7 @@ def _is_step_input(parameter: inspect.Parameter) -> bool:
     )
 
 
-class DAG:
+class DAG(_Serializable):
     def __init__(self) -> None:
         self.dag = nx.DiGraph()
 
@@ -235,3 +239,42 @@ class DAG:
                     f"Step '{step.name}' is missing required runtime parameter '{parameter.name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """_summary_
+
+        References:
+        https://networkx.org/documentation/stable/reference/readwrite/generated/networkx.readwrite.json_graph.adjacency_data.html#networkx.readwrite.json_graph.adjacency_data
+
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Additional arguments that could be passed to the networkx function.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the DAG from networkx in a serializable format.
+        """
+        from networkx.readwrite import json_graph
+
+        adjacency_data = json_graph.adjacency_data(self.dag, **kwargs)
+        # Update the nodes with the serialized steps.
+        adjacency_data["nodes"] = [
+            {"step": node["step"].dump(), "id": node["id"]}
+            for node in adjacency_data["nodes"]
+        ]
+        return adjacency_data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "DAG":
+        """Generates the DAG from a dictionary with the steps serialized.
+
+        Args:
+            data (Dict[str, Any]): Dictionary with the serialized content (the content from self.dump()).
+
+        Returns:
+            DAG: Instance of the DAG from the serialized content.
+        """
+        from networkx.readwrite import json_graph
+
+        dag = cls()
+        dag.dag = json_graph.adjacency_graph(data)
+        return dag
