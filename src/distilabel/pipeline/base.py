@@ -136,28 +136,34 @@ class _BatchManager:
 
     Attributes:
         _batches: A dictionary with the step name as the key and a dictionary with the
-        predecessor step name as the key and the batch as the value.
+            predecessor step name as the key and the batch as the value.
     """
 
     def __init__(self, batches: Dict[str, Dict[str, Union["_Batch", None]]]) -> None:
+        """Initialize the `_BatchManager` instance.
+
+        Args:
+            batches: A dictionary with the step name as the key and a dictionary with the
+                predecessor step name as the key and the batch as the value.
+        """
         self._batches = batches
 
-    def add_batch(
-        self, to_step: str, from_step: str, batch: _Batch
-    ) -> Union[List[_Batch], None]:
-        """Add an output batch from `from_step` to `to_step`. If all the inputs for
-        `to_step` are received, then return the list of batches to be processed.
+    def add_batch(self, to_step: str, batch: _Batch) -> Union[List[_Batch], None]:
+        """Add an output batch from to `to_step`. If all the inputs for `to_step` are
+        received, then return the list of batches to be processed.
 
         Args:
             to_step: The name of the step that will process the batch.
-            from_step: The name of the step that generated the batch.
-            batch: The output batch to be added to `to_step` from `from_step`.
+            batch: The output batch of an step to be processed by `to_step`.
 
         Returns:
             If all the inputs for `to_step` are received, then return the list of batches
             to be processed. Otherwise, return `None`.
-        """
 
+        Raises:
+            ValueError: If a batch was already received from `from_step` to `to_step`.
+        """
+        from_step = batch.step_name
         if self._batches[to_step][from_step] is not None:
             raise ValueError(
                 f"Step '{to_step}' already had a batch waiting from '{from_step}'"

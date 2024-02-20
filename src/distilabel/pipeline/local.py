@@ -56,7 +56,7 @@ class Pipeline(BasePipeline):
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
                     if batches := batch_manager.add_batch(
-                        to_step=step_name, from_step=batch.step_name, batch=batch
+                        to_step=step_name, batch=batch
                     ):
                         data = [batch.data[0] for batch in batches]
                         self._send_batch_to_step(
