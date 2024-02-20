@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
+from distilabel.utils.serialization_v2 import _get_class, _Serializable
 
 StepInput = Annotated[List[Dict[str, Any]], "StepInput"]
 """StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
@@ -26,7 +27,7 @@ extra metadata that allows `distilabel` to perform validations over the `process
 method defined in each `Step`"""
 
 
-class Step(BaseModel, ABC):
+class Step(BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -171,6 +172,38 @@ class Step(BaseModel, ABC):
     ) -> Generator[List[Dict[str, Any]], None, None]:
         """Method that defines the processing logic of the step."""
         pass
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Step":
+        """Create a Step from a dict containing the serialized data.
+
+        Needs the information from the step and the Pipeline it belongs to.
+
+        Note:
+            It's intended for internal use.
+
+        Args:
+            data (Dict[str, Any]): Dict containing the serialized data from a Step and the
+                Pipeline it belongs to.
+
+        Returns:
+            step (Step): Instance of the Step.
+        """
+
+        name = data.pop("name")
+        type_info = data.pop("_type_info_")
+        cls_pipeline = _get_class(type_info["module"], type_info["name"])
+        # By this moment, the data should only contain the dag info,
+        # we need to create the generic type of the pipeline that is contained
+        # in the data dictionary.
+        if pipe := _GlobalPipelineManager.get_pipeline():
+            pipeline = pipe
+        else:
+            pipeline = cls_pipeline.from_dict(data)
+
+        step = cls(name=name, pipeline=pipeline)
+        # NOTE(plaguss): Still needs to check for the inputs/outputs of higher order classes.
+        return step
 
 
 class GeneratorStep(Step, ABC):
