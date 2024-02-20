@@ -24,11 +24,10 @@ from typing import (
     List,
     Set,
     Union,
-    get_args,
 )
 
 import networkx as nx
-from typing_extensions import Annotated, get_origin
+from typing_extensions import Annotated, get_args, get_origin
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import Step

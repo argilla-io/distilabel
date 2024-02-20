@@ -14,18 +14,18 @@
 
 import json
 import multiprocessing as mp
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
-from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.pipeline.step.base import Step
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
     from multiprocessing.pool import Pool
+    from os import PathLike
     from queue import Queue
 
-    from distilabel.pipeline._dag import DAG
     from distilabel.pipeline.step.base import GeneratorStep
 
 
@@ -33,6 +33,14 @@ class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
     def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+        """Runs the pipeline.
+
+        Args:
+            parameters: a dictionary containing the runtime parameters for each step.
+                The keys are the step names and the values are dictionaries in which the
+                keys are the parameter names (defined in the `process` method of the step)
+                and the values are the parameter values.
+        """
         super().run(parameters)
 
         leaf_steps_received_last_batch = {
@@ -45,18 +53,17 @@ class Pipeline(BasePipeline):
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
             output_queue: "Queue[_Batch]" = manager.Queue()
-            self._create_processes(pool, manager, output_queue)
+            self._run_steps_in_loop(pool, manager, output_queue)
 
-            # Send initial empty batch to trigger the batch flow between the steps
-            for step_name in self.dag.root_steps:
-                self._request_batch_to_generator(step_name)
+            self._request_initial_batches()
 
+            # TODO: write code for handling output batch to new method and write unit test
             while True:
                 batch = output_queue.get()
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
                     if batches := batch_manager.add_batch(
-                        to_step=step_name, from_step=batch.step_name, batch=batch
+                        to_step=step_name, batch=batch
                     ):
                         data = [batch.data[0] for batch in batches]
                         self._send_batch_to_step(
@@ -85,20 +92,48 @@ class Pipeline(BasePipeline):
                     if all(leaf_steps_received_last_batch.values()):
                         break
 
+    def _request_initial_batches(self) -> None:
+        """Requests the initial batches to the generator steps."""
+        for step_name in self.dag.root_steps:
+            self._request_batch_to_generator(step_name)
+
     def _send_batch_to_step(self, step_name: str, batch: "_Batch") -> None:
+        """Sends a batch to the input queue of a step.
+
+        Args:
+            step_name: The name of the step.
+            batch: The batch to send.
+        """
         input_queue = self.dag.get_step(step_name)["input_queue"]
         input_queue.put(
             _Batch(step_name=step_name, last_batch=batch.last_batch, data=batch.data)
         )
 
     def _request_batch_to_generator(self, step_name: str) -> None:
+        """Requests a batch to a generator step.
+
+        Args:
+            step_name: The name of the step.
+        """
         self._send_batch_to_step(
             step_name, _Batch(step_name=step_name, last_batch=False)
         )
 
-    def _create_processes(
+    def _run_steps_in_loop(
         self, pool: "Pool", manager: "SyncManager", output_queue: "Queue[_Batch]"
     ) -> None:
+        """Using the `pool`, runs the steps in the DAG in an infinite loop waiting for
+        input batches and sending the output batches to the `output_queue`.
+
+        Each `Step` is wrapped in a `_ProcessWrapper`, which will handle the lifecycle of
+        the `Step` and the communication with the `input_queue` and `output_queue`. The
+        `_ProcessWrapper.run` method is the target function of the process.
+
+        Args:
+            pool: The pool of processes.
+            manager: The manager to create the queues.
+            output_queue: The queue to send the output batches.
+        """
         for step_name in self.dag:
             step = self.dag.get_step(step_name)["step"]
             input_queue = manager.Queue()
@@ -108,122 +143,24 @@ class Pipeline(BasePipeline):
                 step=step, input_queue=input_queue, output_queue=output_queue
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
 
-    def _error_callback(self, e: Exception) -> None:
+    def _error_callback(self, e: "_ProcessWrapperException") -> None:
+        """Error callback that will be called when an error occurs in a `Step` process.
+
+        Args:
+            e: The `_ProcessWrapperException` containing the error message and the `Step`
+                that raised the error.
+        """
+        # TODO: handle the errors in a better way
         print("ERROR", e)
 
 
-@dataclass
-class _Batch:
-    """Dataclass to represent a batch of data to be processed by a `Step`.
-
-    Attributes:
-        step_name: The name of the step that will process the batch.
-        last_batch: A flag to indicate if the batch is the last one.
-        data: The data to be processed.
-    """
-
-    step_name: str
-    last_batch: bool
-    data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
-
-
-class _BatchManager:
-    """Class to manage the batches received from the steps. It keeps track of the
-    received batches and returns the list of batches to be processed when all the inputs
-    for a step are received.
-
-    Attributes:
-        _batches: A dictionary with the step name as the key and a dictionary with the
-        predecessor step name as the key and the batch as the value.
-    """
-
-    def __init__(self, batches: Dict[str, Dict[str, Union["_Batch", None]]]) -> None:
-        self._batches = batches
-
-    def add_batch(
-        self, to_step: str, from_step: str, batch: _Batch
-    ) -> Union[List[_Batch], None]:
-        """Add an output batch from `from_step` to `to_step`. If all the inputs for
-        `to_step` are received, then return the list of batches to be processed.
-
-        Args:
-            to_step: The name of the step that will process the batch.
-            from_step: The name of the step that generated the batch.
-            batch: The output batch to be added to `to_step` from `from_step`.
-
-        Returns:
-            If all the inputs for `to_step` are received, then return the list of batches
-            to be processed. Otherwise, return `None`.
-        """
-
-        if self._batches[to_step][from_step] is not None:
-            raise ValueError(
-                f"Step '{to_step}' already had a batch waiting from '{from_step}'"
-            )
-        self._batches[to_step][from_step] = batch
-
-        if self._step_input_batches_received(to_step):
-            batches = []
-            for batch in self._batches[to_step].values():  # type: ignore
-                batches.append(batch)
-            self._clean_step_input_batches(to_step)
-            return batches
-
-        return None
-
-    @classmethod
-    def from_dag(cls, dag: "DAG") -> "_BatchManager":
-        """Create a `_BatchManager` instance from a `DAG` instance.
-
-        Args:
-            dag: The `DAG` instance.
-
-        Returns:
-            A `_BatchManager` instance.
-        """
-        batches = {}
-        for step_name in dag:
-            # Skip generator steps as they don't have predecessors
-            if dag.get_step(step_name)["step"].is_generator:
-                continue
-            batches[step_name] = {}
-            for predecessor in dag.get_step_predecessors(step_name):
-                batches[step_name][predecessor] = None
-        return cls(batches)
-
-    def _step_input_batches_received(self, step_name: str) -> bool:
-        """Check if all the input batches for a step have been received.
-
-        Args:
-            step_name: The name of the step.
-
-        Returns:
-            A boolean indicating if all the inputs for the step have been received.
-        """
-
-        return all(self._batches[step_name].values())
-
-    def _clean_step_input_batches(self, step_name: str) -> None:
-        """Clean the input batches for a step.
-
-        Args:
-            step_name: The name of the step.
-        """
-        self._batches[step_name] = {step: None for step in self._batches[step_name]}
-
-
 class _WriteBuffer:
-    """Buffer to store a batch from each leaf step until the buffer. When the buffer is
-    full, the batches will be combined and appended to a JSONL file, and the buffer will
-    be cleaned.
-
-    Attributes
-        _buffers: A dictionary with the step name as the key and the batch as the value.
-    """
-
-    def __init__(self, path, leaf_steps: List[str]) -> None:
+    def __init__(self, path: "PathLike", leaf_steps: List[str]) -> None:
+        path = Path(path)
+        # if path.exists() and not path.is_dir():
+        #     raise ValueError(f"Path '{path}' already exists and is not a directory")
         self._path = path
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
 
@@ -248,7 +185,7 @@ class _WriteBuffer:
 
     def _combine_batches(self) -> List[Dict[str, Any]]:
         for _, data in self._buffers.items():
-            return data
+            return data[0]
 
     def _clean_buffers(self) -> None:
         self._buffers = {step: None for step in self._buffers.keys()}
@@ -279,6 +216,13 @@ class _ProcessWrapper:
     def __init__(
         self, step: "Step", input_queue: "Queue[_Batch]", output_queue: "Queue[_Batch]"
     ) -> None:
+        """Initializes the `_ProcessWrapper`.
+
+        Args:
+            step: The step to run.
+            input_queue: The queue to receive the input data.
+            output_queue: The queue to send the output data.
+        """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
@@ -309,6 +253,16 @@ class _ProcessWrapper:
             raise _ProcessWrapperException(str(e), self.step) from e
 
     def _process_generator_step(self, batch: _Batch) -> None:
+        """Processes a batch in a generator step. It will call the `process` method of the
+        step and send the output data to the `output_queue` and block until the next batch
+        request is received (i.e. receiving an empty batch from the `input_queue`).
+
+        If the `last_batch` attribute of the batch is `True`, the loop will stop and the
+        process will finish.
+
+        Args:
+            batch: The batch to process.
+        """
         step = cast("GeneratorStep", self.step)
         for data, last_batch in step.process(**self.step._runtime_parameters):
             batch.data = [data]
@@ -319,6 +273,13 @@ class _ProcessWrapper:
             batch = self.input_queue.get()
 
     def _process_non_generator_step(self, batch: _Batch) -> None:
+        """Processes a batch in a non-generator step. It will call the `process` method
+        of the step and send the output data to the `output_queue`. It will take care of
+        the case when the step has multiple inputs.
+
+        Args:
+            batch: The batch to process.
+        """
         if self.step.has_multiple_inputs:
             result = next(
                 self.step.process(*batch.data, **self.step._runtime_parameters)
