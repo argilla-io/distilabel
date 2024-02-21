@@ -27,7 +27,6 @@ from typing import (
 )
 
 import networkx as nx
-from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.utils.serialization_v2 import _Serializable
 
@@ -201,7 +200,8 @@ class DAG(_Serializable):
                 if trophic_level == 1:
                     if not step.is_generator:
                         raise ValueError(
-                            f"Step '{step_name}' should be `GeneratorStep` as it doesn't have any previous steps"
+                            f"Step '{step_name}' should be `GeneratorStep` as it doesn't"
+                            " have any previous steps"
                         )
                 else:
                     self._step_inputs_are_available(step)
@@ -239,23 +239,10 @@ class DAG(_Serializable):
         Raises:
             ValueError: If the arguments of the `process` method of the step are not valid.
         """
-        signature = inspect.signature(step.process)
 
-        step_input_parameter = None
-        runtime_parameters = []
-
-        for parameter in signature.parameters.values():
-            if _is_step_input(parameter):
-                if step_input_parameter is not None:
-                    raise ValueError(
-                        f"Step '{step.name}' should have only one parameter with type hint `StepInput`."
-                    )
-                step_input_parameter = parameter
-            else:
-                runtime_parameters.append(parameter)
-
+        step_input_parameter = step.get_process_step_input()
         self._validate_process_step_input_parameter(step.name, step_input_parameter)
-        self._validate_step_process_runtime_parameters(step, runtime_parameters)
+        self._validate_step_process_runtime_parameters(step)
 
     def _validate_process_step_input_parameter(
         self,
@@ -305,27 +292,21 @@ class DAG(_Serializable):
                 f" to receive outputs from previous steps."
             )
 
-    def _validate_step_process_runtime_parameters(
-        self, step: "Step", parameters: List[inspect.Parameter]
-    ) -> None:
+    def _validate_step_process_runtime_parameters(self, step: "Step") -> None:
         """Validates that the required runtime parameters of the step are provided.
 
         Args:
             step: The step to validate.
-            parameters: The runtime parameters of the `Step.process` method.
 
         Raises:
             ValueError: If not all the required runtime parameters haven't been provided
                 with a value.
         """
         runtime_parameters_values = step._runtime_parameters
-        for parameter in parameters:
-            if (
-                parameter.default == inspect.Parameter.empty
-                and parameter.name not in runtime_parameters_values
-            ):
+        for param_name, has_default_value in step.runtime_parameters_names.items():
+            if param_name not in runtime_parameters_values and not has_default_value:
                 raise ValueError(
-                    f"Step '{step.name}' is missing required runtime parameter '{parameter.name}'."
+                    f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
 
@@ -367,18 +348,3 @@ class DAG(_Serializable):
         dag = cls()
         dag.G = json_graph.adjacency_graph(data)
         return dag
-
-
-def _is_step_input(parameter: inspect.Parameter) -> bool:
-    """Check if the parameter has type hint `StepInput`.
-
-    Args:
-        parameter: The parameter to check.
-
-    Returns:
-        `True` if the parameter has type hint `StepInput`, `False` otherwise.
-    """
-    return (
-        get_origin(parameter.annotation) is Annotated
-        and get_args(parameter.annotation)[-1] == "StepInput"
-    )
