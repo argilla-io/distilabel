@@ -28,14 +28,17 @@ class TestPipeline:
     def test_request_initial_batches(
         self, dummy_generator_step: "GeneratorStep"
     ) -> None:
-        request_batch_to_generator_mock = mock.MagicMock()
+        send_batch_to_step_mock = mock.MagicMock()
         pipeline = dummy_generator_step.pipeline
-        pipeline._request_batch_to_generator = request_batch_to_generator_mock  # type: ignore
+        pipeline._send_batch_to_step = send_batch_to_step_mock  # type: ignore
 
         pipeline._request_initial_batches()  # type: ignore
 
-        request_batch_to_generator_mock.assert_has_calls(
-            [mock.call(step_name) for step_name in pipeline.dag.root_steps]
+        send_batch_to_step_mock.assert_has_calls(
+            [
+                mock.call(_Batch(seq_no=0, step_name=step_name, last_batch=False))
+                for step_name in pipeline.dag.root_steps
+            ]
         )
 
     def test_send_batch_to_step(self, dummy_generator_step: "GeneratorStep") -> None:
@@ -47,27 +50,13 @@ class TestPipeline:
         get_step_mock = mock.MagicMock(return_value=step)
         pipeline.dag.get_step = get_step_mock  # type: ignore
 
-        batch = _Batch(step_name="invented", last_batch=False, data=[[]])
-        pipeline._send_batch_to_step(step_name=dummy_generator_step.name, batch=batch)  # type: ignore
+        batch = _Batch(
+            seq_no=0, step_name=dummy_generator_step.name, last_batch=False, data=[[]]
+        )
+        pipeline._send_batch_to_step(batch=batch)  # type: ignore
 
         get_step_mock.assert_called_once_with(dummy_generator_step.name)
-        input_queue.put.assert_called_once_with(
-            _Batch(step_name=dummy_generator_step.name, last_batch=False, data=[[]])
-        )
-
-    def test_request_batch_to_generator(
-        self, dummy_generator_step: "GeneratorStep"
-    ) -> None:
-        pipeline = dummy_generator_step.pipeline
-        send_batch_to_step_mock = mock.MagicMock()
-        pipeline._send_batch_to_step = send_batch_to_step_mock  # type: ignore
-
-        pipeline._request_batch_to_generator(step_name=dummy_generator_step.name)  # type: ignore
-
-        send_batch_to_step_mock.assert_called_once_with(
-            dummy_generator_step.name,
-            _Batch(step_name=dummy_generator_step.name, last_batch=False),
-        )
+        input_queue.put.assert_called_once_with(batch)
 
     @mock.patch("distilabel.pipeline.local._ProcessWrapper")
     def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
