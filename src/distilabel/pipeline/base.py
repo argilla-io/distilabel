@@ -194,7 +194,8 @@ class _BatchManager:
             to be processed. Otherwise, return `None`.
 
         Raises:
-            ValueError: If a batch was already received from `from_step` to `to_step`.
+            ValueError: If a batch from `from_step` to `to_step` with the same sequence
+            number was already received.
         """
         from_step = batch.step_name
         for batch in self._batches[to_step][from_step]:
