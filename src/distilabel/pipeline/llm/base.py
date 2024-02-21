@@ -13,12 +13,18 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict
+
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from distilabel.pipeline.step.task.types import ChatType
 
 
-class LLM(ABC):
+class LLM(BaseModel, ABC):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+
     @abstractmethod
     def load(self) -> None:
         pass
