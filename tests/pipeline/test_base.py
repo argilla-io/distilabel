@@ -56,75 +56,118 @@ class TestBasePipeline:
         assert _GlobalPipelineManager.get_pipeline() is None
 
 
-class TestBatchManager:
-    def test_add_batch(self) -> None:
-        batch_manager = _BatchManager(batches={"step1": {"step2": None, "step3": None}})
-        batch = _Batch(step_name="step2", last_batch=False, data=[[]])
+class TestBatch:
+    def test_next_batch(self) -> None:
+        batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
+        next_batch = batch.next_batch()
 
-        batches = batch_manager.add_batch(to_step="step1", batch=batch)
+        assert next_batch == _Batch(seq_no=1, step_name="step1", last_batch=False)
 
-        assert batches is None
-        assert batch_manager._batches["step1"]["step2"] == batch
-
-    def test_add_batch_all_batches_received(self) -> None:
-        batch_from_step_2 = _Batch(step_name="step2", last_batch=False, data=[[]])
-        batch_from_step_3 = _Batch(step_name="step3", last_batch=True, data=[[]])
-        batch_manager = _BatchManager(
-            batches={"step1": {"step2": None, "step3": batch_from_step_3}}
+    def test_from_batches(self) -> None:
+        batches = [
+            _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]]),
+            _Batch(seq_no=0, step_name="step2", last_batch=False, data=[[]]),
+        ]
+        batch = _Batch.from_batches(step_name="step3", batches=batches)
+        assert batch == _Batch(
+            seq_no=0, step_name="step3", last_batch=False, data=[[], []]
         )
 
-        batches = batch_manager.add_batch(to_step="step1", batch=batch_from_step_2)
 
-        assert batches == [batch_from_step_2, batch_from_step_3]
-        assert batch_manager._batches["step1"] == {"step2": None, "step3": None}
+class TestBatchManager:
+    def test_add_batch(self) -> None:
+        batch_manager = _BatchManager(
+            batches={
+                "step3": {
+                    "step1": [],
+                    "step2": [],
+                }
+            }
+        )
+
+        batch_from_step_1 = _Batch(
+            seq_no=0, step_name="step1", last_batch=False, data=[[]]
+        )
+        batches = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+
+        assert batches is None
+        assert batch_manager._batches["step3"]["step1"] == [batch_from_step_1]
+
+    def test_add_batch_all_batches_received(self) -> None:
+        first_batch_from_step_2 = _Batch(
+            seq_no=0, step_name="step2", last_batch=False, data=[[]]
+        )
+        batch_manager = _BatchManager(
+            batches={
+                "step3": {
+                    "step1": [],
+                    "step2": [first_batch_from_step_2],
+                }
+            }
+        )
+
+        batch_from_step_1 = _Batch(
+            seq_no=0, step_name="step1", last_batch=False, data=[[]]
+        )
+        batches = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+
+        assert batches == [batch_from_step_1, first_batch_from_step_2]
+        assert batch_manager._batches["step3"]["step1"] == []
+        assert batch_manager._batches["step3"]["step2"] == []
 
     def test_add_batch_for_step_with_batch_waiting(self) -> None:
         batch_manager = _BatchManager(
             batches={
-                "step1": {
-                    "step2": _Batch(step_name="step2", last_batch=False, data=[[]])
+                "step2": {
+                    "step1": [
+                        _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
+                    ]
                 }
             }
         )
 
         with pytest.raises(
-            ValueError, match="Step 'step1' already had a batch waiting from 'step2'"
+            ValueError,
+            match="A batch from 'step1' to 'step2' with sequence number 0 was already received",
         ):
             batch_manager.add_batch(
-                to_step="step1",
-                batch=_Batch(step_name="step2", last_batch=False, data=[[]]),
+                to_step="step2",
+                batch=_Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]]),
             )
 
     def test_from_dag(
-        self, dummy_generator_step: "GeneratorStep", dummy_step_1: "Step"
+        self,
+        dummy_generator_step: "GeneratorStep",
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
     ) -> None:
         dag = DAG()
         dag.add_step(dummy_generator_step)
         dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
         dag.add_edge("dummy_generator_step", "dummy_step_1")
+        dag.add_edge("dummy_step_1", "dummy_step_2")
 
         batch_manager = _BatchManager.from_dag(dag)
 
         assert batch_manager._batches == {
-            "dummy_step_1": {"dummy_generator_step": None}
+            "dummy_step_1": {"dummy_generator_step": []},
+            "dummy_step_2": {"dummy_step_1": []},
         }
 
     def test_step_input_batches_received(self) -> None:
-        batch_from_step_2 = _Batch(step_name="step2", last_batch=False, data=[[]])
-        batch_from_step_3 = _Batch(step_name="step3", last_batch=True, data=[[]])
+        batch_from_step_1 = _Batch(
+            seq_no=0, step_name="step1", last_batch=False, data=[[]]
+        )
+        batch_from_step_2 = _Batch(
+            seq_no=0, step_name="step2", last_batch=True, data=[[]]
+        )
         batch_manager = _BatchManager(
-            batches={"step1": {"step2": batch_from_step_2, "step3": batch_from_step_3}}
+            batches={"step3": {"step1": [batch_from_step_1], "step2": []}}
         )
 
-        assert batch_manager._step_input_batches_received("step1")
+        assert batch_manager._step_input_batches_received("step3") is False
 
-    def test_clean_step_input_batches(self) -> None:
-        batch_from_step_2 = _Batch(step_name="step2", last_batch=False, data=[[]])
-        batch_from_step_3 = _Batch(step_name="step3", last_batch=True, data=[[]])
-        batch_manager = _BatchManager(
-            batches={"step1": {"step2": batch_from_step_2, "step3": batch_from_step_3}}
-        )
+        batch_manager._batches["step3"]["step2"] = [batch_from_step_2]
 
-        batch_manager._clean_step_input_batches("step1")
-
-        assert batch_manager._batches["step1"] == {"step2": None, "step3": None}
+        assert batch_manager._step_input_batches_received("step3") is True

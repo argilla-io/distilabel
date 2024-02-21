@@ -119,14 +119,47 @@ class _Batch:
     """Dataclass to represent a batch of data to be processed by a `Step`.
 
     Attributes:
+        seq_no: The sequence number of the batch.
         step_name: The name of the step that will process the batch.
         last_batch: A flag to indicate if the batch is the last one.
         data: The data to be processed.
     """
 
+    seq_no: int
     step_name: str
     last_batch: bool
     data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
+
+    def next_batch(self) -> "_Batch":
+        """Create a new `_Batch` instance with the next batch of data.
+        Args:
+            data: The data to be processed.
+        Returns:
+            A `_Batch` instance.
+        """
+        return _Batch(
+            seq_no=self.seq_no + 1, step_name=self.step_name, last_batch=self.last_batch
+        )
+
+    @classmethod
+    def from_batches(cls, step_name: str, batches: List["_Batch"]) -> "_Batch":
+        """Create a `_Batch` instance from a list of `_Batch` instances.
+
+        Args:
+            step_name: The name of the step that will process the batch.
+            batches: A list of `_Batch` instances.
+
+        Returns:
+            A `_Batch` instance.
+        """
+
+        seq_no = batches[0].seq_no
+        if not all(batch.seq_no == seq_no for batch in batches):
+            raise ValueError("All batches must have the same sequence number")
+
+        data = [batch.data[0] for batch in batches]
+        last_batch = batches[-1].last_batch
+        return cls(seq_no, step_name, last_batch, data)
 
 
 class _BatchManager:
@@ -136,15 +169,15 @@ class _BatchManager:
 
     Attributes:
         _batches: A dictionary with the step name as the key and a dictionary with the
-            predecessor step name as the key and the batch as the value.
+            predecessor step name as the key and a list of batches as the value.
     """
 
-    def __init__(self, batches: Dict[str, Dict[str, Union["_Batch", None]]]) -> None:
+    def __init__(self, batches: Dict[str, Dict[str, List["_Batch"]]]) -> None:
         """Initialize the `_BatchManager` instance.
 
         Args:
             batches: A dictionary with the step name as the key and a dictionary with the
-                predecessor step name as the key and the batch as the value.
+                predecessor step name as the key and a list of batches as the value.
         """
         self._batches = batches
 
@@ -161,20 +194,21 @@ class _BatchManager:
             to be processed. Otherwise, return `None`.
 
         Raises:
-            ValueError: If a batch was already received from `from_step` to `to_step`.
+            ValueError: If a batch from `from_step` to `to_step` with the same sequence
+            number was already received.
         """
         from_step = batch.step_name
-        if self._batches[to_step][from_step] is not None:
-            raise ValueError(
-                f"Step '{to_step}' already had a batch waiting from '{from_step}'"
-            )
-        self._batches[to_step][from_step] = batch
+        for batch in self._batches[to_step][from_step]:
+            if batch.seq_no == batch.seq_no:
+                raise ValueError(
+                    f"A batch from '{from_step}' to '{to_step}' with sequence number "
+                    f"{batch.seq_no} was already received"
+                )
+
+        self._batches[to_step][from_step].append(batch)
 
         if self._step_input_batches_received(to_step):
-            batches = []
-            for batch in self._batches[to_step].values():  # type: ignore
-                batches.append(batch)
-            self._clean_step_input_batches(to_step)
+            batches = [batches.pop(0) for batches in self._batches[to_step].values()]
             return batches
 
         return None
@@ -196,7 +230,7 @@ class _BatchManager:
                 continue
             batches[step_name] = {}
             for predecessor in dag.get_step_predecessors(step_name):
-                batches[step_name][predecessor] = None
+                batches[step_name][predecessor] = []
         return cls(batches)
 
     def _step_input_batches_received(self, step_name: str) -> bool:
@@ -209,12 +243,4 @@ class _BatchManager:
             A boolean indicating if all the inputs for the step have been received.
         """
 
-        return all(self._batches[step_name].values())
-
-    def _clean_step_input_batches(self, step_name: str) -> None:
-        """Clean the input batches for a step.
-
-        Args:
-            step_name: The name of the step.
-        """
-        self._batches[step_name] = {step: None for step in self._batches[step_name]}
+        return all(len(batches) > 0 for batches in self._batches[step_name].values())

@@ -65,22 +65,15 @@ class Pipeline(BasePipeline):
                     if batches := batch_manager.add_batch(
                         to_step=step_name, batch=batch
                     ):
-                        data = [batch.data[0] for batch in batches]
-                        self._send_batch_to_step(
-                            step_name=step_name,
-                            batch=_Batch(
-                                step_name=step_name,
-                                last_batch=batch.last_batch,
-                                data=data,
-                            ),
-                        )
+                        new_batch = _Batch.from_batches(step_name, batches)
+                        self._send_batch_to_step(new_batch)
 
                 # If step is generator and previous batch was not the last one, then request
                 # next batch to the generator step
                 if not batch.last_batch:
                     step = self.dag.get_step(batch.step_name)["step"]
                     if step.is_generator:
-                        self._request_batch_to_generator(batch.step_name)
+                        self._send_batch_to_step(batch.next_batch())
 
                 if batch.step_name in self.dag.leaf_steps:
                     write_buffer.add_batch(batch.step_name, batch)
@@ -95,29 +88,17 @@ class Pipeline(BasePipeline):
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
         for step_name in self.dag.root_steps:
-            self._request_batch_to_generator(step_name)
+            batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+            self._send_batch_to_step(batch)
 
-    def _send_batch_to_step(self, step_name: str, batch: "_Batch") -> None:
+    def _send_batch_to_step(self, batch: "_Batch") -> None:
         """Sends a batch to the input queue of a step.
 
         Args:
-            step_name: The name of the step.
             batch: The batch to send.
         """
-        input_queue = self.dag.get_step(step_name)["input_queue"]
-        input_queue.put(
-            _Batch(step_name=step_name, last_batch=batch.last_batch, data=batch.data)
-        )
-
-    def _request_batch_to_generator(self, step_name: str) -> None:
-        """Requests a batch to a generator step.
-
-        Args:
-            step_name: The name of the step.
-        """
-        self._send_batch_to_step(
-            step_name, _Batch(step_name=step_name, last_batch=False)
-        )
+        input_queue = self.dag.get_step(batch.step_name)["input_queue"]
+        input_queue.put(batch)
 
     def _run_steps_in_loop(
         self, pool: "Pool", manager: "SyncManager", output_queue: "Queue[_Batch]"
