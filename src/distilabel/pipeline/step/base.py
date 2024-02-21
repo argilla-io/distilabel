@@ -18,7 +18,7 @@ from functools import cached_property
 from typing import Any, Dict, Generator, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
-from typing_extensions import Annotated
+from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 
@@ -178,16 +178,60 @@ class Step(BaseModel, ABC):
         pass
 
     @cached_property
+    def process_parameters(self) -> List[inspect.Parameter]:
+        """Returns the parameters of the `process` method of the step.
+
+        Returns:
+            The parameters of the `process` method of the step.
+        """
+        return list(inspect.signature(self.process).parameters.values())
+
+    @property
+    def runtime_parameters_names(self) -> Dict[str, bool]:
+        """Returns a dictionary containing the name of the runtime parameters of the step
+        as keys and whether the parameter is required or not as values.
+
+        Returns:
+            A dictionary containing the name of the runtime parameters of the step as keys
+            and whether the parameter is required or not as values.
+        """
+        return {
+            param.name: param.default != param.empty
+            for param in self.process_parameters
+            if not _is_step_input(param)
+        }
+
     def has_multiple_inputs(self) -> bool:
-        """Whether the `process` method of the step receives more than one input or not.
+        """Whether the `process` method of the step receives more than one input or not
+        i.e. has a `*` argument annotated with `StepInput`.
 
         Returns:
             `True` if the `process` method of the step receives more than one input,
             `False` otherwise.
         """
-        sig = inspect.signature(self.process)
-        params = sig.parameters.values()
-        return any(param.kind == param.VAR_POSITIONAL for param in params)
+        return any(
+            param.kind == param.VAR_POSITIONAL for param in self.process_parameters
+        )
+
+    def get_process_step_input(self) -> Union[inspect.Parameter, None]:
+        """Returns the parameter of the `process` method of the step annotated with
+        `StepInput`.
+
+        Returns:
+            The parameter of the `process` method of the step annotated with `StepInput`,
+            or `None` if there is no parameter annotated with `StepInput`.
+
+        Raises:
+            TypeError: If the step has more than one parameter annotated with `StepInput`.
+        """
+        step_input_parameter = None
+        for parameter in self.process_parameters:
+            if _is_step_input(parameter) and step_input_parameter is not None:
+                raise TypeError(
+                    f"Step '{self.name}' should have only one parameter with type hint `StepInput`."
+                )
+            step_input_parameter = parameter
+        return step_input_parameter
 
 
 class GeneratorStep(Step, ABC):
@@ -216,3 +260,18 @@ class GlobalStep(Step, ABC):
     """
 
     pass
+
+
+def _is_step_input(parameter: inspect.Parameter) -> bool:
+    """Check if the parameter has type hint `StepInput`.
+
+    Args:
+        parameter: The parameter to check.
+
+    Returns:
+        `True` if the parameter has type hint `StepInput`, `False` otherwise.
+    """
+    return (
+        get_origin(parameter.annotation) is Annotated
+        and get_args(parameter.annotation)[-1] == "StepInput"
+    )
