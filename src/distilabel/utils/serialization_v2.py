@@ -16,11 +16,16 @@ import importlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Literal, Optional, Type, TypeVar, get_args
+
+import yaml
 
 T = TypeVar("T")
 
 DISTILABEL_FILENAME = "distilabel-file.json"
+
+
+SaveFormat = Literal["json", "yaml"]
 
 
 def _get_class(module: str, name: str) -> Type:
@@ -56,8 +61,8 @@ def write_json(filename: Path, data: Dict[str, Any]) -> None:
         data (Dict[str, Any]): Dict to be written as json.
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=2)
+    with open(filename, "w") as file:
+        json.dump(data, file, indent=2)
 
 
 def read_json(filename: Path) -> Dict[str, Any]:
@@ -71,6 +76,31 @@ def read_json(filename: Path) -> Dict[str, Any]:
     """
     with open(filename, "r") as file:
         return json.load(file)
+
+
+def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
+    """Writes a yaml file to the given path, creates the parent dir.
+
+    Args:
+        filename (Path): Name of the file.
+        data (Dict[str, Any]): Dict to be written as yaml.
+    """
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    with open(filename, "w") as file:
+        yaml.dump(data, file, default_flow_style=False)
+
+
+def read_yaml(filename: Path) -> Dict[str, Any]:
+    """Read a yaml file from disk.
+
+    Args:
+        filename (Path): Name of the yaml file.
+
+    Returns:
+        Dict[str, Any]: Dict containing the json data.
+    """
+    with open(filename, "r") as file:
+        return yaml.load(file, Loader=yaml.FullLoader)
 
 
 class _Serializable:
@@ -102,8 +132,12 @@ class _Serializable:
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
         """Transforms the class into a dict to write to a file.
 
+        Args:
+            kwargs: Optional parameters to be used in the serialization process.
+
         Returns:
             Dict[str, Any]: Serializable content of the class.
+
         """
         _dict = self._model_dump(self, **kwargs)
         # Remove private variables from the dump
@@ -114,7 +148,12 @@ class _Serializable:
         }
         return _dict
 
-    def save(self, path: Optional[os.PathLike] = None, **kwargs: Any) -> None:
+    def save(
+        self,
+        path: Optional[os.PathLike] = None,
+        format: SaveFormat = "json",
+        **kwargs: Any,
+    ) -> None:
         """Writes the content to a file.
 
         Args:
@@ -122,6 +161,7 @@ class _Serializable:
                 Filename of the object to save. If a folder is given, will create the object
                 inside. If None is given, the file will be created at the current
                 working directory. Defaults to None.
+            format (SaveFormat, optional): The format to save the file, must be one of `json` or `yaml`.
         """
         if path is None:
             path = Path.cwd() / DISTILABEL_FILENAME
@@ -129,7 +169,15 @@ class _Serializable:
         if path.suffix == "":
             # If the path has no suffix, assume the user just wants a folder to write the task
             path = path / DISTILABEL_FILENAME
-        write_json(path, self.dump(**kwargs))
+
+        if format == "json":
+            write_json(path, self.dump(**kwargs))
+        elif format == "yaml":
+            write_yaml(path, self.dump(**kwargs))
+        else:
+            raise ValueError(
+                f"Invalid format: '{format}', must be one of {get_args(SaveFormat)}."
+            )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> Generic[T]:
@@ -148,7 +196,7 @@ class _Serializable:
         """Loads a class from a file and returns the instance contained.
 
         Args:
-            template_path (os.PathLike): Path to the file containing the serialized class.
+            path (os.PathLike): Path to the file containing the serialized class.
 
         Raises:
             ValueError: If the path is a directory.
@@ -156,7 +204,28 @@ class _Serializable:
         Returns:
             Generic[T]: Instance of the class.
         """
-        if Path(path).is_dir():
-            raise ValueError(f"You must provide a file path, not a directory: {path}")
-        template = read_json(path)
-        return cls.from_dict(template)
+        _check_is_dir(path)
+        content = read_json(path)
+        return cls.from_dict(content)
+
+    @classmethod
+    def from_yaml(cls, path: os.PathLike) -> Generic[T]:
+        """Loads a class from a yaml file and returns the instance contained.
+
+        Args:
+            path (os.PathLike): Path to the file containing the serialized class.
+
+        Raises:
+            ValueError: If the path is a directory.
+
+        Returns:
+            Generic[T]: Instance of the class.
+        """
+        _check_is_dir(path)
+        content = read_yaml(path)
+        return cls.from_dict(content)
+
+
+def _check_is_dir(path: os.PathLike) -> None:
+    if Path(path).is_dir():
+        raise ValueError(f"You must provide a file path, not a directory: {path}")
