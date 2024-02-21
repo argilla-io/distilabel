@@ -13,25 +13,26 @@
 # limitations under the License.
 
 import os
-from typing import Optional
+from typing import Optional, Union
 
 from openai import OpenAI
+from pydantic import field_validator
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
 
 
 class OpenAILLM(LLM):
-    def __init__(
-        self,
-        model: Optional[str] = None,
-        api_key: Optional[str] = None,
-    ) -> None:
-        self.model = model or "gpt-3.5-turbo"
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+    model: str = "gpt-3.5-turbo"
+    api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
+    client: Optional["OpenAI"] = None
 
-        if self.api_key is None:
+    @field_validator("api_key")
+    @classmethod
+    def api_key_must_not_be_none(cls, v: Union[str, None]) -> str:
+        if v is None:
             raise ValueError("You must provide an API key to use OpenAI.")
+        return v
 
     def load(self) -> None:
         self.client = OpenAI(api_key=self.api_key, max_retries=6)
@@ -48,10 +49,10 @@ class OpenAILLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> str:
-        chat_completions = self.client.chat.completions.create(
+        chat_completions = self.client.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
-            max_new_tokens=max_new_tokens,
+            max_tokens=max_new_tokens,
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
             temperature=temperature,
