@@ -16,7 +16,7 @@ from typing import Any, Dict, Generator, List
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.step.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step, StepInput
 
 
 class DummyStep(Step):
@@ -100,7 +100,10 @@ class TestStepSerialization:
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
             "name": "dummy",
-            "_type_info_": {"module": "tests.step.test_base", "name": "DummyStep"},
+            "_type_info_": {
+                "module": "tests.pipeline.step.test_base",
+                "name": "DummyStep",
+            },
         }
 
     def test_step_from_dict(self):
@@ -111,7 +114,7 @@ class TestStepSerialization:
                     **{
                         "name": "dummy",
                         "_type_info_": {
-                            "module": "tests.step.test_base",
+                            "module": "tests.pipeline.step.test_base",
                             "name": "DummyStep",
                         },
                     },
