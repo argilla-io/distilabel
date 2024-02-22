@@ -13,33 +13,18 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Iterator, List
 
+from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.base import Step, StepInput
 from distilabel.pipeline.step.task.types import ChatType
 
-if TYPE_CHECKING:
-    from distilabel.llm.base import LLM
-
 
 class Task(Step, ABC):
-    llm: "LLM"
-    input_mapping: Optional[Dict[str, str]] = None
-    output_mapping: Optional[Dict[str, str]] = None
+    llm: LLM
 
     def load(self) -> None:
         self.llm.load()  # type: ignore
-
-        self.input_mapping = (
-            {input: input for input in self.inputs}
-            if self.input_mapping is None
-            else self.input_mapping
-        )
-        self.output_mapping = (
-            {output: output for output in self.outputs}
-            if self.output_mapping is None
-            else self.output_mapping
-        )
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> ChatType:
@@ -49,9 +34,10 @@ class Task(Step, ABC):
     def format_output(self, output: str) -> Dict[str, Any]:
         pass
 
-    def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, inputs: StepInput) -> Iterator[List[Dict[str, Any]]]:
         for input in inputs:
             formatted_input = self.format_input(input)
             output = self.llm.generate(formatted_input)  # type: ignore
             formatted_output = self.format_output(output)  # type: ignore
-            yield {**input, **formatted_output}  # type: ignore
+            input.update(formatted_output)
+        yield inputs  # type: ignore

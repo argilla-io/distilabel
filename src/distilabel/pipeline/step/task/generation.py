@@ -25,7 +25,6 @@ class TextGeneration(Task):
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         return [
-            {"role": "system", "content": ""},
             {"role": "user", "content": input[self.inputs[0]]},
         ]
 
