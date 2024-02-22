@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
-from distilabel.utils.serialization_v2 import _get_class, _Serializable
+from distilabel.utils.serialization_v2 import _Serializable
 
 StepInput = Annotated[List[Dict[str, Any]], "StepInput"]
 """StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
@@ -250,19 +250,10 @@ class Step(BaseModel, _Serializable, ABC):
         Returns:
             step (Step): Instance of the Step.
         """
+        if not (pipe := _GlobalPipelineManager.get_pipeline()):
+            raise ValueError("A Step must be initialized in the context of a Pipeline.")
 
-        name = data.pop("name")
-        type_info = data.pop("_type_info_")
-        cls_pipeline = _get_class(type_info["module"], type_info["name"])
-        # By this moment, the data should only contain the dag info,
-        # we need to create the generic type of the pipeline that is contained
-        # in the data dictionary.
-        if pipe := _GlobalPipelineManager.get_pipeline():
-            pipeline = pipe
-        else:
-            pipeline = cls_pipeline.from_dict(data)
-
-        step = cls(name=name, pipeline=pipeline)
+        step = cls(name=data["name"], pipeline=pipe)
         # NOTE(plaguss): Still needs to check for the inputs/outputs of higher order classes.
         return step
 

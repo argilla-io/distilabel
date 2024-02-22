@@ -14,16 +14,14 @@
 
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import GeneratorStep, Step
 
 from tests.pipeline.utils import DummyGeneratorStep
-
-if TYPE_CHECKING:
-    from distilabel.pipeline.local import Pipeline
 
 
 class TestDAG:
@@ -275,7 +273,6 @@ class TestDagSerialization:
         assert dump["_type_info_"]["name"] == "DAG"
 
         assert len(dump["nodes"]) == 2
-        # TODO: This will have to be tested with the actual step dump
         assert isinstance(dump["nodes"][0]["step"], dict)
 
     def test_dag_from_dict(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
@@ -284,9 +281,21 @@ class TestDagSerialization:
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
-        new_dag = DAG.from_dict(dag.dump())
+        with Pipeline():
+            new_dag = DAG.from_dict(dag.dump())
         assert isinstance(new_dag, DAG)
         assert "dummy_step_2" in new_dag.G
+
+    def test_dag_from_dict_errored_without_pipeline(
+        self, dummy_step_1: "Step", dummy_step_2: "Step"
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with pytest.raises(ValueError):
+            DAG.from_dict(dag.dump())
 
     @pytest.mark.parametrize(
         "format, name, loader",
@@ -317,5 +326,6 @@ class TestDagSerialization:
             else:
                 dag.save(filename, format=format)
                 assert filename.exists()
-                dag_from_file = loader(filename)
-                assert isinstance(dag_from_file, DAG)
+                with Pipeline():
+                    dag_from_file = loader(filename)
+                    assert isinstance(dag_from_file, DAG)
