@@ -12,25 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List
+from abc import ABC, abstractmethod
+from typing import Any, Dict
 
-from distilabel.pipeline.step.task.base import Task
+from pydantic import BaseModel, ConfigDict, PrivateAttr
+
 from distilabel.pipeline.step.task.types import ChatType
 
 
-class TextGeneration(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
+class LLM(BaseModel, ABC):
+    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
-        return [
-            {"role": "user", "content": input[self.inputs[0]]},
-        ]
+    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
-    @property
-    def outputs(self) -> List[str]:
-        return ["generation"]
+    @abstractmethod
+    def load(self) -> None:
+        pass
 
-    def format_output(self, output: str) -> Dict[str, Any]:
-        return {self.outputs[0]: output}
+    @abstractmethod
+    def format_input(self, input: ChatType) -> Any:
+        pass
+
+    @abstractmethod
+    def generate(self, input: Any, *args: Any, **kwargs: Any) -> str:
+        pass
