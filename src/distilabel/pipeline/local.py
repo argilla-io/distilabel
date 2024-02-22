@@ -15,7 +15,7 @@
 import json
 import multiprocessing as mp
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.pipeline.step.base import Step
@@ -47,7 +47,9 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        write_buffer = _WriteBuffer(path="./data.jsonl", leaf_steps=self.dag.leaf_steps)
+        write_buffer = _WriteBuffer(
+            path=Path("./data.jsonl"), leaf_steps=self.dag.leaf_steps
+        )
         batch_manager = _BatchManager.from_dag(self.dag)
 
         ctx = mp.get_context("forkserver")
@@ -157,7 +159,7 @@ class Pipeline(BasePipeline):
 
 
 class _WriteBuffer:
-    def __init__(self, path: "PathLike", leaf_steps: List[str]) -> None:
+    def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
         path = Path(path)
         # if path.exists() and not path.is_dir():
         #     raise ValueError(f"Path '{path}' already exists and is not a directory")
@@ -174,7 +176,7 @@ class _WriteBuffer:
             self._write()
 
     def _write(self) -> None:
-        data = self._combine_batches()
+        data = list(self._combine_batches())
 
         with open(self._path, "a") as f:
             for row in data:
@@ -183,9 +185,9 @@ class _WriteBuffer:
 
         self._clean_buffers()
 
-    def _combine_batches(self) -> List[Dict[str, Any]]:
+    def _combine_batches(self) -> Iterator[Dict[str, Any]]:
         for _, data in self._buffers.items():
-            return data[0]
+            yield data[-1]
 
     def _clean_buffers(self) -> None:
         self._buffers = {step: None for step in self._buffers.keys()}
