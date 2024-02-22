@@ -21,7 +21,7 @@ from distilabel.pipeline.step.task.types import ChatType
 
 
 class LLM(BaseModel, ABC):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
