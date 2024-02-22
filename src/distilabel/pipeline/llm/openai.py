@@ -22,6 +22,8 @@ from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
 
 
+# TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
+# https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(LLM):
     model: str = "gpt-3.5-turbo"
     api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
