@@ -134,6 +134,7 @@ class BasePipeline(_Serializable):
         """
         pipe = cls()
         if dag := data.get("dag"):
+            # For DAG.from_dict to work we need to be in the context of a Pipeline
             pipe.dag = DAG.from_dict(dag)
             return pipe
         else:
