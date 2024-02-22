@@ -107,19 +107,38 @@ class TestStepSerialization:
         }
 
     def test_step_from_dict(self):
-        pipeline = Pipeline()
-        assert isinstance(
-            DummyStep.from_dict(
-                {
-                    **{
-                        "name": "dummy",
-                        "_type_info_": {
-                            "module": "tests.pipeline.step.test_base",
-                            "name": "DummyStep",
+        with Pipeline() as pipe:
+            assert isinstance(
+                DummyStep.from_dict(
+                    {
+                        **{
+                            "name": "dummy",
+                            "_type_info_": {
+                                "module": "tests.pipeline.step.test_base",
+                                "name": "DummyStep",
+                            },
                         },
-                    },
-                    **pipeline.dump(),
-                }
-            ),
-            DummyStep,
-        )
+                        **pipe.dump(),
+                    }
+                ),
+                DummyStep,
+            )
+
+    def test_step_from_dict_without_pipeline_context(self):
+        pipe = Pipeline()
+        with pytest.raises(ValueError):
+            assert isinstance(
+                DummyStep.from_dict(
+                    {
+                        **{
+                            "name": "dummy",
+                            "_type_info_": {
+                                "module": "tests.pipeline.step.test_base",
+                                "name": "DummyStep",
+                            },
+                        },
+                        **pipe.dump(),
+                    }
+                ),
+                DummyStep,
+            )
