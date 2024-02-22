@@ -15,7 +15,8 @@
 import os
 from typing import Any, Dict, Optional, Union
 
-from transformers import pipeline
+from pydantic import PrivateAttr
+from transformers import Pipeline, pipeline
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
@@ -26,7 +27,7 @@ class TransformersLLM(LLM):
     revision: str = "main"
     torch_dtype: str = "auto"
     trust_remote_code: bool = False
-    # model_kwargs: Optional[Dict[str, Any]] = None
+    model_kwargs: Optional[Dict[str, Any]] = None
     tokenizer: Optional[str] = None
     use_fast: bool = True
     chat_template: Optional[str] = None
@@ -34,14 +35,16 @@ class TransformersLLM(LLM):
     device_map: Optional[Union[str, Dict[str, Any]]] = None
     token: Optional[str] = None
 
+    _pipeline: Optional["Pipeline"] = PrivateAttr(...)
+
     def load(self) -> None:
-        self._values["pipeline"] = pipeline(
+        self._pipeline = pipeline(
             "text-generation",
             model=self.model,
             revision=self.revision,
             torch_dtype=self.torch_dtype,
             trust_remote_code=self.trust_remote_code,
-            # model_kwargs=self.model_kwargs or {},
+            model_kwargs=self.model_kwargs or {},
             tokenizer=self.tokenizer or self.model,
             use_fast=self.use_fast,
             device=self.device,
@@ -51,18 +54,16 @@ class TransformersLLM(LLM):
         )
 
         if self.chat_template is not None:
-            self._values["pipeline"].tokenizer.chat_template = self.chat_template  # type: ignore
+            self._pipeline.tokenizer.chat_template = self.chat_template  # type: ignore
         elif (
-            self._values["pipeline"].tokenizer.chat_template is None  # type: ignore
-            and self._values["pipeline"].tokenizer.default_chat_template is None  # type: ignore
+            self._pipeline.tokenizer.chat_template is None  # type: ignore
+            and self._pipeline.tokenizer.default_chat_template is None  # type: ignore
         ):
-            self._values[
-                "pipeline"
-            ].tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
+            self._pipeline.tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
 
     def format_input(self, input: ChatType) -> str:
-        return self._values["pipeline"].tokenizer.apply_chat_template(  # type: ignore
-            input,
+        return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+            input,  # type: ignore
             tokenize=False,
             add_generation_prompt=True,  # type: ignore
         )
@@ -77,7 +78,7 @@ class TransformersLLM(LLM):
         top_k: int = 0,
         do_sample: bool = True,
     ) -> str:
-        return self._values["pipeline"](  # type: ignore
+        return self._pipeline(  # type: ignore
             self.format_input(input=input),
             max_new_tokens=max_new_tokens,
             temperature=temperature,

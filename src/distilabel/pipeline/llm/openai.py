@@ -16,7 +16,7 @@ import os
 from typing import Optional, Union
 
 from openai import OpenAI
-from pydantic import SecretStr, field_validator
+from pydantic import PrivateAttr, SecretStr, field_validator
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
@@ -27,7 +27,8 @@ from distilabel.pipeline.step.task.types import ChatType
 class OpenAILLM(LLM):
     model: str = "gpt-3.5-turbo"
     api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY")  # type: ignore
-    client: Optional["OpenAI"] = None
+
+    _client: Optional["OpenAI"] = PrivateAttr(...)
 
     @field_validator("api_key")
     @classmethod
@@ -37,7 +38,7 @@ class OpenAILLM(LLM):
         return v
 
     def load(self) -> None:
-        self.client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
+        self._client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
 
     def format_input(self, input: ChatType) -> ChatType:
         return input
@@ -51,7 +52,7 @@ class OpenAILLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> str:
-        chat_completions = self.client.chat.completions.create(  # type: ignore
+        chat_completions = self._client.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
             max_tokens=max_new_tokens,

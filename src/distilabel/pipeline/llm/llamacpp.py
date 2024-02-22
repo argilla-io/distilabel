@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from pathlib import Path
+from typing import Optional
 
 from llama_cpp import Llama
+from pydantic import PrivateAttr
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
@@ -26,8 +28,10 @@ class LlamaCppLLM(LLM):
     n_gpu_layers: int = -1
     verbose: bool = False
 
+    _model: Optional["Llama"] = PrivateAttr(...)
+
     def load(self) -> None:
-        self._values["model"] = Llama(
+        self._model = Llama(
             model_path=self.model_path.as_posix(),
             chat_format=self.chat_format,
             n_gpu_layers=self.n_gpu_layers,
@@ -46,8 +50,8 @@ class LlamaCppLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> str:
-        chat_completions = self._values["model"].create_chat_completion(
-            messages=input,
+        chat_completions = self._model.create_chat_completion(
+            messages=input,  # type: ignore
             max_tokens=max_new_tokens,
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
