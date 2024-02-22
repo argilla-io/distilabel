@@ -16,7 +16,7 @@ import os
 from typing import Optional, Union
 
 from openai import OpenAI
-from pydantic import field_validator
+from pydantic import SecretStr, field_validator
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.step.task.types import ChatType
@@ -26,18 +26,18 @@ from distilabel.pipeline.step.task.types import ChatType
 # https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(LLM):
     model: str = "gpt-3.5-turbo"
-    api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
+    api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY")  # type: ignore
     client: Optional["OpenAI"] = None
 
     @field_validator("api_key")
     @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, None]) -> str:
+    def api_key_must_not_be_none(cls, v: Union[SecretStr, None]) -> SecretStr:
         if v is None:
             raise ValueError("You must provide an API key to use OpenAI.")
         return v
 
     def load(self) -> None:
-        self.client = OpenAI(api_key=self.api_key, max_retries=6)
+        self.client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
 
     def format_input(self, input: ChatType) -> ChatType:
         return input
