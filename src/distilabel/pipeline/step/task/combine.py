@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Iterator, List, Optional
+from typing import List, Optional
 
 from distilabel.pipeline.step.base import Step
-from distilabel.pipeline.step.typing import StepInput
+from distilabel.pipeline.step.typing import StepInput, StepOutput
 from distilabel.pipeline.utils import combine_dicts
 
 
@@ -41,7 +41,7 @@ class CombineColumns(Step):
             else [f"merged_{column}" for column in self.merge_columns]
         )
 
-    def process(self, *args: StepInput) -> Iterator[StepInput]:
+    def process(self, *args: StepInput) -> StepOutput:
         yield combine_dicts(
             *args,
             merge_keys=set(self.inputs),
