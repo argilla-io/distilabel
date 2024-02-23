@@ -19,7 +19,7 @@ from openai import OpenAI
 from pydantic import PrivateAttr, SecretStr, field_validator
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 # TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.

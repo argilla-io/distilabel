@@ -19,7 +19,7 @@ from llama_cpp import Llama
 from pydantic import PrivateAttr
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 class LlamaCppLLM(LLM):
@@ -50,7 +50,7 @@ class LlamaCppLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> str:
-        chat_completions = self._model.create_chat_completion(
+        chat_completions = self._model.create_chat_completion(  # type: ignore
             messages=input,  # type: ignore
             max_tokens=max_new_tokens,
             frequency_penalty=frequency_penalty,

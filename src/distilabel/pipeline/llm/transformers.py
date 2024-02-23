@@ -19,7 +19,7 @@ from pydantic import PrivateAttr
 from transformers import Pipeline, pipeline
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 class TransformersLLM(LLM):

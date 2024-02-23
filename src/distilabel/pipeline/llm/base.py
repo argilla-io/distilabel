@@ -17,7 +17,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 class LLM(BaseModel, ABC):
