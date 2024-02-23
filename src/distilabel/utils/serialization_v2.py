@@ -39,7 +39,7 @@ def load_from_dict(class_: Dict[str, Any]) -> Generic[T]:
     contained.
 
     Args:
-        template (Dict[str, Any]): Dict containing the template, the dict serialized.
+        class_ (Dict[str, Any]): Dict containing the template, the dict serialized.
 
     Returns:
         Generic[T]: Instance contained in the template
