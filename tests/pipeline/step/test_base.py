@@ -16,7 +16,8 @@ from typing import Any, Dict, Generator, List
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step
+from distilabel.pipeline.step.typing import StepInput
 
 
 class DummyStep(Step):
