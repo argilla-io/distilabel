@@ -12,29 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-from typing import Iterator, List
+from typing import Iterator, List, Optional
 
 from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.typing import StepInput
 from distilabel.pipeline.utils import combine_dicts
 
 
-class CombineColumns(Step, ABC):
-    """CombineColumns is an abstract Step that implements the `process` method that calls
-    the `combine_dicts` function to handle and combine a list of `StepInput`. Anyway, in order
-    to use this class, one would still need to implement the `inputs` and `outputs` properties
-    that will be the columns to merge and the name of those merged columns."""
+class CombineColumns(Step):
+    """CombineColumns is a Step that implements the `process` method that calls the `combine_dicts`
+    function to handle and combine a list of `StepInput`. Also `CombineColumns` provides two attributes
+    `merge_columns` and `output_merge_columns` to specify the columns to merge and the output columns
+    which will override the default value for the properties `inputs` and `outputs`, respectively.
+    """
+
+    merge_columns: List[str]
+    output_merge_columns: Optional[List[str]] = None
 
     @property
-    @abstractmethod
     def inputs(self) -> List[str]:
-        ...
+        return self.merge_columns
 
     @property
-    @abstractmethod
     def outputs(self) -> List[str]:
-        ...
+        return (
+            self.output_merge_columns
+            if self.output_merge_columns is not None
+            else [f"merged_{column}" for column in self.merge_columns]
+        )
 
     def process(self, *args: StepInput) -> Iterator[StepInput]:
         yield combine_dicts(
