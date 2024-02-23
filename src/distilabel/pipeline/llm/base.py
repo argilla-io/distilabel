@@ -17,10 +17,11 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
+from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.task.typing import ChatType
 
 
-class LLM(BaseModel, ABC):
+class LLM(BaseModel, _Serializable, ABC):
     model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)

@@ -93,3 +93,53 @@ class TestGlobalStep:
     def test_is_global(self) -> None:
         step = DummyGlobalStep(name="dummy", pipeline=Pipeline())
         assert step.is_global
+
+
+class TestStepSerialization:
+    def test_step_dump(self):
+        pipeline = Pipeline()
+        step = DummyStep(name="dummy", pipeline=pipeline)
+        assert step.dump() == {
+            "name": "dummy",
+            "_type_info_": {
+                "module": "tests.pipeline.step.test_base",
+                "name": "DummyStep",
+            },
+        }
+
+    def test_step_from_dict(self):
+        with Pipeline() as pipe:
+            assert isinstance(
+                DummyStep.from_dict(
+                    {
+                        **{
+                            "name": "dummy",
+                            "_type_info_": {
+                                "module": "tests.pipeline.step.test_base",
+                                "name": "DummyStep",
+                            },
+                        },
+                        **pipe.dump(),
+                    }
+                ),
+                DummyStep,
+            )
+
+    def test_step_from_dict_without_pipeline_context(self):
+        pipe = Pipeline()
+        with pytest.raises(ValueError):
+            assert isinstance(
+                DummyStep.from_dict(
+                    {
+                        **{
+                            "name": "dummy",
+                            "_type_info_": {
+                                "module": "tests.pipeline.step.test_base",
+                                "name": "DummyStep",
+                            },
+                        },
+                        **pipe.dump(),
+                    }
+                ),
+                DummyStep,
+            )

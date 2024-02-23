@@ -21,10 +21,11 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
+from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
 
-class Step(BaseModel, ABC):
+class Step(BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -226,6 +227,44 @@ class Step(BaseModel, ABC):
                 )
             step_input_parameter = parameter
         return step_input_parameter
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Step":
+        """Create a Step from a dict containing the serialized data.
+
+        Needs the information from the step and the Pipeline it belongs to.
+
+        Note:
+            It's intended for internal use.
+
+        Args:
+            data (Dict[str, Any]): Dict containing the serialized data from a Step and the
+                Pipeline it belongs to.
+
+        Returns:
+            step (Step): Instance of the Step.
+        """
+        if not (pipe := _GlobalPipelineManager.get_pipeline()):
+            raise ValueError("A Step must be initialized in the context of a Pipeline.")
+
+        # Remove the _type_info_ to avoid errors on instantiation
+        _data = data.copy()
+        if "_type_info_" in _data.keys():
+            _data.pop("_type_info_")
+
+        # Before passing the data to instantiate the general step, we have to instantiate some of the internal objects.
+        # For the moment we only take into account the LLM, we should take care if we update any of the objects.
+        if llm := _data.get("llm"):
+            from distilabel.utils.serialization_v2 import _get_class
+
+            nested_cls = _get_class(**llm.pop("_type_info_"))
+            # Load the LLM and update the _data inplace
+            nested_cls = nested_cls(**llm)
+            _data.update({"llm": nested_cls})
+        # Every step needs the pipeline, and the remaining arguments are general
+        step = cls(pipeline=pipe, **_data)
+
+        return step
 
 
 class GeneratorStep(Step, ABC):

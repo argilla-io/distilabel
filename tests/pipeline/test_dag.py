@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List
+import tempfile
+from pathlib import Path
+from typing import Any, Callable, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import GeneratorStep, Step
 
 from tests.pipeline.utils import DummyGeneratorStep
-
-if TYPE_CHECKING:
-    from distilabel.pipeline.local import Pipeline
 
 
 class TestDAG:
@@ -257,3 +257,75 @@ class TestDAG:
             match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
         ):
             dag.validate()
+
+
+class TestDagSerialization:
+    def test_dag_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        dump = dag.dump()
+        # Check the type info is preserved
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline._dag"
+        assert dump["_type_info_"]["name"] == "DAG"
+
+        assert len(dump["nodes"]) == 2
+        assert isinstance(dump["nodes"][0]["step"], dict)
+
+    def test_dag_from_dict(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with Pipeline():
+            new_dag = DAG.from_dict(dag.dump())
+        assert isinstance(new_dag, DAG)
+        assert "dummy_step_2" in new_dag.G
+
+    def test_dag_from_dict_errored_without_pipeline(
+        self, dummy_step_1: "Step", dummy_step_2: "Step"
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with pytest.raises(ValueError):
+            DAG.from_dict(dag.dump())
+
+    @pytest.mark.parametrize(
+        "format, name, loader",
+        [
+            ("yaml", "dag.yaml", DAG.from_yaml),
+            ("json", "dag.json", DAG.from_json),
+            ("invalid", "dag.invalid", None),
+        ],
+    )
+    def test_dag_to_from_file_format(
+        self,
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
+        format: str,
+        name: str,
+        loader: Callable,
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            filename = Path(tmpdirname) / name
+            if format == "invalid":
+                with pytest.raises(ValueError):
+                    dag.save(filename, format=format)
+            else:
+                dag.save(filename, format=format)
+                assert filename.exists()
+                with Pipeline():
+                    dag_from_file = loader(filename)
+                    assert isinstance(dag_from_file, DAG)

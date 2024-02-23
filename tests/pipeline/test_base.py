@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import TYPE_CHECKING
+
+import tempfile
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable
 
 import pytest
 from distilabel.pipeline._dag import DAG
@@ -171,3 +174,57 @@ class TestBatchManager:
         batch_manager._batches["step3"]["step2"] = [batch_from_step_2]
 
         assert batch_manager._step_input_batches_received("step3") is True
+
+
+class TestPipelineSerialization:
+    def test_base_pipeline_dump(self):
+        pipeline = BasePipeline()
+        dump = pipeline.dump()
+        assert len(dump.keys()) == 2
+        assert "dag" in dump
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline.base"
+        assert dump["_type_info_"]["name"] == "BasePipeline"
+
+    def test_base_pipeline_from_dict(self):
+        pipeline = BasePipeline()
+        pipe = BasePipeline.from_dict(pipeline.dump())
+        assert isinstance(pipe, BasePipeline)
+
+    def test_pipeline_dump(self):
+        from distilabel.pipeline.local import Pipeline
+
+        pipeline = Pipeline()
+        dump = pipeline.dump()
+        assert len(dump.keys()) == 2
+        assert "dag" in dump
+        assert "_type_info_" in dump
+        assert dump["_type_info_"]["module"] == "distilabel.pipeline.local"
+        assert dump["_type_info_"]["name"] == "Pipeline"
+
+    @pytest.mark.parametrize(
+        "format, name, loader",
+        [
+            ("yaml", "pipe.yaml", BasePipeline.from_yaml),
+            ("json", "pipe.json", BasePipeline.from_json),
+            ("invalid", "pipe.invalid", None),
+        ],
+    )
+    def test_pipeline_to_from_file_format(
+        self,
+        format: str,
+        name: str,
+        loader: Callable,
+    ) -> None:
+        pipeline = BasePipeline()
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            filename = Path(tmpdirname) / name
+            if format == "invalid":
+                with pytest.raises(ValueError):
+                    pipeline.save(filename, format=format)
+            else:
+                pipeline.save(filename, format=format)
+                assert filename.exists()
+                pipe_from_file = loader(filename)
+                assert isinstance(pipe_from_file, BasePipeline)

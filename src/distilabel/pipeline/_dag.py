@@ -28,11 +28,13 @@ from typing import (
 
 import networkx as nx
 
+from distilabel.utils.serialization_v2 import _get_class, _Serializable
+
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import Step
 
 
-class DAG:
+class DAG(_Serializable):
     """A Directed Acyclic Graph (DAG) to represent the pipeline.
 
     Attributes:
@@ -307,3 +309,52 @@ class DAG:
                     f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the content of the DAG to a dict.
+
+        References:
+        * [`adjacency_data` - NetworkX Documentation](https://networkx.org/documentation/stable/reference/readwrite/generated/networkx.readwrite.json_graph.adjacency_data.html#networkx.readwrite.json_graph.adjacency_data)
+
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Additional arguments that could be passed to the networkx function.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the DAG from networkx in a serializable format.
+        """
+        from networkx.readwrite import json_graph
+
+        adjacency_data = json_graph.adjacency_data(self.G, **kwargs)
+        # Update the nodes with the serialized steps.
+        adjacency_data["nodes"] = [
+            {"step": node["step"].dump(), "id": node["id"]}
+            for node in adjacency_data["nodes"]
+        ]
+        return adjacency_data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "DAG":
+        """Generates the DAG from a dictionary with the steps serialized.
+
+        Args:
+            data (Dict[str, Any]): Dictionary with the serialized content (the content from self.dump()).
+
+        Returns:
+            DAG: Instance of the DAG from the serialized content.
+        """
+        from networkx.readwrite import json_graph
+
+        dag = cls()
+        # Loop through the nodes and instantiate the steps from the dict info.
+        nodes = []
+        for node in data["nodes"]:
+            step = node["step"]
+            # Create the step instance from the serialized content, dynamically loading the step.
+            cls_step: "Step" = _get_class(**step["_type_info_"])
+            nodes.append({"step": cls_step.from_dict(step), "id": node["id"]})
+
+        # Update the instantiated nodes (the steps), and recreate the digraph.
+        data.update({"nodes": nodes})
+        dag.G = json_graph.adjacency_graph(data)
+        return dag
