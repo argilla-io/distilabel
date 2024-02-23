@@ -314,7 +314,7 @@ class DAG(_Serializable):
         """Dumps the content of the DAG to a dict.
 
         References:
-        https://networkx.org/documentation/stable/reference/readwrite/generated/networkx.readwrite.json_graph.adjacency_data.html#networkx.readwrite.json_graph.adjacency_data
+        * [`adjacency_data` - NetworkX Documentation](https://networkx.org/documentation/stable/reference/readwrite/generated/networkx.readwrite.json_graph.adjacency_data.html#networkx.readwrite.json_graph.adjacency_data)
 
         Args:
             obj (Any): Unused, just kept to match the signature of the parent method.
