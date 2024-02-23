@@ -157,7 +157,7 @@ class _Serializable:
     def save(
         self,
         path: Optional[os.PathLike] = None,
-        format: SaveFormat = "json",
+        format: SaveFormats = "json",
         **kwargs: Any,
     ) -> None:
         """Writes the content to a file.
@@ -167,7 +167,7 @@ class _Serializable:
                 Filename of the object to save. If a folder is given, will create the object
                 inside. If None is given, the file will be created at the current
                 working directory. Defaults to None.
-            format (SaveFormat, optional): The format to save the file, must be one of `json` or `yaml`.
+            format (SaveFormats, optional): The format to save the file, must be one of `json` or `yaml`.
         """
         if path is None:
             path = Path.cwd() / DISTILABEL_FILENAME
@@ -182,7 +182,7 @@ class _Serializable:
             write_yaml(path, self.dump(**kwargs))
         else:
             raise ValueError(
-                f"Invalid format: '{format}', must be one of {get_args(SaveFormat)}."
+                f"Invalid format: '{format}', must be one of {get_args(SaveFormats)}."
             )
 
     @classmethod
