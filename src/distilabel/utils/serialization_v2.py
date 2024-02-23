@@ -16,9 +16,10 @@ import importlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Generic, Literal, Optional, Type, TypeVar, get_args
+from typing import Any, Dict, Generic, List, Literal, Optional, Type, TypeVar, get_args
 
 import yaml
+from pydantic import BaseModel
 
 T = TypeVar("T")
 
@@ -112,7 +113,7 @@ class _Serializable:
         """Method in charge of serializing the object.
 
         This method works for pydantic models (the classes that inherit from pydantic's
-        BaseModel).
+        BaseModel). Other classes will have to reimplement this method, like the DAG class.
 
         The signature must be respected, `obj` represents the object to serialize and `kwargs` are
         the optional parameters for the method used.
@@ -125,9 +126,14 @@ class _Serializable:
         Returns:
             Dict[str, Any]: Data to be dumped for the object.
         """
-        # NOTE(plaguss): This should be reimplemented for some cases, so maybe we have to enforce it via ABC?.
-        # It will work out of the box for pydantic's BaseModels.
-        return obj.model_dump(**kwargs)
+        # Any parameter named api_key will be excluded from the dump (those are supposed to be SecretStr anyway,
+        # and will remove them afterwards)
+        dump = obj.model_dump(exclude="api_key", **kwargs)
+        # Grab the fields that need extra care (LLMs from inside tasks)
+        to_update = _extra_serializable_fields(obj)
+        # Update those in the dumped dict
+        [dump.update(field) for field in to_update]
+        return dump
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
         """Transforms the class into a dict to write to a file.
@@ -229,3 +235,22 @@ class _Serializable:
 def _check_is_dir(path: os.PathLike) -> None:
     if Path(path).is_dir():
         raise ValueError(f"You must provide a file path, not a directory: {path}")
+
+
+def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]]:
+    # This function is here to loop over objects that contains nested _Serializable objects.
+    # Cannot work recursively due to the mix between models that inherit from BaseModel and
+    # those that don't, so we loop over the classes and update those that are _Serializable.
+    # Extra introspection to dump nested objects.
+    # Mainly for the LLMs inside a Task for the moment.
+    # This way we ensure the _type_info_ is inserted in those objects.
+    from distilabel.pipeline.base import BasePipeline
+
+    to_update = []
+    for k in obj.model_fields.keys():
+        field = getattr(obj, k)
+        # Have to remove the Pipeline as it will be inside the Step objects but is really
+        # in a higher level hierarchy.
+        if isinstance(field, _Serializable) and (not isinstance(field, BasePipeline)):
+            to_update.append({k: getattr(obj, k).dump()})
+    return to_update

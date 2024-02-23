@@ -253,8 +253,23 @@ class Step(BaseModel, _Serializable, ABC):
         if not (pipe := _GlobalPipelineManager.get_pipeline()):
             raise ValueError("A Step must be initialized in the context of a Pipeline.")
 
-        step = cls(name=data["name"], pipeline=pipe)
-        # NOTE(plaguss): Still needs to check for the inputs/outputs of higher order classes.
+        # Remove the _type_info_ to avoid errors on instantiation
+        _data = data.copy()
+        if "_type_info_" in _data.keys():
+            _data.pop("_type_info_")
+
+        # Before passing the data to instantiate the general step, we have to instantiate some of the internal objects.
+        # For the moment we only take into account the LLM, we should take care if we update any of the objects.
+        if llm := _data.get("llm"):
+            from distilabel.utils.serialization_v2 import _get_class
+
+            nested_cls = _get_class(**llm.pop("_type_info_"))
+            # Load the LLM and update the _data inplace
+            nested_cls = nested_cls(**llm)
+            _data.update({"llm": nested_cls})
+        # Every step needs the pipeline, and the remaining arguments are general
+        step = cls(pipeline=pipe, **_data)
+
         return step
 
 
