@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from collections import defaultdict
 from typing import List, Optional
 
 from datasets import Dataset
@@ -41,10 +42,11 @@ class PushToHub(Step):
         split: str = "train",
         token: Optional[str] = None,
     ) -> StepOutput:
-        dataset_dict = {}
+        dataset_dict = defaultdict(list)
         for input in inputs:
             for key, value in input.items():
-                dataset_dict[key] = [value]
+                dataset_dict[key].append(value)
+        dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
         dataset.push_to_hub(repo_id, split=split, token=token or os.getenv("HF_TOKEN"))
         yield [{}]
