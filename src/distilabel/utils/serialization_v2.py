@@ -26,7 +26,7 @@ T = TypeVar("T")
 DISTILABEL_FILENAME = "distilabel-file.json"
 
 
-SaveFormat = Literal["json", "yaml"]
+SaveFormats = Literal["json", "yaml"]
 
 
 def _get_class(module: str = None, name: str = None) -> Type:
