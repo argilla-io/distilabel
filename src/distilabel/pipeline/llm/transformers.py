@@ -61,6 +61,8 @@ class TransformersLLM(LLM):
         ):
             self._pipeline.tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
 
+        self._values["model_name"] = self.model
+
     def format_input(self, input: ChatType) -> str:
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore

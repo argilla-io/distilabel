@@ -40,5 +40,7 @@ class Task(Step, ABC):
             formatted_input = self.format_input(input)
             output = self.llm.generate(formatted_input)  # type: ignore
             formatted_output = self.format_output(output)  # type: ignore
+
             input.update(formatted_output)
+            input["model_name"] = self.llm.model_name
         yield inputs  # type: ignore

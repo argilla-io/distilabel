@@ -25,6 +25,10 @@ class LLM(BaseModel, ABC):
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
+    @property
+    def model_name(self) -> str:
+        return self._values.get("model_name", None)
+
     @abstractmethod
     def load(self) -> None:
         pass
