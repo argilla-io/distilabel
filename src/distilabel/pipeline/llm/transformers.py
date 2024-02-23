@@ -19,7 +19,7 @@ from pydantic import PrivateAttr
 from transformers import Pipeline, pipeline
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 class TransformersLLM(LLM):
@@ -60,6 +60,8 @@ class TransformersLLM(LLM):
             and self._pipeline.tokenizer.default_chat_template is None  # type: ignore
         ):
             self._pipeline.tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
+
+        self._values["model_name"] = self.model
 
     def format_input(self, input: ChatType) -> str:
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore

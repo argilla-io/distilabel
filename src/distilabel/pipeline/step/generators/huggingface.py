@@ -13,12 +13,13 @@
 # limitations under the License.
 
 from functools import lru_cache
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 import requests
 from datasets import load_dataset
 
-from distilabel.pipeline.step.base import Generator, GeneratorStep, List, Tuple
+from distilabel.pipeline.step.base import GeneratorStep
+from distilabel.pipeline.step.typing import GeneratorStepOutput
 
 
 @lru_cache
@@ -82,7 +83,7 @@ class LoadHubDataset(GeneratorStep):
 
     def process(  # type: ignore
         self, repo_id: str, split: str, config: Union[str, None] = None
-    ) -> Generator[Tuple[List[Dict[str, Any]], bool], None, None]:
+    ) -> GeneratorStepOutput:
         """Yields batches from the loaded dataset from the Hugging Face Hub.
 
         Yield:
