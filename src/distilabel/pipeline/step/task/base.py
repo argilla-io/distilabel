@@ -13,11 +13,12 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List
+from typing import Any, Dict
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.base import Step, StepInput
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.task.typing import ChatType
+from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
 class Task(Step, ABC):
@@ -34,7 +35,7 @@ class Task(Step, ABC):
     def format_output(self, output: str) -> Dict[str, Any]:
         pass
 
-    def process(self, inputs: StepInput) -> Iterator[List[Dict[str, Any]]]:
+    def process(self, inputs: StepInput) -> StepOutput:
         for input in inputs:
             formatted_input = self.format_input(input)
             output = self.llm.generate(formatted_input)  # type: ignore
