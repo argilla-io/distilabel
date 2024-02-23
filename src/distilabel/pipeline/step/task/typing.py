@@ -14,4 +14,8 @@
 
 from typing import Dict, List, Literal
 
-ChatType = List[Dict[Literal["role", "content"], str]]
+from typing_extensions import Annotated
+
+ChatType = Annotated[List[Dict[Literal["role", "content"], str]], "ChatType"]
+"""ChatType is just an `Annotated` alias of the typing `List[Dict[Literal["role", "content"], str]]`
+following the OpenAI conversational format."""
