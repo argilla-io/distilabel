@@ -15,17 +15,13 @@
 import inspect
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, Generator, List, Tuple, Union
+from typing import Any, Dict, List, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
-
-StepInput = Annotated[List[Dict[str, Any]], "StepInput"]
-"""StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
-extra metadata that allows `distilabel` to perform validations over the `process` step
-method defined in each `Step`"""
+from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
 
 class Step(BaseModel, ABC):
@@ -171,9 +167,7 @@ class Step(BaseModel, ABC):
         return []
 
     @abstractmethod
-    def process(
-        self, *args: Any, **kwargs: Any
-    ) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, *args: Any, **kwargs: Any) -> StepOutput:
         """Method that defines the processing logic of the step."""
         pass
 
@@ -246,9 +240,7 @@ class GeneratorStep(Step, ABC):
         return []
 
     @abstractmethod
-    def process(  # type: ignore
-        self, *args: Any, **kwargs: Any
-    ) -> Generator[Tuple[List[Dict[str, Any]], bool], None, None]:
+    def process(self, *args: Any, **kwargs: Any) -> GeneratorStepOutput:  # type: ignore
         pass
 
 

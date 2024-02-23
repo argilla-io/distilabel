@@ -19,7 +19,7 @@ from openai import OpenAI
 from pydantic import PrivateAttr, SecretStr, field_validator
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.task.typing import ChatType
 
 
 # TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
@@ -39,6 +39,7 @@ class OpenAILLM(LLM):
 
     def load(self) -> None:
         self._client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
+        self._values["model_name"] = self.model
 
     def format_input(self, input: ChatType) -> ChatType:
         return input

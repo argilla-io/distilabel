@@ -14,7 +14,8 @@
 
 from typing import Any, Dict, List
 
-from distilabel.pipeline.step.base import GeneratorStep, Step, StepInput
+from distilabel.pipeline.step.base import GeneratorStep, Step
+from distilabel.pipeline.step.typing import StepInput
 
 
 class DummyGeneratorStep(GeneratorStep):
