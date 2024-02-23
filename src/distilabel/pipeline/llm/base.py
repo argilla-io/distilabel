@@ -17,8 +17,8 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
+from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.task.types import ChatType
-from distilabel.utils.serialization_v2 import _Serializable
 
 
 class LLM(BaseModel, _Serializable, ABC):

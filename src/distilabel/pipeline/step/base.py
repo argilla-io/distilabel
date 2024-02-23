@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
-from distilabel.utils.serialization_v2 import _Serializable
+from distilabel.pipeline.serialization import _Serializable
 
 StepInput = Annotated[List[Dict[str, Any]], "StepInput"]
 """StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with

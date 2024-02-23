@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
-from distilabel.utils.serialization_v2 import _Serializable
+from distilabel.pipeline.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import Step
