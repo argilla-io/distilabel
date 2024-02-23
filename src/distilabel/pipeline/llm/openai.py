@@ -26,15 +26,18 @@ from distilabel.pipeline.step.task.typing import ChatType
 # https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(LLM):
     model: str = "gpt-3.5-turbo"
-    api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY")  # type: ignore
+    api_key: Optional[SecretStr] = None
 
     _client: Optional["OpenAI"] = PrivateAttr(...)
 
     @field_validator("api_key")
     @classmethod
     def api_key_must_not_be_none(cls, v: Union[SecretStr, None]) -> SecretStr:
+        v = v or os.getenv("OPENAI_API_KEY", None)  # type: ignore
         if v is None:
             raise ValueError("You must provide an API key to use OpenAI.")
+        if not isinstance(v, SecretStr):
+            v = SecretStr(v)
         return v
 
     def load(self) -> None:

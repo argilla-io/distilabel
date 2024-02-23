@@ -17,9 +17,10 @@ from typing import Any, Dict, Generator, List
 from distilabel.pipeline.llm.openai import OpenAILLM
 from distilabel.pipeline.llm.transformers import TransformersLLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import Step, StepInput
+from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.generators.huggingface import LoadHubDataset
 from distilabel.pipeline.step.task.generation import TextGeneration
+from distilabel.pipeline.step.typing import StepInput
 
 
 class RenameColumns(Step):

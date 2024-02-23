@@ -18,8 +18,9 @@ from typing import Any, Dict, Generator, List, Optional
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.llm.openai import OpenAILLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import Step, StepInput
-from distilabel.pipeline.step.task.types import ChatType
+from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.task.typing import ChatType
+from distilabel.pipeline.step.typing import StepInput
 
 
 class TestLLMSerialization:
