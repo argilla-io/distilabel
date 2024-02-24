@@ -168,7 +168,7 @@ class GroqLLM(LLM):
         Returns:
             List[List[LLMOutput]]: the generated outputs.
         """
-        prompts = self._generate_prompts(inputs, default_format="openai")
+        prompts = self._generate_prompts(inputs, default_format="llama2")  # Use llama2 rather than openai as default format, because that's what Groq offers
         outputs = []
         for prompt in prompts:
             chat_completions = self.client.chat.completions.create(
@@ -181,7 +181,7 @@ class GroqLLM(LLM):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 timeout=50,
-            )
+            )   # TODO: Note, why don't we have to add the "model" parameter here? Double-check. It should work as it is, however.
 
             output = []
             for chat_completion in chat_completions.choices:
@@ -190,7 +190,7 @@ class GroqLLM(LLM):
                         chat_completion.message.content.strip()
                     )
                 except Exception as e:
-                    logger.error(f"Error parsing OpenAI response: {e}")
+                    logger.error(f"Error parsing GroqAPI response: {e}")
                     parsed_response = None
                 output.append(
                     LLMOutput(
