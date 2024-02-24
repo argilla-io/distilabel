@@ -118,7 +118,8 @@ class GroqLLM(LLM):
         self.top_p = top_p
 
         self.client = client or Groq(api_key=api_key, max_retries=6)  # TODO: Double-check if Groq offers a max_retries parameter.
-                                                                       # According to this documentation: https://console.groq.com/docs/openai, they likely do.
+                                                                       # Going by their documentation: https://console.groq.com/docs/openai,
+                                                                       # they likely do.
         assert (
             model in self.available_models
         ), f"Provided `model` is not available in your Groq API account, available models are {self.available_models}"
@@ -168,7 +169,8 @@ class GroqLLM(LLM):
         Returns:
             List[List[LLMOutput]]: the generated outputs.
         """
-        prompts = self._generate_prompts(inputs, default_format="llama2")  # Use llama2 rather than openai as default format, because that's what Groq offers
+        prompts = self._generate_prompts(inputs, default_format="llama2")  # Use llama2 rather than openai as default format, 
+                                                                            # because that's what Groq offers
         outputs = []
         for prompt in prompts:
             chat_completions = self.client.chat.completions.create(
