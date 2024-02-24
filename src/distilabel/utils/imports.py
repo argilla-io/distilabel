@@ -99,6 +99,9 @@ _ARGILLA_AVAILABLE = (
         "textdescriptives", min_version="2.0.0", greater_or_equal=True
     )
 )
+_GROQ_AVAILABLE = _check_package_is_available(
+    "groq", min_version="0.4.1", greater_or_equal=True
+)
 _OPENAI_AVAILABLE = _check_package_is_available(
     "openai", min_version="1.0.0", greater_or_equal=True
 )
