@@ -31,7 +31,7 @@ class vLLM(LLM):
         self._tokenizer = self._model.get_tokenizer()
         self._values["model_name"] = self.model
 
-    def format_input(self, input: ChatType) -> ChatType:
+    def format_input(self, input: ChatType) -> str:
         return self._tokenizer.apply_chat_template(  # type: ignore
             input,
             tokenize=False,
