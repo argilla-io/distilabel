@@ -225,11 +225,11 @@ class _BatchManager:
             number was already received.
         """
         from_step = batch.step_name
-        for batch in self._batches[to_step][from_step]:
-            if batch.seq_no == batch.seq_no:
+        for _batch in self._batches[to_step][from_step]:
+            if _batch.seq_no == batch.seq_no:
                 raise ValueError(
                     f"A batch from '{from_step}' to '{to_step}' with sequence number "
-                    f"{batch.seq_no} was already received"
+                    f"{_batch.seq_no} was already received"
                 )
 
         self._batches[to_step][from_step].append(batch)
