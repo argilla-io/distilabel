@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
+from distilabel.pipeline.logging import logger
 from distilabel.pipeline.step.base import Step
 
 if TYPE_CHECKING:
@@ -47,6 +48,7 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
+        logger.info("📝 Writing buffer to ./data.jsonl")
         write_buffer = _WriteBuffer(
             path=Path("./data.jsonl"), leaf_steps=self.dag.leaf_steps
         )
@@ -136,7 +138,7 @@ class Pipeline(BasePipeline):
                 that raised the error.
         """
         # TODO: handle the errors in a better way
-        print("ERROR", e)
+        logger.error(f"ERROR: {e}")
 
 
 class _WriteBuffer:
@@ -222,6 +224,7 @@ class _ProcessWrapper:
 
             while True:
                 batch = self.input_queue.get()
+                logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
                 if self.step.is_generator:
                     self._process_generator_step(batch)
                     break
@@ -229,6 +232,12 @@ class _ProcessWrapper:
                 self._process_non_generator_step(batch)
                 if batch.last_batch:
                     break
+
+                logger.info(
+                    f"📨 {batch.step_name} sending batch {batch.seq_no} to next step"
+                )
+
+            logger.info(f"🏁 Finished running step {self.step.name}")
 
         try:
             _run()
