@@ -30,7 +30,7 @@ class TextGeneration(Task):
 
     @property
     def outputs(self) -> List[str]:
-        return ["generation"]
+        return ["generation", "model_name"]
 
     def format_output(self, output: str) -> Dict[str, Any]:
         return {self.outputs[0]: output}
