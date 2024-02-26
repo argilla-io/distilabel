@@ -18,16 +18,13 @@ from typing import List, Optional
 
 from datasets import Dataset
 
-from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.base import GlobalStep
 from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
-# NOTE: should we implement a `LeafStep`?
-class PushToHub(Step):
-    # NOTE: shouldn't `inputs` and `outputs` have a default value of [] meaning any input or no outputs?
+class PushToHub(GlobalStep):
     @property
     def inputs(self) -> List[str]:
-        # NOTE: no inputs means any input, is that correct?
         return []
 
     @property
