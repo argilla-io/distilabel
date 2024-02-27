@@ -29,6 +29,7 @@ class PushToHub(GlobalStep):
         inputs: StepInput,
         repo_id: str,
         split: str = "train",
+        private: bool = False,
         token: Optional[str] = None,
     ) -> StepOutput:
         dataset_dict = defaultdict(list)
@@ -37,5 +38,7 @@ class PushToHub(GlobalStep):
                 dataset_dict[key].append(value)
         dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
-        dataset.push_to_hub(repo_id, split=split, token=token or os.getenv("HF_TOKEN"))
+        dataset.push_to_hub(
+            repo_id, split=split, private=private, token=token or os.getenv("HF_TOKEN")
+        )
         yield [{}]
