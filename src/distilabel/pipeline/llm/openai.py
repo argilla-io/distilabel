@@ -42,9 +42,12 @@ class OpenAILLM(LLM):
 
     def load(self) -> None:
         self._client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
-        self._values["model_name"] = self.model
 
-    def format_input(self, input: ChatType) -> ChatType:
+    @property
+    def model_name(self) -> str:
+        return self.model
+
+    def prepare_input(self, input: ChatType) -> ChatType:
         return input
 
     def generate(

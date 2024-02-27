@@ -26,16 +26,12 @@ class LLM(BaseModel, _Serializable, ABC):
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
-    @property
-    def model_name(self) -> str:
-        return self._values.get("model_name", None)
-
     @abstractmethod
     def load(self) -> None:
         pass
 
     @abstractmethod
-    def format_input(self, input: ChatType) -> Any:
+    def prepare_input(self, input: ChatType) -> Any:
         pass
 
     @abstractmethod

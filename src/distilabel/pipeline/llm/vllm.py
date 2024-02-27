@@ -29,9 +29,12 @@ class vLLM(LLM):
     def load(self) -> None:
         self._model = _vLLM(self.model, **self.model_kwargs)  # type: ignore
         self._tokenizer = self._model.get_tokenizer()
-        self._values["model_name"] = self.model
 
-    def format_input(self, input: ChatType) -> str:
+    @property
+    def model_name(self) -> str:
+        return self.model
+
+    def prepare_input(self, input: ChatType) -> str:
         return self._tokenizer.apply_chat_template(  # type: ignore
             input,
             tokenize=False,
@@ -61,6 +64,6 @@ class vLLM(LLM):
         )
         # The sampling params are passed from here
         chat_completions = self._model.generate(  # type: ignore
-            self.format_input(input), sampling_params, use_tqdm=False
+            self.prepare_input(input), sampling_params, use_tqdm=False
         )
         return chat_completions[0].outputs[0].text  # type: ignore
