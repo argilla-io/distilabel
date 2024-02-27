@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import os
-from typing import Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from openai import OpenAI
 from pydantic import PrivateAttr, SecretStr, field_validator
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.task.typing import ChatType
 
 
 # TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
@@ -47,26 +49,26 @@ class OpenAILLM(LLM):
     def model_name(self) -> str:
         return self.model
 
-    def prepare_input(self, input: ChatType) -> ChatType:
-        return input
-
     def generate(
         self,
-        input: ChatType,
+        inputs: List["ChatType"],
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> str:
-        chat_completions = self._client.chat.completions.create(  # type: ignore
-            messages=input,  # type: ignore
-            model=self.model,
-            max_tokens=max_new_tokens,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            temperature=temperature,
-            top_p=top_p,
-            timeout=50,
-        )
-        return chat_completions.choices[0].message.content  # type: ignore
+    ) -> List[str]:
+        outputs = []
+        for input in inputs:
+            chat_completions = self._client.chat.completions.create(  # type: ignore
+                messages=input,  # type: ignore
+                model=self.model,
+                max_tokens=max_new_tokens,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                timeout=50,
+            )
+            outputs.append(chat_completions.choices[0].message.content)  # type: ignore
+        return outputs
