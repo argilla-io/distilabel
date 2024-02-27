@@ -14,32 +14,22 @@
 
 import os
 from collections import defaultdict
-from typing import List, Optional
+from typing import Optional
 
 from datasets import Dataset
 
-from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.base import GlobalStep
 from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
-# NOTE: should we implement a `LeafStep`?
-class PushToHub(Step):
-    # NOTE: shouldn't `inputs` and `outputs` have a default value of [] meaning any input or no outputs?
-    @property
-    def inputs(self) -> List[str]:
-        # NOTE: no inputs means any input, is that correct?
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
-
+class PushToHub(GlobalStep):
     # NOTE: `process` should be able to not return anything i.e. LeafStep, or just return None
     def process(
         self,
         inputs: StepInput,
         repo_id: str,
         split: str = "train",
+        private: bool = False,
         token: Optional[str] = None,
     ) -> StepOutput:
         dataset_dict = defaultdict(list)
@@ -48,5 +38,7 @@ class PushToHub(Step):
                 dataset_dict[key].append(value)
         dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
-        dataset.push_to_hub(repo_id, split=split, token=token or os.getenv("HF_TOKEN"))
+        dataset.push_to_hub(
+            repo_id, split=split, private=private, token=token or os.getenv("HF_TOKEN")
+        )
         yield [{}]
