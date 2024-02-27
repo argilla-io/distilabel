@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import inspect
+import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import Any, Dict, List, Union
@@ -21,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
+from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
@@ -83,6 +85,7 @@ class Step(BaseModel, _Serializable, ABC):
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _logger: logging.Logger = PrivateAttr(get_logger("step"))
 
     def model_post_init(self, _: Any) -> None:
         if self.pipeline is None:

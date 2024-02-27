@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
-from distilabel.pipeline.logging import logger
 from distilabel.pipeline.step.base import Step
 
 if TYPE_CHECKING:
@@ -49,7 +48,7 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        logger.info("📝 Writing buffer to ./data.jsonl")
+        self._logger.info("📝 Writing buffer to ./data.jsonl")
         write_buffer = _WriteBuffer(
             path=Path("./data.jsonl"), leaf_steps=self.dag.leaf_steps
         )
@@ -139,7 +138,7 @@ class Pipeline(BasePipeline):
                 that raised the error.
         """
         # TODO: handle the errors in a better way
-        logger.error(f"ERROR: {e}")
+        self._logger.error(f"ERROR: {e}")
 
 
 class _WriteBuffer:
@@ -234,7 +233,7 @@ class _ProcessWrapper:
                     if batch.last_batch:
                         break
                     batch = self.input_queue.get()
-            logger.info(f"🏁 Finished running step {self.step.name}")
+            self.step._logger.info(f"🏁 Finished running step {self.step.name}")
 
         try:
             _run()
@@ -253,7 +252,9 @@ class _ProcessWrapper:
             batch: The batch to process.
         """
         step = cast("GeneratorStep", self.step)
-        logger.info(f"🧬 Running generator step (one batch only) in {batch.step_name}")
+        self.step._logger.info(
+            f"🧬 Running generator step (one batch only) in {batch.step_name}"
+        )
         for data, last_batch in step.process(**self.step._runtime_parameters):
             batch.data = [data]
             batch.last_batch = last_batch
@@ -270,7 +271,7 @@ class _ProcessWrapper:
         Args:
             batch: The batch to process.
         """
-        logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
+        self.step._logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
         if self.step.has_multiple_inputs:
             result = next(
                 self.step.process(*batch.data, **self.step._runtime_parameters)
@@ -279,7 +280,7 @@ class _ProcessWrapper:
             result = next(
                 self.step.process(batch.data[0], **self.step._runtime_parameters)
             )
-        logger.info(
+        self.step._logger.info(
             f"📨 {batch.step_name} sending batch{'' if batch.last_batch else (' ' + str(batch.seq_no))} to next step"
         )
         batch.data = [result]
@@ -312,7 +313,7 @@ class _ProcessWrapper:
                 global_input.extend(_handle_inputs(batch))
             global_input.extend(_handle_inputs(batch))
 
-        logger.info(f"🌍 Running global step in {batch.step_name}")
+        self.step._logger.info(f"🌍 Running global step in {batch.step_name}")
         global_output = next(
             step.process(global_input, **self.step._runtime_parameters)
         )

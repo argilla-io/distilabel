@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -62,6 +63,7 @@ class BasePipeline(_Serializable):
 
     def __init__(self) -> None:
         self.dag = DAG()
+        self._logger = get_logger("pipeline")
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""

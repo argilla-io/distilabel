@@ -16,12 +16,17 @@ import logging
 
 from rich.logging import RichHandler
 
-logging.basicConfig(
-    level="INFO", format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
-)
 
-logger = logging.getLogger("distilabel")
+def get_logger(suffix: str) -> logging.Logger:
+    """Gets the `logging.Logger` for the `distilabel` package with a custom
+    configuration. Also uses `rich` for better formatting.
+    """
 
-# Remove `datasets` logger to only log on `critical` mode
-# as it produces `PyTorch` messages to update on `info`
-logging.getLogger("datasets").setLevel(logging.CRITICAL)
+    logging.basicConfig(
+        level="INFO", format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
+    )
+    # Remove `datasets` logger to only log on `critical` mode
+    # as it produces `PyTorch` messages to update on `info`
+    logging.getLogger("datasets").setLevel(logging.CRITICAL)
+
+    return logging.getLogger(f"distilabel.{suffix}")
