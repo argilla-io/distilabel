@@ -224,17 +224,20 @@ class _ProcessWrapper:
 
             while True:
                 batch = self.input_queue.get()
-                logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
                 if self.step.is_generator:
                     self._process_generator_step(batch)
+                    logger.info(
+                        f"🧬 Running generator step (one batch only) in {batch.step_name}"
+                    )
                     break
 
+                logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
                 self._process_non_generator_step(batch)
                 if batch.last_batch:
                     break
 
                 logger.info(
-                    f"📨 {batch.step_name} sending batch {batch.seq_no} to next step"
+                    f"📨 {batch.step_name} sending batch{'' if batch.last_batch else (' ' + str(batch.seq_no))} to next step"
                 )
 
             logger.info(f"🏁 Finished running step {self.step.name}")
