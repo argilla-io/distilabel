@@ -36,11 +36,11 @@ class Task(Step, ABC):
         pass
 
     def process(self, inputs: StepInput) -> StepOutput:
-        for input in inputs:
-            formatted_input = self.format_input(input)
-            output = self.llm.generate(formatted_input)  # type: ignore
-            formatted_output = self.format_output(output)  # type: ignore
+        formatted_inputs = [self.format_input(input) for input in inputs]
+        outputs = self.llm.generate(formatted_inputs)  # type: ignore
+        formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
 
+        for input, formatted_output in zip(inputs, formatted_outputs):
             input.update(formatted_output)
-            input["model_name"] = self.llm.model_name
+            input["model_name"] = self.llm.model_name  # type: ignore
         yield inputs  # type: ignore
