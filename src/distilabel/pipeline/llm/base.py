@@ -13,12 +13,14 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from distilabel.pipeline.serialization import _Serializable
-from distilabel.pipeline.step.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.task.typing import ChatType
 
 
 class LLM(BaseModel, _Serializable, ABC):
@@ -34,9 +36,5 @@ class LLM(BaseModel, _Serializable, ABC):
         pass
 
     @abstractmethod
-    def prepare_input(self, input: ChatType) -> Any:
-        pass
-
-    @abstractmethod
-    def generate(self, input: Any, *args: Any, **kwargs: Any) -> str:
+    def generate(self, inputs: List["ChatType"], *args: Any, **kwargs: Any) -> str:
         pass
