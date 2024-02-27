@@ -222,24 +222,15 @@ class _ProcessWrapper:
         def _run() -> None:
             self.step.load()
 
-            while True:
-                batch = self.input_queue.get()
-                if self.step.is_generator:
-                    self._process_generator_step(batch)
-                    logger.info(
-                        f"🧬 Running generator step (one batch only) in {batch.step_name}"
-                    )
-                    break
-
-                logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
-                self._process_non_generator_step(batch)
-                if batch.last_batch:
-                    break
-
-                logger.info(
-                    f"📨 {batch.step_name} sending batch{'' if batch.last_batch else (' ' + str(batch.seq_no))} to next step"
-                )
-
+            batch = self.input_queue.get()
+            if self.step.is_generator:
+                self._process_generator_step(batch)
+            else:
+                while True:
+                    self._process_non_generator_step(batch)
+                    if batch.last_batch:
+                        break
+                    batch = self.input_queue.get()
             logger.info(f"🏁 Finished running step {self.step.name}")
 
         try:
@@ -259,6 +250,7 @@ class _ProcessWrapper:
             batch: The batch to process.
         """
         step = cast("GeneratorStep", self.step)
+        logger.info(f"🧬 Running generator step (one batch only) in {batch.step_name}")
         for data, last_batch in step.process(**self.step._runtime_parameters):
             batch.data = [data]
             batch.last_batch = last_batch
@@ -275,6 +267,7 @@ class _ProcessWrapper:
         Args:
             batch: The batch to process.
         """
+        logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
         if self.step.has_multiple_inputs:
             result = next(
                 self.step.process(*batch.data, **self.step._runtime_parameters)
@@ -283,5 +276,8 @@ class _ProcessWrapper:
             result = next(
                 self.step.process(batch.data[0], **self.step._runtime_parameters)
             )
+        logger.info(
+            f"📨 {batch.step_name} sending batch{'' if batch.last_batch else (' ' + str(batch.seq_no))} to next step"
+        )
         batch.data = [result]
         self.output_queue.put(batch)
