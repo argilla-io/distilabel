@@ -14,7 +14,7 @@
 
 import os
 from collections import defaultdict
-from typing import List, Optional
+from typing import Optional
 
 from datasets import Dataset
 
@@ -23,14 +23,6 @@ from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
 class PushToHub(GlobalStep):
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
-
     # NOTE: `process` should be able to not return anything i.e. LeafStep, or just return None
     def process(
         self,

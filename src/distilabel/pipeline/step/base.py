@@ -290,7 +290,13 @@ class GlobalStep(Step, ABC):
     to train a model, to perform a global aggregation, etc.
     """
 
-    pass
+    @property
+    def inputs(self) -> List[str]:
+        return []
+
+    @property
+    def outputs(self) -> List[str]:
+        return []
 
 
 def _is_step_input(parameter: inspect.Parameter) -> bool:
