@@ -306,9 +306,11 @@ class _ProcessWrapper:
 
         step = cast("GlobalStep", self.step)
         global_input = _handle_inputs(batch=batch)
-        while (batch := self.input_queue.get()).last_batch is False:
+
+        if not batch.last_batch:
+            while (batch := self.input_queue.get()).last_batch is False:
+                global_input.extend(_handle_inputs(batch))
             global_input.extend(_handle_inputs(batch))
-        global_input.extend(_handle_inputs(batch))
 
         logger.info(f"🌍 Running global step in {batch.step_name}")
         global_output = next(
