@@ -61,9 +61,11 @@ class TransformersLLM(LLM):
         ):
             self._pipeline.tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
 
-        self._values["model_name"] = self.model
+    @property
+    def model_name(self) -> str:
+        return self.model
 
-    def format_input(self, input: ChatType) -> str:
+    def prepare_input(self, input: ChatType) -> str:
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
@@ -81,7 +83,7 @@ class TransformersLLM(LLM):
         do_sample: bool = True,
     ) -> str:
         return self._pipeline(  # type: ignore
-            self.format_input(input=input),
+            self.prepare_input(input=input),
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             repetition_penalty=repetition_penalty,

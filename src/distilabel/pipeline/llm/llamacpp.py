@@ -37,9 +37,12 @@ class LlamaCppLLM(LLM):
             n_gpu_layers=self.n_gpu_layers,
             verbose=self.verbose,
         )
-        self._values["model_name"] = self._model.model_path
 
-    def format_input(self, input: ChatType) -> ChatType:
+    @property
+    def model_name(self) -> str:
+        return self._model.model_path
+
+    def prepare_input(self, input: ChatType) -> ChatType:
         return input
 
     def generate(

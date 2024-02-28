@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -71,6 +72,7 @@ class BasePipeline(_Serializable):
     def __init__(self, cache_dir: Optional["PathLike"] = None) -> None:
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
+        self._logger = get_logger("pipeline")
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -263,11 +265,11 @@ class _BatchManager:
             number was already received.
         """
         from_step = batch.step_name
-        for batch in self._batches[to_step][from_step]:
-            if batch.seq_no == batch.seq_no:
+        for _batch in self._batches[to_step][from_step]:
+            if _batch.seq_no == batch.seq_no:
                 raise ValueError(
                     f"A batch from '{from_step}' to '{to_step}' with sequence number "
-                    f"{batch.seq_no} was already received"
+                    f"{_batch.seq_no} was already received"
                 )
 
         self._batches[to_step][from_step].append(batch)
