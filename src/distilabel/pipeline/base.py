@@ -257,7 +257,7 @@ class _BatchManagerStep:
         if batch.last_batch:
             self._last_batch_received.append(from_step)
 
-    def get_batch(self) -> Union[_Batch, None]:
+    def get_batches(self) -> Iterable[_Batch]:
         """Create a new batch of data for the step to process. It will return `None` if
         there is not enough data to create a batch.
 
@@ -265,16 +265,14 @@ class _BatchManagerStep:
             A `_Batch` instance if there is enough data to create a batch. Otherwise,
             `None`.
         """
-        if not self._ready_to_create_batch():
-            return None
-
-        return _Batch(
-            seq_no=self._get_seq_no(),
-            step_name=self.step_name,
-            last_batch=self._last_batch(),
-            data=self._get_data(),
-            accumulated=self.accumulate,
-        )
+        while self._ready_to_create_batch():
+            yield _Batch(
+                seq_no=self._get_seq_no(),
+                step_name=self.step_name,
+                last_batch=self._last_batch(),
+                data=self._get_data(),
+                accumulated=self.accumulate,
+            )
 
     def _get_seq_no(self) -> int:
         """Gets the sequence number for the next batch to be created and increments it.
@@ -300,6 +298,13 @@ class _BatchManagerStep:
             return all(step in self._last_batch_received for step in self.data)
 
         for step_name, rows in self.data.items():
+            # If there are now rows but the last batch was already received, then there
+            # are no more batch to be created
+            if len(rows) == 0 and step_name in self._last_batch_received:
+                return False
+
+            # If there are not enough rows and the last batch was not received yet, then
+            # there is not enough data yet to creata a batch
             if (
                 self.input_batch_size
                 and len(rows) < self.input_batch_size
@@ -339,7 +344,20 @@ class _BatchManagerStep:
         Returns:
             `True` if the batch to be created is the last one. Otherwise, `False`.
         """
-        return all(step in self._last_batch_received for step in self.data.keys())
+        if self.accumulate:
+            return all(step in self._last_batch_received for step in self.data.keys())
+
+        for step_name, rows in self.data.items():
+            if step_name not in self._last_batch_received:
+                return False
+
+            if (
+                step_name in self._last_batch_received
+                and len(rows) > self.input_batch_size
+            ):
+                return False
+
+        return True
 
     @classmethod
     def from_step(
@@ -378,7 +396,7 @@ class _BatchManager:
         """
         self._steps = steps
 
-    def add_batch(self, to_step: str, batch: _Batch) -> Union[_Batch, None]:
+    def add_batch(self, to_step: str, batch: _Batch) -> Iterable[_Batch]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
         processed. Otherwise, it will return `None`.
@@ -399,7 +417,7 @@ class _BatchManager:
 
         step = self._steps[to_step]
         step.add_batch(batch)
-        return step.get_batch()
+        yield from step.get_batches()
 
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":

@@ -65,7 +65,7 @@ class Pipeline(BasePipeline):
                 batch = output_queue.get()
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
-                    if new_batch := batch_manager.add_batch(
+                    for new_batch in batch_manager.add_batch(
                         to_step=step_name, batch=batch
                     ):
                         self._send_batch_to_step(new_batch)
@@ -160,9 +160,10 @@ class _WriteBuffer:
         data = list(self._combine_batches())
 
         with open(self._path, "a") as f:
-            for row in data:
-                json.dump(row, f)
-                f.write("\n")
+            for rows in data:
+                for row in rows:
+                    json.dump(row, f)
+                    f.write("\n")
 
         self._clean_buffers()
 
@@ -229,7 +230,7 @@ class _ProcessWrapper:
                     if batch.last_batch:
                         break
                     batch = self.input_queue.get()
-            self.step._logger.info(f"🏁 Finished running step {self.step.name}")
+            self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
 
         try:
             _run()
@@ -256,6 +257,9 @@ class _ProcessWrapper:
             batch.last_batch = last_batch
             self.output_queue.put(batch)
             if batch.last_batch:
+                self.step._logger.info(
+                    f"🏁 Finished yielding batches from generator step '{batch.step_name}'"
+                )
                 return
             batch = self.input_queue.get()
 
