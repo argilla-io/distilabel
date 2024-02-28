@@ -66,11 +66,11 @@ def is_serverless_endpoint_available(model_id: str) -> bool:
     # 2. Then we check if the model is currently deployed
     try:
         client = InferenceClient()
-        deploy_llms = client.list_deployed_models("text-generation-inference")[
-            "text-generation"
-        ]
-        if model_id in deploy_llms:
-            return True
+        status = client.get_model_status("meta-llama/Llama-2-70b-chat-hf")
+        return (
+            status.state in {"Loadable", "Loaded"}
+            and status.framework == "text-generation-inference"
+        )
     except Exception as e:
         logger.error(e)
 
