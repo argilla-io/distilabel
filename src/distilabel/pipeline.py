@@ -457,7 +457,12 @@ class Pipeline:
             processed_labels = [{} for _ in range(len(dataset))]  # type: ignore
         else:
             batch_labels = []
+            labels = labels if labels is not None else []
             for label in labels:
+                # GPT4 started throwing some weird errors that results in some labels
+                # being None, in the meantime, this allows generating the dataset:
+                if not label:
+                    label = []
                 batch_labels.extend(label)
 
             processed_labels = self._process_batch_labels(
