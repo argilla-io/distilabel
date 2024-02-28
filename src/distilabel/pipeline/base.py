@@ -128,6 +128,7 @@ class BasePipeline(_Serializable):
 
         Args:
             data (Dict[str, Any]): Dict containing the serialized data from a Pipeline.
+
         Raises:
             ValueError: _description_
 
@@ -172,7 +173,9 @@ class _Batch:
 
     @classmethod
     def from_batches(cls, step_name: str, batches: List["_Batch"]) -> "_Batch":
-        """Create a `_Batch` instance from a list of `_Batch` instances.
+        """Create a `_Batch` instance with the outputs from the list of batches that
+        were received from another steps. All the batches must have the same sequence
+        number.
 
         Args:
             step_name: The name of the step that will process the batch.
@@ -190,6 +193,26 @@ class _Batch:
         last_batch = batches[-1].last_batch
         return cls(seq_no, step_name, last_batch, data)
 
+    @classmethod
+    def accumulate(cls, step_name: str, batches: List[List["_Batch"]]) -> "_Batch":
+        """Creates a `_Batch` instance using the data from the list of batches that
+        were received from another steps. The batches will be accumulated in a single
+        list of data.
+
+        Args:
+            step_name: The name of the step that will process the batch.
+            batches: a list containing the list of batches received from the predecessors.
+
+        Returns:
+            A `_Batch` instance.
+        """
+
+        data = []
+        for step_batches in batches:
+            accumulated_data = [row for batch in step_batches for row in batch.data[0]]
+            data.append(accumulated_data)
+        return cls(0, step_name, True, data)
+
 
 class _BatchManager:
     """Class to manage the batches received from the steps. It keeps track of the
@@ -201,16 +224,23 @@ class _BatchManager:
             predecessor step name as the key and a list of batches as the value.
     """
 
-    def __init__(self, batches: Dict[str, Dict[str, List["_Batch"]]]) -> None:
+    def __init__(
+        self,
+        batches: Dict[str, Dict[str, List["_Batch"]]],
+        accumulate_batches_for_steps: List[str],
+    ) -> None:
         """Initialize the `_BatchManager` instance.
 
         Args:
             batches: A dictionary with the step name as the key and a dictionary with the
                 predecessor step name as the key and a list of batches as the value.
+            accumulate_batches_for_steps: A list of steps that will accumulate the
+                received batches.
         """
         self._batches = batches
+        self._accumulate_batches_for_steps = accumulate_batches_for_steps
 
-    def add_batch(self, to_step: str, batch: _Batch) -> Union[List[_Batch], None]:
+    def add_batch(self, to_step: str, batch: _Batch) -> Union[_Batch, None]:
         """Add an output batch from to `to_step`. If all the inputs for `to_step` are
         received, then return the list of batches to be processed.
 
@@ -219,26 +249,42 @@ class _BatchManager:
             batch: The output batch of an step to be processed by `to_step`.
 
         Returns:
-            If all the inputs for `to_step` are received, then return the list of batches
-            to be processed. Otherwise, return `None`.
+            If all the inputs for `to_step` are received, then return a new `_Batch` with
+            the data to be processed from the received batches. Otherwise, return `None`.
 
         Raises:
             ValueError: If a batch from `from_step` to `to_step` with the same sequence
             number was already received.
         """
+
         from_step = batch.step_name
-        for _batch in self._batches[to_step][from_step]:
-            if _batch.seq_no == batch.seq_no:
+
+        batches = self._batches[to_step][from_step]
+        if len(batches) > 1:
+            last_batch_received = batches[-1]
+            if last_batch_received.seq_no > batch.seq_no:
                 raise ValueError(
                     f"A batch from '{from_step}' to '{to_step}' with sequence number "
-                    f"{_batch.seq_no} was already received"
+                    f"{last_batch_received.seq_no} was already received"
+                )
+
+            expected_seq_no = last_batch_received.seq_no + 1
+            if expected_seq_no != batch.seq_no:
+                raise ValueError(
+                    f"Expected sequence number {expected_seq_no} for batch from '{from_step}'"
+                    f" to '{to_step}', but got {batch.seq_no}"
                 )
 
         self._batches[to_step][from_step].append(batch)
 
         if self._step_input_batches_received(to_step):
+            if to_step in self._accumulate_batches_for_steps:
+                batches = list(self._batches[to_step].values())
+                return _Batch.accumulate(to_step, batches)
+
+            # Build a batch with the first batch from each predecessor
             batches = [batches.pop(0) for batches in self._batches[to_step].values()]
-            return batches
+            return _Batch.from_batches(to_step, batches)
 
         return None
 
@@ -253,17 +299,28 @@ class _BatchManager:
             A `_BatchManager` instance.
         """
         batches = {}
+        accumulate_batches_for_steps = []
         for step_name in dag:
+            step: "Step" = dag.get_step(step_name)["step"]
+
             # Skip generator steps as they don't have predecessors
-            if dag.get_step(step_name)["step"].is_generator:
+            if step.is_generator:
                 continue
+
+            # For global steps, accumulate received batches until last one is received
+            if step.is_global:
+                accumulate_batches_for_steps.append(step_name)
+
             batches[step_name] = {}
             for predecessor in dag.get_step_predecessors(step_name):
                 batches[step_name][predecessor] = []
-        return cls(batches)
+        return cls(batches, accumulate_batches_for_steps)
 
     def _step_input_batches_received(self, step_name: str) -> bool:
-        """Check if all the input batches for a step have been received.
+        """Check if all the input batches for a step have been received. If the step is
+        configured to accumulate batches, then it will check if it has received the last
+        batch from all it's predecessors. Otherwise, it will check if it has received at
+        least one batch from all it's predecessors.
 
         Args:
             step_name: The name of the step.
@@ -271,5 +328,9 @@ class _BatchManager:
         Returns:
             A boolean indicating if all the inputs for the step have been received.
         """
+        if step_name in self._accumulate_batches_for_steps:
+            return all(
+                batches[-1].last_batch for batches in self._batches[step_name].values()
+            )
 
         return all(len(batches) > 0 for batches in self._batches[step_name].values())

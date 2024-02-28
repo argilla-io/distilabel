@@ -76,6 +76,48 @@ class TestBatch:
             seq_no=0, step_name="step3", last_batch=False, data=[[], []]
         )
 
+    def test_accumulate(self) -> None:
+        batches = [
+            [
+                _Batch(
+                    seq_no=0,
+                    step_name="step1",
+                    last_batch=False,
+                    data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+                ),
+                _Batch(
+                    seq_no=1,
+                    step_name="step1",
+                    last_batch=True,
+                    data=[[{"a": 4}, {"a": 5}, {"a": 6}]],
+                ),
+            ],
+            [
+                _Batch(
+                    seq_no=0,
+                    step_name="step2",
+                    last_batch=False,
+                    data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
+                ),
+                _Batch(
+                    seq_no=1,
+                    step_name="step2",
+                    last_batch=True,
+                    data=[[{"b": 4}, {"b": 5}, {"b": 6}]],
+                ),
+            ],
+        ]
+
+        batch = _Batch.accumulate("step3", batches)
+
+        assert batch.seq_no == 0
+        assert batch.step_name == "step3"
+        assert batch.last_batch is True
+        assert batch.data == [
+            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
+            [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
+        ]
+
 
 class TestBatchManager:
     def test_add_batch(self) -> None:
@@ -85,7 +127,8 @@ class TestBatchManager:
                     "step1": [],
                     "step2": [],
                 }
-            }
+            },
+            accumulate_batches_for_steps=[],
         )
 
         batch_from_step_1 = _Batch(
@@ -98,7 +141,10 @@ class TestBatchManager:
 
     def test_add_batch_all_batches_received(self) -> None:
         first_batch_from_step_2 = _Batch(
-            seq_no=0, step_name="step2", last_batch=False, data=[[]]
+            seq_no=0,
+            step_name="step2",
+            last_batch=False,
+            data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
         )
         batch_manager = _BatchManager(
             batches={
@@ -106,15 +152,27 @@ class TestBatchManager:
                     "step1": [],
                     "step2": [first_batch_from_step_2],
                 }
-            }
+            },
+            accumulate_batches_for_steps=[],
         )
 
         batch_from_step_1 = _Batch(
-            seq_no=0, step_name="step1", last_batch=False, data=[[]]
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
         )
-        batches = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batch = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
 
-        assert batches == [batch_from_step_1, first_batch_from_step_2]
+        assert batch
+        assert batch.seq_no == 0
+        assert batch.step_name == "step3"
+        assert batch.last_batch is False
+        assert batch.data == [
+            [{"a": 1}, {"a": 2}, {"a": 3}],
+            [{"b": 1}, {"b": 2}, {"b": 3}],
+        ]
+
         assert batch_manager._batches["step3"]["step1"] == []
         assert batch_manager._batches["step3"]["step2"] == []
 
@@ -126,7 +184,8 @@ class TestBatchManager:
                         _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
                     ]
                 }
-            }
+            },
+            accumulate_batches_for_steps=[],
         )
 
         with pytest.raises(
@@ -137,6 +196,64 @@ class TestBatchManager:
                 to_step="step2",
                 batch=_Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]]),
             )
+
+    def test_add_batch_for_accumulate_step(self) -> None:
+        batch_manager = _BatchManager(
+            batches={
+                "step2": {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+                        )
+                    ]
+                }
+            },
+            accumulate_batches_for_steps=["step2"],
+        )
+
+        # It isn't last batch, shouldn't return anything
+        batch = batch_manager.add_batch(
+            to_step="step2",
+            batch=_Batch(
+                seq_no=1,
+                step_name="step1",
+                last_batch=False,
+                data=[[{"a": 4}, {"a": 5}, {"a": 6}]],
+            ),
+        )
+
+        assert batch is None
+
+        batch = batch_manager.add_batch(
+            to_step="step2",
+            batch=_Batch(
+                seq_no=2,
+                step_name="step1",
+                last_batch=True,
+                data=[[{"a": 7}, {"a": 8}, {"a": 9}]],
+            ),
+        )
+
+        assert batch
+        assert batch.seq_no == 0
+        assert batch.step_name == "step2"
+        assert batch.last_batch is True
+        assert batch.data == [
+            [
+                {"a": 1},
+                {"a": 2},
+                {"a": 3},
+                {"a": 4},
+                {"a": 5},
+                {"a": 6},
+                {"a": 7},
+                {"a": 8},
+                {"a": 9},
+            ]
+        ]
 
     def test_from_dag(
         self,
@@ -166,7 +283,8 @@ class TestBatchManager:
             seq_no=0, step_name="step2", last_batch=True, data=[[]]
         )
         batch_manager = _BatchManager(
-            batches={"step3": {"step1": [batch_from_step_1], "step2": []}}
+            batches={"step3": {"step1": [batch_from_step_1], "step2": []}},
+            accumulate_batches_for_steps=[],
         )
 
         assert batch_manager._step_input_batches_received("step3") is False
