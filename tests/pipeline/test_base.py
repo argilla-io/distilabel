@@ -228,3 +228,10 @@ class TestPipelineSerialization:
                 assert filename.exists()
                 pipe_from_file = loader(filename)
                 assert isinstance(pipe_from_file, BasePipeline)
+
+    def test_base_pipeline_signature(self):
+        pipeline = BasePipeline()
+        # Doesn't matter if it's exactly this or not, the test should fail if we change the
+        # way this is created.
+        signature = pipeline._create_signature()
+        assert signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"

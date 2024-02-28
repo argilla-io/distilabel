@@ -48,7 +48,7 @@ class Pipeline(BasePipeline):
         }
 
         write_buffer = _WriteBuffer(
-            path=Path("./data.jsonl"), leaf_steps=self.dag.leaf_steps
+            path=self._cache_dir / "data.jsonl", leaf_steps=self.dag.leaf_steps
         )
         batch_manager = _BatchManager.from_dag(self.dag)
 
@@ -136,6 +136,7 @@ class Pipeline(BasePipeline):
                 that raised the error.
         """
         # TODO: handle the errors in a better way
+        # TODO: Save state of the pipeline at this stage
         print("ERROR", e)
 
 
