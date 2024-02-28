@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import Any, Dict, List, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
@@ -26,8 +26,10 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
+DEFAULT_INPUT_BATCH_SIZE = 50
 
-class Step(BaseModel, _Serializable, ABC):
+
+class _Step(BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -232,7 +234,7 @@ class Step(BaseModel, _Serializable, ABC):
         return step_input_parameter
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Step":
+    def from_dict(cls, data: Dict[str, Any]) -> "_Step":
         """Create a Step from a dict containing the serialized data.
 
         Needs the information from the step and the Pipeline it belongs to.
@@ -270,7 +272,11 @@ class Step(BaseModel, _Serializable, ABC):
         return step
 
 
-class GeneratorStep(Step, ABC):
+class Step(_Step, ABC):
+    input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
+
+
+class GeneratorStep(_Step, ABC):
     """A special kind of `Step` that is able to generate data i.e. it doesn't receive
     any input from the previous steps.
     """
@@ -286,7 +292,7 @@ class GeneratorStep(Step, ABC):
         pass
 
 
-class GlobalStep(Step, ABC):
+class GlobalStep(_Step, ABC):
     """A special kind of `Step` which it's `process` method receives all the data processed
     by their previous steps at once, instead of receiving it in batches. This kind of steps
     are useful when the processing logic requires to have all the data at once, for example
