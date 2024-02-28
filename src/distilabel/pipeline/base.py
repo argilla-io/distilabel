@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
+import itertools
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from typing_extensions import Self
@@ -21,7 +24,12 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from os import PathLike
+
     from distilabel.pipeline.step.base import Step
+
+
+BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 
 class _GlobalPipelineManager:
@@ -60,8 +68,9 @@ class BasePipeline(_Serializable):
         dag: The `DAG` instance that represents the pipeline.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, cache_dir: Optional["PathLike"] = None) -> None:
         self.dag = DAG()
+        self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -71,6 +80,22 @@ class BasePipeline(_Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+
+    def _create_signature(self) -> str:
+        """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
+
+        The main use is to find the pipeline in the cache folder.
+
+        Returns:
+            int: Signature of the pipeline.
+        """
+        hasher = hashlib.sha1()
+        # Use the names of the steps plus adjacency to get a hash
+        dag_dump = self.dump()["dag"]
+        step_ids = [node["id"] for node in dag_dump["nodes"]]
+        adjacency_ids = [adj["id"] for adj in itertools.chain(*dag_dump["adjacency"])]
+        hasher.update("-".join(step_ids + adjacency_ids).encode())
+        return hasher.hexdigest()
 
     def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
         """Run the pipeline. It will set the runtime parameters for the steps and validate
@@ -114,8 +139,21 @@ class BasePipeline(_Serializable):
             step = self.dag.get_step(step_name)["step"]
             step._set_runtime_parameters(step_parameters)
 
+    def _get_state(self) -> Dict[str, Any]:
+        """Obtains the info state of the pipeline.
+
+        MUST BE IMPLEMENTED BY SUBCLASSES.
+        """
+        return {}
+
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
-        return {"dag": self.dag.dump()}
+        from distilabel import __version__
+
+        return {
+            "dag": self.dag.dump(),
+            "_state_": self._get_state(),
+            "_meta_": {"__version__": __version__},
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
