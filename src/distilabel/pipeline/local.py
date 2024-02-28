@@ -26,8 +26,7 @@ if TYPE_CHECKING:
     from os import PathLike
     from queue import Queue
 
-    from distilabel.pipeline.step.base import GeneratorStep, GlobalStep
-    from distilabel.pipeline.step.typing import StepInput
+    from distilabel.pipeline.step.base import GeneratorStep
 
 
 class Pipeline(BasePipeline):
@@ -66,10 +65,9 @@ class Pipeline(BasePipeline):
                 batch = output_queue.get()
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
-                    if batches := batch_manager.add_batch(
+                    if new_batch := batch_manager.add_batch(
                         to_step=step_name, batch=batch
                     ):
-                        new_batch = _Batch.from_batches(step_name, batches)
                         self._send_batch_to_step(new_batch)
 
                 # If step is generator and previous batch was not the last one, then request
@@ -225,8 +223,6 @@ class _ProcessWrapper:
             batch = self.input_queue.get()
             if self.step.is_generator:
                 self._process_generator_step(batch)
-            elif self.step.is_global:
-                self._process_global_step(batch)
             else:
                 while True:
                     self._process_non_generator_step(batch)
@@ -253,7 +249,7 @@ class _ProcessWrapper:
         """
         step = cast("GeneratorStep", self.step)
         self.step._logger.info(
-            f"🧬 Running generator step (one batch only) in {batch.step_name}"
+            f"🧬 Starting yielding batches from generator step '{batch.step_name}'"
         )
         for data, last_batch in step.process(**self.step._runtime_parameters):
             batch.data = [data]
@@ -271,7 +267,13 @@ class _ProcessWrapper:
         Args:
             batch: The batch to process.
         """
-        self.step._logger.info(f"📦 Running batch {batch.seq_no} in {batch.step_name}")
+        if self.step.is_global:
+            self.step._logger.info(f"🌍 Running global step '{batch.step_name}'")
+        else:
+            self.step._logger.info(
+                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
+            )
+
         if self.step.has_multiple_inputs:
             result = next(
                 self.step.process(*batch.data, **self.step._runtime_parameters)
@@ -281,41 +283,7 @@ class _ProcessWrapper:
                 self.step.process(batch.data[0], **self.step._runtime_parameters)
             )
         self.step._logger.info(
-            f"📨 {batch.step_name} sending batch{'' if batch.last_batch else (' ' + str(batch.seq_no))} to next step"
+            f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
         )
         batch.data = [result]
-        self.output_queue.put(batch)
-
-    def _process_global_step(self, batch: _Batch) -> None:
-        """Processes a batch in a global step. It will call the `process` method of the
-        step and send the output data to the `output_queue`, but only whenever all the batches
-        have been recieved, meaning that the `process` will recieve a single object with all
-        the batches combined, and the `output_queue` will recieve a single batch with the
-        output.
-
-        Args:
-            batch: The batch to process.
-        """
-
-        def _handle_inputs(batch: _Batch) -> "StepInput":
-            if self.step.has_multiple_inputs:
-                output = []
-                for b in batch.data:
-                    output.extend(b)
-                return output
-            return batch.data[0]
-
-        step = cast("GlobalStep", self.step)
-        global_input = _handle_inputs(batch=batch)
-
-        if not batch.last_batch:
-            while (batch := self.input_queue.get()).last_batch is False:
-                global_input.extend(_handle_inputs(batch))
-            global_input.extend(_handle_inputs(batch))
-
-        self.step._logger.info(f"🌍 Running global step in {batch.step_name}")
-        global_output = next(
-            step.process(global_input, **self.step._runtime_parameters)
-        )
-        batch.data = [global_output]  # type: ignore
         self.output_queue.put(batch)
