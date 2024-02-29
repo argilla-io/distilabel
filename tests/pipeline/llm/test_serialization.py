@@ -104,6 +104,7 @@ class TestTaskSerialization:
         "name": "OpenAILLM"
         }
     },
+    "input_batch_size": 50,
     "input_mapping": null,
     "output_mapping": {
         "generation": "output"

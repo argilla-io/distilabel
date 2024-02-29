@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List
+from typing import List
 
-from distilabel.pipeline.step.base import GeneratorStep, Step
-from distilabel.pipeline.step.typing import StepInput
+from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step
+from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
 
 
 class DummyGeneratorStep(GeneratorStep):
@@ -23,12 +23,25 @@ class DummyGeneratorStep(GeneratorStep):
     def inputs(self) -> List[str]:
         return []
 
-    def process(self) -> List[Dict[str, Any]]:
-        return [{"instruction": "Generate an email..."}]
+    def process(self) -> GeneratorStepOutput:  # type: ignore
+        yield [{"instruction": "Generate an email..."}], False
 
     @property
     def outputs(self) -> List[str]:
         return ["instruction"]
+
+
+class DummyGlobalStep(GlobalStep):
+    @property
+    def inputs(self) -> List[str]:
+        return ["instruction"]
+
+    def process(self) -> StepOutput:  # type: ignore
+        yield [{"instruction": "Generate an email..."}]
+
+    @property
+    def outputs(self) -> List[str]:
+        return []
 
 
 class DummyStep1(Step):
@@ -36,8 +49,8 @@ class DummyStep1(Step):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def process(self, input: StepInput) -> List[Dict[str, Any]]:
-        return [{"response": "response1"}]
+    def process(self, input: StepInput) -> StepOutput:  # type: ignore
+        yield [{"response": "response1"}]
 
     @property
     def outputs(self) -> List[str]:
@@ -49,8 +62,8 @@ class DummyStep2(Step):
     def inputs(self) -> List[str]:
         return ["response"]
 
-    def process(self, *inputs: StepInput) -> List[Dict[str, Any]]:
-        return [{"response": "response1"}]
+    def process(self, *inputs: StepInput) -> StepOutput:  # type: ignore
+        yield [{"response": "response1"}]
 
     @property
     def outputs(self) -> List[str]:

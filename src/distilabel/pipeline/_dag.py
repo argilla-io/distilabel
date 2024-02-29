@@ -23,6 +23,7 @@ from typing import (
     Iterable,
     List,
     Set,
+    Type,
     Union,
 )
 
@@ -31,7 +32,7 @@ import networkx as nx
 from distilabel.utils.serialization_v2 import _get_class, _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import Step
+    from distilabel.pipeline.step.base import _Step
 
 
 class DAG(_Serializable):
@@ -47,7 +48,7 @@ class DAG(_Serializable):
     def __iter__(self) -> Generator[str, None, None]:
         yield from self.G
 
-    def add_step(self, step: "Step") -> None:
+    def add_step(self, step: "_Step") -> None:
         """Add a step to the DAG.
 
         Args:
@@ -206,7 +207,7 @@ class DAG(_Serializable):
                 else:
                     self._step_inputs_are_available(step)
 
-    def _step_inputs_are_available(self, step: "Step") -> None:
+    def _step_inputs_are_available(self, step: "_Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
         executed in the pipeline i.e. the step will receive list of dictionaries containing
         its inputs as keys.
@@ -228,7 +229,7 @@ class DAG(_Serializable):
                 f" the required inputs. Available inputs are: {inputs_available_for_step}"
             )
 
-    def _validate_step_process_arguments(self, step: "Step") -> None:
+    def _validate_step_process_arguments(self, step: "_Step") -> None:
         """Validates the arguments of the `Step.process` method, checking there is an
         argument with type hint `StepInput` and that all the required runtime parameters
         are provided.
@@ -292,7 +293,7 @@ class DAG(_Serializable):
                 f" to receive outputs from previous steps."
             )
 
-    def _validate_step_process_runtime_parameters(self, step: "Step") -> None:
+    def _validate_step_process_runtime_parameters(self, step: "_Step") -> None:
         """Validates that the required runtime parameters of the step are provided.
 
         Args:
@@ -351,7 +352,7 @@ class DAG(_Serializable):
         for node in data["nodes"]:
             step = node["step"]
             # Create the step instance from the serialized content, dynamically loading the step.
-            cls_step: "Step" = _get_class(**step["_type_info_"])
+            cls_step: Type["_Step"] = _get_class(**step["_type_info_"])
             nodes.append({"step": cls_step.from_dict(step), "id": node["id"]})
 
         # Update the instantiated nodes (the steps), and recreate the digraph.
