@@ -84,6 +84,7 @@ class _Step(BaseModel, _Serializable, ABC):
     pipeline: Annotated[
         Union[BasePipeline, None], Field(exclude=True, repr=False)
     ] = None
+    outputs_mappings: Dict[str, str] = {}
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
@@ -152,14 +153,13 @@ class _Step(BaseModel, _Serializable, ABC):
         return isinstance(self, GlobalStep)
 
     @property
-    @abstractmethod
     def inputs(self) -> List[str]:
         """List of strings with the names of the columns that the step needs as input.
 
         Returns:
             List of strings with the names of the columns that the step needs as input.
         """
-        pass
+        return []
 
     @property
     def outputs(self) -> List[str]:
@@ -171,11 +171,6 @@ class _Step(BaseModel, _Serializable, ABC):
             output.
         """
         return []
-
-    @abstractmethod
-    def process(self, *args: Any, **kwargs: Any) -> StepOutput:
-        """Method that defines the processing logic of the step."""
-        pass
 
     @cached_property
     def process_parameters(self) -> List[inspect.Parameter]:
@@ -233,6 +228,33 @@ class _Step(BaseModel, _Serializable, ABC):
             step_input_parameter = parameter
         return step_input_parameter
 
+    def verify_outputs_mappings(self) -> None:
+        """Verifies that the `outputs_mappings` of the step are valid i.e. the output
+        columns exist in the outputs of the step.
+
+        Raises:
+            ValueError: If the `outputs_mappings` of the step are not valid.
+        """
+        if not self.outputs_mappings:
+            return
+
+        for output in self.outputs_mappings:
+            if output not in self.outputs:
+                raise ValueError(
+                    f"The output column '{output}' doesn't exist in the outputs of the"
+                    f" step '{self.name}'. Outputs of the step are: {self.outputs}."
+                    " Please, review the `outputs_mappings` argument of the step."
+                )
+
+    def get_outputs(self) -> List[str]:
+        """Gets the outputs of the step after the `outputs_mappings`. This method is
+        meant to be used to run validations on the outputs of the step.
+
+        Returns:
+            The outputs of the step after the `outputs_mappings`.
+        """
+        return [self.outputs_mappings.get(output, output) for output in self.outputs]
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "_Step":
         """Create a Step from a dict containing the serialized data.
@@ -275,6 +297,25 @@ class _Step(BaseModel, _Serializable, ABC):
 class Step(_Step, ABC):
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
+    @abstractmethod
+    def process(self, *args: Any, **kwargs: Any) -> StepOutput:
+        """Method that defines the processing logic of the step."""
+        pass
+
+    def process_applying_mappings(self, *args: Any, **kwargs: Any) -> StepOutput:
+        """Runs the `process` method of the step applying the `input_mappings` to the input
+        rows and the `outputs_mappings` to the output rows. This is the function that
+        should be used to run the processing logic of the step.
+
+        Yields:
+            The output rows.
+        """
+        for output_rows in self.process(*args, **kwargs):
+            yield [
+                {self.outputs_mappings.get(k, k): v for k, v in row.items()}
+                for row in output_rows
+            ]
+
 
 class GeneratorStep(_Step, ABC):
     """A special kind of `Step` that is able to generate data i.e. it doesn't receive
@@ -283,13 +324,30 @@ class GeneratorStep(_Step, ABC):
 
     batch_size: int = 50
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
     @abstractmethod
-    def process(self, *args: Any, **kwargs: Any) -> GeneratorStepOutput:  # type: ignore
+    def process(self, *args: Any, **kwargs: Any) -> GeneratorStepOutput:
+        """Method that defines the generation logic of the step. It should yield the
+        output rows and a boolean indicating if it's the last batch or not."""
         pass
+
+    def process_applying_mappings(
+        self, *args: Any, **kwargs: Any
+    ) -> GeneratorStepOutput:
+        """Runs the `process` method of the step applying the `input_mappings` to the input
+        rows and the `outputs_mappings` to the output rows. This is the function that
+        should be used to run the processing logic of the step.
+
+        Yields:
+            The output rows and a boolean indicating if it's the last batch or not.
+        """
+        for output_rows, last_batch in self.process(*args, **kwargs):
+            yield (
+                [
+                    {self.outputs_mappings.get(k, k): v for k, v in row.items()}
+                    for row in output_rows
+                ],
+                last_batch,
+            )
 
 
 class GlobalStep(_Step, ABC):

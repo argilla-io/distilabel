@@ -193,8 +193,9 @@ class DAG(_Serializable):
             self.iter_based_on_trophic_levels(), start=1
         ):
             for step_name in steps:
-                step = self.get_step(step_name)["step"]
+                step: "_Step" = self.get_step(step_name)["step"]
 
+                step.verify_outputs_mappings()
                 self._validate_step_process_arguments(step)
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
@@ -218,7 +219,7 @@ class DAG(_Serializable):
         inputs_available_for_step = [
             output
             for step_name in nx.ancestors(self.G, step.name)
-            for output in self.get_step(step_name)["step"].outputs
+            for output in self.get_step(step_name)["step"].get_outputs()
         ]
         if not all(input in inputs_available_for_step for input in step.inputs):
             step_inputs = ", ".join([f"'{input}'" for input in step.inputs])
