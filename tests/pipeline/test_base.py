@@ -235,3 +235,19 @@ class TestPipelineSerialization:
         # way this is created.
         signature = pipeline._create_signature()
         assert signature == "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+
+        # Maybe not the best place for this test, but does the work for now
+        from distilabel.pipeline.local import Pipeline
+
+        from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+
+        with Pipeline() as pipeline:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            dummy_generator.connect(dummy_step_1)
+            dummy_step_1.connect(dummy_step_2)
+
+        signature = pipeline._create_signature()
+        assert signature == "db5ab2666197d750fb955f5e7a2123eb4911bf9a"

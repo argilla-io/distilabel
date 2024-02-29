@@ -92,11 +92,22 @@ class BasePipeline(_Serializable):
             int: Signature of the pipeline.
         """
         hasher = hashlib.sha1()
-        # Use the names of the steps plus adjacency to get a hash
         dag_dump = self.dump()["dag"]
-        step_ids = [node["id"] for node in dag_dump["nodes"]]
+        steps_info = []
+        for node in dag_dump["nodes"]:
+            steps_info.append(node["id"])
+            steps_info.extend(
+                sorted(
+                    [
+                        f"{arg}-{str(value)}"
+                        for arg, value in node["step"].items()
+                        if not arg.startswith("_")
+                    ]
+                )
+            )
+
         adjacency_ids = [adj["id"] for adj in itertools.chain(*dag_dump["adjacency"])]
-        hasher.update("-".join(step_ids + adjacency_ids).encode())
+        hasher.update(",".join(steps_info + adjacency_ids).encode())
         return hasher.hexdigest()
 
     def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
