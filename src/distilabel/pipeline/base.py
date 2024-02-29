@@ -295,7 +295,10 @@ class _BatchManagerStep:
             `False`.
         """
         if self.accumulate:
-            return all(step in self._last_batch_received for step in self.data)
+            return all(
+                step in self._last_batch_received and len(rows) > 0
+                for step, rows in self.data.items()
+            )
 
         for step_name, rows in self.data.items():
             # If there are now rows but the last batch was already received, then there
@@ -325,7 +328,9 @@ class _BatchManagerStep:
             The list of data needed to create a batch for the step to process.
         """
         if self.accumulate:
-            return list(self.data.values())
+            data = list(self.data.values())
+            self.data = {step_name: [] for step_name in self.data}
+            return data
 
         data = []
         for step_name in self.data:

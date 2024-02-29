@@ -103,7 +103,7 @@ class _Step(BaseModel, _Serializable, ABC):
         self.pipeline._add_step(self)
 
     def connect(
-        self, step: "Step", input_mapping: Union[Dict[str, Any], None] = None
+        self, step: "_Step", input_mapping: Union[Dict[str, Any], None] = None
     ) -> None:
         """Connects the current step to another step in the pipeline, which means that
         the output of this step will be the input of the other step.
