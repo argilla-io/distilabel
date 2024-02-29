@@ -29,7 +29,7 @@ DISTILABEL_FILENAME = "distilabel-file.json"
 SaveFormats = Literal["json", "yaml"]
 
 
-def _get_class(module: str = None, name: str = None) -> Type:
+def _get_class(module: str, name: str) -> Type:
     mod = importlib.import_module(module)
     return getattr(mod, name)
 

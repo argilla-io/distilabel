@@ -274,6 +274,23 @@ class _BatchManagerStep:
                 accumulated=self.accumulate,
             )
 
+    @classmethod
+    def from_step(
+        cls, step: "_Step", predecessors: Iterable[str]
+    ) -> "_BatchManagerStep":
+        """Creates a `_BatchManagerStep` instance from a `_Step` instance and its
+        predecessors.
+
+        Returns:
+            A `_BatchManagerStep` instance.
+        """
+        return cls(
+            step_name=step.name,
+            accumulate=step.is_global,
+            input_batch_size=getattr(step, "input_batch_size", None),
+            data={predecessor: [] for predecessor in predecessors},
+        )
+
     def _get_seq_no(self) -> int:
         """Gets the sequence number for the next batch to be created and increments it.
 
@@ -283,6 +300,31 @@ class _BatchManagerStep:
         seq_no = self._seq_no
         self._seq_no += 1
         return seq_no
+
+    def _get_data(self) -> List[List[Dict[str, Any]]]:
+        """Gets the data needed to create a batch for the step to process. If the step is
+        accumulating data, then it will return a list with all the data received from the
+        predecessors. Otherwise, it will return a list of data with the `input_batch_size`
+        for each predecessor. In addition, it will remove the data used to create the
+        batch from the step's data.
+
+        Returns:
+            The list of data needed to create a batch for the step to process.
+        """
+        if self.accumulate:
+            data = list(self.data.values())
+            self.data = {step_name: [] for step_name in self.data}
+            return data
+
+        data = []
+        for step_name in self.data:
+            step_data = self.data[step_name]
+            data_for_batch, self.data[step_name] = (
+                step_data[: self.input_batch_size],
+                step_data[self.input_batch_size :],
+            )
+            data.append(data_for_batch)
+        return data
 
     def _ready_to_create_batch(self) -> bool:
         """Checks if there is enough data to create a batch for the step. If the step is
@@ -317,31 +359,6 @@ class _BatchManagerStep:
 
         return True
 
-    def _get_data(self) -> List[List[Dict[str, Any]]]:
-        """Gets the data needed to create a batch for the step to process. If the step is
-        accumulating data, then it will return a list with all the data received from the
-        predecessors. Otherwise, it will return a list of data with the `input_batch_size`
-        for each predecessor. In addition, it will remove the data used to create the
-        batch from the step's data.
-
-        Returns:
-            The list of data needed to create a batch for the step to process.
-        """
-        if self.accumulate:
-            data = list(self.data.values())
-            self.data = {step_name: [] for step_name in self.data}
-            return data
-
-        data = []
-        for step_name in self.data:
-            step_data = self.data[step_name]
-            data_for_batch, self.data[step_name] = (
-                step_data[: self.input_batch_size],
-                step_data[self.input_batch_size :],
-            )
-            data.append(data_for_batch)
-        return data
-
     def _last_batch(self) -> bool:
         """Checks if the batch to be created is the last one i.e. if the last batch was
         received from all the predecessors.
@@ -357,29 +374,13 @@ class _BatchManagerStep:
                 return False
 
             if (
-                step_name in self._last_batch_received
+                self.input_batch_size
                 and len(rows) > self.input_batch_size
+                and step_name in self._last_batch_received
             ):
                 return False
 
         return True
-
-    @classmethod
-    def from_step(
-        cls, step: "_Step", predecessors: Iterable[str]
-    ) -> "_BatchManagerStep":
-        """Creates a `_BatchManagerStep` instance from a `_Step` instance and its
-        predecessors.
-
-        Returns:
-            A `_BatchManagerStep` instance.
-        """
-        return cls(
-            step_name=step.name,
-            accumulate=step.is_global,
-            input_batch_size=getattr(step, "input_batch_size", None),
-            data={predecessor: [] for predecessor in predecessors},
-        )
 
 
 class _BatchManager:
@@ -437,6 +438,8 @@ class _BatchManager:
         steps = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
+            if step.is_generator:
+                continue
             batch_manager_step = _BatchManagerStep.from_step(
                 step, dag.get_step_predecessors(step_name)
             )
