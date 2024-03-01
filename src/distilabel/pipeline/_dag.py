@@ -29,7 +29,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.utils.serialization_v2 import _get_class, _Serializable
+from distilabel.utils.serialization import _get_class, _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import _Step

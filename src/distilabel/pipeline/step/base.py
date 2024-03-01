@@ -311,7 +311,7 @@ class _Step(BaseModel, _Serializable, ABC):
         # Before passing the data to instantiate the general step, we have to instantiate some of the internal objects.
         # For the moment we only take into account the LLM, we should take care if we update any of the objects.
         if llm := _data.get("llm"):
-            from distilabel.utils.serialization_v2 import _get_class
+            from distilabel.utils.serialization import _get_class
 
             nested_cls = _get_class(**llm.pop("_type_info_"))
             # Load the LLM and update the _data inplace
