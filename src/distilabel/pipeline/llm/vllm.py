@@ -77,8 +77,5 @@ class vLLM(LLM):
             sampling_params,
             use_tqdm=False,  # type: ignore
         )
-        outputs = [
-            chat_completion.outputs[0].text
-            for chat_completion in raw_outputs.chat_completions
-        ]  # type: ignore
+        outputs = [raw_output.outputs[0].text for raw_output in raw_outputs]  # type: ignore
         return outputs
