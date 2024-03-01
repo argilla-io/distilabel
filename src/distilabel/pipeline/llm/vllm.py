@@ -27,6 +27,10 @@ if TYPE_CHECKING:
 
 
 class vLLM(LLM):
+    """To run `vLLM` the following environment variable needs to be set in advance:
+    `OPENBLAS_NUM_THREADS=1`.
+    """
+    
     model: str
     model_kwargs: Optional[Dict[str, Any]] = {}
     chat_format: Optional[str] = None
