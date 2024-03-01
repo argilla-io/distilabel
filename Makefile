@@ -1,4 +1,4 @@
-sources = src/distilabel tests examples
+sources = src/distilabel tests
 
 .PHONY: format
 format:
