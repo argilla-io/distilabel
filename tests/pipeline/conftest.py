@@ -15,7 +15,12 @@
 import pytest
 from distilabel.pipeline.local import Pipeline
 
-from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+from tests.pipeline.utils import (
+    DummyGeneratorStep,
+    DummyGlobalStep,
+    DummyStep1,
+    DummyStep2,
+)
 
 
 @pytest.fixture(name="pipeline")
@@ -36,3 +41,8 @@ def dummy_step_2_fixture(pipeline: "Pipeline") -> DummyStep2:
 @pytest.fixture(name="dummy_generator_step")
 def dummy_generator_step_fixture(pipeline: "Pipeline") -> DummyGeneratorStep:
     return DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+
+
+@pytest.fixture(name="dummy_global_step")
+def dummy_global_step_fixture(pipeline: "Pipeline") -> DummyGlobalStep:
+    return DummyGlobalStep(name="dummy_global_step", pipeline=pipeline)
