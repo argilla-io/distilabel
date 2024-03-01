@@ -119,7 +119,7 @@ class _Step(BaseModel, _Serializable, ABC):
                 input columns of the other step. Defaults to `None`.
         """
         if input_mappings is not None:
-            self.input_mappings = input_mappings
+            step.input_mappings = input_mappings
         self.pipeline._add_edge(self.name, step.name)  # type: ignore
 
     def load(self) -> None:
