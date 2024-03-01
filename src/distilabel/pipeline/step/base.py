@@ -16,7 +16,7 @@ import inspect
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
@@ -84,7 +84,8 @@ class _Step(BaseModel, _Serializable, ABC):
     pipeline: Annotated[
         Union[BasePipeline, None], Field(exclude=True, repr=False)
     ] = None
-    outputs_mappings: Dict[str, str] = {}
+    input_mappings: Dict[str, str] = {}
+    output_mappings: Dict[str, str] = {}
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
@@ -104,20 +105,21 @@ class _Step(BaseModel, _Serializable, ABC):
         self.pipeline._add_step(self)
 
     def connect(
-        self, step: "_Step", input_mapping: Union[Dict[str, Any], None] = None
+        self, step: "_Step", input_mappings: Union[Dict[str, str], None] = None
     ) -> None:
         """Connects the current step to another step in the pipeline, which means that
         the output of this step will be the input of the other step.
 
         Args:
             step: The step to connect to.
-            input_mapping: A dictionary with the mapping of the columns from the output
+            input_mappings: A dictionary with the mapping of the columns from the output
                 of the current step to the input of the other step. If `None`, the
                 columns will be mapped by name. This is useful when the names of the
                 output columns of the current step are different from the names of the
                 input columns of the other step. Defaults to `None`.
         """
-
+        if input_mappings is not None:
+            self.input_mappings = input_mappings
         self.pipeline._add_edge(self.name, step.name)  # type: ignore
 
     def load(self) -> None:
@@ -228,6 +230,24 @@ class _Step(BaseModel, _Serializable, ABC):
             step_input_parameter = parameter
         return step_input_parameter
 
+    def verify_inputs_mappings(self) -> None:
+        """Verifies that the `inputs_mappings` of the step are valid i.e. the input
+        columns exist in the inputs of the step.
+
+        Raises:
+            ValueError: If the `inputs_mappings` of the step are not valid.
+        """
+        if not self.input_mappings:
+            return
+
+        for input in self.input_mappings:
+            if input not in self.inputs:
+                raise ValueError(
+                    f"The input column '{input}' doesn't exist in the inputs of the"
+                    f" step '{self.name}'. Inputs of the step are: {self.inputs}."
+                    " Please, review the `inputs_mappings` argument of the step."
+                )
+
     def verify_outputs_mappings(self) -> None:
         """Verifies that the `outputs_mappings` of the step are valid i.e. the output
         columns exist in the outputs of the step.
@@ -235,16 +255,25 @@ class _Step(BaseModel, _Serializable, ABC):
         Raises:
             ValueError: If the `outputs_mappings` of the step are not valid.
         """
-        if not self.outputs_mappings:
+        if not self.output_mappings:
             return
 
-        for output in self.outputs_mappings:
+        for output in self.output_mappings:
             if output not in self.outputs:
                 raise ValueError(
                     f"The output column '{output}' doesn't exist in the outputs of the"
                     f" step '{self.name}'. Outputs of the step are: {self.outputs}."
                     " Please, review the `outputs_mappings` argument of the step."
                 )
+
+    def get_inputs(self) -> List[str]:
+        """Gets the inputs of the step after the `input_mappings`. This method is meant
+        to be used to run validations on the inputs of the step.
+
+        Returns:
+            The inputs of the step after the `input_mappings`.
+        """
+        return [self.input_mappings.get(input, input) for input in self.inputs]
 
     def get_outputs(self) -> List[str]:
         """Gets the outputs of the step after the `outputs_mappings`. This method is
@@ -253,7 +282,7 @@ class _Step(BaseModel, _Serializable, ABC):
         Returns:
             The outputs of the step after the `outputs_mappings`.
         """
-        return [self.outputs_mappings.get(output, output) for output in self.outputs]
+        return [self.output_mappings.get(output, output) for output in self.outputs]
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "_Step":
@@ -302,7 +331,9 @@ class Step(_Step, ABC):
         """Method that defines the processing logic of the step."""
         pass
 
-    def process_applying_mappings(self, *args: Any, **kwargs: Any) -> StepOutput:
+    def process_applying_mappings(
+        self, *args: List[Dict[str, Any]], **kwargs: Any
+    ) -> StepOutput:
         """Runs the `process` method of the step applying the `input_mappings` to the input
         rows and the `outputs_mappings` to the output rows. This is the function that
         should be used to run the processing logic of the step.
@@ -310,11 +341,35 @@ class Step(_Step, ABC):
         Yields:
             The output rows.
         """
-        for output_rows in self.process(*args, **kwargs):
+
+        inputs = self._apply_input_mappings(args) if self.input_mappings else args
+
+        for output_rows in self.process(*inputs, **kwargs):
             yield [
-                {self.outputs_mappings.get(k, k): v for k, v in row.items()}
+                {self.output_mappings.get(k, k): v for k, v in row.items()}
                 for row in output_rows
             ]
+
+    def _apply_input_mappings(
+        self, inputs: Tuple[List[Dict[str, Any]], ...]
+    ) -> List[List[Dict[str, Any]]]:
+        """Applies the `input_mappings` to the input rows.
+
+        Args:
+            inputs: The input rows.
+
+        Returns:
+            The input rows with the `input_mappings` applied.
+        """
+        reverted_input_mappings = {v: k for k, v in self.input_mappings.items()}
+
+        return [
+            [
+                {reverted_input_mappings.get(k, k): v for k, v in row.items()}
+                for row in row_inputs
+            ]
+            for row_inputs in inputs
+        ]
 
 
 class GeneratorStep(_Step, ABC):
@@ -333,17 +388,18 @@ class GeneratorStep(_Step, ABC):
     def process_applying_mappings(
         self, *args: Any, **kwargs: Any
     ) -> GeneratorStepOutput:
-        """Runs the `process` method of the step applying the `input_mappings` to the input
-        rows and the `outputs_mappings` to the output rows. This is the function that
-        should be used to run the processing logic of the step.
+        """Runs the `process` method of the step applying the `outputs_mappings` to the
+        output rows. This is the function that should be used to run the generation logic
+        of the step.
 
         Yields:
             The output rows and a boolean indicating if it's the last batch or not.
         """
+
         for output_rows, last_batch in self.process(*args, **kwargs):
             yield (
                 [
-                    {self.outputs_mappings.get(k, k): v for k, v in row.items()}
+                    {self.output_mappings.get(k, k): v for k, v in row.items()}
                     for row in output_rows
                 ],
                 last_batch,

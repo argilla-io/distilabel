@@ -195,6 +195,7 @@ class DAG(_Serializable):
             for step_name in steps:
                 step: "_Step" = self.get_step(step_name)["step"]
 
+                step.verify_inputs_mappings()
                 step.verify_outputs_mappings()
                 self._validate_step_process_arguments(step)
 
@@ -221,8 +222,8 @@ class DAG(_Serializable):
             for step_name in nx.ancestors(self.G, step.name)
             for output in self.get_step(step_name)["step"].get_outputs()
         ]
-        if not all(input in inputs_available_for_step for input in step.inputs):
-            step_inputs = ", ".join([f"'{input}'" for input in step.inputs])
+        step_inputs = step.get_inputs()
+        if not all(input in inputs_available_for_step for input in step_inputs):
             raise ValueError(
                 f"Step '{step.name}' requires inputs {step_inputs} which are not"
                 f" available when the step gets to be executed in the pipeline."
