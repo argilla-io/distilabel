@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
+from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -30,6 +32,7 @@ class LLM(BaseModel, _Serializable, ABC):
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _logger: logging.Logger = PrivateAttr(get_logger("llm"))
 
     @abstractmethod
     def load(self) -> None:
