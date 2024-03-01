@@ -24,7 +24,7 @@ from typing_extensions import Annotated, get_args, get_origin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
-from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
+from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
@@ -327,7 +327,7 @@ class Step(_Step, ABC):
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
     @abstractmethod
-    def process(self, *args: Any, **kwargs: Any) -> StepOutput:
+    def process(self, *args: StepInput, **kwargs: Any) -> StepOutput:
         """Method that defines the processing logic of the step."""
         pass
 
@@ -346,9 +346,24 @@ class Step(_Step, ABC):
 
         for output_rows in self.process(*inputs, **kwargs):
             yield [
-                {self.output_mappings.get(k, k): v for k, v in row.items()}
+                {
+                    # Apply output mapping and revert input mapping
+                    self.input_mappings.get(self.output_mappings.get(k, k), k): v
+                    for k, v in row.items()
+                }
                 for row in output_rows
             ]
+
+    def _revert_input_mappings(self, input: Dict[str, Any]) -> Dict[str, Any]:
+        """Reverts the `input_mappings` of the step to the input row.
+
+        Args:
+            input: The input row.
+
+        Returns:
+            The input row with the `input_mappings` reverted.
+        """
+        return {self.input_mappings.get(k, k): v for k, v in input.items()}
 
     def _apply_input_mappings(
         self, inputs: Tuple[List[Dict[str, Any]], ...]
