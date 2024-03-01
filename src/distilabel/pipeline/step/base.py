@@ -16,7 +16,7 @@ import inspect
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
@@ -24,7 +24,9 @@ from typing_extensions import Annotated, get_args, get_origin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
-from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.base import GeneratorStepOutput, StepInput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
@@ -327,13 +329,13 @@ class Step(_Step, ABC):
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
     @abstractmethod
-    def process(self, *args: StepInput, **kwargs: Any) -> StepOutput:
+    def process(self, *args: "StepInput", **kwargs: Any) -> "StepOutput":
         """Method that defines the processing logic of the step."""
         pass
 
     def process_applying_mappings(
         self, *args: List[Dict[str, Any]], **kwargs: Any
-    ) -> StepOutput:
+    ) -> "StepOutput":
         """Runs the `process` method of the step applying the `input_mappings` to the input
         rows and the `outputs_mappings` to the output rows. This is the function that
         should be used to run the processing logic of the step.
@@ -395,14 +397,14 @@ class GeneratorStep(_Step, ABC):
     batch_size: int = 50
 
     @abstractmethod
-    def process(self, *args: Any, **kwargs: Any) -> GeneratorStepOutput:
+    def process(self, *args: Any, **kwargs: Any) -> "GeneratorStepOutput":
         """Method that defines the generation logic of the step. It should yield the
         output rows and a boolean indicating if it's the last batch or not."""
         pass
 
     def process_applying_mappings(
         self, *args: Any, **kwargs: Any
-    ) -> GeneratorStepOutput:
+    ) -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
