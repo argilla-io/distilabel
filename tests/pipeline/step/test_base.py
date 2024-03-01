@@ -202,6 +202,8 @@ class TestStepSerialization:
         assert step.dump() == {
             "name": "dummy",
             "input_batch_size": 50,
+            "input_mappings": {},
+            "output_mappings": {},
             "_type_info_": {
                 "module": "tests.pipeline.step.test_base",
                 "name": "DummyStep",
