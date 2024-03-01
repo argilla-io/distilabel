@@ -36,7 +36,7 @@ class vLLM(LLM):
 
     def load(self) -> None:
         self._model = _vLLM(self.model, **self.model_kwargs)  # type: ignore
-        self._tokenizer = self._model.get_tokenizer()
+        self._tokenizer = self._model.get_tokenizer()  # type: ignore
 
     @property
     def model_name(self) -> str:
@@ -71,10 +71,14 @@ class vLLM(LLM):
             **extra_sampling_params,
         )
 
-        outputs = []
-        for input in inputs:
-            chat_completions = self._model.generate(  # type: ignore
-                self.prepare_input(input), sampling_params, use_tqdm=False
-            )
-            outputs.append(chat_completions[0].outputs[0].text)  # type: ignore
+        prepared_inputs = [self.prepare_input(input) for input in inputs]
+        raw_outputs = self._model.generate(  # type: ignore
+            prepared_inputs,
+            sampling_params,
+            use_tqdm=False,  # type: ignore
+        )
+        outputs = [
+            chat_completion.outputs[0].text
+            for chat_completion in raw_outputs.chat_completions
+        ]  # type: ignore
         return outputs
