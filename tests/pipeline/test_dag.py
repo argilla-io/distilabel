@@ -20,6 +20,7 @@ import pytest
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import GeneratorStep, Step
+from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 from tests.pipeline.utils import DummyGeneratorStep
 
@@ -168,7 +169,7 @@ class TestDAG:
 
         with pytest.raises(
             ValueError,
-            match="Step 'dummy_step_2' requires inputs 'response'",
+            match=r"Step 'dummy_step_2' requires inputs \['response'\]",
         ):
             dag.validate()
 
@@ -255,6 +256,62 @@ class TestDAG:
         with pytest.raises(
             ValueError,
             match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
+        ):
+            dag.validate()
+
+    def test_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
+        class DummyStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+                yield []
+
+        step = DummyStep(
+            name="dummy_step",
+            pipeline=pipeline,
+            input_mappings={"i_do_not_exist": "prompt"},
+        )
+
+        dag = DAG()
+        dag.add_step(step)
+
+        with pytest.raises(
+            ValueError,
+            match="The input column 'i_do_not_exist' doesn't exist in the inputs",
+        ):
+            dag.validate()
+
+    def test_step_invalid_output_mappings(self, pipeline: "Pipeline") -> None:
+        class DummyStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+                yield []
+
+        step = DummyStep(
+            name="dummy_step",
+            pipeline=pipeline,
+            output_mappings={"i_do_not_exist": "generation"},
+        )
+
+        dag = DAG()
+        dag.add_step(step)
+
+        with pytest.raises(
+            ValueError,
+            match="The output column 'i_do_not_exist' doesn't exist in the outputs",
         ):
             dag.validate()
 

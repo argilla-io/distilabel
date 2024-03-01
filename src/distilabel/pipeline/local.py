@@ -252,7 +252,9 @@ class _ProcessWrapper:
         self.step._logger.info(
             f"🧬 Starting yielding batches from generator step '{batch.step_name}'"
         )
-        for data, last_batch in step.process(**self.step._runtime_parameters):
+        for data, last_batch in step.process_applying_mappings(
+            **self.step._runtime_parameters
+        ):
             batch.data = [data]
             batch.last_batch = last_batch
             self.output_queue.put(batch)
@@ -280,11 +282,15 @@ class _ProcessWrapper:
 
         if self.step.has_multiple_inputs:
             result = next(
-                self.step.process(*batch.data, **self.step._runtime_parameters)
+                self.step.process_applying_mappings(
+                    *batch.data, **self.step._runtime_parameters
+                )
             )
         else:
             result = next(
-                self.step.process(batch.data[0], **self.step._runtime_parameters)
+                self.step.process_applying_mappings(
+                    batch.data[0], **self.step._runtime_parameters
+                )
             )
         self.step._logger.info(
             f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
