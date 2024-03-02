@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr
 from transformers import Pipeline, pipeline
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.task.typing import ChatType
 
 
 class TransformersLLM(LLM):
@@ -65,7 +67,7 @@ class TransformersLLM(LLM):
     def model_name(self) -> str:
         return self.model
 
-    def prepare_input(self, input: ChatType) -> str:
+    def prepare_input(self, input: "ChatType") -> str:
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
@@ -74,20 +76,24 @@ class TransformersLLM(LLM):
 
     def generate(
         self,
-        input: ChatType,
+        inputs: List["ChatType"],
         max_new_tokens: int = 128,
         temperature: float = 0.1,
         repetition_penalty: float = 1.1,
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-    ) -> str:
-        return self._pipeline(  # type: ignore
-            self.prepare_input(input=input),
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            top_p=top_p,
-            top_k=top_k,
-            do_sample=do_sample,
-        )[0]["generated_text"]
+    ) -> List[str]:
+        outputs = []
+        for input in inputs:
+            output = self._pipeline(  # type: ignore
+                self.prepare_input(input=input),
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                repetition_penalty=repetition_penalty,
+                top_p=top_p,
+                top_k=top_k,
+                do_sample=do_sample,
+            )
+            outputs.append(output[0]["generated_text"])  # type: ignore
+        return outputs

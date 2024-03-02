@@ -13,13 +13,15 @@
 # limitations under the License.
 
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from llama_cpp import Llama
 from pydantic import PrivateAttr
 
 from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.step.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.task.typing import ChatType
 
 
 class LlamaCppLLM(LLM):
@@ -40,26 +42,28 @@ class LlamaCppLLM(LLM):
 
     @property
     def model_name(self) -> str:
-        return self._model.model_path
-
-    def prepare_input(self, input: ChatType) -> ChatType:
-        return input
+        return self._model.model_path  # type: ignore
 
     def generate(
         self,
-        input: ChatType,
+        inputs: List["ChatType"],
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> str:
-        chat_completions = self._model.create_chat_completion(  # type: ignore
-            messages=input,  # type: ignore
-            max_tokens=max_new_tokens,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            temperature=temperature,
-            top_p=top_p,
-        )
-        return chat_completions["choices"][0]["message"]["content"]  # type: ignore
+    ) -> List[str]:
+        outputs = []
+        for input in inputs:
+            chat_completions = self._model.create_chat_completion(  # type: ignore
+                messages=input,  # type: ignore
+                max_tokens=max_new_tokens,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
+                temperature=temperature,
+                top_p=top_p,
+            )
+            outputs.append(
+                chat_completions["choices"][0]["message"]["content"]  # type: ignore
+            )
+        return outputs
