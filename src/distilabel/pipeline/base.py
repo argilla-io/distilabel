@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
+from pydantic import BaseModel
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
@@ -82,6 +83,7 @@ class BasePipeline(_Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+        self._cache()
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
@@ -123,6 +125,7 @@ class BasePipeline(_Serializable):
         """
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
+        self._load_from_cache()
 
     def _add_step(self, step: "_Step") -> None:
         """Add a step to the pipeline.
@@ -191,6 +194,37 @@ class BasePipeline(_Serializable):
             return pipe
         else:
             raise ValueError("No DAG found in the data dictionary")
+
+    @property
+    def _cache_filename(self) -> Path:
+        return self._cache_dir / f"{self._create_signature()}/pipeline.json"
+
+    def _cache(self) -> None:
+        if not self._cache_filename.exists():
+            self.save(path=self._cache_filename, format="json")
+
+    def _load_from_cache(self) -> None:
+        """Try to load the Pipeline from the cache dir.
+
+        WIP
+
+        Args:
+            dirname (str): _description_
+
+        Returns:
+            BasePipeline: _description_
+        """
+        # Store the _cache_filename in a variable to avoid it changing when refreshing
+        # the dag
+        cache_filename = self._cache_filename
+        if cache_filename.exists():
+            # Refresh the DAG to avoid errors when it's created within a context manager
+            # (it will check the steps aren't already defined for the DAG).
+            self.dag = DAG()
+            new_class = self.from_json(cache_filename)
+            # Update the internal dag
+            self.dag.G = new_class.dag.G
+            self._logger.info("💾 Load pipeline from cache")
 
 
 @dataclass
@@ -494,3 +528,7 @@ class _BatchManager:
             )
             steps[step_name] = batch_manager_step
         return cls(steps)
+
+
+class _State(BaseModel):
+    pass

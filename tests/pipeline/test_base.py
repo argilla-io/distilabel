@@ -738,4 +738,38 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_step_2)
 
         signature = pipeline._create_signature()
-        assert signature == "db5ab2666197d750fb955f5e7a2123eb4911bf9a"
+        assert signature == "205b3556b6b3e8db5c6b7b8e32a1364aec2eaa99"
+
+    def test_load_from_cache(self):
+        # Maybe not the best place for this test, but does the work for now
+        # TODO: IMPLEMENT A WAY TO CHECK FOR A CACHE HIT
+        from distilabel.pipeline.base import BasePipeline
+
+        from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with BasePipeline(tmpdirname) as pipeline:
+                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+                dummy_generator.connect(dummy_step_1)
+                dummy_step_1.connect(dummy_step_2)
+                assert not pipeline._cache_filename.exists()
+                pipeline.run()
+            # Check the file exists AFTER we are out of the context manager
+            assert pipeline._cache_filename.exists()
+
+            with BasePipeline(tmpdirname) as pipe:
+                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+                dummy_generator.connect(dummy_step_1)
+                dummy_step_1.connect(dummy_step_2)
+                cache_filename = pipe._cache_filename
+                assert pipe._cache_filename.exists()
+                # Run the pipeline and check the _cache_filename is the same afterwards
+                pipe.run()
+                assert pipe._cache_filename.exists()
+                assert cache_filename == pipe._cache_filename

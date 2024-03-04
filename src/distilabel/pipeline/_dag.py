@@ -29,7 +29,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.utils.serialization_v2 import _get_class, _Serializable
+from distilabel.pipeline.serialization import _get_class, _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import _Step
@@ -357,5 +357,6 @@ class DAG(_Serializable):
 
         # Update the instantiated nodes (the steps), and recreate the digraph.
         data.update({"nodes": nodes})
+
         dag.G = json_graph.adjacency_graph(data)
         return dag
