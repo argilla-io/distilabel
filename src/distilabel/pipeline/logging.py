@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+import os
+import warnings
 
 from rich.logging import RichHandler
 
@@ -29,4 +31,14 @@ def get_logger(suffix: str) -> logging.Logger:
     # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
 
-    return logging.getLogger(f"distilabel.{suffix}")
+    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO")
+    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+        warnings.warn(
+            f"Invalid log level '{log_level}', using default 'INFO' instead.",
+            stacklevel=2,
+        )
+        log_level = "INFO"
+
+    logger = logging.getLogger(f"distilabel.{suffix}")
+    logger.setLevel(log_level)
+    return logger

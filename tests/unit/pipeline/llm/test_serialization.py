@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List
 
 from distilabel.pipeline.llm.base import LLM
 from distilabel.pipeline.llm.openai import OpenAILLM
@@ -42,22 +42,9 @@ class TestLLMSerialization:
 
 class Task(Step):
     llm: LLM
-    input_mapping: Optional[Dict[str, str]] = None
-    output_mapping: Optional[Dict[str, str]] = None
 
     def load(self) -> None:
         self.llm.load()
-
-        self.input_mapping = (
-            {input: input for input in self.inputs}
-            if self.input_mapping is None
-            else self.input_mapping
-        )
-        self.output_mapping = (
-            {output: output for output in self.outputs}
-            if self.output_mapping is None
-            else self.output_mapping
-        )
 
     @property
     def inputs(self) -> List[str]:
@@ -105,12 +92,12 @@ class TestTaskSerialization:
         }
     },
     "input_batch_size": 50,
-    "input_mapping": null,
-    "output_mapping": {
+    "input_mappings": {},
+    "output_mappings": {
         "generation": "output"
     },
     "_type_info_": {
-        "module": "test_serialization",
+        "module": "tests.unit.pipeline.llm.test_serialization",
         "name": "Task"
     }
     }"""
@@ -121,7 +108,7 @@ class TestTaskSerialization:
             task = Task(
                 name="generate_response",
                 llm=OpenAILLM(api_key="sk-***"),
-                output_mapping={"generation": "output"},
+                output_mappings={"generation": "output"},
             )
             assert task.dump() == self.task_dump
 

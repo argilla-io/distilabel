@@ -13,12 +13,12 @@
 # limitations under the License.
 
 from functools import lru_cache
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 from datasets import load_dataset
 
-from distilabel.pipeline.step.base import GeneratorStep
+from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter
 from distilabel.pipeline.step.typing import GeneratorStepOutput
 
 
@@ -72,18 +72,20 @@ class LoadHubDataset(GeneratorStep):
     - `output`: dynamic, based on the dataset being loaded.
     """
 
+    repo_id: RuntimeParameter[str] = None
+    split: RuntimeParameter[str] = None
+    config: Optional[RuntimeParameter[str]] = None
+
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         self._values["dataset"] = load_dataset(
-            self._runtime_parameters["repo_id"],
-            self._runtime_parameters.get("config"),
-            split=self._runtime_parameters.get("split", "train"),
+            self.repo_id,
+            self.config,
+            split=self.split,
             streaming=True,
         )
 
-    def process(  # type: ignore
-        self, repo_id: str, split: str, config: Union[str, None] = None
-    ) -> GeneratorStepOutput:
+    def process(self) -> GeneratorStepOutput:
         """Yields batches from the loaded dataset from the Hugging Face Hub.
 
         Yield:
@@ -132,8 +134,8 @@ class LoadHubDataset(GeneratorStep):
             The number of examples in the dataset.
         """
         dataset_info = self._get_dataset_info()
-        split = self._runtime_parameters.get("split")
-        if self._runtime_parameters.get("config"):
+        split = self.split
+        if self.config:
             return dataset_info["splits"][split]["num_examples"]
         return dataset_info["default"]["splits"][split]["num_examples"]
 
@@ -144,7 +146,7 @@ class LoadHubDataset(GeneratorStep):
             The columns of the dataset.
         """
         dataset_info = self._get_dataset_info()
-        if self._runtime_parameters.get("config"):
+        if self.config:
             return list(dataset_info["features"].keys())
         return list(dataset_info["default"]["features"].keys())
 
@@ -154,6 +156,6 @@ class LoadHubDataset(GeneratorStep):
         Returns:
             The dataset information.
         """
-        repo_id = self._runtime_parameters.get("repo_id")
-        config = self._runtime_parameters.get("config")
+        repo_id = self.repo_id
+        config = self.config
         return _get_hf_dataset_info(repo_id, config)

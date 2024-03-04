@@ -18,7 +18,7 @@ from unittest import mock
 from distilabel.pipeline.base import _Batch
 from distilabel.pipeline.local import Pipeline
 
-from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import GeneratorStep

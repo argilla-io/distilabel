@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
+from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
-from distilabel.pipeline.step.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.task.typing import ChatType
 
 
 class LLM(BaseModel, _Serializable, ABC):
@@ -28,15 +32,12 @@ class LLM(BaseModel, _Serializable, ABC):
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _logger: logging.Logger = PrivateAttr(get_logger("llm"))
 
     @abstractmethod
     def load(self) -> None:
         pass
 
     @abstractmethod
-    def prepare_input(self, input: ChatType) -> Any:
-        pass
-
-    @abstractmethod
-    def generate(self, input: Any, *args: Any, **kwargs: Any) -> str:
+    def generate(self, inputs: List["ChatType"], *args: Any, **kwargs: Any) -> str:
         pass

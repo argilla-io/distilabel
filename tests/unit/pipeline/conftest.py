@@ -15,12 +15,7 @@
 import pytest
 from distilabel.pipeline.local import Pipeline
 
-from tests.pipeline.utils import (
-    DummyGeneratorStep,
-    DummyGlobalStep,
-    DummyStep1,
-    DummyStep2,
-)
+from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
 
 @pytest.fixture(name="pipeline")
