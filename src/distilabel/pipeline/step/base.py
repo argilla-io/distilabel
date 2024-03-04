@@ -33,20 +33,13 @@ if TYPE_CHECKING:
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
+
 _T = TypeVar("_T")
 
-
-class _DefaultValueRuntimeParameter:
-    pass
-
-
-_DEFAULT_VALUE_RUNTIME_PARAMETER = _DefaultValueRuntimeParameter()
 _RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
 
 RuntimeParameter = Annotated[
-    _T,
-    Field(default=_DEFAULT_VALUE_RUNTIME_PARAMETER),
-    _RUNTIME_PARAMETER_ANNOTATION,
+    Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
 ]
 """Used to mark the attributes of a `Step` as a runtime parameter."""
 
@@ -489,8 +482,7 @@ def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
     # Case 1: `runtime_param: RuntimeParameter[int]`
     # Mandatory runtime parameter that needs to be provided when running the pipeline
     if _RUNTIME_PARAMETER_ANNOTATION in field.metadata:
-        is_optional = field.default is not _DEFAULT_VALUE_RUNTIME_PARAMETER
-        return True, is_optional
+        return True, field.default is not None
 
     # Case 2: `runtime_param: Union[RuntimeParameter[int], None] = None`
     # Optional runtime parameter that doesn't need to be provided when running the pipeline

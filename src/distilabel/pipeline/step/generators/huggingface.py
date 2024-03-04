@@ -72,8 +72,8 @@ class LoadHubDataset(GeneratorStep):
     - `output`: dynamic, based on the dataset being loaded.
     """
 
-    repo_id: RuntimeParameter[str]
-    split: RuntimeParameter[str]
+    repo_id: RuntimeParameter[str] = None
+    split: RuntimeParameter[str] = None
     config: Optional[RuntimeParameter[str]] = None
 
     def load(self) -> None:
