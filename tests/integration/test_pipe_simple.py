@@ -16,26 +16,28 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.base import RuntimeParameter, Step
 from distilabel.pipeline.step.generators.huggingface import LoadHubDataset
 from distilabel.pipeline.step.typing import StepInput
 
 
 class RenameColumns(Step):
+    rename_mappings: RuntimeParameter[Dict[str, str]]
+
     @property
     def inputs(self) -> List[str]:
         return []
 
     @property
     def outputs(self) -> List[str]:
-        return list(self._runtime_parameters.get("rename_mappings", {}).values())
+        return list(self.rename_mappings.values())
 
-    def process(
-        self, inputs: StepInput, rename_mappings: dict
-    ) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         outputs = []
         for input in inputs:
-            outputs.append({rename_mappings.get(k, k): v for k, v in input.items()})
+            outputs.append(
+                {self.rename_mappings.get(k, k): v for k, v in input.items()}
+            )
         yield outputs
 
 
