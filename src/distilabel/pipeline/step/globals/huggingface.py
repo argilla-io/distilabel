@@ -40,7 +40,7 @@ class PushToHub(GlobalStep):
         dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
         dataset.push_to_hub(
-            self.repo_id,  # type: ignore
+            self.repo_id,
             split=self.split,
             private=self.private,
             token=self.token or os.getenv("HF_TOKEN"),

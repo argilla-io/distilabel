@@ -44,13 +44,11 @@ _DEFAULT_VALUE_RUNTIME_PARAMETER = _DefaultValueRuntimeParameter()
 _RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
 
 RuntimeParameter = Annotated[
-    Union[_T, None],
+    _T,
     Field(default=_DEFAULT_VALUE_RUNTIME_PARAMETER),
     _RUNTIME_PARAMETER_ANNOTATION,
 ]
-"""Used to mark the attributes of a `Step` as a runtime parameter. All the runtime parameters
-have `None` as default value as they don't need to be provided when instatiating the step.
-"""
+"""Used to mark the attributes of a `Step` as a runtime parameter."""
 
 
 class _Step(BaseModel, _Serializable, ABC):

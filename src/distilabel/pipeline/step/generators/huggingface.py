@@ -79,7 +79,7 @@ class LoadHubDataset(GeneratorStep):
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         self._values["dataset"] = load_dataset(
-            self.repo_id,  # type: ignore
+            self.repo_id,
             self.config,
             split=self.split,
             streaming=True,
