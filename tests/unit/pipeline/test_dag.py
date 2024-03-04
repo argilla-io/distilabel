@@ -22,7 +22,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter, Step
 from distilabel.pipeline.step.typing import StepInput
 
-from tests.pipeline.utils import DummyGeneratorStep
+from .utils import DummyGeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.typing import (

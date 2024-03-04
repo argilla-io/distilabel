@@ -97,7 +97,7 @@ class TestTaskSerialization:
         "generation": "output"
     },
     "_type_info_": {
-        "module": "tests.pipeline.llm.test_serialization",
+        "module": "tests.unit.pipeline.llm.test_serialization",
         "name": "Task"
     }
     }"""
