@@ -205,7 +205,7 @@ class TestStepSerialization:
             "input_mappings": {},
             "output_mappings": {},
             "_type_info_": {
-                "module": "tests.pipeline.step.test_base",
+                "module": "tests.unit.pipeline.step.test_base",
                 "name": "DummyStep",
             },
         }
@@ -218,7 +218,7 @@ class TestStepSerialization:
                         **{
                             "name": "dummy",
                             "_type_info_": {
-                                "module": "tests.pipeline.step.test_base",
+                                "module": "tests.unit.pipeline.step.test_base",
                                 "name": "DummyStep",
                             },
                         },

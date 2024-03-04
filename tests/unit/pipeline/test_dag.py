@@ -22,7 +22,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import GeneratorStep, Step
 from distilabel.pipeline.step.typing import StepInput, StepOutput
 
-from tests.pipeline.utils import DummyGeneratorStep
+from .utils import DummyGeneratorStep
 
 
 class TestDAG:
