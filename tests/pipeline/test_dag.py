@@ -14,15 +14,21 @@
 
 import tempfile
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 import pytest
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import GeneratorStep, Step
-from distilabel.pipeline.step.typing import StepInput, StepOutput
+from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter, Step
+from distilabel.pipeline.step.typing import StepInput
 
 from tests.pipeline.utils import DummyGeneratorStep
+
+if TYPE_CHECKING:
+    from distilabel.pipeline.step.typing import (
+        GeneratorStepOutput,
+        StepOutput,
+    )
 
 
 class TestDAG:
@@ -185,8 +191,8 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self) -> List[Dict[str, Any]]:
-                return [{"response": "response1"}]
+            def process(self) -> "StepOutput":  # type: ignore
+                yield [{"response": "response1"}]
 
         dag = DAG()
         dag.add_step(dummy_generator_step)
@@ -234,6 +240,9 @@ class TestDAG:
 
     def test_validate_missing_runtime_parameter(self, pipeline: "Pipeline") -> None:
         class DummyGeneratorStep(GeneratorStep):
+            runtime_param1: RuntimeParameter[int]
+            runtime_param2: RuntimeParameter[int] = 5
+
             @property
             def inputs(self) -> List[str]:
                 return ["instruction"]
@@ -242,12 +251,10 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(
-                self, runtime_argument1: str, runtime_argument2: int = 5
-            ) -> List[Dict[str, Any]]:
-                return [{"response": "response1"}]
+            def process(self) -> "GeneratorStepOutput":
+                yield [{"response": "response1"}], False
 
-        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)  # type: ignore
         step._set_runtime_parameters({})
 
         dag = DAG()
@@ -255,7 +262,7 @@ class TestDAG:
 
         with pytest.raises(
             ValueError,
-            match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_argument1'",
+            match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_param1'",
         ):
             dag.validate()
 
@@ -269,7 +276,7 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+            def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
 
         step = DummyStep(
@@ -297,7 +304,7 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+            def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
 
         step = DummyStep(

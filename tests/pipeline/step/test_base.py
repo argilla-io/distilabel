@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import List, Optional
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step
+from distilabel.pipeline.step.base import (
+    GeneratorStep,
+    GlobalStep,
+    RuntimeParameter,
+    Step,
+)
 from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
 
 
@@ -80,6 +85,23 @@ class TestStep:
     def test_is_global(self) -> None:
         step = DummyStep(name="dummy", pipeline=Pipeline())
         assert not step.is_global
+
+    def test_runtime_parameters_names(self) -> None:
+        class StepWithRuntimeParameters(Step):
+            runtime_param1: RuntimeParameter[int]
+            runtime_param2: RuntimeParameter[str] = "hello"
+            runtime_param3: Optional[RuntimeParameter[str]] = None
+
+            def process(self, *inputs: StepInput) -> StepOutput:
+                yield []
+
+        step = StepWithRuntimeParameters(name="dummy", pipeline=Pipeline())  # type: ignore
+
+        assert step.runtime_parameters_names == {
+            "runtime_param1": False,
+            "runtime_param2": True,
+            "runtime_param3": True,
+        }
 
     def test_verify_inputs_mappings(self) -> None:
         step = DummyStep(name="dummy", pipeline=Pipeline())

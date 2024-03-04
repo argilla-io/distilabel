@@ -16,7 +16,7 @@ import inspect
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
@@ -24,11 +24,33 @@ from typing_extensions import Annotated, get_args, get_origin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.serialization import _Serializable
+from distilabel.pipeline.step.typing import StepInput
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import GeneratorStepOutput, StepInput, StepOutput
+    from pydantic.fields import FieldInfo
+
+    from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
+
+_T = TypeVar("_T")
+
+
+class _DefaultValueRuntimeParameter:
+    pass
+
+
+_DEFAULT_VALUE_RUNTIME_PARAMETER = _DefaultValueRuntimeParameter()
+_RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
+
+RuntimeParameter = Annotated[
+    Union[_T, None],
+    Field(default=_DEFAULT_VALUE_RUNTIME_PARAMETER),
+    _RUNTIME_PARAMETER_ANNOTATION,
+]
+"""Used to mark the attributes of a `Step` as a runtime parameter. All the runtime parameters
+have `None` as default value as they don't need to be provided when instatiating the step.
+"""
 
 
 class _Step(BaseModel, _Serializable, ABC):
@@ -49,18 +71,17 @@ class _Step(BaseModel, _Serializable, ABC):
     number of previous steps, can receive more than one list of dictionaries, each with
     the output of the previous steps. In order to make `distilabel` know where the outputs
     from the previous steps are, the `process` function from each `Step` must have an argument
-    or positional argument annotated with `StepInput`. Additionally, the `process` method
-    can have any number of arguments, which will be the runtime arguments of the step.
+    or positional argument annotated with `StepInput`.
 
         ```python
         class StepWithOnePreviousStep(Step):
-            def process(self, input: StepInput, runtime_argument1: str, runtime_argument2: int) -> List[Dict[str, Any]]:
-                pass
+            def process(self, inputs: StepInput) -> StepOutput:
+                yield [...]
 
         class StepWithSeveralPreviousStep(Step):
             # mind the * to indicate that the argument is a list of StepInput
-            def process(self, input: *StepInput) -> List[Dict[str, Any]]:
-                pass
+            def process(self, inputs: *StepInput) -> StepOutput:
+                yield [...]
         ```
 
     In order to perform static validations and to check that the chaining of the steps
@@ -137,6 +158,8 @@ class _Step(BaseModel, _Serializable, ABC):
             runtime_parameters: A dictionary with the runtime parameters for the step.
         """
         self._runtime_parameters = runtime_parameters
+        for name, value in runtime_parameters.items():
+            setattr(self, name, value)
 
     @property
     def is_generator(self) -> bool:
@@ -183,7 +206,7 @@ class _Step(BaseModel, _Serializable, ABC):
         Returns:
             The parameters of the `process` method of the step.
         """
-        return list(inspect.signature(self.process).parameters.values())
+        return list(inspect.signature(self.process).parameters.values())  # type: ignore
 
     @property
     def runtime_parameters_names(self) -> Dict[str, bool]:
@@ -194,11 +217,15 @@ class _Step(BaseModel, _Serializable, ABC):
             A dictionary containing the name of the runtime parameters of the step as keys
             and whether the parameter is required or not as values.
         """
-        return {
-            param.name: param.default != param.empty
-            for param in self.process_parameters
-            if not _is_step_input(param)
-        }
+
+        runtime_parameters = {}
+
+        for name, info in self.model_fields.items():
+            is_runtime_param, is_optional = _is_runtime_parameter(info)
+            if is_runtime_param:
+                runtime_parameters[name] = is_optional
+
+        return runtime_parameters
 
     def has_multiple_inputs(self) -> bool:
         """Whether the `process` method of the step receives more than one input or not
@@ -329,13 +356,10 @@ class Step(_Step, ABC):
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
     @abstractmethod
-    def process(self, *args: "StepInput", **kwargs: Any) -> "StepOutput":
-        """Method that defines the processing logic of the step."""
+    def process(self, *inputs: StepInput) -> "StepOutput":
         pass
 
-    def process_applying_mappings(
-        self, *args: List[Dict[str, Any]], **kwargs: Any
-    ) -> "StepOutput":
+    def process_applying_mappings(self, *args: List[Dict[str, Any]]) -> "StepOutput":
         """Runs the `process` method of the step applying the `input_mappings` to the input
         rows and the `outputs_mappings` to the output rows. This is the function that
         should be used to run the processing logic of the step.
@@ -346,7 +370,7 @@ class Step(_Step, ABC):
 
         inputs = self._apply_input_mappings(args) if self.input_mappings else args
 
-        for output_rows in self.process(*inputs, **kwargs):
+        for output_rows in self.process(*inputs):
             yield [
                 {
                     # Apply output mapping and revert input mapping
@@ -397,14 +421,12 @@ class GeneratorStep(_Step, ABC):
     batch_size: int = 50
 
     @abstractmethod
-    def process(self, *args: Any, **kwargs: Any) -> "GeneratorStepOutput":
+    def process(self) -> "GeneratorStepOutput":
         """Method that defines the generation logic of the step. It should yield the
         output rows and a boolean indicating if it's the last batch or not."""
         pass
 
-    def process_applying_mappings(
-        self, *args: Any, **kwargs: Any
-    ) -> "GeneratorStepOutput":
+    def process_applying_mappings(self, *args: "StepInput") -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
@@ -413,7 +435,7 @@ class GeneratorStep(_Step, ABC):
             The output rows and a boolean indicating if it's the last batch or not.
         """
 
-        for output_rows, last_batch in self.process(*args, **kwargs):
+        for output_rows, last_batch in self.process(*args):
             yield (
                 [
                     {self.output_mappings.get(k, k): v for k, v in row.items()}
@@ -452,3 +474,38 @@ def _is_step_input(parameter: inspect.Parameter) -> bool:
         get_origin(parameter.annotation) is Annotated
         and get_args(parameter.annotation)[-1] == "StepInput"
     )
+
+
+def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
+    """Check if a `pydantic.BaseModel` field is a `RuntimeParameter` and if it's optional
+    i.e. providing a value for the field in `Pipeline.run` is optional.
+
+    Args:
+        field: The info of the field of the `pydantic.BaseModel` to check.
+
+    Returns:
+        A tuple with two booleans. The first one indicates if the field is a
+        `RuntimeParameter` or not, and the second one indicates if the field is optional
+        or not.
+    """
+    # Case 1: `runtime_param: RuntimeParameter[int]`
+    # Mandatory runtime parameter that needs to be provided when running the pipeline
+    if _RUNTIME_PARAMETER_ANNOTATION in field.metadata:
+        is_optional = field.default is not _DEFAULT_VALUE_RUNTIME_PARAMETER
+        return True, is_optional
+
+    # Case 2: `runtime_param: Union[RuntimeParameter[int], None] = None`
+    # Optional runtime parameter that doesn't need to be provided when running the pipeline
+    type_args = get_args(field.annotation)
+    for arg in type_args:
+        is_runtime_param = (
+            get_origin(arg) is Annotated
+            and get_args(arg)[-1] == _RUNTIME_PARAMETER_ANNOTATION
+        )
+        if is_runtime_param:
+            is_optional = (
+                get_origin(field.annotation) is Union and type(None) in type_args
+            )
+            return True, is_optional
+
+    return False, False

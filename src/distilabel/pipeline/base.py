@@ -113,7 +113,7 @@ class BasePipeline(_Serializable):
             the parameter name as the key and the parameter value as the value.
         """
         for step_name, step_parameters in parameters.items():
-            step = self.dag.get_step(step_name)["step"]
+            step: "_Step" = self.dag.get_step(step_name)["step"]
             step._set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
