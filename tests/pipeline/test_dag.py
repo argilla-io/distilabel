@@ -285,6 +285,7 @@ class TestDagSerialization:
             new_dag = DAG.from_dict(dag.dump())
         assert isinstance(new_dag, DAG)
         assert "dummy_step_2" in new_dag.G
+        assert dag.dump() == new_dag.dump()
 
     def test_dag_from_dict_errored_without_pipeline(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
