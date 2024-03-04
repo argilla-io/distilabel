@@ -18,19 +18,20 @@ from typing import Optional
 
 from datasets import Dataset
 
-from distilabel.pipeline.step.base import GlobalStep
+from distilabel.pipeline.step.base import GlobalStep, RuntimeParameter
 from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
 class PushToHub(GlobalStep):
+    repo_id: RuntimeParameter[str]
+    split: RuntimeParameter[str] = "train"
+    private: RuntimeParameter[bool] = False
+    token: Optional[RuntimeParameter[str]] = None
+
     # NOTE: `process` should be able to not return anything i.e. LeafStep, or just return None
     def process(
         self,
         inputs: StepInput,
-        repo_id: str,
-        split: str = "train",
-        private: bool = False,
-        token: Optional[str] = None,
     ) -> StepOutput:
         dataset_dict = defaultdict(list)
         for input in inputs:
@@ -39,6 +40,9 @@ class PushToHub(GlobalStep):
         dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
         dataset.push_to_hub(
-            repo_id, split=split, private=private, token=token or os.getenv("HF_TOKEN")
+            self.repo_id,  # type: ignore
+            split=self.split,
+            private=self.private,
+            token=self.token or os.getenv("HF_TOKEN"),
         )
         yield [{}]
