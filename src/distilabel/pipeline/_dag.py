@@ -29,7 +29,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.utils.serialization import _get_class, _Serializable
+from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import _Step
@@ -353,18 +353,16 @@ class DAG(_Serializable):
         Returns:
             DAG: Instance of the DAG from the serialized content.
         """
-        from networkx.readwrite import json_graph
 
         dag = cls()
-        # Loop through the nodes and instantiate the steps from the dict info.
-        nodes = []
-        for node in data["nodes"]:
-            step = node["step"]
-            # Create the step instance from the serialized content, dynamically loading the step.
-            cls_step: Type["_Step"] = _get_class(**step["_type_info_"])
-            nodes.append({"step": cls_step.from_dict(step), "id": node["id"]})
 
-        # Update the instantiated nodes (the steps), and recreate the digraph.
-        data.update({"nodes": nodes})
-        dag.G = json_graph.adjacency_graph(data)
+        for step in data["pipeline"]["steps"]:
+            cls_step: Type["_Step"] = _get_class(**step["step"][TYPE_INFO_KEY])
+            dag.add_step(cls_step.from_dict(step["step"]))
+
+        for connection in data["pipeline"]["connections"]:
+            from_step = connection["from"]
+            for to_step in connection["to"]:
+                dag.add_edge(from_step, to_step)
+
         return dag

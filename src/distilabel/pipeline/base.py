@@ -138,13 +138,10 @@ class BasePipeline(_Serializable):
         Returns:
             pipeline (BasePipeline): _description_
         """
-        pipe = cls()
-        if dag := data.get("dag"):
-            # For DAG.from_dict to work we need to be in the context of a Pipeline
-            pipe.dag = DAG.from_dict(dag)
-            return pipe
-        else:
-            raise ValueError("No DAG found in the data dictionary")
+
+        with cls() as pipe:
+            pipe.dag = DAG.from_dict(data)
+        return pipe
 
 
 @dataclass

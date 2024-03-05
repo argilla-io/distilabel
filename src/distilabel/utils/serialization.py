@@ -16,7 +16,7 @@ import importlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, get_args
+from typing import Any, Dict, List, Literal, Type, TypeVar, Union, get_args
 
 import yaml
 from pydantic import BaseModel
@@ -25,8 +25,10 @@ from typing_extensions import Self
 T = TypeVar("T")
 
 DISTILABEL_FILENAME = "distilabel-file.json"
+TYPE_INFO_KEY = "type_info"
 
 
+StrOrPath = Union[str, os.PathLike[str]]
 SaveFormats = Literal["json", "yaml"]
 
 
@@ -50,8 +52,8 @@ def load_from_dict(class_: Dict[str, Any]) -> Any:
     Returns:
         An instance of the class with the data loaded from the dictionary.
     """
-    type_info = class_.pop("_type_info_")
-    if "_type_info_" in type_info:
+    type_info = class_.pop(TYPE_INFO_KEY)
+    if TYPE_INFO_KEY in type_info:
         # There is a nested type_info, load the class recursively
         type_info = load_from_dict(type_info)
 
@@ -72,7 +74,7 @@ def write_json(filename: Path, data: Any) -> None:
         json.dump(data, file, indent=2)
 
 
-def read_json(filename: os.PathLike) -> Any:
+def read_json(filename: StrOrPath) -> Any:
     """Reads a JSON file.
 
     Args:
@@ -97,7 +99,7 @@ def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
         yaml.dump(data, file, default_flow_style=False)
 
 
-def read_yaml(filename: os.PathLike) -> Dict[str, Any]:
+def read_yaml(filename: StrOrPath) -> Dict[str, Any]:
     """Reads a YAML file.
 
     Args:
@@ -159,7 +161,7 @@ class _Serializable:
 
     def save(
         self,
-        path: Optional[os.PathLike] = None,
+        path: Union[StrOrPath, None] = None,
         format: SaveFormats = "json",
         **kwargs: Any,
     ) -> None:
@@ -208,7 +210,7 @@ class _Serializable:
         return load_from_dict(data)
 
     @classmethod
-    def from_json(cls, path: os.PathLike) -> Self:
+    def from_json(cls, path: StrOrPath) -> Self:
         """Loads a class type info and the serialized data from a JSON file and returns
         an instance of the class.
 
@@ -226,7 +228,7 @@ class _Serializable:
         return cls.from_dict(content)
 
     @classmethod
-    def from_yaml(cls, path: os.PathLike) -> Self:
+    def from_yaml(cls, path: StrOrPath) -> Self:
         """Loads a class type info and the serialized data from a YAML file and returns
         an instance of the class.
 
@@ -244,7 +246,7 @@ class _Serializable:
         return cls.from_dict(content)
 
 
-def _check_is_dir(path: os.PathLike) -> None:
+def _check_is_dir(path: StrOrPath) -> None:
     if Path(path).is_dir():
         raise ValueError(f"You must provide a file path, not a directory: {path}")
 
