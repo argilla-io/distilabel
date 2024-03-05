@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
 from typing_extensions import Self
 
+from distilabel import __version__
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
@@ -120,7 +121,7 @@ class BasePipeline(_Serializable):
         return self.dag.dump()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
-        return {"pipeline": super().dump()}
+        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
@@ -140,7 +141,7 @@ class BasePipeline(_Serializable):
         """
 
         with cls() as pipe:
-            pipe.dag = DAG.from_dict(data)
+            pipe.dag = DAG.from_dict(data["pipeline"])
         return pipe
 
 

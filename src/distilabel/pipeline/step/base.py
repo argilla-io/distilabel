@@ -24,7 +24,7 @@ from typing_extensions import Annotated, get_args, get_origin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
 from distilabel.pipeline.step.typing import StepInput
-from distilabel.utils.serialization import _Serializable
+from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo
@@ -320,27 +320,23 @@ class _Step(BaseModel, _Serializable, ABC):
         Returns:
             A `Step` instance.
         """
-        if not (pipe := _GlobalPipelineManager.get_pipeline()):
-            raise ValueError(
-                "A `Step` must be initialized in the context of a `Pipeline`."
-            )
-
-        # Remove the _type_info_ to avoid errors on instantiation
+        # Remove the "type_info" to avoid errors on instantiation
         _data = data.copy()
-        if "_type_info_" in _data.keys():
-            _data.pop("_type_info_")
+        if TYPE_INFO_KEY in _data.keys():
+            _data.pop(TYPE_INFO_KEY)
 
-        # Before passing the data to instantiate the general step, we have to instantiate some of the internal objects.
-        # For the moment we only take into account the LLM, we should take care if we update any of the objects.
+        # Before passing the data to instantiate the general step, we have to instantiate
+        # some of the internal objects. For the moment we only take into account the LLM,
+        # we should take care if we update any of the objects.
         if llm := _data.get("llm"):
             from distilabel.utils.serialization import _get_class
 
-            nested_cls = _get_class(**llm.pop("_type_info_"))
+            nested_cls = _get_class(**llm.pop(TYPE_INFO_KEY))
             # Load the LLM and update the _data inplace
             nested_cls = nested_cls(**llm)
             _data.update({"llm": nested_cls})
         # Every step needs the pipeline, and the remaining arguments are general
-        step = cls(pipeline=pipe, **_data)
+        step = cls(**_data)
 
         return step
 
@@ -360,7 +356,7 @@ class _Step(BaseModel, _Serializable, ABC):
         runtime_parameters_info = []
         for name, field_info in self.model_fields.items():
             if name in self.runtime_parameters_names:
-                info = {"name": name}
+                info = {"name": name, "optional": self.runtime_parameters_names[name]}
                 if field_info.description is not None:
                     info["description"] = field_info.description
                 runtime_parameters_info.append(info)

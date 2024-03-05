@@ -115,7 +115,7 @@ def read_yaml(filename: StrOrPath) -> Dict[str, Any]:
 class _Serializable:
     """Base class for serializable classes. It provides the means to serialize and deserialize."""
 
-    _type_info_: Dict[str, Any] = {}
+    _type_info: Dict[str, Any] = {}
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Method in charge of serializing the object.
@@ -153,7 +153,7 @@ class _Serializable:
         _dict = self._model_dump(self, **kwargs)
         # Remove private variables from the dump
         _dict = {k: v for k, v in _dict.items() if not k.startswith("_")}
-        _dict["type_info"] = {
+        _dict[TYPE_INFO_KEY] = {
             "module": type(self).__module__,
             "name": type(self).__name__,
         }
@@ -257,7 +257,7 @@ def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]
     # those that don't, so we loop over the classes and update those that are _Serializable.
     # Extra introspection to dump nested objects.
     # Mainly for the LLMs inside a Task for the moment.
-    # This way we ensure the _type_info_ is inserted in those objects.
+    # This way we ensure the "type_info" is inserted in those objects.
     from distilabel.pipeline.base import BasePipeline
 
     to_update = []

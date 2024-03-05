@@ -356,11 +356,11 @@ class DAG(_Serializable):
 
         dag = cls()
 
-        for step in data["pipeline"]["steps"]:
+        for step in data["steps"]:
             cls_step: Type["_Step"] = _get_class(**step["step"][TYPE_INFO_KEY])
             dag.add_step(cls_step.from_dict(step["step"]))
 
-        for connection in data["pipeline"]["connections"]:
+        for connection in data["connections"]:
             from_step = connection["from"]
             for to_step in connection["to"]:
                 dag.add_edge(from_step, to_step)

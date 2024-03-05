@@ -21,12 +21,13 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.task.typing import ChatType
 from distilabel.pipeline.step.typing import StepInput
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class TestLLMSerialization:
     openai_llm_dump = {
         "model": "gpt-3.5-turbo",
-        "_type_info_": {
+        TYPE_INFO_KEY: {
             "module": "distilabel.pipeline.llm.openai",
             "name": "OpenAILLM",
         },
@@ -86,7 +87,7 @@ class TestTaskSerialization:
     "name": "generate_response",
     "llm": {
         "model": "gpt-3.5-turbo",
-        "_type_info_": {
+        "type_info": {
         "module": "distilabel.pipeline.llm.openai",
         "name": "OpenAILLM"
         }
@@ -96,7 +97,8 @@ class TestTaskSerialization:
     "output_mappings": {
         "generation": "output"
     },
-    "_type_info_": {
+    "runtime_parameters_info": [],
+    "type_info": {
         "module": "tests.unit.pipeline.llm.test_serialization",
         "name": "Task"
     }

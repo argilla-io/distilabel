@@ -23,6 +23,7 @@ from distilabel.pipeline.step.base import (
     Step,
 )
 from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
 
 class DummyStep(Step):
@@ -218,7 +219,7 @@ class TestGlobalStep:
 
 
 class TestStepSerialization:
-    def test_step_dump(self):
+    def test_step_dump(self) -> None:
         pipeline = Pipeline()
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
@@ -226,45 +227,39 @@ class TestStepSerialization:
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
-            "_type_info_": {
+            "runtime_parameters_info": [],
+            TYPE_INFO_KEY: {
                 "module": "tests.unit.pipeline.step.test_base",
                 "name": "DummyStep",
             },
         }
 
-    def test_step_from_dict(self):
-        with Pipeline() as pipe:
-            assert isinstance(
-                DummyStep.from_dict(
-                    {
-                        **{
-                            "name": "dummy",
-                            "_type_info_": {
-                                "module": "tests.unit.pipeline.step.test_base",
-                                "name": "DummyStep",
-                            },
+    def test_step_from_dict(self) -> None:
+        with Pipeline():
+            step = DummyStep.from_dict(
+                {
+                    **{
+                        "name": "dummy",
+                        TYPE_INFO_KEY: {
+                            "module": "tests.unit.pipeline.step.test_base",
+                            "name": "DummyStep",
                         },
-                        **pipe.dump(),
                     }
-                ),
-                DummyStep,
+                }
             )
 
-    def test_step_from_dict_without_pipeline_context(self):
-        pipe = Pipeline()
+        assert isinstance(step, DummyStep)
+
+    def test_step_from_dict_without_pipeline_context(self) -> None:
         with pytest.raises(ValueError):
-            assert isinstance(
-                DummyStep.from_dict(
-                    {
-                        **{
-                            "name": "dummy",
-                            "_type_info_": {
-                                "module": "tests.pipeline.step.test_base",
-                                "name": "DummyStep",
-                            },
+            DummyStep.from_dict(
+                {
+                    **{
+                        "name": "dummy",
+                        TYPE_INFO_KEY: {
+                            "module": "tests.pipeline.step.test_base",
+                            "name": "DummyStep",
                         },
-                        **pipe.dump(),
                     }
-                ),
-                DummyStep,
+                }
             )
