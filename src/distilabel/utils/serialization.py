@@ -28,7 +28,7 @@ DISTILABEL_FILENAME = "distilabel-file.json"
 TYPE_INFO_KEY = "type_info"
 
 
-StrOrPath = Union[str, os.PathLike[str]]
+StrOrPath = Union[str, os.PathLike]
 SaveFormats = Literal["json", "yaml"]
 
 
