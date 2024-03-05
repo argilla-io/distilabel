@@ -47,16 +47,28 @@ class LLM(BaseModel, _Serializable, ABC):
 
 
 class AsyncLLM(LLM):
+    """Abstract class for asynchronous LLMs, so as to benefit from the async capabilities
+    of each LLM implementation. This class is meant to be subclassed by each LLM, and the
+    method `agenerate` needs to be implemented to provide the asynchronous generation of
+    responses.
+    """
+
     @abstractmethod
     async def agenerate(self, input: "ChatType", *args: Any, **kwargs: Any) -> str:
+        """Method to generate a single response asynchronously, parallelized via `generate`."""
         pass
 
     def generate(
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
     ) -> List[str]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
         async def agenerate(
             inputs: List["ChatType"], *args: Any, **kwargs: Any
         ) -> List[str]:
+            """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
                 asyncio.create_task(self.agenerate(input, *args, **kwargs))
                 for input in inputs
