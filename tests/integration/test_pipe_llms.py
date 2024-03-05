@@ -14,8 +14,8 @@
 
 from typing import Any, Dict, Generator, List
 
+from distilabel.llm.huggingface.transformers import TransformersLLM
 from distilabel.llm.openai import OpenAILLM
-from distilabel.llm.transformers import TransformersLLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import RuntimeParameter, Step
 from distilabel.pipeline.step.generators.huggingface import LoadHubDataset
