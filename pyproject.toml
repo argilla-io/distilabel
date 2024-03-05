@@ -8,7 +8,7 @@ description = "AI Feedback (AIF) framework"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
-keywords = ["llm", "annotation", "alignment"]
+keywords = ["llm", "annotation", "alignment", "synthetic", "data", "rlaif"]
 authors = [{ name = "Argilla", email = "admin@argilla.io" }]
 classifiers = [
     "Development Status :: 4 - Beta",
