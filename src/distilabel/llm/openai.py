@@ -16,7 +16,8 @@ import os
 from typing import TYPE_CHECKING, Optional, Union
 
 from openai import AsyncOpenAI
-from pydantic import PrivateAttr, SecretStr, field_validator
+from pydantic import Field, PrivateAttr, SecretStr, field_validator
+from typing_extensions import Annotated
 
 from distilabel.llm.base import AsyncLLM
 
@@ -35,13 +36,13 @@ class OpenAILLM(AsyncLLM):
     """
 
     model: str = "gpt-3.5-turbo"
-    api_key: Optional[SecretStr] = None
+    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
 
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
     @field_validator("api_key")
     @classmethod
-    def api_key_must_not_be_none(cls, v: Union[SecretStr, None]) -> SecretStr:
+    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
         """Ensures that either the `api_key` or the environment variable `OPENAI_API_KEY` are set.
 
         Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
