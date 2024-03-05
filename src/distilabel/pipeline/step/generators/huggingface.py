@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import requests
 from datasets import load_dataset
+from pydantic import Field
 
 from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter
 from distilabel.pipeline.step.typing import GeneratorStepOutput
@@ -72,14 +73,22 @@ class LoadHubDataset(GeneratorStep):
     - `output`: dynamic, based on the dataset being loaded.
     """
 
-    repo_id: RuntimeParameter[str] = None
-    split: RuntimeParameter[str] = None
-    config: Optional[RuntimeParameter[str]] = None
+    repo_id: RuntimeParameter[str] = Field(
+        None, description="The Hugging Face Hub repository ID of the dataset to load."
+    )
+    split: RuntimeParameter[str] = Field(
+        None, description="The split of the dataset to load."
+    )
+    config: Optional[RuntimeParameter[str]] = Field(
+        None,
+        description="The configuration of the dataset to load. This is optional and only"
+        " needed if the dataset has multiple configurations.",
+    )
 
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         self._values["dataset"] = load_dataset(
-            self.repo_id,
+            self.repo_id,  # type: ignore
             self.config,
             split=self.split,
             streaming=True,

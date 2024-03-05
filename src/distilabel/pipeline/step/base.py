@@ -314,14 +314,16 @@ class _Step(BaseModel, _Serializable, ABC):
             It's intended for internal use.
 
         Args:
-            data (Dict[str, Any]): Dict containing the serialized data from a Step and the
-                Pipeline it belongs to.
+            data: dictionary containing the serialized data from a `Step` and the
+                `Pipeline` it belongs to.
 
         Returns:
-            step (Step): Instance of the Step.
+            A `Step` instance.
         """
         if not (pipe := _GlobalPipelineManager.get_pipeline()):
-            raise ValueError("A Step must be initialized in the context of a Pipeline.")
+            raise ValueError(
+                "A `Step` must be initialized in the context of a `Pipeline`."
+            )
 
         # Remove the _type_info_ to avoid errors on instantiation
         _data = data.copy()
@@ -341,6 +343,28 @@ class _Step(BaseModel, _Serializable, ABC):
         step = cls(pipeline=pipe, **_data)
 
         return step
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        dump = super()._model_dump(obj, **kwargs)
+        dump["runtime_parameters_info"] = self._get_runtime_parameters_info()
+        return dump
+
+    def _get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+        """Gets the information of the runtime parameters of the step such as the name and
+        the description. This function is meant to include the information of the runtime
+        parameters in the serialized data of the step.
+
+        Returns:
+            A list containing the information for each runtime parameter of the step.
+        """
+        runtime_parameters_info = []
+        for name, field_info in self.model_fields.items():
+            if name in self.runtime_parameters_names:
+                info = {"name": name}
+                if field_info.description is not None:
+                    info["description"] = field_info.description
+                runtime_parameters_info.append(info)
+        return runtime_parameters_info
 
 
 class Step(_Step, ABC):

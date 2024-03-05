@@ -117,7 +117,10 @@ class BasePipeline(_Serializable):
             step._set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
-        return {"dag": self.dag.dump()}
+        return self.dag.dump()
+
+    def dump(self, **kwargs: Any) -> Dict[str, Any]:
+        return {"pipeline": super().dump()}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":

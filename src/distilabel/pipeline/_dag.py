@@ -329,12 +329,19 @@ class DAG(_Serializable):
         from networkx.readwrite import json_graph
 
         adjacency_data = json_graph.adjacency_data(self.G, **kwargs)
-        # Update the nodes with the serialized steps.
-        adjacency_data["nodes"] = [
-            {"step": node["step"].dump(), "id": node["id"]}
-            for node in adjacency_data["nodes"]
-        ]
-        return adjacency_data
+
+        data = {"steps": [], "connections": []}
+        for i, node in enumerate(adjacency_data["nodes"]):
+            name = node["id"]
+            data["steps"].append({"step": node["step"].dump(), "name": name})
+            data["connections"].append(
+                {
+                    "from": name,
+                    "to": [node["id"] for node in adjacency_data["adjacency"][i]],
+                }
+            )
+
+        return data
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "DAG":
