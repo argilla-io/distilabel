@@ -307,7 +307,7 @@ class TestBatchManagerStep:
 
         assert batch_manager_step.step_name == "dummy_global_step"
         assert batch_manager_step.accumulate is True
-        assert batch_manager_step.input_batch_size is None
+        assert batch_manager_step.input_batch_size == 50
         assert batch_manager_step.data == {"step1": [], "step2": []}
         assert batch_manager_step._seq_no == 0
         assert batch_manager_step._last_batch_received == []
@@ -653,6 +653,7 @@ class TestBatchManager:
             "dummy_global_step": _BatchManagerStep(
                 step_name="dummy_global_step",
                 accumulate=True,
+                input_batch_size=50,
                 data={"dummy_generator_step": []},
             ),
             "dummy_step_2": _BatchManagerStep(
