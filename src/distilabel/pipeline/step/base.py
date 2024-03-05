@@ -23,8 +23,8 @@ from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
-from distilabel.pipeline.serialization import _Serializable
 from distilabel.pipeline.step.typing import StepInput
+from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo

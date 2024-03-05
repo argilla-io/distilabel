@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from distilabel.pipeline.logging import get_logger
-from distilabel.pipeline.serialization import _Serializable
+from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.task.typing import ChatType
