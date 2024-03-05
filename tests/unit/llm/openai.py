@@ -69,3 +69,17 @@ class TestOpenAILLM:
                 ]
             ]
         )
+
+    def test_serialization(self, mock_openai: MagicMock) -> None:
+        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+
+        _dump = {
+            "model": "gpt-4",
+            "_type_info_": {
+                "module": "distilabel.llm.openai",
+                "name": "OpenAILLM",
+            },
+        }
+
+        assert llm.dump() == _dump
+        assert isinstance(OpenAILLM.from_dict(_dump), OpenAILLM)
