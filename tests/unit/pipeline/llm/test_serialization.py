@@ -15,8 +15,8 @@
 import json
 from typing import Any, Dict, Generator, List
 
-from distilabel.pipeline.llm.base import LLM
-from distilabel.pipeline.llm.openai import OpenAILLM
+from distilabel.llm.base import LLM
+from distilabel.llm.openai import OpenAILLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.task.typing import ChatType
@@ -27,7 +27,7 @@ class TestLLMSerialization:
     openai_llm_dump = {
         "model": "gpt-3.5-turbo",
         "_type_info_": {
-            "module": "distilabel.pipeline.llm.openai",
+            "module": "distilabel.llm.openai",
             "name": "OpenAILLM",
         },
     }
@@ -87,7 +87,7 @@ class TestTaskSerialization:
     "llm": {
         "model": "gpt-3.5-turbo",
         "_type_info_": {
-        "module": "distilabel.pipeline.llm.openai",
+        "module": "distilabel.llm.openai",
         "name": "OpenAILLM"
         }
     },
@@ -97,7 +97,7 @@ class TestTaskSerialization:
         "generation": "output"
     },
     "_type_info_": {
-        "module": "tests.unit.pipeline.llm.test_serialization",
+        "module": "tests.unit.llm.test_serialization",
         "name": "Task"
     }
     }"""

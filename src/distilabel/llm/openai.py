@@ -12,37 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+import os
+from typing import TYPE_CHECKING, List, Optional, Union
 
-from llama_cpp import Llama
-from pydantic import PrivateAttr
+from openai import OpenAI
+from pydantic import PrivateAttr, SecretStr, field_validator
 
-from distilabel.pipeline.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.task.typing import ChatType
 
 
-class LlamaCppLLM(LLM):
-    model_path: Path
-    chat_format: str = "chatml"
-    n_gpu_layers: int = -1
-    verbose: bool = False
+# TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
+# https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
+class OpenAILLM(LLM):
+    model: str = "gpt-3.5-turbo"
+    api_key: Optional[SecretStr] = None
 
-    _model: Optional["Llama"] = PrivateAttr(...)
+    _client: Optional["OpenAI"] = PrivateAttr(...)
+
+    @field_validator("api_key")
+    @classmethod
+    def api_key_must_not_be_none(cls, v: Union[SecretStr, None]) -> SecretStr:
+        v = v or os.getenv("OPENAI_API_KEY", None)  # type: ignore
+        if v is None:
+            raise ValueError("You must provide an API key to use OpenAI.")
+        if not isinstance(v, SecretStr):
+            v = SecretStr(v)
+        return v
 
     def load(self) -> None:
-        self._model = Llama(
-            model_path=self.model_path.as_posix(),
-            chat_format=self.chat_format,
-            n_gpu_layers=self.n_gpu_layers,
-            verbose=self.verbose,
-        )
+        self._client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
 
     @property
     def model_name(self) -> str:
-        return self._model.model_path  # type: ignore
+        return self.model
 
     def generate(
         self,
@@ -55,15 +60,15 @@ class LlamaCppLLM(LLM):
     ) -> List[str]:
         outputs = []
         for input in inputs:
-            chat_completions = self._model.create_chat_completion(  # type: ignore
+            chat_completions = self._client.chat.completions.create(  # type: ignore
                 messages=input,  # type: ignore
+                model=self.model,
                 max_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
                 temperature=temperature,
                 top_p=top_p,
+                timeout=50,
             )
-            outputs.append(
-                chat_completions["choices"][0]["message"]["content"]  # type: ignore
-            )
+            outputs.append(chat_completions.choices[0].message.content)  # type: ignore
         return outputs
