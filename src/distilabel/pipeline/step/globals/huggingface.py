@@ -17,22 +17,40 @@ from collections import defaultdict
 from typing import Optional
 
 from datasets import Dataset
+from pydantic import Field
 
 from distilabel.pipeline.step.base import GlobalStep, RuntimeParameter
 from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
 class PushToHub(GlobalStep):
-    repo_id: RuntimeParameter[str]
-    split: RuntimeParameter[str] = "train"
-    private: RuntimeParameter[bool] = False
-    token: Optional[RuntimeParameter[str]] = None
+    """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
+    it to the Hugging Face Hub."""
+
+    repo_id: RuntimeParameter[str] = Field(
+        default=None,
+        description="The Hugging Face Hub repository ID where the dataset will be uploaded.",
+    )
+    split: RuntimeParameter[str] = Field(
+        default="train",
+        description="The split of the dataset that will be pushed. Defaults to 'train'.",
+    )
+    private: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether the dataset to be pushed should be private or not. Defaults"
+        " to `False`.",
+    )
+    token: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The token that will be used to authenticate in the Hub. If not provided,"
+        " the token will be tried to be obtained from the environment variable `HF_TOKEN`."
+        " If not provided using one of the previous methods, then `huggingface_hub` library"
+        " will try to use the token from the local Hugging Face CLI configuration. Defaults"
+        " to `None`",
+    )
 
     # NOTE: `process` should be able to not return anything i.e. LeafStep, or just return None
-    def process(
-        self,
-        inputs: StepInput,
-    ) -> StepOutput:
+    def process(self, inputs: StepInput) -> StepOutput:
         dataset_dict = defaultdict(list)
         for input in inputs:
             for key, value in input.items():
@@ -40,7 +58,7 @@ class PushToHub(GlobalStep):
         dataset_dict = dict(dataset_dict)
         dataset = Dataset.from_dict(dataset_dict)
         dataset.push_to_hub(
-            self.repo_id,
+            self.repo_id,  # type: ignore
             split=self.split,
             private=self.private,
             token=self.token or os.getenv("HF_TOKEN"),

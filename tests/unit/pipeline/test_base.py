@@ -26,6 +26,7 @@ from distilabel.pipeline.base import (
     _GlobalPipelineManager,
 )
 from distilabel.pipeline.step.base import GlobalStep
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import GeneratorStep, Step
@@ -670,10 +671,11 @@ class TestPipelineSerialization:
         pipeline = BasePipeline()
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
-        assert "dag" in dump
-        assert "_type_info_" in dump
-        assert dump["_type_info_"]["module"] == "distilabel.pipeline.base"
-        assert dump["_type_info_"]["name"] == "BasePipeline"
+        assert "pipeline" in dump
+        assert "distilabel" in dump
+        assert TYPE_INFO_KEY in dump["pipeline"]
+        assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
+        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
 
     def test_base_pipeline_from_dict(self):
         pipeline = BasePipeline()
@@ -686,10 +688,11 @@ class TestPipelineSerialization:
         pipeline = Pipeline()
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
-        assert "dag" in dump
-        assert "_type_info_" in dump
-        assert dump["_type_info_"]["module"] == "distilabel.pipeline.local"
-        assert dump["_type_info_"]["name"] == "Pipeline"
+        assert "pipeline" in dump
+        assert "distilabel" in dump
+        assert TYPE_INFO_KEY in dump["pipeline"]
+        assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.local"
+        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "Pipeline"
 
     @pytest.mark.parametrize(
         "format, name, loader",
