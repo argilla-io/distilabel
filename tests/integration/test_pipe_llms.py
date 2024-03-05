@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from typing import Any, Dict, Generator, List
 
 from distilabel.llm.huggingface.transformers import TransformersLLM
@@ -49,9 +50,10 @@ def test_pipeline_with_llms_serde():
         rename_columns = RenameColumns(name="rename_columns")
         load_hub_dataset.connect(rename_columns)
 
+        os.environ["OPENAI_API_KEY"] = "sk-***"
         generate_response = TextGeneration(
             name="generate_response",
-            llm=OpenAILLM(api_key="sk-***"),
+            llm=OpenAILLM(),
             output_mappings={"generation": "output"},
         )
         rename_columns.connect(generate_response)
