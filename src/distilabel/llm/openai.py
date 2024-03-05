@@ -44,8 +44,9 @@ class OpenAILLM(AsyncLLM):
 
     def load(self) -> None:
         self._aclient = AsyncOpenAI(
-            api_key=self.api_key.get_secret_value(), max_retries=6
-        )  # type: ignore
+            api_key=self.api_key.get_secret_value(),  # type: ignore
+            max_retries=6,
+        )
 
     @property
     def model_name(self) -> str:
