@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List
@@ -43,3 +44,23 @@ class LLM(BaseModel, _Serializable, ABC):
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
     ) -> List[str]:
         pass
+
+
+class AsyncLLM(LLM):
+    @abstractmethod
+    async def agenerate(self, input: "ChatType", *args: Any, **kwargs: Any) -> str:
+        pass
+
+    def generate(
+        self, inputs: List["ChatType"], *args: Any, **kwargs: Any
+    ) -> List[str]:
+        async def agenerate(
+            inputs: List["ChatType"], *args: Any, **kwargs: Any
+        ) -> List[str]:
+            tasks = [
+                asyncio.create_task(self.agenerate(input, *args, **kwargs))
+                for input in inputs
+            ]
+            return await asyncio.gather(*tasks)
+
+        return asyncio.run(agenerate(inputs, *args, **kwargs))
