@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-from openai import OpenAI
+from openai import AsyncOpenAI
 from pydantic import PrivateAttr, SecretStr, field_validator
 
-from distilabel.llm.base import LLM
+from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.task.typing import ChatType
@@ -26,11 +26,11 @@ if TYPE_CHECKING:
 
 # TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
 # https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
-class OpenAILLM(LLM):
+class OpenAILLM(AsyncLLM):
     model: str = "gpt-3.5-turbo"
     api_key: Optional[SecretStr] = None
 
-    _client: Optional["OpenAI"] = PrivateAttr(...)
+    _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
     @field_validator("api_key")
     @classmethod
@@ -43,32 +43,31 @@ class OpenAILLM(LLM):
         return v
 
     def load(self) -> None:
-        self._client = OpenAI(api_key=self.api_key.get_secret_value(), max_retries=6)  # type: ignore
+        self._aclient = AsyncOpenAI(
+            api_key=self.api_key.get_secret_value(), max_retries=6
+        )  # type: ignore
 
     @property
     def model_name(self) -> str:
         return self.model
 
-    def generate(
+    async def agenerate(
         self,
-        inputs: List["ChatType"],
+        input: "ChatType",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List[str]:
-        outputs = []
-        for input in inputs:
-            chat_completions = self._client.chat.completions.create(  # type: ignore
-                messages=input,  # type: ignore
-                model=self.model,
-                max_tokens=max_new_tokens,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
-                temperature=temperature,
-                top_p=top_p,
-                timeout=50,
-            )
-            outputs.append(chat_completions.choices[0].message.content)  # type: ignore
-        return outputs
+    ) -> str:
+        completion = await self._aclient.chat.completions.create(  # type: ignore
+            messages=input,  # type: ignore
+            model=self.model,
+            max_tokens=max_new_tokens,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
+            timeout=50,
+        )
+        return completion.choices[0].message.content  # type: ignore
