@@ -74,13 +74,14 @@ class LoadHubDataset(GeneratorStep):
     """
 
     repo_id: RuntimeParameter[str] = Field(
-        None, description="The Hugging Face Hub repository ID of the dataset to load."
+        default=None,
+        description="The Hugging Face Hub repository ID of the dataset to load.",
     )
     split: RuntimeParameter[str] = Field(
-        None, description="The split of the dataset to load."
+        default=None, description="The split of the dataset to load."
     )
     config: Optional[RuntimeParameter[str]] = Field(
-        None,
+        default=None,
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
