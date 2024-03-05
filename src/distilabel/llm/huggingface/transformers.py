@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import PrivateAttr
 from transformers import Pipeline, pipeline
 
-from distilabel.pipeline.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.task.typing import ChatType

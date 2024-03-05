@@ -456,7 +456,7 @@ class GeneratorStep(_Step, ABC):
             )
 
 
-class GlobalStep(_Step, ABC):
+class GlobalStep(Step, ABC):
     """A special kind of `Step` which it's `process` method receives all the data processed
     by their previous steps at once, instead of receiving it in batches. This kind of steps
     are useful when the processing logic requires to have all the data at once, for example

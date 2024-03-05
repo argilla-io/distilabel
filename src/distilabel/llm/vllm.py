@@ -18,7 +18,7 @@ from pydantic import PrivateAttr
 from vllm import LLM as _vLLM
 from vllm import SamplingParams
 
-from distilabel.pipeline.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer

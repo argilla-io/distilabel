@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, List, Optional
 from llama_cpp import Llama
 from pydantic import PrivateAttr
 
-from distilabel.pipeline.llm.base import LLM
+from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.task.typing import ChatType

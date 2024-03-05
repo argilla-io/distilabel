@@ -43,7 +43,7 @@ vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 together = ["together"]
 argilla = ["argilla >= 1.23.0"]
-tests = ["pytest >= 7.4.0"]
+tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 mistralai = ["mistralai >= 0.0.11"]
 docs = [
     "mkdocs-material >= 9.5.0",

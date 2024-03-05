@@ -15,7 +15,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from distilabel.pipeline.llm.base import LLM
+from distilabel.llm.base import LLM
 from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.task.typing import ChatType
 from distilabel.pipeline.step.typing import StepInput, StepOutput
