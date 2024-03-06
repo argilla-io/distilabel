@@ -21,7 +21,7 @@ from pydantic import PrivateAttr
 from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.task.typing import ChatType
+    from distilabel.steps.task.typing import ChatType
 
 
 class LlamaCppLLM(LLM):

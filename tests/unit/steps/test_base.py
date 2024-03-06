@@ -16,13 +16,13 @@ from typing import List, Optional
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import (
+from distilabel.steps.base import (
     GeneratorStep,
     GlobalStep,
     RuntimeParameter,
     Step,
 )
-from distilabel.pipeline.step.typing import (
+from distilabel.steps.typing import (
     GeneratorStepOutput,
     StepInput,
     StepOutput,
@@ -233,7 +233,7 @@ class TestStepSerialization:
             "output_mappings": {},
             "runtime_parameters_info": [],
             TYPE_INFO_KEY: {
-                "module": "tests.unit.pipeline.step.test_base",
+                "module": "tests.unit.steps.test_base",
                 "name": "DummyStep",
             },
         }

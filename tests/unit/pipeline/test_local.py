@@ -21,7 +21,7 @@ from distilabel.pipeline.local import Pipeline
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import GeneratorStep
+    from distilabel.steps.base import GeneratorStep
 
 
 class TestPipeline:

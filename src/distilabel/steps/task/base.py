@@ -18,9 +18,9 @@ from typing import Any, Dict, Optional
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.pipeline.step.base import RuntimeParameter, Step
-from distilabel.pipeline.step.task.typing import ChatType
-from distilabel.pipeline.step.typing import StepInput, StepOutput
+from distilabel.steps.base import RuntimeParameter, Step
+from distilabel.steps.task.typing import ChatType
+from distilabel.steps.typing import StepInput, StepOutput
 
 
 class Task(Step, ABC):

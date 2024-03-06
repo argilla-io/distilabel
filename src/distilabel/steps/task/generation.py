@@ -14,8 +14,8 @@
 
 from typing import Any, Dict, List
 
-from distilabel.pipeline.step.task.base import Task
-from distilabel.pipeline.step.task.typing import ChatType
+from distilabel.steps.task.base import Task
+from distilabel.steps.task.typing import ChatType
 
 
 class TextGeneration(Task):

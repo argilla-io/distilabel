@@ -14,8 +14,8 @@
 
 from typing import List
 
-from distilabel.pipeline.step.base import GeneratorStep, GlobalStep, Step
-from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
+from distilabel.steps.base import GeneratorStep, GlobalStep, Step
+from distilabel.steps.typing import GeneratorStepOutput, StepInput, StepOutput
 
 
 class DummyGeneratorStep(GeneratorStep):
