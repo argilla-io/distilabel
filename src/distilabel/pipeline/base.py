@@ -14,7 +14,7 @@
 
 import hashlib
 import itertools
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
@@ -23,7 +23,7 @@ from typing_extensions import Self
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.logging import get_logger
-from distilabel.utils.serialization import _Serializable
+from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -155,13 +155,6 @@ class BasePipeline(_Serializable):
             step: "_Step" = self.dag.get_step(step_name)["step"]
             step._set_runtime_parameters(step_parameters)
 
-    def _get_state(self) -> Dict[str, Any]:
-        """Obtains the info state of the pipeline.
-
-        MUST BE IMPLEMENTED BY SUBCLASSES.
-        """
-        return {}
-
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         return self.dag.dump()
 
@@ -222,7 +215,7 @@ class BasePipeline(_Serializable):
 
 
 @dataclass
-class _Batch:
+class _Batch(_Serializable):
     """Dataclass to represent a batch of data to be processed by a `_Step`.
 
     Attributes:
@@ -294,9 +287,21 @@ class _Batch:
             seq_no=0, step_name=step_name, last_batch=True, data=data, accumulated=True
         )
 
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the content of the `_Batch` to a dictionary, using the `dataclass` helper function.
+
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the `_Batch`.
+        """
+        return asdict(self)
+
 
 @dataclass
-class _BatchManagerStep:
+class _BatchManagerStep(_Serializable):
     """A class that will accumulate data for a step from the predecessors and create
     batches for the step to process when there is enough data.
 
@@ -459,8 +464,20 @@ class _BatchManagerStep:
 
         return True
 
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the content of the `_BatchManagerStep` to a dictionary, using the `dataclass` helper function.
 
-class _BatchManager:
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the `_BatchManagerStep`.
+        """
+        return asdict(self)
+
+
+class _BatchManager(_Serializable):
     """Class to manage the batches received from the steps. It keeps track of the
     received batches and returns new batches for the steps to process based on their
     input batch size and the batches received from the predecessors.
@@ -522,3 +539,33 @@ class _BatchManager:
             )
             steps[step_name] = batch_manager_step
         return cls(steps)
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the content of the `_BatchManager` to a dictionary.
+
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the `_BatchManager`.
+        """
+        return {name: step.dump() for name, step in self._steps.items()}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "_BatchManager":
+        """Loads a `_BatchManager` from its serialized content in a dictionary.
+
+        Args:
+            data: The serialized batch manager.
+
+        Returns:
+            A `_BatchManager` instance.
+        """
+        # Remove the type info, we already know its a _BatchManager, and there aren't subclasses of it
+        data.pop(TYPE_INFO_KEY)
+        # Also there is only one type of _BatchManagerStep, so we can call it directly instead of generically
+        # via _get_class
+        return cls(
+            {name: _BatchManagerStep.from_dict(step) for name, step in data.items()}
+        )

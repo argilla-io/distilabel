@@ -121,6 +121,49 @@ class TestBatch:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
 
+    def test_dump(self) -> None:
+        batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
+        assert batch.dump() == {
+            "seq_no": 0,
+            "step_name": "step1",
+            "last_batch": False,
+            "data": [],
+            "accumulated": False,
+            "type_info": {"module": "distilabel.pipeline.base", "name": "_Batch"},
+        }
+        batch = _Batch(
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+        )
+        assert batch.dump() == {
+            "seq_no": 0,
+            "step_name": "step1",
+            "last_batch": False,
+            "data": [[{"a": 1}, {"a": 2}, {"a": 3}]],
+            "accumulated": False,
+            "type_info": {"module": "distilabel.pipeline.base", "name": "_Batch"},
+        }
+
+    def test_from_dict(self) -> None:
+        assert isinstance(
+            _Batch.from_dict(
+                {
+                    "seq_no": 0,
+                    "step_name": "step1",
+                    "last_batch": False,
+                    "data": [[{"a": 1}, {"a": 2}, {"a": 3}]],
+                    "accumulated": False,
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_Batch",
+                    },
+                }
+            ),
+            _Batch,
+        )
+
 
 class TestBatchManagerStep:
     def test_add_batch(self) -> None:
@@ -566,6 +609,80 @@ class TestBatchManagerStep:
 
         assert batch_manager_step._ready_to_create_batch() is expected
 
+    def test_dump(self) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step3",
+            accumulate=True,
+            data={
+                "step1": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
+                "step2": [
+                    {"b": 1},
+                    {"b": 2},
+                    {"b": 3},
+                    {"b": 4},
+                    {"b": 5},
+                    {"b": 6},
+                    {"b": 7},
+                ],
+            },
+        )
+        assert batch_manager_step.dump() == {
+            "step_name": "step3",
+            "accumulate": True,
+            "input_batch_size": None,
+            "data": {
+                "step1": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
+                "step2": [
+                    {"b": 1},
+                    {"b": 2},
+                    {"b": 3},
+                    {"b": 4},
+                    {"b": 5},
+                    {"b": 6},
+                    {"b": 7},
+                ],
+            },
+            "type_info": {
+                "module": "distilabel.pipeline.base",
+                "name": "_BatchManagerStep",
+            },
+        }
+
+    def test_from_dict(self) -> None:
+        assert isinstance(
+            _BatchManagerStep.from_dict(
+                {
+                    "step_name": "step3",
+                    "accumulate": True,
+                    "input_batch_size": None,
+                    "data": {
+                        "step1": [
+                            {"a": 1},
+                            {"a": 2},
+                            {"a": 3},
+                            {"a": 4},
+                            {"a": 5},
+                            {"a": 6},
+                        ],
+                        "step2": [
+                            {"b": 1},
+                            {"b": 2},
+                            {"b": 3},
+                            {"b": 4},
+                            {"b": 5},
+                            {"b": 6},
+                            {"b": 7},
+                        ],
+                    },
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_BatchManagerStep",
+                    },
+                }
+            ),
+            _BatchManagerStep,
+        )
+
 
 class TestBatchManager:
     def test_add_batch(self) -> None:
@@ -664,6 +781,59 @@ class TestBatchManager:
                 data={"dummy_step_1": []},
             ),
         }
+
+    def test_dump(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step3": _BatchManagerStep(
+                    step_name="step3",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={"step1": [], "step2": []},
+                )
+            }
+        )
+        assert batch_manager.dump() == {
+            "step3": {
+                "step_name": "step3",
+                "accumulate": False,
+                "input_batch_size": 5,
+                "data": {"step1": [], "step2": []},
+                "type_info": {
+                    "module": "distilabel.pipeline.base",
+                    "name": "_BatchManagerStep",
+                },
+            },
+            "type_info": {
+                "module": "distilabel.pipeline.base",
+                "name": "_BatchManager",
+            },
+        }
+
+    def test_from_dict(self) -> None:
+        batch_manager = _BatchManager.from_dict(
+            {
+                "step3": {
+                    "step_name": "step3",
+                    "accumulate": False,
+                    "input_batch_size": 5,
+                    "data": {"step1": [], "step2": []},
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_BatchManagerStep",
+                    },
+                },
+                "type_info": {
+                    "module": "distilabel.pipeline.base",
+                    "name": "_BatchManager",
+                },
+            }
+        )
+        assert isinstance(batch_manager, _BatchManager)
+        assert all(
+            isinstance(step, _BatchManagerStep)
+            for _, step in batch_manager._steps.items()
+        )
 
 
 class TestPipelineSerialization:
