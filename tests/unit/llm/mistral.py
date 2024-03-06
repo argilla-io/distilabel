@@ -13,29 +13,33 @@
 # limitations under the License.
 
 import os
+import sys
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llm.mistral import MistralLLM
 
 
-@patch("openai.AsyncOpenAI")
-class TestOpenAILLM:
-    def test_openai_llm(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
-        assert isinstance(llm, OpenAILLM)
-        assert llm.model_name == "gpt-4"
+@pytest.mark.skipif(
+    sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+)
+@patch("mistralai.async_client.MistralAsyncClient")
+class TestMistralLLM:
+    def test_mistral_llm(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        assert isinstance(llm, MistralLLM)
+        assert llm.model_name == "mistral-tiny"
 
     @pytest.mark.asyncio
-    async def test_agenerate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
-        llm._aclient = mock_openai
+    async def test_agenerate(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm._aclient = mock_mistral
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
             input=[
@@ -48,14 +52,14 @@ class TestOpenAILLM:
         )
 
     @pytest.mark.asyncio
-    async def test_generate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
-        llm._aclient = mock_openai
+    async def test_generate(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm._aclient = mock_mistral
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
@@ -71,17 +75,21 @@ class TestOpenAILLM:
             ]
         )
 
-    def test_serialization(self, mock_openai: MagicMock) -> None:
-        os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = OpenAILLM(model="gpt-4")  # type: ignore
+    def test_serialization(self, mock_mistral: MagicMock) -> None:
+        os.environ["MISTRAL_API_KEY"] = "api.key"
+        llm = MistralLLM(model="mistral-tiny")  # type: ignore
 
         _dump = {
-            "model": "gpt-4",
+            "model": "mistral-tiny",
+            "endpoint": "https://api.mistral.ai",
+            "max_retries": 5,
+            "timeout": 120,
+            "max_concurrent_requests": 64,
             "type_info": {
-                "module": "distilabel.llm.openai",
-                "name": "OpenAILLM",
+                "module": "distilabel.llm.mistral",
+                "name": "MistralLLM",
             },
         }
 
         assert llm.dump() == _dump
-        assert isinstance(OpenAILLM.from_dict(_dump), OpenAILLM)
+        assert isinstance(MistralLLM.from_dict(_dump), MistralLLM)

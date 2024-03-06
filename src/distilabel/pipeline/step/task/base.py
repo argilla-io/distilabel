@@ -13,16 +13,27 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from distilabel.llm.base import LLM
 from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.task.typing import ChatType
-from distilabel.pipeline.step.typing import StepInput, StepOutput
+from distilabel.pipeline.step.typing import RuntimeParameter, StepInput, StepOutput
 
 
 class Task(Step, ABC):
     llm: LLM
+
+    generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to either `generate` or `agenerate`"
+        " methods within each `LLM`. Note that these kwargs will be specific to each"
+        " LLM, and while some as `temperature` may be present on each `LLM`, some others"
+        " may not, so read the `LLM.{generate,agenerate}` signatures in advance to see"
+        " which kwargs are available.",
+    )
 
     def load(self) -> None:
         self.llm.load()  # type: ignore
@@ -37,13 +48,13 @@ class Task(Step, ABC):
 
     def process(self, inputs: StepInput) -> StepOutput:
         formatted_inputs = [self.format_input(input) for input in inputs]
-        outputs = self.llm.generate(formatted_inputs)  # type: ignore
+        outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
 
-        outputs: StepOutput = []
+        outputs: StepOutput = []  # type: ignore
         for input, formatted_output in zip(inputs, formatted_outputs):
             output = {k: v for k, v in input.items() if k in self.inputs}
             output.update(formatted_output)
             output["model_name"] = self.llm.model_name  # type: ignore
-            outputs.append(output)
+            outputs.append(output)  # type: ignore
         yield outputs  # type: ignore

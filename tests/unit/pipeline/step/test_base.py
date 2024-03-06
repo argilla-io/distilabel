@@ -19,10 +19,14 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import (
     GeneratorStep,
     GlobalStep,
-    RuntimeParameter,
     Step,
 )
-from distilabel.pipeline.step.typing import GeneratorStepOutput, StepInput, StepOutput
+from distilabel.pipeline.step.typing import (
+    GeneratorStepOutput,
+    RuntimeParameter,
+    StepInput,
+    StepOutput,
+)
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 

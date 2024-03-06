@@ -41,7 +41,15 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai]
+        run: |
+          python_version=$(python -c "import sys; print(sys.version_info[:2])")
+
+          if [ "${python_version}" != "(3, 8)" ]; then
+            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai]
+          else
+            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla]
+          fi
+
       - name: Lint
         run: make lint
 
