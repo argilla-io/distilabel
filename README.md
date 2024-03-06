@@ -59,7 +59,7 @@ We are an open-source community-driven project and we love to hear from you. Her
 
 Distilabel is a tool that can be used to **synthesize data and provide AI feedback**. Our community uses Distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel), and **we love contributions to open-source** ourselves too.
 
-- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences derived from teknium/OpenHermes-2.5. It shows how we can use Distilabel to **synthesize data at immense scale**.
+- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences derived from teknium/OpenHermes-2.5. It shows how we can use Distilabel to **synthesize data on an immense scale**.
 - Our [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) and the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B),, show how we **improve model performance by filtering out 50%** of the original dataset through **AI feedback**.
 - The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) outlines how anyone can create a **dataset for a specific task** and **the latest research papers** to improve the quality of the dataset.
 
@@ -124,7 +124,9 @@ pipeline = pipeline("preference", "instruction-following", generator=generator)
 dataset = pipeline.generate(dataset)
 ```
 
-Additionally, you can push the generated dataset to Argilla for further exploration and annotation:
+### Argilla Integration
+
+Distilabel integrates smoothly with Argilla and provides all the necessary configurations to make giving a final human touch as easy as possible. The following example shows how to convert a dataset to Argilla.
 
 ```python
 import argilla as rg
