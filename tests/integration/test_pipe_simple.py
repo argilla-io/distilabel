@@ -47,7 +47,11 @@ class GenerateResponse(Step):
         return ["instruction"]
 
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+        import time
+
         for input in inputs:
+            time.sleep(0.8)
+            print("*** processing ***")
             input["response"] = "I don't know"
         yield inputs
 
@@ -56,7 +60,7 @@ class GenerateResponse(Step):
         return ["response"]
 
 
-def test_pipeline():
+def test_pipeline_from_dump():
     with Pipeline() as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset")
         rename_columns = RenameColumns(name="rename_columns")
@@ -83,5 +87,103 @@ def test_pipeline():
             },
         }
     )
-    assert Path("data.jsonl").exists()
-    Path("data.jsonl").unlink()
+    data_buffered_file = pipe._cache_dir / "data.jsonl"
+    assert Path(data_buffered_file).exists()
+    data_buffered_file.unlink()
+
+
+def test_pipeline_cached():
+    with Pipeline() as pipeline:
+        load_hub_dataset = LoadHubDataset(name="load_dataset")
+        rename_columns = RenameColumns(name="rename_columns")
+        generate_response = GenerateResponse(name="generate_response")
+
+        load_hub_dataset.connect(rename_columns)
+        rename_columns.connect(generate_response)
+
+        pipeline.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "alvarobartt/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    }
+                },
+            }
+        )
+
+    # Recreate the pipeline from the dump
+    with Pipeline() as pipe:
+        load_hub_dataset = LoadHubDataset(name="load_dataset")
+        rename_columns = RenameColumns(name="rename_columns")
+        generate_response = GenerateResponse(name="generate_response")
+
+        load_hub_dataset.connect(rename_columns)
+        rename_columns.connect(generate_response)
+        assert pipe._cache_filename.exists()
+
+        pipe.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "alvarobartt/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    }
+                },
+            }
+        )
+    # TODO: Add checks on the steps from the pipeline at different stages.
+
+
+if __name__ == "__main__":
+    with Pipeline() as pipeline:
+        load_hub_dataset = LoadHubDataset(name="load_dataset")
+        rename_columns = RenameColumns(name="rename_columns")
+        generate_response = GenerateResponse(name="generate_response")
+
+        load_hub_dataset.connect(rename_columns)
+        rename_columns.connect(generate_response)
+
+        pipeline.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "alvarobartt/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    }
+                },
+            }
+        )
+
+    # Recreate the pipeline from the dump
+    with Pipeline() as pipe:
+        load_hub_dataset = LoadHubDataset(name="load_dataset")
+        rename_columns = RenameColumns(name="rename_columns")
+        generate_response = GenerateResponse(name="generate_response")
+
+        load_hub_dataset.connect(rename_columns)
+        rename_columns.connect(generate_response)
+        assert pipe._cache_filename.exists()
+
+        pipe.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "alvarobartt/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    }
+                },
+            }
+        )

@@ -47,9 +47,10 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        self._logger.info("📝 Writing buffer to ./data.jsonl")
+        buffer_data_path = self._cache_dir / "data.jsonl"
+        self._logger.info(f"📝 Writing buffer to {buffer_data_path}")
         write_buffer = _WriteBuffer(
-            path=self._cache_dir / "data.jsonl", leaf_steps=self.dag.leaf_steps
+            path=buffer_data_path, leaf_steps=self.dag.leaf_steps
         )
         batch_manager = _BatchManager.from_dag(self.dag)
 

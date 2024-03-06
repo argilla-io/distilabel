@@ -727,7 +727,7 @@ class TestPipelineSerialization:
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
 
-        from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+        from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with Pipeline() as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -738,14 +738,13 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_step_2)
 
         signature = pipeline._create_signature()
-        assert signature == "205b3556b6b3e8db5c6b7b8e32a1364aec2eaa99"
+        assert signature == "a0e64e1b0513e3b5c3715bf4a3771945737f31e8"
 
-    def test_load_from_cache(self):
+    def test_run_pipe_and_load_from_cache(self):
         # Maybe not the best place for this test, but does the work for now
-        # TODO: IMPLEMENT A WAY TO CHECK FOR A CACHE HIT
         from distilabel.pipeline.base import BasePipeline
 
-        from tests.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+        from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             with BasePipeline(tmpdirname) as pipeline:

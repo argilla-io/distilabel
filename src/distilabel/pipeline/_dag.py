@@ -141,8 +141,10 @@ class DAG(_Serializable):
 
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.
+
         Args:
             step_name: The name of the step.
+
         Returns:
             An iterable with the names of the steps that are predecessors of the given step.
         """

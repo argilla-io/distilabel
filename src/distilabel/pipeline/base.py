@@ -18,7 +18,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
-from pydantic import BaseModel
 from typing_extensions import Self
 
 from distilabel.pipeline._dag import DAG
@@ -528,7 +527,3 @@ class _BatchManager:
             )
             steps[step_name] = batch_manager_step
         return cls(steps)
-
-
-class _State(BaseModel):
-    pass
