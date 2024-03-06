@@ -40,10 +40,10 @@ class Task(Step, ABC):
         outputs = self.llm.generate(formatted_inputs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
 
-        outputs: StepOutput = []
+        outputs: StepOutput = []  # type: ignore
         for input, formatted_output in zip(inputs, formatted_outputs):
             output = {k: v for k, v in input.items() if k in self.inputs}
             output.update(formatted_output)
             output["model_name"] = self.llm.model_name  # type: ignore
-            outputs.append(output)
+            outputs.append(output)  # type: ignore
         yield outputs  # type: ignore
