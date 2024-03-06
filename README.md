@@ -24,7 +24,7 @@
 </a>
 </p>
 
-Distilabel is the **synthetic data and AI feedback framework for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
+Distilabel is the **framework for synthetic data and AI feedback for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
 
 If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
 <!-- ![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)  -->
