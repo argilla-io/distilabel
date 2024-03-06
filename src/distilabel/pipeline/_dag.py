@@ -32,7 +32,7 @@ import networkx as nx
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import _Step
+    from distilabel.steps.base import _Step
 
 
 class DAG(_Serializable):

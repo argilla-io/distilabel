@@ -19,13 +19,13 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import pytest
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter, Step
-from distilabel.pipeline.step.typing import StepInput
+from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step
+from distilabel.steps.typing import StepInput
 
 from .utils import DummyGeneratorStep
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.typing import (
+    from distilabel.steps.typing import (
         GeneratorStepOutput,
         StepOutput,
     )

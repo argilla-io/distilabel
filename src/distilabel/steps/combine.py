@@ -14,9 +14,9 @@
 
 from typing import List, Optional
 
-from distilabel.pipeline.step.base import Step
-from distilabel.pipeline.step.typing import StepInput, StepOutput
 from distilabel.pipeline.utils import combine_dicts
+from distilabel.steps.base import Step
+from distilabel.steps.typing import StepInput, StepOutput
 
 
 class CombineColumns(Step):

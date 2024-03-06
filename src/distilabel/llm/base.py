@@ -23,7 +23,7 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.task.typing import ChatType
+    from distilabel.steps.task.typing import ChatType
 
 
 class LLM(BaseModel, _Serializable, ABC):
@@ -34,6 +34,11 @@ class LLM(BaseModel, _Serializable, ABC):
 
     @abstractmethod
     def load(self) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
         pass
 
     @abstractmethod

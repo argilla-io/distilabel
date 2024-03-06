@@ -13,14 +13,16 @@
 # limitations under the License.
 
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import requests
 from datasets import load_dataset
 from pydantic import Field
 
-from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter
-from distilabel.pipeline.step.typing import GeneratorStepOutput
+from distilabel.steps.base import GeneratorStep, RuntimeParameter
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import GeneratorStepOutput
 
 
 @lru_cache
@@ -95,7 +97,7 @@ class LoadHubDataset(GeneratorStep):
             streaming=True,
         )
 
-    def process(self) -> GeneratorStepOutput:
+    def process(self) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
 
         Yield:

@@ -25,11 +25,11 @@ from distilabel.pipeline.base import (
     _BatchManagerStep,
     _GlobalPipelineManager,
 )
-from distilabel.pipeline.step.base import GlobalStep
+from distilabel.steps.base import GlobalStep
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import GeneratorStep, Step
+    from distilabel.steps.base import GeneratorStep, Step
 
 
 class TestGlobalPipelineManager:

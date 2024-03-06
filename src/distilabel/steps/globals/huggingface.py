@@ -19,8 +19,8 @@ from typing import Optional
 from datasets import Dataset
 from pydantic import Field
 
-from distilabel.pipeline.step.base import GlobalStep, RuntimeParameter
-from distilabel.pipeline.step.typing import StepInput, StepOutput
+from distilabel.steps.base import GlobalStep, RuntimeParameter
+from distilabel.steps.typing import StepInput, StepOutput
 
 
 class PushToHub(GlobalStep):
@@ -49,8 +49,17 @@ class PushToHub(GlobalStep):
         " to `None`",
     )
 
-    # NOTE: `process` should be able to not return anything i.e. LeafStep, or just return None
     def process(self, inputs: StepInput) -> StepOutput:
+        """Method that processes the input data, respecting the `datasets.Dataset` formatting,
+        and pushes it to the Hugging Face Hub based on the `RuntimeParameter`s attributes.
+
+        Args:
+            inputs: that input data within a single object (as it's a GlobalStep) that
+                will be transformed into a `datasets.Dataset`.
+
+        Returns:
+            An empty `StepOutput` which is an iterator with a single empty dictionary.
+        """
         dataset_dict = defaultdict(list)
         for input in inputs:
             for key, value in input.items():
