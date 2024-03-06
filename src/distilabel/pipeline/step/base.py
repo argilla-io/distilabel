@@ -16,14 +16,14 @@ import inspect
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
-from distilabel.pipeline.step.typing import _RUNTIME_PARAMETER_ANNOTATION, StepInput
+from distilabel.pipeline.step.typing import StepInput
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
 if TYPE_CHECKING:
@@ -32,6 +32,14 @@ if TYPE_CHECKING:
     from distilabel.pipeline.step.typing import GeneratorStepOutput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
+
+_T = TypeVar("_T")
+_RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
+
+RuntimeParameter = Annotated[
+    Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
+]
+"""Used to mark the attributes of a `Step` as a runtime parameter."""
 
 
 class _Step(BaseModel, _Serializable, ABC):

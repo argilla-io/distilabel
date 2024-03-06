@@ -19,11 +19,11 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.step.base import (
     GeneratorStep,
     GlobalStep,
+    RuntimeParameter,
     Step,
 )
 from distilabel.pipeline.step.typing import (
     GeneratorStepOutput,
-    RuntimeParameter,
     StepInput,
     StepOutput,
 )

@@ -18,9 +18,9 @@ from typing import Any, Dict, Optional
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.pipeline.step.base import Step
+from distilabel.pipeline.step.base import RuntimeParameter, Step
 from distilabel.pipeline.step.task.typing import ChatType
-from distilabel.pipeline.step.typing import RuntimeParameter, StepInput, StepOutput
+from distilabel.pipeline.step.typing import StepInput, StepOutput
 
 
 class Task(Step, ABC):
@@ -46,7 +46,7 @@ class Task(Step, ABC):
     def format_output(self, output: str) -> Dict[str, Any]:
         pass
 
-    def process(self, inputs: StepInput) -> StepOutput:
+    def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         formatted_inputs = [self.format_input(input) for input in inputs]
         outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
