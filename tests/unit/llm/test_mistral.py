@@ -18,7 +18,11 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.mistral import MistralLLM
+
+try:
+    from distilabel.llm.mistral import MistralLLM
+except ImportError:
+    pass
 
 
 @pytest.mark.skipif(
