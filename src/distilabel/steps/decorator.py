@@ -19,6 +19,7 @@ from pydantic import create_model
 
 from distilabel.steps.base import (
     _RUNTIME_PARAMETER_ANNOTATION,
+    GeneratorStep,
     GlobalStep,
     Step,
 )
@@ -27,6 +28,12 @@ from distilabel.utils.typing import is_parameter_annotated_with
 if TYPE_CHECKING:
     from distilabel.steps.base import _Step
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+
+_step_mapping = {
+    "normal": Step,
+    "global": GlobalStep,
+    "generator": GeneratorStep,
+}
 
 ProcessingFunc = TypeVar(
     "ProcessingFunc", bound=Callable[..., Union["StepOutput", "GeneratorStepOutput"]]
@@ -75,12 +82,12 @@ def step(
         ]
 
     # Generator step
-    @step(inputs=["instruction"], outputs=["generation"], step_type="generator")
-    def RowGenerator(inputs: StepInput, num_rows: RuntimeParameter[int] = 500) -> GeneratorStepOutput:
+    @step(outputs=["num"], step_type="generator")
+    def RowGenerator(num_rows: RuntimeParameter[int] = 500) -> GeneratorStepOutput:
         data = list(range(num_rows))
         for i in range(0, len(data), 100):
             last_batch = i + 100 >= len(data)
-            yield data[i:i + 100], last_batch
+            yield [{"num": num} for num in data[i : i + 100]], last_batch
     ```
     """
     inputs = inputs or []
@@ -105,7 +112,12 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        BaseClass = Step if step_type == "normal" else GlobalStep
+        if step_type not in _step_mapping:
+            raise ValueError(
+                f"Invalid step type '{step_type}'. Valid choices are: {', '.join(_step_mapping.keys())}"
+            )
+
+        BaseClass = _step_mapping[step_type]
 
         def inputs_property(self) -> List[str]:
             return inputs
