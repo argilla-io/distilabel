@@ -147,9 +147,10 @@ class _Step(BaseModel, _Serializable, ABC):
         Args:
             runtime_parameters: A dictionary with the runtime parameters for the step.
         """
-        self._runtime_parameters = runtime_parameters
         for name, value in runtime_parameters.items():
-            setattr(self, name, value)
+            if name in self.runtime_parameters_names:
+                setattr(self, name, value)
+                self._runtime_parameters[name] = value
 
     @property
     def is_generator(self) -> bool:
@@ -363,6 +364,7 @@ class _Step(BaseModel, _Serializable, ABC):
 
 
 class Step(_Step, ABC):
+    # TODO: this should be a `RuntimeParameter`
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
     @abstractmethod
@@ -437,6 +439,7 @@ class GeneratorStep(_Step, ABC):
     any input from the previous steps.
     """
 
+    # TODO: this should be a `RuntimeParameter` and maybe be called `output_batch_size`
     batch_size: int = 50
 
     @abstractmethod
