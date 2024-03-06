@@ -23,7 +23,7 @@ from distilabel.llm.base import LLM
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
-    from distilabel.pipeline.step.task.typing import ChatType
+    from distilabel.steps.task.typing import ChatType
 
 
 class vLLM(LLM):

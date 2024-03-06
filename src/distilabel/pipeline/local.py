@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
-from distilabel.pipeline.step.base import Step
+from distilabel.steps.base import Step
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from os import PathLike
     from queue import Queue
 
-    from distilabel.pipeline.step.base import GeneratorStep
+    from distilabel.steps.base import GeneratorStep
 
 
 class Pipeline(BasePipeline):

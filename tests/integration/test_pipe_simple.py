@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import Step
-from distilabel.pipeline.step.generators.huggingface import LoadHubDataset
-from distilabel.pipeline.step.typing import RuntimeParameter, StepInput
+from distilabel.steps.base import RuntimeParameter, Step
+from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.steps.typing import StepInput
 
 
 class RenameColumns(Step):

@@ -23,7 +23,7 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.base import _Step
+    from distilabel.steps.base import _Step
 
 
 class _GlobalPipelineManager:
