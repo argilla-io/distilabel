@@ -101,6 +101,7 @@ class _Step(BaseModel, _Serializable, ABC):
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("step"))
 
     def model_post_init(self, _: Any) -> None:
@@ -368,7 +369,9 @@ class Step(_Step, ABC):
     def process(self, *inputs: StepInput) -> "StepOutput":
         pass
 
-    def process_applying_mappings(self, *args: List[Dict[str, Any]]) -> "StepOutput":
+    def process_applying_mappings(
+        self, *args: List[Dict[str, Any]], **kwargs: Any
+    ) -> "StepOutput":
         """Runs the `process` method of the step applying the `input_mappings` to the input
         rows and the `outputs_mappings` to the output rows. This is the function that
         should be used to run the processing logic of the step.
@@ -379,7 +382,16 @@ class Step(_Step, ABC):
 
         inputs = self._apply_input_mappings(args) if self.input_mappings else args
 
-        for output_rows in self.process(*inputs):
+        # If the `Step` was built using the `@step` decorator, then we need to pass
+        # the runtime parameters as kwargs, so they can be used within the processing
+        # function
+        generator = (
+            self.process(*inputs)
+            if not self._built_from_decorator
+            else self.process(*inputs, **self._runtime_parameters)
+        )
+
+        for output_rows in generator:
             yield [
                 {
                     # Apply output mapping and revert input mapping
@@ -435,7 +447,7 @@ class GeneratorStep(_Step, ABC):
         output rows and a boolean indicating if it's the last batch or not."""
         pass
 
-    def process_applying_mappings(self, *args: "StepInput") -> "GeneratorStepOutput":
+    def process_applying_mappings(self) -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
@@ -444,7 +456,16 @@ class GeneratorStep(_Step, ABC):
             The output rows and a boolean indicating if it's the last batch or not.
         """
 
-        for output_rows, last_batch in self.process(*args):
+        # If the `Step` was built using the `@step` decorator, then we need to pass
+        # the runtime parameters as `kwargs`, so they can be used within the processing
+        # function
+        generator = (
+            self.process()
+            if not self._built_from_decorator
+            else self.process(**self._runtime_parameters)
+        )
+
+        for output_rows, last_batch in generator:
             yield (
                 [
                     {self.output_mappings.get(k, k): v for k, v in row.items()}
