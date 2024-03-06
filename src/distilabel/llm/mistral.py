@@ -22,7 +22,7 @@ from typing_extensions import Annotated
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.task.typing import ChatType
+    from distilabel.steps.task.typing import ChatType
 
 
 class MistralLLM(AsyncLLM):
