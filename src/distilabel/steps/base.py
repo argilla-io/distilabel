@@ -369,9 +369,7 @@ class Step(_Step, ABC):
     def process(self, *inputs: StepInput) -> "StepOutput":
         pass
 
-    def process_applying_mappings(
-        self, *args: List[Dict[str, Any]], **kwargs: Any
-    ) -> "StepOutput":
+    def process_applying_mappings(self, *args: List[Dict[str, Any]]) -> "StepOutput":
         """Runs the `process` method of the step applying the `input_mappings` to the input
         rows and the `outputs_mappings` to the output rows. This is the function that
         should be used to run the processing logic of the step.

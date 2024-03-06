@@ -113,6 +113,11 @@ def step(
         def outputs_property(self) -> List[str]:
             return outputs
 
+        def process(
+            self, *args, **kwargs
+        ) -> Union["StepOutput", "GeneratorStepOutput"]:
+            return func(*args, **kwargs)
+
         return type(  # type: ignore
             func.__name__,
             (
@@ -120,7 +125,7 @@ def step(
                 RuntimeParametersModel,
             ),
             {
-                "process": func,
+                "process": process,
                 "inputs": property(inputs_property),
                 "outputs": property(outputs_property),
                 "__module__": func.__module__,
