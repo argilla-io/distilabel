@@ -17,11 +17,12 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.task.base import Task
+from distilabel.steps.task.base import Task
+from distilabel.steps.task.text_generation import TextGeneration
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.step.task.typing import ChatType
+    from distilabel.steps.task.typing import ChatType
 
 
 class DummyLLM(LLM):
@@ -36,26 +37,11 @@ class DummyLLM(LLM):
         return ["output" for _ in inputs]
 
 
-class DummyTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    def format_input(self, input: dict) -> "ChatType":
-        return [
-            {"role": "system", "content": ""},
-            {"role": "user", "content": input["instruction"]},
-        ]
-
-    def format_output(self, output: str) -> dict:
-        return {"output": output}
-
-
-class TestTask:
+class TestTextGeneration:
     def test_passing_pipeline(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = DummyTask(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
         assert task.generation_kwargs == {}
@@ -64,7 +50,7 @@ class TestTask:
     def test_within_pipeline_context(self) -> None:
         with Pipeline() as pipeline:
             llm = DummyLLM()
-            task = DummyTask(name="task", llm=llm, pipeline=pipeline)
+            task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
             assert task.llm is llm
             assert task.generation_kwargs == {}
@@ -72,12 +58,12 @@ class TestTask:
 
     def test_with_errors(self) -> None:
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            DummyTask(name="task", llm=DummyLLM())
+            TextGeneration(name="task", llm=DummyLLM())
 
         with pytest.raises(
             ValidationError, match="llm\n  Field required \\[type=missing"
         ):
-            DummyTask(name="task", pipeline=Pipeline())  # type: ignore
+            TextGeneration(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(
             TypeError,
@@ -88,15 +74,15 @@ class TestTask:
     def test_process(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = DummyTask(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert list(task.process([{"instruction": "test"}])) == [
-            [{"instruction": "test", "output": "output", "model_name": "test"}]
+            [{"instruction": "test", "generation": "output", "model_name": "test"}]
         ]
 
     def test_serialization(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = DummyTask(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
             "input_mappings": {},
@@ -104,7 +90,7 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.pipeline.step.task.test_base",
+                    "module": "tests.unit.steps.task.test_text_generation",
                     "name": "DummyLLM",
                 }
             },
@@ -117,11 +103,11 @@ class TestTask:
                 }
             ],
             "type_info": {
-                "module": "tests.unit.pipeline.step.task.test_base",
-                "name": "DummyTask",
+                "module": "distilabel.steps.task.text_generation",
+                "name": "TextGeneration",
             },
         }
 
         with Pipeline() as pipeline:
-            new_task = DummyTask.from_dict(task.dump())
-            assert isinstance(new_task, DummyTask)
+            new_task = TextGeneration.from_dict(task.dump())
+            assert isinstance(new_task, TextGeneration)
