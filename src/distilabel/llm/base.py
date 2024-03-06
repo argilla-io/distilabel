@@ -36,6 +36,11 @@ class LLM(BaseModel, _Serializable, ABC):
     def load(self) -> None:
         pass
 
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        pass
+
     @abstractmethod
     def generate(
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
