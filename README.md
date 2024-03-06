@@ -1,23 +1,69 @@
 <div align="center">
   <h1>⚗️ distilabel</h1>
-  <p><em>AI Feedback (AIF) framework for building datasets with and for LLMs.</em></p>
 </div>
+<h3 align="center">Synthesize data for AI and add feedback on the fly!</h2>
 
-> [!TIP]
-> To discuss, get support, or give feedback [join Argilla's Slack Community](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g) and you will be able to engage with our amazing community and also with the core developers of `argilla` and `distilabel`.
+<p align="center">
+<a  href="https://pypi.org/project/distilabel/">
+<img alt="CI" src="https://img.shields.io/pypi/v/distilabel.svg?style=flat-round&logo=pypi&logoColor=white">
+</a>
+<a href="https://pepy.tech/project/distilabel">
+<img alt="CI" src="https://static.pepy.tech/personalized-badge/distilabel?period=month&units=international_system&left_color=grey&right_color=blue&left_text=pypi%20downloads/month">
+</a>
+</p>
 
-![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)
+<p align="center">
+<a href="https://twitter.com/argilla_io">
+<img src="https://img.shields.io/badge/twitter-black?logo=x"/>
+</a>
+<a href="https://www.linkedin.com/company/argilla-io">
+<img src="https://img.shields.io/badge/linkedin-blue?logo=linkedin"/>
+</a>
+<a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g">
+<img src="https://img.shields.io/badge/slack-purple?logo=slack"/>
+</a>
+</p>
 
-## Features
+Distilabel is the **synthetic data and AI feedback framework for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
 
-- Integrations with the most popular libraries and APIs for LLMs: HF Transformers, OpenAI, vLLM, etc.
-- Multiple tasks for Self-Instruct, Preference datasets and more.
-- Dataset export to Argilla for easy data exploration and further annotation.
+If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
+<!-- ![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)  -->
 
-> [!WARNING]
-> `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks, and also the `README` might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
+## Why use Distilabel?
 
-## Installation
+Whether you are working on **a predictive model** that computes semantic similarity or the next **generative model** that is going to beat the LLM benchmarks. Our framework ensures that the **hard data work pays off**.
+
+### Improve your AI output quality through data quality
+
+Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time on **achieve and keep high-quality standards for your data**.
+
+### Take control of your data and models
+
+**Ownership of data for fine-tuning your own LLMs** is not easy but Distilabel can help you to get started. We integrate **AI feedback from any LLM provider out there** using one unified API.
+
+### Improve efficiency by quickly iterating on the right research and LLMs
+
+Synthesize and judge data with **latest research papers** while ensuring **flexibility, scalability and fault tolerance**. So you can focus on improving your data and training your models.
+
+## 🏘️ Community
+
+We are an open-source community-driven project and we love to hear from you. Here are some ways to get involved:
+
+- [Community Meetup](https://lu.ma/embed-checkout/evt-IQtRiSuXZCIW6FB): listen in or present during one of our bi-weekly events.
+
+- [Slack](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g): get direct support from the community.
+
+- [Roadmap](https://github.com/orgs/argilla-io/projects/10/views/1): plans change but we love to discuss those with our community so feel encouraged to participate.
+
+## What do people build with Distilabel?
+
+Distilabel is a tool that can be used to **synthesize data and provide AI feedback**. Our community uses Distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel), and **we love contributions to open-source** ourselves too.
+
+- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences derived from teknium/OpenHermes-2.5. It shows how we can use Distilabel to **synthesize data at immense scale**.
+- Our [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) and the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B),, show how we **improve model performance by filtering out 50%** of the original dataset through **AI feedback**.
+- The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) outlines how anyone can create a **dataset for a specific task** and **the latest research papers** to improve the quality of the dataset.
+
+## 👨🏽‍💻 Installation
 
 ```sh
 pip install distilabel --upgrade
@@ -40,7 +86,7 @@ In addition, the following extras are available:
 - `vertexai`: for using both [Google Vertex AI](https://cloud.google.com/vertex-ai/?&gad_source=1&hl=es) offerings: their proprietary models and endpoints via their Python client [`google-cloud-aiplatform`](https://github.com/googleapis/python-aiplatform).
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 
-## Example
+### Example
 
 To run the following example you must install `distilabel` with both `openai` and `argilla` extras:
 
@@ -92,13 +138,7 @@ rg_dataset = dataset.to_argilla()
 rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
 ```
 
-## More examples
-
 Find more examples of different use cases of `distilabel` under [`examples/`](./examples/).
-
-Or check out the following Google Colab Notebook:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rO1-OlLFPBC0KPuXQOeMpZOeajiwNoMy?usp=sharing)
 
 ## Badges
 
@@ -116,8 +156,3 @@ If you build something cool with `distilabel` consider adding one of these badge
 
 To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
 
-## References
-
-* [UltraFeedback: Boosting Language Models with High-quality Feedback](https://arxiv.org/abs/2310.01377)
-* [JudgeLM: Fine-tuned Large Language Models are Scalable Judges](https://arxiv.org/abs/2310.17631)
-* [Self-Instruct: Aligning Language Models with Self-Generated Instructions](https://arxiv.org/abs/2212.10560)
