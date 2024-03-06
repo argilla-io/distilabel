@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -71,11 +72,12 @@ class TestOpenAILLM:
         )
 
     def test_serialization(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+        os.environ["OPENAI_API_KEY"] = "api.key"
+        llm = OpenAILLM(model="gpt-4")  # type: ignore
 
         _dump = {
             "model": "gpt-4",
-            "_type_info_": {
+            "type_info": {
                 "module": "distilabel.llm.openai",
                 "name": "OpenAILLM",
             },
