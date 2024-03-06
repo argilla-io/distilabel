@@ -50,21 +50,18 @@ class Task(Step, ABC):
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-
         self.llm.load()  # type: ignore
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Asbtract method to format the inputs of the task. It needs to receive an input
         as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
-
         pass
 
     @abstractmethod
     def format_output(self, output: str) -> Dict[str, Any]:
         """Asbtract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task."""
-
         pass
 
     def process(self, inputs: StepInput) -> StepOutput:
@@ -76,7 +73,6 @@ class Task(Step, ABC):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
-
         formatted_inputs = [self.format_input(input) for input in inputs]
         outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
