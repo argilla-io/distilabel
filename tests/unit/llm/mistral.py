@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -20,6 +21,9 @@ import pytest
 from distilabel.llm.mistral import MistralLLM
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+)
 @patch("mistralai.async_client.MistralAsyncClient")
 class TestMistralLLM:
     def test_mistral_llm(self, mock_mistral: MagicMock) -> None:
