@@ -1,7 +1,7 @@
 <div align="center">
   <h1>⚗️ distilabel</h1>
 </div>
-<h3 align="center">Synthesize data for AI while adding feedback on the fly!</h2>
+<h3 align="center">Synthesize data for AI and add feedback on the fly!</h2>
 
 <p align="center">
 <a  href="https://pypi.org/project/distilabel/">
@@ -31,11 +31,11 @@ If you just want to get started, we recommend you check the [documentation](http
 
 ## Why use Distilabel?
 
-Whether you are working on **a predictive model** that computes semantic similarity or the next **generative model** that is going to beat the LLM benchmarks. Our framework ensures that the **hard data work pays off**.
+Whether you are working on **a predictive model** that computes semantic similarity or the next **generative model** that is going to beat the LLM benchmarks. Our framework ensures that the **hard data work pays off**. Distilabel is the missing piece that helps you **synthesize data** and provide **AI feedback**.
 
 ### Improve your AI output quality through data quality
 
-Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time on **achieve and keep high-quality standards for your data**.
+Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time on **achieveing and keeping high-quality standards for your data**.
 
 ### Take control of your data and models
 
