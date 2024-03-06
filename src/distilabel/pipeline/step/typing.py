@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Tuple, TypeVar, Union
 
+from pydantic import Field
 from typing_extensions import Annotated
 
 StepInput = Annotated[List[Dict[str, Any]], "StepInput"]
@@ -28,3 +29,11 @@ GeneratorStepOutput = Annotated[
     Iterator[Tuple[List[Dict[str, Any]], bool]], "GeneratorStepOutput"
 ]
 """GeneratorStepOutput is just an `Annotated` alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+
+_T = TypeVar("_T")
+_RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
+
+RuntimeParameter = Annotated[
+    Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
+]
+"""Used to mark the attributes of a `Step` as a runtime parameter."""

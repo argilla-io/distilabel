@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.step.base import RuntimeParameter, Step
+from distilabel.pipeline.step.base import Step
 from distilabel.pipeline.step.generators.huggingface import LoadHubDataset
-from distilabel.pipeline.step.typing import StepInput
+from distilabel.pipeline.step.typing import RuntimeParameter, StepInput
 
 
 class RenameColumns(Step):
@@ -30,13 +30,13 @@ class RenameColumns(Step):
 
     @property
     def outputs(self) -> List[str]:
-        return list(self.rename_mappings.values())
+        return list(self.rename_mappings.values())  # type: ignore
 
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         outputs = []
         for input in inputs:
             outputs.append(
-                {self.rename_mappings.get(k, k): v for k, v in input.items()}
+                {self.rename_mappings.get(k, k): v for k, v in input.items()}  # type: ignore
             )
         yield outputs
 
@@ -59,7 +59,7 @@ class GenerateResponse(Step):
 def test_pipeline():
     with Pipeline() as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
+        rename_columns = RenameColumns(name="rename_columns")  # type: ignore
         generate_response = GenerateResponse(name="generate_response")
 
         load_hub_dataset.connect(rename_columns)

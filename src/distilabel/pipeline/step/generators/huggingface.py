@@ -19,8 +19,8 @@ import requests
 from datasets import load_dataset
 from pydantic import Field
 
-from distilabel.pipeline.step.base import GeneratorStep, RuntimeParameter
-from distilabel.pipeline.step.typing import GeneratorStepOutput
+from distilabel.pipeline.step.base import GeneratorStep
+from distilabel.pipeline.step.typing import GeneratorStepOutput, RuntimeParameter
 
 
 @lru_cache
