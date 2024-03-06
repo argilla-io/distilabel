@@ -1,7 +1,7 @@
 <div align="center">
   <h1>⚗️ distilabel</h1>
 </div>
-<h3 align="center">Synthesize data for AI and add feedback on the fly!</h2>
+<h3 align="center">Synthesize data for AI while adding feedback on the fly!</h2>
 
 <p align="center">
 <a  href="https://pypi.org/project/distilabel/">
