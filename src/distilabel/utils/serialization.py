@@ -16,36 +16,44 @@ import importlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Generic, List, Literal, Optional, Type, TypeVar, get_args
+from typing import Any, Dict, List, Literal, Type, TypeVar, Union, get_args
 
 import yaml
 from pydantic import BaseModel
+from typing_extensions import Self
 
 T = TypeVar("T")
 
 DISTILABEL_FILENAME = "distilabel-file.json"
+TYPE_INFO_KEY = "type_info"
 
 
+StrOrPath = Union[str, os.PathLike]
 SaveFormats = Literal["json", "yaml"]
 
 
 def _get_class(module: str, name: str) -> Type:
+    """Gets a class given the module and the name of the class.
+
+    Returns:
+        The type of the class.
+    """
     mod = importlib.import_module(module)
     return getattr(mod, name)
 
 
-def load_from_dict(class_: Dict[str, Any]) -> Generic[T]:
-    """Reads a template (a class serialized) and returns the instance
-    contained.
+def load_from_dict(class_: Dict[str, Any]) -> Any:
+    """Creates an instance of a class from a dictionary containing the type info and the
+    serialized data of the class.
 
     Args:
-        class_ (Dict[str, Any]): Dict containing the template, the dict serialized.
+        class_: dictionary containing the type info and the serialized data of the class.
 
     Returns:
-        Generic[T]: Instance contained in the template
+        An instance of the class with the data loaded from the dictionary.
     """
-    type_info = class_.pop("_type_info_")
-    if "_type_info_" in type_info:
+    type_info = class_.pop(TYPE_INFO_KEY)
+    if TYPE_INFO_KEY in type_info:
         # There is a nested type_info, load the class recursively
         type_info = load_from_dict(type_info)
 
@@ -54,51 +62,51 @@ def load_from_dict(class_: Dict[str, Any]) -> Generic[T]:
     return instance
 
 
-def write_json(filename: Path, data: Dict[str, Any]) -> None:
-    """Writes a json file to the given path, creates the parent dir.
+def write_json(filename: Path, data: Any) -> None:
+    """Writes a JSON file to the given path, creating the parent dir if needed.
 
     Args:
-        filename (Path): Name of the file.
-        data (Dict[str, Any]): Dict to be written as json.
+        filename: the path to the file.
+        data: the data to write to the file.
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
     with open(filename, "w") as file:
         json.dump(data, file, indent=2)
 
 
-def read_json(filename: Path) -> Dict[str, Any]:
-    """Read a json file from disk.
+def read_json(filename: StrOrPath) -> Any:
+    """Reads a JSON file.
 
     Args:
-        filename (Path): Name of the json file.
+        filename: the path to the JSON file.
 
     Returns:
-        Dict[str, Any]: Dict containing the json data.
+        The data from the file.
     """
     with open(filename, "r") as file:
         return json.load(file)
 
 
 def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
-    """Writes a yaml file to the given path, creates the parent dir.
+    """Writes a YAML file to the given path, creating the parent dir if needed.
 
     Args:
-        filename (Path): Name of the file.
-        data (Dict[str, Any]): Dict to be written as yaml.
+        filename: the path to the file.
+        data: the data to write to the file.
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
     with open(filename, "w") as file:
         yaml.dump(data, file, default_flow_style=False)
 
 
-def read_yaml(filename: Path) -> Dict[str, Any]:
-    """Read a yaml file from disk.
+def read_yaml(filename: StrOrPath) -> Dict[str, Any]:
+    """Reads a YAML file.
 
     Args:
-        filename (Path): Name of the yaml file.
+        filename: the path to the YAML file.
 
     Returns:
-        Dict[str, Any]: Dict containing the json data.
+        The data from the file.
     """
     with open(filename, "r") as file:
         return yaml.load(file, Loader=yaml.FullLoader)
@@ -107,24 +115,22 @@ def read_yaml(filename: Path) -> Dict[str, Any]:
 class _Serializable:
     """Base class for serializable classes. It provides the means to serialize and deserialize."""
 
-    _type_info_: Dict[str, Any] = {}
+    _type_info: Dict[str, Any] = {}
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Method in charge of serializing the object.
 
-        This method works for pydantic models (the classes that inherit from pydantic's
-        BaseModel). Other classes will have to reimplement this method, like the DAG class.
+        This method works for `pydantic.BaseModel`s. Other classes will have to reimplement
+        this method, like the `DAG` class.
 
         The signature must be respected, `obj` represents the object to serialize and `kwargs` are
         the optional parameters for the method used.
-        For example in the case of a pydantic model, the method `model_dump` is used,
-        but for the DAG class, we networkx to obtain the information.
 
         Args:
-            obj (Any): The object to be serialized.
+            obj: the object to be serialized.
 
         Returns:
-            Dict[str, Any]: Data to be dumped for the object.
+            A dictionary containing the serializable content of the class.
         """
         # Any parameter named api_key will be excluded from the dump (those are supposed to be SecretStr anyway,
         # and will remove them afterwards)
@@ -136,19 +142,18 @@ class _Serializable:
         return dump
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
-        """Transforms the class into a dict to write to a file.
+        """Transforms the class into a dict including the type info to be serialized.
 
         Args:
-            kwargs: Optional parameters to be used in the serialization process.
+            kwargs: optional parameters to be used in the serialization process.
 
         Returns:
-            Dict[str, Any]: Serializable content of the class.
-
+            A dictionary containing the serializable content of the class.
         """
         _dict = self._model_dump(self, **kwargs)
         # Remove private variables from the dump
         _dict = {k: v for k, v in _dict.items() if not k.startswith("_")}
-        _dict["_type_info_"] = {
+        _dict[TYPE_INFO_KEY] = {
             "module": type(self).__module__,
             "name": type(self).__name__,
         }
@@ -156,18 +161,24 @@ class _Serializable:
 
     def save(
         self,
-        path: Optional[os.PathLike] = None,
+        path: Union[StrOrPath, None] = None,
         format: SaveFormats = "json",
         **kwargs: Any,
     ) -> None:
-        """Writes the content to a file.
+        """Serialized the object and saves it to a file.
 
         Args:
-            path (Optional[os.PathLike], optional):
-                Filename of the object to save. If a folder is given, will create the object
+            path: filename of the object to save. If a folder is given, will create the object
                 inside. If None is given, the file will be created at the current
                 working directory. Defaults to None.
-            format (SaveFormats, optional): The format to save the file, must be one of `json` or `yaml`.
+            path: the path where the file containing the serialized object will be saved.
+                If a folder is given, a file with the name 'distilabel-file.json' will be
+                created inside. Defaults to `None`.
+            format: the format to use when saving the file. Valid options are 'json' and
+                'yaml'. Defaults to `"json"`.
+
+        Raises:
+            ValueError: if the provided `format` is not valid.
         """
         if path is None:
             path = Path.cwd() / DISTILABEL_FILENAME
@@ -186,53 +197,56 @@ class _Serializable:
             )
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Generic[T]:
-        """Creates a class from a dict and returns the instance.
+    def from_dict(cls, data: Dict[str, Any]) -> Self:
+        """Creates a class from a dict containing the type info and the serialized data
+        of the class.
 
         Args:
-            data (Dict[str, Any]): Data needed to create the instance.
+            data: dictionary containing the type info and the serialized data of the class.
 
         Returns:
-            Generic[T]: Instance of the class.
+            An instance of the class with the data loaded from the dictionary.
         """
         return load_from_dict(data)
 
     @classmethod
-    def from_json(cls, path: os.PathLike) -> Generic[T]:
-        """Loads a class from a file and returns the instance contained.
+    def from_json(cls, path: StrOrPath) -> Self:
+        """Loads a class type info and the serialized data from a JSON file and returns
+        an instance of the class.
 
         Args:
-            path (os.PathLike): Path to the file containing the serialized class.
+            path: the path to the file containing the serialized class.
 
         Raises:
-            ValueError: If the path is a directory.
+            ValueError: if the path is a directory.
 
         Returns:
-            Generic[T]: Instance of the class.
+            An instance of the class.
         """
         _check_is_dir(path)
         content = read_json(path)
         return cls.from_dict(content)
 
     @classmethod
-    def from_yaml(cls, path: os.PathLike) -> Generic[T]:
-        """Loads a class from a yaml file and returns the instance contained.
+    def from_yaml(cls, path: StrOrPath) -> Self:
+        """Loads a class type info and the serialized data from a YAML file and returns
+        an instance of the class.
 
         Args:
-            path (os.PathLike): Path to the file containing the serialized class.
+            path: the path to the file containing the serialized class.
 
         Raises:
-            ValueError: If the path is a directory.
+            ValueError: if the path is a directory.
 
         Returns:
-            Generic[T]: Instance of the class.
+            An instance of the class.
         """
         _check_is_dir(path)
         content = read_yaml(path)
         return cls.from_dict(content)
 
 
-def _check_is_dir(path: os.PathLike) -> None:
+def _check_is_dir(path: StrOrPath) -> None:
     if Path(path).is_dir():
         raise ValueError(f"You must provide a file path, not a directory: {path}")
 
@@ -243,7 +257,7 @@ def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]
     # those that don't, so we loop over the classes and update those that are _Serializable.
     # Extra introspection to dump nested objects.
     # Mainly for the LLMs inside a Task for the moment.
-    # This way we ensure the _type_info_ is inserted in those objects.
+    # This way we ensure the "type_info" is inserted in those objects.
     from distilabel.pipeline.base import BasePipeline
 
     to_update = []

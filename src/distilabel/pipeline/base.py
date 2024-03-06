@@ -20,9 +20,10 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
 from typing_extensions import Self
 
+from distilabel import __version__
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.logging import get_logger
-from distilabel.pipeline.serialization import _Serializable
+from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -162,13 +163,10 @@ class BasePipeline(_Serializable):
         return {}
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
-        from distilabel import __version__
+        return self.dag.dump()
 
-        return {
-            "dag": self.dag.dump(),
-            "_state_": self._get_state(),
-            "_meta_": {"__version__": __version__},
-        }
+    def dump(self, **kwargs: Any) -> Dict[str, Any]:
+        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
@@ -186,13 +184,10 @@ class BasePipeline(_Serializable):
         Returns:
             pipeline (BasePipeline): _description_
         """
-        pipe = cls()
-        if dag := data.get("dag"):
-            # For DAG.from_dict to work we need to be in the context of a Pipeline
-            pipe.dag = DAG.from_dict(dag)
-            return pipe
-        else:
-            raise ValueError("No DAG found in the data dictionary")
+
+        with cls() as pipe:
+            pipe.dag = DAG.from_dict(data["pipeline"])
+        return pipe
 
     @property
     def _cache_filename(self) -> Path:

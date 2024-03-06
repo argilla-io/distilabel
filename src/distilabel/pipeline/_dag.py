@@ -29,7 +29,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.utils.serialization import _get_class, _Serializable
+from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.step.base import _Step
@@ -331,12 +331,19 @@ class DAG(_Serializable):
         from networkx.readwrite import json_graph
 
         adjacency_data = json_graph.adjacency_data(self.G, **kwargs)
-        # Update the nodes with the serialized steps.
-        adjacency_data["nodes"] = [
-            {"step": node["step"].dump(), "id": node["id"]}
-            for node in adjacency_data["nodes"]
-        ]
-        return adjacency_data
+
+        data = {"steps": [], "connections": []}
+        for i, node in enumerate(adjacency_data["nodes"]):
+            name = node["id"]
+            data["steps"].append({"step": node["step"].dump(), "name": name})
+            data["connections"].append(
+                {
+                    "from": name,
+                    "to": [node["id"] for node in adjacency_data["adjacency"][i]],
+                }
+            )
+
+        return data
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "DAG":
@@ -348,19 +355,16 @@ class DAG(_Serializable):
         Returns:
             DAG: Instance of the DAG from the serialized content.
         """
-        from networkx.readwrite import json_graph
 
         dag = cls()
-        # Loop through the nodes and instantiate the steps from the dict info.
-        nodes = []
-        for node in data["nodes"]:
-            step = node["step"]
-            # Create the step instance from the serialized content, dynamically loading the step.
-            cls_step: Type["_Step"] = _get_class(**step["_type_info_"])
-            nodes.append({"step": cls_step.from_dict(step), "id": node["id"]})
 
-        # Update the instantiated nodes (the steps), and recreate the digraph.
-        data.update({"nodes": nodes})
+        for step in data["steps"]:
+            cls_step: Type["_Step"] = _get_class(**step["step"][TYPE_INFO_KEY])
+            dag.add_step(cls_step.from_dict(step["step"]))
 
-        dag.G = json_graph.adjacency_graph(data)
+        for connection in data["connections"]:
+            from_step = connection["from"]
+            for to_step in connection["to"]:
+                dag.add_edge(from_step, to_step)
+
         return dag

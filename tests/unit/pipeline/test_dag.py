@@ -331,13 +331,14 @@ class TestDagSerialization:
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
         dump = dag.dump()
-        # Check the type info is preserved
-        assert "_type_info_" in dump
-        assert dump["_type_info_"]["module"] == "distilabel.pipeline._dag"
-        assert dump["_type_info_"]["name"] == "DAG"
 
-        assert len(dump["nodes"]) == 2
-        assert isinstance(dump["nodes"][0]["step"], dict)
+        assert "steps" in dump
+        assert len(dump["steps"]) == 2
+        assert "connections" in dump
+        assert dump["connections"] == [
+            {"from": "dummy_step_1", "to": ["dummy_step_2"]},
+            {"from": "dummy_step_2", "to": []},
+        ]
 
     def test_dag_from_dict(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
         dag = DAG()
@@ -348,8 +349,9 @@ class TestDagSerialization:
         with Pipeline():
             new_dag = DAG.from_dict(dag.dump())
         assert isinstance(new_dag, DAG)
+        assert "dummy_step_1" in new_dag.G
         assert "dummy_step_2" in new_dag.G
-        assert dag.dump() == new_dag.dump()
+        assert "dummy_step_2" in new_dag.G["dummy_step_1"]
 
     def test_dag_from_dict_errored_without_pipeline(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
