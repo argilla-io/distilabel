@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import inspect
-from typing import TYPE_CHECKING, Callable, List, Literal, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Literal, Type, TypeVar, Union
 
 from pydantic import create_model
 
@@ -90,12 +90,22 @@ def step(
             yield [{"num": num} for num in data[i : i + 100]], last_batch
     ```
     """
+
     inputs = inputs or []
     outputs = outputs or []
 
     def decorator(
         func: Callable[..., Union["StepOutput", "GeneratorStepOutput"]],
     ) -> Type["_Step"]:
+        if step_type not in _step_mapping:
+            raise ValueError(
+                f"Invalid step type '{step_type}'. Please, review the '{func.__name__}'"
+                " function decorated with the `@step` decorator and provide a valid"
+                " `step_type`. Valid choices are: 'normal', 'global' or 'generator'."
+            )
+
+        BaseClass = _step_mapping[step_type]
+
         signature = inspect.signature(func)
 
         runtime_parameters = {
@@ -112,13 +122,6 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        if step_type not in _step_mapping:
-            raise ValueError(
-                f"Invalid step type '{step_type}'. Valid choices are: {', '.join(_step_mapping.keys())}"
-            )
-
-        BaseClass = _step_mapping[step_type]
-
         def inputs_property(self) -> List[str]:
             return inputs
 
@@ -126,7 +129,7 @@ def step(
             return outputs
 
         def process(
-            self, *args, **kwargs
+            self, *args: Any, **kwargs: Any
         ) -> Union["StepOutput", "GeneratorStepOutput"]:
             return func(*args, **kwargs)
 
