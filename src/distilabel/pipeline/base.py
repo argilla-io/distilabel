@@ -108,13 +108,18 @@ class BasePipeline(_Serializable):
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
             for argument, value in step["step"].items():
-                if argument == TYPE_INFO_KEY:
+                if (
+                    (argument == TYPE_INFO_KEY)
+                    or (argument == "llm")
+                    or (value is None)
+                ):
+                    # NOTE: Should we include the LLM info at this stage??
                     continue
 
                 if isinstance(value, dict):
                     # input_mappings/output_mappings
                     step_info += "-".join(
-                        [f"{str(k)-str(v)}" for k, v in value.items()]
+                        [f"{str(k)}-{str(v)}" for k, v in value.items()]
                     )
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
