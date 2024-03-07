@@ -52,7 +52,8 @@ class Pipeline(BasePipeline):
         write_buffer = _WriteBuffer(
             path=buffer_data_path, leaf_steps=self.dag.leaf_steps
         )
-        batch_manager = _BatchManager.from_dag(self.dag)
+        if self._batch_manager is None:
+            self._batch_manager = _BatchManager.from_dag(self.dag)
 
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
@@ -66,7 +67,7 @@ class Pipeline(BasePipeline):
                 batch = output_queue.get()
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
-                    for new_batch in batch_manager.add_batch(
+                    for new_batch in self._batch_manager.add_batch(
                         to_step=step_name, batch=batch
                     ):
                         self._send_batch_to_step(new_batch)
