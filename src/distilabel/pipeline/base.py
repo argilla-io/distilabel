@@ -38,6 +38,7 @@ class CacheFilenames(TypedDict):
 
     pipeline: Path
     batch_manager: Path
+    data: Path
 
 
 class _GlobalPipelineManager:
@@ -107,7 +108,7 @@ class BasePipeline(_Serializable):
         pipeline_dump = self.dump()["pipeline"]
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
-            for argument, value in step["step"].items():
+            for argument, value in sorted(step["step"].items()):
                 if (
                     (argument == TYPE_INFO_KEY)
                     or (argument == "llm")
@@ -233,6 +234,7 @@ class BasePipeline(_Serializable):
         return {
             "pipeline": folder / "pipeline.json",
             "batch_manager": folder / "batch_manager.json",
+            "data": folder / "data.jsonl",
         }
 
     def _cache(self) -> None:

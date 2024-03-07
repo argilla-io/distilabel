@@ -47,7 +47,9 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        buffer_data_path = self._cache_dir / "data.jsonl"
+        buffer_data_path = self._cache_filenames[
+            "data"
+        ]  # self._cache_dir / "data.jsonl"
         self._logger.info(f"📝 Writing buffer to {buffer_data_path}")
         write_buffer = _WriteBuffer(
             path=buffer_data_path, leaf_steps=self.dag.leaf_steps
@@ -148,6 +150,8 @@ class _WriteBuffer:
         # if path.exists() and not path.is_dir():
         #     raise ValueError(f"Path '{path}' already exists and is not a directory")
         self._path = path
+        if not self._path.exists():
+            self._path.parent.mkdir(parents=True)
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
 
     @property
