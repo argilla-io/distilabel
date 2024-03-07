@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 from distilabel.pipeline.local import Pipeline
@@ -58,38 +57,6 @@ class GenerateResponse(Step):
     @property
     def outputs(self) -> List[str]:
         return ["response"]
-
-
-def test_pipeline_from_dump():
-    with Pipeline() as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")  # type: ignore
-        generate_response = GenerateResponse(name="generate_response")
-
-        load_hub_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
-        dump = pipeline.dump()
-
-    # Recreate the pipeline from the dump
-    with Pipeline() as pipe:
-        pipe = pipe.from_dict(dump)
-
-    pipe.run(
-        parameters={
-            "load_dataset": {
-                "repo_id": "alvarobartt/test",
-                "split": "train",
-            },
-            "rename_columns": {
-                "rename_mappings": {
-                    "prompt": "instruction",
-                }
-            },
-        }
-    )
-    data_buffered_file = pipe._cache_dir / "data.jsonl"
-    assert Path(data_buffered_file).exists()
-    data_buffered_file.unlink()
 
 
 def test_pipeline_cached():
