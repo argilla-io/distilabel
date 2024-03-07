@@ -81,8 +81,7 @@ class Task(Step, ABC):
 
         outputs = []
         for input, formatted_output in zip(inputs, formatted_outputs):
-            output = {k: v for k, v in input.items() if k in self.inputs}
-            output.update(formatted_output)
-            output["model_name"] = self.llm.model_name
-            outputs.append(output)
+            input.update(formatted_output)
+            input["model_name"] = self.llm.model_name
+            outputs.append(input)
         yield outputs
