@@ -29,6 +29,7 @@ dependencies = [
     "pydantic >= 2.0",
     "networkx >= 3.0",
     "scipy >= 1.10.0",
+    "typer >= 0.9.0",
 ]
 dynamic = ["version"]
 
@@ -72,9 +73,6 @@ exclude = ["docs"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 14
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
