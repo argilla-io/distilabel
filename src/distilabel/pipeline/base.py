@@ -173,10 +173,28 @@ class BasePipeline(_Serializable):
             step._set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the DAG content to a dict.
+
+        Args:
+            obj (Any): Unused, just kept to match the signature of the parent method.
+            kwargs (Any): Unused, just kept to match the signature of the parent method.
+
+        Returns:
+            Dict[str, Any]: Internal representation of the DAG from networkx in a serializable format.
+        """
         return self.dag.dump()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
-        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
+        """Transforms the pipeline to it's dictionary representation.
+
+        Returns:
+            Dict[str, Any]: Dictionary representing the pipeline.
+        """
+        return {
+            "pipeline": super().dump(),
+            "distilabel": {"version": __version__},
+            "batch_manager": self._batch_manager.dump() if self._batch_manager else {},
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
@@ -186,13 +204,10 @@ class BasePipeline(_Serializable):
             It's intended for internal use.
 
         Args:
-            data (Dict[str, Any]): Dict containing the serialized data from a Pipeline.
-
-        Raises:
-            ValueError: _description_
+            data (Dict[str, Any]): Dictionary containing the serialized data from a Pipeline.
 
         Returns:
-            pipeline (BasePipeline): _description_
+            BasePipeline: Pipeline recreated from the dictionary info.
         """
 
         with cls() as pipe:
@@ -201,22 +216,21 @@ class BasePipeline(_Serializable):
 
     @property
     def _cache_filename(self) -> Path:
+        """Directory where this pipeline will be cached.
+
+        Returns:
+            Path: Filename where the pipeline will be serialized.
+        """
         return self._cache_dir / f"{self._create_signature()}/pipeline.json"
 
     def _cache(self) -> None:
+        """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file)."""
         if not self._cache_filename.exists():
             self.save(path=self._cache_filename, format="json")
 
     def _load_from_cache(self) -> None:
-        """Try to load the Pipeline from the cache dir.
-
-        WIP
-
-        Args:
-            dirname (str): _description_
-
-        Returns:
-            BasePipeline: _description_
+        """Will try to load the `BasePipeline` from the cache dir if found, updating
+        the internal `DAG` and `_BatchManager`.
         """
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
@@ -226,8 +240,9 @@ class BasePipeline(_Serializable):
             # (it will check the steps aren't already defined for the DAG).
             self.dag = DAG()
             new_class = self.from_json(cache_filename)
-            # Update the internal dag
+            # Update the internal dag and batch_manager
             self.dag.G = new_class.dag.G
+            self._batch_manager = new_class._batch_manager
             self._logger.info("💾 Load pipeline from cache")
 
 
