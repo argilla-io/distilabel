@@ -232,7 +232,7 @@ class BasePipeline(_Serializable):
         """
         folder = self._cache_dir / self._create_signature()
         return {
-            "pipeline": folder / "pipeline.json",
+            "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
             "data": folder / "data.jsonl",
         }
@@ -240,9 +240,17 @@ class BasePipeline(_Serializable):
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file)."""
         if not self._cache_filenames["pipeline"].exists():
-            self.save(path=self._cache_filenames["pipeline"], format="json")
+            self.save(
+                path=self._cache_filenames["pipeline"],
+                format=self._cache_filenames["pipeline"].suffix.replace(".", ""),
+            )
             if self._batch_manager is not None:
-                self._batch_manager.save(self._cache_filenames["batch_manager"])
+                self._batch_manager.save(
+                    self._cache_filenames["batch_manager"],
+                    format=self._cache_filenames["batch_manager"].suffix.replace(
+                        ".", ""
+                    ),
+                )
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -255,7 +263,7 @@ class BasePipeline(_Serializable):
             # Refresh the DAG to avoid errors when it's created within a context manager
             # (it will check the steps aren't already defined for the DAG).
             self.dag = DAG()
-            new_class = self.from_json(cache_filenames["pipeline"])
+            new_class = self.from_yaml(cache_filenames["pipeline"])
             # Update the internal dag and batch_manager
             self.dag.G = new_class.dag.G
             if cache_filenames["batch_manager"].exists():

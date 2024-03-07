@@ -151,7 +151,7 @@ class _WriteBuffer:
         #     raise ValueError(f"Path '{path}' already exists and is not a directory")
         self._path = path
         if not self._path.exists():
-            self._path.parent.mkdir(parents=True)
+            self._path.parent.mkdir(parents=True, exist_ok=True)
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
 
     @property
