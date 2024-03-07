@@ -840,10 +840,9 @@ class TestPipelineSerialization:
     def test_base_pipeline_dump(self):
         pipeline = BasePipeline()
         dump = pipeline.dump()
-        assert len(dump.keys()) == 3
+        assert len(dump.keys()) == 2
         assert "pipeline" in dump
         assert "distilabel" in dump
-        assert "batch_manager" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
@@ -858,10 +857,9 @@ class TestPipelineSerialization:
 
         pipeline = Pipeline()
         dump = pipeline.dump()
-        assert len(dump.keys()) == 3
+        assert len(dump.keys()) == 2
         assert "pipeline" in dump
         assert "distilabel" in dump
-        assert "batch_manager" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.local"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "Pipeline"
@@ -930,10 +928,10 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
-                assert not pipeline._cache_filename.exists()
+                assert not pipeline._cache_filenames["pipeline"].exists()
                 pipeline.run()
             # Check the file exists AFTER we are out of the context manager
-            assert pipeline._cache_filename.exists()
+            assert pipeline._cache_filenames["pipeline"].exists()
 
             with BasePipeline(tmpdirname) as pipe:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -942,9 +940,9 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
-                cache_filename = pipe._cache_filename
-                assert pipe._cache_filename.exists()
+                cache_filename = pipe._cache_filenames["pipeline"]
+                assert pipe._cache_filenames["pipeline"].exists()
                 # Run the pipeline and check the _cache_filename is the same afterwards
                 pipe.run()
-                assert pipe._cache_filename.exists()
-                assert cache_filename == pipe._cache_filename
+                assert pipe._cache_filenames["pipeline"].exists()
+                assert cache_filename == pipe._cache_filenames["pipeline"]

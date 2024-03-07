@@ -15,7 +15,7 @@
 import hashlib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, TypedDict, Union
 
 from typing_extensions import Self
 
@@ -31,6 +31,13 @@ if TYPE_CHECKING:
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
+
+
+class CacheFilenames(TypedDict):
+    """Dictionary to store the filenames of a cached pipeline."""
+
+    pipeline: Path
+    batch_manager: Path
 
 
 class _GlobalPipelineManager:
@@ -190,11 +197,7 @@ class BasePipeline(_Serializable):
         Returns:
             Dict[str, Any]: Dictionary representing the pipeline.
         """
-        return {
-            "pipeline": super().dump(),
-            "distilabel": {"version": __version__},
-            "batch_manager": self._batch_manager.dump() if self._batch_manager else {},
-        }
+        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
@@ -215,18 +218,24 @@ class BasePipeline(_Serializable):
         return pipe
 
     @property
-    def _cache_filename(self) -> Path:
-        """Directory where this pipeline will be cached.
+    def _cache_filenames(self) -> CacheFilenames:
+        """Dictionary containing the object and the filenames to load them back..
 
         Returns:
-            Path: Filename where the pipeline will be serialized.
+            Path: Filenames where the pipeline content will be serialized.
         """
-        return self._cache_dir / f"{self._create_signature()}/pipeline.json"
+        folder = self._cache_dir / self._create_signature()
+        return {
+            "pipeline": folder / "pipeline.json",
+            "batch_manager": folder / "batch_manager.json",
+        }
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file)."""
-        if not self._cache_filename.exists():
-            self.save(path=self._cache_filename, format="json")
+        if not self._cache_filenames["pipeline"].exists():
+            self.save(path=self._cache_filenames["pipeline"], format="json")
+            if self._batch_manager is not None:
+                self._batch_manager.save(self._cache_filenames["batch_manager"])
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -234,15 +243,18 @@ class BasePipeline(_Serializable):
         """
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
-        cache_filename = self._cache_filename
-        if cache_filename.exists():
+        cache_filenames = self._cache_filenames
+        if cache_filenames["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
             # (it will check the steps aren't already defined for the DAG).
             self.dag = DAG()
-            new_class = self.from_json(cache_filename)
+            new_class = self.from_json(cache_filenames["pipeline"])
             # Update the internal dag and batch_manager
             self.dag.G = new_class.dag.G
-            self._batch_manager = new_class._batch_manager
+            if cache_filenames["batch_manager"].exists():
+                self._batch_manager = _BatchManager.from_json(
+                    cache_filenames["batch_manager"]
+                )
             self._logger.info("💾 Load pipeline from cache")
 
 
