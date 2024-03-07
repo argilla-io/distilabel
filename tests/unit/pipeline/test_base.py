@@ -912,7 +912,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_step_2)
 
         signature = pipeline._create_signature()
-        assert signature == "a0e64e1b0513e3b5c3715bf4a3771945737f31e8"
+        assert signature == "1522f4b226c969c60b52af09e5a0fb8fd47c3bbb"
 
     def test_run_pipe_and_load_from_cache(self):
         # Maybe not the best place for this test, but does the work for now

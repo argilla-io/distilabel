@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import hashlib
-import itertools
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
@@ -74,6 +73,8 @@ class BasePipeline(_Serializable):
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
         self._logger = get_logger("pipeline")
+        # It's set to None here, will be created in the call to run
+        self._batch_manager: Optional["_BatchManager"] = None
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -94,22 +95,38 @@ class BasePipeline(_Serializable):
             int: Signature of the pipeline.
         """
         hasher = hashlib.sha1()
-        dag_dump = self.dump()["dag"]
-        steps_info = []
-        for node in dag_dump["nodes"]:
-            steps_info.append(node["id"])
-            steps_info.extend(
-                sorted(
-                    [
-                        f"{arg}-{str(value)}"
-                        for arg, value in node["step"].items()
-                        if not arg.startswith("_")
-                    ]
-                )
-            )
 
-        adjacency_ids = [adj["id"] for adj in itertools.chain(*dag_dump["adjacency"])]
-        hasher.update(",".join(steps_info + adjacency_ids).encode())
+        steps_info = []
+        pipeline_dump = self.dump()["pipeline"]
+        for step in pipeline_dump["steps"]:
+            step_info = step["name"]
+            for argument, value in step["step"].items():
+                if argument == TYPE_INFO_KEY:
+                    continue
+
+                if isinstance(value, dict):
+                    # input_mappings/output_mappings
+                    step_info += "-".join(
+                        [f"{str(k)-str(v)}" for k, v in value.items()]
+                    )
+                elif isinstance(value, (list, tuple)):
+                    # runtime_parameters_info
+                    step_info += "-".join([str(v) for v in value])
+                elif isinstance(value, (int, str)):
+                    # batch_size/name
+                    step_info += str(value)
+                else:
+                    raise ValueError(
+                        f"Field '{argument}' in step '{step['name']}' has type {type(value)}, explicitly cast the type to 'str'."
+                    )
+
+            steps_info.append(step_info)
+
+        connections_info = [
+            f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
+        ]
+        hasher.update(",".join(steps_info + connections_info).encode())
+
         return hasher.hexdigest()
 
     def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
