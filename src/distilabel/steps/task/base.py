@@ -24,6 +24,19 @@ from distilabel.steps.typing import StepInput, StepOutput
 
 
 class Task(Step, ABC):
+    """Task is an abstract class that implements the `Step` interface and adds the
+    `format_input` and `format_output` methods to format the inputs and outputs of the
+    task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
+
+    Args:
+        llm: the `LLM` to be used to generate the outputs of the task.
+        generation_kwargs: The kwargs to be propagated to either `generate` or
+            `agenerate` methods within each `LLM`. Note that these kwargs will be
+            specific to each LLM, and while some as `temperature` may be present on each
+            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
+            in advance to see which kwargs are available.
+    """
+
     llm: LLM
 
     generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
@@ -36,17 +49,30 @@ class Task(Step, ABC):
     )
 
     def load(self) -> None:
+        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
         self.llm.load()  # type: ignore
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> ChatType:
+        """Asbtract method to format the inputs of the task. It needs to receive an input
+        as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
         pass
 
     @abstractmethod
     def format_output(self, output: str) -> Dict[str, Any]:
+        """Asbtract method to format the outputs of the task. It needs to receive an output
+        as a string, and generates a Python dictionary with the outputs of the task."""
         pass
 
-    def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+    def process(self, inputs: StepInput) -> StepOutput:
+        """Processes the inputs of the task and generates the outputs using the LLM.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list of Python dictionaries with the outputs of the task.
+        """
         formatted_inputs = [self.format_input(input) for input in inputs]
         outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore

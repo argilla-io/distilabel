@@ -20,7 +20,7 @@ from distilabel.llm.openai import OpenAILLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import RuntimeParameter, Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
-from distilabel.steps.task.generation import TextGeneration
+from distilabel.steps.task.text_generation import TextGeneration
 
 
 class RenameColumns(Step):

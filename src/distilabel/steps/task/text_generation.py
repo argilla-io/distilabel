@@ -19,18 +19,29 @@ from distilabel.steps.task.typing import ChatType
 
 
 class TextGeneration(Task):
+    """TextGeneration is a pre-defined task that defines the `instruction` as the input
+    and `generation` as the output. This task is used to generate text based on the input
+    instruction. The model_name is also returned as part of the output in order to enhance it.
+    """
+
     @property
     def inputs(self) -> List[str]:
+        """The input for the task is the `instruction`."""
         return ["instruction"]
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
+        """The input is formatted as a `ChatType` assuming that the instruction
+        is the first interaction from the user within a conversation."""
         return [
             {"role": "user", "content": input[self.inputs[0]]},
         ]
 
     @property
     def outputs(self) -> List[str]:
+        """The output for the task is the `generation` and the `model_name`."""
         return ["generation", "model_name"]
 
     def format_output(self, output: str) -> Dict[str, Any]:
+        """The output is formatted as a dictionary with the `generation`. The `model_name`
+        will be automatically included within the `process` method of `Task`."""
         return {self.outputs[0]: output}
