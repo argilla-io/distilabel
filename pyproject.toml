@@ -33,6 +33,9 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.scripts]
+distilabel = "distilabel.cli.app:app"
+
 [project.optional-dependencies]
 dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
 hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
