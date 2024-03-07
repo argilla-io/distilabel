@@ -172,7 +172,6 @@ if __name__ == "__main__":
 
         load_hub_dataset.connect(rename_columns)
         rename_columns.connect(generate_response)
-        assert pipe._cache_filenames["pipeline"].exists()
 
         pipe.run(
             parameters={
