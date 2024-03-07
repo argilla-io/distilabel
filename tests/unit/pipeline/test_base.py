@@ -840,9 +840,10 @@ class TestPipelineSerialization:
     def test_base_pipeline_dump(self):
         pipeline = BasePipeline()
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "batch_manager" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
@@ -857,9 +858,10 @@ class TestPipelineSerialization:
 
         pipeline = Pipeline()
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "batch_manager" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.local"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "Pipeline"
