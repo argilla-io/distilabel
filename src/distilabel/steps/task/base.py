@@ -13,14 +13,16 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import RuntimeParameter, Step
+from distilabel.steps.base import RuntimeParameter, Step, StepInput
 from distilabel.steps.task.typing import ChatType
-from distilabel.steps.typing import StepInput, StepOutput
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepOutput
 
 
 class Task(Step, ABC):
@@ -64,7 +66,7 @@ class Task(Step, ABC):
         as a string, and generates a Python dictionary with the outputs of the task."""
         pass
 
-    def process(self, inputs: StepInput) -> StepOutput:
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -77,10 +79,10 @@ class Task(Step, ABC):
         outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
 
-        outputs: StepOutput = []  # type: ignore
+        outputs = []
         for input, formatted_output in zip(inputs, formatted_outputs):
             output = {k: v for k, v in input.items() if k in self.inputs}
             output.update(formatted_output)
-            output["model_name"] = self.llm.model_name  # type: ignore
-            outputs.append(output)  # type: ignore
-        yield outputs  # type: ignore
+            output["model_name"] = self.llm.model_name
+            outputs.append(output)
+        yield outputs

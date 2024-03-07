@@ -16,9 +16,15 @@ from unittest import mock
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import GeneratorStep, GlobalStep, RuntimeParameter, Step
+from distilabel.steps.base import (
+    GeneratorStep,
+    GlobalStep,
+    RuntimeParameter,
+    Step,
+    StepInput,
+)
 from distilabel.steps.decorator import step
-from distilabel.steps.typing import GeneratorStepOutput, StepInput, StepOutput
+from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
 class TestStepDecorator:

@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from distilabel.pipeline.utils import combine_dicts
-from distilabel.steps.base import Step
-from distilabel.steps.typing import StepInput, StepOutput
+from distilabel.steps.base import Step, StepInput
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepOutput
 
 
 class CombineColumns(Step):
@@ -41,7 +43,7 @@ class CombineColumns(Step):
             else [f"merged_{column}" for column in self.merge_columns]
         )
 
-    def process(self, *args: StepInput) -> StepOutput:
+    def process(self, *args: StepInput) -> "StepOutput":
         yield combine_dicts(
             *args,
             merge_keys=set(self.inputs),
