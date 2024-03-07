@@ -23,8 +23,8 @@ from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
-from distilabel.steps.typing import StepInput
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
+from distilabel.utils.typing import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo
@@ -35,11 +35,16 @@ DEFAULT_INPUT_BATCH_SIZE = 50
 
 _T = TypeVar("_T")
 _RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
-
 RuntimeParameter = Annotated[
     Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
 ]
 """Used to mark the attributes of a `Step` as a runtime parameter."""
+
+_STEP_INPUT_ANNOTATION = "distilabel_step_input"
+StepInput = Annotated[List[Dict[str, Any]], _STEP_INPUT_ANNOTATION]
+"""StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
+extra metadata that allows `distilabel` to perform validations over the `process` step
+method defined in each `Step`"""
 
 
 class _Step(BaseModel, _Serializable, ABC):
@@ -243,7 +248,10 @@ class _Step(BaseModel, _Serializable, ABC):
         """
         step_input_parameter = None
         for parameter in self.process_parameters:
-            if _is_step_input(parameter) and step_input_parameter is not None:
+            if (
+                is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION)
+                and step_input_parameter is not None
+            ):
                 raise TypeError(
                     f"Step '{self.name}' should have only one parameter with type hint `StepInput`."
                 )
@@ -490,21 +498,6 @@ class GlobalStep(Step, ABC):
     @property
     def outputs(self) -> List[str]:
         return []
-
-
-def _is_step_input(parameter: inspect.Parameter) -> bool:
-    """Check if the parameter has type hint `StepInput`.
-
-    Args:
-        parameter: The parameter to check.
-
-    Returns:
-        `True` if the parameter has type hint `StepInput`, `False` otherwise.
-    """
-    return (
-        get_origin(parameter.annotation) is Annotated
-        and get_args(parameter.annotation)[-1] == "StepInput"
-    )
 
 
 def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:

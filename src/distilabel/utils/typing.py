@@ -19,6 +19,17 @@ from typing_extensions import Annotated, get_args, get_origin
 
 
 def is_parameter_annotated_with(parameter: inspect.Parameter, annotation: Any) -> bool:
+    """Checks if a parameter type hint is `typing.Annotated` and in that case if it contains
+    `annotation` as metadata.
+
+    Args:
+        parameter: the parameter to check.
+        annotation: the annotation to check.
+
+    Returns:
+        `True` if the parameter type hint is `typing.Annotated` and contains `annotation`
+        as metadata, `False` otherwise.
+    """
     if get_origin(parameter.annotation) is not Annotated:
         return False
 
