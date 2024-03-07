@@ -63,6 +63,7 @@ class TestPipeline:
         pool = mock.MagicMock()
         manager = mock.MagicMock()
         queue = mock.MagicMock()
+        shared_info = mock.MagicMock()
 
         with Pipeline() as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -72,7 +73,7 @@ class TestPipeline:
             dummy_generator.connect(dummy_step_1)
             dummy_step_1.connect(dummy_step_2)
 
-        pipeline._run_steps_in_loop(pool, manager, queue)
+        pipeline._run_steps_in_loop(pool, manager, queue, shared_info)
 
         assert manager.Queue.call_count == 3
 
@@ -82,16 +83,19 @@ class TestPipeline:
                     step=dummy_generator,
                     input_queue=mock.ANY,
                     output_queue=queue,
+                    shared_info=shared_info,
                 ),
                 mock.call(
                     step=dummy_step_1,
                     input_queue=mock.ANY,
                     output_queue=queue,
+                    shared_info=shared_info,
                 ),
                 mock.call(
                     step=dummy_step_2,
                     input_queue=mock.ANY,
                     output_queue=queue,
+                    shared_info=shared_info,
                 ),
             ],
         )
