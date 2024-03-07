@@ -14,19 +14,32 @@
 
 import json
 import multiprocessing as mp
+import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    Optional,
+    Set,
+    cast,
+)
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.steps.base import Step
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
+    from multiprocessing.managers import DictProxy, SyncManager
     from multiprocessing.pool import Pool
     from os import PathLike
     from queue import Queue
 
     from distilabel.steps.base import GeneratorStep
+
+_STEPS_LOADED_LOCK_KEY = "lock"
+_STEPS_LOADED_KEY = "steps_loaded"
+_STEPS_LOADED_ERROR_CODE = -1
 
 
 class Pipeline(BasePipeline):
@@ -55,14 +68,27 @@ class Pipeline(BasePipeline):
 
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
-            output_queue: "Queue[_Batch]" = manager.Queue()
-            self._run_steps_in_loop(pool, manager, output_queue)
+            self.output_queue: "Queue[Any]" = manager.Queue()
+            self.shared_info = manager.dict(
+                **{_STEPS_LOADED_KEY: 0, _STEPS_LOADED_LOCK_KEY: manager.Lock()}
+            )
+
+            # Run the steps using the pool of processes
+            self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
+
+            # Wait for all the steps to be loaded correctly
+            if not self._all_steps_loaded():
+                return
 
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
             while True:
-                batch = output_queue.get()
+                batch = self.output_queue.get()
+
+                # If `None` is received, then stop the pipeline
+                if batch is None:
+                    break
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
                     for new_batch in batch_manager.add_batch(
@@ -87,6 +113,29 @@ class Pipeline(BasePipeline):
                     if all(leaf_steps_received_last_batch.values()):
                         break
 
+    def _all_steps_loaded(self) -> bool:
+        """Waits for all the steps to load.
+
+        Returns:
+            `True` if all the steps have been loaded correctly, `False` otherwise.
+        """
+        self._logger.info("⏳ Waiting for all the steps to load...")
+        while True:
+            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
+                steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+
+                if steps_loaded == len(self.dag):
+                    self._logger.info("✅ All the steps have been loaded!")
+                    return True
+
+                if steps_loaded == _STEPS_LOADED_ERROR_CODE:
+                    self._logger.error("❌ Failed to load all the steps")
+                    return False
+
+                self._logger.info(f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}")
+
+            time.sleep(5)
+
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
         for step_name in self.dag.root_steps:
@@ -103,7 +152,11 @@ class Pipeline(BasePipeline):
         input_queue.put(batch)
 
     def _run_steps_in_loop(
-        self, pool: "Pool", manager: "SyncManager", output_queue: "Queue[_Batch]"
+        self,
+        pool: "Pool",
+        manager: "SyncManager",
+        output_queue: "Queue[_Batch]",
+        shared_info: "DictProxy[str, Any]",
     ) -> None:
         """Using the `pool`, runs the steps in the DAG in an infinite loop waiting for
         input batches and sending the output batches to the `output_queue`.
@@ -116,6 +169,7 @@ class Pipeline(BasePipeline):
             pool: The pool of processes.
             manager: The manager to create the queues.
             output_queue: The queue to send the output batches.
+            shared_info: The shared information between the processes.
         """
         for step_name in self.dag:
             step = self.dag.get_step(step_name)["step"]
@@ -123,7 +177,10 @@ class Pipeline(BasePipeline):
             self.dag.set_step_attr(step.name, "input_queue", input_queue)
 
             process_wrapper = _ProcessWrapper(
-                step=step, input_queue=input_queue, output_queue=output_queue
+                step=step,
+                input_queue=input_queue,
+                output_queue=output_queue,
+                shared_info=shared_info,
             )
 
             pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
@@ -135,8 +192,24 @@ class Pipeline(BasePipeline):
             e: The `_ProcessWrapperException` containing the error message and the `Step`
                 that raised the error.
         """
-        # TODO: handle the errors in a better way
-        self._logger.error(f"ERROR: {e}")
+        if e.is_load_error:
+            self._logger.error(f"Failed to load step '{e.step.name}': {e.message}")
+        else:
+            self._logger.error(
+                f"An error occurred in step '{e.step.name}': {e.message}"
+            )
+
+        self._stop()
+
+    def _stop(self) -> None:
+        """Stops the pipeline execution. It will send `None` to the `output_queue` to
+        notify the pipeline to stop, and set the `_STEPS_LOADED_KEY` to `_STEPS_LOADED_ERROR_CODE`
+        for the pipeline to stop waiting for the steps to load.
+        """
+        self._logger.info("Stopping pipeline...")
+        self.output_queue.put(None)
+        with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
+            self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
 
 
 class _WriteBuffer:
@@ -181,11 +254,37 @@ class _ProcessWrapperException(Exception):
     Attributes:
         message: The error message.
         step: The `Step` that raised the error.
+        code: The error code.
     """
 
-    def __init__(self, message: str, step: "Step") -> None:
+    def __init__(self, message: str, step: "Step", code: int) -> None:
         self.message = message
         self.step = step
+        self.code = code
+
+    @classmethod
+    def create_load_error(
+        cls, message: str, step: "Step"
+    ) -> "_ProcessWrapperException":
+        """Creates a `_ProcessWrapperException` for a load error.
+
+        Args:
+            message: The error message.
+            step: The `Step` that raised the error.
+
+        Returns:
+            The `_ProcessWrapperException` instance.
+        """
+        return cls(message, step, 1)
+
+    @property
+    def is_load_error(self) -> bool:
+        """Whether the error is a load error.
+
+        Returns:
+            `True` if the error is a load error, `False` otherwise.
+        """
+        return self.code == 1
 
 
 class _ProcessWrapper:
@@ -195,10 +294,15 @@ class _ProcessWrapper:
         step: The step to run.
         input_queue: The queue to receive the input data.
         output_queue: The queue to send the output data.
+        shared_info: The shared information between the processes.
     """
 
     def __init__(
-        self, step: "Step", input_queue: "Queue[_Batch]", output_queue: "Queue[_Batch]"
+        self,
+        step: "Step",
+        input_queue: "Queue[_Batch]",
+        output_queue: "Queue[_Batch]",
+        shared_info: "DictProxy[str, Any]",
     ) -> None:
         """Initializes the `_ProcessWrapper`.
 
@@ -206,10 +310,12 @@ class _ProcessWrapper:
             step: The step to run.
             input_queue: The queue to receive the input data.
             output_queue: The queue to send the output data.
+            shared_info: The shared information between the processes.
         """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
+        self.shared_info = shared_info
 
     def run(self) -> None:
         """The target function executed by the process. This function will also handle
@@ -218,72 +324,103 @@ class _ProcessWrapper:
         `process` method of the `Step`.
         """
 
-        def _run() -> None:
-            self.step.load()
-
-            batch = self.input_queue.get()
-            if self.step.is_generator:
-                self._process_generator_step(batch)
-            else:
-                while True:
-                    self._process_non_generator_step(batch)
-                    if batch.last_batch:
-                        break
-                    batch = self.input_queue.get()
-            self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
-
         try:
-            _run()
+            self.step.load()
         except Exception as e:
-            raise _ProcessWrapperException(str(e), self.step) from e
+            raise _ProcessWrapperException.create_load_error(str(e), self.step) from e
 
-    def _process_generator_step(self, batch: _Batch) -> None:
-        """Processes a batch in a generator step. It will call the `process` method of the
-        step and send the output data to the `output_queue` and block until the next batch
-        request is received (i.e. receiving an empty batch from the `input_queue`).
+        self._notify_load()
+
+        if self.step.is_generator:
+            self._generator_step_process_loop()
+        else:
+            self._non_generator_process_loop()
+
+        self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
+
+    def _notify_load(self) -> None:
+        """Notifies that the step has finished executing its `load` function successfully."""
+        with self.shared_info["lock"]:
+            self.shared_info[_STEPS_LOADED_KEY] += 1
+
+    def _generator_step_process_loop(self) -> None:
+        """Runs the process loop for a generator step. It will call the `process` method
+        of the step and send the output data to the `output_queue` and block until the next
+        batch request is received (i.e. receiving an empty batch from the `input_queue`).
 
         If the `last_batch` attribute of the batch is `True`, the loop will stop and the
         process will finish.
 
-        Args:
-            batch: The batch to process.
+        Raises:
+            _ProcessWrapperException: If an error occurs during the execution of the
+                `process` method.
         """
         step = cast("GeneratorStep", self.step)
+
+        batch = self.input_queue.get()
+
         self.step._logger.info(
-            f"🧬 Starting yielding batches from generator step '{batch.step_name}'"
+            f"🧬 Starting yielding batches from generator step '{self.step.name}'"
         )
-        for data, last_batch in step.process_applying_mappings():
-            batch.data = [data]
-            batch.last_batch = last_batch
-            self.output_queue.put(batch)
-            if batch.last_batch:
-                self.step._logger.info(
-                    f"🏁 Finished yielding batches from generator step '{batch.step_name}'"
-                )
-                return
-            batch = self.input_queue.get()
 
-    def _process_non_generator_step(self, batch: _Batch) -> None:
-        """Processes a batch in a non-generator step. It will call the `process` method
-        of the step and send the output data to the `output_queue`. It will take care of
-        the case when the step has multiple inputs.
+        try:
+            for data, last_batch in step.process_applying_mappings():
+                batch.data = [data]
+                batch.last_batch = last_batch
+                self._send_batch(batch)
+                if batch.last_batch:
+                    return
+                batch = self.input_queue.get()
+        except Exception as e:
+            raise _ProcessWrapperException(str(e), self.step, 2) from e
 
-        Args:
-            batch: The batch to process.
+    def _non_generator_process_loop(self) -> None:
+        """Runs the process loop for a non-generator step. It will call the `process`
+        method of the step and send the output data to the `output_queue` and block until
+        the next batch is received from the `input_queue`. If the `last_batch` attribute
+        of the batch is `True`, the loop will stop and the process will finish.
+
+        If an error occurs during the execution of the `process` method and the step is
+        global, the process will raise a `_ProcessWrapperException`. If the step is not
+        global, the process will log the error and send an empty batch to the `output_queue`.
+
+        Raises:
+            _ProcessWrapperException: If an error occurs during the execution of the
+                `process` method and the step is global.
         """
-        if self.step.is_global:
-            self.step._logger.info(f"🌍 Running global step '{batch.step_name}'")
-        else:
+        while True:
+            batch = self.input_queue.get()
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
+            try:
+                if self.step.has_multiple_inputs:
+                    result = next(self.step.process_applying_mappings(*batch.data))
+                else:
+                    result = next(self.step.process_applying_mappings(batch.data[0]))
+            except Exception as e:
+                if self.step.is_global:
+                    raise _ProcessWrapperException(
+                        message=str(e), step=self.step, code=2
+                    ) from e
 
-        if self.step.has_multiple_inputs:
-            result = next(self.step.process_applying_mappings(*batch.data))
-        else:
-            result = next(self.step.process_applying_mappings(batch.data[0]))
+                # if the step is not global then we can skip the batch which means sending
+                # an empty batch to the output queue
+                self.step._logger.warning(
+                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed:"
+                    f" {e}. Sending empty batch..."
+                )
+                result = []
+
+            batch.data = [result]
+            self._send_batch(batch)
+
+            if batch.last_batch:
+                break
+
+    def _send_batch(self, batch: _Batch) -> None:
+        """Sends a batch to the `output_queue`."""
         self.step._logger.info(
             f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
         )
-        batch.data = [result]
         self.output_queue.put(batch)

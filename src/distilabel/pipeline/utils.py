@@ -14,7 +14,7 @@
 
 from typing import Optional, Set
 
-from distilabel.steps.typing import StepInput
+from distilabel.steps.base import StepInput
 
 
 def combine_dicts(

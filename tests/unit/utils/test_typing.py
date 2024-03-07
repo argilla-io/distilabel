@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+import inspect
 
+from distilabel.utils.typing import is_parameter_annotated_with
 from typing_extensions import Annotated
 
-StepOutput = Annotated[Iterator[List[Dict[str, Any]]], "StepOutput"]
-"""StepOutput is just an `Annotated` alias of the typing `Iterator[List[Dict[str, Any]]]`"""
 
-GeneratorStepOutput = Annotated[
-    Iterator[Tuple[List[Dict[str, Any]], bool]], "GeneratorStepOutput"
-]
-"""GeneratorStepOutput is just an `Annotated` alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+def test_is_parameter_annotated_with() -> None:
+    def dummy_function(arg: Annotated[int, "unit-test"], arg2: int) -> None:
+        pass
+
+    signature = inspect.signature(dummy_function)
+    arg_parameter = signature.parameters["arg"]
+    arg2_parameter = signature.parameters["arg2"]
+
+    assert is_parameter_annotated_with(arg_parameter, "hello") is False
+    assert is_parameter_annotated_with(arg_parameter, "unit-test") is True
+    assert is_parameter_annotated_with(arg2_parameter, "unit-test") is False

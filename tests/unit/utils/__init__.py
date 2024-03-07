@@ -12,14 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
-
-from typing_extensions import Annotated
-
-StepOutput = Annotated[Iterator[List[Dict[str, Any]]], "StepOutput"]
-"""StepOutput is just an `Annotated` alias of the typing `Iterator[List[Dict[str, Any]]]`"""
-
-GeneratorStepOutput = Annotated[
-    Iterator[Tuple[List[Dict[str, Any]], bool]], "GeneratorStepOutput"
-]
-"""GeneratorStepOutput is just an `Annotated` alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""

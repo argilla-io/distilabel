@@ -12,14 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
-
+import typer
 from typing_extensions import Annotated
 
-StepOutput = Annotated[Iterator[List[Dict[str, Any]]], "StepOutput"]
-"""StepOutput is just an `Annotated` alias of the typing `Iterator[List[Dict[str, Any]]]`"""
+app = typer.Typer(help="Commands to run and inspect Distilabel pipelines.")
 
-GeneratorStepOutput = Annotated[
-    Iterator[Tuple[List[Dict[str, Any]], bool]], "GeneratorStepOutput"
+ConfigOption = Annotated[
+    str, typer.Option(help="Path or URL to the Distilabel pipeline configuration file.")
 ]
-"""GeneratorStepOutput is just an `Annotated` alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+
+
+@app.command(name="run", help="Run a Distilabel pipeline.")
+def run(config: ConfigOption) -> None:
+    # TODO: check if config is a valid file or URL
+    pass
+
+
+@app.command(name="info", help="Get information about a Distilabel pipeline.")
+def info(config: ConfigOption) -> None:
+    # TODO: check if config is a valid file or URL
+    pass

@@ -14,4 +14,8 @@
 
 import typer
 
+from distilabel.cli.pipeline import app as pipeline_app
+
 app = typer.Typer(name="distilabel")
+
+app.add_typer(pipeline_app, name="pipeline")
