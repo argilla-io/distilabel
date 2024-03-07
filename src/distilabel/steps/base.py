@@ -23,8 +23,8 @@ from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.pipeline.logging import get_logger
-from distilabel.steps.typing import StepInput
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
+from distilabel.utils.typing import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from pydantic.fields import FieldInfo
@@ -35,11 +35,16 @@ DEFAULT_INPUT_BATCH_SIZE = 50
 
 _T = TypeVar("_T")
 _RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
-
 RuntimeParameter = Annotated[
     Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
 ]
 """Used to mark the attributes of a `Step` as a runtime parameter."""
+
+_STEP_INPUT_ANNOTATION = "distilabel_step_input"
+StepInput = Annotated[List[Dict[str, Any]], _STEP_INPUT_ANNOTATION]
+"""StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
+extra metadata that allows `distilabel` to perform validations over the `process` step
+method defined in each `Step`"""
 
 
 class _Step(BaseModel, _Serializable, ABC):
@@ -101,6 +106,7 @@ class _Step(BaseModel, _Serializable, ABC):
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
+    _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("step"))
 
     def model_post_init(self, _: Any) -> None:
@@ -146,9 +152,10 @@ class _Step(BaseModel, _Serializable, ABC):
         Args:
             runtime_parameters: A dictionary with the runtime parameters for the step.
         """
-        self._runtime_parameters = runtime_parameters
         for name, value in runtime_parameters.items():
-            setattr(self, name, value)
+            if name in self.runtime_parameters_names:
+                setattr(self, name, value)
+                self._runtime_parameters[name] = value
 
     @property
     def is_generator(self) -> bool:
@@ -241,7 +248,10 @@ class _Step(BaseModel, _Serializable, ABC):
         """
         step_input_parameter = None
         for parameter in self.process_parameters:
-            if _is_step_input(parameter) and step_input_parameter is not None:
+            if (
+                is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION)
+                and step_input_parameter is not None
+            ):
                 raise TypeError(
                     f"Step '{self.name}' should have only one parameter with type hint `StepInput`."
                 )
@@ -362,6 +372,7 @@ class _Step(BaseModel, _Serializable, ABC):
 
 
 class Step(_Step, ABC):
+    # TODO: this should be a `RuntimeParameter`
     input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
 
     @abstractmethod
@@ -379,7 +390,16 @@ class Step(_Step, ABC):
 
         inputs = self._apply_input_mappings(args) if self.input_mappings else args
 
-        for output_rows in self.process(*inputs):
+        # If the `Step` was built using the `@step` decorator, then we need to pass
+        # the runtime parameters as kwargs, so they can be used within the processing
+        # function
+        generator = (
+            self.process(*inputs)
+            if not self._built_from_decorator
+            else self.process(*inputs, **self._runtime_parameters)
+        )
+
+        for output_rows in generator:
             yield [
                 {
                     # Apply output mapping and revert input mapping
@@ -427,6 +447,7 @@ class GeneratorStep(_Step, ABC):
     any input from the previous steps.
     """
 
+    # TODO: this should be a `RuntimeParameter` and maybe be called `output_batch_size`
     batch_size: int = 50
 
     @abstractmethod
@@ -435,7 +456,7 @@ class GeneratorStep(_Step, ABC):
         output rows and a boolean indicating if it's the last batch or not."""
         pass
 
-    def process_applying_mappings(self, *args: "StepInput") -> "GeneratorStepOutput":
+    def process_applying_mappings(self) -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
@@ -444,7 +465,16 @@ class GeneratorStep(_Step, ABC):
             The output rows and a boolean indicating if it's the last batch or not.
         """
 
-        for output_rows, last_batch in self.process(*args):
+        # If the `Step` was built using the `@step` decorator, then we need to pass
+        # the runtime parameters as `kwargs`, so they can be used within the processing
+        # function
+        generator = (
+            self.process()
+            if not self._built_from_decorator
+            else self.process(**self._runtime_parameters)
+        )
+
+        for output_rows, last_batch in generator:
             yield (
                 [
                     {self.output_mappings.get(k, k): v for k, v in row.items()}
@@ -468,21 +498,6 @@ class GlobalStep(Step, ABC):
     @property
     def outputs(self) -> List[str]:
         return []
-
-
-def _is_step_input(parameter: inspect.Parameter) -> bool:
-    """Check if the parameter has type hint `StepInput`.
-
-    Args:
-        parameter: The parameter to check.
-
-    Returns:
-        `True` if the parameter has type hint `StepInput`, `False` otherwise.
-    """
-    return (
-        get_origin(parameter.annotation) is Annotated
-        and get_args(parameter.annotation)[-1] == "StepInput"
-    )
 
 
 def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
