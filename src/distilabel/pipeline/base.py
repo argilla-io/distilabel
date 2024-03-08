@@ -373,9 +373,9 @@ class _BatchManagerStep(_Serializable):
             If `None`, then `accumulate` must be `True`. Defaults to `None`.
         data: A dictionary with the predecessor step name as the key and a list of
             dictionaries (rows) as the value.
-        _seq_no: The sequence number of the next batch to be created. It will be
+        seq_no: The sequence number of the next batch to be created. It will be
             incremented for each batch created.
-        _last_batch_received: A list with the names of the steps that sent the last
+        last_batch_received: A list with the names of the steps that sent the last
             batch of data.
     """
 
@@ -384,7 +384,7 @@ class _BatchManagerStep(_Serializable):
     input_batch_size: Union[int, None] = None
     data: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     seq_no: int = 0
-    _last_batch_received: List[str] = field(default_factory=list)
+    last_batch_received: List[str] = field(default_factory=list)
 
     def add_batch(self, batch: _Batch) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -396,7 +396,7 @@ class _BatchManagerStep(_Serializable):
         from_step = batch.step_name
         self.data[from_step].extend(batch.data[0])
         if batch.last_batch:
-            self._last_batch_received.append(from_step)
+            self.last_batch_received.append(from_step)
 
     def get_batches(self) -> Iterable[_Batch]:
         """Create a new batch of data for the step to process. It will return `None` if
@@ -479,14 +479,14 @@ class _BatchManagerStep(_Serializable):
         """
         if self.accumulate:
             return all(
-                step in self._last_batch_received and len(rows) > 0
+                step in self.last_batch_received and len(rows) > 0
                 for step, rows in self.data.items()
             )
 
         for step_name, rows in self.data.items():
             # If there are now rows but the last batch was already received, then there
             # are no more batch to be created
-            if len(rows) == 0 and step_name in self._last_batch_received:
+            if len(rows) == 0 and step_name in self.last_batch_received:
                 return False
 
             # If there are not enough rows and the last batch was not received yet, then
@@ -494,7 +494,7 @@ class _BatchManagerStep(_Serializable):
             if (
                 self.input_batch_size
                 and len(rows) < self.input_batch_size
-                and step_name not in self._last_batch_received
+                and step_name not in self.last_batch_received
             ):
                 return False
 
@@ -508,16 +508,16 @@ class _BatchManagerStep(_Serializable):
             `True` if the batch to be created is the last one. Otherwise, `False`.
         """
         if self.accumulate:
-            return all(step in self._last_batch_received for step in self.data.keys())
+            return all(step in self.last_batch_received for step in self.data.keys())
 
         for step_name, rows in self.data.items():
-            if step_name not in self._last_batch_received:
+            if step_name not in self.last_batch_received:
                 return False
 
             if (
                 self.input_batch_size
                 and len(rows) > self.input_batch_size
-                and step_name in self._last_batch_received
+                and step_name in self.last_batch_received
             ):
                 return False
 

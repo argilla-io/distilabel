@@ -181,7 +181,7 @@ class TestBatchManagerStep:
         )
 
         assert batch_manager_step.data["step1"] == [{"a": 1}, {"a": 2}, {"a": 3}]
-        assert batch_manager_step._last_batch_received == []
+        assert batch_manager_step.last_batch_received == []
 
     def test_add_batch_last_batch(self) -> None:
         batch_manager_step = _BatchManagerStep(
@@ -198,7 +198,7 @@ class TestBatchManagerStep:
         )
 
         assert batch_manager_step.data["step1"] == [{"a": 1}, {"a": 2}, {"a": 3}]
-        assert batch_manager_step._last_batch_received == ["step1"]
+        assert batch_manager_step.last_batch_received == ["step1"]
 
     def test_get_batches(self) -> None:
         batch_manager_step = _BatchManagerStep(
@@ -281,7 +281,7 @@ class TestBatchManagerStep:
                     {"b": 6},
                 ],
             },
-            _last_batch_received=["step1", "step2"],
+            last_batch_received=["step1", "step2"],
         )
 
         batches = batch_manager_step.get_batches()
@@ -342,7 +342,7 @@ class TestBatchManagerStep:
         assert batch_manager_step.input_batch_size == 50
         assert batch_manager_step.data == {"step1": [], "step2": []}
         assert batch_manager_step.seq_no == 0
-        assert batch_manager_step._last_batch_received == []
+        assert batch_manager_step.last_batch_received == []
 
     def test_from_step_with_global_step(self, dummy_global_step: "GlobalStep") -> None:
         batch_manager_step = _BatchManagerStep.from_step(
@@ -354,7 +354,7 @@ class TestBatchManagerStep:
         assert batch_manager_step.input_batch_size == 50
         assert batch_manager_step.data == {"step1": [], "step2": []}
         assert batch_manager_step.seq_no == 0
-        assert batch_manager_step._last_batch_received == []
+        assert batch_manager_step.last_batch_received == []
 
     def test_get_seq_no(self) -> None:
         batch_manager_step = _BatchManagerStep(
@@ -463,7 +463,7 @@ class TestBatchManagerStep:
             accumulate=False,
             input_batch_size=5,
             data=data,
-            _last_batch_received=last_batch_received,
+            last_batch_received=last_batch_received,
         )
 
         assert batch_manager_step._last_batch() is expected
@@ -507,7 +507,7 @@ class TestBatchManagerStep:
             step_name="step3",
             accumulate=True,
             data=data,
-            _last_batch_received=last_batch_received,
+            last_batch_received=last_batch_received,
         )
 
         assert batch_manager_step._last_batch() is expected
@@ -560,7 +560,7 @@ class TestBatchManagerStep:
             accumulate=False,
             input_batch_size=5,
             data=data,
-            _last_batch_received=last_batch_received,
+            last_batch_received=last_batch_received,
         )
 
         assert batch_manager_step._ready_to_create_batch() is expected
@@ -604,7 +604,7 @@ class TestBatchManagerStep:
             step_name="step3",
             accumulate=True,
             data=data,
-            _last_batch_received=last_batch_received,
+            last_batch_received=last_batch_received,
         )
 
         assert batch_manager_step._ready_to_create_batch() is expected
@@ -643,6 +643,7 @@ class TestBatchManagerStep:
                 ],
             },
             "seq_no": 0,
+            "last_batch_received": [],
             "type_info": {
                 "module": "distilabel.pipeline.base",
                 "name": "_BatchManagerStep",
@@ -802,6 +803,7 @@ class TestBatchManager:
                 "input_batch_size": 5,
                 "data": {"step1": [], "step2": []},
                 "seq_no": 1,
+                "last_batch_received": [],
                 "type_info": {
                     "module": "distilabel.pipeline.base",
                     "name": "_BatchManagerStep",
