@@ -46,6 +46,6 @@ class CombineColumns(Step):
     def process(self, *args: StepInput) -> "StepOutput":
         yield combine_dicts(
             *args,
-            merge_keys=set(self.inputs),
-            output_merge_keys=set(self.outputs),
+            merge_keys=self.inputs,
+            output_merge_keys=self.outputs,
         )
