@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Set
+from typing import List, Optional
 
-from distilabel.steps.typing import StepInput
+from distilabel.steps.base import StepInput
 
 
 def combine_dicts(
     *inputs: StepInput,
-    merge_keys: Set[str],
-    output_merge_keys: Optional[Set[str]] = None,
+    merge_keys: List[str],
+    output_merge_keys: Optional[List[str]] = None,
 ) -> StepInput:
     if output_merge_keys is not None and len(output_merge_keys) != len(merge_keys):
         raise ValueError(
             "The length of output_merge_keys must be the same as the length of merge_keys"
         )
     if output_merge_keys is None:
-        output_merge_keys = {f"merged_{key}" for key in merge_keys}
+        output_merge_keys = [f"merged_{key}" for key in merge_keys]
     merge_keys_dict = dict(zip(merge_keys, output_merge_keys))
 
     result = []

@@ -21,12 +21,9 @@ from distilabel.steps.base import (
     GlobalStep,
     RuntimeParameter,
     Step,
-)
-from distilabel.steps.typing import (
-    GeneratorStepOutput,
     StepInput,
-    StepOutput,
 )
+from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
 

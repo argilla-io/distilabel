@@ -48,6 +48,9 @@ class DAG(_Serializable):
     def __iter__(self) -> Generator[str, None, None]:
         yield from self.G
 
+    def __len__(self) -> int:
+        return len(self.G)
+
     def add_step(self, step: "_Step") -> None:
         """Add a step to the DAG.
 
