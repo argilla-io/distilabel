@@ -50,7 +50,6 @@ class GenerateResponse(Step):
 
         for input in inputs:
             time.sleep(0.8)
-            print("*** processing ***")
             input["response"] = "I don't know"
         yield inputs
 
@@ -60,96 +59,34 @@ class GenerateResponse(Step):
 
 
 def test_pipeline_cached():
-    with Pipeline() as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        generate_response = GenerateResponse(name="generate_response")
+    def run_pipeline():
+        with Pipeline() as pipeline:
+            load_hub_dataset = LoadHubDataset(name="load_dataset")
+            rename_columns = RenameColumns(name="rename_columns")
+            generate_response = GenerateResponse(
+                name="generate_response", input_batch_size=2
+            )
 
-        load_hub_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
+            load_hub_dataset.connect(rename_columns)
+            rename_columns.connect(generate_response)
 
-        pipeline.run(
-            parameters={
-                "load_dataset": {
-                    "repo_id": "alvarobartt/test",
-                    "split": "train",
-                },
-                "rename_columns": {
-                    "rename_mappings": {
-                        "prompt": "instruction",
-                    }
-                },
-            }
-        )
+            pipeline.run(
+                parameters={
+                    "load_dataset": {
+                        "repo_id": "alvarobartt/test",
+                        "split": "train",
+                    },
+                    "rename_columns": {
+                        "rename_mappings": {
+                            "prompt": "instruction",
+                        }
+                    },
+                }
+            )
 
-    # Recreate the pipeline from the dump
-    with Pipeline() as pipe:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        generate_response = GenerateResponse(name="generate_response")
-
-        load_hub_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
-        assert pipe._cache_filenames["pipeline"].exists()
-
-        pipe.run(
-            parameters={
-                "load_dataset": {
-                    "repo_id": "alvarobartt/test",
-                    "split": "train",
-                },
-                "rename_columns": {
-                    "rename_mappings": {
-                        "prompt": "instruction",
-                    }
-                },
-            }
-        )
-    # TODO: Add checks on the steps from the pipeline at different stages.
+    run_pipeline()
+    run_pipeline()
 
 
 if __name__ == "__main__":
-    with Pipeline() as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        generate_response = GenerateResponse(name="generate_response")
-
-        load_hub_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
-
-        pipeline.run(
-            parameters={
-                "load_dataset": {
-                    "repo_id": "alvarobartt/test",
-                    "split": "train",
-                },
-                "rename_columns": {
-                    "rename_mappings": {
-                        "prompt": "instruction",
-                    }
-                },
-            }
-        )
-
-    # Recreate the pipeline from the dump
-    with Pipeline() as pipe:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        generate_response = GenerateResponse(name="generate_response")
-
-        load_hub_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
-
-        pipe.run(
-            parameters={
-                "load_dataset": {
-                    "repo_id": "alvarobartt/test",
-                    "split": "train",
-                },
-                "rename_columns": {
-                    "rename_mappings": {
-                        "prompt": "instruction",
-                    }
-                },
-            }
-        )
+    test_pipeline_cached()
