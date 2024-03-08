@@ -413,7 +413,7 @@ class TestDagSerialization:
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
-        with Pipeline():
+        with Pipeline(name="unit-test-pipeline"):
             new_dag = DAG.from_dict(dag.dump())
         assert isinstance(new_dag, DAG)
         assert "dummy_step_1" in new_dag.G
@@ -460,6 +460,6 @@ class TestDagSerialization:
             else:
                 dag.save(filename, format=format)
                 assert filename.exists()
-                with Pipeline():
+                with Pipeline(name="unit-test-pipeline"):
                     dag_from_file = loader(filename)
                     assert isinstance(dag_from_file, DAG)

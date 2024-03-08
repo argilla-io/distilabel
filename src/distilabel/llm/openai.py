@@ -67,7 +67,7 @@ class OpenAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
         max_new_tokens: int = 128,

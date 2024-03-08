@@ -66,12 +66,12 @@ class DummyGlobalStep(GlobalStep):
 
 class TestStep:
     def test_create_step_passing_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.pipeline == pipeline
 
     def test_create_step_within_pipeline_context(self) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             step = DummyStep(name="dummy")
 
         assert step.pipeline == pipeline
@@ -81,11 +81,11 @@ class TestStep:
             DummyStep(name="dummy")
 
     def test_is_generator(self) -> None:
-        step = DummyStep(name="dummy", pipeline=Pipeline())
+        step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
         assert not step.is_generator
 
     def test_is_global(self) -> None:
-        step = DummyStep(name="dummy", pipeline=Pipeline())
+        step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
         assert not step.is_global
 
     def test_runtime_parameters_names(self) -> None:
@@ -97,7 +97,9 @@ class TestStep:
             def process(self, *inputs: StepInput) -> StepOutput:
                 yield []
 
-        step = StepWithRuntimeParameters(name="dummy", pipeline=Pipeline())  # type: ignore
+        step = StepWithRuntimeParameters(
+            name="dummy", pipeline=Pipeline(name="unit-test-pipeline")
+        )  # type: ignore
 
         assert step.runtime_parameters_names == {
             "runtime_param1": False,
@@ -106,7 +108,7 @@ class TestStep:
         }
 
     def test_verify_inputs_mappings(self) -> None:
-        step = DummyStep(name="dummy", pipeline=Pipeline())
+        step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
 
         step.verify_inputs_mappings()
 
@@ -117,7 +119,7 @@ class TestStep:
             step.verify_inputs_mappings()
 
     def test_verify_outputs_mappings(self) -> None:
-        step = DummyStep(name="dummy", pipeline=Pipeline())
+        step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
 
         step.verify_outputs_mappings()
 
@@ -129,21 +131,25 @@ class TestStep:
 
     def test_get_inputs(self) -> None:
         step = DummyStep(
-            name="dummy", pipeline=Pipeline(), input_mappings={"instruction": "prompt"}
+            name="dummy",
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            input_mappings={"instruction": "prompt"},
         )
         assert step.get_inputs() == ["prompt"]
 
     def test_get_outputs(self) -> None:
         step = DummyStep(
             name="dummy",
-            pipeline=Pipeline(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
             output_mappings={"response": "generation"},
         )
         assert step.get_outputs() == ["generation"]
 
     def test_apply_input_mappings(self) -> None:
         step = DummyStep(
-            name="dummy", pipeline=Pipeline(), input_mappings={"instruction": "prompt"}
+            name="dummy",
+            pipeline=Pipeline(name="unit-test-pipeline"),
+            input_mappings={"instruction": "prompt"},
         )
 
         inputs = step._apply_input_mappings(
@@ -177,7 +183,7 @@ class TestStep:
     def test_process_applying_mappings(self) -> None:
         step = DummyStep(
             name="dummy",
-            pipeline=Pipeline(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
             input_mappings={"instruction": "prompt"},
             output_mappings={"response": "generation"},
         )
@@ -201,27 +207,35 @@ class TestStep:
 
 class TestGeneratorStep:
     def test_is_generator(self) -> None:
-        step = DummyGeneratorStep(name="dummy", pipeline=Pipeline())
+        step = DummyGeneratorStep(
+            name="dummy", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert step.is_generator
 
     def test_is_global(self) -> None:
-        step = DummyGeneratorStep(name="dummy", pipeline=Pipeline())
+        step = DummyGeneratorStep(
+            name="dummy", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert not step.is_global
 
 
 class TestGlobalStep:
     def test_is_generator(self) -> None:
-        step = DummyGlobalStep(name="dummy", pipeline=Pipeline())
+        step = DummyGlobalStep(
+            name="dummy", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert not step.is_generator
 
     def test_is_global(self) -> None:
-        step = DummyGlobalStep(name="dummy", pipeline=Pipeline())
+        step = DummyGlobalStep(
+            name="dummy", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert step.is_global
 
 
 class TestStepSerialization:
     def test_step_dump(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = DummyStep(name="dummy", pipeline=pipeline)
         assert step.dump() == {
             "name": "dummy",
@@ -236,7 +250,7 @@ class TestStepSerialization:
         }
 
     def test_step_from_dict(self) -> None:
-        with Pipeline():
+        with Pipeline(name="unit-test-pipeline"):
             step = DummyStep.from_dict(
                 {
                     **{

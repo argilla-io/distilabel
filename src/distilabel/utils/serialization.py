@@ -96,7 +96,7 @@ def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
     with open(filename, "w") as file:
-        yaml.dump(data, file, default_flow_style=False)
+        yaml.dump(data, file, default_flow_style=False, sort_keys=False)
 
 
 def read_yaml(filename: StrOrPath) -> Dict[str, Any]:
@@ -244,6 +244,19 @@ class _Serializable:
         _check_is_dir(path)
         content = read_yaml(path)
         return cls.from_dict(content)
+
+    @classmethod
+    def from_file(cls, path: StrOrPath) -> Self:
+        path = Path(path)
+        if path.suffix == ".json":
+            return cls.from_json(path)
+
+        if path.suffix == ".yaml" or path.suffix == ".yml":
+            return cls.from_yaml(path)
+
+        raise ValueError(
+            f"Invalid file format: '{path.suffix}', must be one of {get_args(SaveFormats)}."
+        )
 
 
 def _check_is_dir(path: StrOrPath) -> None:

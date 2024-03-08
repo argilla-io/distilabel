@@ -59,10 +59,14 @@ class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
+        name: The name of the pipeline.
+        description: A description of the pipeline.
         dag: The `DAG` instance that represents the pipeline.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, name: str, description: Union[str, None] = None) -> None:
+        self.name = name
+        self.description = description
         self.dag = DAG()
         self._logger = get_logger("pipeline")
 
@@ -88,6 +92,19 @@ class BasePipeline(_Serializable):
         """
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
+
+    def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Get the runtime parameters for the steps in the pipeline.
+
+        Returns:
+            A dictionary with the step name as the key and a list of dictionaries with
+            the parameter name and the parameter info as the value.
+        """
+        runtime_parameters = {}
+        for step_name in self.dag:
+            step: "_Step" = self.dag.get_step(step_name)["step"]
+            runtime_parameters[step_name] = step.get_runtime_parameters_info()
+        return runtime_parameters
 
     def _add_step(self, step: "_Step") -> None:
         """Add a step to the pipeline.
@@ -121,10 +138,17 @@ class BasePipeline(_Serializable):
         return self.dag.dump()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
-        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
+        return {
+            "distilabel": {"version": __version__},
+            "pipeline": {
+                "name": self.name,
+                "description": self.description,
+                **super().dump(),
+            },
+        }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
+    def from_dict(cls, data: Dict[str, Any]) -> Self:
         """Create a Pipeline from a dict containing the serialized data.
 
         Note:
@@ -139,8 +163,9 @@ class BasePipeline(_Serializable):
         Returns:
             pipeline (BasePipeline): _description_
         """
-
-        with cls() as pipe:
+        name = data["pipeline"]["name"]
+        description = data["pipeline"].get("description")
+        with cls(name=name, description=description) as pipe:
             pipe.dag = DAG.from_dict(data["pipeline"])
         return pipe
 

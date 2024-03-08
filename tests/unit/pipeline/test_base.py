@@ -14,7 +14,7 @@
 
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 import pytest
 from distilabel.pipeline._dag import DAG
@@ -25,11 +25,12 @@ from distilabel.pipeline.base import (
     _BatchManagerStep,
     _GlobalPipelineManager,
 )
-from distilabel.steps.base import GlobalStep
+from distilabel.steps.base import GlobalStep, RuntimeParameter, Step, StepInput
 from distilabel.utils.serialization import TYPE_INFO_KEY
+from pydantic import Field
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import GeneratorStep, Step
+    from distilabel.steps.base import GeneratorStep
 
 
 class TestGlobalPipelineManager:
@@ -37,7 +38,7 @@ class TestGlobalPipelineManager:
         _GlobalPipelineManager.set_pipeline(None)
 
     def test_set_pipeline(self) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -46,7 +47,7 @@ class TestGlobalPipelineManager:
         assert _GlobalPipelineManager.get_pipeline() is None
 
     def test_get_pipeline(self) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -55,11 +56,65 @@ class TestBasePipeline:
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
-        with BasePipeline() as pipeline:
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
             assert pipeline is not None
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
         assert _GlobalPipelineManager.get_pipeline() is None
+
+    def test_get_runtime_parameters_info(self) -> None:
+        class DummyStep1(Step):
+            runtime_param1: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param1 description"
+            )
+            runtime_param2: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param2 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        class DummyStep2(Step):
+            runtime_param3: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param3 description"
+            )
+            runtime_param4: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param4 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
+            DummyStep1(name="dummy_step_1")
+            DummyStep2(name="dummy_step_2")
+
+        assert pipeline.get_runtime_parameters_info() == {
+            "dummy_step_1": [
+                {
+                    "name": "runtime_param1",
+                    "description": "runtime_param1 description",
+                    "optional": False,
+                },
+                {
+                    "name": "runtime_param2",
+                    "description": "runtime_param2 description",
+                    "optional": True,
+                },
+            ],
+            "dummy_step_2": [
+                {
+                    "name": "runtime_param3",
+                    "description": "runtime_param3 description",
+                    "optional": False,
+                },
+                {
+                    "name": "runtime_param4",
+                    "description": "runtime_param4 description",
+                    "optional": True,
+                },
+            ],
+        }
 
 
 class TestBatch:
@@ -668,7 +723,7 @@ class TestBatchManager:
 
 class TestPipelineSerialization:
     def test_base_pipeline_dump(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
         assert "pipeline" in dump
@@ -678,14 +733,14 @@ class TestPipelineSerialization:
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
 
     def test_base_pipeline_from_dict(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         pipe = BasePipeline.from_dict(pipeline.dump())
         assert isinstance(pipe, BasePipeline)
 
     def test_pipeline_dump(self):
         from distilabel.pipeline.local import Pipeline
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
         assert "pipeline" in dump
@@ -708,7 +763,7 @@ class TestPipelineSerialization:
         name: str,
         loader: Callable,
     ) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             filename = Path(tmpdirname) / name

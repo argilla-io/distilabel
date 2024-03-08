@@ -39,7 +39,7 @@ class DummyLLM(LLM):
 
 class TestTextGeneration:
     def test_passing_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
@@ -48,7 +48,7 @@ class TestTextGeneration:
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             llm = DummyLLM()
             task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
@@ -63,7 +63,7 @@ class TestTextGeneration:
         with pytest.raises(
             ValidationError, match="llm\n  Field required \\[type=missing"
         ):
-            TextGeneration(name="task", pipeline=Pipeline())  # type: ignore
+            TextGeneration(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(
             TypeError,
@@ -72,7 +72,7 @@ class TestTextGeneration:
             Task(name="task", llm=DummyLLM())  # type: ignore
 
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert list(task.process([{"instruction": "test"}])) == [
@@ -80,7 +80,7 @@ class TestTextGeneration:
         ]
 
     def test_serialization(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
@@ -108,6 +108,6 @@ class TestTextGeneration:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = TextGeneration.from_dict(task.dump())
             assert isinstance(new_task, TextGeneration)

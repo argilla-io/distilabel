@@ -44,7 +44,7 @@ class RenameColumns(Step):
 
 
 def test_pipeline_with_llms_serde():
-    with Pipeline() as pipeline:
+    with Pipeline(name="unit-test-pipeline") as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset")
         rename_columns = RenameColumns(name="rename_columns")
         load_hub_dataset.connect(rename_columns)
@@ -65,7 +65,7 @@ def test_pipeline_with_llms_serde():
         rename_columns.connect(generate_response_mini)
         dump = pipeline.dump()
 
-    with Pipeline() as pipe:
+    with Pipeline(name="unit-test-pipeline") as pipe:
         pipe = pipe.from_dict(dump)
 
     assert "load_dataset" in pipe.dag.G

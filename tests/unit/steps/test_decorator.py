@@ -42,7 +42,9 @@ class TestStepDecorator:
         assert UnitTestStep.__doc__ == "A dummy step for the unit test"
         assert UnitTestStep.__module__ == "tests.unit.steps.test_decorator"
 
-        unit_test_step = UnitTestStep(name="unit_test_step", pipeline=Pipeline())
+        unit_test_step = UnitTestStep(
+            name="unit_test_step", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert unit_test_step._built_from_decorator is True
         assert unit_test_step.inputs == ["instruction"]
         assert unit_test_step.outputs == ["generation"]
@@ -96,7 +98,9 @@ class TestStepDecorator:
             "process",
             return_value=[[{"instruction": "Build AGI please", "generation": ""}]],
         ) as process_mock:
-            unit_test_step = UnitTestStep(name="unit_test_step", pipeline=Pipeline())
+            unit_test_step = UnitTestStep(
+                name="unit_test_step", pipeline=Pipeline(name="unit-test-pipeline")
+            )
             next(
                 unit_test_step.process_applying_mappings(
                     inputs, **unit_test_step._runtime_parameters

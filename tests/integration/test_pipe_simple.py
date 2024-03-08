@@ -55,8 +55,8 @@ class GenerateResponse(Step):
         return ["response"]
 
 
-def test_pipeline():
-    with Pipeline() as pipeline:
+def test_Pipeline(name="unit-test-pipeline"):
+    with Pipeline(name="unit-test-pipeline") as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset")
         rename_columns = RenameColumns(name="rename_columns")  # type: ignore
         generate_response = GenerateResponse(name="generate_response")
@@ -66,7 +66,7 @@ def test_pipeline():
         dump = pipeline.dump()
 
     # Recreate the pipeline from the dump
-    with Pipeline() as pipe:
+    with Pipeline(name="unit-test-pipeline") as pipe:
         pipe = pipe.from_dict(dump)
 
     pipe.run(
