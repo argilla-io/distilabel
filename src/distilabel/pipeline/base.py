@@ -383,7 +383,7 @@ class _BatchManagerStep(_Serializable):
     accumulate: bool
     input_batch_size: Union[int, None] = None
     data: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
-    _seq_no: int = 0
+    seq_no: int = 0
     _last_batch_received: List[str] = field(default_factory=list)
 
     def add_batch(self, batch: _Batch) -> None:
@@ -438,8 +438,8 @@ class _BatchManagerStep(_Serializable):
         Returns:
             The sequence number for the next batch to be created.
         """
-        seq_no = self._seq_no
-        self._seq_no += 1
+        seq_no = self.seq_no
+        self.seq_no += 1
         return seq_no
 
     def _get_data(self) -> List[List[Dict[str, Any]]]:

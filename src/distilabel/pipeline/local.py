@@ -47,9 +47,7 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        buffer_data_path = self._cache_filenames[
-            "data"
-        ]  # self._cache_dir / "data.jsonl"
+        buffer_data_path = self._cache_filenames["data"]
         self._logger.info(f"📝 Writing buffer to {buffer_data_path}")
         write_buffer = _WriteBuffer(
             path=buffer_data_path, leaf_steps=self.dag.leaf_steps
@@ -62,6 +60,7 @@ class Pipeline(BasePipeline):
             output_queue: "Queue[_Batch]" = manager.Queue()
             self._run_steps_in_loop(pool, manager, output_queue)
 
+            # TODO: Update this to run only on fresh _BAtchManager
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
@@ -146,10 +145,7 @@ class Pipeline(BasePipeline):
 
 class _WriteBuffer:
     def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
-        path = Path(path)
-        # if path.exists() and not path.is_dir():
-        #     raise ValueError(f"Path '{path}' already exists and is not a directory")
-        self._path = path
+        self._path = Path(path)
         if not self._path.exists():
             self._path.parent.mkdir(parents=True, exist_ok=True)
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}

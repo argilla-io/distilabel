@@ -64,7 +64,7 @@ def test_pipeline_cached():
             load_hub_dataset = LoadHubDataset(name="load_dataset")
             rename_columns = RenameColumns(name="rename_columns")
             generate_response = GenerateResponse(
-                name="generate_response", input_batch_size=2
+                name="generate_response", input_batch_size=1
             )
 
             load_hub_dataset.connect(rename_columns)

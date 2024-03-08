@@ -341,7 +341,7 @@ class TestBatchManagerStep:
         assert batch_manager_step.accumulate is False
         assert batch_manager_step.input_batch_size == 50
         assert batch_manager_step.data == {"step1": [], "step2": []}
-        assert batch_manager_step._seq_no == 0
+        assert batch_manager_step.seq_no == 0
         assert batch_manager_step._last_batch_received == []
 
     def test_from_step_with_global_step(self, dummy_global_step: "GlobalStep") -> None:
@@ -353,7 +353,7 @@ class TestBatchManagerStep:
         assert batch_manager_step.accumulate is True
         assert batch_manager_step.input_batch_size == 50
         assert batch_manager_step.data == {"step1": [], "step2": []}
-        assert batch_manager_step._seq_no == 0
+        assert batch_manager_step.seq_no == 0
         assert batch_manager_step._last_batch_received == []
 
     def test_get_seq_no(self) -> None:
@@ -364,7 +364,7 @@ class TestBatchManagerStep:
         seq_no = batch_manager_step._get_seq_no()
 
         assert seq_no == 0
-        assert batch_manager_step._seq_no == 1
+        assert batch_manager_step.seq_no == 1
 
     def test_get_data(self) -> None:
         batch_manager_step = _BatchManagerStep(
@@ -642,6 +642,7 @@ class TestBatchManagerStep:
                     {"b": 7},
                 ],
             },
+            "seq_no": 0,
             "type_info": {
                 "module": "distilabel.pipeline.base",
                 "name": "_BatchManagerStep",
@@ -790,6 +791,7 @@ class TestBatchManager:
                     accumulate=False,
                     input_batch_size=5,
                     data={"step1": [], "step2": []},
+                    seq_no=1,
                 )
             }
         )
@@ -799,6 +801,7 @@ class TestBatchManager:
                 "accumulate": False,
                 "input_batch_size": 5,
                 "data": {"step1": [], "step2": []},
+                "seq_no": 1,
                 "type_info": {
                     "module": "distilabel.pipeline.base",
                     "name": "_BatchManagerStep",
