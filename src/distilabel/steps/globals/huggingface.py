@@ -19,8 +19,8 @@ from typing import Optional
 from datasets import Dataset
 from pydantic import Field
 
-from distilabel.steps.base import GlobalStep, RuntimeParameter
-from distilabel.steps.typing import StepInput, StepOutput
+from distilabel.steps.base import GlobalStep, RuntimeParameter, StepInput
+from distilabel.steps.typing import StepOutput
 
 
 class PushToHub(GlobalStep):
