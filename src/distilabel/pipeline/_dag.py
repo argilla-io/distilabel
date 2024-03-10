@@ -142,6 +142,15 @@ class DAG(_Serializable):
         """
         return {node for node, degree in self.G.out_degree() if degree == 0}
 
+    @cached_property
+    def trophic_levels(self) -> Dict[str, int]:
+        """The trophic level of each step in the DAG.
+
+        Returns:
+            A dictionary with the trophic level of each step.
+        """
+        return {step: int(level) for step, level in nx.trophic_levels(self.G).items()}
+
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.
 
@@ -177,14 +186,48 @@ class DAG(_Serializable):
         Yields:
             A list containing the names of the steps that can be run in parallel.
         """
-        trophic_levels = nx.trophic_levels(self.G)
-
         v = defaultdict(list)
-        for step, trophic_level in trophic_levels.items():
-            v[int(trophic_level)].append(step)
+        for step, trophic_level in self.trophic_levels.items():
+            v[trophic_level].append(step)
 
         for trophic_level in sorted(v.keys()):
             yield v[trophic_level]
+
+    def get_step_trophic_level(self, step_name: str) -> int:
+        """Gets the trophic level of a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The trophic level of the step.
+        """
+        return int(self.trophic_levels[step_name])
+
+    def is_step_in_trophic_level(self, step_name: str, trophic_level: int) -> bool:
+        """Checks if a step is in a given trophic level.
+
+        Args:
+            step_name: The name of the step.
+            trophic_level: The trophic level.
+
+        Returns:
+            True if the step is in the given trophic level, False otherwise.
+        """
+        return self.get_step_trophic_level(step_name) == trophic_level
+
+    def step_in_last_trophic_level(self, step_name: str) -> bool:
+        """Checks if a step is in the last trophic level.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            True if the step is in the last trophic level, False otherwise.
+        """
+        return self.is_step_in_trophic_level(
+            step_name, max(self.trophic_levels.values())
+        )
 
     def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and

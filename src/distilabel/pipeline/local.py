@@ -71,9 +71,7 @@ class Pipeline(BasePipeline):
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
-            self.shared_info = manager.dict(
-                **{_STEPS_LOADED_KEY: 0, _STEPS_LOADED_LOCK_KEY: manager.Lock()}
-            )
+            self.shared_info = self._create_shared_info_dict(manager)
 
             # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
@@ -114,6 +112,22 @@ class Pipeline(BasePipeline):
                     # All the leaf steps have processed the last batch, stop the generation
                     if all(leaf_steps_received_last_batch.values()):
                         break
+
+            pool.close()
+            pool.join()
+
+    def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
+        """Creates the shared information dictionary to be used by the processes.
+
+        Args:
+            manager: The manager to create the shared information.
+
+        Returns:
+            The shared information dictionary.
+        """
+        return manager.dict(
+            **{_STEPS_LOADED_KEY: 0, _STEPS_LOADED_LOCK_KEY: manager.Lock()}
+        )
 
     def _all_steps_loaded(self) -> bool:
         """Waits for all the steps to load.
@@ -200,10 +214,25 @@ class Pipeline(BasePipeline):
         """
         if e.is_load_error:
             self._logger.error(f"Failed to load step '{e.step.name}': {e.message}")
-        else:
+            self._stop()
+            return
+
+        # if the step is global, is not in the last trophic level and has no successors,
+        # then we can ignore the error and continue executing the pipeline
+        if (
+            e.step.is_global
+            and not self.dag.step_in_last_trophic_level(e.step.name)
+            and list(self.dag.get_step_successors(e.step.name)) == []
+        ):
             self._logger.error(
-                f"An error occurred in step '{e.step.name}': {e.message}"
+                f"An error occurred when running global step '{e.step.name}' with no"
+                f" successors and not in the last trophic level. Pipeline execution can"
+                f" continue. Error will be ignored: {e.message}"
             )
+            self._cache()
+            return
+
+        self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
         self._cache()
         self._stop()
 
@@ -398,6 +427,9 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
+            # `result` is initally an empty list so f `process` method raises an exception
+            # an empty batch will be sent to the `output_queue`
+            result = []
             try:
                 if self.step.has_multiple_inputs:
                     result = next(self.step.process_applying_mappings(*batch.data))
@@ -405,9 +437,7 @@ class _ProcessWrapper:
                     result = next(self.step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
-                    raise _ProcessWrapperException(
-                        message=str(e), step=self.step, code=2
-                    ) from e
+                    raise _ProcessWrapperException(str(e), self.step, 2) from e
 
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
@@ -415,10 +445,9 @@ class _ProcessWrapper:
                     f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed:"
                     f" {e}. Sending empty batch..."
                 )
-                result = []
-
-            batch.data = [result]
-            self._send_batch(batch)
+            finally:
+                batch.data = [result]
+                self._send_batch(batch)
 
             if batch.last_batch:
                 break
