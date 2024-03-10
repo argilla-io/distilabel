@@ -61,7 +61,7 @@ class Pipeline(BasePipeline):
         }
 
         buffer_data_path = self._cache_filenames["data"]
-        self._logger.info(f"📝 Writing buffer to {buffer_data_path}")
+        self._logger.info("📝 Writing buffer to cache folder")
         write_buffer = _WriteBuffer(
             path=buffer_data_path, leaf_steps=self.dag.leaf_steps
         )
@@ -82,7 +82,6 @@ class Pipeline(BasePipeline):
             if not self._all_steps_loaded():
                 return
 
-            # TODO: Update this to run only on fresh _BAtchManager
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
@@ -186,7 +185,11 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
+            pool.apply_async(
+                process_wrapper.run,
+                error_callback=self._error_callback,
+                callback=lambda _: self._cache(),
+            )  # type: ignore
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -201,7 +204,7 @@ class Pipeline(BasePipeline):
             self._logger.error(
                 f"An error occurred in step '{e.step.name}': {e.message}"
             )
-
+        self._cache()
         self._stop()
 
     def _stop(self) -> None:
