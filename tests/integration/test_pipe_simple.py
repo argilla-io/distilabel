@@ -47,9 +47,14 @@ class GenerateResponse(Step):
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         import time
 
+        time.sleep(0.8)
+
+        print("***** NOT CACHED ******", len(inputs))
         for input in inputs:
-            time.sleep(0.8)
             input["response"] = "I don't know"
+
+        # NOTE: Caching here to save the evolution of the _BatchManager
+        self.pipeline._cache()
         yield inputs
 
     @property
@@ -60,10 +65,10 @@ class GenerateResponse(Step):
 def test_pipeline_cached():
     def run_pipeline():
         with Pipeline() as pipeline:
-            load_hub_dataset = LoadHubDataset(name="load_dataset")
-            rename_columns = RenameColumns(name="rename_columns")
+            load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
+            rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
             generate_response = GenerateResponse(
-                name="generate_response", input_batch_size=1
+                name="generate_response", input_batch_size=16
             )
 
             load_hub_dataset.connect(rename_columns)
@@ -72,18 +77,21 @@ def test_pipeline_cached():
             pipeline.run(
                 parameters={
                     "load_dataset": {
-                        "repo_id": "alvarobartt/test",
+                        "repo_id": "plaguss/test",
                         "split": "train",
                     },
                     "rename_columns": {
                         "rename_mappings": {
                             "prompt": "instruction",
-                        }
+                        },
                     },
                 }
             )
 
     run_pipeline()
+    print()
+    print("----- RUNNING PIPELINE AGAIN -----")
+    print()
     run_pipeline()
 
 
