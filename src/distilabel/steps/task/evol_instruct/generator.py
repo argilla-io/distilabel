@@ -196,22 +196,13 @@ class EvolInstructGenerator(GeneratorTask):
                 not self.generate_answers
                 and len(mutated_instructions[-mutation_no:]) > 0
             ):
-                try:
-                    yield (
-                        [
-                            self.format_output(mutated_instruction)
-                            for mutated_instruction in mutated_instructions[
-                                -mutation_no:
-                            ]
-                        ],
-                        len(mutated_instructions) >= self.num_instructions,
-                    )
-                except Exception as e:
-                    self._logger.error(
-                        f"Error while yielding instructions: {e}",
-                        exc_info=True,
-                    )
-                    raise e
+                yield (
+                    [
+                        self.format_output(mutated_instruction)
+                        for mutated_instruction in mutated_instructions[-mutation_no:]
+                    ],
+                    len(mutated_instructions) >= self.num_instructions,
+                )
 
         self._logger.info(
             f"🎉 Finished evolving {len(mutated_instructions)} instructions!"
