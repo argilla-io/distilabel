@@ -237,8 +237,13 @@ class BasePipeline(_Serializable):
             "data": folder / "data.jsonl",
         }
 
-    def _cache(self) -> None:
-        """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file)."""
+    def _cache(self, *args: Any, **kwargs: Any) -> None:
+        """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file).
+
+        Notes:
+            The method has the possibility to take arguments to simplify testing, but
+            for the moment there's no use for them.
+        """
         if not self._cache_filenames["pipeline"].exists():
             self.save(
                 path=self._cache_filenames["pipeline"],

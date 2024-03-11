@@ -105,14 +105,17 @@ class TestPipeline:
                 mock.call(
                     process_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
+                    callback=pipeline._cache,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
+                    callback=pipeline._cache,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
+                    callback=pipeline._cache,
                 ),
             ]
         )

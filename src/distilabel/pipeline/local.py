@@ -202,7 +202,7 @@ class Pipeline(BasePipeline):
             pool.apply_async(
                 process_wrapper.run,
                 error_callback=self._error_callback,
-                callback=lambda _: self._cache(),
+                callback=self._cache,
             )  # type: ignore
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
