@@ -33,7 +33,6 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
 hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
 llama-cpp = ["llama-cpp-python >= 0.2.0"]
@@ -43,8 +42,9 @@ vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 together = ["together"]
 argilla = ["argilla >= 1.23.0"]
-tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 mistralai = ["mistralai >= 0.1.0"]
+dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
+tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 docs = [
     "mkdocs-material >= 9.5.0",
     "mkdocstrings[python] >= 0.24.0",
