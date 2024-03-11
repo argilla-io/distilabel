@@ -22,21 +22,22 @@ else:
     import importlib.resources as importlib_resources
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
-from pydantic import Field, PrivateAttr
+from pydantic import Field
 from typing_extensions import override
 
-from distilabel.steps.task.base import GeneratorTask
+from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.steps.base import StepInput
+    from distilabel.steps.typing import StepOutput
 
 
-class EvolInstruct(GeneratorTask):
+class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
     Reference:
@@ -44,15 +45,12 @@ class EvolInstruct(GeneratorTask):
         - https://github.com/h2oai/h2o-wizardlm
     """
 
-    num_instructions: int
+    num_evolutions: int
+    store_evolutions: bool = False
     generate_answers: bool = False
-    start_from_existing_instructions: bool = False
 
     min_length: RuntimeParameter[int] = Field(default=256)
     max_length: RuntimeParameter[int] = Field(default=1024)
-
-    _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
-    _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
 
     @override
     def model_post_init(self, __context: Any) -> None:
@@ -62,26 +60,6 @@ class EvolInstruct(GeneratorTask):
         super().model_post_init(__context)
 
         np.random.seed(42)
-
-        if not self.start_from_existing_instructions:
-            self._seed_texts = []
-            for _ in range(self.num_instructions * 10):
-                num_words = np.random.choice([1, 2, 3, 4])
-                self._seed_texts.append(
-                    MutationTemplates.FRESH_START.value.replace(
-                        "<PROMPT>",
-                        ", ".join(
-                            [
-                                np.random.choice(self._english_nouns).strip()
-                                for _ in range(num_words)
-                            ]
-                        ),
-                    )
-                )
-
-            self._prompts = [
-                np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
-            ]
 
     @cached_property
     def _english_nouns(self) -> List[str]:
@@ -100,17 +78,13 @@ class EvolInstruct(GeneratorTask):
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`."""
-        if self.start_from_existing_instructions:
-            return ["instruction"]
-        else:
-            return []
+        return ["instruction"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
+    def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation. And the
         `system_prompt` is added as the first message if it exists."""
-        pass
-        # return [{"role": "user", "content": input[self.inputs[0]]}]
+        return [{"role": "user", "content": input}]
 
     @property
     def outputs(self) -> List[str]:
@@ -118,28 +92,38 @@ class EvolInstruct(GeneratorTask):
         # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
-        instruction_name = (
+        _outputs = [
             "evolved_instruction"
-            if not self.start_from_existing_instructions
-            else "instruction"
-        )
+            if not self.store_evolutions
+            else "evolved_instructions",
+            "model_name",
+        ]
         if self.generate_answers:
-            return [instruction_name, "answer", "model_name"]
-        return [instruction_name, "model_name"]
+            _outputs.append("answer")
+        return _outputs
 
-    def format_output(self, output: Dict[str, str]) -> Dict[str, Any]:  # type: ignore
-        """The output is formatted as a dictionary with the `evolved_instruction`. The `model_name`
-        will be automatically included within the `process` method of `Task`."""
-        pass
-        # if self.generate_answers:
-        #     return {
-        #         self.outputs[0]: output["evolved_instruction"],
-        #         self.outputs[1]: output["answer"],
-        #     }
-        # return {self.outputs[0]: output["evolved_instruction"]}
+    def format_output(
+        self, instructions: Union[str, List[str]], answer: Optional[str] = None
+    ) -> Dict[str, Any]:  # type: ignore
+        """The output is formatted as a dictionary with the `instruction`. The `model_name`
+        will be automatically included."""
+        if not self.output_mappings:
+            self.output_mappings = {k: k for k in self.outputs}
+
+        _output = {}
+        if not self.store_evolutions:
+            _output[self.output_mappings["evolved_instruction"]] = instructions[-1]
+        else:
+            _output[self.output_mappings["evolved_instructions"]] = instructions
+
+        if self.generate_answers and answer is not None:
+            _output[self.output_mappings["answer"]] = answer
+
+        _output[self.output_mappings["model_name"]] = self.llm.model_name
+        return _output
 
     @override
-    def process(self) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -148,98 +132,76 @@ class EvolInstruct(GeneratorTask):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
+        enum_attributes = [
+            member.name for member in MutationTemplates.__members__.values()
+        ]
+        enum_attributes.remove("FRESH_START")
 
-        mutated_instructions = []
-
-        iter_no = 0
-        while len(mutated_instructions) < self.num_instructions:
+        instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
+        for iter_no in range(self.num_evolutions):
             formatted_prompts = []
-            for idx in range(self.num_instructions):
-                if (
-                    iter_no == 0
-                    or "Write one question or request containing" in self._prompts[idx]  # type: ignore
-                ):
-                    mutation = "FRESH_START"
-                else:
-                    enum_attributes = [
-                        member.name for member in MutationTemplates.__members__.values()
-                    ]
-                    mutation = np.random.choice(enum_attributes)
-                    if mutation == "FRESH_START":
-                        self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
+            for instruction in instructions:
+                mutation = np.random.choice(enum_attributes)
                 formatted_prompts.append(
                     MutationTemplates[mutation].value.replace(
-                        "<PROMPT>", self._prompts[idx]
-                    )  # type: ignore
-                    if iter_no != 0
-                    else self._prompts[idx]  # type: ignore
+                        "<PROMPT>", instruction[-1]
+                    )
                 )
 
             formatted_prompts = [
-                [{"role": "user", "content": prompt}] for prompt in formatted_prompts
+                self.format_input(prompt) for prompt in formatted_prompts
             ]
             generated_prompts = self.llm.generate(
                 formatted_prompts,
                 **self.generation_kwargs,  # type: ignore
             )
-            for idx, generated_prompt in enumerate(generated_prompts):
-                for replacement in ["#New Prompt#:", "#Given Prompt#:"]:
-                    generated_prompt = generated_prompt.replace(replacement, "")
-                generated_prompt = generated_prompt.strip()
-                if self.max_length >= len(generated_prompt) >= self.min_length:  # type: ignore
-                    mutated_instructions.append(generated_prompt)
-                    self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
-                else:
-                    self._prompts[idx] = generated_prompt  # type: ignore
+
+            evolved_instructions = []
+            for generated_prompt in generated_prompts:
+                evolved_instructions.append(
+                    generated_prompt.split("Prompt#:")[-1].strip()
+                )
+
+            if self.store_evolutions:
+                instructions = [
+                    instruction + [evolved_instruction]
+                    for instruction, evolved_instruction in zip(
+                        instructions, evolved_instructions
+                    )
+                ]
+            else:
+                instructions = [
+                    [evolved_instruction]
+                    for evolved_instruction in evolved_instructions
+                ]
 
             self._logger.info(
-                f"🔄 Ran iteration {iter_no} with {len(mutated_instructions)} instructions already evolved!"
+                f"🔄 Ran iteration {iter_no} evolving {len(instructions)} instructions!"
             )
-            iter_no += 1
 
-        self._logger.info(
-            f"🎉 Finished evolving {len(mutated_instructions)} instructions!"
-        )
+        self._logger.info(f"🎉 Finished evolving {len(instructions)} instructions!")
 
         if self.generate_answers:
             self._logger.info(
-                f"🧠 Generating answers for the {len(mutated_instructions)} evolved instructions!"
+                f"🧠 Generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            _mutated_instructions = [
-                [{"role": "user", "content": instruction}]
-                for instruction in mutated_instructions
+            _formatted_instructions = [
+                self.format_input(instruction[-1]) for instruction in instructions
             ]
-            generated_answers = self.llm.generate(
-                _mutated_instructions,
+            answers = self.llm.generate(
+                _formatted_instructions,
                 **self.generation_kwargs,  # type: ignore
             )
 
             self._logger.info(
-                f"🎉 Finished generating answers for the {len(mutated_instructions)} evolved instructions!"
+                f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            yield (
-                [
-                    {
-                        "evolved_instruction": mutated_instruction,
-                        "answer": generated_answer,
-                        "model_name": self.llm.model_name,
-                    }
-                    for mutated_instruction, generated_answer in zip(
-                        mutated_instructions, generated_answers
-                    )
-                ],
-                True,
-            )
+            for input, instruction, answer in zip(inputs, instructions, answers):
+                input.update(self.format_output(instruction, answer))
+            yield inputs
 
-        yield (
-            [
-                {
-                    "evolved_instruction": mutated_instruction,
-                    "model_name": self.llm.model_name,
-                }
-                for mutated_instruction in mutated_instructions
-            ],
-            True,
-        )
+        for input, instruction in zip(inputs, instructions):
+            input.update(self.format_output(instruction))
+        yield inputs
