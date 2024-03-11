@@ -71,10 +71,16 @@ class AsyncLLM(LLM):
             inputs: List["ChatType"], *args: Any, **kwargs: Any
         ) -> List[str]:
             """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input, *args, **kwargs))
-                for input in inputs
-            ]
+            if isinstance(inputs, list):
+                if isinstance(inputs[0], list):
+                    tasks = [
+                        asyncio.create_task(self.agenerate(input, *args, **kwargs))
+                        for input in inputs
+                    ]
+                else:
+                    tasks = [
+                        asyncio.create_task(self.agenerate(inputs, *args, **kwargs))
+                    ]
             return await asyncio.gather(*tasks)
 
         return asyncio.run(agenerate(inputs, *args, **kwargs))
