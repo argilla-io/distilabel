@@ -14,6 +14,7 @@
 
 import json
 import multiprocessing as mp
+import signal
 import time
 from pathlib import Path
 from typing import (
@@ -54,6 +55,7 @@ class Pipeline(BasePipeline):
                 keys are the parameter names (defined in the `process` method of the step)
                 and the values are the parameter values.
         """
+        self._handle_keyboard_interrupt()
         super().run(parameters)
 
         leaf_steps_received_last_batch = {
@@ -237,6 +239,29 @@ class Pipeline(BasePipeline):
         self.output_queue.put(None)
         with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
             self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+
+    def _handle_keyboard_interrupt(self) -> None:
+        """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
+
+        It will try to call self._stop (if the pipeline didn't started yet, it won't
+        have any effect), and if the pool is already started, will close it before exiting
+        the program.
+        """
+        try:
+            self._stop()
+        except Exception:
+            # Errors like the output_queue not created yet
+            pass
+
+        pool: Optional[mp.Pool] = None
+
+        def signal_handler(signumber: int, frame: Any) -> None:
+            if pool is not None:
+                pool.close()
+            self._logger.error("🚨 Ctrl+c signal called, stopping the Pipeline")
+            exit(1)
+
+        signal.signal(signal.SIGINT, signal_handler)
 
 
 class _WriteBuffer:
