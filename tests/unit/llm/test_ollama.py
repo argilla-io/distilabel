@@ -80,7 +80,6 @@ class TestOllamaLLM:
         _dump = {
             "model": "notus",
             "host": None,
-            "max_retries": 5,
             "timeout": 120,
             "follow_redirects": True,
             "type_info": {
