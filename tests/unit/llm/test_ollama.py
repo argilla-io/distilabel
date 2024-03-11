@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
@@ -35,9 +35,9 @@ class TestOllamaLLM:
         llm = OllamalLLM(model="notus")  # type: ignore
         llm._aclient = mock_ollama
 
-        mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
-        )
+        mocked_completion = {
+            "message": {"content": " Aenean hendrerit aliquam velit. ..."}
+        }
         llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
@@ -55,9 +55,10 @@ class TestOllamaLLM:
         llm = OllamalLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
         llm._aclient = mock_ollama
 
-        mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
-        )
+        mocked_completion = {
+            "message": {"content": " Aenean hendrerit aliquam velit. ..."}
+        }
+
         llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()

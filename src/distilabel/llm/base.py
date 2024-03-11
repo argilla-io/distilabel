@@ -15,7 +15,7 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
@@ -56,9 +56,20 @@ class AsyncLLM(LLM):
     """
 
     @abstractmethod
-    async def agenerate(self, input: "ChatType", *args: Any, **kwargs: Any) -> str:
+    async def agenerate(
+        self, input: List["ChatType"], *args: Any, **kwargs: Any
+    ) -> str:
         """Method to generate a single response asynchronously, parallelized via `generate`."""
         pass
+
+    def _check_chat_type_single_or_list(
+        self, inputs: Union["ChatType", List["ChatType"]]
+    ) -> bool:
+        """Internal method to check if the input is a list of `ChatType` or a single"""
+        if isinstance(inputs, list):
+            if isinstance(inputs[0], list):
+                return False
+            return True
 
     def generate(
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
@@ -71,16 +82,13 @@ class AsyncLLM(LLM):
             inputs: List["ChatType"], *args: Any, **kwargs: Any
         ) -> List[str]:
             """Internal function to parallelize the asynchronous generation of responses."""
-            if isinstance(inputs, list):
-                if isinstance(inputs[0], list):
-                    tasks = [
-                        asyncio.create_task(self.agenerate(input, *args, **kwargs))
-                        for input in inputs
-                    ]
-                else:
-                    tasks = [
-                        asyncio.create_task(self.agenerate(inputs, *args, **kwargs))
-                    ]
+            if self._check_chat_type_single_or_list(inputs):
+                tasks = [
+                    asyncio.create_task(self.agenerate(input, *args, **kwargs))
+                    for input in inputs
+                ]
+            else:
+                tasks = [asyncio.create_task(self.agenerate(inputs, *args, **kwargs))]
             return await asyncio.gather(*tasks)
 
         return asyncio.run(agenerate(inputs, *args, **kwargs))
