@@ -357,13 +357,13 @@ class _ProcessWrapper:
         """
         step = cast("GeneratorStep", self.step)
 
-        batch = self.input_queue.get()
-
-        self.step._logger.info(
-            f"🧬 Starting yielding batches from generator step '{self.step.name}'"
-        )
-
         try:
+            batch = self.input_queue.get()
+
+            self.step._logger.info(
+                f"🧬 Starting yielding batches from generator step '{self.step.name}'"
+            )
+
             for data, last_batch in step.process_applying_mappings():
                 batch.data = [data]
                 batch.last_batch = last_batch
