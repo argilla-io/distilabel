@@ -41,7 +41,7 @@ class TestOllamaLLM:
         llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
-            inputs=[
+            input=[
                 {"role": "system", "content": ""},
                 {
                     "role": "user",
@@ -52,7 +52,7 @@ class TestOllamaLLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_ollama: MagicMock) -> None:
-        llm = OllamalLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm = OllamalLLM(model="notus")  # type: ignore
         llm._aclient = mock_ollama
 
         mocked_completion = {
@@ -66,11 +66,13 @@ class TestOllamaLLM:
         llm.generate(
             inputs=[
                 [
-                    {"role": "system", "content": ""},
-                    {
-                        "role": "user",
-                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                    },
+                    [
+                        {"role": "system", "content": ""},
+                        {
+                            "role": "user",
+                            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        },
+                    ]
                 ]
             ]
         )

@@ -58,7 +58,7 @@ class OllamalLLM(AsyncLLM):
 
     async def agenerate(
         self,
-        inputs: "ChatType",
+        input: "ChatType",
         stream: bool = False,
         format: Literal["", "json"] = "",
         options: Union["Options", None] = None,
@@ -66,7 +66,7 @@ class OllamalLLM(AsyncLLM):
         """Generates a response asynchronously, using the Ollama Async API definition."""
         completion = await self._aclient.chat(  # type: ignore
             model=self.model,
-            messages=inputs,
+            messages=input,
             stream=stream,
             format=format,
             options=options,
