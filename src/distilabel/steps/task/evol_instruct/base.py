@@ -14,13 +14,12 @@
 
 import sys
 
-from distilabel.steps.base import RuntimeParameter
-
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
 
+from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -48,9 +47,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-
-    min_length: RuntimeParameter[int] = Field(default=256)
-    max_length: RuntimeParameter[int] = Field(default=1024)
+    mutation_templates: StrEnum = Field(default=MutationTemplates)
 
     @override
     def model_post_init(self, __context: Any) -> None:
@@ -133,9 +130,9 @@ class EvolInstruct(Task):
             A list of Python dictionaries with the outputs of the task.
         """
         enum_attributes = [
-            member.name for member in MutationTemplates.__members__.values()
+            member.name
+            for member in self.mutation_templates.__members__.values()  # type: ignore
         ]
-        enum_attributes.remove("FRESH_START")
 
         instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
         for iter_no in range(self.num_evolutions):
@@ -143,7 +140,7 @@ class EvolInstruct(Task):
             for instruction in instructions:
                 mutation = np.random.choice(enum_attributes)
                 formatted_prompts.append(
-                    MutationTemplates[mutation].value.replace(
+                    self.mutation_templates[mutation].value.replace(  # type: ignore
                         "<PROMPT>", instruction[-1]
                     )
                 )

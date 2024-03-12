@@ -21,6 +21,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
+from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -29,7 +30,7 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
+from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -46,6 +47,7 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
+    mutation_templates: StrEnum = Field(default=GenerationMutationTemplates)
 
     min_length: RuntimeParameter[int] = Field(default=256)
     max_length: RuntimeParameter[int] = Field(default=1024)
@@ -66,7 +68,7 @@ class EvolInstructGenerator(GeneratorTask):
         for _ in range(self.num_instructions * 10):
             num_words = np.random.choice([1, 2, 3, 4])
             self._seed_texts.append(
-                MutationTemplates.FRESH_START.value.replace(
+                self.mutation_templates.FRESH_START.value.replace(  # type: ignore
                     "<PROMPT>",
                     ", ".join(
                         [
@@ -153,13 +155,14 @@ class EvolInstructGenerator(GeneratorTask):
                     mutation = "FRESH_START"
                 else:
                     enum_attributes = [
-                        member.name for member in MutationTemplates.__members__.values()
+                        member.name
+                        for member in self.mutation_templates.__members__.values()  # type: ignore
                     ]
                     mutation = np.random.choice(enum_attributes)
                     if mutation == "FRESH_START":
                         self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
                 formatted_prompts.append(
-                    MutationTemplates[mutation].value.replace(
+                    self.mutation_templates[mutation].value.replace(  # type: ignore
                         "<PROMPT>",
                         self._prompts[idx],  # type: ignore
                     )  # type: ignore
