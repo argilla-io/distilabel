@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from enum import StrEnum
+import sys
+
+if sys.version_info < (3, 11):
+    from enum import Enum as StrEnum
+else:
+    from enum import StrEnum
 
 
 class MutationTemplates(StrEnum):
