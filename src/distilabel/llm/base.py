@@ -42,13 +42,15 @@ class LLM(BaseModel, _Serializable, ABC):
     def model_name(self) -> str:
         pass
 
-    # TODO: update return type hint to `List[List[str]]` as for each input and depending
-    # on the `num_generations` parameter we would like to return a list of responses
-    # for each input.
     @abstractmethod
     def generate(
-        self, inputs: List["ChatType"], *args: Any, **kwargs: Any
-    ) -> List[str]:
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List[List[str]]:
+        """Abstract method to be implemented by each LLM to generate `num_generations`
+        per input in `inputs`."""
         pass
 
     def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
@@ -74,25 +76,34 @@ class AsyncLLM(LLM):
     """
 
     @abstractmethod
-    async def agenerate(self, input: "ChatType", *args: Any, **kwargs: Any) -> str:
-        """Method to generate a single response asynchronously, parallelized via `generate`."""
+    async def agenerate(
+        self, input: "ChatType", num_generations: int = 1, *args: Any, **kwargs: Any
+    ) -> List[str]:
+        """Method to generate a `num_generations` responses for a given input asynchronously,
+        and executed concurrently in `generate` method.
+        """
         pass
 
     def generate(
-        self, inputs: List["ChatType"], *args: Any, **kwargs: Any
-    ) -> List[str]:
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List[List[str]]:
         """Method to generate a list of responses asynchronously, returning the output
         synchronously awaiting for the response of each input sent to `agenerate`.
         """
 
-        async def agenerate(
-            inputs: List["ChatType"], *args: Any, **kwargs: Any
-        ) -> List[str]:
+        async def agenerate(inputs: List["ChatType"], **kwargs: Any) -> List[List[str]]:
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
-                asyncio.create_task(self.agenerate(input, *args, **kwargs))
+                asyncio.create_task(
+                    self.agenerate(
+                        input=input, num_generations=num_generations, **kwargs
+                    )
+                )
                 for input in inputs
             ]
             return await asyncio.gather(*tasks)
 
-        return asyncio.run(agenerate(inputs, *args, **kwargs))
+        return asyncio.run(agenerate(inputs, **kwargs))
