@@ -23,6 +23,7 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import HiddenStatesVector
     from distilabel.steps.task.typing import ChatType
 
 
@@ -50,7 +51,7 @@ class LLM(BaseModel, _Serializable, ABC):
     ) -> List[str]:
         pass
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List[List[float]]:
+    def get_last_hidden_states(self, inputs: List["ChatType"]) -> "HiddenStatesVector":
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )
