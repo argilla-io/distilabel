@@ -20,6 +20,6 @@ if TYPE_CHECKING:
 
     GenericFloat = TypeVar("GenericFloat", bound=floating[Any])
 
-    HiddenStatesVector = NDArray[GenericFloat]
+    HiddenState = NDArray[GenericFloat]
 else:
-    HiddenStatesVector = Any
+    HiddenState = Any

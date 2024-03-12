@@ -23,7 +23,7 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.llm.typing import HiddenStatesVector
+    from distilabel.llm.typing import HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
@@ -51,16 +51,14 @@ class LLM(BaseModel, _Serializable, ABC):
     ) -> List[str]:
         pass
 
-    def get_last_hidden_states(
-        self, inputs: List["ChatType"]
-    ) -> List["HiddenStatesVector"]:
+    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
 
         Args:
             inputs: the list of inputs to get the last hidden states from.
 
         Returns:
-            A list containing the last hidden states for each sequence using a NumPy array
+            A list containing the last hidden state for each sequence using a NumPy array
                 with shape [num_tokens, hidden_size].
         """
         raise NotImplementedError(

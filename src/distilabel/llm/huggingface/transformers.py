@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.llm.typing import HiddenStatesVector
+    from distilabel.llm.typing import HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
@@ -157,14 +157,12 @@ class TransformersLLM(LLM):
             for output in outputs
         ]
 
-    def get_last_hidden_states(
-        self, inputs: List["ChatType"]
-    ) -> List["HiddenStatesVector"]:
+    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Gets the last `hidden_states` of the model for the given inputs. It doesn't
         execute the task head.
 
         Returns:
-            A list containing the last hidden states for each sequence using a NumPy array.
+            A list containing the last hidden state for each sequence using a NumPy array.
                 with shape [num_tokens, hidden_size].
         """
         model: "PreTrainedModel" = (
