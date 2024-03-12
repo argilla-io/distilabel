@@ -176,6 +176,15 @@ class EvolInstruct(Task):
                 f"🔄 Ran iteration {iter_no} evolving {len(instructions)} instructions!"
             )
 
+        if self.store_evolutions:
+            # Remove the input instruction from the `evolved_instructions` list
+            instructions = [instruction[1:] for instruction in instructions]
+
+        if not self.generate_answers:
+            for input, instruction in zip(inputs, instructions):
+                input.update(self.format_output(instruction))
+            yield inputs
+
         self._logger.info(f"🎉 Finished evolving {len(instructions)} instructions!")
 
         if self.generate_answers:
@@ -195,10 +204,8 @@ class EvolInstruct(Task):
                 f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            for input, instruction, answer in zip(inputs, instructions, answers):
-                input.update(self.format_output(instruction, answer))
+            for idx, (input, instruction) in enumerate(
+                zip(inputs, instructions, strict=True)
+            ):
+                input.update(self.format_output(instruction, answers[idx]))
             yield inputs
-
-        for input, instruction in zip(inputs, instructions):
-            input.update(self.format_output(instruction))
-        yield inputs
