@@ -15,7 +15,14 @@
 import importlib
 import json
 import os
-from enum import Enum, EnumType
+import sys
+from enum import Enum
+
+if sys.version_info < (3, 11):
+    from enum import Enum as EnumType
+else:
+    from enum import EnumType
+
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Type, TypeVar, Union, get_args
 

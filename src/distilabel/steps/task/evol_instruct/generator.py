@@ -21,7 +21,11 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from enum import EnumType
+if sys.version_info < (3, 11):
+    from enum import Enum as EnumType
+else:
+    from enum import EnumType
+
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
