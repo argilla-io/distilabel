@@ -51,7 +51,18 @@ class LLM(BaseModel, _Serializable, ABC):
     ) -> List[str]:
         pass
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> "HiddenStatesVector":
+    def get_last_hidden_states(
+        self, inputs: List["ChatType"]
+    ) -> List["HiddenStatesVector"]:
+        """Method to get the last hidden states of the model for a list of inputs.
+
+        Args:
+            inputs: the list of inputs to get the last hidden states from.
+
+        Returns:
+            A list containing the last hidden states for each sequence using a NumPy array
+                with shape [num_tokens, hidden_size].
+        """
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )

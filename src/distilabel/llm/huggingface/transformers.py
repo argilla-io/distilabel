@@ -157,21 +157,33 @@ class TransformersLLM(LLM):
             for output in outputs
         ]
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> "HiddenStatesVector":
+    def get_last_hidden_states(
+        self, inputs: List["ChatType"]
+    ) -> List["HiddenStatesVector"]:
         """Gets the last `hidden_states` of the model for the given inputs. It doesn't
         execute the task head.
 
         Returns:
-            A numpy array of shape `(len(inputs), num_tokens, hidden_size)` containing the
-            last hidden states of the model for each input.
+            A list containing the last hidden states for each sequence using a NumPy array.
+                with shape [num_tokens, hidden_size].
         """
-        # `model.model` so the `LMHead` is not used
-        model: "PreTrainedModel" = self._pipeline.model.model  # type: ignore
+        model: "PreTrainedModel" = (
+            self._pipeline.model.model  # type: ignore
+            if hasattr(self._pipeline.model, "model")  # type: ignore
+            else next(self._pipeline.model.children())  # type: ignore
+        )
         tokenizer: "PreTrainedTokenizer" = self._pipeline.tokenizer  # type: ignore
-        formatted_inputs = [self.prepare_input(input=input) for input in inputs]
-        last_hidden_states = model(
-            **tokenizer(formatted_inputs, return_tensors="pt", padding=True).to(
-                model.device
+        input_ids = tokenizer(
+            [self.prepare_input(input) for input in inputs],  # type: ignore
+            return_tensors="pt",
+            padding=True,
+        ).to(model.device)
+        last_hidden_states = model(**input_ids)["last_hidden_state"]
+
+        return [
+            sequence[attention_mask.bool(), :].detach().cpu().numpy()
+            for sequence, attention_mask in zip(
+                last_hidden_states,
+                input_ids["attention_mask"],  # type: ignore
             )
-        )["last_hidden_state"]
-        return last_hidden_states.cpu().detach().numpy()
+        ]
