@@ -19,7 +19,7 @@ import sys
 from enum import Enum
 
 if sys.version_info < (3, 11):
-    from enum import Enum as EnumType
+    from enum import EnumMeta as EnumType
 else:
     from enum import EnumType
 

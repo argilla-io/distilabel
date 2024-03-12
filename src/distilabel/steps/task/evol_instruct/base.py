@@ -20,7 +20,7 @@ else:
     import importlib.resources as importlib_resources
 
 if sys.version_info < (3, 11):
-    from enum import Enum as EnumType
+    from enum import EnumMeta as EnumType
 else:
     from enum import EnumType
 
