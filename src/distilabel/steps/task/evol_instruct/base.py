@@ -130,7 +130,7 @@ class EvolInstruct(Task):
             A list of Python dictionaries with the outputs of the task.
         """
         enum_attributes = [
-            member.name
+            member.name  # type: ignore
             for member in self.mutation_templates.__members__.values()  # type: ignore
         ]
 

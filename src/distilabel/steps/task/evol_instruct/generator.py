@@ -155,7 +155,7 @@ class EvolInstructGenerator(GeneratorTask):
                     mutation = "FRESH_START"
                 else:
                     enum_attributes = [
-                        member.name
+                        member.name  # type: ignore
                         for member in self.mutation_templates.__members__.values()  # type: ignore
                     ]
                     mutation = np.random.choice(enum_attributes)
