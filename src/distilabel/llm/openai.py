@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from openai import AsyncOpenAI
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
@@ -71,21 +71,23 @@ class OpenAILLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",
+        num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> str:
+    ) -> List[str]:
         """Generates a response asynchronously, using the OpenAI Async API."""
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
             max_tokens=max_new_tokens,
+            n=num_generations,
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
             temperature=temperature,
             top_p=top_p,
             timeout=50,
         )
-        return completion.choices[0].message.content  # type: ignore
+        return [choice.message.content for choice in completion.choices]
