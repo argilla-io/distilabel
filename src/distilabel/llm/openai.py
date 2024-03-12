@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class OpenAILLM(AsyncLLM):
     """OpenAI LLM implementation running the Async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
         api_key: the API key to authenticate the requests to the OpenAI API.
     """
@@ -67,7 +67,8 @@ class OpenAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    # TODO: update to return `List[str]` depending on the `num_generations` parameter
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
         max_new_tokens: int = 128,

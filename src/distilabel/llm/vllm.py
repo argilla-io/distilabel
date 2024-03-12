@@ -53,6 +53,7 @@ class vLLM(LLM):
             add_generation_prompt=True,  # type: ignore
         )
 
+    # TODO: update to return `List[List[str]]` depending on the `num_generations` parameter
     def generate(
         self,
         inputs: List["ChatType"],

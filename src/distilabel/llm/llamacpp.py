@@ -44,6 +44,7 @@ class LlamaCppLLM(LLM):
     def model_name(self) -> str:
         return self._model.model_path  # type: ignore
 
+    # TODO: update to return `List[List[str]]` depending on the `num_generations` parameter
     def generate(
         self,
         inputs: List["ChatType"],

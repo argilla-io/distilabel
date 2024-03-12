@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import TYPE_CHECKING, Any, TypeVar
 
-StepOutput = Iterator[List[Dict[str, Any]]]
-"""StepOutput is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
+if TYPE_CHECKING:
+    from numpy import floating
+    from numpy.typing import NDArray
 
-GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
-"""GeneratorStepOutput is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+    GenericFloat = TypeVar("GenericFloat", bound=floating[Any])
+
+    HiddenState = NDArray[GenericFloat]
+else:
+    HiddenState = Any

@@ -76,6 +76,7 @@ class MistralLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    # TODO: update to return `List[str]` depending on the `num_generations` parameter
     async def agenerate(
         self,
         input: "ChatType",

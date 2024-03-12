@@ -23,6 +23,7 @@ from distilabel.pipeline.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
@@ -41,11 +42,28 @@ class LLM(BaseModel, _Serializable, ABC):
     def model_name(self) -> str:
         pass
 
+    # TODO: update return type hint to `List[List[str]]` as for each input and depending
+    # on the `num_generations` parameter we would like to return a list of responses
+    # for each input.
     @abstractmethod
     def generate(
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
     ) -> List[str]:
         pass
+
+    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
+        """Method to get the last hidden states of the model for a list of inputs.
+
+        Args:
+            inputs: the list of inputs to get the last hidden states from.
+
+        Returns:
+            A list containing the last hidden state for each sequence using a NumPy array
+                with shape [num_tokens, hidden_size].
+        """
+        raise NotImplementedError(
+            f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
+        )
 
 
 class AsyncLLM(LLM):
