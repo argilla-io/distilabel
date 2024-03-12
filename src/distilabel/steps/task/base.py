@@ -32,6 +32,7 @@ class Task(Step, ABC):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        num_generations: The number of generations to be produced per input.
         generation_kwargs: The kwargs to be propagated to either `generate` or
             `agenerate` methods within each `LLM`. Note that these kwargs will be
             specific to each LLM, and while some as `temperature` may be present on each
@@ -41,6 +42,9 @@ class Task(Step, ABC):
 
     llm: LLM
 
+    num_generations: RuntimeParameter[int] = Field(
+        default=1, description="The number of generations to be produced per input."
+    )
     generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="The kwargs to be propagated to either `generate` or `agenerate`"
@@ -76,7 +80,11 @@ class Task(Step, ABC):
             A list of Python dictionaries with the outputs of the task.
         """
         formatted_inputs = [self.format_input(input) for input in inputs]
-        outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
+        outputs = self.llm.generate(
+            inputs=formatted_inputs,
+            num_generations=self.num_generations,
+            **self.generation_kwargs,  # type: ignore
+        )
         formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
 
         outputs = []
