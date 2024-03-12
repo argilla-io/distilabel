@@ -19,7 +19,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from enum import StrEnum
+from enum import EnumType
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -47,7 +47,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: StrEnum = Field(default=MutationTemplates)
+    mutation_templates: EnumType = Field(default=MutationTemplates)
 
     @override
     def model_post_init(self, __context: Any) -> None:

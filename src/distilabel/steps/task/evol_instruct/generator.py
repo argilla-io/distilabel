@@ -21,7 +21,7 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from enum import StrEnum
+from enum import EnumType
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -47,7 +47,7 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: StrEnum = Field(default=GenerationMutationTemplates)
+    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
 
     min_length: RuntimeParameter[int] = Field(default=256)
     max_length: RuntimeParameter[int] = Field(default=1024)
