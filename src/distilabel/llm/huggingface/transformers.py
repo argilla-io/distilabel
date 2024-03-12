@@ -179,8 +179,8 @@ class TransformersLLM(LLM):
         last_hidden_states = model(**input_ids)["last_hidden_state"]
 
         return [
-            sequence[attention_mask.bool(), :].detach().cpu().numpy()
-            for sequence, attention_mask in zip(
+            seq_last_hidden_state[attention_mask.bool(), :].detach().cpu().numpy()
+            for seq_last_hidden_state, attention_mask in zip(
                 last_hidden_states,
                 input_ids["attention_mask"],  # type: ignore
             )
