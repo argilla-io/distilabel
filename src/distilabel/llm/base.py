@@ -41,11 +41,19 @@ class LLM(BaseModel, _Serializable, ABC):
     def model_name(self) -> str:
         pass
 
+    # TODO: update return type hint to `List[List[str]]` as for each input and depending
+    # on the `num_generations` parameter we would like to return a list of responses
+    # for each input.
     @abstractmethod
     def generate(
         self, inputs: List["ChatType"], *args: Any, **kwargs: Any
     ) -> List[str]:
         pass
+
+    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List[List[float]]:
+        raise NotImplementedError(
+            f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
+        )
 
 
 class AsyncLLM(LLM):
