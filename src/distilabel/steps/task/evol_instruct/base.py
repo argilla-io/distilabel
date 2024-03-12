@@ -208,8 +208,6 @@ class EvolInstruct(Task):
                 f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            for idx, (input, instruction) in enumerate(
-                zip(inputs, instructions, strict=True)
-            ):
+            for idx, (input, instruction) in enumerate(zip(inputs, instructions)):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs
