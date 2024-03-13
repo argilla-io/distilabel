@@ -17,7 +17,7 @@ from typing import Any, Iterable, Literal
 
 
 # Copy pasted from https://docs.python.org/3/library/itertools.html#itertools-recipes
-# Just added the type hints
+# Just added the type hints and use `if`s instead of `match`
 def grouper(
     iterable: Iterable[Any],
     n: int,
@@ -30,12 +30,14 @@ def grouper(
     # grouper('ABCDEFG', 3, incomplete='strict') --> ABC DEF ValueError
     # grouper('ABCDEFG', 3, incomplete='ignore') --> ABC DEF
     args = [iter(iterable)] * n
-    match incomplete:
-        case "fill":
-            return zip_longest(*args, fillvalue=fillvalue)
-        case "strict":
-            return zip(*args, strict=True)
-        case "ignore":
-            return zip(*args)
-        case _:
-            raise ValueError("Expected fill, strict, or ignore")
+
+    if incomplete == "fill":
+        return zip_longest(*args, fillvalue=fillvalue)
+
+    if incomplete == "strict":
+        return zip(*args, strict=True)
+
+    if incomplete == "ignore":
+        return zip(*args)
+
+    raise ValueError("Expected fill, strict, or ignore")
