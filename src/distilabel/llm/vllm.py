@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr
 from vllm import LLM as _vLLM
@@ -48,7 +48,7 @@ class vLLM(LLM):
 
     def prepare_input(self, input: "ChatType") -> str:
         return self._tokenizer.apply_chat_template(  # type: ignore
-            input,
+            input,  # type: ignore
             tokenize=False,
             add_generation_prompt=True,  # type: ignore
         )
@@ -57,6 +57,7 @@ class vLLM(LLM):
     def generate(
         self,
         inputs: List["ChatType"],
+        num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -64,9 +65,9 @@ class vLLM(LLM):
         top_p: float = 1.0,
         top_k: int = -1,
         **extra_sampling_params: Any,
-    ) -> List[str]:
+    ) -> List[List[Union[str, None]]]:
         sampling_params = SamplingParams(  # type: ignore
-            n=1,
+            n=num_generations,
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             temperature=temperature,
@@ -77,10 +78,9 @@ class vLLM(LLM):
         )
 
         prepared_inputs = [self.prepare_input(input) for input in inputs]
-        raw_outputs = self._model.generate(  # type: ignore
+        batch_outputs = self._model.generate(  # type: ignore
             prepared_inputs,
             sampling_params,
             use_tqdm=False,  # type: ignore
         )
-        outputs = [raw_output.outputs[0].text for raw_output in raw_outputs]  # type: ignore
-        return outputs
+        return [[output.text for output in outputs] for outputs in batch_outputs]
