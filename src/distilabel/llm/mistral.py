@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 class MistralLLM(AsyncLLM):
-    """Mistral LLM implementation running the Async API client.
+    """Mistral LLM implementation running the async API client.
 
     Args:
         api_key: the API key to authenticate the requests to the Mistral API.

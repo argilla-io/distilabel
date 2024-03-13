@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 # TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
 # https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(AsyncLLM):
-    """OpenAI LLM implementation running the Async API client.
+    """OpenAI LLM implementation running the async API client.
 
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
