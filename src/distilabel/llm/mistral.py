@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from mistralai.async_client import MistralAsyncClient
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
 from typing_extensions import Annotated
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -76,14 +78,14 @@ class MistralLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    # TODO: update to return `List[str]` depending on the `num_generations` parameter
-    async def agenerate(
+    # TODO: add `num_generations` parameter once Mistral client allows `n` parameter
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
-    ) -> str:
+    ) -> List[Union[str, None]]:
         """Generates a response asynchronously, using the Mistral Async API."""
         completion = await self._aclient.chat(  # type: ignore
             messages=input,
@@ -92,4 +94,29 @@ class MistralLLM(AsyncLLM):
             max_tokens=max_tokens,
             top_p=top_p,
         )
-        return completion.choices[0].message.content  # type: ignore
+        generations = []
+        for choice in completion.choices:
+            if (content := choice.message.content) is None:
+                self._logger.warning(
+                    f"Received no response using MistralAI client (model: '{self.model}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(content)
+        return generations
+
+    # TODO: remove this function once Mistral client allows `n` parameter
+    def generate(
+        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
+    ) -> List[List[Union[str, None]]]:
+        async def agenerate(
+            inputs: List["ChatType"], **kwargs: Any
+        ) -> List[Union[str, None]]:
+            tasks = [
+                asyncio.create_task(self.agenerate(input=input, **kwargs))
+                for input in inputs
+                for _ in range(num_generations)
+            ]
+            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
+
+        results = asyncio.run(agenerate(inputs, **kwargs))
+        return list(grouper(results, n=num_generations, incomplete="ignore"))

@@ -77,7 +77,7 @@ class AsyncLLM(LLM):
 
     @abstractmethod
     async def agenerate(
-        self, input: "ChatType", num_generations: int = 1, *args: Any, **kwargs: Any
+        self, input: "ChatType", num_generations: int = 1, **kwargs: Any
     ) -> List[Union[str, None]]:
         """Method to generate a `num_generations` responses for a given input asynchronously,
         and executed concurrently in `generate` method.
