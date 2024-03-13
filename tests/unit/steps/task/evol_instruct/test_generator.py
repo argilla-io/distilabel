@@ -17,8 +17,6 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
-from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
@@ -38,23 +36,22 @@ class DummyLLM(LLM):
 
 
 class TestEvolInstructGenerator:
-    def test_passing_pipeline(self) -> None:
+    def test_passing_pipeline(self, task_params_generator) -> None:
+        task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = EvolInstructGenerator(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
-        )
+        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_instructions == 2
-        assert task.mutation_templates == GenerationMutationTemplates
+        assert task.mutation_templates == mutation_templates_class
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self) -> None:
+    def test_within_pipeline_context(self, task_class_generator) -> None:
         with Pipeline() as pipeline:
             llm = DummyLLM()
-            task = EvolInstructGenerator(
+            task = task_class_generator(
                 name="task", llm=llm, num_instructions=2, pipeline=pipeline
             )
             assert task.name == "task"
@@ -62,19 +59,19 @@ class TestEvolInstructGenerator:
             assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
-    def test_with_errors(self) -> None:
+    def test_with_errors(self, task_class_generator) -> None:
         with pytest.raises(
             ValidationError, match="num_instructions\n  Field required \\[type=missing"
         ):
-            EvolInstructGenerator(name="task", pipeline=Pipeline())  # type: ignore
+            task_class_generator(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            EvolInstructGenerator(name="task", llm=DummyLLM(), num_instructions=2)
+            task_class_generator(name="task", llm=DummyLLM(), num_instructions=2)
 
-    def test_process(self) -> None:
+    def test_process(self, task_class_generator) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = EvolInstructGenerator(
+        task = task_class_generator(
             name="task",
             llm=llm,
             num_instructions=1,
@@ -94,10 +91,10 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_process_generate_answers(self) -> None:
+    def test_process_generate_answers(self, task_class_generator) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = EvolInstructGenerator(
+        task = task_class_generator(
             name="task",
             llm=llm,
             num_instructions=1,
@@ -119,12 +116,11 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_serialization(self) -> None:
+    def test_serialization(self, task_params_generator) -> None:
+        task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = EvolInstructGenerator(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
-        )
+        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
             "input_mappings": {},
@@ -142,15 +138,10 @@ class TestEvolInstructGenerator:
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
-                "_name": "GenerationMutationTemplates",
+                "_name": mutation_templates_class.__name__,
                 "_values": {
-                    "FRESH_START": "Write one question or request containing one or more of the following words: <PROMPT>",
-                    "COMPLICATE": "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "ADD_CONSTRAINTS": "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "DEEPEN": "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "CONCRETIZE": "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n",
-                    "INCREASE_REASONING": "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "SWITCH_TOPIC": "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
+                    key: value.value
+                    for key, value in mutation_templates_class.__members__.items()
                 },
             },
             "min_length": 256,
@@ -173,10 +164,10 @@ class TestEvolInstructGenerator:
             ],
             "type_info": {
                 "module": "distilabel.steps.task.evol_instruct.generator",
-                "name": "EvolInstructGenerator",
+                "name": task_class.__name__,
             },
         }
 
         with Pipeline() as pipeline:
-            new_task = EvolInstructGenerator.from_dict(task.dump())
-            assert isinstance(new_task, EvolInstructGenerator)
+            new_task = task_class.from_dict(task.dump())
+            assert isinstance(new_task, task_class)

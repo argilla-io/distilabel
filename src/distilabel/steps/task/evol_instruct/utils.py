@@ -20,7 +20,7 @@ else:
     from enum import StrEnum
 
 
-class MutationTemplates(StrEnum):
+class MutationTemplatesEvolInstruct(StrEnum):
     COMPLICATE = "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
     ADD_CONSTRAINTS = "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
     DEEPEN = "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
@@ -29,7 +29,7 @@ class MutationTemplates(StrEnum):
     SWITCH_TOPIC = "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
 
 
-class GenerationMutationTemplates(StrEnum):
+class GenerationMutationTemplatesEvolInstruct(StrEnum):
     FRESH_START = "Write one question or request containing one or more of the following words: <PROMPT>"
     COMPLICATE = "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
     ADD_CONSTRAINTS = "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
@@ -37,3 +37,20 @@ class GenerationMutationTemplates(StrEnum):
     CONCRETIZE = "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n"
     INCREASE_REASONING = "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
     SWITCH_TOPIC = "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
+
+
+class MutationTemplatesEvolComplexity(StrEnum):
+    ADD_CONSTRAINTS = MutationTemplatesEvolInstruct.ADD_CONSTRAINTS.value
+    DEEPEN = MutationTemplatesEvolInstruct.DEEPEN.value
+    CONCRETIZE = MutationTemplatesEvolInstruct.CONCRETIZE.value
+    INCREASE_REASONING = MutationTemplatesEvolInstruct.INCREASE_REASONING.value
+
+
+class GenerationMutationTemplatesEvolComplexity(StrEnum):
+    FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
+    ADD_CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.ADD_CONSTRAINTS.value
+    DEEPEN = GenerationMutationTemplatesEvolInstruct.DEEPEN.value
+    CONCRETIZE = GenerationMutationTemplatesEvolInstruct.CONCRETIZE.value
+    INCREASE_REASONING = (
+        GenerationMutationTemplatesEvolInstruct.INCREASE_REASONING.value
+    )

@@ -32,7 +32,10 @@ from pydantic import Field
 from typing_extensions import override
 
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
+from distilabel.steps.task.evol_instruct.utils import (
+    MutationTemplatesEvolComplexity,
+    MutationTemplatesEvolInstruct,
+)
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -51,7 +54,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    mutation_templates: EnumType = Field(default=MutationTemplatesEvolInstruct)
 
     @override
     def model_post_init(self, __context: Any) -> None:
@@ -94,9 +97,11 @@ class EvolInstruct(Task):
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
         _outputs = [
-            "evolved_instruction"
-            if not self.store_evolutions
-            else "evolved_instructions",
+            (
+                "evolved_instruction"
+                if not self.store_evolutions
+                else "evolved_instructions"
+            ),
             "model_name",
         ]
         if self.generate_answers:
@@ -211,3 +216,17 @@ class EvolInstruct(Task):
             for idx, (input, instruction) in enumerate(zip(inputs, instructions)):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs
+
+
+class EvolComplexity(EvolInstruct):
+    """
+    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
+    and
+    WizardLM: Empowering Large Language Models to Follow Complex Instructions
+    Reference:
+        - https://arxiv.org/abs/2312.15685
+        - https://arxiv.org/abs/2304.12244
+        - https://github.com/h2oai/h2o-wizardlm
+    """
+
+    mutation_templates: EnumType = Field(default=MutationTemplatesEvolComplexity)

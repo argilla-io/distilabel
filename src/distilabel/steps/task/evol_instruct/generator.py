@@ -34,7 +34,10 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
+from distilabel.steps.task.evol_instruct.utils import (
+    GenerationMutationTemplatesEvolComplexity,
+    GenerationMutationTemplatesEvolInstruct,
+)
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -51,7 +54,9 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
+    mutation_templates: EnumType = Field(
+        default=GenerationMutationTemplatesEvolInstruct
+    )
 
     min_length: RuntimeParameter[int] = Field(default=256)
     max_length: RuntimeParameter[int] = Field(default=1024)
@@ -242,3 +247,19 @@ class EvolInstructGenerator(GeneratorTask):
                 ],
                 True,
             )
+
+
+class EvolComplexityGenerator(EvolInstructGenerator):
+    """
+    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
+    and
+    WizardLM: Empowering Large Language Models to Follow Complex Instructions
+    Reference:
+        - https://arxiv.org/abs/2312.15685
+        - https://arxiv.org/abs/2304.12244
+        - https://github.com/h2oai/h2o-wizardlm
+    """
+
+    mutation_templates: EnumType = Field(
+        default=GenerationMutationTemplatesEvolComplexity
+    )
