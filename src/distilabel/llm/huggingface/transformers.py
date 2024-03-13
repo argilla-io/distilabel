@@ -122,7 +122,7 @@ class TransformersLLM(LLM):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-    ) -> List[List[str]]:
+    ) -> List[List[Union[str, None]]]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

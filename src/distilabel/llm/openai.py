@@ -67,7 +67,6 @@ class OpenAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    # TODO: update to return `List[str]` depending on the `num_generations` parameter
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",
@@ -77,8 +76,9 @@ class OpenAILLM(AsyncLLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List[str]:
-        """Generates a response asynchronously, using the OpenAI Async API."""
+    ) -> List[Union[str, None]]:
+        """Generates `num_generations` responses for the given input using the OpenAI async
+        client."""
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
@@ -90,4 +90,12 @@ class OpenAILLM(AsyncLLM):
             top_p=top_p,
             timeout=50,
         )
-        return [choice.message.content for choice in completion.choices]
+        generations = []
+        for choice in completion.choices:
+            if (content := choice.message.content) is None:
+                self._logger.warning(
+                    f"Received no response using OpenAI client (model: '{self.model}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(content)
+        return generations
