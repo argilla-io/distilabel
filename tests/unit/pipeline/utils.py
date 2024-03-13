@@ -14,6 +14,7 @@
 
 from typing import List
 
+from distilabel.pipeline.base import _Batch
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
@@ -68,3 +69,12 @@ class DummyStep2(Step):
     @property
     def outputs(self) -> List[str]:
         return ["evol_response"]
+
+
+def batch_gen(step_name: str, seq_no: int = 0, last_batch: bool = False):
+    return _Batch(
+        seq_no=seq_no,
+        step_name=step_name,
+        last_batch=last_batch,
+        data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+    )
