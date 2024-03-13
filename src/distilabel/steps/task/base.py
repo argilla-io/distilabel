@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import RuntimeParameter, Step, StepInput
+from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -85,3 +85,7 @@ class Task(Step, ABC):
             input["model_name"] = self.llm.model_name
             outputs.append(input)
         yield outputs
+
+
+class GeneratorTask(GeneratorStep, Task):
+    pass
