@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
 from typing import TYPE_CHECKING
 from unittest import mock
 
 from distilabel.pipeline.base import _Batch
-from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.local import Pipeline, _WriteBuffer
 
-from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
+from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
 
 if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep
@@ -116,3 +117,57 @@ class TestPipeline:
                 ),
             ]
         )
+
+
+class TestWriteBuffer:
+    def test_write_buffer_one_leaf_step(self):
+        # NOTE: THIS WILL HAVE TO BE UPDATED WITH THE NEW CACHE FOLDERS
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with Pipeline() as pipeline:
+                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+                dummy_generator.connect(dummy_step_1)
+                dummy_step_1.connect(dummy_step_2)
+
+            write_buffer = _WriteBuffer(
+                path=tmpdirname, leaf_steps=pipeline.dag.leaf_steps
+            )
+            batch = batch_gen(dummy_step_2.name)
+            assert len(write_buffer._buffers) == 1
+
+            assert all(values is None for _, values in write_buffer._buffers.items())
+
+            write_buffer.add_batch(batch.step_name, batch)
+            assert write_buffer._get_filename(batch.step_name).exists()
+
+    def test_write_buffer_multiple_leaf_steps(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with Pipeline() as pipeline:
+                dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
+                dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+                dummy_step_3 = DummyStep2(name="dummy_step_3")
+
+                dummy_generator_1.connect(dummy_step_1)
+                dummy_generator_2.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_3)
+
+            write_buffer = _WriteBuffer(
+                path=tmpdirname, leaf_steps=pipeline.dag.leaf_steps
+            )
+
+            # Now we write here only in case we are working with leaf steps
+            batch_step_2 = batch_gen(dummy_step_2.name)
+            batch_step_3 = batch_gen(dummy_step_3.name)
+            assert all(values is None for _, values in write_buffer._buffers.items())
+            assert len(write_buffer._buffers) == 2
+
+            write_buffer.add_batch(batch_step_2.step_name, batch_step_2)
+            assert write_buffer._get_filename(batch_step_2.step_name).exists()
+            assert not write_buffer._get_filename(batch_step_3.step_name).exists()
+            write_buffer.add_batch(batch_step_3.step_name, batch_step_3)
+            assert write_buffer._get_filename(batch_step_3.step_name).exists()
