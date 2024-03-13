@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from llama_cpp import Llama
-from pydantic import PrivateAttr
+from pydantic import FilePath, PrivateAttr
 
 from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
+    from llama_cpp import CreateChatCompletionResponse
+
     from distilabel.steps.task.typing import ChatType
 
 
 class LlamaCppLLM(LLM):
-    model_path: Path
+    model_path: FilePath
     chat_format: str = "chatml"
     n_gpu_layers: int = -1
     verbose: bool = False
@@ -44,27 +45,30 @@ class LlamaCppLLM(LLM):
     def model_name(self) -> str:
         return self._model.model_path  # type: ignore
 
-    # TODO: update to return `List[List[str]]` depending on the `num_generations` parameter
-    def generate(
+    def generate(  # type: ignore
         self,
         inputs: List["ChatType"],
+        num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List[str]:
-        outputs = []
+    ) -> List[List[Union[str, None]]]:
+        batch_outputs = []
         for input in inputs:
-            chat_completions = self._model.create_chat_completion(  # type: ignore
-                messages=input,  # type: ignore
-                max_tokens=max_new_tokens,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
-                temperature=temperature,
-                top_p=top_p,
-            )
-            outputs.append(
-                chat_completions["choices"][0]["message"]["content"]  # type: ignore
-            )
-        return outputs
+            outputs = []
+            for _ in range(num_generations):
+                chat_completions: "CreateChatCompletionResponse" = (
+                    self._model.create_chat_completion(  # type: ignore
+                        messages=input,  # type: ignore
+                        max_tokens=max_new_tokens,
+                        frequency_penalty=frequency_penalty,
+                        presence_penalty=presence_penalty,
+                        temperature=temperature,
+                        top_p=top_p,
+                    )
+                )
+                outputs.append(chat_completions["choices"][0]["message"]["content"])
+            batch_outputs.append(outputs)
+        return batch_outputs
