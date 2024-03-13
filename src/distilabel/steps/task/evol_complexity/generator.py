@@ -14,7 +14,7 @@
 
 import sys
 
-from distilabel.steps.task.evol_complexity.utils import MutationTemplates
+from distilabel.steps.task.evol_complexity.utils import GenerationMutationTemplates
 from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
 from pydantic import Field
 
@@ -35,4 +35,4 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - https://github.com/h2oai/h2o-wizardlm
     """
 
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)

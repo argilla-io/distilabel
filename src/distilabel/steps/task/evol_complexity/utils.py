@@ -28,15 +28,17 @@ else:
 
 
 class MutationTemplates(StrEnum):
-    ADD_CONSTRAINTS = EvolInstructionMutationTemplates.ADD_CONSTRAINTS
-    DEEPEN = EvolInstructionMutationTemplates.DEEPEN
-    CONCRETIZE = EvolInstructionMutationTemplates.CONCRETIZE
-    INCREASE_REASONING = EvolInstructionMutationTemplates.INCREASE_REASONING
+    ADD_CONSTRAINTS = EvolInstructionMutationTemplates.ADD_CONSTRAINTS.value
+    DEEPEN = EvolInstructionMutationTemplates.DEEPEN.value
+    CONCRETIZE = EvolInstructionMutationTemplates.CONCRETIZE.value
+    INCREASE_REASONING = EvolInstructionMutationTemplates.INCREASE_REASONING.value
 
 
 class GenerationMutationTemplates(StrEnum):
-    FRESH_START = EvolInstructionGenerationMutationTemplates.FRESH_START
-    ADD_CONSTRAINTS = EvolInstructionGenerationMutationTemplates.ADD_CONSTRAINTS
-    DEEPEN = EvolInstructionGenerationMutationTemplates.DEEPEN
-    CONCRETIZE = EvolInstructionGenerationMutationTemplates.CONCRETIZE
-    INCREASE_REASONING = EvolInstructionGenerationMutationTemplates.INCREASE_REASONING
+    FRESH_START = EvolInstructionGenerationMutationTemplates.FRESH_START.value
+    ADD_CONSTRAINTS = EvolInstructionGenerationMutationTemplates.ADD_CONSTRAINTS.value
+    DEEPEN = EvolInstructionGenerationMutationTemplates.DEEPEN.value
+    CONCRETIZE = EvolInstructionGenerationMutationTemplates.CONCRETIZE.value
+    INCREASE_REASONING = (
+        EvolInstructionGenerationMutationTemplates.INCREASE_REASONING.value
+    )
