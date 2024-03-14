@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class _Argilla(Step, ABC):
+class Argilla(Step, ABC):
     """Abstract step that provides a class to subclass from, that contains the boilerplate code
     required to interact with Argilla, as well as some extra validations on top of it. It also defines
     the abstract methods that need to be implemented in order to add a new dataset type as a step.

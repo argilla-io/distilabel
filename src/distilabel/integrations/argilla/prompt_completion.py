@@ -23,14 +23,14 @@ except ImportError as ie:
         "Argilla is not installed. Please install it using `pip install argilla`."
     ) from ie
 
-from distilabel.integrations.argilla.base import _Argilla
+from distilabel.integrations.argilla.base import Argilla
 
 if TYPE_CHECKING:
     from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
-class PromptCompletionToArgilla(_Argilla):
+class PromptCompletionToArgilla(Argilla):
     """Step that creates a dataset in Argilla during the load phase, and then pushses the input
     batches into it as records. This dataset is a prompt-completion dataset, where there's one field
     per each input, and then a label question to rate the quality of the completion in either bad,
