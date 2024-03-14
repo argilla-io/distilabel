@@ -45,13 +45,13 @@ class MutationTemplates(StrEnum):
     CONSTRAINTS = CREATE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
     )
-    DEEPEN = CREATE_INSTRUCTION.format(
+    DEEPENING = CREATE_INSTRUCTION.format(
         "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
     )
-    CONCRETIZE = CREATE_INSTRUCTION.format(
+    CONCRETIZING = CREATE_INSTRUCTION.format(
         "Please replace general concepts with more specific concepts."
     )
-    REASONING = CREATE_INSTRUCTION.format(
+    INCREASED_REASONING_STEPS = CREATE_INSTRUCTION.format(
         "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
     )
     BREADTH = CREATE_INSTRUCTION
