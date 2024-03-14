@@ -54,7 +54,7 @@ class EvolInstructGenerator(GeneratorTask):
     generate_answers: bool = False
     mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
 
-    min_length: RuntimeParameter[int] = Field(default=256)
+    min_length: RuntimeParameter[int] = Field(default=512)
     max_length: RuntimeParameter[int] = Field(default=1024)
 
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
