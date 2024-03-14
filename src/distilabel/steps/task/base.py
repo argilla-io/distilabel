@@ -119,7 +119,7 @@ class Task(Step, ABC):
         return [self.format_input(input) for input in inputs]
 
     def _format_outputs(
-        self, outputs: List["GenerateOutput"], inputs: List[Dict[str, Any]]
+        self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
