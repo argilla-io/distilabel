@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Literal
+from typing import List, TypedDict
 
-from typing_extensions import Annotated
 
-ChatType = Annotated[List[Dict[Literal["role", "content"], str]], "ChatType"]
-"""ChatType is just an `Annotated` alias of the typing `List[Dict[Literal["role", "content"], str]]`
-following the OpenAI conversational format."""
+class ChatItem(TypedDict):
+    role: str
+    content: str
+
+
+ChatType = List[ChatItem]
+"""ChatType is a type alias for a `list` of `dict`s following the OpenAI conversational format."""

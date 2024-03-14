@@ -12,10 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+from collections import defaultdict
+from typing import Any, Dict, List, TypeVar
 
-StepOutput = Iterator[List[Dict[str, Any]]]
-"""StepOutput is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
+_K = TypeVar("_K")
 
-GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
-"""GeneratorStepOutput is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+
+def combine_dicts(*dicts: Dict[_K, Any]) -> Dict[_K, List[Any]]:
+    """Combines multiple dictionaries into a single dictionary joining the values
+    as a list for each key.
+
+    Args:
+        *dicts: the dictionaries to be combined.
+
+    Returns:
+        The combined dictionary.
+    """
+    combined_dict = defaultdict(list)
+    for d in dicts:
+        for key, value in d.items():
+            combined_dict[key].append(value)
+    return dict(combined_dict)

@@ -12,10 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, List, Union
 
-StepOutput = Iterator[List[Dict[str, Any]]]
-"""StepOutput is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
+from distilabel.llm.base import LLM
+from distilabel.steps.task.typing import ChatType
 
-GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
-"""GeneratorStepOutput is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+
+class DummyLLM(LLM):
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    def generate(
+        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
+    ) -> List[List[Union[str, None]]]:
+        return [["output" for _ in range(num_generations)] for _ in inputs]
