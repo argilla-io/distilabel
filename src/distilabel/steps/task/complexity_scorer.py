@@ -68,13 +68,19 @@ class ComplexityScorer(Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
 
-    def format_output(self, output: str, input: Dict[str, Any]) -> Dict[str, Any]:
-        score_lines = output.lower().split("\n")
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        if output is None:
+            return {self.outputs[0]: [None] * len(input["instructions"])}
+
         scores = []
+        score_lines = output.lower().split("\n")
         for i, line in enumerate(score_lines):
             match = _PARSE_SCORE_LINE_REGEX.match(line)
             score = float(match.group(1)) if match else None
             scores.append(score)
             if i == len(input["instructions"]) - 1:
                 break
+
         return {self.outputs[0]: scores}

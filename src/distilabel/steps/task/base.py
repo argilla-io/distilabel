@@ -22,6 +22,7 @@ from distilabel.steps.base import RuntimeParameter, Step, StepInput
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -69,7 +70,9 @@ class Task(Step, ABC):
         pass
 
     @abstractmethod
-    def format_output(self, output: str, input: Dict[str, Any]) -> Dict[str, Any]:
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Asbtract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task. In
         addition the `input` used to generate the output is also received just in case it's
@@ -95,7 +98,7 @@ class Task(Step, ABC):
 
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs)
+            formatted_outputs = self._format_outputs(input_outputs, inputs)
 
             if self.group_generations:
                 combined = combine_dicts(*formatted_outputs)
@@ -115,22 +118,25 @@ class Task(Step, ABC):
     def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
         return [self.format_input(input) for input in inputs]
 
-    def _format_outputs(self, outputs: List[Union[str, None]]) -> List[Dict[str, Any]]:
+    def _format_outputs(
+        self, outputs: List["GenerateOutput"], inputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
         set to `None` as well.
 
         Args:
             outputs: The outputs of the LLM.
+            inputs: The inputs used to generate the outputs.
 
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
         return [
-            self.format_output(output)
+            self.format_output(output, input)
             if output is not None
             else self._outputs_empty_dict()
-            for output in outputs
+            for output, input in zip(outputs, inputs)
         ]
 
     def _outputs_empty_dict(self) -> Dict[str, None]:
