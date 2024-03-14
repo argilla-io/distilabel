@@ -12,28 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, Dict, List
 
 import pytest
-from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.base import Task
 from pydantic import ValidationError
 
+from tests.unit.steps.task.utils import DummyLLM
+
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
-
-
-class DummyLLM(LLM):
-    def load(self) -> None:
-        pass
-
-    @property
-    def model_name(self) -> str:
-        return "test"
-
-    def generate(self, inputs: List["ChatType"]) -> List[str]:
-        return ["output" for _ in inputs]
 
 
 class DummyTask(Task):
@@ -58,6 +47,8 @@ class TestTask:
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
+        assert task.num_generations == 1
+        assert task.group_generations is False
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
@@ -85,13 +76,42 @@ class TestTask:
         ):
             Task(name="task", llm=DummyLLM())  # type: ignore
 
-    def test_process(self) -> None:
+    @pytest.mark.parametrize(
+        "group_generations, expected",
+        [
+            (
+                False,
+                [
+                    {"instruction": "test", "output": "output", "model_name": "test"},
+                    {"instruction": "test", "output": "output", "model_name": "test"},
+                    {"instruction": "test", "output": "output", "model_name": "test"},
+                ],
+            ),
+            (
+                True,
+                [
+                    {
+                        "instruction": "test",
+                        "output": ["output", "output", "output"],
+                        "model_name": "test",
+                    },
+                ],
+            ),
+        ],
+    )
+    def test_process(
+        self, group_generations: bool, expected: List[Dict[str, Any]]
+    ) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = DummyTask(name="task", llm=llm, pipeline=pipeline)
-        assert list(task.process([{"instruction": "test"}])) == [
-            [{"instruction": "test", "output": "output", "model_name": "test"}]
-        ]
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            pipeline=pipeline,
+            group_generations=group_generations,
+            num_generations=3,
+        )
+        assert next(task.process([{"instruction": "test"}])) == expected
 
     def test_serialization(self) -> None:
         pipeline = Pipeline()
@@ -104,17 +124,24 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.steps.task.test_base",
+                    "module": "tests.unit.steps.task.utils",
                     "name": "DummyLLM",
                 }
             },
             "generation_kwargs": {},
+            "group_generations": False,
+            "num_generations": 1,
             "runtime_parameters_info": [
+                {
+                    "name": "num_generations",
+                    "description": "The number of generations to be produced per input.",
+                    "optional": True,
+                },
                 {
                     "name": "generation_kwargs",
                     "optional": True,
                     "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
-                }
+                },
             ],
             "type_info": {
                 "module": "tests.unit.steps.task.test_base",

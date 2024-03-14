@@ -22,6 +22,11 @@ class TextGeneration(Task):
     """TextGeneration is a pre-defined task that defines the `instruction` as the input
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
+
+    Columns:
+
+    - `input`: instruction
+    - `output`: generation, model_name
     """
 
     @property
