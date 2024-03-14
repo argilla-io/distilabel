@@ -31,6 +31,7 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
+from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
@@ -43,6 +44,9 @@ if TYPE_CHECKING:
 class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
+    Columns:
+        - `instruction`: a string with the prompt to be evolved.
+
     Reference:
         - https://arxiv.org/abs/2304.12244
         - https://github.com/h2oai/h2o-wizardlm
@@ -54,6 +58,11 @@ class EvolInstruct(Task):
     generate_answers: bool = False
     mutation_templates: EnumType = Field(default=MutationTemplates)
 
+    seed: RuntimeParameter[int] = Field(
+        default=42,
+        description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
+    )
+
     @override
     def model_post_init(self, __context: Any) -> None:
         """Override this method to perform additional initialization after `__init__` and `model_construct`.
@@ -61,7 +70,7 @@ class EvolInstruct(Task):
         """
         super().model_post_init(__context)
 
-        np.random.seed(42)
+        np.random.seed(self.seed)
 
     @cached_property
     def _english_nouns(self) -> List[str]:

@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class Task(Step, ABC):
-    """Task is an abstract class that implements the `Step` interface and adds the
+class _Task(ABC):
+    """_Task is an abstract class that implements the `Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
 
@@ -87,5 +87,33 @@ class Task(Step, ABC):
         yield outputs
 
 
-class GeneratorTask(GeneratorStep, Task):
+class Task(Step, _Task):
+    """Task is a class that implements the `_Task` abstract class and adds the `Step`
+    interface to be used as a step in the pipeline.
+
+    Args:
+        llm: the `LLM` to be used to generate the outputs of the task.
+        generation_kwargs: The kwargs to be propagated to either `generate` or
+            `agenerate` methods within each `LLM`. Note that these kwargs will be
+            specific to each LLM, and while some as `temperature` may be present on each
+            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
+            in advance to see which kwargs are available.
+    """
+
+    pass
+
+
+class GeneratorTask(GeneratorStep, _Task):
+    """GeneratorTask is a class that implements the `_Task` abstract class and adds the
+    `GeneratorStep` interface to be used as a step in the pipeline.
+
+    Args:
+        llm: the `LLM` to be used to generate the outputs of the task.
+        generation_kwargs: The kwargs to be propagated to either `generate` or
+            `agenerate` methods within each `LLM`. Note that these kwargs will be
+            specific to each LLM, and while some as `temperature` may be present on each
+            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
+            in advance to see which kwargs are available.
+    """
+
     pass

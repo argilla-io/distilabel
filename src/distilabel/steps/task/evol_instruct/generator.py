@@ -54,25 +54,37 @@ class EvolInstructGenerator(GeneratorTask):
     generate_answers: bool = False
     mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
 
-    min_length: RuntimeParameter[int] = Field(default=512)
-    max_length: RuntimeParameter[int] = Field(default=1024)
+    min_length: RuntimeParameter[int] = Field(
+        default=512,
+        description="Defines the length (in bytes) that the generated instruction needs to be higher than, to be considered valid.",
+    )
+    max_length: RuntimeParameter[int] = Field(
+        default=1024,
+        description="Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.",
+    )
+
+    seed: RuntimeParameter[int] = Field(
+        default=42,
+        description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
+    )
 
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
 
-    @override
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
+    def _generate_seed_texts(self) -> List[str]:
+        """Generates a list of seed texts to be used as part of the starting prompts for the task.
+
+        It will use the `FRESH_START` mutation template, as it needs to generate text from scratch; and
+        a list of English words will be used to generate the seed texts that will be provided to the
+        mutation method and included within the prompt.
+
+        Returns:
+            A list of seed texts to be used as part of the starting prompts for the task.
         """
-        super().model_post_init(__context)
-
-        np.random.seed(42)
-
-        self._seed_texts = []
+        seed_texts = []
         for _ in range(self.num_instructions * 10):
             num_words = np.random.choice([1, 2, 3, 4])
-            self._seed_texts.append(
+            seed_texts.append(
                 self.mutation_templates.FRESH_START.value.replace(  # type: ignore
                     "<PROMPT>",
                     ", ".join(
@@ -83,7 +95,18 @@ class EvolInstructGenerator(GeneratorTask):
                     ),
                 )
             )
+        return seed_texts
 
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        np.random.seed(self.seed)
+
+        self._seed_texts = self._generate_seed_texts()
         self._prompts = [
             np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
         ]
