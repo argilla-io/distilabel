@@ -44,13 +44,23 @@ if TYPE_CHECKING:
 class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
-    Columns:
-        - `instruction`: a string with the prompt to be evolved.
-
     Reference:
         - https://arxiv.org/abs/2304.12244
         - https://github.com/h2oai/h2o-wizardlm
         - https://github.com/nlpxucan/WizardLM/Evol_Instruct
+
+    Runtime parameters:
+
+    - `seed`: The number of evolutions to be run.
+
+    Columns:
+
+    - `input`: instruction
+    - `output`: there's multiple scenarios:
+        - `store_evolutions=False`, `generate_answers=False` -> (evolved_instruction, model_name)
+        - `store_evolutions=True`, `generate_answers=False` -> (evolved_instructions, model_name)
+        - `store_evolutions=False`, `generate_answers=True` -> (evolved_instruction, model_name, answer)
+        - `store_evolutions=True`, `generate_answers=True` -> (evolved_instructions, model_name, answer)
     """
 
     num_evolutions: int

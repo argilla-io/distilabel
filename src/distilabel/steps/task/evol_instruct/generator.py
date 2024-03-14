@@ -48,6 +48,21 @@ class EvolInstructGenerator(GeneratorTask):
         - https://arxiv.org/abs/2304.12244
         - https://github.com/h2oai/h2o-wizardlm
         - https://github.com/nlpxucan/WizardLM/Evol_Instruct
+
+    Runtime parameters:
+
+    - `min_length`: Defines the length (in bytes) that the generated instruction needs to be higher than, to be considered valid.
+    - `max_length`: Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.
+    - `seed`: The number of evolutions to be run.
+
+    Columns:
+
+    - `input`: instruction
+    - `output`: there's multiple scenarios:
+        - `store_evolutions=False`, `generate_answers=False` -> (instruction, model_name)
+        - `store_evolutions=True`, `generate_answers=False` -> (instructions, model_name)
+        - `store_evolutions=False`, `generate_answers=True` -> (instruction, model_name, answer)
+        - `store_evolutions=True`, `generate_answers=True` -> (instructions, model_name, answer)
     """
 
     num_instructions: int
