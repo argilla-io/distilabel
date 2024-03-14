@@ -132,12 +132,16 @@ class Task(Step, ABC):
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
-        return [
-            self.format_output(output, input)
-            if output is not None
-            else self._outputs_empty_dict()
-            for output, input in zip(outputs, inputs)
-        ]
+        formatted_outputs = []
+        for output, input in zip(outputs, inputs * len(outputs)):
+            try:
+                formatted_outputs.append(self.format_output(output, input))
+            except Exception as e:
+                self._logger.warning(
+                    f"Task '{self.name}' failed to format output: {e}. Using empty dict."
+                )
+                formatted_outputs.append(self._outputs_empty_dict())
+        return formatted_outputs
 
     def _outputs_empty_dict(self) -> Dict[str, None]:
         """Returns a dictionary with the outputs of the task set to `None`."""
