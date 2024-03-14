@@ -18,11 +18,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
-from distilabel.steps.task.typing import ChatType
+from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
+    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -75,7 +75,7 @@ class _Task(ABC):
         as a string, and generates a Python dictionary with the outputs of the task."""
         pass
 
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -133,7 +133,7 @@ class _Task(ABC):
 
     def _outputs_empty_dict(self) -> Dict[str, None]:
         """Returns a dictionary with the outputs of the task set to `None`."""
-        return {output: None for output in self.outputs}
+        return {output: None for output in self.outputs}  # type: ignore
 
 
 class Task(Step, _Task):
