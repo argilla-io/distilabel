@@ -19,12 +19,13 @@ from pydantic import PrivateAttr
 from transformers import Pipeline, pipeline
 
 from distilabel.llm.base import LLM
+from distilabel.llm.constants import CHATML_TEMPLATE
 
 if TYPE_CHECKING:
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.llm.typing import HiddenState
+    from distilabel.llm.typing import GenerateOutput, HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
@@ -99,7 +100,7 @@ class TransformersLLM(LLM):
             self._pipeline.tokenizer.chat_template is None  # type: ignore
             and self._pipeline.tokenizer.default_chat_template is None  # type: ignore
         ):
-            self._pipeline.tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"  # type: ignore
+            self._pipeline.tokenizer.chat_template = CHATML_TEMPLATE  # type: ignore
 
     @property
     def model_name(self) -> str:
@@ -122,7 +123,7 @@ class TransformersLLM(LLM):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-    ) -> List[List[str]]:
+    ) -> List["GenerateOutput"]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

@@ -12,17 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.text_generation import TextGeneration
+from collections import defaultdict
+from typing import Any, Dict, List, TypeVar
 
-from tests.unit.steps.task.utils import DummyLLM
+_K = TypeVar("_K")
 
 
-class TestTextGeneration:
-    def test_process(self) -> None:
-        pipeline = Pipeline()
-        llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-        assert list(task.process([{"instruction": "test"}])) == [
-            [{"instruction": "test", "generation": "output", "model_name": "test"}]
-        ]
+def combine_dicts(*dicts: Dict[_K, Any]) -> Dict[_K, List[Any]]:
+    """Combines multiple dictionaries into a single dictionary joining the values
+    as a list for each key.
+
+    Args:
+        *dicts: the dictionaries to be combined.
+
+    Returns:
+        The combined dictionary.
+    """
+    combined_dict = defaultdict(list)
+    for d in dicts:
+        for key, value in d.items():
+            combined_dict[key].append(value)
+    return dict(combined_dict)
