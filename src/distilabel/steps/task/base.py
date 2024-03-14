@@ -61,9 +61,12 @@ class Task(Step, ABC):
         pass
 
     @abstractmethod
-    def format_output(self, output: str) -> Dict[str, Any]:
+    def format_output(self, output: str, input: Dict[str, Any]) -> Dict[str, Any]:
         """Asbtract method to format the outputs of the task. It needs to receive an output
-        as a string, and generates a Python dictionary with the outputs of the task."""
+        as a string, and generates a Python dictionary with the outputs of the task. In
+        addition the `input` used to generate the output is also received just in case it's
+        needed to be able to parse the output correctly.
+        """
         pass
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
@@ -77,7 +80,9 @@ class Task(Step, ABC):
         """
         formatted_inputs = [self.format_input(input) for input in inputs]
         outputs = self.llm.generate(formatted_inputs, **self.generation_kwargs)  # type: ignore
-        formatted_outputs = [self.format_output(output) for output in outputs]  # type: ignore
+        formatted_outputs = [
+            self.format_output(output, input) for output, input in zip(outputs, inputs)
+        ]
 
         outputs = []
         for input, formatted_output in zip(inputs, formatted_outputs):
