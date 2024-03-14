@@ -59,9 +59,16 @@ class MutationTemplates(StrEnum):
 
 class GenerationMutationTemplates(StrEnum):
     FRESH_START = "Write one question or request containing one or more of the following words: <PROMPT>"
-    COMPLICATE = "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    ADD_CONSTRAINTS = "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    DEEPEN = "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    CONCRETIZE = "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n"
-    INCREASE_REASONING = "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    SWITCH_TOPIC = "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
+    CONSTRAINTS = CREATE_INSTRUCTION.format(
+        "Please add one more constraints/requirements into '#The Given Prompt#'"
+    )
+    DEEPENING = CREATE_INSTRUCTION.format(
+        "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
+    )
+    CONCRETIZING = CREATE_INSTRUCTION.format(
+        "Please replace general concepts with more specific concepts."
+    )
+    INCREASED_REASONING_STEPS = CREATE_INSTRUCTION.format(
+        "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
+    )
+    BREADTH = CREATE_INSTRUCTION
