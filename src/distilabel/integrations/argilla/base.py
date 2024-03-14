@@ -34,7 +34,24 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class Argilla(Step, ABC):
+class _Argilla(Step, ABC):
+    """Abstract step that provides a class to subclass from, that contains the boilerplate code
+    required to interact with Argilla, as well as some extra validations on top of it. It also defines
+    the abstract methods that need to be implemented in order to add a new dataset type as a step.
+
+    Note:
+        This class is not intended to be instanced directly, but via subclass.
+
+    Args:
+        api_url: The URL of the Argilla API. Defaults to `None`, which means it will be read from
+            the `ARGILLA_API_URL` environment variable.
+        api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
+            be read from the `ARGILLA_API_KEY` environment variable.
+        dataset_name: The name of the dataset in Argilla.
+        dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
+            None, which means it will be created in the default workspace.
+    """
+
     api_url: Annotated[Optional[str], Field(validate_default=True)] = None
     api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
 
@@ -78,10 +95,18 @@ class Argilla(Step, ABC):
         super().model_post_init(__context)
 
     def _rg_init(self) -> None:
+        """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
         try:
             rg.init(api_url=self.api_url, api_key=self.api_key.get_secret_value())  # type: ignore
         except Exception as e:
             raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
+
+    @property
+    def outputs(self) -> List[str]:
+        """The outputs of the step is an empty list, since the steps subclassing from this one, will
+        always be leaf nodes and won't propagate the inputs neither generate any outputs.
+        """
+        return []
 
     @abstractmethod
     def load(self) -> None:
@@ -91,10 +116,6 @@ class Argilla(Step, ABC):
     @abstractmethod
     def inputs(self) -> List[str]:
         ...
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
 
     @abstractmethod
     def process(self, inputs: "StepInput") -> "StepOutput":
