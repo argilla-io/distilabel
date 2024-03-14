@@ -41,9 +41,6 @@ class PromptCompletionToArgilla(Argilla):
             self.input_mappings["completion"] if self.input_mappings else "completion"
         )
 
-        self._logger.info(f"{rg.active_client().client.base_url}")
-        self._logger.info(f"Available workspaces: {rg.Workspace.list()}")
-
         _rg_dataset = rg.FeedbackDataset(
             fields=[
                 rg.TextField(name=self._prompt),  # type: ignore
