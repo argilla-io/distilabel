@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
-from distilabel.pipeline.logging import get_logger
+from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:

@@ -31,6 +31,9 @@ def get_logger(suffix: str) -> logging.Logger:
     # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
 
+    # Skip verbose logging messages from `argilla
+    logging.getLogger("argilla").setLevel(logging.CRITICAL)
+
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO")
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
         warnings.warn(
