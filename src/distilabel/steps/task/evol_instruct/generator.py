@@ -47,6 +47,7 @@ class EvolInstructGenerator(GeneratorTask):
     Reference:
         - https://arxiv.org/abs/2304.12244
         - https://github.com/h2oai/h2o-wizardlm
+        - https://github.com/nlpxucan/WizardLM/Evol_Instruct
     """
 
     num_instructions: int
