@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Annotated, List, Optional, Union
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Annotated, Any, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import override
 
 try:
     import argilla as rg
@@ -34,14 +34,25 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class PromptCompletionToArgilla(Step):
-    api_url: str
+class Argilla(Step, ABC):
+    api_url: Annotated[Optional[str], Field(validate_default=True)] = None
     api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
 
     dataset_name: str
     dataset_workspace: Optional[str] = None
 
     _rg_dataset: Optional["RemoteFeedbackDataset"] = PrivateAttr(...)
+
+    @field_validator("api_url")
+    @classmethod
+    def api_url_must_not_be_none(cls, v: Optional[str]) -> str:
+        """Ensures that either the `api_url` or the environment variable `ARGILLA_API_URL` are set."""
+        v = v or os.getenv("ARGILLA_API_URL", None)  # type: ignore
+        if v is None:
+            raise ValueError(
+                "You must provide an API URL either via `api_url` arg or setting `ARGILLA_API_URL` environment variable to use Argilla."
+            )
+        return v
 
     @field_validator("api_key")
     @classmethod
@@ -53,66 +64,38 @@ class PromptCompletionToArgilla(Step):
         """
         v = v or os.getenv("ARGILLA_API_KEY", None)  # type: ignore
         if v is None:
-            raise ValueError("You must provide an API key to use Argilla.")
+            raise ValueError(
+                "You must provide an API key either via `api_key` arg or setting `ARGILLA_API_URL` environment variable to use Argilla."
+            )
         if not isinstance(v, SecretStr):
             v = SecretStr(v)
         return v
 
-    def load(self) -> None:
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+    def _rg_init(self) -> None:
         try:
             rg.init(api_url=self.api_url, api_key=self.api_key.get_secret_value())  # type: ignore
         except Exception as e:
             raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
 
-        # TODO: shoudln't `input_mappings` always have a value? It would make things easier
-        try:
-            self._prompt = (
-                self.input_mappings["prompt"] if self.input_mappings else "prompt"
-            )
-            self._completion = (
-                self.input_mappings["completion"]
-                if self.input_mappings
-                else "completion"
-            )
-
-            _rg_dataset = rg.FeedbackDataset(
-                fields=[
-                    rg.TextField(name=self._prompt),
-                    rg.TextField(name=self._completion),
-                ],  # type: ignore
-                questions=[
-                    rg.LabelQuestion(  # type: ignore
-                        name="quality",
-                        title=f"What's the quality of the {self._completion} for the given {self._prompt}?",
-                        labels=["bad", "good", "excellent"],
-                    )
-                ],
-            )
-            self._rg_dataset = _rg_dataset.push_to_argilla(
-                name=self.dataset_name, workspace=self.dataset_workspace
-            )
-        except Exception as e:
-            raise ValueError(f"Failed to initialize the Argilla dataset: {e}") from e
+    @abstractmethod
+    def load(self) -> None:
+        ...
 
     @property
+    @abstractmethod
     def inputs(self) -> List[str]:
-        return ["prompt", "completion"]
+        ...
 
     @property
     def outputs(self) -> List[str]:
         return []
 
-    @override
+    @abstractmethod
     def process(self, inputs: "StepInput") -> "StepOutput":
-        self._rg_dataset.add_records(  # type: ignore
-            [
-                rg.FeedbackRecord(
-                    fields={
-                        self._prompt: input["prompt"],
-                        self._completion: input["completion"],
-                    }
-                )
-                for input in inputs
-            ]
-        )
-        yield [{}]
+        ...
