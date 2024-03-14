@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional
 
 from llama_cpp import Llama
 from pydantic import FilePath, PrivateAttr
@@ -22,6 +22,7 @@ from distilabel.llm.base import LLM
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse
 
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
@@ -54,7 +55,7 @@ class LlamaCppLLM(LLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         batch_outputs = []
         for input in inputs:
             outputs = []

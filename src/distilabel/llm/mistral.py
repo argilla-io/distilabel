@@ -24,6 +24,7 @@ from distilabel.llm.base import AsyncLLM
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
@@ -85,7 +86,7 @@ class MistralLLM(AsyncLLM):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
-    ) -> List[Union[str, None]]:
+    ) -> "GenerateOutput":
         """Generates a response asynchronously, using the Mistral Async API."""
         completion = await self._aclient.chat(  # type: ignore
             messages=input,
@@ -107,7 +108,7 @@ class MistralLLM(AsyncLLM):
     # TODO: remove this function once Mistral client allows `n` parameter
     def generate(
         self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         async def agenerate(
             inputs: List["ChatType"], **kwargs: Any
         ) -> List[Union[str, None]]:

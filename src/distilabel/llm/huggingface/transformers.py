@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.llm.typing import HiddenState
+    from distilabel.llm.typing import GenerateOutput, HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
@@ -123,7 +123,7 @@ class TransformersLLM(LLM):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from openai import AsyncOpenAI
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
@@ -22,6 +22,7 @@ from typing_extensions import Annotated
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
@@ -76,7 +77,7 @@ class OpenAILLM(AsyncLLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List[Union[str, None]]:
+    ) -> "GenerateOutput":
         """Generates `num_generations` responses for the given input using the OpenAI async
         client."""
         completion = await self._aclient.chat.completions.create(  # type: ignore

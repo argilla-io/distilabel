@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import PrivateAttr
 from vllm import LLM as _vLLM
@@ -24,6 +24,7 @@ from distilabel.llm.constants import CHATML_TEMPLATE
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
@@ -83,7 +84,7 @@ class vLLM(LLM):
         top_p: float = 1.0,
         top_k: int = -1,
         **extra_sampling_params: Any,
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

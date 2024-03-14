@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, List, TypeVar, Union
+
+GenerateOutput = List[Union[str, None]]
 
 if TYPE_CHECKING:
     from numpy import floating
