@@ -75,7 +75,7 @@ class ComplexityScorer(Task):
             return {self.outputs[0]: [None] * len(input["instructions"])}
 
         scores = []
-        score_lines = output.lower().split("\n")
+        score_lines = output.split("\n")
         for i, line in enumerate(score_lines):
             match = _PARSE_SCORE_LINE_REGEX.match(line)
             score = float(match.group(1)) if match else None
