@@ -116,7 +116,7 @@ class EvolInstruct(Task):
             answer: The answer to be included within the output if `generate_answers=True`.
 
         Returns:
-            If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ...};
+            If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ..., "answer": ...};
             if `store_evolutions=True` and `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answer": ...};
             if `store_evolutions=False` and `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
             if `store_evolutions=True` and `generate_answers=False` return {"evolved_instructions": ..., "model_name": ...}.
