@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.text_generation import TextGeneration
+from typing import Any, List, Union
 
-from tests.unit.steps.task.utils import DummyLLM
+from distilabel.llm.base import LLM
+from distilabel.steps.task.typing import ChatType
 
 
-class TestTextGeneration:
-    def test_process(self) -> None:
-        pipeline = Pipeline()
-        llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-        assert list(task.process([{"instruction": "test"}])) == [
-            [{"instruction": "test", "generation": "output", "model_name": "test"}]
-        ]
+class DummyLLM(LLM):
+    def load(self) -> None:
+        pass
+
+    @property
+    def model_name(self) -> str:
+        return "test"
+
+    def generate(
+        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
+    ) -> List[List[Union[str, None]]]:
+        return [["output" for _ in range(num_generations)] for _ in inputs]
