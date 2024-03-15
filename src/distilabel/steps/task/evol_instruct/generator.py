@@ -35,9 +35,9 @@ from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
 from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
-from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
+    from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import GeneratorStepOutput
 
 
@@ -59,10 +59,8 @@ class EvolInstructGenerator(GeneratorTask):
 
     - `input`: instruction
     - `output`: there's multiple scenarios:
-        - `store_evolutions=False`, `generate_answers=False` -> (instruction, model_name)
-        - `store_evolutions=True`, `generate_answers=False` -> (instructions, model_name)
-        - `store_evolutions=False`, `generate_answers=True` -> (instruction, model_name, answer)
-        - `store_evolutions=True`, `generate_answers=True` -> (instructions, model_name, answer)
+        - `generate_answers=False` -> (instruction, model_name)
+        - `generate_answers=True` -> (instruction, model_name, answer)
     """
 
     num_instructions: int
@@ -145,33 +143,95 @@ class EvolInstructGenerator(GeneratorTask):
 
     @property
     def outputs(self) -> List[str]:
-        """The output for the task is the `instruction`, the `answer` if `generate_answers=True`
+        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
         and the `model_name`."""
-        # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
-        # this could be handled always and the value could be included within the DAG validation when
-        # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
+        _outputs = ["instruction", "model_name"]
         if self.generate_answers:
-            return ["instruction", "answer", "model_name"]
-        return ["instruction", "model_name"]
+            _outputs.append("answer")
+        return _outputs
 
     def format_output(
         self, instruction: str, answer: Optional[str] = None
     ) -> Dict[str, Any]:  # type: ignore
-        """The output is formatted as a dictionary with the `instruction`. The `model_name`
-        will be automatically included."""
-        if not self.output_mappings:
-            self.output_mappings = {k: k for k in self.outputs}
+        """The output for the task is a dict with: `instruction`; `answer` if `generate_answers=True`;
+        and, finally, the `model_name`.
 
-        if self.generate_answers:
-            return {
-                self.output_mappings["instruction"]: instruction,
-                self.output_mappings["answer"]: answer,
-                self.output_mappings["model_name"]: self.llm.model_name,
-            }
-        return {
-            self.output_mappings["instruction"]: instruction,
-            self.output_mappings["model_name"]: self.llm.model_name,
+        Args:
+            instruction: The instruction to be included within the output.
+            answer: The answer to be included within the output if `generate_answers=True`.
+
+        Returns:
+            If `generate_answers=True` return {"instruction": ..., "answer": ..., "model_name": ...};
+            if `generate_answers=False` return {"instruction": ..., "model_name": ...};
+        """
+        _output = {
+            "instruction": instruction,
+            "model_name": self.llm.model_name,
         }
+        if self.generate_answers and answer is not None:
+            _output["answer"] = answer
+        return _output
+
+    @property
+    def mutation_templates_names(self) -> List[str]:
+        """Returns the names i.e. keys of the provided `mutation_templates` enum."""
+        return [
+            member.name  # type: ignore
+            for member in self.mutation_templates.__members__.values()  # type: ignore
+        ]
+
+    def _apply_random_mutation(self, iter_no: int) -> List["ChatType"]:
+        """Applies a random mutation from the ones provided as part of the `mutation_templates`
+        enum, and returns the provided instruction within the mutation prompt.
+
+        Args:
+            iter_no: The iteration number to be used to check whether the iteration is the
+                first one i.e. FRESH_START, or not.
+
+        Returns:
+            A random mutation prompt with the provided instruction formatted as an OpenAI conversation.
+        """
+        prompts = []
+        for idx in range(self.num_instructions):
+            if (
+                iter_no == 0
+                or "Write one question or request containing" in self._prompts[idx]  # type: ignore
+            ):
+                mutation = "FRESH_START"
+            else:
+                mutation = np.random.choice(self.mutation_templates_names)
+                if mutation == "FRESH_START":
+                    self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
+
+            prompt_with_template = (
+                self.mutation_templates[mutation].value.replace(  # type: ignore
+                    "<PROMPT>",
+                    self._prompts[idx],  # type: ignore
+                )  # type: ignore
+                if iter_no != 0
+                else self._prompts[idx]  # type: ignore
+            )
+            prompts.append([{"role": "user", "content": prompt_with_template}])
+        return prompts
+
+    def _generate_answers(self, instructions: List[List[str]]) -> List[str]:
+        """Generates the answer for the last instruction in `instructions`.
+
+        Args:
+            instructions: A list of lists where each item is a list with either the last
+                evolved instruction if `store_evolutions=False` or all the evolved instructions
+                if `store_evolutions=True`.
+        Returns:
+            A list of answers for the last instruction in `instructions`.
+        """
+        _formatted_instructions = [
+            [{"role": "user", "content": instruction[-1]}]
+            for instruction in instructions
+        ]
+        return self.llm.generate(
+            _formatted_instructions,
+            **self.generation_kwargs,  # type: ignore
+        )
 
     @override
     def process(self) -> "GeneratorStepOutput":  # type: ignore
@@ -184,100 +244,61 @@ class EvolInstructGenerator(GeneratorTask):
             A list of Python dictionaries with the outputs of the task.
         """
 
-        mutated_instructions = []
+        instructions = []
         mutation_no = 0
 
         iter_no = 0
-        while len(mutated_instructions) < self.num_instructions:
-            formatted_prompts = []
-            for idx in range(self.num_instructions):
-                if (
-                    iter_no == 0
-                    or "Write one question or request containing" in self._prompts[idx]  # type: ignore
-                ):
-                    mutation = "FRESH_START"
-                else:
-                    enum_attributes = [
-                        member.name  # type: ignore
-                        for member in self.mutation_templates.__members__.values()  # type: ignore
-                    ]
-                    mutation = np.random.choice(enum_attributes)
-                    if mutation == "FRESH_START":
-                        self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
-                formatted_prompts.append(
-                    self.mutation_templates[mutation].value.replace(  # type: ignore
-                        "<PROMPT>",
-                        self._prompts[idx],  # type: ignore
-                    )  # type: ignore
-                    if iter_no != 0
-                    else self._prompts[idx]  # type: ignore
-                )
+        while len(instructions) < self.num_instructions:
+            prompts = self._apply_random_mutation(iter_no=iter_no)
 
-            formatted_prompts = [
-                [{"role": "user", "content": prompt}] for prompt in formatted_prompts
-            ]
             generated_prompts = self.llm.generate(
-                formatted_prompts,
+                prompts,
                 **self.generation_kwargs,  # type: ignore
             )
             for idx, generated_prompt in enumerate(generated_prompts):
                 generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
                 if self.max_length >= len(generated_prompt) >= self.min_length:  # type: ignore
-                    mutated_instructions.append(generated_prompt)
+                    instructions.append(generated_prompt)
                     self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
                 else:
                     self._prompts[idx] = generated_prompt  # type: ignore
 
             self._logger.info(
-                f"🔄 Ran iteration {iter_no} with {len(mutated_instructions)} instructions already evolved!"
+                f"🔄 Ran iteration {iter_no} with {len(instructions)} instructions already evolved!"
             )
             iter_no += 1
 
-            if len(mutated_instructions) > self.num_instructions:
-                mutated_instructions = mutated_instructions[: self.num_instructions]
-            if len(mutated_instructions) > mutation_no:
-                mutation_no = len(mutated_instructions) - mutation_no
+            if len(instructions) > self.num_instructions:
+                instructions = instructions[: self.num_instructions]
+            if len(instructions) > mutation_no:
+                mutation_no = len(instructions) - mutation_no
 
-            if (
-                not self.generate_answers
-                and len(mutated_instructions[-mutation_no:]) > 0
-            ):
+            if not self.generate_answers and len(instructions[-mutation_no:]) > 0:
                 yield (
                     [
                         self.format_output(mutated_instruction)
-                        for mutated_instruction in mutated_instructions[-mutation_no:]
+                        for mutated_instruction in instructions[-mutation_no:]
                     ],
-                    len(mutated_instructions) >= self.num_instructions,
+                    len(instructions) >= self.num_instructions,
                 )
 
-        self._logger.info(
-            f"🎉 Finished evolving {len(mutated_instructions)} instructions!"
-        )
+        self._logger.info(f"🎉 Finished evolving {len(instructions)} instructions!")
 
         if self.generate_answers:
             self._logger.info(
-                f"🧠 Generating answers for the {len(mutated_instructions)} evolved instructions!"
+                f"🧠 Generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            _mutated_instructions = [
-                [{"role": "user", "content": instruction}]
-                for instruction in mutated_instructions
-            ]
-            generated_answers = self.llm.generate(
-                _mutated_instructions,
-                **self.generation_kwargs,  # type: ignore
-            )
+            answers = self._generate_answers(instructions)
 
             self._logger.info(
-                f"🎉 Finished generating answers for the {len(mutated_instructions)} evolved instructions!"
+                f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
             )
 
             yield (
                 [
-                    self.format_output(mutated_instruction, generated_answer)
-                    for mutated_instruction, generated_answer in zip(
-                        mutated_instructions, generated_answers
-                    )
+                    self.format_output(instruction, answer)
+                    for instruction, answer in zip(instructions, answers)
                 ],
                 True,
             )

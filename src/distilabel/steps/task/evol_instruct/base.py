@@ -89,7 +89,7 @@ class EvolInstruct(Task):
 
     @property
     def outputs(self) -> List[str]:
-        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
+        """The output for the task are the `evolved_instruction/s`, the `answer` if `generate_answers=True`
         and the `model_name`."""
         # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
         # this could be handled always and the value could be included within the DAG validation when
