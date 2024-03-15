@@ -50,7 +50,7 @@ class ComplexityScorer(Task):
         complexity_score (`List[float]`): The complexity score for each instruction.
 
     Reference:
-        - https://arxiv.org/abs/2312.15685
+        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 
     _template: Union[Template, None] = PrivateAttr(...)
