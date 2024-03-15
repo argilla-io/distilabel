@@ -97,6 +97,7 @@ class AsyncLLM(LLM):
         self,
         inputs: List["ChatType"],
         num_generations: int = 1,
+        *args: Any,
         **kwargs: Any,
     ) -> List[List[Union[str, None]]]:
         """Method to generate a list of responses asynchronously, returning the output
@@ -104,7 +105,7 @@ class AsyncLLM(LLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["ChatType"], *args: Any, **kwargs: Any
         ) -> List[List[Union[str, None]]]:
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
