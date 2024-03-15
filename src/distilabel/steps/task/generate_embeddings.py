@@ -27,6 +27,13 @@ class GenerateEmbeddings(Step):
     described in the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
 
+    Input columns:
+        text (`str`, `List[Dict[str, str]]`): The input text or conversation to generate
+            embeddings for.
+
+    Output columns:
+        embedding (`List[float]`): The embedding of the input text or conversation.
+
     Reference:
         - https://arxiv.org/abs/2312.15685
     """
@@ -38,18 +45,24 @@ class GenerateEmbeddings(Step):
 
     @property
     def inputs(self) -> List[str]:
-        return ["conversation"]
+        return ["text"]
 
     @property
     def outputs(self) -> List[str]:
         return ["embedding"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return []
+        text = input["text"]
+
+        # input is in `ChatType` format
+        if isinstance(text, list):
+            return text
+
+        return [{"role": "user", "content": text}]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         formatted_inputs = [self.format_input(input) for input in inputs]
         last_hidden_states = self.llm.get_last_hidden_states(formatted_inputs)
         for input, hidden_state in zip(inputs, last_hidden_states):
-            input["embedding"] = hidden_state[-1]
+            input["embedding"] = hidden_state[-1].tolist()
         yield inputs
