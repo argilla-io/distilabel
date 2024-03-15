@@ -32,7 +32,7 @@ You can give a score of {{ (instructions|length) + 1 }} if the question is too c
 {%- endfor %}
 """.lstrip()
 
-_PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)")
+_PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class QualityScorer(Task):
@@ -44,11 +44,12 @@ class QualityScorer(Task):
     The task follows the same scheme as the Evol Complexity Scorer, but the instructions are scored in
     terms of quality, obtining a quality score *q* for each instruction.
 
-    Columns:
-        - `inputs`: instructions
-        - `outputs`: quality_score
+    Input columns:
+        instructions (`List[str]`): The list of instructions to be scored.
+    Output columns:
+        quality_score (`List[float]`): The quality score for each instruction.
 
-    References:
+    Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 
@@ -89,7 +90,7 @@ class QualityScorer(Task):
             return {self.outputs[0]: [None] * len(input["instructions"])}
 
         scores = []
-        score_lines = output.lower().split("\n")
+        score_lines = output.split("\n")
 
         for i, line in enumerate(score_lines):
             match = _PARSE_SCORE_LINE_REGEX.match(line)
