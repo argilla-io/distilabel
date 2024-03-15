@@ -64,22 +64,38 @@ class PromptCompletionToArgilla(Argilla):
             self.input_mappings["completion"] if self.input_mappings else "completion"
         )
 
-        _rg_dataset = rg.FeedbackDataset(
-            fields=[
-                rg.TextField(name=self._prompt),  # type: ignore
-                rg.TextField(name=self._completion),  # type: ignore
-            ],
-            questions=[
-                rg.LabelQuestion(  # type: ignore
-                    name="quality",
-                    title=f"What's the quality of the {self._completion} for the given {self._prompt}?",
-                    labels=["bad", "good", "excellent"],
+        if self._rg_dataset_exists():
+            _rg_dataset = rg.FeedbackDataset.from_argilla(
+                name=self.dataset_name,
+                workspace=self.dataset_workspace,
+            )
+
+            if not _rg_dataset.field_by_name(
+                name=self._prompt
+            ) and not _rg_dataset.field_by_name(name=self._completion):
+                raise ValueError(
+                    f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
+                    f" but does not contain the fields {self._prompt} and {self._completion}."
                 )
-            ],
-        )
-        self._rg_dataset = _rg_dataset.push_to_argilla(
-            name=self.dataset_name, workspace=self.dataset_workspace
-        )
+            self._rg_dataset = _rg_dataset
+
+        else:
+            _rg_dataset = rg.FeedbackDataset(
+                fields=[
+                    rg.TextField(name=self._prompt),  # type: ignore
+                    rg.TextField(name=self._completion),  # type: ignore
+                ],
+                questions=[
+                    rg.LabelQuestion(  # type: ignore
+                        name="quality",
+                        title=f"What's the quality of the {self._completion} for the given {self._prompt}?",
+                        labels=["bad", "good", "excellent"],
+                    )
+                ],
+            )
+            self._rg_dataset = _rg_dataset.push_to_argilla(
+                name=self.dataset_name, workspace=self.dataset_workspace
+            )
 
     @property
     def inputs(self) -> List[str]:

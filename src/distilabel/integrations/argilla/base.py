@@ -96,6 +96,13 @@ class Argilla(Step, ABC):
         except Exception as e:
             raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
 
+    def _rg_dataset_exists(self) -> bool:
+        """Checks if the dataset already exists in Argilla."""
+        return self.dataset_name in [
+            dataset.name
+            for dataset in rg.FeedbackDataset.list(workspace=self.dataset_workspace)
+        ]
+
     @property
     def outputs(self) -> List[str]:
         """The outputs of the step is an empty list, since the steps subclassing from this one, will
