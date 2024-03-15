@@ -45,10 +45,9 @@ class PromptCompletionToArgilla(Argilla):
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
             None, which means it will be created in the default workspace.
 
-    Columns:
-
-    - `prompt`
-    - `completion`
+    Input columns:
+        prompt (str): The prompt that was used to generate the completion.
+        completion (str): The completion that was generated based on the prompt.
     """
 
     def load(self) -> None:
