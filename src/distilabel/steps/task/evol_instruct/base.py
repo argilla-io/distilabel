@@ -14,17 +14,11 @@
 
 import sys
 
-if sys.version_info < (3, 9):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
-
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
     from enum import EnumType
 
-from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
@@ -82,20 +76,6 @@ class EvolInstruct(Task):
 
         np.random.seed(self.seed)
 
-    @cached_property
-    def _english_nouns(self) -> List[str]:
-        """A list of English nouns to be used as part of the starting prompts for the task.
-
-        Reference:
-            - https://github.com/h2oai/h2o-wizardlm
-        """
-        _path = str(
-            importlib_resources.files("distilabel")
-            / "steps/task/evol_instruct/english_nouns.txt"
-        )
-        with open(_path, mode="r") as f:
-            return [line.strip() for line in f.readlines()]
-
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`."""
@@ -109,7 +89,8 @@ class EvolInstruct(Task):
 
     @property
     def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
+        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
+        and the `model_name`."""
         # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
@@ -126,48 +107,70 @@ class EvolInstruct(Task):
     def format_output(
         self, instructions: Union[str, List[str]], answer: Optional[str] = None
     ) -> Dict[str, Any]:  # type: ignore
-        """The output is formatted as a dictionary with the `instruction`. The `model_name`
-        will be automatically included."""
-        if not self.output_mappings:
-            self.output_mappings = {k: k for k in self.outputs}
+        """The output for the task is a dict with: `evolved_instruction` or `evolved_instructions`,
+        depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
+        `answer` if `generate_answers=True`; and, finally, the `model_name`.
 
+        Args:
+            instructions: The instructions to be included within the output.
+            answer: The answer to be included within the output if `generate_answers=True`.
+
+        Returns:
+            If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ...};
+            if `store_evolutions=True` and `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answer": ...};
+            if `store_evolutions=False` and `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
+            if `store_evolutions=True` and `generate_answers=False` return {"evolved_instructions": ..., "model_name": ...}.
+        """
         _output = {}
         if not self.store_evolutions:
-            _output[self.output_mappings["evolved_instruction"]] = instructions[-1]
+            _output["evolved_instruction"] = instructions[-1]
         else:
-            _output[self.output_mappings["evolved_instructions"]] = instructions
+            _output["evolved_instructions"] = instructions
 
         if self.generate_answers and answer is not None:
-            _output[self.output_mappings["answer"]] = answer
+            _output["answer"] = answer
 
-        _output[self.output_mappings["model_name"]] = self.llm.model_name
+        _output["model_name"] = self.llm.model_name
         return _output
 
-    @override
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
-        """Processes the inputs of the task and generates the outputs using the LLM.
+    @property
+    def mutation_templates_names(self) -> List[str]:
+        """Returns the names i.e. keys of the provided `mutation_templates` enum."""
+        return [
+            member.name  # type: ignore
+            for member in self.mutation_templates.__members__.values()  # type: ignore
+        ]
+
+    def _apply_random_mutation(self, instruction: str) -> str:
+        """Applies a random mutation from the ones provided as part of the `mutation_templates`
+        enum, and returns the provided instruction within the mutation prompt.
+
+        Args:
+            instruction: The instruction to be included within the mutation prompt.
+
+        Returns:
+            A random mutation prompt with the provided instruction.
+        """
+        mutation = np.random.choice(self.mutation_templates_names)
+        return self.mutation_templates[mutation].value.replace("<PROMPT>", instruction)  # type: ignore
+
+    def _evolve_instructions(self, inputs: "StepInput") -> List[List[str]]:
+        """Evolves the instructions provided as part of the inputs of the task.
 
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
         Returns:
-            A list of Python dictionaries with the outputs of the task.
+            A list where each item is a list with either the last evolved instruction if
+            `store_evolutions=False` or all the evolved instructions if `store_evolutions=True`.
         """
-        enum_attributes = [
-            member.name  # type: ignore
-            for member in self.mutation_templates.__members__.values()  # type: ignore
-        ]
 
         instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
+
         for iter_no in range(self.num_evolutions):
             formatted_prompts = []
             for instruction in instructions:
-                mutation = np.random.choice(enum_attributes)
-                formatted_prompts.append(
-                    self.mutation_templates[mutation].value.replace(  # type: ignore
-                        "<PROMPT>", instruction[-1]
-                    )
-                )
+                formatted_prompts.append(self._apply_random_mutation(instruction[-1]))
 
             formatted_prompts = [
                 self.format_input(prompt) for prompt in formatted_prompts
@@ -200,6 +203,39 @@ class EvolInstruct(Task):
                 f"🔄 Ran iteration {iter_no} evolving {len(instructions)} instructions!"
             )
 
+        return instructions
+
+    def _generate_answers(self, instructions: List[List[str]]) -> List[str]:
+        """Generates the answer for the last instruction in `instructions`.
+
+        Args:
+            instructions: A list of lists where each item is a list with either the last
+                evolved instruction if `store_evolutions=False` or all the evolved instructions
+                if `store_evolutions=True`.
+        Returns:
+            A list of answers for the last instruction in `instructions`.
+        """
+        _formatted_instructions = [
+            self.format_input(instruction[-1]) for instruction in instructions
+        ]
+        return self.llm.generate(
+            _formatted_instructions,
+            **self.generation_kwargs,  # type: ignore
+        )
+
+    @override
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+        """Processes the inputs of the task and generates the outputs using the LLM.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list of Python dictionaries with the outputs of the task.
+        """
+
+        instructions = self._evolve_instructions(inputs)
+
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_instructions` list
             instructions = [instruction[1:] for instruction in instructions]
@@ -216,13 +252,7 @@ class EvolInstruct(Task):
                 f"🧠 Generating answers for the {len(instructions)} evolved instructions!"
             )
 
-            _formatted_instructions = [
-                self.format_input(instruction[-1]) for instruction in instructions
-            ]
-            answers = self.llm.generate(
-                _formatted_instructions,
-                **self.generation_kwargs,  # type: ignore
-            )
+            answers = self._generate_answers(instructions)
 
             self._logger.info(
                 f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
