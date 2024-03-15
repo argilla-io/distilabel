@@ -14,7 +14,7 @@
 
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
 from typing_extensions import Annotated
@@ -88,12 +88,6 @@ class Argilla(Step, ABC):
         if not isinstance(v, SecretStr):
             v = SecretStr(v)
         return v
-
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
-        """
-        super().model_post_init(__context)
 
     def _rg_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
