@@ -21,7 +21,7 @@ from distilabel.steps.task.quality_scorer import QualityScorer
 from tests.unit.steps.task.utils import DummyLLM
 
 
-class TestComplexityScore:
+class TestQualityScorer:
     def test_format_input(self) -> None:
         task = QualityScorer(name="quality_scorer", llm=DummyLLM(), pipeline=Pipeline())
         task.load()
