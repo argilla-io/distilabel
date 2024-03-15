@@ -134,6 +134,7 @@ class Pipeline(BasePipeline):
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
         self._logger.info("⏳ Waiting for all the steps to load...")
+        previous_message = None
         while True:
             with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
@@ -146,9 +147,12 @@ class Pipeline(BasePipeline):
                     self._logger.error("❌ Failed to load all the steps")
                     return False
 
-                self._logger.info(f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}")
+                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
+                if message != previous_message:
+                    self._logger.info(message)
+                    previous_message = message
 
-            time.sleep(5)
+            time.sleep(2.5)
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
