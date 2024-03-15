@@ -127,36 +127,38 @@ class TestEvolInstructGenerator:
         )
         assert task.dump() == {
             "name": "task",
-            "input_mappings": {},
-            "output_mappings": {},
-            "batch_size": 50,
-            "input_batch_size": 50,
+            "input_mappings": task.input_mappings,
+            "output_mappings": task.output_mappings,
+            "batch_size": task.batch_size,
             "llm": {
                 "type_info": {
                     "module": "tests.unit.steps.task.evol_instruct.test_generator",
                     "name": "DummyLLM",
                 }
             },
-            "num_instructions": 2,
-            "generate_answers": False,
+            "num_instructions": task.num_instructions,
+            "generate_answers": task.generate_answers,
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
                 "_name": "GenerationMutationTemplates",
                 "_values": {
-                    "FRESH_START": "Write one question or request containing one or more of the following words: <PROMPT>",
-                    "COMPLICATE": "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "ADD_CONSTRAINTS": "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "DEEPEN": "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "CONCRETIZE": "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n",
-                    "INCREASE_REASONING": "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
-                    "SWITCH_TOPIC": "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n",
+                    mutation.name: mutation.value  # type: ignore
+                    for mutation in task.mutation_templates
                 },
             },
-            "min_length": 256,
-            "max_length": 1024,
+            "num_generations": task.num_generations,
+            "group_generations": task.group_generations,
             "generation_kwargs": {},
+            "min_length": task.min_length,
+            "max_length": task.max_length,
+            "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "num_generations",
+                    "optional": True,
+                    "description": "The number of generations to be produced per input.",
+                },
                 {
                     "name": "generation_kwargs",
                     "optional": True,
@@ -165,10 +167,17 @@ class TestEvolInstructGenerator:
                 {
                     "name": "min_length",
                     "optional": True,
+                    "description": "Defines the length (in bytes) that the generated instruction needs to be higher than, to be considered valid.",
                 },
                 {
                     "name": "max_length",
                     "optional": True,
+                    "description": "Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.",
+                },
+                {
+                    "name": "seed",
+                    "optional": True,
+                    "description": "As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
                 },
             ],
             "type_info": {
