@@ -105,7 +105,6 @@ class _Step(BaseModel, _Serializable, ABC):
     output_mappings: Dict[str, str] = {}
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
-    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("step"))
 
