@@ -14,9 +14,10 @@
 
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Annotated, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
+from typing_extensions import Annotated
 
 try:
     import argilla as rg
