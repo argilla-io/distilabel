@@ -35,7 +35,7 @@ respond with the format:
 {%- endfor %}
 """.lstrip()
 
-_PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)")
+_PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class ComplexityScorer(Task):
