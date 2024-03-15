@@ -138,7 +138,7 @@ class EvolInstructGenerator(GeneratorTask):
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
         pass
 
     @property
