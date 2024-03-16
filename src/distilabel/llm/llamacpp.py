@@ -14,19 +14,29 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
-from llama_cpp import Llama
 from pydantic import FilePath, PrivateAttr
 
 from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
-    from llama_cpp import CreateChatCompletionResponse
+    from llama_cpp import CreateChatCompletionResponse, Llama
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
 class LlamaCppLLM(LLM):
+    """llama.cpp LLM implementation running the Python bindings for the C++ code.
+
+    Args:
+        model_path: contains the path to the GGUF quantized model, compatible with the
+            installed version of the `llama.cpp` Python bindings.
+        chat_format: the chat format to use for the model. Defaults to `chatml`.
+        n_gpu_layers: the number of layers to use for the GPU. Defaults to `-1`, meaning that
+            the available GPU device will be used.
+        verbose: whether to print verbose output. Defaults to `False`.
+    """
+
     model_path: FilePath
     chat_format: str = "chatml"
     n_gpu_layers: int = -1
@@ -35,6 +45,15 @@ class LlamaCppLLM(LLM):
     _model: Optional["Llama"] = PrivateAttr(...)
 
     def load(self) -> None:
+        """Loads the `Llama` model from the `model_path`."""
+
+        try:
+            from llama_cpp import Llama
+        except ImportError as ie:
+            raise ImportError(
+                "The `llama_cpp` package is required to use the `LlamaCppLLM` class."
+            ) from ie
+
         self._model = Llama(
             model_path=self.model_path.as_posix(),
             chat_format=self.chat_format,
@@ -44,6 +63,7 @@ class LlamaCppLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the model name used for the LLM."""
         return self._model.model_path  # type: ignore
 
     def generate(  # type: ignore
@@ -56,6 +76,24 @@ class LlamaCppLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> List["GenerateOutput"]:
+        """Generates `num_generations` responses for the given input using the Llama model.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximun number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequence_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
         batch_outputs = []
         for input in inputs:
             outputs = []
