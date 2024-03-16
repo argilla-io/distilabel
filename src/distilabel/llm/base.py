@@ -75,6 +75,15 @@ class AsyncLLM(LLM):
     responses.
     """
 
+    _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
+
+    @property
+    def event_loop(self) -> "asyncio.AbstractEventLoop":
+        if self._event_loop is None or self._event_loop.is_closed():
+            self._event_loop = asyncio.new_event_loop()  # type: ignore
+            asyncio.set_event_loop(self._event_loop)
+        return self._event_loop
+
     @abstractmethod
     async def agenerate(
         self, input: "ChatType", num_generations: int = 1, **kwargs: Any
@@ -108,4 +117,8 @@ class AsyncLLM(LLM):
             ]
             return await asyncio.gather(*tasks)
 
-        return asyncio.run(agenerate(inputs, **kwargs))
+        return self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+
+    def __del__(self) -> None:
+        """Closes the event loop when the object is deleted."""
+        self.event_loop.close()

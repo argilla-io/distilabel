@@ -15,6 +15,7 @@
 import inspect
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
@@ -107,7 +108,7 @@ class _Step(BaseModel, _Serializable, ABC):
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
-    _logger: logging.Logger = PrivateAttr(get_logger("step"))
+    _logger: logging.Logger = PrivateAttr(get_logger("steps"))
 
     def model_post_init(self, _: Any) -> None:
         if self.pipeline is None:
@@ -343,6 +344,12 @@ class _Step(BaseModel, _Serializable, ABC):
             # Load the LLM and update the _data inplace
             nested_cls = nested_cls(**llm)
             _data.update({"llm": nested_cls})
+
+        # Enums need a specific restoring process
+        for k, v in _data.items():
+            if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
+                _data[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
+
         # Every step needs the pipeline, and the remaining arguments are general
         step = cls(**_data)
 
