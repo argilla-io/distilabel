@@ -19,7 +19,7 @@ from typing_extensions import Self
 
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
-from distilabel.pipeline.logging import get_logger
+from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
