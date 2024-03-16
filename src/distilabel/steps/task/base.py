@@ -136,7 +136,7 @@ class _Task(ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(Step, _Task):
+class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
@@ -155,7 +155,7 @@ class Task(Step, _Task):
     pass
 
 
-class GeneratorTask(GeneratorStep, _Task):
+class GeneratorTask(_Task, GeneratorStep):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
