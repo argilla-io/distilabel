@@ -15,17 +15,18 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import PrivateAttr
-from vllm import LLM as _vLLM
-from vllm import SamplingParams
 
 from distilabel.llm.base import LLM
 from distilabel.llm.constants import CHATML_TEMPLATE
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
+    from vllm import LLM as _vLLM
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+SamplingParams = None
 
 
 class vLLM(LLM):
@@ -50,6 +51,23 @@ class vLLM(LLM):
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
 
     def load(self) -> None:
+        """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
+        Additionally, this method also sets the `chat_template` for the tokenizer, so as to properly
+        parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
+        default value is ChatML format, unless explicitly provided.
+        """
+
+        try:
+            from vllm import LLM as _vLLM
+            from vllm import SamplingParams as _SamplingParams
+
+            global SamplingParams
+            SamplingParams = _SamplingParams
+        except ImportError as ie:
+            raise ImportError(
+                "vLLM is not installed. Please install it using `pip install vllm`."
+            ) from ie
+
         self._model = _vLLM(self.model, **self.model_kwargs)  # type: ignore
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
 
@@ -63,16 +81,19 @@ class vLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the model name used for the LLM."""
         return self.model
 
     def prepare_input(self, input: "ChatType") -> str:
+        """Prepares the input by applying the chat template to the input, which is formatted
+        as an OpenAI conversation, and adding the generation prompt.
+        """
         return self._tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
             add_generation_prompt=True,  # type: ignore
         )
 
-    # TODO: update to return `List[List[str]]` depending on the `num_generations` parameter
     def generate(
         self,
         inputs: List["ChatType"],

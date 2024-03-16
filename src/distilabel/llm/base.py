@@ -40,6 +40,7 @@ class LLM(BaseModel, _Serializable, ABC):
     @property
     @abstractmethod
     def model_name(self) -> str:
+        """Returns the model name used for the LLM."""
         pass
 
     @abstractmethod
