@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, List
 
+from pydantic import PrivateAttr
 from typing_extensions import override
 
 try:
@@ -50,6 +51,9 @@ class PromptCompletionToArgilla(Argilla):
         completion (str): The completion that was generated based on the prompt.
     """
 
+    _prompt: str = PrivateAttr(...)
+    _completion: str = PrivateAttr(...)
+
     def load(self) -> None:
         """Sets the `_prompt` and `_completion` attributes based on the `inputs_mapping`, otherwise
         uses the default values; and then uses those values to createa a `FeedbackDataset` suited for
@@ -70,15 +74,17 @@ class PromptCompletionToArgilla(Argilla):
                 workspace=self.dataset_workspace,
             )
 
-            if not _rg_dataset.field_by_name(
-                name=self._prompt
-            ) and not _rg_dataset.field_by_name(name=self._completion):
-                raise ValueError(
-                    f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                    f" but does not contain the fields {self._prompt} and {self._completion}."
-                )
-            self._rg_dataset = _rg_dataset
+            for field in _rg_dataset.fields:
+                if (
+                    field.name not in [self._prompt, self._completion]
+                    and field.required
+                ):
+                    raise ValueError(
+                        f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
+                        f" but contains at least a required field that is neither `{self._prompt}` nor `{self._completion}`."
+                    )
 
+            self._rg_dataset = _rg_dataset
         else:
             _rg_dataset = rg.FeedbackDataset(
                 fields=[
@@ -99,11 +105,19 @@ class PromptCompletionToArgilla(Argilla):
 
     @property
     def inputs(self) -> List[str]:
+        """The inputs for the step are the `prompt` and the `completion`."""
         return ["prompt", "completion"]
 
     @override
     def process(self, inputs: "StepInput") -> "StepOutput":
-        """Creates and pushes the records as FeedbackRecords to the Argilla dataset."""
+        """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list of Python dictionaries with the outputs of the task.
+        """
         self._rg_dataset.add_records(  # type: ignore
             [
                 rg.FeedbackRecord(
