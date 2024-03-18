@@ -87,10 +87,10 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_process_store_evolutions(self, task_class_base) -> None:
+    def test_process_store_evolutions(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class_base(
+        task = EvolInstruct(
             name="task",
             llm=llm,
             num_evolutions=2,
