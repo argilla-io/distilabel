@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.typing import ChatType
@@ -46,7 +46,9 @@ class TextGeneration(Task):
         """The output for the task is the `generation` and the `model_name`."""
         return ["generation", "model_name"]
 
-    def format_output(self, output: str) -> Dict[str, Any]:
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
         return {"generation": output}
