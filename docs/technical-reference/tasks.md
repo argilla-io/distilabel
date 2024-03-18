@@ -85,13 +85,13 @@ You can take a look at a [sample dataset](https://huggingface.co/datasets/argill
 
 !!! note
     The original definition of `EvolInstruct` considers an elimination evolving step with different
-    situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but not step one. Step 1 of the elimination process can be implemented using labellers in `distilabel`.
+    situations to remove the responses considered failures. Section 3.2, _Elimination Evolving_ in [WizardLM paper](https://arxiv.org/abs/2304.12244) shows these steps. We have implemented steps 2-4 as part of this task, but [not directly the step one](https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-openai-wizardlm-equal-prompts). For a complete iteration of the process, you can check the [example pipeline](https://github.com/argilla-io/distilabel/blob/main/examples/pipeline-evol-instruct-alpaca.py).
 
 For the API reference visit [EvolInstructTask][distilabel.tasks.text_generation.evol_instruct.EvolInstructTask].
 
 #### EvolComplexity
 
-The [Deita framework](https://arxiv.org/abs/2312.15685) presents a data selection framework composed of two initial steps that consist on adopting an evolution-based approach as defined in [WizardLM](https://arxiv.org/abs/2304.12244). The first of the evolution steps, related to the *complexity* is the same `EvolInstruct` task, exposed with the same name given in the paper:
+The [Deita framework](https://arxiv.org/abs/2312.15685) presents a data selection framework composed of two initial steps that consist on adopting an evolution-based approach as defined in [WizardLM](https://arxiv.org/abs/2304.12244). The first of the evolution steps, related to the *complexity* is the same `EvolInstruct` task without the _In-breadth_ approach, exposed with the same name given in the paper:
 
 ```python
 --8<-- "docs/snippets/technical-reference/tasks/generic_openai_evol_complexity.py"
