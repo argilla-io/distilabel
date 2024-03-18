@@ -185,9 +185,12 @@ class EvolInstruct(Task):
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
-                evolved_instructions.append(
-                    generated_prompt[-1].split("Prompt#:")[-1].strip()
+                generated_prompt = (
+                    generated_prompt.split("Prompt#:")[-1].strip()
+                    if "Prompt#:" in generated_prompt
+                    else generated_prompt.strip()
                 )
+                evolved_instructions.append(generated_prompt)
 
             if self.store_evolutions:
                 instructions = [

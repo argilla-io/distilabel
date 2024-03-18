@@ -256,7 +256,12 @@ class EvolInstructGenerator(GeneratorTask):
                 **self.generation_kwargs,  # type: ignore
             )
             for idx, generated_prompt in enumerate(generated_prompts):
-                generated_prompt = generated_prompt[-1].split("Prompt#:")[-1].strip()
+                generated_prompt = generated_prompt[-1]
+                generated_prompt = (
+                    generated_prompt.split("Prompt#:")[-1].strip()
+                    if "Prompt#:" in generated_prompt
+                    else generated_prompt.strip()
+                )
                 if self.max_length >= len(generated_prompt) >= self.min_length:  # type: ignore
                     instructions.append(generated_prompt)
                     self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
