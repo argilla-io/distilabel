@@ -16,12 +16,12 @@ import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr
-from transformers import Pipeline, pipeline
 
 from distilabel.llm.base import LLM
 from distilabel.llm.constants import CHATML_TEMPLATE
 
 if TYPE_CHECKING:
+    from transformers import Pipeline
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
@@ -79,6 +79,13 @@ class TransformersLLM(LLM):
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
 
+        try:
+            from transformers import pipeline
+        except ImportError as ie:
+            raise ImportError(
+                "Transformers is not installed. Please install it using `pip install transformers`."
+            ) from ie
+
         self._pipeline = pipeline(
             "text-generation",
             model=self.model,
@@ -104,9 +111,13 @@ class TransformersLLM(LLM):
 
     @property
     def model_name(self) -> str:
+        """Returns the model name used for the LLM."""
         return self.model
 
     def prepare_input(self, input: "ChatType") -> str:
+        """Prepares the input by applying the chat template to the input, which is formatted
+        as an OpenAI conversation, and adding the generation prompt.
+        """
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
@@ -162,9 +173,12 @@ class TransformersLLM(LLM):
         """Gets the last `hidden_states` of the model for the given inputs. It doesn't
         execute the task head.
 
+        Args:
+            inputs: a list of inputs in chat format to generate the embeddings for.
+
         Returns:
-            A list containing the last hidden state for each sequence using a NumPy array.
-                with shape [num_tokens, hidden_size].
+            A list containing the last hidden state for each sequence using a NumPy array
+            with shape [num_tokens, hidden_size].
         """
         model: "PreTrainedModel" = (
             self._pipeline.model.model  # type: ignore

@@ -16,7 +16,6 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from mistralai.async_client import MistralAsyncClient
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
 from typing_extensions import Annotated
 
@@ -24,6 +23,8 @@ from distilabel.llm.base import AsyncLLM
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
+    from mistralai.async_client import MistralAsyncClient
+
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
@@ -66,6 +67,15 @@ class MistralLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
+
+        try:
+            from mistralai.async_client import MistralAsyncClient
+        except ImportError as ie:
+            raise ImportError(
+                "MistralAI Python client is not installed. Please install it using"
+                " `pip install mistralai`."
+            ) from ie
+
         self._aclient = MistralAsyncClient(
             api_key=self.api_key.get_secret_value(),  # type: ignore
             endpoint=self.endpoint,
@@ -83,16 +93,28 @@ class MistralLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",
+        max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
     ) -> "GenerateOutput":
-        """Generates a response asynchronously, using the Mistral Async API."""
+        """Generates `num_generations` responses for the given input using the MistralAI async
+        client.
+
+        Args:
+            input: a single input in chat format to generate responses for.
+            max_new_tokens: the maximun number of new tokens that the model will generate.
+                Defaults to `128`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
         completion = await self._aclient.chat(  # type: ignore
             messages=input,
             model=self.model,
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_tokens=max_new_tokens,
             top_p=top_p,
         )
         generations = []
