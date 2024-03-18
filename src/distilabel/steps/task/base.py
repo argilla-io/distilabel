@@ -23,6 +23,7 @@ from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput
+    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -91,7 +92,7 @@ class _Task(_Step, ABC):
         """
         pass
 
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
