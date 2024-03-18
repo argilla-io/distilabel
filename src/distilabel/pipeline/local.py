@@ -329,7 +329,7 @@ class _WriteBuffer:
         """Creates the filename for the step.
 
         Args:
-            step_name (str): Name of the step to which the data pertains.
+            step_name: Name of the step to which the data belongs to.
 
         Returns:
             Filename for the step.
