@@ -137,8 +137,8 @@ class _Task(ABC):
             try:
                 formatted_outputs.append(self.format_output(output, input))
             except Exception as e:
-                self._logger.warning(
-                    f"Task '{self.name}' failed to format output: {e}. Using empty dict."
+                self._logger.warning(  # type: ignore
+                    f"Task '{self.name}' failed to format output: {e}. Using empty dict."  # type: ignore
                 )
                 formatted_outputs.append(self._outputs_empty_dict())
         return formatted_outputs
@@ -148,7 +148,7 @@ class _Task(ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(_Task, Step):
+class Task(_Task, Step):  # type: ignore
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
@@ -167,7 +167,7 @@ class Task(_Task, Step):
     pass
 
 
-class GeneratorTask(_Task, GeneratorStep):
+class GeneratorTask(_Task, GeneratorStep):  # type: ignore
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
