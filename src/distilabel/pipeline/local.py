@@ -76,25 +76,30 @@ class Pipeline(BasePipeline):
             )
 
             # Run the steps using the pool of processes
+            if not self._batch_manager.can_generate():
+                return  # TODO: Return distiset
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 return
 
+            # TODO: this class must start from whatever was obtained from the root step
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
-            while True:
+            while self._batch_manager.can_generate():
                 batch = self.output_queue.get()
 
                 # If `None` is received, then stop the pipeline
                 if batch is None:
                     break
 
+                self._batch_manager.register_batch(batch)
+
                 for step_name in self.dag.get_step_successors(batch.step_name):
                     for new_batch in self._batch_manager.add_batch(
-                        to_step=step_name, batch=batch
+                        to_step=step_name, batch=batch, callback=lambda: self._cache()
                     ):
                         self._send_batch_to_step(new_batch)
 
@@ -140,8 +145,14 @@ class Pipeline(BasePipeline):
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
+        # TODO: This block has to be reviewed, not properly cached
+        for step in self._batch_manager._steps.values():
+            for batch in step.get_batches():
+                self._send_batch_to_step(batch)
+
         for step_name in self.dag.root_steps:
-            batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+            seq_no = self._batch_manager._seq_no_step[step_name]
+            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
             self._send_batch_to_step(batch)
 
     def _send_batch_to_step(self, batch: "_Batch") -> None:
@@ -185,11 +196,7 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(
-                process_wrapper.run,
-                error_callback=self._error_callback,
-                callback=lambda _: self._cache(),
-            )  # type: ignore
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -362,14 +369,16 @@ class _ProcessWrapper:
         """
         step = cast("GeneratorStep", self.step)
 
-        batch = self.input_queue.get()
-
-        self.step._logger.info(
-            f"🧬 Starting yielding batches from generator step '{self.step.name}'"
-        )
-
         try:
-            for data, last_batch in step.process_applying_mappings():
+            batch = self.input_queue.get()
+            offset = batch.seq_no * self.step.batch_size
+
+            self.step._logger.info(
+                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
+                f" Offset: {offset}"
+            )
+
+            for data, last_batch in step.process_applying_mappings(offset):
                 batch.data = [data]
                 batch.last_batch = last_batch
                 self._send_batch(batch)

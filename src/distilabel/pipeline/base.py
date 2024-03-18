@@ -33,8 +33,8 @@ if TYPE_CHECKING:
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 
-class CacheFilenames(TypedDict):
-    """Dictionary to store the filenames of a cached pipeline."""
+class CacheLocation(TypedDict):
+    """Dictionary to store the filenames and directories of a cached pipeline."""
 
     pipeline: Path
     batch_manager: Path
@@ -224,8 +224,9 @@ class BasePipeline(_Serializable):
         return pipe
 
     @property
-    def _cache_filenames(self) -> CacheFilenames:
-        """Dictionary containing the object and the filenames to load them back..
+    def _cache_location(self) -> CacheLocation:
+        """Dictionary containing the the object that will stored and the location,
+        whether it is a filename or a folder.
 
         Returns:
             Path: Filenames where the pipeline content will be serialized.
@@ -234,23 +235,20 @@ class BasePipeline(_Serializable):
         return {
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
-            "data": folder / "data.jsonl",
+            "data": folder / "data",
         }
 
     def _cache(self) -> None:
-        """Saves the `BasePipeline` using the `_cache_filename` (won't overwrite the file)."""
-        if not self._cache_filenames["pipeline"].exists():
-            self.save(
-                path=self._cache_filenames["pipeline"],
-                format=self._cache_filenames["pipeline"].suffix.replace(".", ""),
+        """Saves the `BasePipeline` using the `_cache_filename`."""
+        self.save(
+            path=self._cache_filenames["pipeline"],
+            format=self._cache_filenames["pipeline"].suffix.replace(".", ""),
+        )
+        if self._batch_manager is not None:
+            self._batch_manager.save(
+                self._cache_filenames["batch_manager"],
+                format=self._cache_filenames["batch_manager"].suffix.replace(".", ""),
             )
-            if self._batch_manager is not None:
-                self._batch_manager.save(
-                    self._cache_filenames["batch_manager"],
-                    format=self._cache_filenames["batch_manager"].suffix.replace(
-                        ".", ""
-                    ),
-                )
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -542,20 +540,49 @@ class _BatchManager(_Serializable):
     input batch size and the batches received from the predecessors.
 
     Attributes:
-        _steps: A dictionary with the step name as the key and a `_BatchManagerStep`
+        steps: A dictionary with the step name as the key and a `_BatchManagerStep`
             instance as the value.
+        seq_no_step: A dictionary with the step name as the key and the sequence number
+            of the step to keep track.
+        last_batch_received: A dictionary with the step name as the key and a flag to
+            indicate whether we received the last batch from the step.
     """
 
-    def __init__(self, steps: Dict[str, _BatchManagerStep]) -> None:
+    def __init__(
+        self,
+        steps: Dict[str, _BatchManagerStep],
+        seq_no_step: Dict[str, int],
+        last_batch_received: Dict[str, bool],
+    ) -> None:
         """Initialize the `_BatchManager` instance.
 
         Args:
             steps: A dictionary with the step name as the key and a dictionary with the
                 predecessor step name as the key and a list of batches as the value.
+            seq_no_step: A dictionary with the step name as the key and the sequence number
+                of the step to keep track.
+            last_batch_received: A dictionary with the step name as the key and a flag to
+                indicate whether we received the last batch from the step.
         """
         self._steps = steps
+        self._seq_no_step = seq_no_step
+        self._last_batch_received = last_batch_received
 
-    def add_batch(self, to_step: str, batch: _Batch) -> Iterable[_Batch]:
+    def can_generate(self) -> bool:
+        """Checks if there are still batches to be processed by the steps."""
+        return not all(self._last_batch_received.values())
+
+    def register_batch(self, batch: _Batch) -> None:
+        """Method to register a batch received from a step. It will keep track of the
+        sequence number and the last batch received from the step in the internal maps.
+
+        Args:
+            batch: _Batch from which we will register the sequence number and the last batch received.
+        """
+        self._seq_no_step[batch.step_name] = batch.seq_no + 1
+        self._last_batch_received[batch.step_name] = batch.last_batch
+
+    def add_batch(self, to_step: str, batch: _Batch, callback) -> Iterable[_Batch]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
         processed. Otherwise, it will return `None`.
@@ -577,6 +604,7 @@ class _BatchManager(_Serializable):
         step = self._steps[to_step]
         step.add_batch(batch)
         yield from step.get_batches()
+        callback()
 
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":
@@ -589,15 +617,19 @@ class _BatchManager(_Serializable):
             A `_BatchManager` instance.
         """
         steps = {}
+        seq_no_step = {}
+        last_batch_received = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
+            seq_no_step[step.name] = 0  # Will start at 0.
+            last_batch_received[step.name] = False
             if step.is_generator:
                 continue
             batch_manager_step = _BatchManagerStep.from_step(
                 step, dag.get_step_predecessors(step_name)
             )
             steps[step_name] = batch_manager_step
-        return cls(steps)
+        return cls(steps, seq_no_step, last_batch_received)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
@@ -609,7 +641,11 @@ class _BatchManager(_Serializable):
         Returns:
             Dict[str, Any]: Internal representation of the `_BatchManager`.
         """
-        return {name: step.dump() for name, step in self._steps.items()}
+        return {
+            "steps": {name: step.dump() for name, step in self._steps.items()},
+            "step_seq_no": self._seq_no_step,
+            "last_batch_received": self._last_batch_received,
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "_BatchManager":
@@ -626,5 +662,10 @@ class _BatchManager(_Serializable):
         # Also there is only one type of _BatchManagerStep, so we can call it directly instead of generically
         # via _get_class
         return cls(
-            {name: _BatchManagerStep.from_dict(step) for name, step in data.items()}
+            {
+                name: _BatchManagerStep.from_dict(step)
+                for name, step in data["steps"].items()
+            },
+            data["step_seq_no"],
+            data["last_batch_received"],
         )
