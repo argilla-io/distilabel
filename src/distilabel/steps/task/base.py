@@ -208,16 +208,13 @@ class DataTask(_Task, GeneratorStep):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
-        batch = []
-        # split based on batch_size
-        for i in range(0, len(self.data), self.batch_size):
-            batch.append(self.data[i : i + self.batch_size])
-            if len(batch) == self.batch_size:
-                yield (
-                    batch,
-                    True,
-                )
-                batch = []
+        while self.data:
+            batch = self.data[: self.batch_size]
+            self.data = self.data[self.batch_size :]
+            yield (
+                batch,
+                True if len(self.data) == 0 else False,
+            )
 
     @property
     def outputs(self) -> List[str]:
@@ -228,7 +225,7 @@ class DataTask(_Task, GeneratorStep):
             List of strings with the names of the columns that the step will produce as
             output.
         """
-        return list(self.data[0].keys())
+        return list(self.data[0].keys()) + ["model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
         pass

@@ -19,7 +19,7 @@ if sys.version_info < (3, 11):
 else:
     from enum import EnumType
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import numpy as np
 from pydantic import Field
@@ -62,7 +62,6 @@ class EvolQuality(Task):
     num_evolutions: int
     store_evolutions: bool = False
     mutation_templates: EnumType = Field(default=MutationTemplates)
-
     seed: RuntimeParameter[int] = Field(
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
@@ -101,9 +100,7 @@ class EvolQuality(Task):
 
         return _outputs
 
-    def format_output(
-        self, instructions: Union[str, List[str]], answer: Optional[str] = None
-    ) -> Dict[str, Any]:  # type: ignore
+    def format_output(self, responses: Union[str, List[str]]) -> Dict[str, Any]:  # type: ignore
         """The output for the task is a dict with: `evolved_response` or `evolved_responses`,
         depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
         and, finally, the `model_name`.
@@ -116,10 +113,11 @@ class EvolQuality(Task):
             if `store_evolutions=True` return {"evolved_responses": ..., "model_name": ...}.
         """
         _output = {}
+
         if not self.store_evolutions:
-            _output["evolved_response"] = instructions[-1]
+            _output["evolved_response"] = responses[-1]
         else:
-            _output["evolved_responses"] = instructions
+            _output["evolved_responses"] = responses
 
         _output["model_name"] = self.llm.model_name
         return _output
@@ -146,7 +144,7 @@ class EvolQuality(Task):
         return (
             self.mutation_templates[mutation]
             .value.replace("<PROMPT>", instruction)
-            .replace("<RESPONSE>", response)
+            .replace("<RESPONSE>", response[-1])
         )  # type: ignore
 
     def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:
@@ -173,25 +171,22 @@ class EvolQuality(Task):
             formatted_prompts = [
                 self.format_input(prompt) for prompt in formatted_prompts
             ]
-            generated_prompts = self.llm.generate(
+
+            generated_responses = self.llm.generate(
                 formatted_prompts,
                 **self.generation_kwargs,  # type: ignore
             )
 
-            evolved_responses = []
-            for generated_prompt in generated_prompts:
-                evolved_responses.append(
-                    generated_prompt.split("#Rewritten Response#:")[-1].strip()
-                )
-
             if self.store_evolutions:
                 responses = [
-                    response + [evolved_response]
-                    for response, evolved_response in zip(responses, evolved_responses)
+                    response + [evolved_response[0]]
+                    for response, evolved_response in zip(
+                        responses, generated_responses
+                    )
                 ]
             else:
                 responses = [
-                    [evolved_response] for evolved_response in evolved_responses
+                    [evolved_response[0]] for evolved_response in generated_responses
                 ]
 
             self._logger.info(
@@ -217,9 +212,8 @@ class EvolQuality(Task):
             # Remove the input instruction from the `evolved_responses` list
             responses = [response[1:] for response in responses]
 
-        if not self.generate_answers:
-            for input, response in zip(inputs, responses):
-                input.update(self.format_output(response))
-            yield inputs
+        for input, response in zip(inputs, responses):
+            input.update(self.format_output(response))
+        yield inputs
 
         self._logger.info(f"🎉 Finished evolving {len(responses)} instructions!")
