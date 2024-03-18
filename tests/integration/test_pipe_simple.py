@@ -47,14 +47,12 @@ class GenerateResponse(Step):
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         import time
 
-        time.sleep(0.8)
+        time.sleep(5)
 
         print("***** NOT CACHED ******", len(inputs))
         for input in inputs:
             input["response"] = "I don't know"
 
-        # NOTE: Caching here to save the evolution of the _BatchManager
-        self.pipeline._cache()
         yield inputs
 
     @property
