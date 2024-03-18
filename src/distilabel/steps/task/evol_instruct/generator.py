@@ -35,7 +35,6 @@ from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
 from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolComplexity,
     GenerationMutationTemplatesEvolInstruct,
 )
 
@@ -305,19 +304,3 @@ class EvolInstructGenerator(GeneratorTask):
                 ],
                 True,
             )
-
-
-class EvolComplexityGenerator(EvolInstructGenerator):
-    """
-    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
-    and
-    WizardLM: Empowering Large Language Models to Follow Complex Instructions
-    Reference:
-        - https://arxiv.org/abs/2312.15685
-        - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
-    """
-
-    mutation_templates: EnumType = Field(
-        default=GenerationMutationTemplatesEvolComplexity
-    )

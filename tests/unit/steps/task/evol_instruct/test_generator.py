@@ -177,7 +177,7 @@ class TestEvolInstructGenerator:
                 },
             ],
             "type_info": {
-                "module": "distilabel.steps.task.evol_instruct.generator",
+                "module": task_class.__module__,
                 "name": task_class.__name__,
             },
         }

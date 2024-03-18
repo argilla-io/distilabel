@@ -28,7 +28,6 @@ from typing_extensions import override
 from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_instruct.utils import (
-    MutationTemplatesEvolComplexity,
     MutationTemplatesEvolInstruct,
 )
 from distilabel.steps.task.typing import ChatType
@@ -266,31 +265,3 @@ class EvolInstruct(Task):
             for idx, (input, instruction) in enumerate(zip(inputs, instructions)):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs
-
-
-class EvolComplexity(EvolInstruct):
-    """
-    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
-    and
-    WizardLM: Empowering Large Language Models to Follow Complex Instructions
-
-    Reference:
-
-        - https://arxiv.org/abs/2312.15685
-        - https://arxiv.org/abs/2304.12244
-
-    Runtime parameters:
-
-    - `seed`: The number of evolutions to be run.
-
-    Columns:
-
-    - `input`: instruction
-    - `output`: there's multiple scenarios:
-        - `store_evolutions=False`, `generate_answers=False` -> (evolved_instruction, model_name)
-        - `store_evolutions=True`, `generate_answers=False` -> (evolved_instructions, model_name)
-        - `store_evolutions=False`, `generate_answers=True` -> (evolved_instruction, model_name, answer)
-        - `store_evolutions=True`, `generate_answers=True` -> (evolved_instructions, model_name, answer)
-    """
-
-    mutation_templates: EnumType = Field(default=MutationTemplatesEvolComplexity)

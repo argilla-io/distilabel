@@ -14,17 +14,23 @@
 
 import pytest
 from distilabel.steps.task.evol_instruct.base import (
-    EvolComplexity,
     EvolInstruct,
 )
-from distilabel.steps.task.evol_instruct.generator import (
+from distilabel.steps.task.evol_instruct.evol_complexity.base import (
+    EvolComplexity,
+)
+from distilabel.steps.task.evol_instruct.evol_complexity.generator import (
     EvolComplexityGenerator,
+)
+from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
+    GenerationMutationTemplatesEvolComplexity,
+    MutationTemplatesEvolComplexity,
+)
+from distilabel.steps.task.evol_instruct.generator import (
     EvolInstructGenerator,
 )
 from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolComplexity,
     GenerationMutationTemplatesEvolInstruct,
-    MutationTemplatesEvolComplexity,
     MutationTemplatesEvolInstruct,
 )
 

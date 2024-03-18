@@ -73,22 +73,3 @@ class GenerationMutationTemplatesEvolInstruct(StrEnum):
         "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
     )
     BREADTH = CREATE_INSTRUCTION
-
-
-class MutationTemplatesEvolComplexity(StrEnum):
-    CONSTRAINTS = MutationTemplatesEvolInstruct.CONSTRAINTS.value
-    DEEPENING = MutationTemplatesEvolInstruct.DEEPENING.value
-    CONCRETIZING = MutationTemplatesEvolInstruct.CONCRETIZING.value
-    INCREASED_REASONING_STEPS = (
-        MutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
-    )
-
-
-class GenerationMutationTemplatesEvolComplexity(StrEnum):
-    FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
-    CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.CONSTRAINTS.value
-    DEEPENING = GenerationMutationTemplatesEvolInstruct.DEEPENING.value
-    CONCRETIZING = GenerationMutationTemplatesEvolInstruct.CONCRETIZING.value
-    INCREASED_REASONING_STEPS = (
-        GenerationMutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
-    )

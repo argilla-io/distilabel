@@ -147,10 +147,10 @@ class TestEvolInstruct:
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
-                "_name": task.mutation_templates.__name__,
+                "_name": mutation_templates_class.__name__,
                 "_values": {
                     mutation.name: mutation.value  # type: ignore
-                    for mutation in task.mutation_templates
+                    for mutation in mutation_templates_class
                 },
             },
             "num_generations": task.num_generations,
@@ -175,7 +175,7 @@ class TestEvolInstruct:
                 },
             ],
             "type_info": {
-                "module": "distilabel.steps.task.evol_instruct.base",
+                "module": task_class.__module__,
                 "name": task_class.__name__,
             },
         }
