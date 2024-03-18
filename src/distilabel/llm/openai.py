@@ -13,10 +13,9 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
-from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import Annotated
+from pydantic import PrivateAttr, SecretStr
 
 from distilabel.llm.base import AsyncLLM
 
@@ -36,26 +35,11 @@ class OpenAILLM(AsyncLLM):
     """
 
     model: str = "gpt-3.5-turbo"
-    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
+    api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY", None)  # type: ignore
 
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
-    @field_validator("api_key")
-    @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
-        """Ensures that either the `api_key` or the environment variable `OPENAI_API_KEY` are set.
-
-        Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
-        from being leaked and/or included within the logs or the serialization of the object.
-        """
-        v = v or os.getenv("OPENAI_API_KEY", None)  # type: ignore
-        if v is None:
-            raise ValueError("You must provide an API key to use OpenAI.")
-        if not isinstance(v, SecretStr):
-            v = SecretStr(v)
-        return v
-
-    def load(self) -> None:
+    def load(self, api_key: Optional[str] = None) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
 
         try:
@@ -66,8 +50,12 @@ class OpenAILLM(AsyncLLM):
                 " `pip install openai`."
             ) from ie
 
+        self.api_key = self._handle_api_key_value(
+            self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
+        )
+
         self._aclient = AsyncOpenAI(
-            api_key=self.api_key.get_secret_value(),  # type: ignore
+            api_key=self.api_key.get_secret_value(),
             max_retries=6,
         )
 

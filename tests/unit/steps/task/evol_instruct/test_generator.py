@@ -17,8 +17,12 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
-from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
+from distilabel.steps.task.evol_instruct.generator import (
+    EvolInstructGenerator,
+)
+from distilabel.steps.task.evol_instruct.utils import (
+    GenerationMutationTemplatesEvolInstruct,
+)
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
@@ -47,7 +51,7 @@ class TestEvolInstructGenerator:
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_instructions == 2
-        assert task.mutation_templates == GenerationMutationTemplates
+        assert task.mutation_templates == GenerationMutationTemplatesEvolInstruct
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
@@ -136,12 +140,13 @@ class TestEvolInstructGenerator:
                     "name": "DummyLLM",
                 }
             },
+            "llm_kwargs": {},
             "num_instructions": task.num_instructions,
             "generate_answers": task.generate_answers,
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
-                "_name": "GenerationMutationTemplates",
+                "_name": task.mutation_templates.__name__,
                 "_values": {
                     mutation.name: mutation.value  # type: ignore
                     for mutation in task.mutation_templates
@@ -154,6 +159,11 @@ class TestEvolInstructGenerator:
             "max_length": task.max_length,
             "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "llm_kwargs",
+                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
+                    "optional": True,
+                },
                 {
                     "name": "num_generations",
                     "optional": True,
@@ -181,8 +191,8 @@ class TestEvolInstructGenerator:
                 },
             ],
             "type_info": {
-                "module": "distilabel.steps.task.evol_instruct.generator",
-                "name": "EvolInstructGenerator",
+                "module": EvolInstructGenerator.__module__,
+                "name": EvolInstructGenerator.__name__,
             },
         }
 

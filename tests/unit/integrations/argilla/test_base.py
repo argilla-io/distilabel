@@ -18,10 +18,10 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.integrations.argilla.base import Argilla
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.base import StepInput
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -33,7 +33,7 @@ class CustomArgilla(Argilla):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def process(self, inputs: "StepInput") -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":
         yield [{}]
 
 

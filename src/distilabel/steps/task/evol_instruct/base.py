@@ -25,13 +25,14 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
-from distilabel.steps.base import RuntimeParameter
+from distilabel.steps.base import RuntimeParameter, StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
+from distilabel.steps.task.evol_instruct.utils import (
+    MutationTemplatesEvolInstruct,
+)
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -60,7 +61,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    mutation_templates: EnumType = Field(default=MutationTemplatesEvolInstruct)
 
     seed: RuntimeParameter[int] = Field(
         default=42,
@@ -95,9 +96,11 @@ class EvolInstruct(Task):
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
         _outputs = [
-            "evolved_instruction"
-            if not self.store_evolutions
-            else "evolved_instructions",
+            (
+                "evolved_instruction"
+                if not self.store_evolutions
+                else "evolved_instructions"
+            ),
             "model_name",
         ]
         if self.generate_answers:
@@ -224,13 +227,13 @@ class EvolInstruct(Task):
         )
 
     @override
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
+        Yields:
             A list of Python dictionaries with the outputs of the task.
         """
 

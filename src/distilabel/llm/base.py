@@ -17,7 +17,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import BaseModel, ConfigDict, PrivateAttr
+from pydantic import BaseModel, ConfigDict, PrivateAttr, SecretStr
 
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
@@ -67,6 +67,56 @@ class LLM(BaseModel, _Serializable, ABC):
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )
+
+    def _handle_api_key_value(
+        self,
+        self_value: Union[str, SecretStr, None],
+        load_value: Union[str, None],
+        env_var: str,
+    ) -> SecretStr:
+        """Method to handle the API key for the LLM, either from the `self_value` or the
+        `load_value` i.e. the value provided within the `__init__` method of the `LLM` if
+        applicable, and the value provided via the `load` method as a `RuntimeParameter` propagated
+        via the `llm_kwargs`. Additionally, the `env_var` is also provided to guide the user on
+        what's the environment variable name that needs to be used to assign the API Key value.
+
+        Args:
+            self_value: the value provided within the `__init__` method of the `LLM`.
+            load_value: the value provided via the `load` method as a `RuntimeParameter`.
+            env_var: the environment variable name to be used to assign the API Key value.
+
+        Raises:
+            ValueError: if the `api_key` is not present in the `LLM`.
+            ValueError: if the `api_key` is and is not provided either via the `api_key` arg or
+                runtime parameter. At most one of them should be provided.
+
+        Returns:
+            The API key value as a `SecretStr`.
+        """
+
+        if not hasattr(self, "api_key"):
+            raise ValueError(
+                f"You are trying to assign the `api_key` to the current `LLM={self.__class__.__name__}`,"
+                " but the `api_key` attribute is not present."
+            )
+
+        if self_value is None and load_value is None:
+            raise ValueError(
+                "You must provide an API key either via the `api_key` arg or runtime"
+                f" parameter, or either via the `{env_var}` environment variable."
+            )
+
+        if self_value is not None and load_value is not None:
+            raise ValueError(
+                "You must provide an API key either via the `api_key` arg or runtime"
+                f" parameter, or either via the `{env_var}` environment variable,"
+                " but not both."
+            )
+
+        api_key = self_value if self_value is not None else load_value
+        if isinstance(api_key, str):
+            api_key = SecretStr(api_key)  # type: ignore
+        return api_key  # type: ignore
 
 
 class AsyncLLM(LLM):

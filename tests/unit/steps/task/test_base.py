@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import pytest
 from distilabel.pipeline.local import Pipeline
@@ -30,13 +30,13 @@ class DummyTask(Task):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def format_input(self, input: dict) -> "ChatType":
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [
             {"role": "system", "content": ""},
             {"role": "user", "content": input["instruction"]},
         ]
 
-    def format_output(self, output: str) -> dict:
+    def format_output(self, output: Union[str, None], input: Dict[str, Any]) -> dict:
         return {"output": output}
 
 
@@ -111,7 +111,8 @@ class TestTask:
             group_generations=group_generations,
             num_generations=3,
         )
-        assert next(task.process([{"instruction": "test"}])) == expected
+        result = next(task.process([{"instruction": "test"}]))
+        assert result == expected
 
     def test_serialization(self) -> None:
         pipeline = Pipeline()
@@ -128,10 +129,16 @@ class TestTask:
                     "name": "DummyLLM",
                 }
             },
+            "llm_kwargs": {},
             "generation_kwargs": {},
             "group_generations": False,
             "num_generations": 1,
             "runtime_parameters_info": [
+                {
+                    "name": "llm_kwargs",
+                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
+                    "optional": True,
+                },
                 {
                     "name": "num_generations",
                     "description": "The number of generations to be produced per input.",
