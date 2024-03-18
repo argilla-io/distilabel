@@ -150,9 +150,9 @@ class EvolInstructGenerator(GeneratorTask):
             _outputs.append("answer")
         return _outputs
 
-    def format_output(
+    def format_output(  # type: ignore
         self, instruction: str, answer: Optional[str] = None
-    ) -> Dict[str, Any]:  # type: ignore
+    ) -> Dict[str, Any]:
         """The output for the task is a dict with: `instruction`; `answer` if `generate_answers=True`;
         and, finally, the `model_name`.
 

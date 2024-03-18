@@ -22,13 +22,13 @@ from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, _Step
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 
 class _Task(_Step, ABC):
-    """_Task is an abstract class that implements the `Step` interface and adds the
+    """_Task is an abstract class that implements the `_Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
 
@@ -81,12 +81,17 @@ class _Task(_Step, ABC):
         pass
 
     @abstractmethod
-    def format_output(self, output: str) -> Dict[str, Any]:
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Asbtract method to format the outputs of the task. It needs to receive an output
-        as a string, and generates a Python dictionary with the outputs of the task."""
+        as a string, and generates a Python dictionary with the outputs of the task. In
+        addition the `input` used to generate the output is also received just in case it's
+        needed to be able to parse the output correctly.
+        """
         pass
 
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -104,7 +109,7 @@ class _Task(_Step, ABC):
 
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs)
+            formatted_outputs = self._format_outputs(input_outputs, inputs)
 
             if self.group_generations:
                 combined = combine_dicts(*formatted_outputs)
@@ -124,23 +129,30 @@ class _Task(_Step, ABC):
     def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
         return [self.format_input(input) for input in inputs]
 
-    def _format_outputs(self, outputs: List[Union[str, None]]) -> List[Dict[str, Any]]:
+    def _format_outputs(
+        self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
         set to `None` as well.
 
         Args:
             outputs: The outputs of the LLM.
+            inputs: The inputs used to generate the outputs.
 
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
-        return [
-            self.format_output(output)
-            if output is not None
-            else self._outputs_empty_dict()
-            for output in outputs
-        ]
+        formatted_outputs = []
+        for output, input in zip(outputs, inputs * len(outputs)):
+            try:
+                formatted_outputs.append(self.format_output(output, input))
+            except Exception as e:
+                self._logger.warning(  # type: ignore
+                    f"Task '{self.name}' failed to format output: {e}. Using empty dict."  # type: ignore
+                )
+                formatted_outputs.append(self._outputs_empty_dict())
+        return formatted_outputs
 
     def _outputs_empty_dict(self) -> Dict[str, None]:
         """Returns a dictionary with the outputs of the task set to `None`."""
