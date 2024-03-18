@@ -15,6 +15,14 @@
 import importlib
 import json
 import os
+import sys
+from enum import Enum
+
+if sys.version_info < (3, 11):
+    from enum import EnumMeta as EnumType
+else:
+    from enum import EnumType
+
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Type, TypeVar, Union, get_args
 
@@ -58,6 +66,11 @@ def load_from_dict(class_: Dict[str, Any]) -> Any:
         type_info = load_from_dict(type_info)
 
     cls = _get_class(type_info["module"], type_info["name"])
+
+    for k, v in class_.items():
+        if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
+            class_[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
+
     instance = cls(**class_)
     return instance
 
@@ -135,10 +148,22 @@ class _Serializable:
         # Any parameter named api_key will be excluded from the dump (those are supposed to be SecretStr anyway,
         # and will remove them afterwards)
         dump = obj.model_dump(exclude="api_key", **kwargs)
+
+        # Check if any attribute in value within the `dump` is an `EnumType`,
+        # as it needs a specific serialization.
+        for k, v in dump.items():
+            if isinstance(v, EnumType):
+                dump[k] = {
+                    "_type": "enum",
+                    "_enum_type": type(next(iter(v)).value).__name__,  # type: ignore
+                    "_name": getattr(obj, k).__name__,
+                    "_values": {x.name: x.value for x in v},  # type: ignore
+                }
         # Grab the fields that need extra care (LLMs from inside tasks)
         to_update = _extra_serializable_fields(obj)
         # Update those in the dumped dict
         [dump.update(field) for field in to_update]
+
         return dump
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
@@ -151,6 +176,7 @@ class _Serializable:
             A dictionary containing the serializable content of the class.
         """
         _dict = self._model_dump(self, **kwargs)
+
         # Remove private variables from the dump
         _dict = {k: v for k, v in _dict.items() if not k.startswith("_")}
         _dict[TYPE_INFO_KEY] = {

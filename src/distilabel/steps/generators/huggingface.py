@@ -62,7 +62,7 @@ class LoadHubDataset(GeneratorStep):
     entire dataset into memory at once. Instead, it will load the dataset in chunks and yield
     the transformed data as it is loaded from the Hugging Face Hub.
 
-    This step needs the following runtime parameters:
+    Runtime parameters:
 
     - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
     - `split`: The split of the dataset to load.
@@ -72,7 +72,7 @@ class LoadHubDataset(GeneratorStep):
     Columns:
 
     - `input`: None
-    - `output`: dynamic, based on the dataset being loaded.
+    - `output`: dynamic, based on the dataset being loaded
     """
 
     repo_id: RuntimeParameter[str] = Field(
@@ -80,7 +80,8 @@ class LoadHubDataset(GeneratorStep):
         description="The Hugging Face Hub repository ID of the dataset to load.",
     )
     split: RuntimeParameter[str] = Field(
-        default="train", description="The split of the dataset to load. Defaults to 'train'."
+        default="train",
+        description="The split of the dataset to load. Defaults to 'train'.",
     )
     config: Optional[RuntimeParameter[str]] = Field(
         default=None,
@@ -99,8 +100,12 @@ class LoadHubDataset(GeneratorStep):
             streaming=True,
         )
 
-    def process(self) -> "GeneratorStepOutput":
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
+
+        Args:
+            offset: The offset to start yielding the data from. Will be used during the caching
+            process to help skipping already processed data.
 
         Yield:
             A tuple containing a batch of rows and a boolean indicating if the batch is
@@ -108,7 +113,11 @@ class LoadHubDataset(GeneratorStep):
         """
         num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
-        for batch in self._dataset.iter(batch_size=self.batch_size):  # type: ignore
+        for batch_num, batch in enumerate(
+            self._dataset.iter(batch_size=self.batch_size)
+        ):
+            if batch_num * self.batch_size < offset:
+                continue
             transformed_batch = self._transform_batch(batch)
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size

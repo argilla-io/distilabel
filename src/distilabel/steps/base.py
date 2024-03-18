@@ -15,6 +15,7 @@
 import inspect
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
@@ -22,7 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
-from distilabel.pipeline.logging import get_logger
+from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 from distilabel.utils.typing import is_parameter_annotated_with
 
@@ -106,7 +107,7 @@ class _Step(BaseModel, _Serializable, ABC):
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
-    _logger: logging.Logger = PrivateAttr(get_logger("step"))
+    _logger: logging.Logger = PrivateAttr(get_logger("steps"))
 
     def model_post_init(self, _: Any) -> None:
         if self.pipeline is None:
@@ -342,6 +343,12 @@ class _Step(BaseModel, _Serializable, ABC):
             # Load the LLM and update the _data inplace
             nested_cls = nested_cls(**llm)
             _data.update({"llm": nested_cls})
+
+        # Enums need a specific restoring process
+        for k, v in _data.items():
+            if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
+                _data[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
+
         # Every step needs the pipeline, and the remaining arguments are general
         step = cls(**_data)
 
@@ -450,15 +457,22 @@ class GeneratorStep(_Step, ABC):
     batch_size: int = 50
 
     @abstractmethod
-    def process(self) -> "GeneratorStepOutput":
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Method that defines the generation logic of the step. It should yield the
-        output rows and a boolean indicating if it's the last batch or not."""
+        output rows and a boolean indicating if it's the last batch or not.
+
+        Args:
+            offset: The offset to start the generation from. Defaults to 0.
+        """
         pass
 
-    def process_applying_mappings(self) -> "GeneratorStepOutput":
+    def process_applying_mappings(self, offset: int = 0) -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
+
+        Args:
+            offset (int): The offset to start the generation from. Defaults to 0.
 
         Yields:
             The output rows and a boolean indicating if it's the last batch or not.
@@ -468,9 +482,9 @@ class GeneratorStep(_Step, ABC):
         # the runtime parameters as `kwargs`, so they can be used within the processing
         # function
         generator = (
-            self.process()
+            self.process(offset)
             if not self._built_from_decorator
-            else self.process(**self._runtime_parameters)
+            else self.process(offset, **self._runtime_parameters)
         )
 
         for output_rows, last_batch in generator:
