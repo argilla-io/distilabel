@@ -373,7 +373,8 @@ class _WriteBuffer:
     def _get_writer(
         self, step_name: str, batch_data: List[List[Dict[str, Any]]]
     ) -> pq.ParquetWriter:
-        """Generates a
+        """Creates (or grabs if already generated) the writer for the step, and uses the sample
+        batch_data to infer the schema for the parquet file.
 
         Args:
             step_name (str): Name of the step for which we want a writer. Will reuse one if already
