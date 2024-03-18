@@ -138,9 +138,6 @@ class EvolInstructGenerator(GeneratorTask):
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
 
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
-        pass
-
     @property
     def outputs(self) -> List[str]:
         """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
