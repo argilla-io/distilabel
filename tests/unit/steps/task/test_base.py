@@ -128,10 +128,16 @@ class TestTask:
                     "name": "DummyLLM",
                 }
             },
+            "llm_kwargs": {},
             "generation_kwargs": {},
             "group_generations": False,
             "num_generations": 1,
             "runtime_parameters_info": [
+                {
+                    "name": "llm_kwargs",
+                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
+                    "optional": True,
+                },
                 {
                     "name": "num_generations",
                     "description": "The number of generations to be produced per input.",
