@@ -32,7 +32,7 @@ import networkx as nx
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import _Step
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 class DAG(_Serializable):
@@ -257,6 +257,11 @@ class DAG(_Serializable):
                 else:
                     self._step_inputs_are_available(step)
 
+                # Validate the if the step is a `GeneratorStep`, the `process` signature does not
+                # expect the `inputs` arg and it does expect the `offset` arg
+                if step.is_generator:
+                    self._validate_generator_step_process_signature(step)  # type: ignore
+
     def _step_inputs_are_available(self, step: "_Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
         executed in the pipeline i.e. the step will receive list of dictionaries containing
@@ -360,6 +365,30 @@ class DAG(_Serializable):
                     f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
+
+    def _validate_generator_step_process_signature(self, step: "GeneratorStep") -> None:
+        """Validates that the `process` method of the `GeneratorStep` does not expect the
+        `inputs` arg within the method signature, and also the `offset` arg should always
+        be present.
+
+        Args:
+            step: The step to validate.
+
+        Raises:
+            ValueError: If the `process` method of the `GeneratorStep` expects the `inputs` arg.
+            ValueError: If the `process` method of the `GeneratorStep` does not expect the `offset` arg.
+        """
+        process_signature = inspect.signature(step.process)
+        if "inputs" in process_signature.parameters:
+            raise ValueError(
+                f"GeneratorStep '{step.name}' should not expect the `inputs` arg within"
+                " the `process` method signature."
+            )
+        if "offset" not in process_signature.parameters:
+            raise ValueError(
+                f"GeneratorStep '{step.name}' should expect the `offset` arg within"
+                " the `process` method signature."
+            )
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the DAG to a dict.
