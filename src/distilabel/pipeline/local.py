@@ -83,7 +83,6 @@ class Pipeline(BasePipeline):
             if not self._all_steps_loaded():
                 return
 
-            # TODO: this class must start from whatever was obtained from the root step
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
@@ -94,7 +93,9 @@ class Pipeline(BasePipeline):
                 if batch is None:
                     break
 
-                self._batch_manager.register_batch(batch)
+                self._batch_manager.register_batch(
+                    batch, callback=lambda: self._cache()
+                )
 
                 for step_name in self.dag.get_step_successors(batch.step_name):
                     for new_batch in self._batch_manager.add_batch(
@@ -169,7 +170,6 @@ class Pipeline(BasePipeline):
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
-        # TODO: This block has to be reviewed, not properly cached
         for step in self._batch_manager._steps.values():
             for batch in step.get_batches():
                 self._send_batch_to_step(batch)
@@ -271,19 +271,13 @@ class Pipeline(BasePipeline):
         have any effect), and if the pool is already started, will close it before exiting
         the program.
         """
-        try:
-            self._stop()
-        except Exception:
-            # Errors like the output_queue not created yet
-            pass
-
         pool: Optional[mp.Pool] = None
 
         def signal_handler(signumber: int, frame: Any) -> None:
             if pool is not None:
                 pool.close()
                 pool.join()
-            self._logger.error("🚨 CTRL+C signal called, stopping the Pipeline")
+            self._logger.error("🚨 CTRL+C signal, stopping the pipeline...")
             exit(1)
 
         signal.signal(signal.SIGINT, signal_handler)
