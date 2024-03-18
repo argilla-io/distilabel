@@ -76,7 +76,8 @@ class QualityScorer(Task):
 
     @property
     def outputs(self):
-        """The output for the task is the `generation` and the `model_name`."""
+        """The output for the task is a list of `quality_scores` containing the quality score for each
+        response in `responses`."""
         return ["scores"]
 
     def format_output(
