@@ -65,7 +65,7 @@ class QualityScorer(Task):
 
     @property
     def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
+        """The input for the task are `instruction` and `responses`."""
         return ["instruction", "responses"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
