@@ -27,13 +27,16 @@ class TestQualityScorer:
         task.load()
 
         result = task.format_input(
-            input={"instructions": ["instruction 1", "instruction 2", "instruction 3"]}
+            input={
+                "instruction": "instruction 1",
+                "responses": ["response 1", "response 2", "response 3"],
+            }
         )
 
         assert result == [
             {
                 "role": "user",
-                "content": """Ranking the following instructions according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-3.\nYou can give a score of 4 if the question is too complex for you to answer it. You should respond with the format:\n[1] Score: 1\n[2] Score: 2\n...\n\n[1] instruction 1\n[2] instruction 2\n[3] instruction 3""",
+                "content": """Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-3.\nScore each response from 1 to 3, with 4 reserved for responses that are already very well written and cannot be improved further. You should respond with the format:\n[1] Score: 1\n[2] Score: 2\n...\n#Question#: instruction 1\n#Response List#:\n\n[1] response 1\n[2] response 2\n[3] response 3""",
             }
         ]
 
@@ -42,15 +45,15 @@ class TestQualityScorer:
         [
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
-                {"quality_score": [1.0, 2.0, 3.0]},
+                {"quality_scores": [1.0, 2.0, 3.0]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
-                {"quality_score": [1.0, 2.0, 3.0]},
+                {"quality_scores": [1.0, 2.0, 3.0]},
             ),
             (
                 None,
-                {"quality_score": [None, None, None]},
+                {"quality_scores": [None, None, None]},
             ),
         ],
     )
@@ -62,7 +65,10 @@ class TestQualityScorer:
 
         result = task.format_output(
             output=output,
-            input={"instructions": ["instruction 1", "instruction 2", "instruction 3"]},
+            input={
+                "instruction": "instruction 1",
+                "responses": ["response 1", "response 2", "response 3"],
+            },
         )
 
         print(result)
