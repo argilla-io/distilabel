@@ -97,8 +97,12 @@ class LoadHubDataset(GeneratorStep):
             streaming=True,
         )
 
-    def process(self) -> "GeneratorStepOutput":
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
+
+        Args:
+            offset: The offset to start yielding the data from. Will be used during the caching
+            process to help skipping already processed data.
 
         Yield:
             A tuple containing a batch of rows and a boolean indicating if the batch is
@@ -107,7 +111,9 @@ class LoadHubDataset(GeneratorStep):
         dataset = self._values["dataset"]
         num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
-        for batch in dataset.iter(batch_size=self.batch_size):
+        for batch_num, batch in enumerate(dataset.iter(batch_size=self.batch_size)):
+            if batch_num * self.batch_size < offset:
+                continue
             transformed_batch = self._transform_batch(batch)
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size

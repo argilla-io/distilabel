@@ -451,15 +451,22 @@ class GeneratorStep(_Step, ABC):
     batch_size: int = 50
 
     @abstractmethod
-    def process(self) -> "GeneratorStepOutput":
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Method that defines the generation logic of the step. It should yield the
-        output rows and a boolean indicating if it's the last batch or not."""
+        output rows and a boolean indicating if it's the last batch or not.
+
+        Args:
+            offset: The offset to start the generation from. Defaults to 0.
+        """
         pass
 
-    def process_applying_mappings(self) -> "GeneratorStepOutput":
+    def process_applying_mappings(self, offset: int = 0) -> "GeneratorStepOutput":
         """Runs the `process` method of the step applying the `outputs_mappings` to the
         output rows. This is the function that should be used to run the generation logic
         of the step.
+
+        Args:
+            offset (int): The offset to start the generation from. Defaults to 0.
 
         Yields:
             The output rows and a boolean indicating if it's the last batch or not.
@@ -469,9 +476,9 @@ class GeneratorStep(_Step, ABC):
         # the runtime parameters as `kwargs`, so they can be used within the processing
         # function
         generator = (
-            self.process()
+            self.process(offset)
             if not self._built_from_decorator
-            else self.process(**self._runtime_parameters)
+            else self.process(offset, **self._runtime_parameters)
         )
 
         for output_rows, last_batch in generator:
