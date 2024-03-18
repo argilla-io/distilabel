@@ -34,6 +34,10 @@ class _Task(Step, ABC):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -149,6 +153,10 @@ class Task(_Task):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -168,6 +176,10 @@ class GeneratorTask(GeneratorStep, _Task):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
