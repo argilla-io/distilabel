@@ -70,8 +70,7 @@ class QualityScorer(Task):
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
-        is the first interaction from the user within a conversation. And the
-        `system_prompt` is added as the first message if it exists."""
+        is the first interaction from the user within a conversation."""
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
 
     @property
