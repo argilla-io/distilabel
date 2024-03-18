@@ -47,8 +47,8 @@ class QualityScorer(Task):
     are scored in terms of quality, obtaining a quality score for each instruction.
 
     Input columns:
-        instruction (`List[str]`): The instruction to be scored.
-        responses (`List[str]`): The responses to that instruction to be scored. Each response forms a pair with the instruction.
+        instruction (`str`): The instruction that was used to generate the `responses`.
+        responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
     Output columns:
         quality_score (`List[float]`): The quality score for each instruction.
