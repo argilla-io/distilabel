@@ -231,11 +231,11 @@ class EvolInstructGenerator(GeneratorTask):
         )
 
     @override
-    def process(self) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
+            offset: The offset to start the generation from. Defaults to 0.
 
         Yields:
             A list of Python dictionaries with the outputs of the task, and a boolean
