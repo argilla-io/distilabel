@@ -41,7 +41,7 @@ class TestTransformersLLM:
                 [
                     {
                         "role": "user",
-                        "content": "You're GPT2, you're old now but you still serves a purpose which is being used in unit tests.",
+                        "content": "You're GPT2, you're old now but you still serve a purpose which is being used in unit tests.",
                     }
                 ],
             ],

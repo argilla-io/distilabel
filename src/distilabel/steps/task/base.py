@@ -18,22 +18,27 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
+from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, _Step
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput
+    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 
-class _Task(ABC):
-    """_Task is an abstract class that implements the `Step` interface and adds the
+class _Task(_Step, ABC):
+    """_Task is an abstract class that implements the `_Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -45,6 +50,13 @@ class _Task(ABC):
     """
 
     llm: LLM
+    llm_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to the `LLM` constructor. Note that these"
+        " kwargs will be specific to each LLM, and while some as `model` may be present"
+        " on each `LLM`, some others may not, so read the `LLM` constructor signature in"
+        " advance to see which kwargs are available.",
+    )
 
     group_generations: bool = False
     num_generations: RuntimeParameter[int] = Field(
@@ -61,7 +73,7 @@ class _Task(ABC):
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-        self.llm.load()  # type: ignore
+        self.llm.load(**self.llm_kwargs)  # type: ignore
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
@@ -80,7 +92,7 @@ class _Task(ABC):
         """
         pass
 
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -148,12 +160,16 @@ class _Task(ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(_Task, Step):  # type: ignore
+class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -167,12 +183,16 @@ class Task(_Task, Step):  # type: ignore
     pass
 
 
-class GeneratorTask(_Task, GeneratorStep):  # type: ignore
+class GeneratorTask(_Task, GeneratorStep):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
