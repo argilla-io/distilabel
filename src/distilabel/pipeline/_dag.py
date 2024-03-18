@@ -376,12 +376,12 @@ class DAG(_Serializable):
         """
         if step.get_process_step_input() is not None:
             raise ValueError(
-                f"GeneratorStep '{step.name}' should not expect an argument with type hint"
+                f"Generator step '{step.name}' should not have a parameter with type hint"
                 " `StepInput` within the `process` method signature."
             )
         if not any("offset" == parameter.name for parameter in step.process_parameters):
             raise ValueError(
-                f"GeneratorStep '{step.name}' should expect the `offset` arg within"
+                f"Generator step '{step.name}' should have an `offset` parameter within"
                 " the `process` method signature."
             )
 
