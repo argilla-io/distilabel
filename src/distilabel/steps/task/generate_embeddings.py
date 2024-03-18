@@ -15,9 +15,10 @@
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import Step, StepInput
+from distilabel.steps.base import Step
 
 if TYPE_CHECKING:
+    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -38,11 +39,6 @@ class GenerateEmbeddings(Step):
         - https://arxiv.org/abs/2312.15685
     """
 
-    llm: LLM
-
-    def load(self) -> None:
-        self.llm.load()
-
     @property
     def inputs(self) -> List[str]:
         return ["text"]
@@ -60,7 +56,7 @@ class GenerateEmbeddings(Step):
 
         return [{"role": "user", "content": text}]
 
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         formatted_inputs = [self.format_input(input) for input in inputs]
         last_hidden_states = self.llm.get_last_hidden_states(formatted_inputs)
         for input, hidden_state in zip(inputs, last_hidden_states):
