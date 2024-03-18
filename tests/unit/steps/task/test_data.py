@@ -15,7 +15,7 @@
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.base import DataTask
+from distilabel.steps.task.data import DataTask
 from pydantic import ValidationError
 
 
