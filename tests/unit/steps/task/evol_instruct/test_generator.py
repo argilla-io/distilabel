@@ -40,9 +40,7 @@ class TestEvolInstructGenerator:
         task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
-        )
+        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_instructions == 2
@@ -50,10 +48,10 @@ class TestEvolInstructGenerator:
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self) -> None:
+    def test_within_pipeline_context(self, task_class_generator) -> None:
         with Pipeline() as pipeline:
             llm = DummyLLM()
-            task = task_class(
+            task = task_class_generator(
                 name="task", llm=llm, num_instructions=2, pipeline=pipeline
             )
             assert task.name == "task"
@@ -70,7 +68,7 @@ class TestEvolInstructGenerator:
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             task_class_generator(name="task", llm=DummyLLM(), num_instructions=2)
 
-    def test_process(self) -> None:
+    def test_process(self, task_class_generator) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
         task = task_class_generator(
@@ -122,9 +120,7 @@ class TestEvolInstructGenerator:
         task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
-        )
+        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,

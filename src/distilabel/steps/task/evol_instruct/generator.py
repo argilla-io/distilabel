@@ -68,7 +68,9 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=GenerationMutationTemplatesEvolInstruct)
+    mutation_templates: EnumType = Field(
+        default=GenerationMutationTemplatesEvolInstruct
+    )
 
     min_length: RuntimeParameter[int] = Field(
         default=512,
@@ -85,7 +87,6 @@ class EvolInstructGenerator(GeneratorTask):
     )
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
-
 
     def _generate_seed_texts(self) -> List[str]:
         """Generates a list of seed texts to be used as part of the starting prompts for the task.
@@ -140,7 +141,6 @@ class EvolInstructGenerator(GeneratorTask):
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
-
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
         pass

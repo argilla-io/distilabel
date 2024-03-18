@@ -42,7 +42,7 @@ The #Created Prompt# must be reasonable and must be understood and responded by 
 """.lstrip()
 
 
-class MutationTemplates(StrEnum):
+class MutationTemplatesEvolInstruct(StrEnum):
     CONSTRAINTS = REWRITE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
     )
@@ -58,7 +58,7 @@ class MutationTemplates(StrEnum):
     BREADTH = CREATE_INSTRUCTION
 
 
-class GenerationMutationTemplates(StrEnum):
+class GenerationMutationTemplatesEvolInstruct(StrEnum):
     FRESH_START = "Write one question or request containing one or more of the following words: <PROMPT>"
     CONSTRAINTS = REWRITE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
@@ -74,11 +74,14 @@ class GenerationMutationTemplates(StrEnum):
     )
     BREADTH = CREATE_INSTRUCTION
 
+
 class MutationTemplatesEvolComplexity(StrEnum):
     CONSTRAINTS = MutationTemplatesEvolInstruct.CONSTRAINTS.value
     DEEPENING = MutationTemplatesEvolInstruct.DEEPENING.value
     CONCRETIZING = MutationTemplatesEvolInstruct.CONCRETIZING.value
-    INCREASED_REASONING_STEPS = MutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
+    INCREASED_REASONING_STEPS = (
+        MutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
+    )
 
 
 class GenerationMutationTemplatesEvolComplexity(StrEnum):

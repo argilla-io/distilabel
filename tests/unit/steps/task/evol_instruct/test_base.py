@@ -17,8 +17,6 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_instruct.base import EvolInstruct
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
@@ -61,7 +59,6 @@ class TestEvolInstruct:
             assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
-
     def test_with_errors(self, task_class_base) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
@@ -74,7 +71,9 @@ class TestEvolInstruct:
     def test_process(self, task_class_base) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class_base(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = task_class_base(
+            name="task", llm=llm, num_evolutions=2, pipeline=pipeline
+        )
         assert list(task.process([{"instruction": "test"}])) == [
             [
                 {
@@ -105,7 +104,6 @@ class TestEvolInstruct:
             ]
         ]
 
-
     def test_process_generate_answers(self, task_class_base) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
@@ -126,7 +124,6 @@ class TestEvolInstruct:
                 }
             ]
         ]
-
 
     def test_serialization(self, task_params_base) -> None:
         task_class, mutation_templates_class = task_params_base

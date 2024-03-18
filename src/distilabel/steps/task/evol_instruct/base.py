@@ -14,7 +14,6 @@
 
 import sys
 
-
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
@@ -26,10 +25,12 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
-
 from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import MutationTemplatesEvolInstruct, MutationTemplatesEvolComplexity
+from distilabel.steps.task.evol_instruct.utils import (
+    MutationTemplatesEvolComplexity,
+    MutationTemplatesEvolInstruct,
+)
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -96,9 +97,11 @@ class EvolInstruct(Task):
         # this could be handled always and the value could be included within the DAG validation when
         # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
         _outputs = [
-            "evolved_instruction"
-            if not self.store_evolutions
-            else "evolved_instructions",
+            (
+                "evolved_instruction"
+                if not self.store_evolutions
+                else "evolved_instructions"
+            ),
             "model_name",
         ]
         if self.generate_answers:
@@ -262,7 +265,8 @@ class EvolInstruct(Task):
             for idx, (input, instruction) in enumerate(zip(inputs, instructions)):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs
-            
+
+
 class EvolComplexity(EvolInstruct):
     """
     What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
