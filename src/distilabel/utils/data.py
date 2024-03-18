@@ -19,7 +19,7 @@ from pyarrow.lib import ArrowInvalid
 
 from distilabel.utils.logging import get_logger
 
-logger = get_logger("data")
+logger = get_logger("utils.data")
 
 
 def _create_dataset(data_dir: Path) -> DatasetDict:
