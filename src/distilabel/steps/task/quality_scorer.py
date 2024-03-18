@@ -88,7 +88,7 @@ class QualityScorer(Task):
             output: the raw output of the LLM.
 
         Returns:
-            Dict[str, List[str]]: A dict with containing the ratings of each instruction-response.
+            A dict with containing the scores for each instruction-response pair.
         """
 
         if output is None:
