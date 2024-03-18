@@ -149,7 +149,7 @@ class EvolQuality(Task):
             .replace("<RESPONSE>", response)
         )  # type: ignore
 
-    def _evolve_instructions(self, inputs: "StepInput") -> List[List[str]]:
+    def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:
         """Evolves the instructions provided as part of the inputs of the task.
 
         Args:
@@ -211,7 +211,7 @@ class EvolQuality(Task):
             A list of Python dictionaries with the outputs of the task.
         """
 
-        responses = self._evolve_instructions(inputs)
+        responses = self._evolve_reponses(inputs)
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_responses` list
