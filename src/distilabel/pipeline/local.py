@@ -19,9 +19,9 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
+from distilabel.llm.base import CUDALLM
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.steps.base import Step
-from distilabel.llm.base import CUDALLM
 from distilabel.steps.task.base import _Task
 
 if TYPE_CHECKING:
@@ -147,6 +147,7 @@ class Pipeline(BasePipeline):
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
         self._logger.info("⏳ Waiting for all the steps to load...")
+        previous_message = None
         while True:
             with self.shared_info[_STEPS_LOADED_LOCK]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
@@ -159,9 +160,12 @@ class Pipeline(BasePipeline):
                     self._logger.error("❌ Failed to load all the steps")
                     return False
 
-                self._logger.info(f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}")
+                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
+                if message != previous_message:
+                    self._logger.info(message)
+                    previous_message = message
 
-            time.sleep(5)
+            time.sleep(2.5)
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
@@ -226,7 +230,7 @@ class Pipeline(BasePipeline):
                 that raised the error.
         """
         if e.is_load_error:
-            self._logger.error(f"Failed to load step '{e.step.name}': {e.message}")
+            self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
             self._cache()
             self._stop()
             return
@@ -255,11 +259,10 @@ class Pipeline(BasePipeline):
         notify the pipeline to stop, and set the `_STEPS_LOADED_KEY` to `_STEPS_LOADED_ERROR_CODE`
         for the pipeline to stop waiting for the steps to load.
         """
-        self._logger.info("Stopping pipeline...")
+        self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(None)
         with self.shared_info[_STEPS_LOADED_LOCK]:
             self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
-
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -455,7 +458,7 @@ class _ProcessWrapper:
                 f" Offset: {offset}"
             )
 
-            for data, last_batch in step.process_applying_mappings(offset):
+            for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.data = [data]
                 batch.last_batch = last_batch
                 self._send_batch(batch)

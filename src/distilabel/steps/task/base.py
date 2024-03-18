@@ -18,7 +18,13 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
+from distilabel.steps.base import (
+    GeneratorStep,
+    RuntimeParameter,
+    Step,
+    StepInput,
+    _Step,
+)
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
@@ -27,13 +33,17 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class _Task(ABC):
-    """_Task is an abstract class that implements the `Step` interface and adds the
+class _Task(_Step, ABC):
+    """_Task is an abstract class that implements the `_Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -45,6 +55,13 @@ class _Task(ABC):
     """
 
     llm: LLM
+    llm_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to the `LLM` constructor. Note that these"
+        " kwargs will be specific to each LLM, and while some as `model` may be present"
+        " on each `LLM`, some others may not, so read the `LLM` constructor signature in"
+        " advance to see which kwargs are available.",
+    )
 
     group_generations: bool = False
     num_generations: RuntimeParameter[int] = Field(
@@ -61,13 +78,7 @@ class _Task(ABC):
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-        self.llm.load()  # type: ignore
-
-    @abstractmethod
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        """Asbtract method to format the inputs of the task. It needs to receive an input
-        as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
-        pass
+        self.llm.load(**self.llm_kwargs)  # type: ignore
 
     @abstractmethod
     def format_output(
@@ -79,44 +90,6 @@ class _Task(ABC):
         needed to be able to parse the output correctly.
         """
         pass
-
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
-        """Processes the inputs of the task and generates the outputs using the LLM.
-
-        Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
-
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
-        """
-        formatted_inputs = self._format_inputs(inputs)
-        outputs = self.llm.generate(
-            inputs=formatted_inputs,
-            num_generations=self.num_generations,
-            **self.generation_kwargs,  # type: ignore
-        )
-
-        task_outputs = []
-        for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs, inputs)
-
-            if self.group_generations:
-                combined = combine_dicts(*formatted_outputs)
-                task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **combined}
-                )
-                continue
-
-            # Create a row per generation
-            for formatted_output in formatted_outputs:
-                task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **formatted_output}
-                )
-
-        yield task_outputs
-
-    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
-        return [self.format_input(input) for input in inputs]
 
     def _format_outputs(
         self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
@@ -148,12 +121,16 @@ class _Task(ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(_Task, Step):  # type: ignore
+class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
@@ -164,15 +141,71 @@ class Task(_Task, Step):  # type: ignore
             in advance to see which kwargs are available.
     """
 
-    pass
+    @abstractmethod
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        """Asbtract method to format the inputs of the task. It needs to receive an input
+        as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
+        pass
+
+    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
+        """Formats the inputs of the task using the `format_input` method.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list containing the formatted inputs, which are `ChatType`-like following
+            the OpenAI formatting.
+        """
+        return [self.format_input(input) for input in inputs]
+
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        """Processes the inputs of the task and generates the outputs using the LLM.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Yields:
+            A list of Python dictionaries with the outputs of the task.
+        """
+
+        formatted_inputs = self._format_inputs(inputs)
+        outputs = self.llm.generate(
+            inputs=formatted_inputs,
+            num_generations=self.num_generations,
+            **self.generation_kwargs,  # type: ignore
+        )
+
+        task_outputs = []
+        for input, input_outputs in zip(inputs, outputs):
+            formatted_outputs = self._format_outputs(input_outputs, inputs)
+
+            if self.group_generations:
+                combined = combine_dicts(*formatted_outputs)
+                task_outputs.append(
+                    {**input, "model_name": self.llm.model_name, **combined}
+                )
+                continue
+
+            # Create a row per generation
+            for formatted_output in formatted_outputs:
+                task_outputs.append(
+                    {**input, "model_name": self.llm.model_name, **formatted_output}
+                )
+
+        yield task_outputs
 
 
-class GeneratorTask(_Task, GeneratorStep):  # type: ignore
+class GeneratorTask(_Task, GeneratorStep):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
+        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
+            kwargs will be specific to each LLM, and while some as `model` may be present
+            on each `LLM`, some others may not, so read the `LLM` constructor signature in
+            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.

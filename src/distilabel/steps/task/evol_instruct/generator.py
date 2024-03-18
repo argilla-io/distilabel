@@ -34,7 +34,9 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
+from distilabel.steps.task.evol_instruct.utils import (
+    GenerationMutationTemplatesEvolInstruct,
+)
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -65,7 +67,9 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
+    mutation_templates: EnumType = Field(
+        default=GenerationMutationTemplatesEvolInstruct
+    )
 
     min_length: RuntimeParameter[int] = Field(
         default=512,
@@ -80,7 +84,6 @@ class EvolInstructGenerator(GeneratorTask):
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
-
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
 
@@ -137,9 +140,6 @@ class EvolInstructGenerator(GeneratorTask):
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
-        pass
 
     @property
     def outputs(self) -> List[str]:
@@ -234,16 +234,16 @@ class EvolInstructGenerator(GeneratorTask):
         )
 
     @override
-    def process(self) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
+            offset: The offset to start the generation from. Defaults to 0.
 
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
+        Yields:
+            A list of Python dictionaries with the outputs of the task, and a boolean
+            flag indicating whether the task has finished or not i.e. is the last batch.
         """
-
         instructions = []
         mutation_no = 0
 

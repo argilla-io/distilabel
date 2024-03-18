@@ -16,8 +16,7 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import Annotated
+from pydantic import PrivateAttr, SecretStr
 
 from distilabel.llm.base import AsyncLLM
 from distilabel.utils.itertools import grouper
@@ -41,31 +40,16 @@ class MistralLLM(AsyncLLM):
         max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
     """
 
-    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
     model: str = "mistral-medium"
     endpoint: str = "https://api.mistral.ai"
+    api_key: Optional[SecretStr] = os.getenv("MISTRAL_API_KEY", None)  # type: ignore
     max_retries: int = 5
     timeout: int = 120
     max_concurrent_requests: int = 64
 
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
 
-    @field_validator("api_key")
-    @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
-        """Ensures that either the `api_key` or the environment variable `MISTRAL_API_KEY` are set.
-
-        Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
-        from being leaked and/or included within the logs or the serialization of the object.
-        """
-        v = v or os.getenv("MISTRAL_API_KEY", None)  # type: ignore
-        if v is None:
-            raise ValueError("You must provide an API key to use Mistral.")
-        if not isinstance(v, SecretStr):
-            v = SecretStr(v)
-        return v
-
-    def load(self) -> None:
+    def load(self, api_key: Optional[str] = None) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
 
         try:
@@ -76,8 +60,12 @@ class MistralLLM(AsyncLLM):
                 " `pip install mistralai`."
             ) from ie
 
+        self.api_key = self._handle_api_key_value(
+            self_value=self.api_key, load_value=api_key, env_var="MISTRAL_API_KEY"
+        )
+
         self._aclient = MistralAsyncClient(
-            api_key=self.api_key.get_secret_value(),  # type: ignore
+            api_key=self.api_key.get_secret_value(),
             endpoint=self.endpoint,
             max_retries=self.max_retries,
             timeout=self.timeout,

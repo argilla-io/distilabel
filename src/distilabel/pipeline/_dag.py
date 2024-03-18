@@ -32,7 +32,7 @@ import networkx as nx
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import _Step
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 class DAG(_Serializable):
@@ -254,6 +254,7 @@ class DAG(_Serializable):
                             f"Step '{step_name}' should be `GeneratorStep` as it doesn't"
                             " have any previous steps"
                         )
+                    self._validate_generator_step_process_signature(step)  # type: ignore
                 else:
                     self._step_inputs_are_available(step)
 
@@ -360,6 +361,29 @@ class DAG(_Serializable):
                     f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
                     " Please, provide a value for it when calling `Pipeline.run`"
                 )
+
+    def _validate_generator_step_process_signature(self, step: "GeneratorStep") -> None:
+        """Validates that the `process` method of the `GeneratorStep` does not expect the
+        `inputs` arg within the method signature, and also the `offset` arg should always
+        be present.
+
+        Args:
+            step: The step to validate.
+
+        Raises:
+            ValueError: If the `process` method of the `GeneratorStep` expects the `inputs` arg.
+            ValueError: If the `process` method of the `GeneratorStep` does not expect the `offset` arg.
+        """
+        if step.get_process_step_input() is not None:
+            raise ValueError(
+                f"Generator step '{step.name}' should not have a parameter with type hint"
+                " `StepInput` within the `process` method signature."
+            )
+        if not any("offset" == parameter.name for parameter in step.process_parameters):
+            raise ValueError(
+                f"Generator step '{step.name}' should have an `offset` parameter within"
+                " the `process` method signature."
+            )
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the DAG to a dict.

@@ -12,21 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import asyncio
 import logging
+import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union, Literal
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, PrivateAttr, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, SecretStr
 
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from multiprocessing.synchronize import Lock
+
     from distilabel.llm.typing import HiddenState
     from distilabel.steps.task.typing import ChatType
-    from multiprocessing.synchronize import Lock
 
 
 class LLM(BaseModel, _Serializable, ABC):
@@ -69,6 +70,56 @@ class LLM(BaseModel, _Serializable, ABC):
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )
+
+    def _handle_api_key_value(
+        self,
+        self_value: Union[str, SecretStr, None],
+        load_value: Union[str, None],
+        env_var: str,
+    ) -> SecretStr:
+        """Method to handle the API key for the LLM, either from the `self_value` or the
+        `load_value` i.e. the value provided within the `__init__` method of the `LLM` if
+        applicable, and the value provided via the `load` method as a `RuntimeParameter` propagated
+        via the `llm_kwargs`. Additionally, the `env_var` is also provided to guide the user on
+        what's the environment variable name that needs to be used to assign the API Key value.
+
+        Args:
+            self_value: the value provided within the `__init__` method of the `LLM`.
+            load_value: the value provided via the `load` method as a `RuntimeParameter`.
+            env_var: the environment variable name to be used to assign the API Key value.
+
+        Raises:
+            ValueError: if the `api_key` is not present in the `LLM`.
+            ValueError: if the `api_key` is and is not provided either via the `api_key` arg or
+                runtime parameter. At most one of them should be provided.
+
+        Returns:
+            The API key value as a `SecretStr`.
+        """
+
+        if not hasattr(self, "api_key"):
+            raise ValueError(
+                f"You are trying to assign the `api_key` to the current `LLM={self.__class__.__name__}`,"
+                " but the `api_key` attribute is not present."
+            )
+
+        if self_value is None and load_value is None:
+            raise ValueError(
+                "You must provide an API key either via the `api_key` arg or runtime"
+                f" parameter, or either via the `{env_var}` environment variable."
+            )
+
+        if self_value is not None and load_value is not None:
+            raise ValueError(
+                "You must provide an API key either via the `api_key` arg or runtime"
+                f" parameter, or either via the `{env_var}` environment variable,"
+                " but not both."
+            )
+
+        api_key = self_value if self_value is not None else load_value
+        if isinstance(api_key, str):
+            api_key = SecretStr(api_key)  # type: ignore
+        return api_key  # type: ignore
 
 
 class AsyncLLM(LLM):
@@ -140,9 +191,11 @@ class CUDALLM(LLM):
         if self._device_llm_placement_map is not None:
             self._assign_cuda_devices()
 
-
     def set_device_placement_info(
-        self, llm_identifier: str, device_llm_placement_map: Dict[str, Any],device_llm_placement_map_lock
+        self,
+        llm_identifier: str,
+        device_llm_placement_map: Dict[str, Any],
+        device_llm_placement_map_lock,
     ) -> None:
         """Sets the value of `_device_llm_placement_map` to be used to assign CUDA devices
         to the LLM.
@@ -169,7 +222,9 @@ class CUDALLM(LLM):
         logged."""
         with self._device_llm_placement_map_lock:
             if self.cuda_devices == "auto":
-                self.cuda_devices = [self._get_cuda_device(self._device_llm_placement_map)]
+                self.cuda_devices = [
+                    self._get_cuda_device(self._device_llm_placement_map)
+                ]
             else:
                 self._check_cuda_devices(self._device_llm_placement_map)
 
@@ -240,4 +295,3 @@ class CUDALLM(LLM):
         device_count = pynvml.nvmlDeviceGetCount()
 
         return list(range(device_count))
-
