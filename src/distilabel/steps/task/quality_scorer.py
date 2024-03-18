@@ -85,7 +85,7 @@ class QualityScorer(Task):
         """The output is formatted as a list with the rating of each instruction-response tuple.
 
         Args:
-            output (str): the raw output of the LLM.
+            output: the raw output of the LLM.
 
         Returns:
             Dict[str, List[str]]: A dict with containing the ratings of each instruction-response.
