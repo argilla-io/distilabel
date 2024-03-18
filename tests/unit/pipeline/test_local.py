@@ -16,7 +16,7 @@ import tempfile
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from distilabel.pipeline.base import _Batch
+from distilabel.pipeline.base import _Batch, _BatchManager
 from distilabel.pipeline.local import Pipeline, _WriteBuffer
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
@@ -32,7 +32,7 @@ class TestPipeline:
         send_batch_to_step_mock = mock.MagicMock()
         pipeline = dummy_generator_step.pipeline
         pipeline._send_batch_to_step = send_batch_to_step_mock  # type: ignore
-
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)  # type: ignore
         pipeline._request_initial_batches()  # type: ignore
 
         send_batch_to_step_mock.assert_has_calls(
