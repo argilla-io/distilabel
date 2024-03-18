@@ -696,7 +696,9 @@ class TestBatchManager:
                     input_batch_size=5,
                     data={"step1": [], "step2": []},
                 )
-            }
+            },
+            seq_no_step={"step3": 0},
+            last_batch_received={"step3": True},
         )
 
         batch_from_step_1 = _Batch(
@@ -705,7 +707,9 @@ class TestBatchManager:
             last_batch=False,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
-        batches = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batches = batch_manager.add_batch(
+            to_step="step3", batch=batch_from_step_1, callback=lambda: 1
+        )
 
         assert list(batches) == []
 
@@ -721,7 +725,9 @@ class TestBatchManager:
                         "step2": [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
                     },
                 )
-            }
+            },
+            seq_no_step={"step3": 0},
+            last_batch_received={"step3": True},
         )
 
         batch_from_step_1 = _Batch(
@@ -731,7 +737,9 @@ class TestBatchManager:
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
 
-        batches = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batches = batch_manager.add_batch(
+            to_step="step3", batch=batch_from_step_1, callback=lambda: 1
+        )
 
         assert list(batches) == [
             _Batch(
@@ -794,21 +802,27 @@ class TestBatchManager:
                     data={"step1": [], "step2": []},
                     seq_no=1,
                 )
-            }
+            },
+            seq_no_step={"step3": 0},
+            last_batch_received={"step3": True},
         )
         assert batch_manager.dump() == {
-            "step3": {
-                "step_name": "step3",
-                "accumulate": False,
-                "input_batch_size": 5,
-                "data": {"step1": [], "step2": []},
-                "seq_no": 1,
-                "last_batch_received": [],
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_BatchManagerStep",
+            "steps": {
+                "step3": {
+                    "step_name": "step3",
+                    "accumulate": False,
+                    "input_batch_size": 5,
+                    "data": {"step1": [], "step2": []},
+                    "seq_no": 1,
+                    "last_batch_received": [],
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_BatchManagerStep",
+                    },
                 },
             },
+            "step_seq_no": {"step3": 0},
+            "last_batch_received": {"step3": True},
             "type_info": {
                 "module": "distilabel.pipeline.base",
                 "name": "_BatchManager",
@@ -818,16 +832,20 @@ class TestBatchManager:
     def test_from_dict(self) -> None:
         batch_manager = _BatchManager.from_dict(
             {
-                "step3": {
-                    "step_name": "step3",
-                    "accumulate": False,
-                    "input_batch_size": 5,
-                    "data": {"step1": [], "step2": []},
-                    "type_info": {
-                        "module": "distilabel.pipeline.base",
-                        "name": "_BatchManagerStep",
+                "steps": {
+                    "step3": {
+                        "step_name": "step3",
+                        "accumulate": False,
+                        "input_batch_size": 5,
+                        "data": {"step1": [], "step2": []},
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_BatchManagerStep",
+                        },
                     },
                 },
+                "step_seq_no": {"step3": 0},
+                "last_batch_received": {"step3": True},
                 "type_info": {
                     "module": "distilabel.pipeline.base",
                     "name": "_BatchManager",
@@ -933,10 +951,10 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
-                assert not pipeline._cache_filenames["pipeline"].exists()
+                assert not pipeline._cache_location["pipeline"].exists()
                 pipeline.run()
             # Check the file exists AFTER we are out of the context manager
-            assert pipeline._cache_filenames["pipeline"].exists()
+            assert pipeline._cache_location["pipeline"].exists()
 
             with BasePipeline(tmpdirname) as pipe:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -945,9 +963,9 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
-                cache_filename = pipe._cache_filenames["pipeline"]
-                assert pipe._cache_filenames["pipeline"].exists()
+                cache_filename = pipe._cache_location["pipeline"]
+                assert pipe._cache_location["pipeline"].exists()
                 # Run the pipeline and check the _cache_filename is the same afterwards
                 pipe.run()
-                assert pipe._cache_filenames["pipeline"].exists()
-                assert cache_filename == pipe._cache_filenames["pipeline"]
+                assert pipe._cache_location["pipeline"].exists()
+                assert cache_filename == pipe._cache_location["pipeline"]

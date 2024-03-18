@@ -60,7 +60,7 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        buffer_data_path = self._cache_filenames["data"]
+        buffer_data_path = self._cache_location["data"]
         self._logger.info("📝 Writing buffer to cache folder")
         write_buffer = _WriteBuffer(
             path=buffer_data_path, leaf_steps=self.dag.leaf_steps
@@ -256,7 +256,10 @@ class Pipeline(BasePipeline):
 
 class _WriteBuffer:
     def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
-        self._path = Path(path)
+        path = Path(path)
+        if path.suffix == "":
+            path = path / "data.jsonl"
+        self._path = path
         if not self._path.exists():
             self._path.parent.mkdir(parents=True, exist_ok=True)
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}

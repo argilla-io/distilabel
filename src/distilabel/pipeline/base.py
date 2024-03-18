@@ -15,7 +15,17 @@
 import hashlib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, TypedDict, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    TypedDict,
+    Union,
+)
 
 from typing_extensions import Self
 
@@ -241,13 +251,13 @@ class BasePipeline(_Serializable):
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
         self.save(
-            path=self._cache_filenames["pipeline"],
-            format=self._cache_filenames["pipeline"].suffix.replace(".", ""),
+            path=self._cache_location["pipeline"],
+            format=self._cache_location["pipeline"].suffix.replace(".", ""),
         )
         if self._batch_manager is not None:
             self._batch_manager.save(
-                self._cache_filenames["batch_manager"],
-                format=self._cache_filenames["batch_manager"].suffix.replace(".", ""),
+                self._cache_location["batch_manager"],
+                format=self._cache_location["batch_manager"].suffix.replace(".", ""),
             )
 
     def _load_from_cache(self) -> None:
@@ -256,17 +266,17 @@ class BasePipeline(_Serializable):
         """
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
-        cache_filenames = self._cache_filenames
-        if cache_filenames["pipeline"].exists():
+        cache_loc = self._cache_location
+        if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
             # (it will check the steps aren't already defined for the DAG).
             self.dag = DAG()
-            new_class = self.from_yaml(cache_filenames["pipeline"])
+            new_class = self.from_yaml(cache_loc["pipeline"])
             # Update the internal dag and batch_manager
             self.dag.G = new_class.dag.G
-            if cache_filenames["batch_manager"].exists():
+            if cache_loc["batch_manager"].exists():
                 self._batch_manager = _BatchManager.from_json(
-                    cache_filenames["batch_manager"]
+                    cache_loc["batch_manager"]
                 )
             self._logger.info("💾 Load pipeline from cache")
 
@@ -582,7 +592,9 @@ class _BatchManager(_Serializable):
         self._seq_no_step[batch.step_name] = batch.seq_no + 1
         self._last_batch_received[batch.step_name] = batch.last_batch
 
-    def add_batch(self, to_step: str, batch: _Batch, callback) -> Iterable[_Batch]:
+    def add_batch(
+        self, to_step: str, batch: _Batch, callback: Callable
+    ) -> Iterable[_Batch]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
         processed. Otherwise, it will return `None`.
@@ -590,6 +602,8 @@ class _BatchManager(_Serializable):
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
+            callback: A callback to be called after the batch is added to the step. It's used
+                to cache the content of the batch manager during the pipeline execution.
 
         Returns:
             If there is enough data for creating a batch for `to_step`, then it will return
