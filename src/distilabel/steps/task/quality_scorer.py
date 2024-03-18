@@ -82,7 +82,7 @@ class QualityScorer(Task):
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """The output is formatted as a list with the rating of each instruction-response tuple.
+        """The output is formatted as a list with the score of each instruction-response pair.
 
         Args:
             output: the raw output of the LLM.
