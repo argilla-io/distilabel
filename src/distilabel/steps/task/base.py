@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.llm.base import LLM
 from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step
@@ -24,7 +25,7 @@ from distilabel.utils.dicts import combine_dicts
 if TYPE_CHECKING:
     from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
 class _Task(ABC):
@@ -125,9 +126,11 @@ class _Task(ABC):
             A list containing a dictionary with the outputs of the task for each input.
         """
         return [
-            self.format_output(output)
-            if output is not None
-            else self._outputs_empty_dict()
+            (
+                self.format_output(output)
+                if output is not None
+                else self._outputs_empty_dict()
+            )
             for output in outputs
         ]
 
@@ -172,3 +175,55 @@ class GeneratorTask(_Task, GeneratorStep):
     """
 
     pass
+
+
+class DataTask(_Task, GeneratorStep):
+    """DataTask is a class that implements the `_Task` abstract class and adds the
+    `GeneratorStep` interface to be used as a step in the pipeline.
+
+    Args:
+        data: The data to be used to generate the outputs of the task.
+    """
+
+    llm: LLM = None
+    group_generations: Optional[bool] = None
+    num_generations: Optional[int] = None
+    generation_kwargs: Optional[dict] = None
+    data: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="The data to be used to generate the outputs of the task.",
+    )
+
+    @override
+    def load(self) -> None:
+        pass
+
+    @override
+    def process(self) -> "GeneratorStepOutput":  # type: ignore
+        """Processes the inputs of the task and generates the outputs using the LLM.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list of Python dictionaries with the outputs of the task.
+        """
+        for entry in self.data:
+            yield self.format_output(entry)
+
+    @property
+    def outputs(self) -> List[str]:
+        """List of strings with the names of the columns that the step will produce as
+        output.
+
+        Returns:
+            List of strings with the names of the columns that the step will produce as
+            output.
+        """
+        return list(self.data[0].keys())
+
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
+        pass
+
+    def format_output(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
+        pass
