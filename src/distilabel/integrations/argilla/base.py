@@ -26,12 +26,11 @@ except ImportError as ie:
         "Argilla is not installed. Please install it using `pip install argilla`."
     ) from ie
 
-from distilabel.steps.base import Step
+from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
     from argilla.client.feedback.dataset.remote.dataset import RemoteFeedbackDataset
 
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -120,5 +119,5 @@ class Argilla(Step, ABC):
         ...
 
     @abstractmethod
-    def process(self, inputs: "StepInput") -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":
         ...
