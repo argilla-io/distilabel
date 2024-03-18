@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from distilabel.llm.base import LLM
 from distilabel.steps.base import Step
+from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
     from distilabel.steps.base import StepInput
@@ -36,27 +37,60 @@ class GenerateEmbeddings(Step):
         embedding (`List[float]`): The embedding of the input text or conversation.
 
     Reference:
-        - https://arxiv.org/abs/2312.15685
+        - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
     """
+
+    llm: LLM
+
+    def load(self) -> None:
+        self.llm.load()
 
     @property
     def inputs(self) -> List[str]:
+        """The inputs for the task is a `text` column containing either a string or a
+        list of dictionaries in OpenAI chat-like format."""
         return ["text"]
 
     @property
     def outputs(self) -> List[str]:
+        """The outputs for the task is an `embedding` column containing the embedding of
+        the `text` input."""
         return ["embedding"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        text = input["text"]
+        """Formats the input to be used by the LLM to generate the embeddings. The input
+        can be in `ChatType` format or a string. If a string, it will be converted to a
+        list of dictionaries in OpenAI chat-like format.
+
+        Args:
+            input: The input to format.
+
+        Returns:
+            The OpenAI chat-like format of the input.
+        """
+        text = input["text"] = input["text"]
 
         # input is in `ChatType` format
-        if isinstance(text, list):
+        if isinstance(text, str):
+            return [{"role": "user", "content": text}]
+
+        if is_openai_format(text):
             return text
 
-        return [{"role": "user", "content": text}]
+        raise ValueError(
+            f"Couldn't format input for step {self.name}. The `text` input column has to"
+            " be a string or a list of dictionaries in OpenAI chat-like format."
+        )
 
     def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+        """Generates an embedding for each input using the last hidden state of the `LLM`.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list of Python dictionaries with the outputs of the task.
+        """
         formatted_inputs = [self.format_input(input) for input in inputs]
         last_hidden_states = self.llm.get_last_hidden_states(formatted_inputs)
         for input, hidden_state in zip(inputs, last_hidden_states):
