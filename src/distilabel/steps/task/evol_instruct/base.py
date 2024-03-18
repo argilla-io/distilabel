@@ -25,13 +25,12 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
-from distilabel.steps.base import RuntimeParameter
+from distilabel.steps.base import RuntimeParameter, StepInput
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -224,13 +223,13 @@ class EvolInstruct(Task):
         )
 
     @override
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
+        Yields:
             A list of Python dictionaries with the outputs of the task.
         """
 

@@ -138,9 +138,6 @@ class EvolInstructGenerator(GeneratorTask):
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
 
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
-        pass
-
     @property
     def outputs(self) -> List[str]:
         """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
@@ -234,14 +231,15 @@ class EvolInstructGenerator(GeneratorTask):
         )
 
     @override
-    def process(self) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
+            offset: The offset to start the generation from. Defaults to 0.
 
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
+        Yields:
+            A list of Python dictionaries with the outputs of the task, and a boolean
+            flag indicating whether the task has finished or not i.e. is the last batch.
         """
 
         instructions = []
