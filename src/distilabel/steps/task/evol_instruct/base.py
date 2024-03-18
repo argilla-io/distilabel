@@ -76,6 +76,7 @@ class EvolInstruct(Task):
         This is useful if you want to do some validation that requires the entire model to be initialized.
         """
         super().model_post_init(__context)
+
         np.random.seed(self.seed)
 
     @property
@@ -275,7 +276,6 @@ class EvolComplexity(EvolInstruct):
     Reference:
         - https://arxiv.org/abs/2312.15685
         - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
     """
 
     mutation_templates: EnumType = Field(default=MutationTemplatesEvolComplexity)
