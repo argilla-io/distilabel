@@ -26,6 +26,15 @@ class CombineColumns(Step):
     function to handle and combine a list of `StepInput`. Also `CombineColumns` provides two attributes
     `merge_columns` and `output_merge_columns` to specify the columns to merge and the output columns
     which will override the default value for the properties `inputs` and `outputs`, respectively.
+
+    Args:
+        merge_columns: List of strings with the names of the columns to merge.
+        output_merge_columns: Optional list of strings with the names of the output columns.
+
+    Columns:
+
+    - `input`: dynamic, based on the `merge_columns` value provided
+    - `output`: dynamic, based on the `output_merge_columns` value provided or `merged_{column}` for each column in `merge_columns`
     """
 
     merge_columns: List[str]
@@ -33,10 +42,13 @@ class CombineColumns(Step):
 
     @property
     def inputs(self) -> List[str]:
+        """The inputs for the task are the column names in `merge_columns`."""
         return self.merge_columns
 
     @property
     def outputs(self) -> List[str]:
+        """The outputs for the task are the column names in `output_merge_columns` or
+        `merged_{column}` for each column in `merge_columns`."""
         return (
             self.output_merge_columns
             if self.output_merge_columns is not None
@@ -44,6 +56,14 @@ class CombineColumns(Step):
         )
 
     def process(self, *args: StepInput) -> "StepOutput":
+        """The `process` method calls the `combine_dicts` function to handle and combine a list of `StepInput`.
+
+        Args:
+            *args: A list of `StepInput` to be combined.
+
+        Yields:
+            A `StepOutput` with the combined `StepInput` using the `combine_dicts` function.
+        """
         yield combine_dicts(
             *args,
             merge_keys=self.inputs,

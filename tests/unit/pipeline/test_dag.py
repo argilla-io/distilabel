@@ -389,6 +389,58 @@ class TestDAG:
         ):
             dag.validate()
 
+    def test_generator_step_process_method_with_step_input(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        class DummyGeneratorStep(GeneratorStep):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, *inputs: StepInput) -> "GeneratorStepOutput":  # type: ignore
+                yield [{"response": "response1"}], False
+
+        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+
+        dag = DAG()
+        dag.add_step(step)
+
+        with pytest.raises(
+            ValueError,
+            match="Generator step 'dummy_generator_step' should not have a parameter with type hint `StepInput`",
+        ):
+            dag.validate()
+
+    def test_generator_step_process_without_offset_parameter(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        class DummyGeneratorStep(GeneratorStep):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self) -> "GeneratorStepOutput":  # type: ignore
+                yield [{"response": "response1"}], False
+
+        step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
+
+        dag = DAG()
+        dag.add_step(step)
+
+        with pytest.raises(
+            ValueError,
+            match="Generator step 'dummy_generator_step' should have an `offset` parameter",
+        ):
+            dag.validate()
+
 
 class TestDagSerialization:
     def test_dag_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:

@@ -538,7 +538,7 @@ class _ProcessWrapper:
                 f" Offset: {offset}"
             )
 
-            for data, last_batch in step.process_applying_mappings(offset):
+            for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.data = [data]
                 batch.last_batch = last_batch
                 self._send_batch(batch)

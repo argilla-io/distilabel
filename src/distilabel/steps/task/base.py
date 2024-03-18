@@ -18,12 +18,17 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, _Step
+from distilabel.steps.base import (
+    GeneratorStep,
+    RuntimeParameter,
+    Step,
+    StepInput,
+    _Step,
+)
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput
-    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -76,12 +81,6 @@ class _Task(_Step, ABC):
         self.llm.load(**self.llm_kwargs)  # type: ignore
 
     @abstractmethod
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        """Asbtract method to format the inputs of the task. It needs to receive an input
-        as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
-        pass
-
-    @abstractmethod
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -91,44 +90,6 @@ class _Task(_Step, ABC):
         needed to be able to parse the output correctly.
         """
         pass
-
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
-        """Processes the inputs of the task and generates the outputs using the LLM.
-
-        Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
-
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
-        """
-        formatted_inputs = self._format_inputs(inputs)
-        outputs = self.llm.generate(
-            inputs=formatted_inputs,
-            num_generations=self.num_generations,
-            **self.generation_kwargs,  # type: ignore
-        )
-
-        task_outputs = []
-        for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs, inputs)
-
-            if self.group_generations:
-                combined = combine_dicts(*formatted_outputs)
-                task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **combined}
-                )
-                continue
-
-            # Create a row per generation
-            for formatted_output in formatted_outputs:
-                task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **formatted_output}
-                )
-
-        yield task_outputs
-
-    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
-        return [self.format_input(input) for input in inputs]
 
     def _format_outputs(
         self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
@@ -180,7 +141,59 @@ class Task(_Task, Step):
             in advance to see which kwargs are available.
     """
 
-    pass
+    @abstractmethod
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        """Asbtract method to format the inputs of the task. It needs to receive an input
+        as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
+        pass
+
+    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
+        """Formats the inputs of the task using the `format_input` method.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Returns:
+            A list containing the formatted inputs, which are `ChatType`-like following
+            the OpenAI formatting.
+        """
+        return [self.format_input(input) for input in inputs]
+
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        """Processes the inputs of the task and generates the outputs using the LLM.
+
+        Args:
+            inputs: A list of Python dictionaries with the inputs of the task.
+
+        Yields:
+            A list of Python dictionaries with the outputs of the task.
+        """
+
+        formatted_inputs = self._format_inputs(inputs)
+        outputs = self.llm.generate(
+            inputs=formatted_inputs,
+            num_generations=self.num_generations,
+            **self.generation_kwargs,  # type: ignore
+        )
+
+        task_outputs = []
+        for input, input_outputs in zip(inputs, outputs):
+            formatted_outputs = self._format_outputs(input_outputs, inputs)
+
+            if self.group_generations:
+                combined = combine_dicts(*formatted_outputs)
+                task_outputs.append(
+                    {**input, "model_name": self.llm.model_name, **combined}
+                )
+                continue
+
+            # Create a row per generation
+            for formatted_output in formatted_outputs:
+                task_outputs.append(
+                    {**input, "model_name": self.llm.model_name, **formatted_output}
+                )
+
+        yield task_outputs
 
 
 class GeneratorTask(_Task, GeneratorStep):

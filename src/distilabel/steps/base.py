@@ -250,14 +250,13 @@ class _Step(BaseModel, _Serializable, ABC):
         """
         step_input_parameter = None
         for parameter in self.process_parameters:
-            if (
-                is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION)
-                and step_input_parameter is not None
-            ):
-                raise TypeError(
-                    f"Step '{self.name}' should have only one parameter with type hint `StepInput`."
-                )
-            step_input_parameter = parameter
+            if is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION):
+                if step_input_parameter is not None:
+                    raise TypeError(
+                        f"Step '{self.name}' should have only one parameter with type"
+                        " hint `StepInput`."
+                    )
+                step_input_parameter = parameter
         return step_input_parameter
 
     def verify_inputs_mappings(self) -> None:
@@ -465,6 +464,9 @@ class GeneratorStep(_Step, ABC):
 
         Args:
             offset: The offset to start the generation from. Defaults to 0.
+
+        Yields:
+            The output rows and a boolean indicating if it's the last batch or not.
         """
         pass
 
@@ -474,7 +476,7 @@ class GeneratorStep(_Step, ABC):
         of the step.
 
         Args:
-            offset (int): The offset to start the generation from. Defaults to 0.
+            offset: The offset to start the generation from. Defaults to 0.
 
         Yields:
             The output rows and a boolean indicating if it's the last batch or not.
@@ -484,9 +486,9 @@ class GeneratorStep(_Step, ABC):
         # the runtime parameters as `kwargs`, so they can be used within the processing
         # function
         generator = (
-            self.process(offset)
+            self.process(offset=offset)
             if not self._built_from_decorator
-            else self.process(offset, **self._runtime_parameters)
+            else self.process(offset=offset, **self._runtime_parameters)
         )
 
         for output_rows, last_batch in generator:

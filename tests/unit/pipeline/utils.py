@@ -20,11 +20,7 @@ from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
 class DummyGeneratorStep(GeneratorStep):
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    def process(self) -> GeneratorStepOutput:  # type: ignore
+    def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}], False
 
     @property
