@@ -254,13 +254,9 @@ class DAG(_Serializable):
                             f"Step '{step_name}' should be `GeneratorStep` as it doesn't"
                             " have any previous steps"
                         )
+                    self._validate_generator_step_process_signature(step)  # type: ignore
                 else:
                     self._step_inputs_are_available(step)
-
-                # Validate the if the step is a `GeneratorStep`, the `process` signature does not
-                # expect the `inputs` arg and it does expect the `offset` arg
-                if step.is_generator:
-                    self._validate_generator_step_process_signature(step)  # type: ignore
 
     def _step_inputs_are_available(self, step: "_Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
@@ -378,13 +374,12 @@ class DAG(_Serializable):
             ValueError: If the `process` method of the `GeneratorStep` expects the `inputs` arg.
             ValueError: If the `process` method of the `GeneratorStep` does not expect the `offset` arg.
         """
-        process_signature = inspect.signature(step.process)
-        if "inputs" in process_signature.parameters:
+        if step.get_process_step_input() is not None:
             raise ValueError(
-                f"GeneratorStep '{step.name}' should not expect the `inputs` arg within"
-                " the `process` method signature."
+                f"GeneratorStep '{step.name}' should not expect an argument with type hint"
+                " `StepInput` within the `process` method signature."
             )
-        if "offset" not in process_signature.parameters:
+        if not any("offset" == parameter.name for parameter in step.process_parameters):
             raise ValueError(
                 f"GeneratorStep '{step.name}' should expect the `offset` arg within"
                 " the `process` method signature."
