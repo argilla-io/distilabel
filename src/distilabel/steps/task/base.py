@@ -208,8 +208,16 @@ class DataTask(_Task, GeneratorStep):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
-        for entry in self.data:
-            yield self.format_output(entry)
+        batch = []
+        # split based on batch_size
+        for i in range(0, len(self.data), self.batch_size):
+            batch.append(self.data[i : i + self.batch_size])
+            if len(batch) == self.batch_size:
+                yield (
+                    batch,
+                    True,
+                )
+                batch = []
 
     @property
     def outputs(self) -> List[str]:
