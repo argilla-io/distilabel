@@ -474,7 +474,7 @@ class GeneratorStep(_Step, ABC):
         of the step.
 
         Args:
-            offset (int): The offset to start the generation from. Defaults to 0.
+            offset: The offset to start the generation from. Defaults to 0.
 
         Yields:
             The output rows and a boolean indicating if it's the last batch or not.
@@ -484,9 +484,9 @@ class GeneratorStep(_Step, ABC):
         # the runtime parameters as `kwargs`, so they can be used within the processing
         # function
         generator = (
-            self.process(offset)
+            self.process(offset=offset)
             if not self._built_from_decorator
-            else self.process(offset, **self._runtime_parameters)
+            else self.process(offset=offset, **self._runtime_parameters)
         )
 
         for output_rows, last_batch in generator:
