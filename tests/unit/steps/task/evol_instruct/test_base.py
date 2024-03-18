@@ -17,8 +17,12 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_instruct.base import EvolInstruct
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
+from distilabel.steps.task.evol_instruct.base import (
+    EvolInstruct,
+)
+from distilabel.steps.task.evol_instruct.utils import (
+    MutationTemplatesEvolInstruct,
+)
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
@@ -45,7 +49,7 @@ class TestEvolInstruct:
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_evolutions == 2
-        assert task.mutation_templates == MutationTemplates
+        assert task.mutation_templates == MutationTemplatesEvolInstruct
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
@@ -83,10 +87,10 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_process_store_evolutions(self) -> None:
+    def test_process_store_evolutions(self, task_class_base) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = EvolInstruct(
+        task = task_class_base(
             name="task",
             llm=llm,
             num_evolutions=2,
@@ -146,10 +150,10 @@ class TestEvolInstruct:
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
-                "_name": "MutationTemplates",
+                "_name": task.mutation_templates.__name__,
                 "_values": {
                     mutation.name: mutation.value  # type: ignore
-                    for mutation in task.mutation_templates
+                    for mutation in task.mutation_templates.__members__.values()  # type: ignore
                 },
             },
             "num_generations": task.num_generations,
@@ -179,8 +183,8 @@ class TestEvolInstruct:
                 },
             ],
             "type_info": {
-                "module": "distilabel.steps.task.evol_instruct.base",
-                "name": "EvolInstruct",
+                "module": task.__module__,
+                "name": task.__class__.__name__,
             },
         }
 

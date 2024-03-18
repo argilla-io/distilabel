@@ -168,6 +168,7 @@ class Task(_Task, Step):
         Yields:
             A list of Python dictionaries with the outputs of the task.
         """
+
         formatted_inputs = self._format_inputs(inputs)
         outputs = self.llm.generate(
             inputs=formatted_inputs,
