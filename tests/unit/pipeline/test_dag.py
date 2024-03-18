@@ -134,6 +134,24 @@ class TestDAG:
         dag.add_edge("dummy_step_1", "dummy_step_2")
         assert dag.leaf_steps == {"dummy_step_2"}
 
+    def test_trophic_levels(
+        self,
+        dummy_generator_step: "GeneratorStep",
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_generator_step)
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_generator_step", "dummy_step_1")
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+        assert dag.trophic_levels == {
+            "dummy_generator_step": 1,
+            "dummy_step_1": 2,
+            "dummy_step_2": 3,
+        }
+
     def get_step_predecessors(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
         dag = DAG()
         dag.add_step(dummy_step_1)
@@ -149,6 +167,56 @@ class TestDAG:
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
         assert list(dag.get_step_successors("dummy_step_1")) == ["dummy_step_2"]
+
+    def test_iter_based_on_trophic_levels(
+        self,
+        dummy_generator_step: "GeneratorStep",
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_generator_step)
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_generator_step", "dummy_step_1")
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        steps = list(dag.iter_based_on_trophic_levels())
+        assert steps == [["dummy_generator_step"], ["dummy_step_1"], ["dummy_step_2"]]
+
+    def test_get_step_trophic_level(
+        self,
+        dummy_generator_step: "GeneratorStep",
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_generator_step)
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_generator_step", "dummy_step_1")
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        assert dag.get_step_trophic_level("dummy_generator_step") == 1
+        assert dag.get_step_trophic_level("dummy_step_1") == 2
+        assert dag.get_step_trophic_level("dummy_step_2") == 3
+
+    def test_step_in_last_trophic_level(
+        self,
+        dummy_generator_step: "GeneratorStep",
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
+    ) -> None:
+        dag = DAG()
+        dag.add_step(dummy_generator_step)
+        dag.add_step(dummy_step_1)
+        dag.add_step(dummy_step_2)
+        dag.add_edge("dummy_generator_step", "dummy_step_1")
+        dag.add_edge("dummy_step_1", "dummy_step_2")
+
+        assert not dag.step_in_last_trophic_level("dummy_generator_step")
+        assert not dag.step_in_last_trophic_level("dummy_step_1")
+        assert dag.step_in_last_trophic_level("dummy_step_2")
 
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"

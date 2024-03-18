@@ -157,7 +157,7 @@ class _Serializable:
                     "_type": "enum",
                     "_enum_type": type(next(iter(v)).value).__name__,  # type: ignore
                     "_name": getattr(obj, k).__name__,
-                    "_values": {v.name: v.value for v in v},  # type: ignore
+                    "_values": {x.name: x.value for x in v},  # type: ignore
                 }
         # Grab the fields that need extra care (LLMs from inside tasks)
         to_update = _extra_serializable_fields(obj)

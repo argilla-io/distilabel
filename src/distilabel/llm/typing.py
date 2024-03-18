@@ -11,3 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from typing import TYPE_CHECKING, Any, List, TypeVar, Union
+
+GenerateOutput = List[Union[str, None]]
+
+if TYPE_CHECKING:
+    from numpy import floating
+    from numpy.typing import NDArray
+
+    GenericFloat = TypeVar("GenericFloat", bound=floating[Any])
+
+    HiddenState = NDArray[GenericFloat]
+else:
+    HiddenState = Any

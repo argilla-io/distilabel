@@ -25,7 +25,21 @@ from distilabel.steps.typing import StepOutput
 
 class PushToHub(GlobalStep):
     """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
-    it to the Hugging Face Hub."""
+    it to the Hugging Face Hub.
+
+    Runtime parameters:
+
+    - `repo_id`: The Hugging Face Hub repository ID to push the dataset to.
+    - `split`: The split of the dataset to push, otherwise will use "train" as default.
+    - `private`: Whether the dataset should be private or not. Defaults to `False`.
+    - `token`: The token to authenticate in the Hub, otherwise will try to use the
+        environment variable `HF_TOKEN` or the local Hugging Face CLI configuration.
+
+    Columns:
+
+    - `input`: dynamic, based on the existing data within inputs
+    - `output`: None
+    """
 
     repo_id: RuntimeParameter[str] = Field(
         default=None,

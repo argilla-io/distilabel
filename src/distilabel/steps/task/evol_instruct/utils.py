@@ -20,37 +20,72 @@ else:
     from enum import StrEnum
 
 
-class MutationTemplatesEvolInstruct(StrEnum):
-    COMPLICATE = "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    ADD_CONSTRAINTS = "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    DEEPEN = "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    CONCRETIZE = "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n"
-    INCREASE_REASONING = "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    SWITCH_TOPIC = "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
+REWRITE_INSTRUCTION = """
+I want you act as a Prompt Rewriter.\n
+Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.\n
+But the rewritten prompt must be reasonable and must be understood and responded by humans.\n
+Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.\n
+You SHOULD complicate the given prompt using the following method: \n{}\n
+You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.\n
+'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#\n
+#The Given Prompt#:\n<PROMPT>\n#Rewritten Prompt#:\n
+""".lstrip()
+
+CREATE_INSTRUCTION = """
+I want you act as a Prompt Creator.\n
+Your goal is to draw inspiration from the #Given Prompt# to create a brand new prompt.\n
+This new prompt should belong to the same domain as the #Given Prompt# but be even more rare.\n
+The LENGTH and complexity of the #Created Prompt# should be similar to that of the #Given Prompt#.\n
+The #Created Prompt# must be reasonable and must be understood and responded by humans.\n
+'#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear in #Created Prompt#\n
+#Given Prompt#:\n<PROMPT>\n#Created Prompt#:\n
+""".lstrip()
 
 
-class GenerationMutationTemplatesEvolInstruct(StrEnum):
+class MutationTemplates(StrEnum):
+    CONSTRAINTS = REWRITE_INSTRUCTION.format(
+        "Please add one more constraints/requirements into '#The Given Prompt#'"
+    )
+    DEEPENING = REWRITE_INSTRUCTION.format(
+        "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
+    )
+    CONCRETIZING = REWRITE_INSTRUCTION.format(
+        "Please replace general concepts with more specific concepts."
+    )
+    INCREASED_REASONING_STEPS = REWRITE_INSTRUCTION.format(
+        "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
+    )
+    BREADTH = CREATE_INSTRUCTION
+
+
+class GenerationMutationTemplates(StrEnum):
     FRESH_START = "Write one question or request containing one or more of the following words: <PROMPT>"
-    COMPLICATE = "Rewrite #Given Prompt# to make it slightly more complicated, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    ADD_CONSTRAINTS = "Add a few more constraints or requirements to #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    DEEPEN = "Slightly increase the depth and breadth of #Given Prompt#, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    CONCRETIZE = "Make #Given Prompt# slightly more concrete, and create #New Prompt#.\n#Given Prompt#:\n\n<PROMPT>\n"
-    INCREASE_REASONING = "If #Given Prompt# can be solved with just a few simple thinking processes, rewrite it to explicitly request multi-step reasoning, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-    SWITCH_TOPIC = "Rewrite #Given Prompt# by switching the topic, keeping the domain and difficulty level similar, and create #New Prompt#.\n\n#Given Prompt#:\n<PROMPT>\n"
-
+    CONSTRAINTS = REWRITE_INSTRUCTION.format(
+        "Please add one more constraints/requirements into '#The Given Prompt#'"
+    )
+    DEEPENING = REWRITE_INSTRUCTION.format(
+        "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
+    )
+    CONCRETIZING = REWRITE_INSTRUCTION.format(
+        "Please replace general concepts with more specific concepts."
+    )
+    INCREASED_REASONING_STEPS = REWRITE_INSTRUCTION.format(
+        "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
+    )
+    BREADTH = CREATE_INSTRUCTION
 
 class MutationTemplatesEvolComplexity(StrEnum):
-    ADD_CONSTRAINTS = MutationTemplatesEvolInstruct.ADD_CONSTRAINTS.value
-    DEEPEN = MutationTemplatesEvolInstruct.DEEPEN.value
-    CONCRETIZE = MutationTemplatesEvolInstruct.CONCRETIZE.value
-    INCREASE_REASONING = MutationTemplatesEvolInstruct.INCREASE_REASONING.value
+    CONSTRAINTS = MutationTemplatesEvolInstruct.CONSTRAINTS.value
+    DEEPENING = MutationTemplatesEvolInstruct.DEEPENING.value
+    CONCRETIZING = MutationTemplatesEvolInstruct.CONCRETIZING.value
+    INCREASED_REASONING_STEPS = MutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
 
 
 class GenerationMutationTemplatesEvolComplexity(StrEnum):
     FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
-    ADD_CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.ADD_CONSTRAINTS.value
-    DEEPEN = GenerationMutationTemplatesEvolInstruct.DEEPEN.value
-    CONCRETIZE = GenerationMutationTemplatesEvolInstruct.CONCRETIZE.value
-    INCREASE_REASONING = (
-        GenerationMutationTemplatesEvolInstruct.INCREASE_REASONING.value
+    CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.CONSTRAINTS.value
+    DEEPENING = GenerationMutationTemplatesEvolInstruct.DEEPENING.value
+    CONCRETIZING = GenerationMutationTemplatesEvolInstruct.CONCRETIZING.value
+    INCREASED_REASONING_STEPS = (
+        GenerationMutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
     )

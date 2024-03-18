@@ -62,7 +62,7 @@ class LoadHubDataset(GeneratorStep):
     entire dataset into memory at once. Instead, it will load the dataset in chunks and yield
     the transformed data as it is loaded from the Hugging Face Hub.
 
-    This step needs the following runtime parameters:
+    Runtime parameters:
 
     - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
     - `split`: The split of the dataset to load.
@@ -72,7 +72,7 @@ class LoadHubDataset(GeneratorStep):
     Columns:
 
     - `input`: None
-    - `output`: dynamic, based on the dataset being loaded.
+    - `output`: dynamic, based on the dataset being loaded
     """
 
     repo_id: RuntimeParameter[str] = Field(

@@ -40,7 +40,9 @@ class TestEvolInstructGenerator:
         task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
+        task = task_class(
+            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+        )
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_instructions == 2
@@ -48,10 +50,10 @@ class TestEvolInstructGenerator:
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self, task_class_generator) -> None:
+    def test_within_pipeline_context(self) -> None:
         with Pipeline() as pipeline:
             llm = DummyLLM()
-            task = task_class_generator(
+            task = task_class(
                 name="task", llm=llm, num_instructions=2, pipeline=pipeline
             )
             assert task.name == "task"
@@ -68,7 +70,7 @@ class TestEvolInstructGenerator:
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             task_class_generator(name="task", llm=DummyLLM(), num_instructions=2)
 
-    def test_process(self, task_class_generator) -> None:
+    def test_process(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
         task = task_class_generator(
@@ -120,34 +122,43 @@ class TestEvolInstructGenerator:
         task_class, mutation_templates_class = task_params_generator
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
+        task = task_class(
+            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+        )
         assert task.dump() == {
             "name": "task",
-            "input_mappings": {},
-            "output_mappings": {},
-            "batch_size": 50,
-            "input_batch_size": 50,
+            "input_mappings": task.input_mappings,
+            "output_mappings": task.output_mappings,
+            "batch_size": task.batch_size,
             "llm": {
                 "type_info": {
                     "module": "tests.unit.steps.task.evol_instruct.test_generator",
                     "name": "DummyLLM",
                 }
             },
-            "num_instructions": 2,
-            "generate_answers": False,
+            "num_instructions": task.num_instructions,
+            "generate_answers": task.generate_answers,
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
                 "_name": mutation_templates_class.__name__,
                 "_values": {
-                    key: value.value
-                    for key, value in mutation_templates_class.__members__.items()
+                    mutation.name: mutation.value  # type: ignore
+                    for mutation in task.mutation_templates
                 },
             },
-            "min_length": 256,
-            "max_length": 1024,
+            "num_generations": task.num_generations,
+            "group_generations": task.group_generations,
             "generation_kwargs": {},
+            "min_length": task.min_length,
+            "max_length": task.max_length,
+            "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "num_generations",
+                    "optional": True,
+                    "description": "The number of generations to be produced per input.",
+                },
                 {
                     "name": "generation_kwargs",
                     "optional": True,
@@ -156,10 +167,17 @@ class TestEvolInstructGenerator:
                 {
                     "name": "min_length",
                     "optional": True,
+                    "description": "Defines the length (in bytes) that the generated instruction needs to be higher than, to be considered valid.",
                 },
                 {
                     "name": "max_length",
                     "optional": True,
+                    "description": "Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.",
+                },
+                {
+                    "name": "seed",
+                    "optional": True,
+                    "description": "As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
                 },
             ],
             "type_info": {
