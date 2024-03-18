@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class _Task(ABC):
+class _Task(Step, ABC):
     """_Task is an abstract class that implements the `Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
@@ -45,6 +45,13 @@ class _Task(ABC):
     """
 
     llm: LLM
+    llm_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to the `LLM` constructor. Note that these"
+        " kwargs will be specific to each LLM, and while some as `model` may be present"
+        " on each `LLM`, some others may not, so read the `LLM` constructor signature in"
+        " advance to see which kwargs are available.",
+    )
 
     group_generations: bool = False
     num_generations: RuntimeParameter[int] = Field(
@@ -61,7 +68,7 @@ class _Task(ABC):
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-        self.llm.load()  # type: ignore
+        self.llm.load(**self.llm_kwargs)  # type: ignore
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
@@ -136,7 +143,7 @@ class _Task(ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(_Task, Step):
+class Task(_Task):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
@@ -155,7 +162,7 @@ class Task(_Task, Step):
     pass
 
 
-class GeneratorTask(_Task, GeneratorStep):
+class GeneratorTask(GeneratorStep, _Task):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
