@@ -31,12 +31,15 @@ import pyarrow.parquet as pq
 
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.steps.base import Step
+from distilabel.utils.data import _create_dataset
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
     from multiprocessing.pool import Pool
     from os import PathLike
     from queue import Queue
+
+    from datasets import DatasetDict
 
     from distilabel.steps.base import GeneratorStep
 
@@ -48,7 +51,9 @@ _STEPS_LOADED_ERROR_CODE = -1
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+    def run(
+        self, parameters: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> "DatasetDict":
         """Runs the pipeline.
 
         Args:
@@ -77,9 +82,11 @@ class Pipeline(BasePipeline):
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
 
-            # Run the steps using the pool of processes
             if not self._batch_manager.can_generate():
-                return  # TODO: Return distiset
+                write_buffer.close()
+                return _create_dataset(self._cache_location["data"])
+
+            # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
@@ -124,6 +131,8 @@ class Pipeline(BasePipeline):
 
             pool.close()
             pool.join()
+        write_buffer.close()
+        return _create_dataset(self._cache_location["data"])
 
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
@@ -265,11 +274,9 @@ class Pipeline(BasePipeline):
         have any effect), and if the pool is already started, will close it before exiting
         the program.
         """
-        try:
+        if getattr(self, "output_queue", None):
+            # If the output queue has already been created, then stop it.
             self._stop()
-        except Exception:
-            # Errors like the output_queue not created yet
-            pass
 
         pool: Optional[mp.Pool] = None
 
@@ -307,10 +314,10 @@ class _WriteBuffer:
             ValueError: If the path is not a directory.
         """
         self._path = Path(path)
-        if not self._path.is_dir():
-            raise ValueError(f"The path should be a directory, not a file: {path}")
         if not self._path.exists():
             self._path.mkdir(parents=True, exist_ok=True)
+        if not self._path.is_dir():
+            raise ValueError(f"The path should be a directory, not a file: {path}")
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
         self._writers: Dict[str, pq.ParquetWriter] = {}
 
@@ -350,7 +357,7 @@ class _WriteBuffer:
         Args:
             step_name (str): Name of the step to which the data pertains.
         """
-        # TODO: The parquet files should be rotated to different files up to a given size.
+        # NOTE: The parquet files should be rotated to different files up to a given size (i.e. 500Mb).
         data = self._buffers[step_name]
         writer = self._get_writer(step_name, data)
         for batch in data:
