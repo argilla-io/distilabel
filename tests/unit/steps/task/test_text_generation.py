@@ -23,6 +23,6 @@ class TestTextGeneration:
         pipeline = Pipeline()
         llm = DummyLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-        assert list(task.process([{"instruction": "test"}])) == [
-            [{"instruction": "test", "generation": "output", "model_name": "test"}]
+        assert next(task.process([{"instruction": "test"}])) == [
+            {"instruction": "test", "generation": "output", "model_name": "test"}
         ]

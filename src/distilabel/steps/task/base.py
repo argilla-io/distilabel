@@ -60,8 +60,8 @@ class _Task(ABC):
     )
 
     def load(self) -> None:
-        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-        self.llm.load()  # type: ignore
+        """Loads the LLM via the `LLM.load()` method"""
+        self.llm.load()
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
