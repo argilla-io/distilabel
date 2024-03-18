@@ -88,7 +88,7 @@ class GenerateEmbeddings(Step):
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
+        Yields:
             A list of Python dictionaries with the outputs of the task.
         """
         formatted_inputs = [self.format_input(input) for input in inputs]

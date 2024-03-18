@@ -237,8 +237,9 @@ class EvolInstructGenerator(GeneratorTask):
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
+        Yields:
+            A list of Python dictionaries with the outputs of the task, and a boolean
+            flag indicating whether the task has finished or not i.e. is the last batch.
         """
 
         instructions = []

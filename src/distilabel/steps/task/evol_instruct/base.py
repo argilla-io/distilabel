@@ -230,7 +230,7 @@ class EvolInstruct(Task):
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
+        Yields:
             A list of Python dictionaries with the outputs of the task.
         """
 

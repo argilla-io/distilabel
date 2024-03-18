@@ -71,7 +71,7 @@ class PushToHub(GlobalStep):
             inputs: that input data within a single object (as it's a GlobalStep) that
                 will be transformed into a `datasets.Dataset`.
 
-        Returns:
+        Yields:
             An empty `StepOutput` which is an iterator with a single empty dictionary.
         """
         dataset_dict = defaultdict(list)

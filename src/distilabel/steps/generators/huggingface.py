@@ -107,7 +107,7 @@ class LoadHubDataset(GeneratorStep):
             offset: The offset to start yielding the data from. Will be used during the caching
             process to help skipping already processed data.
 
-        Yield:
+        Yields:
             A tuple containing a batch of rows and a boolean indicating if the batch is
             the last one.
         """

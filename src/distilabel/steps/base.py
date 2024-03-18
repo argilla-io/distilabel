@@ -465,6 +465,9 @@ class GeneratorStep(_Step, ABC):
 
         Args:
             offset: The offset to start the generation from. Defaults to 0.
+
+        Yields:
+            The output rows and a boolean indicating if it's the last batch or not.
         """
         pass
 
