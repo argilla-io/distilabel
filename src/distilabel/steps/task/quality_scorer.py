@@ -41,10 +41,10 @@ class QualityScorer(Task):
     """
     QualityScorerTask is a pre-defined task that defines the `instruction` as the input
     and `score` as the output. This task is used to rate the quality of instructions and responses.
-    It is inspired by the Evol Quality Scorer in the Deita framework: : *Deita is an open-sourced project
-    designed to facilitate Automatic Data Selection for instruction tuning in Large Language Models (LLMs).*
-    The task follows the same scheme as the Evol Complexity Scorer, but the instruction-response pairs are scored in
-    terms of quality, obtining a quality score *q* for each instruction.
+    It's an implementation of the quality score task from the paper 'What Makes Good Data
+    for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
+    The task follows the same scheme as the Complexity Scorer, but the instruction-response pairs
+    are scored in terms of quality, obtaining a quality score for each instruction.
 
     Input columns:
         instruction (`List[str]`): The instruction to be scored.
