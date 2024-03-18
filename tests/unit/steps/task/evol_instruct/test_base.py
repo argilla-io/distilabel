@@ -139,6 +139,7 @@ class TestEvolInstruct:
                     "name": "DummyLLM",
                 }
             },
+            "llm_kwargs": {},
             "num_evolutions": task.num_evolutions,
             "store_evolutions": task.store_evolutions,
             "generate_answers": task.generate_answers,
@@ -156,6 +157,11 @@ class TestEvolInstruct:
             "generation_kwargs": {},
             "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "llm_kwargs",
+                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
+                    "optional": True,
+                },
                 {
                     "name": "num_generations",
                     "optional": True,

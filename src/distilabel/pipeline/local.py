@@ -226,7 +226,7 @@ class Pipeline(BasePipeline):
                 that raised the error.
         """
         if e.is_load_error:
-            self._logger.error(f"Failed to load step '{e.step.name}': {e.message}")
+            self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
             self._cache()
             self._stop()
             return
@@ -255,7 +255,7 @@ class Pipeline(BasePipeline):
         notify the pipeline to stop, and set the `_STEPS_LOADED_KEY` to `_STEPS_LOADED_ERROR_CODE`
         for the pipeline to stop waiting for the steps to load.
         """
-        self._logger.info("Stopping pipeline...")
+        self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(None)
         with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
             self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE

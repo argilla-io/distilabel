@@ -28,7 +28,7 @@ def llamacpp_llm() -> Generator[LlamaCppLLM, None, None]:
             "tinyllama.gguf",
         )
 
-    llm = LlamaCppLLM(model_path="tinyllama.gguf", n_gpu_layers=0)
+    llm = LlamaCppLLM(model_path="tinyllama.gguf", n_gpu_layers=0)  # type: ignore
     llm.load()
 
     yield llm
