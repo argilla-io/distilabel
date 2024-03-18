@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import LLM
+from distilabel.llm.base import CUDALLM
 from distilabel.llm.constants import CHATML_TEMPLATE
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 SamplingParams = None
 
 
-class vLLM(LLM):
+class vLLM(CUDALLM):
     """`vLLM` library LLM implementation.
 
     Attributes:

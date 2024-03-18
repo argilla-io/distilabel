@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import LLM
+from distilabel.llm.base import CUDALLM
 from distilabel.llm.constants import CHATML_TEMPLATE
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
 
 
-class TransformersLLM(LLM):
+class TransformersLLM(CUDALLM):
     """Hugging Face `transformers` library LLM implementation using the text generation
     pipeline.
 
