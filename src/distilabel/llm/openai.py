@@ -15,19 +15,18 @@
 import os
 from typing import TYPE_CHECKING, Optional, Union
 
-from openai import AsyncOpenAI
 from pydantic import Field, PrivateAttr, SecretStr, field_validator
 from typing_extensions import Annotated
 
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
+    from openai import AsyncOpenAI
+
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
-# TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
-# https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(AsyncLLM):
     """OpenAI LLM implementation running the async API client.
 
@@ -58,6 +57,15 @@ class OpenAILLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
+
+        try:
+            from openai import AsyncOpenAI
+        except ImportError as ie:
+            raise ImportError(
+                "OpenAI Python client is not installed. Please install it using"
+                " `pip install openai`."
+            ) from ie
+
         self._aclient = AsyncOpenAI(
             api_key=self.api_key.get_secret_value(),  # type: ignore
             max_retries=6,
@@ -79,7 +87,25 @@ class OpenAILLM(AsyncLLM):
         top_p: float = 1.0,
     ) -> "GenerateOutput":
         """Generates `num_generations` responses for the given input using the OpenAI async
-        client."""
+        client.
+
+        Args:
+            input: a single input in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximun number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequence_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,

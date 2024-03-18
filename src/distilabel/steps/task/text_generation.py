@@ -38,7 +38,7 @@ class TextGeneration(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         return [
-            {"role": "user", "content": input[self.inputs[0]]},
+            {"role": "user", "content": input["instruction"]},
         ]
 
     @property
@@ -51,4 +51,4 @@ class TextGeneration(Task):
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
-        return {self.outputs[0]: output}
+        return {"generation": output}
