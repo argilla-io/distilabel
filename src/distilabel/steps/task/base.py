@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step
+from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, _Step
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class _Task(Step, ABC):
+class _Task(_Step, ABC):
     """_Task is an abstract class that implements the `Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
@@ -147,7 +147,7 @@ class _Task(Step, ABC):
         return {output: None for output in self.outputs}  # type: ignore
 
 
-class Task(_Task):
+class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
@@ -170,7 +170,7 @@ class Task(_Task):
     pass
 
 
-class GeneratorTask(GeneratorStep, _Task):
+class GeneratorTask(_Task, GeneratorStep):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
