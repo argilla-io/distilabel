@@ -17,6 +17,12 @@ from typing import TYPE_CHECKING, List
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.task.evol_instruct.generator import (
+    EvolInstructGenerator,
+)
+from distilabel.steps.task.evol_instruct.utils import (
+    GenerationMutationTemplatesEvolInstruct,
+)
 from pydantic import ValidationError
 
 if TYPE_CHECKING:
@@ -36,22 +42,23 @@ class DummyLLM(LLM):
 
 
 class TestEvolInstructGenerator:
-    def test_passing_pipeline(self, task_params_generator) -> None:
-        task_class, mutation_templates_class = task_params_generator
+    def test_passing_pipeline(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
+        task = EvolInstructGenerator(
+            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+        )
         assert task.name == "task"
         assert task.llm is llm
         assert task.num_instructions == 2
-        assert task.mutation_templates == mutation_templates_class
+        assert task.mutation_templates == GenerationMutationTemplatesEvolInstruct
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self, task_class_generator) -> None:
+    def test_within_pipeline_context(self) -> None:
         with Pipeline() as pipeline:
             llm = DummyLLM()
-            task = task_class_generator(
+            task = EvolInstructGenerator(
                 name="task", llm=llm, num_instructions=2, pipeline=pipeline
             )
             assert task.name == "task"
@@ -59,19 +66,19 @@ class TestEvolInstructGenerator:
             assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
-    def test_with_errors(self, task_class_generator) -> None:
+    def test_with_errors(self) -> None:
         with pytest.raises(
             ValidationError, match="num_instructions\n  Field required \\[type=missing"
         ):
-            task_class_generator(name="task", pipeline=Pipeline())  # type: ignore
+            EvolInstructGenerator(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            task_class_generator(name="task", llm=DummyLLM(), num_instructions=2)
+            EvolInstructGenerator(name="task", llm=DummyLLM(), num_instructions=2)
 
-    def test_process(self, task_class_generator) -> None:
+    def test_process(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class_generator(
+        task = EvolInstructGenerator(
             name="task",
             llm=llm,
             num_instructions=1,
@@ -91,10 +98,10 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_process_generate_answers(self, task_class_generator) -> None:
+    def test_process_generate_answers(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class_generator(
+        task = EvolInstructGenerator(
             name="task",
             llm=llm,
             num_instructions=1,
@@ -116,11 +123,12 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_serialization(self, task_params_generator) -> None:
-        task_class, mutation_templates_class = task_params_generator
+    def test_serialization(self) -> None:
         pipeline = Pipeline()
         llm = DummyLLM()
-        task = task_class(name="task", llm=llm, num_instructions=2, pipeline=pipeline)
+        task = EvolInstructGenerator(
+            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+        )
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,
@@ -137,7 +145,7 @@ class TestEvolInstructGenerator:
             "mutation_templates": {
                 "_type": "enum",
                 "_enum_type": "str",
-                "_name": mutation_templates_class.__name__,
+                "_name": task.mutation_templates.__name__,
                 "_values": {
                     mutation.name: mutation.value  # type: ignore
                     for mutation in task.mutation_templates
@@ -177,11 +185,11 @@ class TestEvolInstructGenerator:
                 },
             ],
             "type_info": {
-                "module": task_class.__module__,
-                "name": task_class.__name__,
+                "module": EvolInstructGenerator.__module__,
+                "name": EvolInstructGenerator.__name__,
             },
         }
 
         with Pipeline() as pipeline:
-            new_task = task_class.from_dict(task.dump())
-            assert isinstance(new_task, task_class)
+            new_task = EvolInstructGenerator.from_dict(task.dump())
+            assert isinstance(new_task, EvolInstructGenerator)
