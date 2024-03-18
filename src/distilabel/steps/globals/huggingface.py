@@ -19,10 +19,9 @@ from typing import TYPE_CHECKING, Optional
 from datasets import Dataset
 from pydantic import Field
 
-from distilabel.steps.base import GlobalStep, RuntimeParameter
+from distilabel.steps.base import GlobalStep, RuntimeParameter, StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -66,7 +65,7 @@ class PushToHub(GlobalStep):
         " to `None`",
     )
 
-    def process(self, inputs: "StepInput") -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":
         """Method that processes the input data, respecting the `datasets.Dataset` formatting,
         and pushes it to the Hugging Face Hub based on the `RuntimeParameter`s attributes.
 

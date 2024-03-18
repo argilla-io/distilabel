@@ -25,9 +25,9 @@ except ImportError as ie:
     ) from ie
 
 from distilabel.integrations.argilla.base import Argilla
+from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -109,7 +109,7 @@ class PromptCompletionToArgilla(Argilla):
         return ["prompt", "completion"]
 
     @override
-    def process(self, inputs: "StepInput") -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
 
         Args:

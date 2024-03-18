@@ -18,12 +18,17 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, _Step
+from distilabel.steps.base import (
+    GeneratorStep,
+    RuntimeParameter,
+    Step,
+    StepInput,
+    _Step,
+)
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput
-    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -154,7 +159,7 @@ class Task(_Task, Step):
         """
         return [self.format_input(input) for input in inputs]
 
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
