@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
 
 import pytest
-from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.evol_instruct.generator import (
     EvolInstructGenerator,
@@ -25,20 +23,7 @@ from distilabel.steps.task.evol_instruct.utils import (
 )
 from pydantic import ValidationError
 
-if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
-
-
-class DummyLLM(LLM):
-    def load(self) -> None:
-        pass
-
-    @property
-    def model_name(self) -> str:
-        return "test"
-
-    def generate(self, inputs: List["ChatType"]) -> List[str]:
-        return ["output" for _ in inputs]
+from tests.unit.steps.task.utils import DummyLLM
 
 
 class TestEvolInstructGenerator:
@@ -136,8 +121,8 @@ class TestEvolInstructGenerator:
             "batch_size": task.batch_size,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.steps.task.evol_instruct.test_generator",
-                    "name": "DummyLLM",
+                    "module": task.llm.__class__.__module__,
+                    "name": task.llm.__class__.__name__,
                 }
             },
             "llm_kwargs": {},
