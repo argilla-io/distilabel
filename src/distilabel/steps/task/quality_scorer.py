@@ -22,13 +22,15 @@ from distilabel.steps.task.base import Task
 from distilabel.steps.task.typing import ChatType
 
 _QUALITY_SCORER_TEMPLATE = """
-Ranking the following instructions according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-{{ instructions|length }}.
+Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-{{ instructions|length }}.
 You can give a score of {{ (instructions|length) + 1 }} if the question is too complex for you to answer it. You should respond with the format:
 [1] Score: 1
 [2] Score: 2
 ...
-{% for instruction in instructions %}
-[{{ loop.index }}] {{ instruction }}
+#Question#: {{ instruction }}
+#Response List#:
+{% for response in responses %}
+[Response {{ loop.index }}] {{ response }}
 {%- endfor %}
 """.lstrip()
 
@@ -62,7 +64,7 @@ class QualityScorer(Task):
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`."""
-        return ["instructions"]
+        return ["instructions", "responses"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
