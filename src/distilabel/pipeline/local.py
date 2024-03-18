@@ -310,9 +310,9 @@ class _WriteBuffer:
     def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
         """
         Args:
-            path (PathLike): Folder where the files will be written, the idea
+            path: Folder where the files will be written, the idea
                 is for this path to be in the cache folder under /data.
-            leaf_steps (Set[str]): Leaf steps from the dag of the pipeline.
+            leaf_steps: Leaf steps from either the DAG of the Pipeline.
 
         Raises:
             ValueError: If the path is not a directory.
