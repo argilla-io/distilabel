@@ -60,11 +60,13 @@ class Pipeline(BasePipeline):
             step_name: False for step_name in self.dag.leaf_steps
         }
 
-        self._logger.info("📝 Writing buffer to ./data.jsonl")
+        buffer_data_path = self._cache_location["data"]
+        self._logger.info("📝 Writing buffer to cache folder")
         write_buffer = _WriteBuffer(
-            path=Path("./data.jsonl"), leaf_steps=self.dag.leaf_steps
+            path=buffer_data_path, leaf_steps=self.dag.leaf_steps
         )
-        batch_manager = _BatchManager.from_dag(self.dag)
+        if self._batch_manager is None:
+            self._batch_manager = _BatchManager.from_dag(self.dag)
 
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(mp.cpu_count()) as pool:
@@ -72,25 +74,30 @@ class Pipeline(BasePipeline):
             self.shared_info = self._create_shared_info_dict(manager)
 
             # Run the steps using the pool of processes
+            if not self._batch_manager.can_generate():
+                return  # TODO: Return distiset
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 return
 
+            # TODO: this class must start from whatever was obtained from the root step
             self._request_initial_batches()
 
             # TODO: write code for handling output batch to new method and write unit test
-            while True:
+            while self._batch_manager.can_generate():
                 batch = self.output_queue.get()
 
                 # If `None` is received, then stop the pipeline
                 if batch is None:
                     break
 
+                self._batch_manager.register_batch(batch)
+
                 for step_name in self.dag.get_step_successors(batch.step_name):
-                    for new_batch in batch_manager.add_batch(
-                        to_step=step_name, batch=batch
+                    for new_batch in self._batch_manager.add_batch(
+                        to_step=step_name, batch=batch, callback=lambda: self._cache()
                     ):
                         self._send_batch_to_step(new_batch)
 
@@ -152,8 +159,14 @@ class Pipeline(BasePipeline):
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
+        # TODO: This block has to be reviewed, not properly cached
+        for step in self._batch_manager._steps.values():
+            for batch in step.get_batches():
+                self._send_batch_to_step(batch)
+
         for step_name in self.dag.root_steps:
-            batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+            seq_no = self._batch_manager._seq_no_step[step_name]
+            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
             self._send_batch_to_step(batch)
 
     def _send_batch_to_step(self, batch: "_Batch") -> None:
@@ -197,7 +210,7 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -208,6 +221,7 @@ class Pipeline(BasePipeline):
         """
         if e.is_load_error:
             self._logger.error(f"Failed to load step '{e.step.name}': {e.message}")
+            self._cache()
             self._stop()
             return
 
@@ -223,9 +237,11 @@ class Pipeline(BasePipeline):
                 f" successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored: {e.message}"
             )
+            self._cache()
             return
 
         self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
+        self._cache()
         self._stop()
 
     def _stop(self) -> None:
@@ -242,9 +258,11 @@ class Pipeline(BasePipeline):
 class _WriteBuffer:
     def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
         path = Path(path)
-        # if path.exists() and not path.is_dir():
-        #     raise ValueError(f"Path '{path}' already exists and is not a directory")
+        if path.suffix == "":
+            path = path / "data.jsonl"
         self._path = path
+        if not self._path.exists():
+            self._path.parent.mkdir(parents=True, exist_ok=True)
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
 
     @property
@@ -386,12 +404,14 @@ class _ProcessWrapper:
 
         try:
             batch = self.input_queue.get()
+            offset = batch.seq_no * self.step.batch_size
 
             self.step._logger.info(
-                f"🧬 Starting yielding batches from generator step '{self.step.name}'"
+                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
+                f" Offset: {offset}"
             )
 
-            for data, last_batch in step.process_applying_mappings():
+            for data, last_batch in step.process_applying_mappings(offset):
                 batch.data = [data]
                 batch.last_batch = last_batch
                 self._send_batch(batch)
