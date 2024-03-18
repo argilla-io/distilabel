@@ -106,11 +106,12 @@ class _Step(BaseModel, _Serializable, ABC):
     output_mappings: Dict[str, str] = {}
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
-    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("steps"))
 
-    def model_post_init(self, _: Any) -> None:
+    def model_post_init(self, __context: Any) -> None:
+        super().model_post_init(__context)
+
         if self.pipeline is None:
             self.pipeline = _GlobalPipelineManager.get_pipeline()
 
