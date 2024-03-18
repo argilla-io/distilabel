@@ -78,6 +78,7 @@ class TransformersLLM(CUDALLM):
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
+        super().load()
 
         try:
             from transformers import pipeline

@@ -56,6 +56,7 @@ class vLLM(CUDALLM):
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
         """
+        super().load()
 
         try:
             from vllm import LLM as _vLLM

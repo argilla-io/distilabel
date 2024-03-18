@@ -32,9 +32,12 @@ if TYPE_CHECKING:
 
     from distilabel.steps.base import GeneratorStep
 
-_STEPS_LOADED_SHARED_KEY = "steps_loaded"
+_STEPS_LOADED_KEY = "steps_loaded"
+_STEPS_LOADED_LOCK = _STEPS_LOADED_KEY + "_lock"
 _STEPS_LOADED_ERROR_CODE = -1
-_CUDA_LLM_DEVICE_PLACEMENT_SHARED_KEY = "cuda_llm_device_placement"
+
+_CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
+_CUDA_LLM_DEVICE_PLACEMENET_LOCK = _CUDA_LLM_DEVICE_PLACEMENT_KEY + "_lock"
 
 
 class Pipeline(BasePipeline):
@@ -73,6 +76,7 @@ class Pipeline(BasePipeline):
             # Run the steps using the pool of processes
             if not self._batch_manager.can_generate():
                 return  # TODO: Return distiset
+
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
@@ -129,11 +133,10 @@ class Pipeline(BasePipeline):
         """
         return manager.dict(
             **{
-                _STEPS_LOADED_SHARED_KEY: {"value": 0, "lock": manager.Lock()},
-                _CUDA_LLM_DEVICE_PLACEMENT_SHARED_KEY: {
-                    "value": {},
-                    "lock": manager.Lock(),
-                },
+                _STEPS_LOADED_KEY: 0,
+                _STEPS_LOADED_LOCK: manager.Lock(),
+                _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
+                _CUDA_LLM_DEVICE_PLACEMENET_LOCK: manager.Lock(),
             }
         )
 
@@ -145,8 +148,8 @@ class Pipeline(BasePipeline):
         """
         self._logger.info("⏳ Waiting for all the steps to load...")
         while True:
-            with self.shared_info[_STEPS_LOADED_SHARED_KEY]["lock"]:
-                steps_loaded = self.shared_info[_STEPS_LOADED_SHARED_KEY]["value"]
+            with self.shared_info[_STEPS_LOADED_LOCK]:
+                steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
 
                 if steps_loaded == len(self.dag):
                     self._logger.info("✅ All the steps have been loaded!")
@@ -254,10 +257,9 @@ class Pipeline(BasePipeline):
         """
         self._logger.info("Stopping pipeline...")
         self.output_queue.put(None)
-        with self.shared_info[_STEPS_LOADED_SHARED_KEY]["lock"]:
-            self.shared_info[_STEPS_LOADED_SHARED_KEY][
-                "value"
-            ] = _STEPS_LOADED_ERROR_CODE
+        with self.shared_info[_STEPS_LOADED_LOCK]:
+            self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -397,7 +399,10 @@ class _ProcessWrapper:
             self.step.llm.set_device_placement_info(
                 llm_identifier=self.step.name,
                 device_llm_placement_map=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENT_SHARED_KEY
+                    _CUDA_LLM_DEVICE_PLACEMENT_KEY
+                ],
+                device_llm_placement_map_lock=self.shared_info[
+                    _CUDA_LLM_DEVICE_PLACEMENET_LOCK
                 ],
             )
 
@@ -424,8 +429,8 @@ class _ProcessWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
-        with self.shared_info[_STEPS_LOADED_SHARED_KEY]["lock"]:
-            self.shared_info[_STEPS_LOADED_SHARED_KEY]["value"] += 1
+        with self.shared_info[_STEPS_LOADED_LOCK]:
+            self.shared_info[_STEPS_LOADED_KEY] += 1
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method
