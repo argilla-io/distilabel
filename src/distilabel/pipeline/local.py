@@ -373,6 +373,17 @@ class _WriteBuffer:
     def _get_writer(
         self, step_name: str, batch_data: List[List[Dict[str, Any]]]
     ) -> pq.ParquetWriter:
+        """Generates a
+
+        Args:
+            step_name (str): Name of the step for which we want a writer. Will reuse one if already
+                created.
+            batch_data (List[List[Dict[str, Any]]]): Batch sample data used to generate the necessary
+                schema for the parquet file.
+
+        Returns:
+            The `pq.ParquetWriter` that will be in charge of writing the different parquet files.
+        """
         if writer := self._writers.get(step_name):
             return writer
         else:
@@ -403,13 +414,9 @@ class _WriteBuffer:
         self._buffers = buffs
 
     def close(self) -> None:
+        """Closes the writers."""
         for writer in self._writers.values():
             writer.close()
-
-    # def _combine_batches(self) -> Iterator[Dict[str, Any]]:
-    #     for _, data in self._buffers.items():
-    #         print("DATA", data)
-    #         yield data[-1]
 
 
 class _ProcessWrapperException(Exception):
