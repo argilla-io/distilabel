@@ -237,6 +237,7 @@ class Pipeline(BasePipeline):
                 f" successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored: {e.message}"
             )
+            self._cache()
             return
 
         self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
