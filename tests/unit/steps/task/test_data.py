@@ -20,7 +20,7 @@ from pydantic import ValidationError
 
 
 class TestDataTask:
-    def test_required_data(self) -> None:
+    def test_with_errors(self) -> None:
         pipeline = Pipeline()
         with pytest.raises(ValidationError):
             DataTask(name="task", pipeline=pipeline)

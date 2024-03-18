@@ -185,6 +185,7 @@ class EvolInstruct(Task):
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
+                generated_prompt = generated_prompt[-1]
                 generated_prompt = (
                     generated_prompt.split("Prompt#:")[-1].strip()
                     if "Prompt#:" in generated_prompt
