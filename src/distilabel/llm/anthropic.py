@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import PrivateAttr, SecretStr
 
@@ -22,27 +22,28 @@ from distilabel.llm.base import AsyncLLM
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
-
-SamplingParams = None
 
 
 class AnthropicLLM(AsyncLLM):
     """Anthropic LLM implementation running the Async API client.
 
-    TO DO: update the docstring to include the new parameters.
     Args:
-        model: the model name to use for the LLM e.g. "notus", etc.
-        host: the host to use for the LLM e.g. "https://ollama.com".
-        max_retries: the maximum number of retries for the LLM.
-        timeout: the timeout for the LLM.
-
+        model: the model name to use for the LLM.
+        api_key: the API key to authenticate the requests to the Anthropic API.
+        base_url: the base URL to use for the Anthropic API. Defaults to "https://api.anthropic.com".
+        http_client: the HTTP client to use for the Anthropic API. Defaults to None.
+        timeout: the maximum time in seconds to wait for a response. Defaults to 600.0.
+        max_retries: the maximum number of retries for the LLM. Defaults to 2.
     """
 
-    model = str
-    api_key = Optional[SecretStr] = os.getenv("ANTHROPIC_API_KEY", None)  # type: ignore
+    model: str = "claude-3-opus-20240229"
+    api_key: Optional[SecretStr] = os.getenv("ANTHROPIC_API_KEY", None)  # type: ignore
+    base_url: str = "https://api.anthropic.com"
+    timeout: float = 600.0
     http_client: Union[str, None] = None
-    max_retries = int = 5
+    max_retries: int = 2
 
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
 
@@ -62,9 +63,10 @@ class AnthropicLLM(AsyncLLM):
 
         self._aclient = AsyncAnthropic(
             api_key=self.api_key.get_secret_value(),
-            max_retries=6,
+            base_url=self.base_url,
+            timeout=self.timeout,
             http_client=self.http_client,
-            # TO DO: add more: tiemout, follow_redirects
+            max_retries=self.max_retries,
         )
 
     @property
@@ -72,53 +74,45 @@ class AnthropicLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
-        stream: bool = False,
+        system: str = "",
+        num_generations: int = 1,
         max_tokens: int = 128,
-        temperature: float = None,
-        top_p: float = None,
-        top_k: int = None,
-    ) -> str:
-        """Generates a response asynchronously, using the Anthropic Async API definition.
-        TO DO: define defaults and add docstring.
+        stop_sequences: List[str] = None,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        top_k: int = 0,
+    ) -> "GenerateOutput":
+        """Generates a response asynchronously, using the [Anthropic Async API definition](https://github.com/anthropics/anthropic-sdk-python).
+
         Args:
-            input (ChatType): _description_
-            stream (bool, optional): _description_. Defaults to False.
+            input: a single input in chat format to generate responses for.
+            system: the system prompt to use for the generation. No existing 'system' role. Defaults to `""`.
+            num_generations: the number of generations to create per input. Defaults to `1`.
+            max_tokens: the maximum number of new tokens that the model will generate. Defaults to `128`.
+            stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to None.
+            temperature: the temperature to use for the generation. Set only if top_p is None. Defaults to `1.0`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
 
         Returns:
-            str: _description_
+            A list of lists of strings containing the generated responses for each input.
         """
-        completion = await self._aclient.messages.create(  # type: ignore
-            model=self.model,
-            messages=input,
-            stream=stream,
-            format=format,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-        )
-        return completion.content
 
-
-# client = AsyncAnthropic(
-#     # This is the default and can be omitted
-#     api_key=os.environ.get("ANTHROPIC_API_KEY"),
-# )
-# async def main() -> None:
-#     message = await client.messages.create(
-#         max_tokens=1024,
-#         messages=[
-#             {
-#                 "role": "user",
-#                 "content": "Hello, Claude",
-#             }
-#         ],
-#         model="claude-3-opus-20240229",
-#     )
-#     print(message.content)
-
-
-# asyncio.run(main())
+        generations = []
+        for _ in range(num_generations):
+            completion = await self._aclient.messages.create(
+                model=self.model,
+                system=system,
+                messages=input,
+                max_tokens=max_tokens,
+                stream=False,
+                stop_sequences=stop_sequences,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+            )
+            generations.append(completion.content[0].text)
+        return generations
