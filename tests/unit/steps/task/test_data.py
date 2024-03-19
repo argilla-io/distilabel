@@ -15,7 +15,7 @@
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.data import DataTask
+from distilabel.steps.task.data import LoadData
 from pydantic import ValidationError
 
 
@@ -23,11 +23,11 @@ class TestDataTask:
     def test_with_errors(self) -> None:
         pipeline = Pipeline()
         with pytest.raises(ValidationError):
-            DataTask(name="task", pipeline=pipeline)
+            LoadData(name="task", pipeline=pipeline)
 
     def test_process(self) -> None:
         pipeline = Pipeline()
         data: list[dict[str, str]] = [{"instruction": "test"}] * 10
-        task = DataTask(name="task", pipeline=pipeline, data=data)
+        task = LoadData(name="task", pipeline=pipeline, data=data)
         result = list(task.process())
         assert result == [([{"instruction": "test"}] * 10, True)]

@@ -12,45 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import override
 
-from distilabel.llm.base import LLM
 from distilabel.steps.base import (
     GeneratorStep,
 )
-from distilabel.steps.task.base import _Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class DataTask(_Task, GeneratorStep):
-    """DataTask is a class that implements the `_Task` abstract class and adds the
+class LoadData(GeneratorStep):
+    """LoadData is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Args:
         data: The data to be used to generate the outputs of the task.
     """
 
-    llm: LLM = None
-    group_generations: Optional[bool] = None
-    num_generations: Optional[int] = None
-    generation_kwargs: Optional[dict] = None
     data: List[Dict[str, Any]]
 
     @override
-    def load(self) -> None:
-        pass
-
-    @override
-    def process(self) -> "GeneratorStepOutput":  # type: ignore
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
-            inputs: A list of Python dictionaries with the inputs of the task.
+            offset: The offset to start the generation from. Defaults to 0.
 
         Returns:
             A list of Python dictionaries with the outputs of the task.
@@ -73,9 +62,3 @@ class DataTask(_Task, GeneratorStep):
             output.
         """
         return list(self.data[0].keys()) + ["model_name"]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
-        pass
-
-    def format_output(self, input: Dict[str, Any]) -> "ChatType":  # type: ignore
-        pass
