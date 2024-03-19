@@ -15,6 +15,7 @@
 import sys
 
 from distilabel.steps.base import RuntimeParameter
+from distilabel.utils.lists import flatten_responses
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -224,10 +225,11 @@ class EvolInstructGenerator(GeneratorTask):
             [{"role": "user", "content": instruction[-1]}]
             for instruction in instructions
         ]
-        return self.llm.generate(
+        responses = self.llm.generate(
             _formatted_instructions,
             **self.generation_kwargs,  # type: ignore
         )
+        return flatten_responses(responses)
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
@@ -247,9 +249,11 @@ class EvolInstructGenerator(GeneratorTask):
         while len(instructions) < self.num_instructions:
             prompts = self._apply_random_mutation(iter_no=iter_no)
 
-            generated_prompts = self.llm.generate(
-                prompts,
-                **self.generation_kwargs,  # type: ignore
+            generated_prompts = flatten_responses(
+                self.llm.generate(
+                    prompts,
+                    **self.generation_kwargs,  # type: ignore
+                )
             )
             for idx, generated_prompt in enumerate(generated_prompts):
                 generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()

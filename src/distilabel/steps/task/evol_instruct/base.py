@@ -14,6 +14,8 @@
 
 import sys
 
+from distilabel.utils.lists import flatten_responses
+
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
@@ -176,13 +178,16 @@ class EvolInstruct(Task):
             formatted_prompts = [
                 self.format_input(prompt) for prompt in formatted_prompts
             ]
-            generated_prompts = self.llm.generate(
-                formatted_prompts,
-                **self.generation_kwargs,  # type: ignore
+            generated_prompts = flatten_responses(
+                self.llm.generate(
+                    formatted_prompts,
+                    **self.generation_kwargs,  # type: ignore
+                )
             )
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
+                self._logger.info(f"GPT-3 generated: {generated_prompt}")
                 evolved_instructions.append(
                     generated_prompt.split("Prompt#:")[-1].strip()
                 )
@@ -219,10 +224,11 @@ class EvolInstruct(Task):
         _formatted_instructions = [
             self.format_input(instruction[-1]) for instruction in instructions
         ]
-        return self.llm.generate(
+        responses = self.llm.generate(
             _formatted_instructions,
             **self.generation_kwargs,  # type: ignore
         )
+        return flatten_responses(responses)
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
