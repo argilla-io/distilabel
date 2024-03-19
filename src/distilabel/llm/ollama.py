@@ -14,13 +14,12 @@
 
 from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
-from ollama import AsyncClient
 from pydantic import PrivateAttr
 
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
-    from ollama import Options
+    from ollama import AsyncClient, Options
 
     from distilabel.steps.task.typing import ChatType
 
@@ -45,11 +44,19 @@ class OllamalLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncClient` to use Ollama async API."""
-        self._aclient = AsyncClient(
-            host=self.host,
-            timeout=self.timeout,
-            follow_redirects=self.follow_redirects,
-        )
+        try:
+            from ollama import AsyncClient
+
+            self._aclient = AsyncClient(
+                host=self.host,
+                timeout=self.timeout,
+                follow_redirects=self.follow_redirects,
+            )
+        except ImportError as e:
+            raise ImportError(
+                "Ollama Python client is not installed. Please install it using"
+                " `pip install ollama`."
+            ) from e
 
     @property
     def model_name(self) -> str:
