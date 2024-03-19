@@ -15,11 +15,10 @@
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from distilabel.llm.base import LLM
-from distilabel.steps.base import Step
+from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -82,13 +81,13 @@ class GenerateEmbeddings(Step):
             " be a string or a list of dictionaries in OpenAI chat-like format."
         )
 
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Generates an embedding for each input using the last hidden state of the `LLM`.
 
         Args:
             inputs: A list of Python dictionaries with the inputs of the task.
 
-        Returns:
+        Yields:
             A list of Python dictionaries with the outputs of the task.
         """
         formatted_inputs = [self.format_input(input) for input in inputs]
