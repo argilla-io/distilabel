@@ -14,6 +14,7 @@
 
 import multiprocessing as mp
 import os
+import sys
 from typing import TYPE_CHECKING, Any, Generator, List, Union
 from unittest import mock
 
@@ -29,9 +30,12 @@ if TYPE_CHECKING:
 def mock_pynvml() -> Generator[None, None, None]:
     """Mocks `pynvml` module and clears the environment variables before each test."""
     with mock.patch.dict(os.environ, clear=True):
-        with mock.patch("pynvml.nvmlInit"):
-            with mock.patch("pynvml.nvmlDeviceGetCount", return_value=4):
-                yield
+        # Mock `pynvml` module to avoid installing it in the CI
+        sys.modules["pynvml"] = mock.MagicMock()
+        pynvml = sys.modules["pynvml"]
+        pynvml.nvmlInit.return_value = 0
+        pynvml.nvmlDeviceGetCount.return_value = 4
+        yield
 
 
 class DummyCudaLLM(LLM, CudaDevicePlacementMixin):
