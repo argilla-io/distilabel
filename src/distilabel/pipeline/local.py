@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
 
-from distilabel.llm.base import CUDALLM
+from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
 from distilabel.steps.base import Step
 from distilabel.steps.task.base import _Task
@@ -392,7 +392,9 @@ class _ProcessWrapper:
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
-        if isinstance(self.step, _Task) and isinstance(self.step.llm, CUDALLM):
+        if isinstance(self.step, _Task) and isinstance(
+            self.step.llm, CudaDevicePlacementMixin
+        ):
             self.step.llm.set_device_placement_info(
                 llm_identifier=self.step.name,
                 device_llm_placement_map=self.shared_info[

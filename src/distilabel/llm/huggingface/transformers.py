@@ -17,8 +17,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import CUDALLM
+from distilabel.llm.base import LLM
 from distilabel.llm.constants import CHATML_TEMPLATE
+from distilabel.llm.mixins import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from transformers import Pipeline
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
 
 
-class TransformersLLM(CUDALLM):
+class TransformersLLM(LLM, CudaDevicePlacementMixin):
     """Hugging Face `transformers` library LLM implementation using the text generation
     pipeline.
 
@@ -78,7 +79,7 @@ class TransformersLLM(CUDALLM):
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
-        super().load()
+        CudaDevicePlacementMixin.load(self)
 
         try:
             from transformers import pipeline
