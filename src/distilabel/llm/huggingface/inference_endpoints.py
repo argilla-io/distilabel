@@ -33,6 +33,12 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
             using TGI as the backend / framework.
         api_key: the API key to authenticate the requests to the Inference Endpoints API, which
             is the same as the Hugging Face Hub token.
+
+    Examples:
+        >>> from distilabel.llm.huggingface import AsyncInferenceEndpointsLLM
+        >>> llm = AsyncInferenceEndpointsLLM(model_id="model-id")
+        >>> llm.load()
+        >>> output = await llm.agenerate([{"role": "user", "content": "Hello world!"}])
     """
 
     model_id: Optional[str] = None
@@ -54,12 +60,15 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
     def only_one_of_model_id_endpoint_name_or_base_url_provided(
         self,
     ) -> "AsyncInferenceEndpointsLLM":
+        """Validates that only one of `model_id`, `endpoint_name`, or `base_url` is provided."""
+
         if self.model_id and (not self.endpoint_name and not self.base_url):
             return self
         if self.endpoint_name and (not self.model_id and not self.base_url):
             return self
         if self.base_url and (not self.model_id and not self.endpoint_name):
             return self
+
         raise ValidationError(
             f"Only one of `model_id`, `endpoint_name`, or `base_url` must be provided. Found"
             f" `model_id`={self.model_id}, `endpoint_name`={self.endpoint_name}, and"
@@ -67,6 +76,20 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
         )
 
     def load(self, api_key: Optional[str] = None) -> None:
+        """Loads the `AsyncOpenAI` client to benefit from async requests, running the
+        Hugging Face Inference Endpoint underneath via the `/v1/chat/completions` endpoint,
+        exposed for the models running on TGI using the `text-generation` task.
+
+        Args:
+            api_key: the API key to authenticate the requests to the Inference Endpoints API,
+                which is the same as the Hugging Face Hub token.
+
+        Raises:
+            ImportError: if the `openai` Python client is not installed.
+            ImportError: if the `huggingface-hub` Python client is not installed.
+            ValueError: if the model is not currently deployed or is not running the TGI framework.
+        """
+
         try:
             from openai import AsyncOpenAI
         except ImportError as ie:
