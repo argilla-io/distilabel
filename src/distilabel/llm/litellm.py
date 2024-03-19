@@ -123,6 +123,7 @@ class LitellmLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+
         completion = await self._aclient(  # type: ignore
             model=self.model,
             messages=input,  # type: ignore
