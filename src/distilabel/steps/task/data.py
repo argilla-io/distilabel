@@ -61,4 +61,4 @@ class LoadData(GeneratorStep):
             List of strings with the names of the columns that the step will produce as
             output.
         """
-        return list(self.data[0].keys()) + ["model_name"]
+        return list(self.data[0].keys())

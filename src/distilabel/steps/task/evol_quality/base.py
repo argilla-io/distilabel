@@ -145,7 +145,7 @@ class EvolQuality(Task):
             self.mutation_templates[mutation]
             .value.replace("<PROMPT>", instruction)
             .replace("<RESPONSE>", response[-1])
-        )  # type: ignore
+        )
 
     def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:
         """Evolves the instructions provided as part of the inputs of the task.
