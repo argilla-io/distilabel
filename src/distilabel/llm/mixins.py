@@ -42,6 +42,7 @@ class CudaDevicePlacementMixin(BaseModel):
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
     _device_llm_placement_map: Union[Dict[str, Any], None] = PrivateAttr(default=None)
     _available_cuda_devices: Union[List[int], None] = PrivateAttr(default=None)
+    _can_check_cuda_devices: bool = PrivateAttr(default=False)
 
     def load(self) -> None:
         """Assign CUDA devices to the LLM based on the device placement information provided
@@ -49,15 +50,17 @@ class CudaDevicePlacementMixin(BaseModel):
 
         try:
             import pynvml
-        except ImportError as ie:
-            raise ImportError(
-                "The 'pynvml' package is required to automatically set the CUDA devices."
-                " Please install it by running 'pip install pynvml'."
-            ) from ie
 
-        pynvml.nvmlInit()
-        device_count = pynvml.nvmlDeviceGetCount()
-        self._available_cuda_devices = list(range(device_count))
+            pynvml.nvmlInit()
+            device_count = pynvml.nvmlDeviceGetCount()
+            self._available_cuda_devices = list(range(device_count))
+            self._can_check_cuda_devices = True
+        except ImportError:
+            if self.cuda_devices != "auto" and self.cuda_devices:
+                self._logger.warning(
+                    "The 'pynvml' library is not installed. It is recommended to install it"
+                    " to check if the CUDA devices assigned to the LLM are available."
+                )
 
         self._assign_cuda_devices()
 
@@ -152,7 +155,7 @@ class CudaDevicePlacementMixin(BaseModel):
         if not self.cuda_devices:
             return
 
-        if not all(
+        if self._can_check_cuda_devices and not all(
             device in self._available_cuda_devices for device in self.cuda_devices
         ):
             raise RuntimeError(
