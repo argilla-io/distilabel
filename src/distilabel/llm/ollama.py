@@ -36,7 +36,7 @@ class OllamalLLM(AsyncLLM):
 
     """
 
-    model: str = "notus"
+    model: str
     host: Union[str, None] = None
     timeout: int = 120
     follow_redirects: bool = True
@@ -44,7 +44,7 @@ class OllamalLLM(AsyncLLM):
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the `AsyncClient` and `Client` for Ollama."""
+        """Loads the `AsyncClient` to use Ollama async API."""
         self._aclient = AsyncClient(
             host=self.host,
             timeout=self.timeout,
@@ -59,7 +59,6 @@ class OllamalLLM(AsyncLLM):
     async def agenerate(
         self,
         input: "ChatType",
-        stream: bool = False,
         format: Literal["", "json"] = "",
         options: Union["Options", None] = None,
     ) -> str:
@@ -67,7 +66,7 @@ class OllamalLLM(AsyncLLM):
         completion = await self._aclient.chat(  # type: ignore
             model=self.model,
             messages=input,
-            stream=stream,
+            stream=False,
             format=format,
             options=options,
         )

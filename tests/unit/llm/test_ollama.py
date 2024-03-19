@@ -25,7 +25,7 @@ except ImportError:
 
 @patch("ollama.AsyncClient")
 class TestOllamaLLM:
-    def test_ollama_llm(self, mock_ollama: MagicMock) -> None:
+    def test_ollama_llm(self) -> None:
         llm = OllamalLLM(model="notus")  # type: ignore
         assert isinstance(llm, OllamalLLM)
         assert llm.model_name == "notus"
