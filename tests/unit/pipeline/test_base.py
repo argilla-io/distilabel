@@ -952,7 +952,7 @@ class TestPipelineSerialization:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
                 assert not pipeline._cache_location["pipeline"].exists()
-                pipeline.run()
+                pipeline._cache()
             # Check the file exists AFTER we are out of the context manager
             assert pipeline._cache_location["pipeline"].exists()
 
