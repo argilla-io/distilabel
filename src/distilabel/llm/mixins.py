@@ -55,8 +55,14 @@ class CudaDevicePlacementMixin(BaseModel):
             device_count = pynvml.nvmlDeviceGetCount()
             self._available_cuda_devices = list(range(device_count))
             self._can_check_cuda_devices = True
-        except ImportError:
-            if self.cuda_devices != "auto" and self.cuda_devices:
+        except ImportError as ie:
+            if self.cuda_devices == "auto":
+                raise ImportError(
+                    "The 'pynvml' library is not installed. It is required to automatically"
+                    " assign CUDA devices to the `LLM`s. Please, install it and try again."
+                ) from ie
+
+            if self.cuda_devices:
                 self._logger.warning(
                     "The 'pynvml' library is not installed. It is recommended to install it"
                     " to check if the CUDA devices assigned to the LLM are available."
@@ -166,7 +172,7 @@ class CudaDevicePlacementMixin(BaseModel):
 
         cuda_devices = ",".join([str(device) for device in self.cuda_devices])
         self._logger.info(
-            f"⚡️ LLM '{self._llm_identifier}' is going to use the following CUDA devices:"
+            f"🎮 LLM '{self._llm_identifier}' is going to use the following CUDA devices:"
             f" {self.cuda_devices}."
         )
         os.environ["CUDA_VISIBLE_DEVICES"] = cuda_devices

@@ -167,7 +167,7 @@ class Pipeline(BasePipeline):
             steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
 
             message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
-            if message != previous_message:
+            if steps_loaded > 0 and message != previous_message:
                 self._logger.info(message)
                 previous_message = message
 
