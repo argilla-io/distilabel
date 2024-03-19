@@ -42,8 +42,6 @@ class EvolQuality(Task):
     Reference:
         - https://arxiv.org/abs/2312.15685
         - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
-        - https://github.com/nlpxucan/WizardLM/Evol_Instruct
 
     Input columns:
         instruction (`str`): The instruction that was used to generate the `responses`.
@@ -64,6 +62,7 @@ class EvolQuality(Task):
     num_evolutions: int
     store_evolutions: bool = False
     mutation_templates: EnumType = Field(default=MutationTemplates)
+
     seed: RuntimeParameter[int] = Field(
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
