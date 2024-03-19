@@ -27,9 +27,7 @@ from typing_extensions import override
 
 from distilabel.steps.base import RuntimeParameter, StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import (
-    MutationTemplatesEvolInstruct,
-)
+from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -61,7 +59,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplatesEvolInstruct)
+    mutation_templates: EnumType = Field(default=MutationTemplates)
 
     seed: RuntimeParameter[int] = Field(
         default=42,

@@ -34,9 +34,7 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolInstruct,
-)
+from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -67,9 +65,7 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(
-        default=GenerationMutationTemplatesEvolInstruct
-    )
+    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
 
     min_length: RuntimeParameter[int] = Field(
         default=512,
