@@ -25,13 +25,14 @@ class AnyscaleLLM(OpenAILLM):
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
         base_url: the base URL to use for the Anyscale API can be set with `OPENAI_BASE_URL`. Default is "https://api.endpoints.anyscale.com/v1".
         api_key: the API key to authenticate the requests to the Anyscale API. Can be set with `OPENAI_API_KEY`. Default is `None`.
-
     """
 
     model: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
     base_url: Optional[str] = "https://api.endpoints.anyscale.com/v1"
 
-    def load(self, api_key: Optional[str] = None) -> None:
+    def load(
+        self, api_key: Optional[str] = None, base_url: Optional[str] = None
+    ) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
 
         try:
@@ -46,10 +47,11 @@ class AnyscaleLLM(OpenAILLM):
             self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
         )
         self.base_url = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="OPENAI_BASE_URL"
+            self_value=self.base_url, load_value=base_url, env_var="OPENAI_BASE_URL"
         )
 
         self._aclient = AsyncOpenAI(
             api_key=self.api_key.get_secret_value(),
+            base_url=self.base_url.get_secret_value(),
             max_retries=6,
         )
