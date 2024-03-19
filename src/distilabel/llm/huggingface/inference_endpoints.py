@@ -15,24 +15,35 @@
 import os
 from typing import TYPE_CHECKING, Optional, Union
 
-from pydantic import SecretStr, ValidationError, model_validator
+from pydantic import PrivateAttr, SecretStr, ValidationError, model_validator
 
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
+    from huggingface_hub import AsyncInferenceClient
+    from openai import AsyncOpenAI
+    from transformers import PreTrainedTokenizer
+
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
-class AsyncInferenceEndpointsLLM(OpenAILLM):
-    """InferenceEndpoints LLM implementation running the async API client via `openai`.
+class InferenceEndpointsLLM(AsyncLLM):
+    """InferenceEndpoints LLM implementation running the async API client via either
+    the `huggingface_hub.AsyncInferenceClient` or via `openai.AsyncOpenAI`.
 
     Attributes:
+        model_id: the model ID to use for the LLM as available in the Hugging Face Hub, which
+            will be used to resolve the base URL for the serverless Inference Endpoints API requests.
+            Defaults to `None`.
+        endpoint_name: the name of the Inference Endpoint to use for the LLM. Defaults to `None`.
+        endpoint_namespace: the namespace of the Inference Endpoint to use for the LLM. Defaults to `None`.
         base_url: the base URL to use for the Inference Endpoints API requests.
-        model: set as default to "tgi" as the LLM inference will expect an endpoint running
-            using TGI as the backend / framework.
-        api_key: the API key to authenticate the requests to the Inference Endpoints API, which
-            is the same as the Hugging Face Hub token.
+        api_key: the API key to authenticate the requests to the Inference Endpoints API.
+        tokenizer_id: the tokenizer ID to use for the LLM as available in the Hugging Face Hub.
+            Defaults to `None`, but defining one is recommended to properly format the prompt.
+        model_display_name: the model display name to use for the LLM. Defaults to `None`.
+        use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
     Examples:
         >>> from distilabel.llm.huggingface import AsyncInferenceEndpointsLLM
@@ -48,18 +59,21 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
 
     base_url: Optional[str] = None
 
-    model_display_name: Optional[str] = None
-
-    model: str = "tgi"
     api_key: Optional[SecretStr] = os.getenv("HF_TOKEN", None)  # type: ignore
 
-    _env_var: Optional[str] = "HF_TOKEN"
-    _model_name: Optional[str] = None
+    tokenizer_id: Optional[str] = None
+    model_display_name: Optional[str] = None
+    use_openai_client: bool = False
+
+    _model_name: Optional[str] = PrivateAttr(...)
+    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _env_var: Optional[str] = PrivateAttr(default="HF_TOKEN")
+    _aclient: Optional[Union["AsyncInferenceClient", "AsyncOpenAI"]] = PrivateAttr(...)
 
     @model_validator(mode="after")
     def only_one_of_model_id_endpoint_name_or_base_url_provided(
         self,
-    ) -> "AsyncInferenceEndpointsLLM":
+    ) -> "InferenceEndpointsLLM":
         """Validates that only one of `model_id`, `endpoint_name`, or `base_url` is provided."""
 
         if self.model_id and (not self.endpoint_name and not self.base_url):
@@ -70,15 +84,16 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
             return self
 
         raise ValidationError(
-            f"Only one of `model_id`, `endpoint_name`, or `base_url` must be provided. Found"
+            "Only one of `model_id`, `endpoint_name`, or `base_url` must be provided. Found"
             f" `model_id`={self.model_id}, `endpoint_name`={self.endpoint_name}, and"
             f" `base_url`={self.base_url}."
         )
 
     def load(self, api_key: Optional[str] = None) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests, running the
-        Hugging Face Inference Endpoint underneath via the `/v1/chat/completions` endpoint,
-        exposed for the models running on TGI using the `text-generation` task.
+        """Loads the either the `AsyncInferenceClient` or the `AsyncOpenAI` client to benefit
+        from async requests, running the Hugging Face Inference Endpoint underneath via the
+        `/v1/chat/completions` endpoint, exposed for the models running on TGI using the
+        `text-generation` task.
 
         Args:
             api_key: the API key to authenticate the requests to the Inference Endpoints API,
@@ -88,18 +103,15 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
             ImportError: if the `openai` Python client is not installed.
             ImportError: if the `huggingface-hub` Python client is not installed.
             ValueError: if the model is not currently deployed or is not running the TGI framework.
+            ImportError: if the `transformers` Python client is not installed.
         """
 
         try:
-            from openai import AsyncOpenAI
-        except ImportError as ie:
-            raise ImportError(
-                "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
-            ) from ie
-
-        try:
-            from huggingface_hub import InferenceClient, get_inference_endpoint
+            from huggingface_hub import (
+                AsyncInferenceClient,
+                InferenceClient,
+                get_inference_endpoint,
+            )
         except ImportError as ie:
             raise ImportError(
                 "Hugging Face Hub Python client is not installed. Please install it using"
@@ -140,26 +152,55 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
             self.base_url = client.url
             self._model_name = client.repository
 
-        self._aclient = AsyncOpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key.get_secret_value(),
-            max_retries=6,
-        )
+        if self.use_openai_client:
+            try:
+                from openai import AsyncOpenAI
+            except ImportError as ie:
+                raise ImportError(
+                    "OpenAI Python client is not installed. Please install it using"
+                    " `pip install openai`."
+                ) from ie
+
+            self._aclient = AsyncOpenAI(
+                base_url=self.base_url,
+                api_key=self.api_key.get_secret_value(),
+                max_retries=6,
+            )
+        else:
+            self._aclient = AsyncInferenceClient(
+                model=self.base_url,
+                token=self.api_key.get_secret_value(),
+            )
+
+        if self.tokenizer_id:
+            try:
+                from transformers import AutoTokenizer
+            except ImportError as ie:
+                raise ImportError(
+                    "Transformers Python client is not installed. Please install it using"
+                    " `pip install transformers`."
+                ) from ie
+
+            self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
 
     @property
     def model_name(self) -> Union[str, None]:
         """Returns the model name used for the LLM."""
         return self.model_display_name or self._model_name
 
+    # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",
-        num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
+        repetition_penalty: Optional[float] = None,
         temperature: float = 1.0,
-        top_p: float = 0.8,
+        do_sample: bool = False,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        typical_p: Optional[float] = None,
     ) -> "GenerateOutput":
         """Generates completions for the given input using the OpenAI async client.
 
@@ -170,28 +211,62 @@ class AsyncInferenceEndpointsLLM(OpenAILLM):
             max_new_tokens: the maximun number of new tokens that the model will generate.
                 Defaults to `128`.
             frequence_penalty: the repetition penalty to use for the generation. Defaults
-                to `0.0`.
+                to `0.0`. Only applies if `use_openai_client=True`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
-                `0.0`.
-            temperature: the temperature to use for the generation. Defaults to `0.1`.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+                `0.0`. Only applies if `use_openai_client=True`.
+            repetition_penalty: the repetition penalty to use for the generation. Defaults
+                to `None`. Only applies if `use_openai_client=False`.
+            temperature: the temperature to use for the generation. Defaults to `1.0`.
+            do_sample: whether to use sampling for the generation. Defaults to `False`.
+                Only applies if `use_openai_client=False`.
             top_k: the top-k value to use for the generation. Defaults to `0.8`, since neither
                 `0.0` nor `1.0` are valid values in TGI.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            typical_p: the typical-p value to use for the generation. Defaults to `0.5`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        if num_generations != 1:
-            raise ValueError(
-                "`AsyncInferenceEndpointsLLM` only supports one generation per input"
-            )
 
-        return await super().agenerate(
-            input=input,
-            num_generations=1,
+        if self.use_openai_client:
+            completion = await self._aclient.chat.completions.create(  # type: ignore
+                messages=input,  # type: ignore
+                model="tgi",
+                max_tokens=max_new_tokens,
+                n=1,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                timeout=50,
+            )
+            generations = []
+            for choice in completion.choices:
+                if (content := choice.message.content) is None:
+                    self._logger.warning(
+                        f"⚠️ Received no response using OpenAI client (model: '{self.model_name}')."
+                        f" Finish reason was: {choice.finish_reason}"
+                    )
+                generations.append(content)
+            return generations
+
+        if self._tokenizer is not None:
+            prompt = self._tokenizer.apply_chat_template(  # type: ignore
+                input,
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+        else:
+            prompt = "\n".join([message["content"] for message in input])
+
+        completion = await self._aclient.text_generation(  # type: ignore
+            prompt=prompt,  # type: ignore
             max_new_tokens=max_new_tokens,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
+            do_sample=do_sample,
+            typical_p=typical_p,
+            repetition_penalty=repetition_penalty,
             temperature=temperature,
             top_p=top_p,
+            top_k=top_k,
         )
+        return [completion]
