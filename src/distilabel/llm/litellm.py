@@ -33,7 +33,7 @@ class LitellmLLM(AsyncLLM):
     """
 
     model: str
-    litellm_logging: bool = False
+    litellm_logging: Optional[bool] = False
     _aclient: Optional["callable"] = PrivateAttr(...)
 
     def load(

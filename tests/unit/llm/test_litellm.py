@@ -77,6 +77,7 @@ class TestOpenAILLM:
 
         _dump = {
             "model": "gpt-4",
+            "litellm_logging": False,
             "type_info": {
                 "module": "distilabel.llm.litellm",
                 "name": "LitellmLLM",
