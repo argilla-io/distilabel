@@ -78,4 +78,3 @@ venv.bak/
 *.log
 *.swp
 .DS_Store
-*.jsonl

@@ -25,18 +25,24 @@ if TYPE_CHECKING:
 
 
 class LoadData(GeneratorStep):
-    """LoadData is a class that implements the `_Task` abstract class and adds the
-    `GeneratorStep` interface to be used as a step in the pipeline.
+    """A generator step that loads a dataset from a list of dictionaries.
 
-    Args:
-        data: The data to be used to generate the outputs of the task.
+    This step will load the dataset and yield the transformed data as it is loaded from the list of dictionaries.
+
+    Runtime parameters:
+
+    - `batch_size`: The batch size to use when processing the data.
+
+    Columns:
+    - `input`: None
+    - `output`: dynamic, based on the keys found on the first dictionary of the list
     """
 
     data: List[Dict[str, Any]]
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
-        """Processes the inputs of the task and generates the outputs using the LLM.
+        """Yields batches from the a dataset from a list of dictionaries.
 
         Args:
             offset: The offset to start the generation from. Defaults to 0.
