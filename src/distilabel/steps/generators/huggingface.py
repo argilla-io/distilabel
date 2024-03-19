@@ -16,8 +16,8 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import requests
-from datasets import load_dataset
-from pydantic import Field
+from datasets import IterableDataset, load_dataset
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.base import GeneratorStep, RuntimeParameter
 
@@ -62,7 +62,7 @@ class LoadHubDataset(GeneratorStep):
     entire dataset into memory at once. Instead, it will load the dataset in chunks and yield
     the transformed data as it is loaded from the Hugging Face Hub.
 
-    This step needs the following runtime parameters:
+    Runtime parameters:
 
     - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
     - `split`: The split of the dataset to load.
@@ -72,7 +72,7 @@ class LoadHubDataset(GeneratorStep):
     Columns:
 
     - `input`: None
-    - `output`: dynamic, based on the dataset being loaded.
+    - `output`: dynamic, based on the dataset being loaded
     """
 
     repo_id: RuntimeParameter[str] = Field(
@@ -80,7 +80,8 @@ class LoadHubDataset(GeneratorStep):
         description="The Hugging Face Hub repository ID of the dataset to load.",
     )
     split: RuntimeParameter[str] = Field(
-        default=None, description="The split of the dataset to load."
+        default="train",
+        description="The split of the dataset to load. Defaults to 'train'.",
     )
     config: Optional[RuntimeParameter[str]] = Field(
         default=None,
@@ -88,26 +89,35 @@ class LoadHubDataset(GeneratorStep):
         " needed if the dataset has multiple configurations.",
     )
 
+    _dataset: Union[IterableDataset, None] = PrivateAttr(...)
+
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
-        self._values["dataset"] = load_dataset(
+        self._dataset = load_dataset(
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
             streaming=True,
         )
 
-    def process(self) -> "GeneratorStepOutput":
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
 
-        Yield:
+        Args:
+            offset: The offset to start yielding the data from. Will be used during the caching
+                process to help skipping already processed data.
+
+        Yields:
             A tuple containing a batch of rows and a boolean indicating if the batch is
             the last one.
         """
-        dataset = self._values["dataset"]
         num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
-        for batch in dataset.iter(batch_size=self.batch_size):
+        for batch_num, batch in enumerate(
+            self._dataset.iter(batch_size=self.batch_size)
+        ):
+            if batch_num * self.batch_size < offset:
+                continue
             transformed_batch = self._transform_batch(batch)
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size

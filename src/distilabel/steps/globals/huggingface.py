@@ -14,18 +14,34 @@
 
 import os
 from collections import defaultdict
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from datasets import Dataset
 from pydantic import Field
 
 from distilabel.steps.base import GlobalStep, RuntimeParameter, StepInput
-from distilabel.steps.typing import StepOutput
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepOutput
 
 
 class PushToHub(GlobalStep):
     """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
-    it to the Hugging Face Hub."""
+    it to the Hugging Face Hub.
+
+    Runtime parameters:
+
+    - `repo_id`: The Hugging Face Hub repository ID to push the dataset to.
+    - `split`: The split of the dataset to push, otherwise will use "train" as default.
+    - `private`: Whether the dataset should be private or not. Defaults to `False`.
+    - `token`: The token to authenticate in the Hub, otherwise will try to use the
+        environment variable `HF_TOKEN` or the local Hugging Face CLI configuration.
+
+    Columns:
+
+    - `input`: dynamic, based on the existing data within inputs
+    - `output`: None
+    """
 
     repo_id: RuntimeParameter[str] = Field(
         default=None,
@@ -49,7 +65,7 @@ class PushToHub(GlobalStep):
         " to `None`",
     )
 
-    def process(self, inputs: StepInput) -> StepOutput:
+    def process(self, inputs: StepInput) -> "StepOutput":
         """Method that processes the input data, respecting the `datasets.Dataset` formatting,
         and pushes it to the Hugging Face Hub based on the `RuntimeParameter`s attributes.
 
@@ -57,7 +73,7 @@ class PushToHub(GlobalStep):
             inputs: that input data within a single object (as it's a GlobalStep) that
                 will be transformed into a `datasets.Dataset`.
 
-        Returns:
+        Yields:
             An empty `StepOutput` which is an iterator with a single empty dictionary.
         """
         dataset_dict = defaultdict(list)

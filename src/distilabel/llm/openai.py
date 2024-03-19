@@ -13,52 +13,49 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
-from openai import AsyncOpenAI
-from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import Annotated
+from pydantic import PrivateAttr, SecretStr
 
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
+    from openai import AsyncOpenAI
+
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
-# TODO: OpenAI client can be used for AnyScale, TGI, vLLM, etc.
-# https://github.com/vllm-project/vllm/blob/main/examples/openai_chatcompletion_client.py
 class OpenAILLM(AsyncLLM):
-    """OpenAI LLM implementation running the Async API client.
+    """OpenAI LLM implementation running the async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
         api_key: the API key to authenticate the requests to the OpenAI API.
     """
 
     model: str = "gpt-3.5-turbo"
-    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
+    api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY", None)  # type: ignore
 
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
-    @field_validator("api_key")
-    @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
-        """Ensures that either the `api_key` or the environment variable `OPENAI_API_KEY` are set.
-
-        Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
-        from being leaked and/or included within the logs or the serialization of the object.
-        """
-        v = v or os.getenv("OPENAI_API_KEY", None)  # type: ignore
-        if v is None:
-            raise ValueError("You must provide an API key to use OpenAI.")
-        if not isinstance(v, SecretStr):
-            v = SecretStr(v)
-        return v
-
-    def load(self) -> None:
+    def load(self, api_key: Optional[str] = None) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
+
+        try:
+            from openai import AsyncOpenAI
+        except ImportError as ie:
+            raise ImportError(
+                "OpenAI Python client is not installed. Please install it using"
+                " `pip install openai`."
+            ) from ie
+
+        self.api_key = self._handle_api_key_value(
+            self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
+        )
+
         self._aclient = AsyncOpenAI(
-            api_key=self.api_key.get_secret_value(),  # type: ignore
+            api_key=self.api_key.get_secret_value(),
             max_retries=6,
         )
 
@@ -67,37 +64,53 @@ class OpenAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
+        num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> str:
-        """
-        Generates a response asynchronously, using the [OpenAI Async API definiton](https://github.com/openai/openai-python).
+    ) -> "GenerateOutput":
+        """Generates `num_generations` responses for the given input using the OpenAI async
+        client.
 
         Args:
-            input: the input to use for the generation.
-            max_new_tokens: the maximum number of tokens to generate.
-            frequency_penalty: the frequency penalty to use for the generation.
-            presence_penalty: the presence penalty to use for the generation.
-            temperature: the temperature to use for the generation.
-            top_p: the top-p to use for the generation.
+            input: a single input in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximun number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequence_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
 
         Returns:
-            A strings as completion for the given input.
+            A list of lists of strings containing the generated responses for each input.
         """
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
             max_tokens=max_new_tokens,
+            n=num_generations,
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
             temperature=temperature,
             top_p=top_p,
             timeout=50,
         )
-        return completion.choices[0].message.content  # type: ignore
+        generations = []
+        for choice in completion.choices:
+            if (content := choice.message.content) is None:
+                self._logger.warning(
+                    f"Received no response using OpenAI client (model: '{self.model}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(content)
+        return generations
