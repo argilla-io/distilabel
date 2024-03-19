@@ -16,16 +16,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
-
-try:
-    from distilabel.llm.ollama import OllamalLLM
-except ImportError:
-    pass
+from distilabel.llm.ollama import OllamalLLM
 
 
 @patch("ollama.AsyncClient")
 class TestOllamaLLM:
-    def test_ollama_llm(self) -> None:
+    def test_ollama_llm(self, mock_ollama: MagicMock) -> None:
         llm = OllamalLLM(model="notus")  # type: ignore
         assert isinstance(llm, OllamalLLM)
         assert llm.model_name == "notus"

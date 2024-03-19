@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from ollama import AsyncClient
 from pydantic import PrivateAttr
@@ -59,26 +59,34 @@ class OllamalLLM(AsyncLLM):
     async def agenerate(
         self,
         input: "ChatType",
+        num_generations: int = 1,
         format: Literal["", "json"] = "",
         options: Union["Options", None] = None,
-    ) -> str:
+        keep_alive: Union[bool, None] = None,
+    ) -> List[str]:
         """
         Generates a response asynchronously, using the [Ollama Async API definition](https://github.com/ollama/ollama-python).
 
         Args:
             input: the input to use for the generation.
-            format: the format to use for the generation.
-            options: the options to use for the generation.
+            num_generations: the number of generations to produce. Defaults to `1`.
+            format: the format to use for the generation. Defaults to "".
+            options: the options to use for the generation. Defaults to `None`.
+            keep_alive: whether to keep the connection alive. Defaults to `None`.
 
         Returns:
-            A strings as completion for the given input.
+            A list of strings as completion for the given input.
         """
-        completion = await self._aclient.chat(  # type: ignore
-            model=self.model,
-            messages=input,
-            stream=False,
-            format=format,
-            options=options,
-        )
+        generations = []
+        for _ in range(num_generations):
+            completion = await self._aclient.chat(
+                model=self.model,
+                messages=input,
+                stream=False,
+                format=format,
+                options=options,
+                keep_alive=keep_alive,
+            )
+            generations.append(completion["message"]["content"])
 
-        return completion["message"]["content"]  # type: ignore
+        return generations
