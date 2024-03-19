@@ -216,7 +216,7 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -225,13 +225,21 @@ class Pipeline(BasePipeline):
             e: The `_ProcessWrapperException` containing the error message and the `Step`
                 that raised the error.
         """
+        # First we check that the exception is a `_ProcessWrapperException`, otherwise, we
+        # print it out and stop the pipeline, since some errors may be unhandled
+        if not isinstance(e, _ProcessWrapperException):
+            self._logger.error(f"❌ Failed with an unhandled exception: {e}")
+            self._cache()
+            self._stop()
+            return
+
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
             self._cache()
             self._stop()
             return
 
-        # if the step is global, is not in the last trophic level and has no successors,
+        # If the step is global, is not in the last trophic level and has no successors,
         # then we can ignore the error and continue executing the pipeline
         if (
             e.step.is_global
@@ -239,8 +247,8 @@ class Pipeline(BasePipeline):
             and list(self.dag.get_step_successors(e.step.name)) == []
         ):
             self._logger.error(
-                f"An error occurred when running global step '{e.step.name}' with no"
-                f" successors and not in the last trophic level. Pipeline execution can"
+                f"✋ An error occurred when running global step '{e.step.name}' with no"
+                " successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored: {e.message}"
             )
             self._cache()
