@@ -14,6 +14,7 @@
 
 import asyncio
 import logging
+import sys
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -172,4 +173,7 @@ class AsyncLLM(LLM):
 
     def __del__(self) -> None:
         """Closes the event loop when the object is deleted."""
-        self.event_loop.close()
+        if sys.meta_path is None:
+            return
+        if self.event_loop is not None:
+            self.event_loop.close()
