@@ -17,10 +17,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from datasets import DatasetDict
 from distilabel.pipeline.base import _Batch, _BatchManager
 from distilabel.pipeline.local import Pipeline, _WriteBuffer
-from distilabel.utils.data import _create_dataset
+from distilabel.utils.data import Distiset, _create_dataset
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
 
@@ -145,7 +144,7 @@ class TestWriteBuffer:
             write_buffer.close()
 
             ds = _create_dataset(write_buffer._path)
-            assert isinstance(ds, DatasetDict)
+            assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 1
             assert len(ds["dummy_step_2"]) == 3
 
@@ -167,8 +166,8 @@ class TestWriteBuffer:
             write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
 
             # Now we write here only in case we are working with leaf steps
-            batch_step_2 = batch_gen(dummy_step_2.name)
-            batch_step_3 = batch_gen(dummy_step_3.name)
+            batch_step_2 = batch_gen(dummy_step_2.name, col_name="a")
+            batch_step_3 = batch_gen(dummy_step_3.name, col_name="b")
             assert all(values is None for _, values in write_buffer._buffers.items())
             assert len(write_buffer._buffers) == 2
 
@@ -180,7 +179,7 @@ class TestWriteBuffer:
             write_buffer.close()
 
             ds = _create_dataset(write_buffer._path)
-            assert isinstance(ds, DatasetDict)
+            assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 2
             assert len(ds["dummy_step_2"]) == 3
             assert len(ds["dummy_step_3"]) == 3

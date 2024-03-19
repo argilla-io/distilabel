@@ -67,10 +67,12 @@ class DummyStep2(Step):
         return ["evol_response"]
 
 
-def batch_gen(step_name: str, seq_no: int = 0, last_batch: bool = False):
+def batch_gen(
+    step_name: str, seq_no: int = 0, last_batch: bool = False, col_name: str = "a"
+):
     return _Batch(
         seq_no=seq_no,
         step_name=step_name,
         last_batch=last_batch,
-        data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+        data=[[{col_name: 1}, {col_name: 2}, {col_name: 3}]],
     )
