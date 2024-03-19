@@ -37,9 +37,7 @@ if TYPE_CHECKING:
 
 class EvolQuality(Task):
     """
-    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
-    and
-    WizardLM: Empowering Large Language Models to Follow Complex Instructions
+    The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
 
     Reference:
         - https://arxiv.org/abs/2312.15685
@@ -47,16 +45,20 @@ class EvolQuality(Task):
         - https://github.com/h2oai/h2o-wizardlm
         - https://github.com/nlpxucan/WizardLM/Evol_Instruct
 
-    Runtime parameters:
+    Input columns:
+        instruction (`str`): The instruction that was used to generate the `responses`.
+        responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
-    - `seed`: The number of evolutions to be run.
-
-    Columns:
-
-    - `input`: instruction
-    - `output`: there's multiple scenarios:
+    Output columns:
+        There's multiple scenarios:
         - `store_evolutions=False`, `generate_answers=False` -> (evolved_response, model_name)
         - `store_evolutions=True`, `generate_answers=False` -> (evolved_responses, model_name)
+
+    Reference:
+        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
+        - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
+        - [`h2oai/h2o-wizardlm`](https://github.com/h2oai/h2o-wizardlm)
+        - [`nlpxucan/WizardLM/Evol_Instruct`](https://github.com/nlpxucan/WizardLM/Evol_Instruct9
     """
 
     num_evolutions: int
@@ -106,7 +108,7 @@ class EvolQuality(Task):
         and, finally, the `model_name`.
 
         Args:
-            instructions: The instructions to be included within the output.
+            responses: The reponses to be included within the output.
 
         Returns:
             if `store_evolutions=False` return {"evolved_response": ..., "model_name": ...};
