@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-from multiprocessing.synchronize import Lock
 from typing import Any, Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -35,8 +34,6 @@ class CudaDevicePlacementMixin(BaseModel):
         _llm_identifier: the identifier of the `LLM` to be used as key in `_device_llm_placement_map`.
         _device_llm_placement_map: a dictionary with the device placement information for each
             `LLM`.
-        _device_llm_placement_map_lock: a lock object to be used to synchronize the access to
-            the device placement information.
     """
 
     # TODO: this should be a runtime parameter
@@ -44,23 +41,30 @@ class CudaDevicePlacementMixin(BaseModel):
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
     _device_llm_placement_map: Union[Dict[str, Any], None] = PrivateAttr(default=None)
-    _device_llm_placement_map_lock: Union["Lock", None] = PrivateAttr(default=None)
+    _available_cuda_devices: Union[List[int], None] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Assign CUDA devices to the LLM based on the device placement information provided
         in `_device_llm_placement_map`."""
-        # `_device_llm_placement_map` is not mandatory, but if it is provided, it will be
-        # used to assign CUDA devices to the LLM.
-        if self._device_llm_placement_map is not None:
-            self._assign_cuda_devices()
 
-        self._set_cuda_visible_devices()
+        try:
+            import pynvml
+        except ImportError as ie:
+            raise ImportError(
+                "The 'pynvml' package is required to automatically set the CUDA devices."
+                " Please install it by running 'pip install pynvml'."
+            ) from ie
+
+        pynvml.nvmlInit()
+        device_count = pynvml.nvmlDeviceGetCount()
+        self._available_cuda_devices = list(range(device_count))
+
+        self._assign_cuda_devices()
 
     def set_device_placement_info(
         self,
         llm_identifier: str,
         device_llm_placement_map: Dict[str, Any],
-        device_llm_placement_map_lock,
     ) -> None:
         """Sets the value of `_device_llm_placement_map` to be used to assign CUDA devices
         to the LLM.
@@ -76,7 +80,6 @@ class CudaDevicePlacementMixin(BaseModel):
         """
         self._llm_identifier = llm_identifier
         self._device_llm_placement_map = device_llm_placement_map
-        self._device_llm_placement_map_lock = device_llm_placement_map_lock
 
     def _assign_cuda_devices(self) -> None:
         """Assigns CUDA devices to the LLM based on the device placement information provided
@@ -85,7 +88,8 @@ class CudaDevicePlacementMixin(BaseModel):
         other LLM. If the `cuda_devices` attribute is set to a list of devices, it will be
         checked if the devices are available to be used by the LLM. If not, a warning will be
         logged."""
-        with self._device_llm_placement_map_lock:
+
+        if self._device_llm_placement_map is not None:
             if self.cuda_devices == "auto":
                 self.cuda_devices = [
                     self._get_cuda_device(self._device_llm_placement_map)
@@ -94,6 +98,13 @@ class CudaDevicePlacementMixin(BaseModel):
                 self._check_cuda_devices(self._device_llm_placement_map)
 
             self._device_llm_placement_map[self._llm_identifier] = self.cuda_devices
+
+        # `_device_llm_placement_map` was not provided and user didn't set the `cuda_devices`
+        # attribute. In this case, the `cuda_devices` attribute will be set to an empty list.
+        if self.cuda_devices == "auto":
+            self.cuda_devices = []
+
+        self._set_cuda_visible_devices()
 
     def _check_cuda_devices(self, device_map: Dict[str, List[int]]) -> None:
         """Checks if the CUDA devices assigned to the LLM are also assigned to other LLMs.
@@ -124,8 +135,7 @@ class CudaDevicePlacementMixin(BaseModel):
         Raises:
             RuntimeError: if there is no available CUDA device to be used by the LLM.
         """
-        cuda_devices = self._get_cuda_devices()
-        for device in cuda_devices:
+        for device in self._available_cuda_devices:
             if all(device not in devices for devices in device_map.values()):
                 return device
 
@@ -142,27 +152,18 @@ class CudaDevicePlacementMixin(BaseModel):
         if not self.cuda_devices:
             return
 
+        if not all(
+            device in self._available_cuda_devices for device in self.cuda_devices
+        ):
+            raise RuntimeError(
+                f"Invalid CUDA devices for LLM '{self._llm_identifier}': {self.cuda_devices}."
+                f" The available devices are: {self._available_cuda_devices}. Please, review"
+                " the 'cuda_devices' attribute and try again."
+            )
+
         cuda_devices = ",".join([str(device) for device in self.cuda_devices])
         self._logger.info(
-            f"LLM '{self._llm_identifier}' is going to use the following CUDA devices:"
+            f"⚡️ LLM '{self._llm_identifier}' is going to use the following CUDA devices:"
             f" {self.cuda_devices}."
         )
         os.environ["CUDA_VISIBLE_DEVICES"] = cuda_devices
-
-    def _get_cuda_devices(self) -> List[int]:
-        """Returns the list of available CUDA devices.
-
-        Returns:
-            The list with the ID of available CUDA devices.
-        """
-        try:
-            import pynvml
-        except ImportError as ie:
-            raise ImportError(
-                "The 'pynvml' package is required to automatically set the CUDA devices."
-                " Please install it by running 'pip install pynvml'."
-            ) from ie
-
-        pynvml.nvmlInit()
-        device_count = pynvml.nvmlDeviceGetCount()
-        return list(range(device_count))

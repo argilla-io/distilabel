@@ -17,7 +17,7 @@ import multiprocessing as mp
 import signal
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, Union, cast
 
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
@@ -33,11 +33,25 @@ if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep
 
 _STEPS_LOADED_KEY = "steps_loaded"
-_STEPS_LOADED_LOCK = _STEPS_LOADED_KEY + "_lock"
 _STEPS_LOADED_ERROR_CODE = -1
-
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
-_CUDA_LLM_DEVICE_PLACEMENET_LOCK = _CUDA_LLM_DEVICE_PLACEMENT_KEY + "_lock"
+
+_POOL: Union["Pool", None] = None
+_MANAGER: Union["SyncManager", None] = None
+
+
+def _set_pool_and_manager(pool: "Pool", manager: "SyncManager") -> None:
+    """Sets the pool and manager to be used by the pipeline, so they can be accessed
+    from the signal handler to close the pool and clean the manager resources when the
+    `KeyboardInterrupt` signal is received.
+
+    Args:
+        pool: The pool of processes.
+        manager: The manager to create the shared information.
+    """
+    global _POOL, _MANAGER
+    _POOL = pool
+    _MANAGER = manager
 
 
 class Pipeline(BasePipeline):
@@ -70,6 +84,7 @@ class Pipeline(BasePipeline):
         num_processes = len(self.dag)
         ctx = mp.get_context("forkserver")
         with ctx.Manager() as manager, ctx.Pool(num_processes) as pool:
+            _set_pool_and_manager(pool, manager)
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
 
@@ -132,12 +147,11 @@ class Pipeline(BasePipeline):
         Returns:
             The shared information dictionary.
         """
+        # TODO: not very important, but we could use a different lock for each matter
         return manager.dict(
             **{
                 _STEPS_LOADED_KEY: 0,
-                _STEPS_LOADED_LOCK: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
-                _CUDA_LLM_DEVICE_PLACEMENET_LOCK: manager.Lock(),
             }
         )
 
@@ -150,21 +164,20 @@ class Pipeline(BasePipeline):
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
         while True:
-            with self.shared_info[_STEPS_LOADED_LOCK]:
-                steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+            steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
 
-                if steps_loaded == len(self.dag):
-                    self._logger.info("✅ All the steps have been loaded!")
-                    return True
+            message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
+            if message != previous_message:
+                self._logger.info(message)
+                previous_message = message
 
-                if steps_loaded == _STEPS_LOADED_ERROR_CODE:
-                    self._logger.error("❌ Failed to load all the steps")
-                    return False
+            if steps_loaded == len(self.dag):
+                self._logger.info("✅ All the steps have been loaded!")
+                return True
 
-                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
-                if message != previous_message:
-                    self._logger.info(message)
-                    previous_message = message
+            if steps_loaded == _STEPS_LOADED_ERROR_CODE:
+                self._logger.error("❌ Failed to load all the steps")
+                return False
 
             time.sleep(2.5)
 
@@ -261,8 +274,7 @@ class Pipeline(BasePipeline):
         """
         self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(None)
-        with self.shared_info[_STEPS_LOADED_LOCK]:
-            self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+        self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -271,14 +283,16 @@ class Pipeline(BasePipeline):
         have any effect), and if the pool is already started, will close it before exiting
         the program.
         """
-        pool: Optional[mp.Pool] = None
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            if pool is not None:
-                pool.close()
-                pool.join()
-            self._logger.error("🚨 CTRL+C signal, stopping the pipeline...")
-            exit(1)
+            if _POOL is not None and _MANAGER is not None:
+                _POOL.close()
+                # TODO: to make this work properly, we need to send a None to the input queue
+                # of all the steps, so the processes can finish. Will do in another PR.
+                # _POOL.join()
+                # _MANAGER.shutdown()
+            self._logger.info("🚨 CTRL+C signal, stopping the pipeline...")
+            exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
 
@@ -400,9 +414,6 @@ class _ProcessWrapper:
                 device_llm_placement_map=self.shared_info[
                     _CUDA_LLM_DEVICE_PLACEMENT_KEY
                 ],
-                device_llm_placement_map_lock=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENET_LOCK
-                ],
             )
 
     def run(self) -> None:
@@ -428,8 +439,7 @@ class _ProcessWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
-        with self.shared_info[_STEPS_LOADED_LOCK]:
-            self.shared_info[_STEPS_LOADED_KEY] += 1
+        self.shared_info[_STEPS_LOADED_KEY] += 1
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method

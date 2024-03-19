@@ -578,7 +578,12 @@ class _BatchManager(_Serializable):
         self._last_batch_received = last_batch_received
 
     def can_generate(self) -> bool:
-        """Checks if there are still batches to be processed by the steps."""
+        """Checks if there are still batches to be processed by the steps.
+
+        Returns:
+            `True` if there are still batches to be processed by the steps. Otherwise,
+            `False`.
+        """
         return not all(self._last_batch_received.values())
 
     def register_batch(self, batch: _Batch, callback: Callable[[], None]) -> None:
