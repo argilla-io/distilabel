@@ -187,7 +187,6 @@ class EvolInstruct(Task):
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
-                self._logger.info(f"GPT-3 generated: {generated_prompt}")
                 evolved_instructions.append(
                     generated_prompt.split("Prompt#:")[-1].strip()
                 )
