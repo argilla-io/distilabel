@@ -62,7 +62,17 @@ class OllamalLLM(AsyncLLM):
         format: Literal["", "json"] = "",
         options: Union["Options", None] = None,
     ) -> str:
-        """Generates a response asynchronously, using the Ollama Async API definition."""
+        """
+        Generates a response asynchronously, using the [Ollama Async API definition](https://github.com/ollama/ollama-python).
+
+        Args:
+            input: the input to use for the generation.
+            format: the format to use for the generation.
+            options: the options to use for the generation.
+
+        Returns:
+            A strings as completion for the given input.
+        """
         completion = await self._aclient.chat(  # type: ignore
             model=self.model,
             messages=input,

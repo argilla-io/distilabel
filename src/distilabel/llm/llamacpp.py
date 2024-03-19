@@ -53,6 +53,19 @@ class LlamaCppLLM(LLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> List[str]:
+        """Generates completions for the given inputs using the [llama-cpp Python API defintion](https://github.com/abetlen/llama-cpp-python).
+
+        Args:
+            inputs: the list of inputs to generate completions for.
+            max_new_tokens: the maximum number of tokens to generate.
+            frequency_penalty: the frequency penalty to apply.
+            presence_penalty: the presence penalty to apply.
+            temperature: the temperature to apply.
+            top_p: the top-p to apply.
+
+        Returns:
+            A list of strings with the completions for the given inputs.
+        """
         outputs = []
         for input in inputs:
             chat_completions = self._model.create_chat_completion(  # type: ignore

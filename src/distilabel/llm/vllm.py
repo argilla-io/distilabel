@@ -64,6 +64,21 @@ class vLLM(LLM):
         top_k: int = -1,
         **extra_sampling_params: Any,
     ) -> List[str]:
+        """Generates new text based on the given inputs given the [vLLM API definition](https://github.com/vllm-project/vllm).
+
+        Args:
+            inputs: the inputs to use for the generation.
+            max_new_tokens: the maximum number of tokens to generate.
+            frequency_penalty: the frequency penalty to use for the generation.
+            presence_penalty: the presence penalty to use for the generation.
+            temperature: the temperature to use for the generation.
+            top_p: the top-p to use for the generation.
+            top_k: the top-k to use for the generation.
+            extra_sampling_params: extra sampling parameters to use for the generation.
+
+        Returns:
+            A list of strings with the completions for the given inputs.
+        """
         sampling_params = SamplingParams(  # type: ignore
             n=1,
             presence_penalty=presence_penalty,

@@ -76,7 +76,20 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
     ) -> str:
-        """Generates a response asynchronously, using the OpenAI Async API."""
+        """
+        Generates a response asynchronously, using the [OpenAI Async API definiton](https://github.com/openai/openai-python).
+
+        Args:
+            input: the input to use for the generation.
+            max_new_tokens: the maximum number of tokens to generate.
+            frequency_penalty: the frequency penalty to use for the generation.
+            presence_penalty: the presence penalty to use for the generation.
+            temperature: the temperature to use for the generation.
+            top_p: the top-p to use for the generation.
+
+        Returns:
+            A strings as completion for the given input.
+        """
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,

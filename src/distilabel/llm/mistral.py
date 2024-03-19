@@ -83,7 +83,18 @@ class MistralLLM(AsyncLLM):
         max_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
     ) -> str:
-        """Generates a response asynchronously, using the Mistral Async API."""
+        """
+        Generates a response asynchronously, using the [Mistral Async API definition](https://github.com/mistralai/client-python).
+
+        Args:
+            input: the input to use for the generation.
+            temperature: the temperature to use for the generation.
+            max_tokens: the maximum number of tokens to generate.
+            top_p: the top p to use for the generation.
+
+        Returns:
+            A strings as completion for the given input.
+        """
         completion = await self._aclient.chat(  # type: ignore
             messages=input,
             model=self.model,
