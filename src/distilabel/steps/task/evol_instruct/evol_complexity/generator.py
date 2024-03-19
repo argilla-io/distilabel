@@ -21,11 +21,6 @@ from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
 )
 from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
 
-if sys.version_info < (3, 9):
-    pass
-else:
-    pass
-
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
