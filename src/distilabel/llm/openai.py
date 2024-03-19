@@ -31,6 +31,8 @@ class OpenAILLM(AsyncLLM):
 
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
+        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`,
+            which means that https://api.openai.com/v1 will be used.
         api_key: the API key to authenticate the requests to the OpenAI API.
     """
 
