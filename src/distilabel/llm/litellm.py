@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import PrivateAttr
@@ -32,6 +33,7 @@ class LitellmLLM(AsyncLLM):
     """
 
     model: str
+    litellm_logging: bool = False
     _aclient: Optional["callable"] = PrivateAttr(...)
 
     def load(
@@ -45,14 +47,22 @@ class LitellmLLM(AsyncLLM):
         """
 
         try:
+            import litellm
             from litellm import acompletion
 
             self._aclient = acompletion
+            litellm.telemetry = False
         except ImportError as e:
             raise ImportError(
                 "LiteLLM Python client is not installed. Please install it using"
                 " `pip install litellm`."
             ) from e
+
+        if not self.litellm_logging:
+            for key in logging.Logger.manager.loggerDict.keys():
+                if "litellm" in key.lower():
+                    logger = logging.getLogger(key)
+                    logger.setLevel(logging.ERROR)
 
     @property
     def model_name(self) -> str:
