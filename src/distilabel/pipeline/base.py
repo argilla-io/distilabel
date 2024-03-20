@@ -727,7 +727,7 @@ class _WriteBuffer:
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
         self._writers: Dict[str, pq.ParquetWriter] = {}
 
-    def _get_filename(self, step_name: str) -> str:
+    def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
 
         Args:
