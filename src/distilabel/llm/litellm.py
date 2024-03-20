@@ -55,6 +55,7 @@ class LiteLLM(AsyncLLM):
         self._aclient = acompletion
 
         if not self.verbose:
+            litellm.suppress_debug_info = True
             for key in logging.Logger.manager.loggerDict.keys():
                 if "litellm" not in key.lower():
                     continue
@@ -129,33 +130,52 @@ class LiteLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        import litellm
 
-        completion = await self._aclient(  # type: ignore
-            model=self.model,
-            messages=input,  # type: ignore
-            n=num_generations,
-            functions=functions,
-            function_call=function_call,
-            temperature=temperature,
-            top_p=top_p,
-            stream=False,
-            stop=stop,
-            max_tokens=max_tokens,
-            presence_penalty=presence_penalty,
-            frequency_penalty=frequency_penalty,
-            logit_bias=logit_bias,
-            user=user,
-            metadata=metadata,
-            api_base=api_base,
-            api_version=api_version,
-            api_key=api_key,
-            model_list=model_list,
-            mock_response=mock_response,
-            force_timeout=force_timeout,
-            custom_llm_provider=custom_llm_provider,
-        )
+        async def _call_aclient_untill_n_choices():
+            choices = []
+            while len(choices) < num_generations:
+                completion = await self._aclient(
+                    model=self.model,
+                    messages=input,
+                    n=num_generations,
+                    functions=functions,
+                    function_call=function_call,
+                    temperature=temperature,
+                    top_p=top_p,
+                    stream=False,
+                    stop=stop,
+                    max_tokens=max_tokens,
+                    presence_penalty=presence_penalty,
+                    frequency_penalty=frequency_penalty,
+                    logit_bias=logit_bias,
+                    user=user,
+                    metadata=metadata,
+                    api_base=api_base,
+                    api_version=api_version,
+                    api_key=api_key,
+                    model_list=model_list,
+                    mock_response=mock_response,
+                    force_timeout=force_timeout,
+                    custom_llm_provider=custom_llm_provider,
+                )
+                choices.extend(completion.choices)
+            return choices
+
+        try:
+            litellm.drop_params = False
+            choices = await _call_aclient_untill_n_choices()
+        except litellm.exceptions.APIError as e:
+            if "mistral does not support parameters" in str(e):
+                litellm.drop_params = True
+                choices = await _call_aclient_untill_n_choices()
+            else:
+                raise e
+        except Exception as e:
+            raise e
+
         generations = []
-        for choice in completion.choices:
+        for choice in choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(
                     f"Received no response using LiteLLM client (model: '{self.model}')."
