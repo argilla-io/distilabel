@@ -197,6 +197,34 @@ class InferenceEndpointsLLM(AsyncLLM):
             or self.base_url
         )
 
+    def _openai_generate(
+        self,
+        input: "ChatType",
+        max_new_tokens: int = 128,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: Optional[float] = None,
+    ) -> "GenerateOutput":
+        """Generates completions for the given input using the OpenAI async client."""
+        completion = await self._aclient.chat.completions.create(  # type: ignore
+            messages=input,  # type: ignore
+            model="tgi",
+            max_tokens=max_new_tokens,
+            n=1,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
+            timeout=50,
+        )
+        if completion.choices[0].message.content is None:
+            self._logger.warning(
+                f"⚠️ Received no response using OpenAI client (model: '{self.model_name}')."
+                f" Finish reason was: {completion.choices[0].finish_reason}"
+            )
+        return [completion.choices[0].message.content]
+
     # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     async def agenerate(  # type: ignore
         self,
@@ -238,32 +266,20 @@ class InferenceEndpointsLLM(AsyncLLM):
         """
 
         if self.use_openai_client:
-            completion = await self._aclient.chat.completions.create(  # type: ignore
-                messages=input,  # type: ignore
-                model="tgi",
-                max_tokens=max_new_tokens,
-                n=1,
+            return self._openai_generate(
+                input=input,
+                max_new_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
                 temperature=temperature,
                 top_p=top_p,
-                timeout=50,
             )
-            generations = []
-            for choice in completion.choices:
-                if (content := choice.message.content) is None:
-                    self._logger.warning(
-                        f"⚠️ Received no response using OpenAI client (model: '{self.model_name}')."
-                        f" Finish reason was: {choice.finish_reason}"
-                    )
-                generations.append(content)
-            return generations
 
         if self._tokenizer is not None:
             prompt = self._tokenizer.apply_chat_template(  # type: ignore
                 conversation=input,  # type: ignore
                 tokenize=False,
-                add_generation_prompt=True,  # type: ignore
+                add_generation_prompt=True,
             )
         else:
             prompt = "\n".join([message["content"] for message in input])
@@ -301,7 +317,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         async def agenerate(
             inputs: List["ChatType"], **kwargs: Any
-        ) -> List[Union[str, None]]:
+        ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
                 asyncio.create_task(self.agenerate(input=input, **kwargs))
