@@ -45,14 +45,6 @@ if TYPE_CHECKING:
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
-# Dictionary to map python types to pyarrow types to simplify the schema generation
-_TYPE_MAP: Dict[type, pa.DataType] = {
-    int: pa.int64(),
-    float: pa.float64(),
-    str: pa.string(),
-    type(None): pa.null(),
-}
-
 
 class CacheLocation(TypedDict):
     """Dictionary to store the filenames and directories of a cached pipeline."""
@@ -828,31 +820,35 @@ def _map_to_pyarrow_type(value: Any) -> pa.DataType:
     """
     if isinstance(value, bool):
         return pa.bool_()
-    elif isinstance(value, int):
+
+    if isinstance(value, int):
         return pa.int64()
-    elif isinstance(value, float):
+
+    if isinstance(value, float):
         return pa.float64()
-    elif isinstance(value, str):
+
+    if isinstance(value, str):
         return pa.string()
-    elif isinstance(value, type(None)):
+
+    if isinstance(value, type(None)):
         return pa.null()
-    elif isinstance(value, list):
+
+    if isinstance(value, list):
         # Assuming list elements have the same type
         if len(value) > 0:
             element_type = _map_to_pyarrow_type(value[0])
             return pa.list_(element_type)
-        else:
-            return pa.list_(pa.null())
-    elif isinstance(value, dict):
+        return pa.list_(pa.null())
+
+    if isinstance(value, dict):
         # Assuming dict values have the same type
         if len(value) > 0:
             value_type = _map_to_pyarrow_type(list(value.values())[0])
             return pa.struct(value_type)
-        else:
-            return pa.struct({})
-    else:
-        # For any other types, return as binary, we shouldn't be here
-        return pa.binary()
+        return pa.struct({})
+
+    # For any other types, return as binary, we shouldn't be here
+    return pa.binary()
 
 
 def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema:
