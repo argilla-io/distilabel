@@ -18,6 +18,7 @@ from pydantic import PrivateAttr
 
 from distilabel.llm.base import LLM
 from distilabel.llm.constants import CHATML_TEMPLATE
+from distilabel.llm.mixins import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 SamplingParams = None
 
 
-class vLLM(LLM):
+class vLLM(LLM, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
 
     Attributes:
@@ -56,6 +57,7 @@ class vLLM(LLM):
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
         """
+        CudaDevicePlacementMixin.load(self)
 
         try:
             from vllm import LLM as _vLLM

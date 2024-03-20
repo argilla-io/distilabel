@@ -102,7 +102,6 @@ class BasePipeline(_Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
-        self._cache()
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
@@ -580,21 +579,28 @@ class _BatchManager(_Serializable):
         self._last_batch_received = last_batch_received
 
     def can_generate(self) -> bool:
-        """Checks if there are still batches to be processed by the steps."""
+        """Checks if there are still batches to be processed by the steps.
+
+        Returns:
+            `True` if there are still batches to be processed by the steps. Otherwise,
+            `False`.
+        """
         return not all(self._last_batch_received.values())
 
-    def register_batch(self, batch: _Batch) -> None:
+    def register_batch(self, batch: _Batch, callback: Callable[[], None]) -> None:
         """Method to register a batch received from a step. It will keep track of the
         sequence number and the last batch received from the step in the internal maps.
 
         Args:
             batch: _Batch from which we will register the sequence number and the last batch received.
+            callback: A callback to be called after the batch is registered.
         """
         self._seq_no_step[batch.step_name] = batch.seq_no + 1
         self._last_batch_received[batch.step_name] = batch.last_batch
+        callback()
 
     def add_batch(
-        self, to_step: str, batch: _Batch, callback: Callable
+        self, to_step: str, batch: _Batch, callback: Callable[[], None]
     ) -> Iterable[_Batch]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
@@ -603,8 +609,7 @@ class _BatchManager(_Serializable):
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
-            callback: A callback to be called after the batch is added to the step. It's used
-                to cache the content of the batch manager during the pipeline execution.
+            callback: A callback to be called after the batch is added.
 
         Returns:
             If there is enough data for creating a batch for `to_step`, then it will return
@@ -636,7 +641,7 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
-            seq_no_step[step.name] = 0  # Will start at 0.
+            seq_no_step[step.name] = 0
             last_batch_received[step.name] = False
             if step.is_generator:
                 continue
