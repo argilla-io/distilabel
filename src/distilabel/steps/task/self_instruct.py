@@ -60,10 +60,10 @@ class SelfInstruct(Task):
     framework from the paper 'Self-Instruct: Aligning Language Models with Self-Generated Instructions'.
 
     Input columns:
-        num_instructions (`int`): The number of instructions to be generated.
-        criteria_for_query_generation (`str`): The criteria for the query generation.
+        num_instructions (`int`): The number of instructions to be generated. Defaults to 5.
+        criteria_for_query_generation (`str`): The criteria for the query generation. Defaults to the criteria seen in the constant value.
         application_description (`str`): The description of the AI application that
-            one want to build with these instructions.
+            one want to build with these instructions. Defaults to `AI assistant`.
         input (`str`): The input to generate the instructions. It's also called seed in the paper
 
     Output columns:
