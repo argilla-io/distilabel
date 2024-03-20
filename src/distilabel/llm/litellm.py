@@ -166,7 +166,7 @@ class LiteLLM(AsyncLLM):
             litellm.drop_params = False
             choices = await _call_aclient_untill_n_choices()
         except litellm.exceptions.APIError as e:
-            if "mistral does not support parameters" in str(e):
+            if "does not support parameters" in str(e):
                 litellm.drop_params = True
                 choices = await _call_aclient_untill_n_choices()
             else:
