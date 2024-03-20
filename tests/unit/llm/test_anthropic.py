@@ -22,7 +22,7 @@ from distilabel.llm.anthropic import AnthropicLLM
 
 @patch("anthropic.AsyncAnthropic")
 class TestAnthropicLLM:
-    def test_anthropic_llm(self, mock_anthropic: MagicMock) -> None:
+    def test_anthropic_llm(self) -> None:
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore
         assert isinstance(llm, AnthropicLLM)
         assert llm.model_name == "claude-3-opus-20240229"
