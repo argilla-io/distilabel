@@ -866,6 +866,6 @@ def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema
     """
     fields = []
     for key, value in batch_items.items():
-        field_type = _map_batch_items_to_pyarrow_schema(value)
+        field_type = _map_to_pyarrow_type(value)
         fields.append(pa.field(key, field_type))
     return pa.schema(fields)
