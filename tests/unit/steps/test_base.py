@@ -193,9 +193,9 @@ class TestStep:
         )
 
         assert outputs == [
-            {"prompt": "hello 1", "generation": "unit test"},
-            {"prompt": "hello 2", "generation": "unit test"},
-            {"prompt": "hello 3", "generation": "unit test"},
+            {"prompt": "hello 1", "response": "unit test"},
+            {"prompt": "hello 2", "response": "unit test"},
+            {"prompt": "hello 3", "response": "unit test"},
         ]
 
 
