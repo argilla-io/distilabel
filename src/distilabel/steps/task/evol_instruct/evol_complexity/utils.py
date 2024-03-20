@@ -15,8 +15,10 @@
 import sys
 
 from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolInstruct,
-    MutationTemplatesEvolInstruct,
+    GenerationMutationTemplates as GenerationMutationTemplatesEvolInstruct,
+)
+from distilabel.steps.task.evol_instruct.utils import (
+    MutationTemplates as MutationTemplatesEvolInstruct,
 )
 
 if sys.version_info < (3, 11):
@@ -25,7 +27,7 @@ else:
     from enum import StrEnum
 
 
-class MutationTemplatesEvolComplexity(StrEnum):
+class MutationTemplates(StrEnum):
     CONSTRAINTS = MutationTemplatesEvolInstruct.CONSTRAINTS.value
     DEEPENING = MutationTemplatesEvolInstruct.DEEPENING.value
     CONCRETIZING = MutationTemplatesEvolInstruct.CONCRETIZING.value
@@ -34,7 +36,7 @@ class MutationTemplatesEvolComplexity(StrEnum):
     )
 
 
-class GenerationMutationTemplatesEvolComplexity(StrEnum):
+class GenerationMutationTemplates(StrEnum):
     FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
     CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.CONSTRAINTS.value
     DEEPENING = GenerationMutationTemplatesEvolInstruct.DEEPENING.value

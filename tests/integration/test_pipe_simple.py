@@ -17,6 +17,7 @@ from typing import Any, Dict, Generator, List
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import RuntimeParameter, Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.utils.distiset import Distiset
 
 
 class RenameColumns(Step):
@@ -47,7 +48,7 @@ class GenerateResponse(Step):
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
         import time
 
-        time.sleep(5)
+        time.sleep(1)
 
         print("***** NOT CACHED ******", len(inputs))
         for input in inputs:
@@ -60,37 +61,40 @@ class GenerateResponse(Step):
         return ["response"]
 
 
+def run_pipeline():
+    with Pipeline() as pipeline:
+        load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
+        rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
+        generate_response = GenerateResponse(
+            name="generate_response", input_batch_size=16
+        )
+
+        load_hub_dataset.connect(rename_columns)
+        rename_columns.connect(generate_response)
+
+        return pipeline.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "plaguss/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    },
+                },
+            }
+        )
+
+
 def test_pipeline_cached():
-    def run_pipeline():
-        with Pipeline() as pipeline:
-            load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
-            rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
-            generate_response = GenerateResponse(
-                name="generate_response", input_batch_size=16
-            )
-
-            load_hub_dataset.connect(rename_columns)
-            rename_columns.connect(generate_response)
-
-            pipeline.run(
-                parameters={
-                    "load_dataset": {
-                        "repo_id": "plaguss/test",
-                        "split": "train",
-                    },
-                    "rename_columns": {
-                        "rename_mappings": {
-                            "prompt": "instruction",
-                        },
-                    },
-                }
-            )
-
-    run_pipeline()
+    ds = run_pipeline()
     print()
     print("----- RUNNING PIPELINE AGAIN -----")
     print()
-    run_pipeline()
+    ds = run_pipeline()
+    assert isinstance(ds, Distiset)
+    assert len(ds["generate_response"]) == 80
 
 
 if __name__ == "__main__":
