@@ -34,8 +34,10 @@ if TYPE_CHECKING:
 _BATCH_STOP_FLAG = "__STOP__"
 
 _STEPS_LOADED_KEY = "steps_loaded"
+_STEPS_LOADED_LOCK = _STEPS_LOADED_KEY + "_lock"
 _STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
+_CUDA_LLM_DEVICE_PLACEMENT_LOCK = _CUDA_LLM_DEVICE_PLACEMENT_KEY + "_lock"
 
 
 class Pipeline(BasePipeline):
@@ -98,11 +100,8 @@ class Pipeline(BasePipeline):
             # Start a loop to receive the output batches from the steps
             self._output_queue_loop(write_buffer)
 
-            self._logger.info("closing pool...")
             pool.close()
-            self._logger.info("joining pool...")
             pool.join()
-            self._logger.info("pool joined")
 
         write_buffer.close()
         return _create_dataset(self._cache_location["data"])
@@ -207,7 +206,9 @@ class Pipeline(BasePipeline):
         return manager.dict(
             **{
                 _STEPS_LOADED_KEY: 0,
+                _STEPS_LOADED_LOCK: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
+                _CUDA_LLM_DEVICE_PLACEMENT_LOCK: manager.Lock(),
             }
         )
 
@@ -220,20 +221,21 @@ class Pipeline(BasePipeline):
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
         while True:
-            steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+            with self.shared_info[_STEPS_LOADED_LOCK]:
+                steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
 
-            message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
-            if steps_loaded > 0 and message != previous_message:
-                self._logger.info(message)
-                previous_message = message
+                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
+                if steps_loaded > 0 and message != previous_message:
+                    self._logger.info(message)
+                    previous_message = message
 
-            if steps_loaded == len(self.dag):
-                self._logger.info("✅ All the steps have been loaded!")
-                return True
+                if steps_loaded == len(self.dag):
+                    self._logger.info("✅ All the steps have been loaded!")
+                    return True
 
-            if steps_loaded == _STEPS_LOADED_ERROR_CODE:
-                self._logger.error("❌ Failed to load all the steps")
-                return False
+                if steps_loaded == _STEPS_LOADED_ERROR_CODE:
+                    self._logger.error("❌ Failed to load all the steps")
+                    return False
 
             time.sleep(2.5)
 
@@ -343,15 +345,21 @@ class Pipeline(BasePipeline):
         notify the pipeline to stop, and set the `_STEPS_LOADED_KEY` to `_STEPS_LOADED_ERROR_CODE`
         for the pipeline to stop waiting for the steps to load.
         """
-        self._logger.info("🛑 Stopping pipeline...")
         for step_name in self.dag:
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 input_queue.put(_BATCH_STOP_FLAG)
                 self._logger.debug(
                     f"Send `_BATCH_STOP_FLAG` to step '{step_name}' input queue."
                 )
+        # Wait until the output queue is empty which means that all the steps finished
+        # processing the batches that were sent before the `_BATCH_STOP_FLAG`. Then send
+        # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
+        while self.output_queue.qsize() != 0:
+            pass
+        self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(_BATCH_STOP_FLAG)
-        self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+        with self.shared_info[_STEPS_LOADED_LOCK]:
+            self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -449,6 +457,9 @@ class _ProcessWrapper:
                 device_llm_placement_map=self.shared_info[
                     _CUDA_LLM_DEVICE_PLACEMENT_KEY
                 ],
+                device_llm_placement_lock=self.shared_info[
+                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK
+                ],
             )
 
     def run(self) -> None:
@@ -479,7 +490,8 @@ class _ProcessWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
-        self.shared_info[_STEPS_LOADED_KEY] += 1
+        with self.shared_info[_STEPS_LOADED_LOCK]:
+            self.shared_info[_STEPS_LOADED_KEY] += 1
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method
