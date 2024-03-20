@@ -36,7 +36,7 @@ class OpenAILLM(AsyncLLM):
         api_key: the API key to authenticate the requests to the OpenAI API.
     """
 
-    model: str = "gpt-3.5-turbo"
+    model: str
     base_url: Optional[str] = None
     api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY", None)  # type: ignore
 
