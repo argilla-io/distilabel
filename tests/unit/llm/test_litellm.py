@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -20,16 +19,21 @@ import pytest
 from distilabel.llm.litellm import LiteLLM
 
 
+@pytest.fixture(params=["mistral/mistral-tiny", "gpt-4"])
+def model(request) -> list:
+    return request.param
+
+
 @patch("litellm.acompletion")
 class TestLiteLLM:
-    def test_litellm_llm(self, _: MagicMock) -> None:
-        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
+    def test_litellm_llm(self, _: MagicMock, model: str) -> None:
+        llm = LiteLLM(model=model)  # type: ignore
         assert isinstance(llm, LiteLLM)
-        assert llm.model_name == "gpt-4"
+        assert llm.model_name == model
 
     @pytest.mark.asyncio
-    async def test_agenerate(self, mock_litellm: MagicMock) -> None:
-        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
+    async def test_agenerate(self, mock_litellm: MagicMock, model: str) -> None:
+        llm = LiteLLM(model=model)  # type: ignore
         llm._aclient = mock_litellm
 
         mocked_completion = Mock(
@@ -48,8 +52,8 @@ class TestLiteLLM:
         )
 
     @pytest.mark.asyncio
-    async def test_generate(self, mock_litellm: MagicMock) -> None:
-        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
+    async def test_generate(self, mock_litellm: MagicMock, model: str) -> None:
+        llm = LiteLLM(model=model)  # type: ignore
         llm._aclient = mock_litellm
 
         mocked_completion = Mock(
@@ -71,12 +75,11 @@ class TestLiteLLM:
             ]
         )
 
-    def test_serialization(self, _: MagicMock) -> None:
-        os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = LiteLLM(model="gpt-4")  # type: ignore
+    def test_serialization(self, _: MagicMock, model: str) -> None:
+        llm = LiteLLM(model=model)  # type: ignore
 
         _dump = {
-            "model": "gpt-4",
+            "model": model,
             "verbose": False,
             "type_info": {
                 "module": "distilabel.llm.litellm",
