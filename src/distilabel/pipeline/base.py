@@ -46,11 +46,11 @@ if TYPE_CHECKING:
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 # Dictionary to map python types to pyarrow types to simplify the schema generation
-_TYPE_MAP: Dict[Union[type, None], pa.DataType] = {
+_TYPE_MAP: Dict[type, pa.DataType] = {
     int: pa.int64(),
     float: pa.float64(),
     str: pa.string(),
-    None: pa.null(),
+    type(None): pa.null(),
 }
 
 
