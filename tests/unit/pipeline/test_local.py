@@ -19,7 +19,7 @@ from unittest import mock
 
 from distilabel.pipeline.base import _Batch, _BatchManager
 from distilabel.pipeline.local import Pipeline, _WriteBuffer
-from distilabel.utils.data import Distiset, _create_dataset
+from distilabel.utils.distiset import Distiset, _create_dataset
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
 
