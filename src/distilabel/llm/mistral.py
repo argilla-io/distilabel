@@ -34,10 +34,12 @@ class MistralLLM(AsyncLLM):
     Args:
         api_key: the API key to authenticate the requests to the Mistral API.
         model: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.
-        endpoint: the endpoint to use for the Mistral API. Defaults to "https://api.mistral.ai".
-        max_retries: the maximum number of retries to attempt when a request fails. Defaults to 5.next
-        timeout: the maximum time in seconds to wait for a response. Defaults to 120.next
-        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
+        endpoint: the endpoint to use for the Mistral API. Defaults to `"https://api.mistral.ai"`.
+        max_retries: the maximum number of retries to attempt when a request fails. Defaults
+            to `5`.
+        timeout: the maximum time in seconds to wait for a response. Defaults to `120`.
+        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults
+            to `64`.
     """
 
     model: str = "mistral-medium"

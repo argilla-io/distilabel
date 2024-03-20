@@ -224,7 +224,7 @@ class TestBatchManagerStep:
             },
         )
 
-        batches = batch_manager_step.get_batches()
+        batches = batch_manager_step.get_batch()
 
         assert list(batches) == [
             _Batch(
@@ -284,7 +284,7 @@ class TestBatchManagerStep:
             last_batch_received=["step1", "step2"],
         )
 
-        batches = batch_manager_step.get_batches()
+        batches = batch_manager_step.get_batch()
 
         assert list(batches) == [
             _Batch(
@@ -328,7 +328,7 @@ class TestBatchManagerStep:
             },
         )
 
-        batches = batch_manager_step.get_batches()
+        batches = batch_manager_step.get_batch()
 
         assert list(batches) == []
 
