@@ -13,26 +13,24 @@
 # limitations under the License.
 
 import os
-from unittest.mock import MagicMock, patch
 
 from distilabel.llm.anyscale import AnyscaleLLM
 
+MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-@patch("openai.AsyncOpenAI")
+
 class TestAnyscaleLLM:
     def test_anyscale_llm(self) -> None:
-        llm = AnyscaleLLM(
-            model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key"
-        )  # type: ignore
+        llm = AnyscaleLLM(model=MODEL, api_key="api.key")
         assert isinstance(llm, AnyscaleLLM)
-        assert llm.model_name == "mistralai/Mixtral-8x7B-Instruct-v0.1"
+        assert llm.model_name == MODEL
 
     def test_serialization(self) -> None:
         os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = AnyscaleLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1")  # type: ignore
+        llm = AnyscaleLLM(model=MODEL)
 
         _dump = {
-            "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "model": MODEL,
             "base_url": "https://api.endpoints.anyscale.com/v1",
             "type_info": {
                 "module": "distilabel.llm.anyscale",
