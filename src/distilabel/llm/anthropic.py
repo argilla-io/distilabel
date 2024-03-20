@@ -81,6 +81,7 @@ class AnthropicLLM(AsyncLLM):
         self,
         input: "ChatType",
         system: str = "",
+        num_generations: int = 1,
         max_tokens: int = 128,
         stop_sequences: List[str] = None,
         temperature: float = 1.0,
@@ -92,6 +93,7 @@ class AnthropicLLM(AsyncLLM):
         Args:
             input: a single input in chat format to generate responses for.
             system: the system prompt to use for the generation. No existing `system` role within the input conversation, only `user` and `assistant`. Defaults to `""`.
+            num_generations: the number of generations to create per input. Defaults to `1`.
             max_tokens: the maximum number of new tokens that the model will generate. Defaults to `128`.
             stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to None.
             temperature: the temperature to use for the generation. Set only if top_p is None. Defaults to `1.0`.
