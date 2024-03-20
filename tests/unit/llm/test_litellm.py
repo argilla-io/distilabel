@@ -17,19 +17,19 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.litellm import LitellmLLM
+from distilabel.llm.litellm import LiteLLM
 
 
 @patch("litellm.acompletion")
-class TestOpenAILLM:
-    def test_litellm_llm(self, mock_litellm: MagicMock) -> None:
-        llm = LitellmLLM(model="gpt-4", api_key="api.key")  # type: ignore
-        assert isinstance(llm, LitellmLLM)
+class TestLiteLLM:
+    def test_litellm_llm(self, _: MagicMock) -> None:
+        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
+        assert isinstance(llm, LiteLLM)
         assert llm.model_name == "gpt-4"
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_litellm: MagicMock) -> None:
-        llm = LitellmLLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
         llm._aclient = mock_litellm
 
         mocked_completion = Mock(
@@ -49,7 +49,7 @@ class TestOpenAILLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_litellm: MagicMock) -> None:
-        llm = LitellmLLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = LiteLLM(model="gpt-4", api_key="api.key")  # type: ignore
         llm._aclient = mock_litellm
 
         mocked_completion = Mock(
@@ -71,9 +71,9 @@ class TestOpenAILLM:
             ]
         )
 
-    def test_serialization(self, mock_litellm: MagicMock) -> None:
+    def test_serialization(self, _: MagicMock) -> None:
         os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = LitellmLLM(model="gpt-4")  # type: ignore
+        llm = LiteLLM(model="gpt-4")  # type: ignore
 
         _dump = {
             "model": "gpt-4",
@@ -85,4 +85,4 @@ class TestOpenAILLM:
         }
 
         assert llm.dump() == _dump
-        assert isinstance(LitellmLLM.from_dict(_dump), LitellmLLM)
+        assert isinstance(LiteLLM.from_dict(_dump), LiteLLM)

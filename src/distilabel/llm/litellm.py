@@ -24,45 +24,41 @@ if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
 
 
-class LitellmLLM(AsyncLLM):
+class LiteLLM(AsyncLLM):
     """LiteLLM LLM implementation running the async API client.
 
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
         api_key: the API key to authenticate the requests to the OpenAI API.
+        verbose: whether to log the LiteLLM client's logs. Defaults to `False`.
     """
 
     model: str
-    litellm_logging: Optional[bool] = False
+    verbose: bool = False
     _aclient: Optional["callable"] = PrivateAttr(...)
 
-    def load(
-        self,
-    ) -> None:
+    def load(self) -> None:
         """
         Loads the `AsyncOpenAI` client to benefit from async requests.
-
-        Args:
-            model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
         """
 
         try:
             import litellm
             from litellm import acompletion
 
-            self._aclient = acompletion
             litellm.telemetry = False
         except ImportError as e:
             raise ImportError(
                 "LiteLLM Python client is not installed. Please install it using"
                 " `pip install litellm`."
             ) from e
+        self._aclient = acompletion
 
-        if not self.litellm_logging:
+        if not self.verbose:
             for key in logging.Logger.manager.loggerDict.keys():
-                if "litellm" in key.lower():
-                    logger = logging.getLogger(key)
-                    logger.setLevel(logging.ERROR)
+                if "litellm" not in key.lower():
+                    continue
+                logging.getLogger(key).setLevel(logging.CRITICAL)
 
     @property
     def model_name(self) -> str:
