@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
-
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
@@ -21,66 +19,48 @@ from distilabel.steps.task.evol_instruct.generator import (
     EvolInstructGenerator,
 )
 from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolInstruct,
+    GenerationMutationTemplates,
 )
 from pydantic import ValidationError
 
-if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
-
-
-class DummyLLM(LLM):
-    def load(self) -> None:
-        pass
-
-    @property
-    def model_name(self) -> str:
-        return "test"
-
-    def generate(self, inputs: List["ChatType"]) -> List[str]:
-        return ["output" for _ in inputs]
-
 
 class TestEvolInstructGenerator:
-    def test_passing_pipeline(self) -> None:
+    def test_passing_pipeline(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolInstructGenerator(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+            name="task", llm=dummy_llm, num_instructions=2, pipeline=pipeline
         )
         assert task.name == "task"
-        assert task.llm is llm
+        assert task.llm is dummy_llm
         assert task.num_instructions == 2
-        assert task.mutation_templates == GenerationMutationTemplatesEvolInstruct
+        assert task.mutation_templates == GenerationMutationTemplates
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self) -> None:
+    def test_within_pipeline_context(self, dummy_llm: LLM) -> None:
         with Pipeline() as pipeline:
-            llm = DummyLLM()
             task = EvolInstructGenerator(
-                name="task", llm=llm, num_instructions=2, pipeline=pipeline
+                name="task", llm=dummy_llm, num_instructions=2, pipeline=pipeline
             )
             assert task.name == "task"
-            assert task.llm is llm
+            assert task.llm is dummy_llm
             assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
-    def test_with_errors(self) -> None:
+    def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_instructions\n  Field required \\[type=missing"
         ):
             EvolInstructGenerator(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            EvolInstructGenerator(name="task", llm=DummyLLM(), num_instructions=2)
+            EvolInstructGenerator(name="task", llm=dummy_llm, num_instructions=2)
 
-    def test_process(self) -> None:
+    def test_process(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolInstructGenerator(
             name="task",
-            llm=llm,
+            llm=dummy_llm,
             num_instructions=1,
             min_length=1,
             max_length=10,
@@ -98,12 +78,11 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_process_generate_answers(self) -> None:
+    def test_process_generate_answers(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolInstructGenerator(
             name="task",
-            llm=llm,
+            llm=dummy_llm,
             num_instructions=1,
             min_length=1,
             max_length=10,
@@ -123,11 +102,10 @@ class TestEvolInstructGenerator:
             )
         ]
 
-    def test_serialization(self) -> None:
+    def test_serialization(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolInstructGenerator(
-            name="task", llm=llm, num_instructions=2, pipeline=pipeline
+            name="task", llm=dummy_llm, num_instructions=2, pipeline=pipeline
         )
         assert task.dump() == {
             "name": "task",
@@ -136,7 +114,7 @@ class TestEvolInstructGenerator:
             "batch_size": task.batch_size,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.steps.task.evol_instruct.test_generator",
+                    "module": "tests.unit.steps.task.conftest",
                     "name": "DummyLLM",
                 }
             },
