@@ -24,6 +24,7 @@ def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
         model="sentence-transformers/all-MiniLM-L6-v2",
         model_kwargs={"is_decoder": True},
+        cuda_devices=[],
     )
     llm.load()
 

@@ -77,6 +77,7 @@ class TestOpenAILLM:
 
         _dump = {
             "model": "gpt-4",
+            "base_url": None,
             "type_info": {
                 "module": "distilabel.llm.openai",
                 "name": "OpenAILLM",
