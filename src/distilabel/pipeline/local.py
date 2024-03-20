@@ -15,7 +15,7 @@
 import multiprocessing as mp
 import signal
 import time
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
@@ -32,7 +32,6 @@ if TYPE_CHECKING:
     from distilabel.utils.distiset import Distiset
 
 _BATCH_STOP_FLAG = "__STOP__"
-_BATCH_STOP_FLAG_2 = "__STOP2__"
 
 _STEPS_LOADED_KEY = "steps_loaded"
 _STEPS_LOADED_ERROR_CODE = -1
@@ -42,9 +41,7 @@ _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def run(
-        self, parameters: Optional[Dict[str, Dict[str, Any]]] = None
-    ) -> Union["Distiset", None]:
+    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":
         """Runs the pipeline.
 
         Args:
@@ -52,16 +49,31 @@ class Pipeline(BasePipeline):
                 The keys are the step names and the values are dictionaries in which the
                 keys are the parameter names (defined in the `process` method of the step)
                 and the values are the parameter values.
+
+        Returns:
+            The `Distiset` created by the pipeline.
+
+        Raises:
+            RuntimeError: If the pipeline fails to load all the steps.
         """
         super().run(parameters)
 
-        buffer_data_path = self._cache_location["data"]
-        self._logger.info("📝 Writing buffer to cache folder")
-        write_buffer = _WriteBuffer(
-            path=buffer_data_path, leaf_steps=self.dag.leaf_steps
-        )
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
+
+        # If the batch manager is not able to generate batches, that means that the loaded
+        # `_BatchManager` from cache didn't have any remaining batches to process i.e.
+        # the previous pipeline execution was completed successfully.
+        if not self._batch_manager.can_generate():
+            self._logger.info(
+                "Loaded batch manager from cache doesn't have any remaining data. Returning"
+                " `Distiset` from cache data"
+            )
+            return _create_dataset(self._cache_location["data"])
+
+        buffer_data_path = self._cache_location["data"]
+        self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
+        write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
         num_processes = len(self.dag)
         ctx = mp.get_context("forkserver")
@@ -70,19 +82,14 @@ class Pipeline(BasePipeline):
             self.shared_info = self._create_shared_info_dict(manager)
             self._handle_keyboard_interrupt()
 
-            # If the batch manager is not able to generate batches, that means that the
-            # loaded `_BatchManager` from cache didn't have any remaining batches to
-            # process i.e. the previous pipeline execution was completed successfully.
-            if not self._batch_manager.can_generate():
-                write_buffer.close()
-                return _create_dataset(self._cache_location["data"])
-
             # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
-                return
+                raise RuntimeError(
+                    "Failed to load all the steps. Could not run pipeline."
+                )
 
             # Send the "first" batches to the steps so the batches starts flowing through
             # the input queues and output queue
@@ -91,8 +98,12 @@ class Pipeline(BasePipeline):
             # Start a loop to receive the output batches from the steps
             self._output_queue_loop(write_buffer)
 
+            self._logger.info("closing pool...")
             pool.close()
+            self._logger.info("joining pool...")
             pool.join()
+            self._logger.info("pool joined")
+
         write_buffer.close()
         return _create_dataset(self._cache_location["data"])
 
@@ -104,8 +115,8 @@ class Pipeline(BasePipeline):
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
         while self._batch_manager.can_generate():  # type: ignore
-            self._logger.debug("Waiting for output batch...")
-            if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG:
+            self._logger.debug("Waiting for output batch from step...")
+            if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG or batch is None:
                 self._logger.debug(
                     "Received `_BATCH_STOP_FLAG` from output queue. Breaking loop."
                 )
@@ -333,13 +344,13 @@ class Pipeline(BasePipeline):
         for the pipeline to stop waiting for the steps to load.
         """
         self._logger.info("🛑 Stopping pipeline...")
-        self.output_queue.put(_BATCH_STOP_FLAG)
         for step_name in self.dag:
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 input_queue.put(_BATCH_STOP_FLAG)
                 self._logger.debug(
                     f"Send `_BATCH_STOP_FLAG` to step '{step_name}' input queue."
                 )
+        self.output_queue.put(_BATCH_STOP_FLAG)
         self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
 
     def _handle_keyboard_interrupt(self) -> None:
@@ -349,14 +360,11 @@ class Pipeline(BasePipeline):
         have any effect), and if the pool is already started, will close it before exiting
         the program.
         """
-        if getattr(self, "output_queue", None):
-            # If the output queue has already been created, then stop it.
-            self._stop()
-
-        # pool: Optional[mp.Pool] = None
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._logger.info("🚨 CTRL+C signal, stopping the pipeline...")
+            self._logger.info(
+                "🚨 CTRL+C signal, waiting steps to finish processing and stopping pipeline..."
+            )
             self._stop()
 
         signal.signal(signal.SIGINT, signal_handler)
@@ -450,10 +458,13 @@ class _ProcessWrapper:
         `process` method of the `Step`.
         """
 
+        # Ignore KeyboardInterrupt signals in the process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         try:
+            self.step._logger.debug(f"Loading step '{self.step.name}'...")
             self.step.load()
+            self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
             raise _ProcessWrapperException.create_load_error(str(e), self.step) from e
 
