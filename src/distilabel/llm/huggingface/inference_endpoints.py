@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import PrivateAttr, SecretStr, ValidationError, model_validator
+from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
@@ -252,21 +255,54 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         if self._tokenizer is not None:
             prompt = self._tokenizer.apply_chat_template(  # type: ignore
-                input,
+                conversation=input,  # type: ignore
                 tokenize=False,
                 add_generation_prompt=True,  # type: ignore
             )
         else:
             prompt = "\n".join([message["content"] for message in input])
 
-        completion = await self._aclient.text_generation(  # type: ignore
-            prompt=prompt,  # type: ignore
-            max_new_tokens=max_new_tokens,
-            do_sample=do_sample,
-            typical_p=typical_p,
-            repetition_penalty=repetition_penalty,
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-        )
-        return [completion]
+        try:
+            completion = await self._aclient.text_generation(  # type: ignore
+                prompt=prompt,  # type: ignore
+                max_new_tokens=max_new_tokens,
+                do_sample=do_sample,
+                typical_p=typical_p,
+                repetition_penalty=repetition_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+            )
+            return [completion]
+        except Exception as e:
+            self._logger.warning(
+                f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
+                f" Finish reason was: {e}"
+            )
+            return [None]
+
+    # TODO: remove this function once `AsyncInferenceClient` allows `n` parameter
+    @override
+    def generate(
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
+        async def agenerate(
+            inputs: List["ChatType"], **kwargs: Any
+        ) -> List[Union[str, None]]:
+            """Internal function to parallelize the asynchronous generation of responses."""
+            tasks = [
+                asyncio.create_task(self.agenerate(input=input, **kwargs))
+                for input in inputs
+                for _ in range(num_generations)
+            ]
+            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
+
+        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
