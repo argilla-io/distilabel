@@ -17,6 +17,7 @@ import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import PrivateAttr, SecretStr
+from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
 from distilabel.utils.itertools import grouper
@@ -116,6 +117,7 @@ class MistralLLM(AsyncLLM):
         return generations
 
     # TODO: remove this function once Mistral client allows `n` parameter
+    @override
     def generate(
         self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
     ) -> List["GenerateOutput"]:
