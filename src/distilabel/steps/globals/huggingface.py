@@ -74,7 +74,9 @@ class PushToHub(GlobalStep):
                 will be transformed into a `datasets.Dataset`.
 
         Yields:
-            An empty `StepOutput` which is an iterator with a single empty dictionary.
+            Propagates the received inputs so that the `Distiset` can be generated if this is
+            the last step of the `Pipeline`, or if this is not a leaf step and has follow up
+            steps.
         """
         dataset_dict = defaultdict(list)
         for input in inputs:
@@ -88,4 +90,4 @@ class PushToHub(GlobalStep):
             private=self.private,
             token=self.token or os.getenv("HF_TOKEN"),
         )
-        yield [{}]
+        yield inputs

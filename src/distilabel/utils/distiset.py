@@ -104,7 +104,7 @@ def _create_dataset(data_dir: Path) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
     Args:
-        data_dir (Path): Folder where the data buffers were written by the `_WriteBuffer`.
+        data_dir: Folder where the data buffers were written by the `_WriteBuffer`.
             It should correspond to `CacheLocation.data`.
 
     Returns:

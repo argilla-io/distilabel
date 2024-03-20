@@ -50,6 +50,7 @@ _TYPE_MAP: Dict[type, pa.DataType] = {
     int: pa.int64(),
     float: pa.float64(),
     str: pa.string(),
+    type(None): pa.null(),
 }
 
 
@@ -727,7 +728,7 @@ class _WriteBuffer:
         self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
         self._writers: Dict[str, pq.ParquetWriter] = {}
 
-    def _get_filename(self, step_name: str) -> str:
+    def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
 
         Args:

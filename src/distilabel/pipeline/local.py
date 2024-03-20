@@ -28,9 +28,8 @@ if TYPE_CHECKING:
     from multiprocessing.pool import Pool
     from queue import Queue
 
-    from datasets import DatasetDict
-
     from distilabel.steps.base import GeneratorStep
+    from distilabel.utils.distiset import Distiset
 
 _STEPS_LOADED_KEY = "steps_loaded"
 _STEPS_LOADED_ERROR_CODE = -1
@@ -59,7 +58,7 @@ class Pipeline(BasePipeline):
 
     def run(
         self, parameters: Optional[Dict[str, Dict[str, Any]]] = None
-    ) -> "DatasetDict":
+    ) -> Union["Distiset", None]:
         """Runs the pipeline.
 
         Args:
