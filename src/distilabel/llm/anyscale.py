@@ -22,7 +22,7 @@ class AnyscaleLLM(OpenAILLM):
     Anyscale LLM implementation running the async API client of OpenAI because of duplicate API behavior.
 
     Attributes:
-        model: the model name to use for the LLM. [Supported models](https://docs.endpoints.anyscale.com/text-generation/supported-models/google-gemma-7b-it).
+        model: the model name to use for the LLM, e.g., `google/gemma-7b-it`. [Supported models](https://docs.endpoints.anyscale.com/text-generation/supported-models/google-gemma-7b-it).
         base_url: the base URL to use for the Anyscale API can be set with `OPENAI_BASE_URL`. Default is "https://api.endpoints.anyscale.com/v1".
         api_key: the API key to authenticate the requests to the Anyscale API. Can be set with `OPENAI_API_KEY`. Default is `None`.
     """
