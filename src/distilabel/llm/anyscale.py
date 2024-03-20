@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
 
 from distilabel.llm.openai import OpenAILLM
 
@@ -28,27 +27,3 @@ class AnyscaleLLM(OpenAILLM):
     """
 
     base_url: str = "https://api.endpoints.anyscale.com/v1"
-
-    def load(
-        self, api_key: Optional[str] = None, base_url: Optional[str] = None
-    ) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests."""
-
-        try:
-            from openai import AsyncOpenAI
-        except ImportError as ie:
-            raise ImportError(
-                "OpenAI Python client is not installed which is required for `AnyscaleLLM`. Please install it using"
-                " `pip install openai`."
-            ) from ie
-
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
-        )
-        self.base_url = base_url or self.base_url
-
-        self._aclient = AsyncOpenAI(
-            api_key=self.api_key.get_secret_value(),
-            base_url=self.base_url,
-            max_retries=6,
-        )
