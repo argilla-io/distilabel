@@ -410,7 +410,8 @@ class Step(_Step, ABC):
             yield [
                 {
                     # Apply output mapping and revert input mapping
-                    self.output_mappings.get(k, k): v
+                    self.input_mappings.get(k, None)
+                    or self.output_mappings.get(k, None): v
                     for k, v in row.items()
                 }
                 for row in output_rows
