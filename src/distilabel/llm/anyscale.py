@@ -28,7 +28,7 @@ class AnyscaleLLM(OpenAILLM):
     """
 
     model: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-    base_url: Optional[str] = "https://api.endpoints.anyscale.com/v1"
+    base_url: str = "https://api.endpoints.anyscale.com/v1"
 
     def load(
         self, api_key: Optional[str] = None, base_url: Optional[str] = None
