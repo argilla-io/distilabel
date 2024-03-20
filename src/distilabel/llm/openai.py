@@ -31,12 +31,16 @@ class OpenAILLM(AsyncLLM):
 
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
+        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`,
+            which means that https://api.openai.com/v1 will be used.
         api_key: the API key to authenticate the requests to the OpenAI API.
     """
 
-    model: str = "gpt-3.5-turbo"
+    model: str
+    base_url: Optional[str] = None
     api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY", None)  # type: ignore
 
+    _env_var: Optional[str] = PrivateAttr(default="OPENAI_API_KEY")
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
     def load(self, api_key: Optional[str] = None) -> None:
@@ -51,10 +55,13 @@ class OpenAILLM(AsyncLLM):
             ) from ie
 
         self.api_key = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
+            self_value=self.api_key,
+            load_value=api_key,
+            env_var=self._env_var,  # type: ignore
         )
 
         self._aclient = AsyncOpenAI(
+            base_url=self.base_url,
             api_key=self.api_key.get_secret_value(),
             max_retries=6,
         )

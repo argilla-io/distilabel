@@ -63,7 +63,7 @@ class CudaDevicePlacementMixin(BaseModel):
                 ) from ie
 
             if self.cuda_devices:
-                self._logger.warning(
+                self._logger.warning(  # type: ignore
                     "The 'pynvml' library is not installed. It is recommended to install it"
                     " to check if the CUDA devices assigned to the LLM are available."
                 )

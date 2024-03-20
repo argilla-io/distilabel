@@ -12,25 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import multiprocessing as mp
 import signal
 import time
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Set, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
 
 from distilabel.llm.mixins import CudaDevicePlacementMixin
-from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager
+from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.steps.task.base import _Task
+from distilabel.utils.distiset import _create_dataset
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
     from multiprocessing.pool import Pool
-    from os import PathLike
     from queue import Queue
 
     from distilabel.steps.base import GeneratorStep
+    from distilabel.utils.distiset import Distiset
 
 _STEPS_LOADED_KEY = "steps_loaded"
 _STEPS_LOADED_ERROR_CODE = -1
@@ -57,7 +56,9 @@ def _set_pool_and_manager(pool: "Pool", manager: "SyncManager") -> None:
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+    def run(
+        self, parameters: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> Union["Distiset", None]:
         """Runs the pipeline.
 
         Args:
@@ -88,10 +89,11 @@ class Pipeline(BasePipeline):
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
 
-            # Run the steps using the pool of processes
             if not self._batch_manager.can_generate():
-                return  # TODO: Return distiset
+                write_buffer.close()
+                return _create_dataset(self._cache_location["data"])
 
+            # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
 
             # Wait for all the steps to be loaded correctly
@@ -137,6 +139,8 @@ class Pipeline(BasePipeline):
 
             pool.close()
             pool.join()
+        write_buffer.close()
+        return _create_dataset(self._cache_location["data"])
 
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
@@ -233,7 +237,7 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
+            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
 
     def _error_callback(self, e: "_ProcessWrapperException") -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -242,13 +246,21 @@ class Pipeline(BasePipeline):
             e: The `_ProcessWrapperException` containing the error message and the `Step`
                 that raised the error.
         """
+        # First we check that the exception is a `_ProcessWrapperException`, otherwise, we
+        # print it out and stop the pipeline, since some errors may be unhandled
+        if not isinstance(e, _ProcessWrapperException):
+            self._logger.error(f"❌ Failed with an unhandled exception: {e}")
+            self._cache()
+            self._stop()
+            return
+
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
             self._cache()
             self._stop()
             return
 
-        # if the step is global, is not in the last trophic level and has no successors,
+        # If the step is global, is not in the last trophic level and has no successors,
         # then we can ignore the error and continue executing the pipeline
         if (
             e.step.is_global
@@ -256,8 +268,8 @@ class Pipeline(BasePipeline):
             and list(self.dag.get_step_successors(e.step.name)) == []
         ):
             self._logger.error(
-                f"An error occurred when running global step '{e.step.name}' with no"
-                f" successors and not in the last trophic level. Pipeline execution can"
+                f"✋ An error occurred when running global step '{e.step.name}' with no"
+                " successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored: {e.message}"
             )
             self._cache()
@@ -283,6 +295,11 @@ class Pipeline(BasePipeline):
         have any effect), and if the pool is already started, will close it before exiting
         the program.
         """
+        if getattr(self, "output_queue", None):
+            # If the output queue has already been created, then stop it.
+            self._stop()
+
+        # pool: Optional[mp.Pool] = None
 
         def signal_handler(signumber: int, frame: Any) -> None:
             if _POOL is not None and _MANAGER is not None:
@@ -295,44 +312,6 @@ class Pipeline(BasePipeline):
             exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
-
-
-class _WriteBuffer:
-    def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
-        path = Path(path)
-        if path.suffix == "":
-            path = path / "data.jsonl"
-        self._path = path
-        if not self._path.exists():
-            self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
-
-    @property
-    def is_full(self) -> bool:
-        return all(self._buffers.values())
-
-    def add_batch(self, step_name: str, batch: "_Batch") -> None:
-        self._buffers[step_name] = batch.data
-        if self.is_full:
-            self._write()
-
-    def _write(self) -> None:
-        data = list(self._combine_batches())
-
-        with open(self._path, "a") as f:
-            for rows in data:
-                for row in rows:
-                    json.dump(row, f)
-                    f.write("\n")
-
-        self._clean_buffers()
-
-    def _combine_batches(self) -> Iterator[Dict[str, Any]]:
-        for _, data in self._buffers.items():
-            yield data[-1]
-
-    def _clean_buffers(self) -> None:
-        self._buffers = {step: None for step in self._buffers.keys()}
 
 
 class _ProcessWrapperException(Exception):
