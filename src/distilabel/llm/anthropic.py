@@ -89,7 +89,7 @@ class AnthropicLLM(AsyncLLM):
 
         Args:
             input: a single input in chat format to generate responses for.
-            system: the system prompt to use for the generation. No existing 'system' role. Defaults to `""`.
+            system: the system prompt to use for the generation. No existing `system` role within the input conversation, only `user` and `assistant`. Defaults to `""`.
             num_generations: the number of generations to create per input. Defaults to `1`.
             max_tokens: the maximum number of new tokens that the model will generate. Defaults to `128`.
             stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to None.
