@@ -197,7 +197,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             or self.base_url
         )
 
-    def _openai_generate(
+    async def _openai_agenerate(
         self,
         input: "ChatType",
         max_new_tokens: int = 128,
@@ -266,7 +266,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         """
 
         if self.use_openai_client:
-            return self._openai_generate(
+            return await self._openai_agenerate(
                 input=input,
                 max_new_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
