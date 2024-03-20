@@ -171,8 +171,6 @@ class LiteLLM(AsyncLLM):
                 choices = await _call_aclient_untill_n_choices()
             else:
                 raise e
-        except Exception as e:
-            raise e
 
         generations = []
         for choice in choices:

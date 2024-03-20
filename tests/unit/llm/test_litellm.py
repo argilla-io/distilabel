@@ -35,7 +35,7 @@ class TestLiteLLM:
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
             input=[
@@ -55,7 +55,7 @@ class TestLiteLLM:
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
+        llm._aclient = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
@@ -77,10 +77,10 @@ class TestLiteLLM:
 
         _dump = {
             "model": "gpt-4",
-            "litellm_logging": False,
+            "verbose": False,
             "type_info": {
                 "module": "distilabel.llm.litellm",
-                "name": "LitellmLLM",
+                "name": "LiteLLM",
             },
         }
 
