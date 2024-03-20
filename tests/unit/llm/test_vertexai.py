@@ -27,7 +27,7 @@ from vertexai.generative_models import (
 
 @patch("vertexai.generative_models.GenerativeModel.generate_content_async")
 class TestVertexAILLM:
-    def test_openai_llm(self, mock_generative_model: MagicMock) -> None:
+    def test_openai_llm(self, _: MagicMock) -> None:
         llm = VertexAILLM(model="gemini-1.0-pro", api_key="api.key")  # type: ignore
         assert isinstance(llm, VertexAILLM)
         assert llm.model_name == "gemini-1.0-pro"
@@ -110,7 +110,7 @@ class TestVertexAILLM:
             ]
         )
 
-    def test_serialization(self, mock_generative_model: MagicMock) -> None:
+    def test_serialization(self, _: MagicMock) -> None:
         os.environ["OPENAI_API_KEY"] = "api.key"
         llm = VertexAILLM(model="gemini-1.0-pro")  # type: ignore
 

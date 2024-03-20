@@ -58,10 +58,10 @@ class VertexAILLM(AsyncLLM):
     - Using `vertexai.init` function from the `google-cloud-aiplatform` library
 
     Attributes:
-        model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
+        model: the model name to use for the LLM e.g. "gemini-pro". [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).
     """
 
-    model: str = "gemini-pro"
+    model: str
     _aclient: Optional["GenerativeModel"] = PrivateAttr(...)
     _content_class: Optional["Content"] = PrivateAttr(...)
     _part_class: Optional["Part"] = PrivateAttr(...)
@@ -69,7 +69,7 @@ class VertexAILLM(AsyncLLM):
     _logger = PrivateAttr(default=get_logger("llm"))
 
     def load(self) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests."""
+        """Loads the `GenerativeModel` class which has access to `generate_content_async` to benefit from async requests."""
 
         try:
             from vertexai.generative_models import (
