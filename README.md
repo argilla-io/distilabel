@@ -15,7 +15,7 @@
 - Dataset export to Argilla for easy data exploration and further annotation.
 
 > [!WARNING]
-> `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks, and also the `README` might be outdated the best place to get started is the [documentation](http://distilabel.argilla.io/).
+> `distilabel` is currently under active development and we're iterating quickly, so take into account that we may introduce breaking changes in the releases during the upcoming weeks. Also, the `README` might be outdated so the best place to get started is the [documentation](http://distilabel.argilla.io/).
 
 ## Installation
 
