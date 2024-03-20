@@ -22,12 +22,11 @@ class AnyscaleLLM(OpenAILLM):
     Anyscale LLM implementation running the async API client of OpenAI because of duplicate API behavior.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
+        model: the model name to use for the LLM. [Supported models](https://docs.endpoints.anyscale.com/text-generation/supported-models/google-gemma-7b-it).
         base_url: the base URL to use for the Anyscale API can be set with `OPENAI_BASE_URL`. Default is "https://api.endpoints.anyscale.com/v1".
         api_key: the API key to authenticate the requests to the Anyscale API. Can be set with `OPENAI_API_KEY`. Default is `None`.
     """
 
-    model: str
     base_url: str = "https://api.endpoints.anyscale.com/v1"
 
     def load(
@@ -46,12 +45,10 @@ class AnyscaleLLM(OpenAILLM):
         self.api_key = self._handle_api_key_value(
             self_value=self.api_key, load_value=api_key, env_var="OPENAI_API_KEY"
         )
-        self.base_url = self._handle_api_key_value(
-            self_value=self.base_url, load_value=base_url, env_var="OPENAI_BASE_URL"
-        )
+        self.base_url = base_url or self.base_url
 
         self._aclient = AsyncOpenAI(
             api_key=self.api_key.get_secret_value(),
-            base_url=self.base_url.get_secret_value(),
+            base_url=self.base_url,
             max_retries=6,
         )
