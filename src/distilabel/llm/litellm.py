@@ -20,6 +20,8 @@ from pydantic import PrivateAttr
 from distilabel.llm.base import AsyncLLM
 
 if TYPE_CHECKING:
+    from litellm import Choices
+
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
@@ -28,23 +30,22 @@ class LiteLLM(AsyncLLM):
     """LiteLLM LLM implementation running the async API client.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
-        api_key: the API key to authenticate the requests to the OpenAI API.
+        model: the model name to use for the LLM e.g. "gpt-3.5-turbo" or "mistral/mistral-large", etc.
         verbose: whether to log the LiteLLM client's logs. Defaults to `False`.
     """
 
     model: str
     verbose: bool = False
+
     _aclient: Optional["callable"] = PrivateAttr(...)
 
     def load(self) -> None:
         """
-        Loads the `AsyncOpenAI` client to benefit from async requests.
+        Loads the `acompletion` LiteLLM client to benefit from async requests.
         """
 
         try:
             import litellm
-            from litellm import acompletion
 
             litellm.telemetry = False
         except ImportError as e:
@@ -52,7 +53,7 @@ class LiteLLM(AsyncLLM):
                 "LiteLLM Python client is not installed. Please install it using"
                 " `pip install litellm`."
             ) from e
-        self._aclient = acompletion
+        self._aclient = litellm.acompletion
 
         if not self.verbose:
             litellm.suppress_debug_info = True
@@ -132,7 +133,7 @@ class LiteLLM(AsyncLLM):
         """
         import litellm
 
-        async def _call_aclient_untill_n_choices():
+        async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []
             while len(choices) < num_generations:
                 completion = await self._aclient(
@@ -162,13 +163,14 @@ class LiteLLM(AsyncLLM):
                 choices.extend(completion.choices)
             return choices
 
+        # litellm.drop_params is used to en/disable sending **kwargs parameters to the API if they cannot be used
         try:
             litellm.drop_params = False
-            choices = await _call_aclient_untill_n_choices()
+            choices = await _call_aclient_until_n_choices()
         except litellm.exceptions.APIError as e:
             if "does not support parameters" in str(e):
                 litellm.drop_params = True
-                choices = await _call_aclient_untill_n_choices()
+                choices = await _call_aclient_until_n_choices()
             else:
                 raise e
 
