@@ -27,7 +27,7 @@ class TestAnyscaleLLM:
         assert isinstance(llm, AnyscaleLLM)
         assert llm.model_name == "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-    def test_serialization(self, mock_openai: MagicMock) -> None:
+    def test_serialization(self) -> None:
         os.environ["OPENAI_API_KEY"] = "api.key"
         llm = AnyscaleLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1")  # type: ignore
 
