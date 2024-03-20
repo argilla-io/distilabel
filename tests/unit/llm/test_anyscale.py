@@ -20,7 +20,7 @@ from distilabel.llm.anyscale import AnyscaleLLM
 
 @patch("openai.AsyncOpenAI")
 class TestAnyscaleLLM:
-    def test_openai_llm(self, mock_openai: MagicMock) -> None:
+    def test_anyscale_llm(self) -> None:
         llm = AnyscaleLLM(
             model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key"
         )  # type: ignore
