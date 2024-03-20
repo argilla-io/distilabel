@@ -792,13 +792,7 @@ class _WriteBuffer:
             return writer
         else:
             filename = self._get_filename(step_name)
-            # Get the table schema from the first record in the batch's data.
-            schema = pa.schema(
-                [
-                    pa.field(key, _TYPE_MAP[type(value)])
-                    for key, value in batch_data[0][0].items()
-                ]
-            )
+            schema = _map_batch_items_to_pyarrow_schema(batch_data[0][0])
             writer = pq.ParquetWriter(filename, schema)
             self._writers[step_name] = writer
             return writer
@@ -821,3 +815,57 @@ class _WriteBuffer:
         """Closes the writers."""
         for writer in self._writers.values():
             writer.close()
+
+
+def _map_to_pyarrow_type(value: Any) -> pa.DataType:
+    """Maps a Python object to its corresponding PyArrow DataType.
+
+    Args:
+        value: Element from which to infer the PyArrow DataType.
+
+    Returns:
+        PyArrow DataType
+    """
+    if isinstance(value, bool):
+        return pa.bool_()
+    elif isinstance(value, int):
+        return pa.int64()
+    elif isinstance(value, float):
+        return pa.float64()
+    elif isinstance(value, str):
+        return pa.string()
+    elif isinstance(value, type(None)):
+        return pa.null()
+    elif isinstance(value, list):
+        # Assuming list elements have the same type
+        if len(value) > 0:
+            element_type = _map_to_pyarrow_type(value[0])
+            return pa.list_(element_type)
+        else:
+            return pa.list_(pa.null())
+    elif isinstance(value, dict):
+        # Assuming dict values have the same type
+        if len(value) > 0:
+            value_type = _map_to_pyarrow_type(list(value.values())[0])
+            return pa.struct(value_type)
+        else:
+            return pa.struct({})
+    else:
+        # For any other types, return as binary, we shouldn't be here
+        return pa.binary()
+
+
+def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema:
+    """Maps a dictionary of Python objects to a PyArrow Schema.
+
+    Args:
+        batch_items: Dictionary with Python objects
+
+    Returns:
+        PyArrow Schema
+    """
+    fields = []
+    for key, value in batch_items.items():
+        field_type = _map_batch_items_to_pyarrow_schema(value)
+        fields.append(pa.field(key, field_type))
+    return pa.schema(fields)
