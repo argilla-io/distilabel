@@ -27,7 +27,7 @@ class AnyscaleLLM(OpenAILLM):
         api_key: the API key to authenticate the requests to the Anyscale API. Can be set with `OPENAI_API_KEY`. Default is `None`.
     """
 
-    model: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    model: str
     base_url: str = "https://api.endpoints.anyscale.com/v1"
 
     def load(
