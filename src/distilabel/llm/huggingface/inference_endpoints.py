@@ -68,8 +68,8 @@ class InferenceEndpointsLLM(AsyncLLM):
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
 
-    _model_name: Optional[str] = PrivateAttr(...)
-    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _model_name: Optional[str] = PrivateAttr(default=None)
+    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
     _env_var: Optional[str] = PrivateAttr(default="HF_TOKEN")
     _aclient: Optional[Union["AsyncInferenceClient", "AsyncOpenAI"]] = PrivateAttr(...)
 
@@ -189,7 +189,13 @@ class InferenceEndpointsLLM(AsyncLLM):
     @property
     def model_name(self) -> Union[str, None]:
         """Returns the model name used for the LLM."""
-        return self.model_display_name or self._model_name
+        return (
+            self.model_display_name
+            or self._model_name
+            or self.model_id
+            or self.endpoint_name
+            or self.base_url
+        )
 
     # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     async def agenerate(  # type: ignore
