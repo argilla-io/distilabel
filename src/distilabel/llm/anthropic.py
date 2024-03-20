@@ -40,11 +40,12 @@ class AnthropicLLM(AsyncLLM):
 
     model: str = "claude-3-opus-20240229"
     api_key: Optional[SecretStr] = os.getenv("ANTHROPIC_API_KEY", None)  # type: ignore
-    base_url: str = "https://api.anthropic.com"
+    base_url: Union[str, None] = None
     timeout: float = 600.0
     http_client: Union[str, None] = None
     max_retries: int = 2
 
+    _env_var: Optional[str] = PrivateAttr(default="ANTHROPIC_API_KEY")
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
 
     def load(self, api_key: Optional[str] = None) -> None:
@@ -58,7 +59,9 @@ class AnthropicLLM(AsyncLLM):
             ) from ie
 
         self.api_key = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="ANTHROPIC_API_KEY"
+            self_value=self.api_key,
+            load_value=api_key,
+            env_var=self._env_var,  # type: ignore
         )
 
         self._aclient = AsyncAnthropic(
@@ -78,7 +81,6 @@ class AnthropicLLM(AsyncLLM):
         self,
         input: "ChatType",
         system: str = "",
-        num_generations: int = 1,
         max_tokens: int = 128,
         stop_sequences: List[str] = None,
         temperature: float = 1.0,
@@ -90,7 +92,6 @@ class AnthropicLLM(AsyncLLM):
         Args:
             input: a single input in chat format to generate responses for.
             system: the system prompt to use for the generation. No existing `system` role within the input conversation, only `user` and `assistant`. Defaults to `""`.
-            num_generations: the number of generations to create per input. Defaults to `1`.
             max_tokens: the maximum number of new tokens that the model will generate. Defaults to `128`.
             stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to None.
             temperature: the temperature to use for the generation. Set only if top_p is None. Defaults to `1.0`.
@@ -101,18 +102,21 @@ class AnthropicLLM(AsyncLLM):
             A list of lists of strings containing the generated responses for each input.
         """
 
-        generations = []
-        for _ in range(num_generations):
-            completion = await self._aclient.messages.create(
-                model=self.model,
-                system=system,
-                messages=input,
-                max_tokens=max_tokens,
-                stream=False,
-                stop_sequences=stop_sequences,
-                temperature=temperature,
-                top_p=top_p,
-                top_k=top_k,
+        completion = await self._aclient.messages.create(
+            model=self.model,
+            system=system,
+            messages=input,
+            max_tokens=max_tokens,
+            stream=False,
+            stop_sequences=stop_sequences,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+        )
+        if (content := completion.content[0].text) is None:
+            self._logger.warning(
+                f"Received no response using Anthropic client (model: '{self.model}')."
+                f" Finish reason was: {completion.stop_reason}"
             )
-            generations.append(completion.content[0].text)
+        generations = [content]
         return generations
