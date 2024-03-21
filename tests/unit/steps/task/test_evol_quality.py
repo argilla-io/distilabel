@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
@@ -22,7 +21,7 @@ from distilabel.steps.task.evol_quality.base import (
 from pydantic import ValidationError
 
 
-class TestEvolInstruct:
+class TestEvoQuality:
     def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"

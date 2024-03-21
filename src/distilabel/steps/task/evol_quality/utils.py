@@ -14,7 +14,7 @@
 
 import sys
 
-if sys.version_info < (3, 11):
+if sys.version_info <= (3, 11):
     from enum import Enum as StrEnum
 else:
     from enum import StrEnum
@@ -27,7 +27,11 @@ Your rewriting cannot omit the non-text parts such as the table and code in #Giv
 You Should enhance the quality of the response using the following method: \n{}
 You should try your best not to make the #Rewritten Response# become verbose, #Rewritten Response# can only add 10 to 20 words into #Given Response#.
 '#Given Response#', '#Rewritten Response#', 'given response' and 'rewritten response' are not allowed to appear in #Rewritten Response#
-#Given Prompt#:\n<PROMPT>\n#Given Response#:\n<RESPONSE>\n#Rewritten Response#:
+#Given Prompt#:
+<PROMPT>
+#Given Response#:
+<RESPONSE>
+#Rewritten Response#:
 """.lstrip()
 
 

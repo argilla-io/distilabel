@@ -14,7 +14,7 @@
 
 import sys
 
-if sys.version_info < (3, 11):
+if sys.version_info <= (3, 11):
     from enum import EnumMeta as EnumType
 else:
     from enum import EnumType
@@ -36,8 +36,7 @@ if TYPE_CHECKING:
 
 
 class EvolQuality(Task):
-    """
-    The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
+    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
 
     Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
