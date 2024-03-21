@@ -17,7 +17,18 @@ from distilabel.steps.generators.data import LoadDataFromDicts
 from pydantic import ValidationError
 
 
-class TestDataTask:
+class TestLoadDataFromDictsTask:
+    data = [{"instruction": "test"}] * 10
+
+    def test_init(self) -> None:
+        pipeline = Pipeline()
+        data: list[dict[str, str]] = self.data
+        task = LoadDataFromDicts(
+            name="task", pipeline=pipeline, data=data, batch_size=10
+        )
+        assert task.data == data
+        assert task.batch_size == 10
+
     def test_with_errors(self) -> None:
         pipeline = Pipeline()
         with pytest.raises(ValidationError):
@@ -25,7 +36,15 @@ class TestDataTask:
 
     def test_process(self) -> None:
         pipeline = Pipeline()
-        data: list[dict[str, str]] = [{"instruction": "test"}] * 10
-        task = LoadDataFromDicts(name="task", pipeline=pipeline, data=data)
-        result = list(task.process())
-        assert result == [([{"instruction": "test"}] * 10, True)]
+        data: list[dict[str, str]] = self.data
+        batch_size = 1
+        task = LoadDataFromDicts(
+            name="task", pipeline=pipeline, data=data, batch_size=batch_size
+        )
+
+        result = task.process()
+        for i in range(len(self.data) - batch_size):
+            assert next(result) == ([self.data[i]], False)
+        assert next(result) == ([self.data[-batch_size]], True)
+        with pytest.raises(StopIteration):
+            next(result)
