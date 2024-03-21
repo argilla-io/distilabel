@@ -14,6 +14,7 @@
 
 import multiprocessing as mp
 import signal
+import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
@@ -38,6 +39,9 @@ _STEPS_LOADED_LOCK = "steps_loaded_lock"
 _STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
 _CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
+
+_STOP_CALLED = False
+_STOP_CALLED_LOCK = threading.Lock()
 
 
 class Pipeline(BasePipeline):
@@ -301,24 +305,21 @@ class Pipeline(BasePipeline):
 
             pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
 
-    def _error_callback(self, e: "_ProcessWrapperException") -> None:
+    def _error_callback(self, e: Exception) -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
 
         Args:
-            e: The `_ProcessWrapperException` containing the error message and the `Step`
-                that raised the error.
+            e: The exception raised by the process.
         """
         # First we check that the exception is a `_ProcessWrapperException`, otherwise, we
         # print it out and stop the pipeline, since some errors may be unhandled
         if not isinstance(e, _ProcessWrapperException):
             self._logger.error(f"❌ Failed with an unhandled exception: {e}")
-            self._cache()
             self._stop()
             return
 
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
-            self._cache()
             self._stop()
             return
 
@@ -334,7 +335,6 @@ class Pipeline(BasePipeline):
                 " successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored: {e.message}"
             )
-            self._cache()
             return
 
         self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
@@ -342,10 +342,19 @@ class Pipeline(BasePipeline):
         self._stop()
 
     def _stop(self) -> None:
-        """Stops the pipeline execution. It will send `None` to the `output_queue` to
-        notify the pipeline to stop, and set the `_STEPS_LOADED_KEY` to `_STEPS_LOADED_ERROR_CODE`
-        for the pipeline to stop waiting for the steps to load.
-        """
+        """Stops the pipeline execution. It will first send the `_BATCH_STOP_FLAG` to the
+        input queues of all the steps and then wait until the output queue is empty i.e.
+        all the steps finished processing the batches that were sent before the stop flag.
+        Then it will send the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline
+        to stop."""
+
+        global _STOP_CALLED
+
+        with _STOP_CALLED_LOCK:
+            if _STOP_CALLED:
+                return
+            _STOP_CALLED = True
+
         for step_name in self.dag:
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 input_queue.put(_BATCH_STOP_FLAG)
