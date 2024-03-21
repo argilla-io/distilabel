@@ -34,10 +34,10 @@ if TYPE_CHECKING:
 _BATCH_STOP_FLAG = "__STOP__"
 
 _STEPS_LOADED_KEY = "steps_loaded"
-_STEPS_LOADED_LOCK = _STEPS_LOADED_KEY + "_lock"
+_STEPS_LOADED_LOCK = "steps_loaded_lock"
 _STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
-_CUDA_LLM_DEVICE_PLACEMENT_LOCK = _CUDA_LLM_DEVICE_PLACEMENT_KEY + "_lock"
+_CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
 
 
 class Pipeline(BasePipeline):
@@ -89,6 +89,7 @@ class Pipeline(BasePipeline):
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
+                write_buffer.close()
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 )
@@ -356,10 +357,9 @@ class Pipeline(BasePipeline):
         # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
         while self.output_queue.qsize() != 0:
             pass
+        self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
         self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(_BATCH_STOP_FLAG)
-        with self.shared_info[_STEPS_LOADED_LOCK]:
-            self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -371,7 +371,8 @@ class Pipeline(BasePipeline):
 
         def signal_handler(signumber: int, frame: Any) -> None:
             self._logger.info(
-                "🚨 CTRL+C signal, waiting steps to finish processing and stopping pipeline..."
+                "🚨 CTRL+C signal, waiting steps to finish processing and stopping"
+                " pipeline..."
             )
             self._stop()
 

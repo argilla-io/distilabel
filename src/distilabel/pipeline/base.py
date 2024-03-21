@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from distilabel.steps.base import _Step
+    from distilabel.utils.distiset import Distiset
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
@@ -162,7 +163,7 @@ class BasePipeline(_Serializable):
 
         return hasher.hexdigest()
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
 
@@ -172,6 +173,9 @@ class BasePipeline(_Serializable):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the parameter name as the key and the parameter value as the value.
+
+        Returns:
+            The `Distiset` created by the pipeline.
         """
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
