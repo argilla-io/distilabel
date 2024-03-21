@@ -38,13 +38,13 @@ class TestAnthropicLLM:
         llm._aclient.messages.create = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
-            system="",
             input=[
+                {"role": "system", "content": ""},
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 },
-            ],
+            ]
         )
 
     @pytest.mark.asyncio
@@ -60,13 +60,15 @@ class TestAnthropicLLM:
         nest_asyncio.apply()
 
         llm.generate(
-            system="",
             inputs=[
-                {
-                    "role": "user",
-                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                },
-            ],
+                [
+                    {"role": "system", "content": ""},
+                    {
+                        "role": "user",
+                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    },
+                ]
+            ]
         )
 
     def test_serialization(self, _: MagicMock) -> None:
@@ -75,7 +77,6 @@ class TestAnthropicLLM:
 
         _dump = {
             "base_url": None,
-            "http_client": None,
             "max_retries": 2,
             "model": "claude-3-opus-20240229",
             "timeout": 600.0,
