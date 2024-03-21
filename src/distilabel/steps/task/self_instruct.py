@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import re
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.typing import ChatType
+
+if TYPE_CHECKING:
+    from distilabel.steps.task.typing import ChatType
 
 _SELF_INSTRUCT_TEMPLATE = """
 # Task Description
@@ -39,17 +41,6 @@ Write each query on a separate line and avoid using numbered lists or bullet poi
 """
 
 _PARSE_OUTPUT_REGEX = re.compile(r"(?<=# Output\n)(.*)", re.IGNORECASE)
-
-_DEFAULT_APPLICATION_DESCRIPTION: str = "AI assistant"
-
-_DEFAULT_NUMBER_INSTRUCTIONS: int = 5
-
-_DEFAULT_CRITERIA_FOR_QUERY_GENERATION: str = (
-    "Incorporate a diverse range of verbs, avoiding repetition.\n"
-    "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
-    "Design queries to be self-contained and standalone.\n"
-    'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
-)
 
 
 class SelfInstruct(Task):
@@ -75,6 +66,15 @@ class SelfInstruct(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
+    num_instructions: int = 5
+    criteria_for_query_generation: str = (
+        "Incorporate a diverse range of verbs, avoiding repetition.\n"
+        "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
+        "Design queries to be self-contained and standalone.\n"
+        'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
+    )
+    application_description: str = "AI assistant"
+
     def load(self) -> None:
         super().load()
         self._template = Template(_SELF_INSTRUCT_TEMPLATE)
@@ -82,25 +82,11 @@ class SelfInstruct(Task):
     @property
     def inputs(self) -> List[str]:
         """The input for the task are `num_instructions`, `criteria_for_query_generation`, `application_description` and `input`."""
-        return [
-            "num_instructions",
-            "criteria_for_query_generation",
-            "application_description",
-            "input",
-        ]
+        return ["input"]
 
-    def format_input(self, input: str) -> ChatType:  # type: ignore
+    def format_input(self, input: str) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-
-        if "num_instructions" not in input.keys():
-            input["num_instructions"] = _DEFAULT_NUMBER_INSTRUCTIONS
-        if "criteria_for_query_generation" not in input.keys():
-            input[
-                "criteria_for_query_generation"
-            ] = _DEFAULT_CRITERIA_FOR_QUERY_GENERATION
-        if "application_description" not in input.keys():
-            input["application_description"] = _DEFAULT_APPLICATION_DESCRIPTION
 
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
 
@@ -119,9 +105,6 @@ class SelfInstruct(Task):
         Returns:
             A dict with containing the generated instructions.
         """
-
-        if output is None:
-            return {self.outputs[0]: [None] * len(input["instructions"])}
 
         instructions = []
         instruction_lines = output.split("\n")
