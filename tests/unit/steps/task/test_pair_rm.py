@@ -48,7 +48,7 @@ class TestPairRM:
             },
         ]
 
-    def test_serialization(self, _: MagicMock) -> None:
+    def test_serialization(self, mocker: MagicMock) -> None:
         ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
         assert ranker.dump() == {
             "name": ranker.name,
@@ -56,6 +56,7 @@ class TestPairRM:
             "output_mappings": {},
             "input_batch_size": ranker.input_batch_size,
             "model": ranker.model,
+            "instructions": None,
             "runtime_parameters_info": [],
             "type_info": {"module": "distilabel.steps.task.pair_rm", "name": "PairRM"},
         }

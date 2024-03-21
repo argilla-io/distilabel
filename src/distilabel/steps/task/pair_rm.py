@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import numpy as np
 
+from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Step
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -37,10 +37,15 @@ class PairRM(Step):
     References:
         - [LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion](https://arxiv.org/abs/2306.02561).
         - [Pair Ranking Model](https://huggingface.co/llm-blender/PairRM).
+
+    Note:
+        This step differs to other tasks as there is a single implementation of this model
+        currently, and we will use a specific `LLM`.
     """
 
     model: str = "llm-blender/PairRM"
     input_batch_size: int = 8
+    instructions: Optional[str] = None
 
     def load(self) -> None:
         try:
@@ -55,17 +60,36 @@ class PairRM(Step):
 
     @property
     def inputs(self) -> List[str]:
+        """The input columns correspond to the two required arguments from `Blender.rank`:
+        `inputs` and `candidates`."""
         return ["input", "candidates"]
 
     @property
     def outputs(self) -> List[str]:
+        """The outputs will include the `ranks` and the `ranked_candidates`."""
         return ["ranks", "ranked_candidates"]
 
     def format_input(self, input: Dict[str, Any]) -> Dict[str, Any]:
-        # TODO: This must prepare the data with the inputs and the candidate texts
+        """The input is expected to be a dictionary with the keys `input` and `candidates`,
+        where the `input` corresponds to the instruction of a model and `candidates` are a
+        list of responses to be ranked.
+        """
         return input
 
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        """Generates the ranks for the candidates based on the input.
+
+        The ranks are the positions of the candidates, where lower is better,
+        and the ranked candidates correspond to the candidates sorted according to the
+        ranks obtained.
+
+        Args:
+            A list of Python dictionaries with `input` being an instruction and `candidates`
+            the list of responses from an `LLM`.
+
+        Yields:
+            An iterator with the inputs containing the `ranks` and the `ranked_candidates`.
+        """
         input_texts = []
         candidates = []
         for input in inputs:
@@ -73,8 +97,9 @@ class PairRM(Step):
             input_texts.append(formatted_input["input"])
             candidates.append(formatted_input["candidates"])
 
-        # NOTE: Can we determine these automatically?
-        instructions = None
+        instructions = (
+            [self.instructions] * len(input_texts) if self.instructions else None
+        )
 
         ranks = self._blender.rank(
             input_texts,
