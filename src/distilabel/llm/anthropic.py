@@ -83,7 +83,7 @@ class AnthropicLLM(AsyncLLM):
         system: str = "",
         num_generations: int = 1,
         max_tokens: int = 128,
-        stop_sequences: List[str] = None,
+        stop_sequences: Union[List[str], None] = None,
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = 0,
