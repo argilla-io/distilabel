@@ -12,15 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Literal,
+    Optional,
+    Union,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
-from pydantic import PrivateAttr, SecretStr
+import httpx
+from pydantic import Field, PrivateAttr, SecretStr
+from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
+    from anthropic._types import NOT_GIVEN, NotGiven
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
@@ -42,11 +57,29 @@ class AnthropicLLM(AsyncLLM):
     api_key: Optional[SecretStr] = os.getenv("ANTHROPIC_API_KEY", None)  # type: ignore
     base_url: Union[str, None] = None
     timeout: float = 600.0
-    http_client: Union[str, None] = None
+    http_client: Union[httpx.Client, None] = Field(default=None, exclude=True)
     max_retries: int = 2
 
     _env_var: Optional[str] = PrivateAttr(default="ANTHROPIC_API_KEY")
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
+
+    def _check_model_exists(self) -> None:
+        """Checks if the specified model exists in the available models."""
+        from anthropic import AsyncAnthropic
+
+        annotation = get_type_hints(AsyncAnthropic().messages.create).get("model", None)
+        models = [
+            value
+            for type_ in get_args(annotation)
+            if get_origin(type_) is Literal
+            for value in get_args(type_)
+        ]
+
+        if self.model not in models:
+            raise ValueError(
+                f"Model {self.model} does not exist among available models. "
+                f"The available models are {', '.join(models)}"
+            )
 
     def load(self, api_key: Optional[str] = None) -> None:
         """Loads the `AsyncAnthropic` client to use the Anthropic async API."""
@@ -57,6 +90,8 @@ class AnthropicLLM(AsyncLLM):
                 "Anthropic Python client is not installed. Please install it using"
                 " `pip install anthropic`."
             ) from ie
+
+        self._check_model_exists()
 
         self.api_key = self._handle_api_key_value(
             self_value=self.api_key,
@@ -80,33 +115,34 @@ class AnthropicLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",
-        system: str = "",
-        num_generations: int = 1,
         max_tokens: int = 128,
-        stop_sequences: Union[List[str], None] = None,
+        stop_sequences: Union[List[str], NotGiven] = NOT_GIVEN,
         temperature: float = 1.0,
-        top_p: float = 1.0,
-        top_k: int = 0,
+        top_p: Union[float, NotGiven] = NOT_GIVEN,
+        top_k: Union[int, NotGiven] = NOT_GIVEN,
     ) -> "GenerateOutput":
         """Generates a response asynchronously, using the [Anthropic Async API definition](https://github.com/anthropics/anthropic-sdk-python).
 
         Args:
             input: a single input in chat format to generate responses for.
-            system: the system prompt to use for the generation. No existing `system` role within the input conversation, only `user` and `assistant`. Defaults to `""`.
-            num_generations: the number of generations to create per input. Defaults to `1`.
             max_tokens: the maximum number of new tokens that the model will generate. Defaults to `128`.
-            stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to None.
+            stop_sequences: custom text sequences that will cause the model to stop generating. Defaults to `NOT_GIVEN`.
             temperature: the temperature to use for the generation. Set only if top_p is None. Defaults to `1.0`.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            top_k: the top-k value to use for the generation. Defaults to `0`.
+            top_p: the top-p value to use for the generation. Defaults to `NOT_GIVEN`.
+            top_k: the top-k value to use for the generation. Defaults to `NOT_GIVEN`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from anthropic._types import NOT_GIVEN
 
         completion = await self._aclient.messages.create(
             model=self.model,
-            system=system,
+            system=(
+                input.pop(0)["content"]
+                if input and input[0]["role"] == "system"
+                else NOT_GIVEN
+            ),
             messages=input,
             max_tokens=max_tokens,
             stream=False,
@@ -115,10 +151,37 @@ class AnthropicLLM(AsyncLLM):
             top_p=top_p,
             top_k=top_k,
         )
+        generations = []
         if (content := completion.content[0].text) is None:
             self._logger.warning(
                 f"Received no response using Anthropic client (model: '{self.model}')."
                 f" Finish reason was: {completion.stop_reason}"
             )
-        generations = [content]
+        generations.append(content)
         return generations
+
+    # TODO: remove this function once Anthropic client allows `n` parameter
+    @override
+    def generate(
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
+        async def agenerate(
+            inputs: List["ChatType"], **kwargs: Any
+        ) -> "GenerateOutput":
+            """Internal function to parallelize the asynchronous generation of responses."""
+            tasks = [
+                asyncio.create_task(self.agenerate(input=input, **kwargs))
+                for input in inputs
+                for _ in range(num_generations)
+            ]
+            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
+
+        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
