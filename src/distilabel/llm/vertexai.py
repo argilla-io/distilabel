@@ -102,14 +102,14 @@ class VertexAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def _chattype_to_texts(self, input: "ChatType") -> List["Content"]:
-        """Converts a chat type to a list of texts.
+    def _chattype_to_content(self, input: "ChatType") -> List["Content"]:
+        """Converts a chat type to a list of content items expected by the API.
 
         Args:
             input: the chat type to be converted.
 
         Returns:
-            List[str]: a list of texts from the chat type.
+            List[str]: a list of content items expected by the API.
         """
         contents = []
         for message in input:
@@ -154,7 +154,7 @@ class VertexAILLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        contents = self._chattype_to_texts(input)
+        contents = self._chattype_to_content(input)
         content = await self._aclient.generate_content_async(
             contents=contents,
             generation_config=self._generation_config_class(
