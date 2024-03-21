@@ -166,7 +166,20 @@ class Pipeline(BasePipeline):
             return
 
         step: "Step" = self.dag.get_step(batch.step_name)["step"]
-        if not step.is_normal:
+
+        # Check if the step is a generator and if there are successors that need data
+        # from this step. This usually happens when the generator `batch_size` is smaller
+        # than the `input_batch_size` of the successor steps.
+        if step.is_generator:
+            for successor in self.dag.get_step_successors(step.name):
+                if step.name not in self._batch_manager.step_empty_buffers(successor):
+                    continue
+
+                # If the successor has an empty buffer, request a new batch to the this
+                # (generator) step
+                if last_batch := self._batch_manager.get_last_batch(step.name):
+                    self._send_batch_to_step(last_batch.next_batch())
+                    return
             return
 
         empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
@@ -179,18 +192,18 @@ class Pipeline(BasePipeline):
             return
 
         # Request more batches to the predecessors generator steps
-        for step_name in empty_buffers:
-            if step_name not in self.dag.root_steps:
+        for previous_step_name in empty_buffers:
+            if previous_step_name not in self.dag.root_steps:
                 continue
 
-            if previous_batch := self._batch_manager.get_last_batch(  # type: ignore
-                step_name
+            if last_batch := self._batch_manager.get_last_batch(  # type: ignore
+                previous_step_name
             ):
                 self._logger.debug(
-                    f"Step '{step.name}' input buffer for step '{step_name}' is empty."
-                    " Requesting new batch..."
+                    f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
+                    " empty. Requesting new batch..."
                 )
-                self._send_batch_to_step(previous_batch.next_batch())
+                self._send_batch_to_step(last_batch.next_batch())
 
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
