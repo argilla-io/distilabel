@@ -147,9 +147,11 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch to add to the `_BatchManager`.
         """
-        self._batch_manager.register_batch(batch)  # type: ignore
+        assert self._batch_manager, "Batch manager is not set"
+
+        self._batch_manager.register_batch(batch)
         for to_step in self.dag.get_step_successors(batch.step_name):
-            if new_batch := self._batch_manager.add_batch(to_step, batch):  # type: ignore
+            if new_batch := self._batch_manager.add_batch(to_step, batch):
                 self._send_batch_to_step(new_batch)
         self._cache()
 
@@ -162,6 +164,8 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch that was processed.
         """
+        assert self._batch_manager, "Batch manager is not set"
+
         if batch.last_batch:
             return
 
@@ -182,11 +186,11 @@ class Pipeline(BasePipeline):
                     return
             return
 
-        empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
+        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
 
         # Step has data in its buffers, send a new batch
         if not empty_buffers and (
-            next_batch := self._batch_manager.get_batch(step.name)  # type: ignore
+            next_batch := self._batch_manager.get_batch(step.name)
         ):
             self._send_batch_to_step(next_batch)
             return
@@ -196,9 +200,7 @@ class Pipeline(BasePipeline):
             if previous_step_name not in self.dag.root_steps:
                 continue
 
-            if last_batch := self._batch_manager.get_last_batch(  # type: ignore
-                previous_step_name
-            ):
+            if last_batch := self._batch_manager.get_last_batch(previous_step_name):
                 self._logger.debug(
                     f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
                     " empty. Requesting new batch..."

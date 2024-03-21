@@ -253,7 +253,7 @@ class BasePipeline(_Serializable):
             "data": folder / "data",
         }
 
-    def _cache(self, *args: Any, **kwargs: Any) -> None:
+    def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
         self.save(
             path=self._cache_location["pipeline"],
