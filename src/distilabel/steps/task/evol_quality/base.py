@@ -40,8 +40,7 @@ class EvolQuality(Task):
     The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
 
     Reference:
-        - https://arxiv.org/abs/2312.15685
-        - https://arxiv.org/abs/2304.12244
+        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
 
     Input columns:
         instruction (`str`): The instruction that was used to generate the `responses`.
@@ -51,12 +50,6 @@ class EvolQuality(Task):
         There's multiple scenarios:
         - `store_evolutions=False`, `generate_answers=False` -> (evolved_response, model_name)
         - `store_evolutions=True`, `generate_answers=False` -> (evolved_responses, model_name)
-
-    Reference:
-        - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
-        - [`WizardLM: Empowering Large Language Models to Follow Complex Instructions`](https://arxiv.org/abs/2304.12244)
-        - [`h2oai/h2o-wizardlm`](https://github.com/h2oai/h2o-wizardlm)
-        - [`nlpxucan/WizardLM/Evol_Instruct`](https://github.com/nlpxucan/WizardLM/Evol_Instruct9
     """
 
     num_evolutions: int
@@ -74,8 +67,6 @@ class EvolQuality(Task):
         This is useful if you want to do some validation that requires the entire model to be initialized.
         """
         super().model_post_init(__context)
-
-        np.random.seed(self.seed)
 
     @property
     def inputs(self) -> List[str]:
@@ -158,7 +149,7 @@ class EvolQuality(Task):
             A list where each item is a list with either the last evolved instruction if
             `store_evolutions=False` or all the evolved instructions if `store_evolutions=True`.
         """
-
+        np.random.seed(self.seed)
         instructions: List[List[str]] = [[input["instruction"]] for input in inputs]
         responses: List[List[str]] = [[input["response"]] for input in inputs]
 
