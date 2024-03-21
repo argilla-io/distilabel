@@ -13,9 +13,15 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional
+import sys
+from typing import TYPE_CHECKING, Optional, Union
 
-from pydantic import PrivateAttr, SecretStr
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+from pydantic import PrivateAttr, SecretStr, model_validator
 
 from distilabel.llm.base import AsyncLLM
 
@@ -31,19 +37,35 @@ class OpenAILLM(AsyncLLM):
 
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
-        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`,
-            which means that https://api.openai.com/v1 will be used.
-        api_key: the API key to authenticate the requests to the OpenAI API.
+            Supported models can be found [here](https://platform.openai.com/docs/guides/text-generation).
+        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which means that
+            the value set for the environment variable `OPENAI_BASE_URL` will be used, or "https://api.openai.com/v1"
+            if not set.
+        api_key: the API key to authenticate the requests to the OpenAI API. Defaults to `None` which
+            means that the value set for the environment variable `OPENAI_API_KEY` will be used, or
+            `None` if not set.
     """
 
-    model: str = "gpt-3.5-turbo"
+    model: str
     base_url: Optional[str] = None
-    api_key: Optional[SecretStr] = os.getenv("OPENAI_API_KEY", None)  # type: ignore
+    api_key: Optional[SecretStr] = None
 
-    _env_var: Optional[str] = PrivateAttr(default="OPENAI_API_KEY")
+    _base_url_env_var: str = PrivateAttr(default="OPENAI_BASE_URL")
+    _default_base_url: str = PrivateAttr("https://api.openai.com/v1")
+    _api_key_env_var: str = PrivateAttr(default="OPENAI_API_KEY")
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
-    def load(self, api_key: Optional[str] = None) -> None:
+    @model_validator(mode="after")
+    def base_url_provided_or_env_var(self) -> Self:
+        if self.base_url is None:
+            self.base_url = os.getenv(self._base_url_env_var, self._default_base_url)
+        if self.api_key is None:
+            self.api_key = os.getenv(self._api_key_env_var, None)  # type: ignore
+        if self.api_key is not None and isinstance(self.api_key, str):
+            self.api_key = SecretStr(self.api_key)
+        return self
+
+    def load(self, api_key: Optional[Union[str, SecretStr]] = None) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
 
         try:
@@ -54,10 +76,12 @@ class OpenAILLM(AsyncLLM):
                 " `pip install openai`."
             ) from ie
 
+        # TODO: this may not be needed at the end, and a simple `self.api_key = self.api_key or api_key`
+        # may do the work.
         self.api_key = self._handle_api_key_value(
             self_value=self.api_key,
             load_value=api_key,
-            env_var=self._env_var,  # type: ignore
+            env_var=self._api_key_env_var,
         )
 
         self._aclient = AsyncOpenAI(

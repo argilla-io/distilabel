@@ -52,7 +52,7 @@ def test_pipeline_with_llms_serde():
         os.environ["OPENAI_API_KEY"] = "sk-***"
         generate_response = TextGeneration(
             name="generate_response",
-            llm=OpenAILLM(),
+            llm=OpenAILLM(model="gpt-3.5-turbo"),
             output_mappings={"generation": "output"},
         )
         rename_columns.connect(generate_response)
