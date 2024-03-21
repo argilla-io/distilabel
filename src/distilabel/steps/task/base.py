@@ -135,6 +135,28 @@ class _Task(_Step, ABC):
         """Returns a dictionary with the outputs of the task set to `None`."""
         return {output: None for output in self.outputs}  # type: ignore
 
+    def _get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+        """Gets the information of the runtime parameters of the task such as the name and
+        the description, as well as the information of the runtime parameters of the LLM
+        used by the task. This function is meant to include the information of the runtime
+        parameters in the serialized data of the step.
+
+        Returns:
+            A list containing the information for each runtime parameter of the task.
+        """
+        runtime_parameters_info = super()._get_runtime_parameters_info()
+        for runtime_parameter_info in runtime_parameters_info:
+            if runtime_parameter_info["name"] == "generation_kwargs":
+                generate_docstring_args = self.llm.generate_parsed_docstring["args"]
+                runtime_parameter_info["keys"] = []
+                for name, is_optional in self.llm.runtime_parameters_names.items():
+                    key = {"name": name, "optional": is_optional}
+                    if description := generate_docstring_args.get(name):
+                        key["description"] = description
+                    runtime_parameter_info["keys"].append(key)
+                break
+        return runtime_parameters_info
+
 
 class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`

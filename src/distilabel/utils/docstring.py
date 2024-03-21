@@ -56,7 +56,10 @@ def parse_google_docstring(func: Callable) -> Docstring:
             items = re.findall(
                 r"\s*(\w+):\s*(.*?)\s*(?=\n\s*\w+:|$)", section_content, re.DOTALL
             )
-            sections[section_name] = {item[0]: item[1].strip() for item in items}
+            sections[section_name] = {
+                item[0]: re.sub(r"[\t\n]+|[ ]{2,}", " ", item[1]).strip()
+                for item in items
+            }
         else:
             sections[section_name] = section_content
 

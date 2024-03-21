@@ -22,12 +22,14 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, SecretStr
 
+from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput, HiddenState
     from distilabel.steps.task.typing import ChatType
+    from distilabel.utils.docstring import Docstring
 
 
 class LLM(BaseModel, _Serializable, ABC):
@@ -85,6 +87,15 @@ class LLM(BaseModel, _Serializable, ABC):
             is_optional = param.default != inspect.Parameter.empty
             runtime_parameters[param.name] = is_optional
         return runtime_parameters
+
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
+        """Returns the parsed docstring of the `generate` method.
+
+        Returns:
+            The parsed docstring of the `generate` method.
+        """
+        return parse_google_docstring(self.generate)
 
     def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
@@ -168,6 +179,15 @@ class AsyncLLM(LLM):
             A list containing the parameters of the `agenerate` method.
         """
         return list(inspect.signature(self.agenerate).parameters.values())
+
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
+        """Returns the parsed docstring of the `agenerate` method.
+
+        Returns:
+            The parsed docstring of the `agenerate` method.
+        """
+        return parse_google_docstring(self.agenerate)
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":

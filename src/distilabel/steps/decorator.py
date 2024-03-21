@@ -24,7 +24,7 @@ from distilabel.steps.base import (
     GlobalStep,
     Step,
 )
-from distilabel.utils.typing import is_parameter_annotated_with
+from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
     from distilabel.steps.base import _Step
