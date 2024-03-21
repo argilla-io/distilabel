@@ -14,9 +14,10 @@
 
 import asyncio
 import os
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from pydantic import PrivateAttr, SecretStr
+from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
 from distilabel.utils.itertools import grouper
@@ -40,7 +41,7 @@ class MistralLLM(AsyncLLM):
         max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
     """
 
-    model: str = "mistral-medium"
+    model: str
     endpoint: str = "https://api.mistral.ai"
     api_key: Optional[SecretStr] = os.getenv("MISTRAL_API_KEY", None)  # type: ignore
     max_retries: int = 5
@@ -116,12 +117,21 @@ class MistralLLM(AsyncLLM):
         return generations
 
     # TODO: remove this function once Mistral client allows `n` parameter
+    @override
     def generate(
-        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
     ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
         async def agenerate(
             inputs: List["ChatType"], **kwargs: Any
-        ) -> List[Union[str, None]]:
+        ) -> "GenerateOutput":
+            """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
                 asyncio.create_task(self.agenerate(input=input, **kwargs))
                 for input in inputs
@@ -129,5 +139,5 @@ class MistralLLM(AsyncLLM):
             ]
             return [outputs[0] for outputs in await asyncio.gather(*tasks)]
 
-        results = asyncio.run(agenerate(inputs, **kwargs))
-        return list(grouper(results, n=num_generations, incomplete="ignore"))
+        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

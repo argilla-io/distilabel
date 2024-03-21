@@ -23,10 +23,13 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Set,
     TypedDict,
     Union,
 )
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 from typing_extensions import Self
 
 from distilabel import __version__
@@ -102,7 +105,6 @@ class BasePipeline(_Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
-        self._cache()
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
@@ -266,6 +268,7 @@ class BasePipeline(_Serializable):
         """
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
+
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
@@ -579,21 +582,28 @@ class _BatchManager(_Serializable):
         self._last_batch_received = last_batch_received
 
     def can_generate(self) -> bool:
-        """Checks if there are still batches to be processed by the steps."""
+        """Checks if there are still batches to be processed by the steps.
+
+        Returns:
+            `True` if there are still batches to be processed by the steps. Otherwise,
+            `False`.
+        """
         return not all(self._last_batch_received.values())
 
-    def register_batch(self, batch: _Batch) -> None:
+    def register_batch(self, batch: _Batch, callback: Callable[[], None]) -> None:
         """Method to register a batch received from a step. It will keep track of the
         sequence number and the last batch received from the step in the internal maps.
 
         Args:
             batch: _Batch from which we will register the sequence number and the last batch received.
+            callback: A callback to be called after the batch is registered.
         """
         self._seq_no_step[batch.step_name] = batch.seq_no + 1
         self._last_batch_received[batch.step_name] = batch.last_batch
+        callback()
 
     def add_batch(
-        self, to_step: str, batch: _Batch, callback: Callable
+        self, to_step: str, batch: _Batch, callback: Callable[[], None]
     ) -> Iterable[_Batch]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
@@ -602,8 +612,7 @@ class _BatchManager(_Serializable):
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
-            callback: A callback to be called after the batch is added to the step. It's used
-                to cache the content of the batch manager during the pipeline execution.
+            callback: A callback to be called after the batch is added.
 
         Returns:
             If there is enough data for creating a batch for `to_step`, then it will return
@@ -635,7 +644,7 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
-            seq_no_step[step.name] = 0  # Will start at 0.
+            seq_no_step[step.name] = 0
             last_batch_received[step.name] = False
             if step.is_generator:
                 continue
@@ -683,3 +692,176 @@ class _BatchManager(_Serializable):
             data["step_seq_no"],
             data["last_batch_received"],
         )
+
+
+class _WriteBuffer:
+    """Class in charge of sending the batched contents to a buffer and writing
+    those to files under a given folder.
+
+    As batches are received, they are added to the buffer and once each buffer
+    is full, the content is written to a parquet file.
+    """
+
+    def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
+        """
+        Args:
+            path: Folder where the files will be written, the idea
+                is for this path to be in the cache folder under /data.
+            leaf_steps: Leaf steps from either the DAG of the Pipeline.
+
+        Raises:
+            ValueError: If the path is not a directory.
+        """
+        self._path = Path(path)
+        if not self._path.exists():
+            self._path.mkdir(parents=True, exist_ok=True)
+        if not self._path.is_dir():
+            raise ValueError(f"The path should be a directory, not a file: {path}")
+        self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
+        self._writers: Dict[str, pq.ParquetWriter] = {}
+
+    def _get_filename(self, step_name: str) -> Path:
+        """Creates the filename for the step.
+
+        Args:
+            step_name: Name of the step to which the data belongs to.
+
+        Returns:
+            Filename for the step.
+        """
+        return self._path / f"{step_name}.parquet"
+
+    def is_full(self, step_name: str) -> bool:
+        """Checks the buffers that are full so that those can be written to the file.
+
+        Returns:
+            Whether the buffer is full.
+        """
+        return bool(self._buffers[step_name])
+
+    def add_batch(self, step_name: str, batch: "_Batch") -> None:
+        """Adds a batch to the buffer and writes the buffer to the file if it's full.
+
+        Args:
+            step_name (str): Name of the step to which the data pertains.
+            batch (_Batch): Batch to add to the buffer.
+        """
+        self._buffers[step_name] = batch.data
+        if self.is_full(step_name):
+            self._write(step_name)
+
+    def _write(self, step_name: str) -> None:
+        """Writes the content to the file and cleans the buffer.
+
+        Args:
+            step_name (str): Name of the step to which the data pertains.
+        """
+        # NOTE: The parquet files should be rotated to different files up to a given size (i.e. 500Mb).
+        data = self._buffers[step_name]
+        writer = self._get_writer(step_name, data)
+        for batch in data:
+            arrow_batch = pa.RecordBatch.from_pylist(batch)
+            writer.write_batch(arrow_batch)
+
+        self._clean_buffer(step_name)
+
+    def _get_writer(
+        self, step_name: str, batch_data: List[List[Dict[str, Any]]]
+    ) -> pq.ParquetWriter:
+        """Creates (or grabs if already generated) the writer for the step, and uses the sample
+        batch_data to infer the schema for the parquet file.
+
+        Args:
+            step_name (str): Name of the step for which we want a writer. Will reuse one if already
+                created.
+            batch_data (List[List[Dict[str, Any]]]): Batch sample data used to generate the necessary
+                schema for the parquet file.
+
+        Returns:
+            The `pq.ParquetWriter` that will be in charge of writing the different parquet files.
+        """
+        if writer := self._writers.get(step_name):
+            return writer
+        else:
+            filename = self._get_filename(step_name)
+            schema = _map_batch_items_to_pyarrow_schema(batch_data[0][0])
+            writer = pq.ParquetWriter(filename, schema)
+            self._writers[step_name] = writer
+            return writer
+
+    def _clean_buffer(self, step_name: str) -> None:
+        """Cleans the buffer by setting it's content to None.
+
+        Args:
+            step_name (str): The name of the buffer to clean.
+        """
+        buffs = {}
+        for step, data in self._buffers.items():
+            if step_name == step:
+                buffs[step] = None
+            else:
+                buffs[step] = data
+        self._buffers = buffs
+
+    def close(self) -> None:
+        """Closes the writers."""
+        for writer in self._writers.values():
+            writer.close()
+
+
+def _map_to_pyarrow_type(value: Any) -> pa.DataType:
+    """Maps a Python object to its corresponding PyArrow DataType.
+
+    Args:
+        value: Element from which to infer the PyArrow DataType.
+
+    Returns:
+        PyArrow DataType
+    """
+    if isinstance(value, bool):
+        return pa.bool_()
+
+    if isinstance(value, int):
+        return pa.int64()
+
+    if isinstance(value, float):
+        return pa.float64()
+
+    if isinstance(value, str):
+        return pa.string()
+
+    if isinstance(value, type(None)):
+        return pa.null()
+
+    if isinstance(value, list):
+        # Assuming list elements have the same type
+        if len(value) > 0:
+            element_type = _map_to_pyarrow_type(value[0])
+            return pa.list_(element_type)
+        return pa.list_(pa.null())
+
+    if isinstance(value, dict):
+        # Assuming dict values have the same type
+        if len(value) > 0:
+            value_type = _map_to_pyarrow_type(list(value.values())[0])
+            return pa.struct(value_type)
+        return pa.struct({})
+
+    # For any other types, return as binary, we shouldn't be here
+    return pa.binary()
+
+
+def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema:
+    """Maps a dictionary of Python objects to a PyArrow Schema.
+
+    Args:
+        batch_items: Dictionary with Python objects
+
+    Returns:
+        PyArrow Schema
+    """
+    fields = []
+    for key, value in batch_items.items():
+        field_type = _map_to_pyarrow_type(value)
+        fields.append(pa.field(key, field_type))
+    return pa.schema(fields)

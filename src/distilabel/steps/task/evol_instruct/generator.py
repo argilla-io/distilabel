@@ -15,6 +15,7 @@
 import sys
 
 from distilabel.steps.base import RuntimeParameter
+from distilabel.utils.lists import flatten_responses
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -34,9 +35,7 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplatesEvolInstruct,
-)
+from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -67,9 +66,7 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(
-        default=GenerationMutationTemplatesEvolInstruct
-    )
+    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
 
     min_length: RuntimeParameter[int] = Field(
         default=512,
@@ -228,10 +225,11 @@ class EvolInstructGenerator(GeneratorTask):
             [{"role": "user", "content": instruction[-1]}]
             for instruction in instructions
         ]
-        return self.llm.generate(
+        responses = self.llm.generate(
             _formatted_instructions,
             **self.generation_kwargs,  # type: ignore
         )
+        return flatten_responses(responses)
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
@@ -251,9 +249,11 @@ class EvolInstructGenerator(GeneratorTask):
         while len(instructions) < self.num_instructions:
             prompts = self._apply_random_mutation(iter_no=iter_no)
 
-            generated_prompts = self.llm.generate(
-                prompts,
-                **self.generation_kwargs,  # type: ignore
+            generated_prompts = flatten_responses(
+                self.llm.generate(
+                    prompts,
+                    **self.generation_kwargs,  # type: ignore
+                )
             )
             for idx, generated_prompt in enumerate(generated_prompts):
                 generated_prompt = generated_prompt[-1]
