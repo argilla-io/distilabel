@@ -43,7 +43,7 @@ class MistralLLM(AsyncLLM):
             to `64`.
     """
 
-    model: str = "mistral-medium"
+    model: str
     endpoint: str = "https://api.mistral.ai"
     api_key: Optional[SecretStr] = os.getenv("MISTRAL_API_KEY", None)  # type: ignore
     max_retries: int = 5
