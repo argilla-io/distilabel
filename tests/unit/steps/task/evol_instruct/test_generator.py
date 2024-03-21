@@ -114,8 +114,8 @@ class TestEvolInstructGenerator:
             "batch_size": task.batch_size,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.steps.task.conftest",
-                    "name": "DummyLLM",
+                    "module": task.llm.__class__.__module__,
+                    "name": task.llm.__class__.__name__,
                 }
             },
             "llm_kwargs": {},
