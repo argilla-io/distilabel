@@ -72,8 +72,8 @@ class Pipeline(BasePipeline):
         # the previous pipeline execution was completed successfully.
         if not self._batch_manager.can_generate():
             self._logger.info(
-                "Loaded batch manager from cache doesn't have any remaining data. Returning"
-                " `Distiset` from cache data"
+                "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
+                " `Distiset` from cache data..."
             )
             return _create_dataset(self._cache_location["data"])
 
