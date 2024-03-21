@@ -64,8 +64,6 @@ class SelfInstruct(Task):
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
     """
 
-    _template: Union[Template, None] = PrivateAttr(...)
-
     num_instructions: int = 5
     criteria_for_query_generation: str = (
         "Incorporate a diverse range of verbs, avoiding repetition.\n"
@@ -75,9 +73,7 @@ class SelfInstruct(Task):
     )
     application_description: str = "AI assistant"
 
-    def load(self) -> None:
-        super().load()
-        self._template = Template(_SELF_INSTRUCT_TEMPLATE)
+    _template: Template = PrivateAttr(default=Template(_SELF_INSTRUCT_TEMPLATE))
 
     @property
     def inputs(self) -> List[str]:
