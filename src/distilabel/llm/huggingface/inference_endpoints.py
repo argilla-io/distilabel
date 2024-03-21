@@ -70,7 +70,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _env_var: Optional[str] = PrivateAttr(default="HF_TOKEN")
+    _env_var: str = PrivateAttr(default="HF_TOKEN")
     _aclient: Optional[Union["AsyncInferenceClient", "AsyncOpenAI"]] = PrivateAttr(...)
 
     @model_validator(mode="after")
@@ -124,7 +124,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         self.api_key = self._handle_api_key_value(
             self_value=self.api_key,
             load_value=api_key,
-            env_var=self._env_var,  # type: ignore
+            env_var=self._env_var,
         )
 
         if self.model_id is not None:

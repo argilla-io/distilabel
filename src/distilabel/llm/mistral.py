@@ -14,9 +14,15 @@
 
 import asyncio
 import os
-from typing import TYPE_CHECKING, Any, List, Optional
+import sys
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import PrivateAttr, SecretStr
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+from pydantic import PrivateAttr, SecretStr, model_validator
 from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
@@ -33,26 +39,35 @@ class MistralLLM(AsyncLLM):
     """Mistral LLM implementation running the async API client.
 
     Args:
-        api_key: the API key to authenticate the requests to the Mistral API.
         model: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.
-        endpoint: the endpoint to use for the Mistral API. Defaults to `"https://api.mistral.ai"`.
-        max_retries: the maximum number of retries to attempt when a request fails. Defaults
-            to `5`.
-        timeout: the maximum time in seconds to wait for a response. Defaults to `120`.
-        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults
-            to `64`.
+        endpoint: the endpoint to use for the Mistral API. Defaults to "https://api.mistral.ai".
+        api_key: the API key to authenticate the requests to the Mistral API. Defaults to `None` which
+            means that the value set for the environment variable `OPENAI_API_KEY` will be used, or
+            `None` if not set.
+        max_retries: the maximum number of retries to attempt when a request fails. Defaults to 5.next
+        timeout: the maximum time in seconds to wait for a response. Defaults to 120.next
+        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
     """
 
     model: str
     endpoint: str = "https://api.mistral.ai"
-    api_key: Optional[SecretStr] = os.getenv("MISTRAL_API_KEY", None)  # type: ignore
+    api_key: Optional[SecretStr] = None
     max_retries: int = 5
     timeout: int = 120
     max_concurrent_requests: int = 64
 
+    _api_key_env_var: str = PrivateAttr(default="MISTRAL_API_KEY")
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
 
-    def load(self, api_key: Optional[str] = None) -> None:
+    @model_validator(mode="after")
+    def api_key_provided_or_env_var(self) -> Self:
+        if self.api_key is None:
+            self.api_key = os.getenv(self._api_key_env_var, None)  # type: ignore
+        if self.api_key is not None and isinstance(self.api_key, str):
+            self.api_key = SecretStr(self.api_key)
+        return self
+
+    def load(self, api_key: Optional[Union[str, SecretStr]] = None) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
 
         try:
@@ -63,8 +78,12 @@ class MistralLLM(AsyncLLM):
                 " `pip install mistralai`."
             ) from ie
 
+        # TODO: this may not be needed at the end, and a simple `self.api_key = self.api_key or api_key`
+        # may do the work.
         self.api_key = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="MISTRAL_API_KEY"
+            self_value=self.api_key,
+            load_value=api_key,
+            env_var=self._api_key_env_var,
         )
 
         self._aclient = MistralAsyncClient(

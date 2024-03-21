@@ -81,7 +81,7 @@ class OpenAILLM(AsyncLLM):
         self.api_key = self._handle_api_key_value(
             self_value=self.api_key,
             load_value=api_key,
-            env_var=self._env_var,  # type: ignore
+            env_var=self._api_key_env_var,
         )
 
         self._aclient = AsyncOpenAI(
