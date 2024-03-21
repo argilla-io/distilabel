@@ -16,15 +16,13 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import override
 
-from distilabel.steps.base import (
-    GeneratorStep,
-)
+from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class LoadData(GeneratorStep):
+class LoadDataFromDicts(GeneratorStep):
     """A generator step that loads a dataset from a list of dictionaries.
 
     This step will load the dataset and yield the transformed data as it is loaded from the list of dictionaries.
@@ -49,8 +47,8 @@ class LoadData(GeneratorStep):
         Args:
             offset: The offset to start the generation from. Defaults to 0.
 
-        Returns:
-            A list of Python dictionaries with the outputs of the task.
+        Yields:
+            A list of Python dictionaries as read from the inputs (propagated in batches) and a flag indicating whether the yield batch is the last one.
         """
         if offset:
             self.data = self.data[offset:]
@@ -65,11 +63,5 @@ class LoadData(GeneratorStep):
 
     @property
     def outputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step will produce as
-        output.
-
-        Returns:
-            List of strings with the names of the columns that the step will produce as
-            output.
-        """
+        """Returns a list of strings with the names of the columns that the step will generate."""
         return list(self.data[0].keys())
