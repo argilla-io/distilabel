@@ -345,7 +345,9 @@ class DAG(_Serializable):
             )
 
     def _validate_step_process_runtime_parameters(self, step: "_Step") -> None:
-        """Validates that the required runtime parameters of the step are provided.
+        """Validates that the required runtime parameters of the step are provided. A
+        runtime parameter is considered required if it doesn't have a default value. The
+        name of the runtime parameters are separated by dots to represent nested parameters.
 
         Args:
             step: The step to validate.
@@ -356,10 +358,19 @@ class DAG(_Serializable):
         """
         runtime_parameters_values = step._runtime_parameters
         for param_name, has_default_value in step.runtime_parameters_names.items():
-            if param_name not in runtime_parameters_values and not has_default_value:
-                raise ValueError(
-                    f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
-                    " Please, provide a value for it when calling `Pipeline.run`"
+            runtime_parameters_values_copy = runtime_parameters_values.copy()
+            for param_name_part in param_name.split("."):
+                if (
+                    param_name_part not in runtime_parameters_values_copy
+                    and not has_default_value
+                ):
+                    raise ValueError(
+                        f"Step '{step.name}' is missing required runtime parameter"
+                        f" '{param_name}'. Please, provide a value for it when calling"
+                        " `Pipeline.run`"
+                    )
+                runtime_parameters_values_copy = runtime_parameters_values_copy.get(
+                    param_name_part, runtime_parameters_values_copy
                 )
 
     def _validate_generator_step_process_signature(self, step: "GeneratorStep") -> None:

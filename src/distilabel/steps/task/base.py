@@ -76,6 +76,21 @@ class _Task(_Step, ABC):
         " which kwargs are available.",
     )
 
+    @property
+    def runtime_parameters_names(self) -> Dict[str, bool]:
+        """Returns the runtime parameters of the task, which are combination of the
+        attributes of the task type hinted with `RuntimeParameter` and the runtime parameters
+        of the `LLM` used by the task.
+
+        Returns:
+            A dictionary with the name of the runtime parameters as keys and a boolean
+            indicating if the parameter is optional or not.
+        """
+        runtime_parameters_names = super().runtime_parameters_names
+        for param, is_optional in self.llm.runtime_parameters_names.items():
+            runtime_parameters_names[f"generation_kwargs.{param}"] = is_optional
+        return runtime_parameters_names
+
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
         self.llm.load(**self.llm_kwargs)  # type: ignore

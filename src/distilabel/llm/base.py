@@ -13,9 +13,11 @@
 # limitations under the License.
 
 import asyncio
+import inspect
 import logging
 import sys
 from abc import ABC, abstractmethod
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, SecretStr
@@ -56,6 +58,33 @@ class LLM(BaseModel, _Serializable, ABC):
         """Abstract method to be implemented by each LLM to generate `num_generations`
         per input in `inputs`."""
         pass
+
+    @cached_property
+    def generate_parameters(self) -> List[inspect.Parameter]:
+        """Returns the parameters of the `generate` method.
+
+        Returns:
+            A list containing the parameters of the `generate` method.
+        """
+        return list(inspect.signature(self.generate).parameters.values())
+
+    @property
+    def runtime_parameters_names(self) -> Dict[str, bool]:
+        """Returns the runtime parameters of the `LLM`, which are combination of the
+        attributes of the `LLM` type hinted with `RuntimeParameter` and the parameters
+        of the `generate` method that are not `input` and `num_generations`.
+
+        Returns:
+            A dictionary with the name of the runtime parameters as keys and a boolean
+            indicating if the parameter is optional or not.
+        """
+        runtime_parameters = {}
+        for param in self.generate_parameters:
+            if param.name not in ["input", "inputs", "num_generations"]:
+                continue
+            is_optional = param.default != inspect.Parameter.empty
+            runtime_parameters[param.name] = is_optional
+        return runtime_parameters
 
     def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
@@ -130,6 +159,15 @@ class AsyncLLM(LLM):
     """
 
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
+
+    @cached_property
+    def generate_parameters(self) -> List[inspect.Parameter]:
+        """Returns the parameters of the `agenerate` method.
+
+        Returns:
+            A list containing the parameters of the `agenerate` method.
+        """
+        return list(inspect.signature(self.agenerate).parameters.values())
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":
