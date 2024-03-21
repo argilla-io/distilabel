@@ -21,7 +21,8 @@ MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 class TestTogetherLLM:
     def test_llm(self) -> None:
-        llm = TogetherLLM(model=MODEL, api_key="api.key")
+        llm = TogetherLLM(model=MODEL, api_key="api.key")  # type: ignore
+
         assert isinstance(llm, TogetherLLM)
         assert llm.model_name == MODEL
 
