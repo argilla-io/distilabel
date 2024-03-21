@@ -16,21 +16,36 @@ import os
 
 from distilabel.llm.together import TogetherLLM
 
-MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-
 
 class TestTogetherLLM:
-    def test_llm(self) -> None:
-        llm = TogetherLLM(model=MODEL, api_key="api.key")
+    model_id: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+
+    def test_together_llm(self) -> None:
+        llm = TogetherLLM(model=self.model_id, api_key="api.key")  # type: ignore
+
         assert isinstance(llm, TogetherLLM)
-        assert llm.model_name == MODEL
+        assert llm.model_name == self.model_id
+
+    def test_together_llm_env_vars(self) -> None:
+        os.environ["TOGETHER_API_KEY"] = "another.api.key"
+        os.environ["TOGETHER_BASE_URL"] = "https://example.com"
+
+        llm = TogetherLLM(model=self.model_id)
+
+        assert isinstance(llm, TogetherLLM)
+        assert llm.model_name == self.model_id
+        assert llm.base_url == "https://example.com"
+        assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
+
+        del os.environ["TOGETHER_API_KEY"]
+        del os.environ["TOGETHER_BASE_URL"]
 
     def test_serialization(self) -> None:
         os.environ["TOGETHER_API_KEY"] = "api.key"
-        llm = TogetherLLM(model=MODEL)
+        llm = TogetherLLM(model=self.model_id)
 
         _dump = {
-            "model": MODEL,
+            "model": self.model_id,
             "base_url": "https://api.together.xyz/v1",
             "type_info": {
                 "module": "distilabel.llm.together",

@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 
 
 class LLM(BaseModel, _Serializable, ABC):
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
+    )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _logger: logging.Logger = PrivateAttr(get_logger("llm"))
@@ -72,7 +74,7 @@ class LLM(BaseModel, _Serializable, ABC):
     def _handle_api_key_value(
         self,
         self_value: Union[str, SecretStr, None],
-        load_value: Union[str, None],
+        load_value: Union[str, SecretStr, None],
         env_var: str,
     ) -> SecretStr:
         """Method to handle the API key for the LLM, either from the `self_value` or the

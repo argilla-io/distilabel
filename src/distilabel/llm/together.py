@@ -12,43 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from pydantic import PrivateAttr
 
 from distilabel.llm.openai import OpenAILLM
 
 
 class TogetherLLM(OpenAILLM):
-    """
-    TogetherLLM LLM implementation running the async API client of OpenAI because of duplicate API behavior.
+    """TogetherLLM LLM implementation running the async API client of OpenAI because of
+    duplicate API behavior.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "mistralai/Mixtral-8x7B-Instruct-v0.1". Supported models can be found [here](https://api.together.xyz/models).
-        base_url: the base URL to use for the Together API can be set with `OPENAI_BASE_URL`. Default is "https://api.together.xyz/v1".
-        api_key: the API key to authenticate the requests to the Together API. Can be set with `TOGETHER_API_KEY`. Default is `None`.
+        model: the model name to use for the LLM e.g. "mistralai/Mixtral-8x7B-Instruct-v0.1".
+            Supported models can be found [here](https://api.together.xyz/models).
+        base_url: the base URL to use for the Together API can be set with `TOGETHER_BASE_URL`.
+            Defaults to `None` which means that the value set for the environment variable
+            `TOGETHER_BASE_URL` will be used, or "https://api.together.xyz/v1" if not set.
+        api_key: the API key to authenticate the requests to the Together API. Defaults to `None`
+            which means that the value set for the environment variable `TOGETHER_API_KEY` will be
+            used, or `None` if not set.
     """
 
-    base_url: Optional[str] = "https://api.together.xyz/v1"
-
-    def load(
-        self, api_key: Optional[str] = None, base_url: Optional[str] = None
-    ) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests."""
-
-        try:
-            from openai import AsyncOpenAI
-        except ImportError as ie:
-            raise ImportError(
-                "OpenAI Python client is not installed which is required for `TogetherLLM`. Please install it using"
-                " `pip install openai`."
-            ) from ie
-
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key, load_value=api_key, env_var="TOGETHER_API_KEY"
-        )
-        self.base_url = base_url or self.base_url
-
-        self._aclient = AsyncOpenAI(
-            api_key=self.api_key.get_secret_value(),
-            base_url=self.base_url,
-            max_retries=6,
-        )
+    _base_url_env_var: str = PrivateAttr(default="TOGETHER_BASE_URL")
+    _default_base_url: str = PrivateAttr("https://api.together.xyz/v1")
+    _api_key_env_var: str = PrivateAttr(default="TOGETHER_API_KEY")
