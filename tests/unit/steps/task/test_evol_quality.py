@@ -22,7 +22,7 @@ from distilabel.steps.task.evol_quality.base import (
 from pydantic import ValidationError
 
 
-class TestEvolInstruct:
+class TestEvoQuality:
     def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"

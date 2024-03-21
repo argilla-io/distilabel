@@ -44,7 +44,7 @@ class LoadData(GeneratorStep):
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
-        """Yields batches from the a dataset from a list of dictionaries.
+        """Yields batches from a list of dictionaries.
 
         Args:
             offset: The offset to start the generation from. Defaults to 0.
