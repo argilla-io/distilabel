@@ -178,6 +178,15 @@ class _Step(BaseModel, _Serializable, ABC):
         return isinstance(self, GlobalStep)
 
     @property
+    def is_normal(self) -> bool:
+        """Whether the step is a normal step or not.
+
+        Returns:
+            `True` if the step is a normal step, `False` otherwise.
+        """
+        return not self.is_generator and not self.is_global
+
+    @property
     def inputs(self) -> List[str]:
         """List of strings with the names of the columns that the step needs as input.
 

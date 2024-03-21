@@ -114,7 +114,7 @@ class LoadHubDataset(GeneratorStep):
         num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
         for batch_num, batch in enumerate(
-            self._dataset.iter(batch_size=self.batch_size)
+            self._dataset.iter(batch_size=self.batch_size)  # type: ignore
         ):
             if batch_num * self.batch_size < offset:
                 continue

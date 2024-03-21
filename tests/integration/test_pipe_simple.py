@@ -50,7 +50,6 @@ class GenerateResponse(Step):
 
         time.sleep(1)
 
-        print("***** NOT CACHED ******", len(inputs))
         for input in inputs:
             input["response"] = "I don't know"
 

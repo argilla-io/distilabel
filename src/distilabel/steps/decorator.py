@@ -19,6 +19,7 @@ from pydantic import create_model
 
 from distilabel.steps.base import (
     _RUNTIME_PARAMETER_ANNOTATION,
+    _STEP_INPUT_ANNOTATION,
     GeneratorStep,
     GlobalStep,
     Step,
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     from distilabel.steps.base import _Step
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
-_step_mapping = {
+_STEP_MAPPING = {
     "normal": Step,
     "global": GlobalStep,
     "generator": GeneratorStep,
@@ -97,14 +98,14 @@ def step(
     def decorator(
         func: Callable[..., Union["StepOutput", "GeneratorStepOutput"]],
     ) -> Type["_Step"]:
-        if step_type not in _step_mapping:
+        if step_type not in _STEP_MAPPING:
             raise ValueError(
                 f"Invalid step type '{step_type}'. Please, review the '{func.__name__}'"
                 " function decorated with the `@step` decorator and provide a valid"
                 " `step_type`. Valid choices are: 'normal', 'global' or 'generator'."
             )
 
-        BaseClass = _step_mapping[step_type]
+        BaseClass = _STEP_MAPPING[step_type]
 
         signature = inspect.signature(func)
 
@@ -114,8 +115,28 @@ def step(
                 param.default if param.default != param.empty else None,
             )
             for name, param in signature.parameters.items()
-            if is_parameter_annotated_with(param, _RUNTIME_PARAMETER_ANNOTATION)
         }
+
+        runtime_parameters = {}
+        step_input_parameter = None
+        for name, param in signature.parameters.items():
+            if is_parameter_annotated_with(param, _RUNTIME_PARAMETER_ANNOTATION):
+                runtime_parameters[name] = (
+                    param.annotation,
+                    param.default if param.default != param.empty else None,
+                )
+
+            if not step_type == "generator" and is_parameter_annotated_with(
+                param, _STEP_INPUT_ANNOTATION
+            ):
+                if step_input_parameter is not None:
+                    raise ValueError(
+                        f"Function '{func.__name__}' has more than one parameter annotated"
+                        f" with `StepInput`. Please, review the '{func.__name__}' function"
+                        " decorated with the `@step` decorator and provide only one"
+                        " argument annotated with `StepInput`."
+                    )
+                step_input_parameter = param
 
         RuntimeParametersModel = create_model(  # type: ignore
             "RuntimeParametersModel",
@@ -146,6 +167,9 @@ def step(
                 "__module__": func.__module__,
                 "__doc__": func.__doc__,
                 "_built_from_decorator": True,
+                # Override the `get_process_step_input` method to return the parameter
+                # of the original function annotated with `StepInput`.
+                "get_process_step_input": lambda self: step_input_parameter,
             },
         )
 
