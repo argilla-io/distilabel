@@ -807,33 +807,45 @@ class _WriteBuffer:
         writer = self._get_writer(step_name, data)
         for batch in data:
             arrow_batch = pa.RecordBatch.from_pylist(batch)
+            if not writer.schema.equals(arrow_batch.schema):
+                new_schema = pa.unify_schemas([writer.schema, arrow_batch.schema])
+                writer.close()
+                writer = self._get_writer(step_name, data, new_schema, recreate=True)
+                arrow_batch = pa.RecordBatch.from_pylist(batch, schema=new_schema)
             writer.write_batch(arrow_batch)
 
         self._clean_buffer(step_name)
 
     def _get_writer(
-        self, step_name: str, batch_data: List[List[Dict[str, Any]]]
+        self,
+        step_name: str,
+        batch_data: List[List[Dict[str, Any]]],
+        schema: Optional[pa.Schema] = None,
+        recreate: bool = False,
     ) -> pq.ParquetWriter:
         """Creates (or grabs if already generated) the writer for the step, and uses the sample
         batch_data to infer the schema for the parquet file.
 
         Args:
-            step_name (str): Name of the step for which we want a writer. Will reuse one if already
+            step_name: Name of the step for which we want a writer. Will reuse one if already
                 created.
-            batch_data (List[List[Dict[str, Any]]]): Batch sample data used to generate the necessary
-                schema for the parquet file.
+            batch_data: Batch sample data used to generate the necessary schema for the
+                parquet file.
+            schema: Schema to use for the parquet file. If not provided, it will be inferred
+                from the batch_data first element.
+            recreate: Whether to recreate the writer or not.
 
         Returns:
             The `pq.ParquetWriter` that will be in charge of writing the different parquet files.
         """
-        if writer := self._writers.get(step_name):
+        if not recreate and (writer := self._writers.get(step_name)):
             return writer
-        else:
-            filename = self._get_filename(step_name)
-            schema = _map_batch_items_to_pyarrow_schema(batch_data[0][0])
-            writer = pq.ParquetWriter(filename, schema)
-            self._writers[step_name] = writer
-            return writer
+
+        filename = self._get_filename(step_name)
+        schema = schema or _map_batch_items_to_pyarrow_schema(batch_data[0][0])
+        writer = pq.ParquetWriter(filename, schema)
+        self._writers[step_name] = writer
+        return writer
 
     def _clean_buffer(self, step_name: str) -> None:
         """Cleans the buffer by setting it's content to None.
@@ -887,11 +899,10 @@ def _map_to_pyarrow_type(value: Any) -> pa.DataType:
         return pa.list_(pa.null())
 
     if isinstance(value, dict):
-        # Assuming dict values have the same type
-        if len(value) > 0:
-            value_type = _map_to_pyarrow_type(list(value.values())[0])
-            return pa.struct(value_type)
-        return pa.struct({})
+        struct_elements = [
+            (key, _map_to_pyarrow_type(value)) for key, value in value.items()
+        ]
+        return pa.struct(struct_elements)
 
     # For any other types, return as binary, we shouldn't be here
     return pa.binary()
