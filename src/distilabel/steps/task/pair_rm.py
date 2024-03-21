@@ -40,7 +40,7 @@ class PairRM(Step):
     """
 
     model: str = "llm-blender/PairRM"
-    batch_size: int = 8
+    input_batch_size: int = 8
 
     def load(self) -> None:
         try:
@@ -55,7 +55,7 @@ class PairRM(Step):
 
     @property
     def inputs(self) -> List[str]:
-        return ["inputs", "candidates"]
+        return ["input", "candidates"]
 
     @property
     def outputs(self) -> List[str]:
@@ -63,26 +63,33 @@ class PairRM(Step):
 
     def format_input(self, input: Dict[str, Any]) -> Dict[str, Any]:
         # TODO: This must prepare the data with the inputs and the candidate texts
-        return {"inputs": input["instruction"], "candidates": input["responses"]}
+        return input
 
     def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
         input_texts = []
         candidates = []
         for input in inputs:
             formatted_input = self.format_input(input)
-            input_texts.append(formatted_input["inputs"])
+            input_texts.append(formatted_input["input"])
             candidates.append(formatted_input["candidates"])
 
-        instructions = None  # NOTE: How can we pass these automatically?
+        # NOTE: Can we determine these automatically?
+        instructions = None
+
         ranks = self._blender.rank(
-            inputs,
+            input_texts,
             candidates,
             instructions=instructions,
             return_scores=False,
-            batch_size=self.batch_size,
+            batch_size=self.input_batch_size,
         )
-        inputs["ranks"] = ranks.tolist()
-        inputs["ranked_candidates"] = np.take_along_axis(
-            np.array(inputs["candidates"]), ranks - 1, axis=1
-        )
+        # Sort the candidates based on the ranks
+        ranked_candidates = np.take_along_axis(
+            np.array(candidates), ranks - 1, axis=1
+        ).tolist()
+        ranks = ranks.tolist()
+        for input, rank, ranked_candidate in zip(inputs, ranks, ranked_candidates):
+            input["ranks"] = rank
+            input["ranked_candidates"] = ranked_candidate
+
         yield inputs

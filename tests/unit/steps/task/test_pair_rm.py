@@ -12,28 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
+import numpy as np
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.pair_rm import PairRM
 
 
-@patch("llm_blender.Blender")
 class TestPairRM:
-    def test_format_input(self, mocker: MagicMock) -> None:
-        ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
-        result = ranker.format_input(
-            input={
-                "instruction": "instruction 1",
-                "responses": ["response 1", "response 2", "response 3"],
-            }
-        )
-
-        assert result == {
-            "input": "instruction 1",
-            "candidates": ["response 1", "response 2", "response 3"],
-        }
-
     def test_process(self, mocker: MagicMock) -> None:
         ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
         ranker._blender = mocker
+        ranker._blender.rank = MagicMock(return_value=np.array([[2, 1, 3], [2, 1, 3]]))
+
+        result = ranker.process(
+            [
+                {"input": "Hello, how are you?", "candidates": ["fine", "good", "bad"]},
+                {"input": "Anybody there?", "candidates": ["get out", "yep", "nope"]},
+            ]
+        )
+        ranked = list(result)[0]
+
+        assert ranked == [
+            {
+                "input": "Hello, how are you?",
+                "candidates": ["fine", "good", "bad"],
+                "ranks": [2, 1, 3],
+                "ranked_candidates": ["good", "fine", "bad"],
+            },
+            {
+                "input": "Anybody there?",
+                "candidates": ["get out", "yep", "nope"],
+                "ranks": [2, 1, 3],
+                "ranked_candidates": ["yep", "get out", "nope"],
+            },
+        ]
+
+    def test_serialization(self, _: MagicMock) -> None:
+        ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
+        assert ranker.dump() == {
+            "name": ranker.name,
+            "input_mappings": {},
+            "output_mappings": {},
+            "input_batch_size": ranker.input_batch_size,
+            "model": ranker.model,
+            "runtime_parameters_info": [],
+            "type_info": {"module": "distilabel.steps.task.pair_rm", "name": "PairRM"},
+        }
