@@ -23,10 +23,13 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Set,
     TypedDict,
     Union,
 )
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 from typing_extensions import Self
 
 from distilabel import __version__
@@ -265,6 +268,7 @@ class BasePipeline(_Serializable):
         """
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
+
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
@@ -688,3 +692,176 @@ class _BatchManager(_Serializable):
             data["step_seq_no"],
             data["last_batch_received"],
         )
+
+
+class _WriteBuffer:
+    """Class in charge of sending the batched contents to a buffer and writing
+    those to files under a given folder.
+
+    As batches are received, they are added to the buffer and once each buffer
+    is full, the content is written to a parquet file.
+    """
+
+    def __init__(self, path: "PathLike", leaf_steps: Set[str]) -> None:
+        """
+        Args:
+            path: Folder where the files will be written, the idea
+                is for this path to be in the cache folder under /data.
+            leaf_steps: Leaf steps from either the DAG of the Pipeline.
+
+        Raises:
+            ValueError: If the path is not a directory.
+        """
+        self._path = Path(path)
+        if not self._path.exists():
+            self._path.mkdir(parents=True, exist_ok=True)
+        if not self._path.is_dir():
+            raise ValueError(f"The path should be a directory, not a file: {path}")
+        self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
+        self._writers: Dict[str, pq.ParquetWriter] = {}
+
+    def _get_filename(self, step_name: str) -> Path:
+        """Creates the filename for the step.
+
+        Args:
+            step_name: Name of the step to which the data belongs to.
+
+        Returns:
+            Filename for the step.
+        """
+        return self._path / f"{step_name}.parquet"
+
+    def is_full(self, step_name: str) -> bool:
+        """Checks the buffers that are full so that those can be written to the file.
+
+        Returns:
+            Whether the buffer is full.
+        """
+        return bool(self._buffers[step_name])
+
+    def add_batch(self, step_name: str, batch: "_Batch") -> None:
+        """Adds a batch to the buffer and writes the buffer to the file if it's full.
+
+        Args:
+            step_name (str): Name of the step to which the data pertains.
+            batch (_Batch): Batch to add to the buffer.
+        """
+        self._buffers[step_name] = batch.data
+        if self.is_full(step_name):
+            self._write(step_name)
+
+    def _write(self, step_name: str) -> None:
+        """Writes the content to the file and cleans the buffer.
+
+        Args:
+            step_name (str): Name of the step to which the data pertains.
+        """
+        # NOTE: The parquet files should be rotated to different files up to a given size (i.e. 500Mb).
+        data = self._buffers[step_name]
+        writer = self._get_writer(step_name, data)
+        for batch in data:
+            arrow_batch = pa.RecordBatch.from_pylist(batch)
+            writer.write_batch(arrow_batch)
+
+        self._clean_buffer(step_name)
+
+    def _get_writer(
+        self, step_name: str, batch_data: List[List[Dict[str, Any]]]
+    ) -> pq.ParquetWriter:
+        """Creates (or grabs if already generated) the writer for the step, and uses the sample
+        batch_data to infer the schema for the parquet file.
+
+        Args:
+            step_name (str): Name of the step for which we want a writer. Will reuse one if already
+                created.
+            batch_data (List[List[Dict[str, Any]]]): Batch sample data used to generate the necessary
+                schema for the parquet file.
+
+        Returns:
+            The `pq.ParquetWriter` that will be in charge of writing the different parquet files.
+        """
+        if writer := self._writers.get(step_name):
+            return writer
+        else:
+            filename = self._get_filename(step_name)
+            schema = _map_batch_items_to_pyarrow_schema(batch_data[0][0])
+            writer = pq.ParquetWriter(filename, schema)
+            self._writers[step_name] = writer
+            return writer
+
+    def _clean_buffer(self, step_name: str) -> None:
+        """Cleans the buffer by setting it's content to None.
+
+        Args:
+            step_name (str): The name of the buffer to clean.
+        """
+        buffs = {}
+        for step, data in self._buffers.items():
+            if step_name == step:
+                buffs[step] = None
+            else:
+                buffs[step] = data
+        self._buffers = buffs
+
+    def close(self) -> None:
+        """Closes the writers."""
+        for writer in self._writers.values():
+            writer.close()
+
+
+def _map_to_pyarrow_type(value: Any) -> pa.DataType:
+    """Maps a Python object to its corresponding PyArrow DataType.
+
+    Args:
+        value: Element from which to infer the PyArrow DataType.
+
+    Returns:
+        PyArrow DataType
+    """
+    if isinstance(value, bool):
+        return pa.bool_()
+
+    if isinstance(value, int):
+        return pa.int64()
+
+    if isinstance(value, float):
+        return pa.float64()
+
+    if isinstance(value, str):
+        return pa.string()
+
+    if isinstance(value, type(None)):
+        return pa.null()
+
+    if isinstance(value, list):
+        # Assuming list elements have the same type
+        if len(value) > 0:
+            element_type = _map_to_pyarrow_type(value[0])
+            return pa.list_(element_type)
+        return pa.list_(pa.null())
+
+    if isinstance(value, dict):
+        # Assuming dict values have the same type
+        if len(value) > 0:
+            value_type = _map_to_pyarrow_type(list(value.values())[0])
+            return pa.struct(value_type)
+        return pa.struct({})
+
+    # For any other types, return as binary, we shouldn't be here
+    return pa.binary()
+
+
+def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema:
+    """Maps a dictionary of Python objects to a PyArrow Schema.
+
+    Args:
+        batch_items: Dictionary with Python objects
+
+    Returns:
+        PyArrow Schema
+    """
+    fields = []
+    for key, value in batch_items.items():
+        field_type = _map_to_pyarrow_type(value)
+        fields.append(pa.field(key, field_type))
+    return pa.schema(fields)

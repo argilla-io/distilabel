@@ -24,9 +24,14 @@ from distilabel.pipeline.base import (
     _BatchManager,
     _BatchManagerStep,
     _GlobalPipelineManager,
+    _WriteBuffer,
 )
+from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GlobalStep
+from distilabel.utils.distiset import Distiset, _create_dataset
 from distilabel.utils.serialization import TYPE_INFO_KEY
+
+from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
 
 if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep, Step
@@ -951,6 +956,7 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
+
                 assert not pipeline._cache_location["pipeline"].exists()
                 pipeline._cache()
             # Check the file exists AFTER we are out of the context manager
@@ -963,9 +969,74 @@ class TestPipelineSerialization:
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
+
                 cache_filename = pipe._cache_location["pipeline"]
                 assert pipe._cache_location["pipeline"].exists()
                 # Run the pipeline and check the _cache_filename is the same afterwards
                 pipe.run()
                 assert pipe._cache_location["pipeline"].exists()
                 assert cache_filename == pipe._cache_location["pipeline"]
+
+
+class TestWriteBuffer:
+    def test_write_buffer_one_leaf_step_and_create_dataset(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "data"
+            with Pipeline() as pipeline:
+                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+                dummy_generator.connect(dummy_step_1)
+                dummy_step_1.connect(dummy_step_2)
+
+            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+            batch = batch_gen(dummy_step_2.name)
+            assert len(write_buffer._buffers) == 1
+
+            assert all(values is None for _, values in write_buffer._buffers.items())
+
+            write_buffer.add_batch(batch.step_name, batch)
+            assert write_buffer._get_filename(batch.step_name).exists()
+            write_buffer.close()
+
+            ds = _create_dataset(write_buffer._path)
+            assert isinstance(ds, Distiset)
+            assert len(ds.keys()) == 1
+            assert len(ds["dummy_step_2"]) == 3
+
+    def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "data"
+            with Pipeline() as pipeline:
+                dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
+                dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+                dummy_step_3 = DummyStep2(name="dummy_step_3")
+
+                dummy_generator_1.connect(dummy_step_1)
+                dummy_generator_2.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_3)
+
+            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+
+            # Now we write here only in case we are working with leaf steps
+            batch_step_2 = batch_gen(dummy_step_2.name, col_name="a")
+            batch_step_3 = batch_gen(dummy_step_3.name, col_name="b")
+            assert all(values is None for _, values in write_buffer._buffers.items())
+            assert len(write_buffer._buffers) == 2
+
+            write_buffer.add_batch(batch_step_2.step_name, batch_step_2)
+            assert write_buffer._get_filename(batch_step_2.step_name).exists()
+            assert not write_buffer._get_filename(batch_step_3.step_name).exists()
+            write_buffer.add_batch(batch_step_3.step_name, batch_step_3)
+            assert write_buffer._get_filename(batch_step_3.step_name).exists()
+            write_buffer.close()
+
+            ds = _create_dataset(write_buffer._path)
+            assert isinstance(ds, Distiset)
+            assert len(ds.keys()) == 2
+            assert len(ds["dummy_step_2"]) == 3
+            assert len(ds["dummy_step_3"]) == 3
