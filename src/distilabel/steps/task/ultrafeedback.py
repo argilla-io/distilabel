@@ -12,7 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Optional, Union
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
@@ -20,74 +27,64 @@ from pydantic import PrivateAttr
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.typing import ChatType
 
-_ULTRAFEEDBACK_TEMPLATE = """
-{{ task_description }}
-{%- for rating in ratings %}
-{{ rating.value }}. {{ rating.description }}
-{%- endfor %}
-
----
-
-## Format
-
-### Input
-Instruction: [Specify task goal and restrictions]
-
-Texts:
-{% for index in range(responses|length) %}
-<text {{ index + 1}}> [Text {{ index + 1}}]
-{%- endfor %}
-
-### Output
-{%- for index in range(responses|length) %}
-
-#### Output for Text {{ index + 1}}
-Rating: [Rating for text {{ index + 1}}]
-Rationale: [Rationale for the rating in short sentences]
-
-{%- endfor %}
-
----
-
-## Annotation
-
-### Input
-Instruction: {{ input }}
-
-Texts:
-{% for response in responses %}
-<text {{ loop.index }}> {{ response }}
-{%- endfor %}
-
-### Output
-""".lstrip()
-
 
 class UltraFeedback(Task):
     """UltraFeedback: Boosting Language Models with High-quality Feedback.
 
+    Attributes:
+        task: The task to perform with the `UltraFeedback` model. The available tasks are:
+            - `instruction-following`: Evaluate text outputs based on given instructions.
+            - `honesty`: Evaluate text outputs based on honesty.
+            - `truthfulness`: Evaluate text outputs based on truthfulness.
+            - `harmlessness`: Evaluate text outputs based on harmlessness.
+            - `helpfulness`: Evaluate text outputs based on helpfulness.
+
+    Input columns:
+        instruction (`str`): The reference instruction to evaluate the text outputs.
+        generations (`List[str]`): The text outputs to evaluate for the given instruction.
+
+    Output columns:
+        ratings (`List[float]`): The ratings for each of the provided text outputs.
+        rationales (`List[str]`): The rationales for each of the provided text outputs.
+        model_name (`str`): The name of the model used to generate the ratings and rationales.
+
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
-
-    Columns:
-
-    - `input`: instruction, generations
-    - `output`: ratings, rationales, model_name
     """
 
-    task_description: Optional[str] = None
-    ratings: Optional[List[Dict[str, Any]]] = None
-    system_prompt: str = (
-        "Your role is to evaluate text quality based on given criteria."
-    )
+    task: Literal[
+        "instruction-following",
+        "honesty",
+        "truthfulness",
+        "harmlessness",
+        "helpfulness",
+    ]
 
-    _template: Template = PrivateAttr(default=...)
+    _system_prompt: str = PrivateAttr(
+        default=(
+            "Your role is to evaluate text quality based on given criteria.\n"
+            'You\'ll receive an instructional description ("Instruction") and {no_texts} text outputs ("Text").\n'
+            "Understand and interpret instructions to evaluate effectively.\n"
+            "Provide annotations for each text with a rating and rationale.\n"
+            "The {no_texts} texts given are independent, and should be evaluated separately.\n"
+        )
+    )
+    _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
         super().load()
 
-        self._template = Template(_ULTRAFEEDBACK_TEMPLATE)
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "task"
+            / "templates"
+            / "ultrafeedback"
+            / f"{self.task}.jinja2"
+        )
+
+        self._template = Template(open(_path).read())
 
     @property
     def inputs(self) -> List[str]:
@@ -97,25 +94,25 @@ class UltraFeedback(Task):
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        messages = []
-        if self.system_prompt:
-            messages.append({"role": "system", "content": self.system_prompt})
-
-        render_kwargs = {
-            "task_description": self.task_description,
-            "ratings": self.ratings,
-            "input": input["instruction"],
-            "responses": input["generations"],
-        }
-        messages.append(
-            {"role": "user", "content": self._template.render(**render_kwargs)},
-        )
-        return messages
+        return [
+            {
+                "role": "system",
+                "content": self._system_prompt.format(
+                    no_texts=len(input["generations"])
+                ),
+            },
+            {
+                "role": "user",
+                "content": self._template.render(  # type: ignore
+                    instruction=input["instruction"], generations=input["generations"]
+                ),
+            },
+        ]
 
     @property
     def outputs(self) -> List[str]:
         """The output for the task is the `generation` and the `model_name`."""
-        return ["ratings", "rationales", "model_name"]
+        return ["ratings", "rationales", "raw", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
