@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from pydantic import PrivateAttr
 
@@ -58,7 +58,7 @@ class VertexAILLM(AsyncLLM):
     - Using `vertexai.init` function from the `google-cloud-aiplatform` library
 
     Attributes:
-        model: the model name to use for the LLM e.g. "gemini-pro". [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).
+        model: the model name to use for the LLM e.g. "gemini-1.0-pro". [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).
     """
 
     model: str
@@ -87,8 +87,6 @@ class VertexAILLM(AsyncLLM):
                 "vertexai is not installed. Please install it using"
                 " `pip install google-cloud-aiplatform`."
             ) from e
-        except Exception as e:
-            raise e
 
         if _is_gemini_model(self.model):
             self._aclient = GenerativeModel(model_name=self.model)
@@ -155,19 +153,31 @@ class VertexAILLM(AsyncLLM):
             A list of lists of strings containing the generated responses for each input.
         """
         contents = self._chattype_to_content(input)
-        content = await self._aclient.generate_content_async(
-            contents=contents,
-            generation_config=self._generation_config_class(
-                candidate_count=num_generations,
-                temperature=temperature,
-                top_k=top_k,
-                top_p=top_p,
-                max_output_tokens=max_output_tokens,
-                stop_sequences=stop_sequences,
-            ),
-            safety_settings=safety_settings,
-            tools=tools,
-            stream=False,
-        )
+        generations = []
+        for _ in range(num_generations):
+            content = await self._aclient.generate_content_async(
+                contents=contents,
+                generation_config=self._generation_config_class(
+                    candidate_count=1,  # only one candidate allowed per call
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p,
+                    max_output_tokens=max_output_tokens,
+                    stop_sequences=stop_sequences,
+                ),
+                safety_settings=safety_settings,
+                tools=tools,
+                stream=False,
+            )
 
-        return [candidate.text for candidate in content.candidates]
+            text = None
+            try:
+                text = content.candidates[0].text
+            except ValueError:
+                self._logger.warning(
+                    f"Received no response using VertexAI client (model: '{self.model}')."
+                    f" Finish reason was: '{content.candidates[0].finish_reason}'."
+                )
+            generations.append(text)
+
+        return generations
