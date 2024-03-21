@@ -64,6 +64,7 @@ class LoadHubDataset(GeneratorStep):
 
     Runtime parameters:
 
+    - `batch_size`: The batch size to use when processing the data.
     - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
     - `split`: The split of the dataset to load.
     - `config`: The configuration of the dataset to load. This is optional and only needed if the
@@ -114,7 +115,7 @@ class LoadHubDataset(GeneratorStep):
         num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
         for batch_num, batch in enumerate(
-            self._dataset.iter(batch_size=self.batch_size)
+            self._dataset.iter(batch_size=self.batch_size)  # type: ignore
         ):
             if batch_num * self.batch_size < offset:
                 continue

@@ -14,6 +14,7 @@
 
 import asyncio
 import logging
+import sys
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -23,12 +24,14 @@ from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.llm.typing import HiddenState
+    from distilabel.llm.typing import GenerateOutput, HiddenState
     from distilabel.steps.task.typing import ChatType
 
 
 class LLM(BaseModel, _Serializable, ABC):
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
+    )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _logger: logging.Logger = PrivateAttr(get_logger("llm"))
@@ -49,7 +52,7 @@ class LLM(BaseModel, _Serializable, ABC):
         inputs: List["ChatType"],
         num_generations: int = 1,
         **kwargs: Any,
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         """Abstract method to be implemented by each LLM to generate `num_generations`
         per input in `inputs`."""
         pass
@@ -71,7 +74,7 @@ class LLM(BaseModel, _Serializable, ABC):
     def _handle_api_key_value(
         self,
         self_value: Union[str, SecretStr, None],
-        load_value: Union[str, None],
+        load_value: Union[str, SecretStr, None],
         env_var: str,
     ) -> SecretStr:
         """Method to handle the API key for the LLM, either from the `self_value` or the
@@ -149,7 +152,7 @@ class AsyncLLM(LLM):
         inputs: List["ChatType"],
         num_generations: int = 1,
         **kwargs: Any,
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         """Method to generate a list of responses asynchronously, returning the output
         synchronously awaiting for the response of each input sent to `agenerate`.
         """
@@ -172,4 +175,7 @@ class AsyncLLM(LLM):
 
     def __del__(self) -> None:
         """Closes the event loop when the object is deleted."""
-        self.event_loop.close()
+        if sys.meta_path is None:
+            return
+        if self.event_loop is not None:
+            self.event_loop.close()
