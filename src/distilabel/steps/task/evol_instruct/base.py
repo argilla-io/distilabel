@@ -131,7 +131,7 @@ class EvolInstruct(Task):
             _output["evolved_instructions"] = instructions
 
         if self.generate_answers and answer is not None:
-            _output["answer"] = answer[-1]
+            _output["answer"] = answer
 
         _output["model_name"] = self.llm.model_name
         return _output
@@ -187,7 +187,6 @@ class EvolInstruct(Task):
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
-                generated_prompt = generated_prompt[-1]
                 generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
                 evolved_instructions.append(generated_prompt)
 

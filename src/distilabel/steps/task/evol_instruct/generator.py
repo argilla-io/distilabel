@@ -166,7 +166,7 @@ class EvolInstructGenerator(GeneratorTask):
             "model_name": self.llm.model_name,
         }
         if self.generate_answers and answer is not None:
-            _output["answer"] = answer[-1]
+            _output["answer"] = answer
         return _output
 
     @property
@@ -256,7 +256,6 @@ class EvolInstructGenerator(GeneratorTask):
                 )
             )
             for idx, generated_prompt in enumerate(generated_prompts):
-                generated_prompt = generated_prompt[-1]
                 generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
                 if self.max_length >= len(generated_prompt) >= self.min_length:  # type: ignore
                     instructions.append(generated_prompt)

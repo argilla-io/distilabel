@@ -14,6 +14,7 @@
 
 
 import pytest
+from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.evol_instruct.base import (
     EvolInstruct,
@@ -22,8 +23,6 @@ from distilabel.steps.task.evol_instruct.utils import (
     MutationTemplates,
 )
 from pydantic import ValidationError
-
-from tests.unit.steps.task.utils import DummyLLM
 
 
 class TestEvolInstruct:
@@ -72,7 +71,6 @@ class TestEvolInstruct:
                 }
             ]
         ]
-
 
     def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()

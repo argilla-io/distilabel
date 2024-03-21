@@ -14,29 +14,29 @@
 
 
 import pytest
+from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.evol_quality.base import (
     EvolQuality,
 )
 from pydantic import ValidationError
 
-from tests.unit.steps.task.utils import DummyLLM
-
 
 class TestEvolInstruct:
-    def test_with_errors(self) -> None:
+    def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
             EvolQuality(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            EvolQuality(name="task", llm=DummyLLM(), num_evolutions=2)
+            EvolQuality(name="task", llm=dummy_llm, num_evolutions=2)
 
-    def test_process(self) -> None:
+    def test_process(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = EvolQuality(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = EvolQuality(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
         assert list(task.process([{"instruction": "test", "response": "mock"}])) == [
             [
                 {
@@ -48,12 +48,11 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_process_store_evolutions(self) -> None:
+    def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolQuality(
             name="task",
-            llm=llm,
+            llm=dummy_llm,
             num_evolutions=2,
             store_evolutions=True,
             pipeline=pipeline,
@@ -69,10 +68,11 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_serialization(self) -> None:
+    def test_serialization(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = EvolQuality(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = EvolQuality(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,

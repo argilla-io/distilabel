@@ -14,6 +14,7 @@
 
 
 import pytest
+from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.evol_instruct.generator import (
     EvolInstructGenerator,
