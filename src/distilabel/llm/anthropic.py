@@ -35,7 +35,6 @@ from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
-    from anthropic._types import NOT_GIVEN, NotGiven
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
@@ -116,10 +115,10 @@ class AnthropicLLM(AsyncLLM):
         self,
         input: "ChatType",
         max_tokens: int = 128,
-        stop_sequences: Union[List[str], NotGiven] = NOT_GIVEN,
+        stop_sequences: Union[List[str], None] = None,
         temperature: float = 1.0,
-        top_p: Union[float, NotGiven] = NOT_GIVEN,
-        top_k: Union[int, NotGiven] = NOT_GIVEN,
+        top_p: Union[float, None] = None,
+        top_k: Union[int, None] = None,
     ) -> "GenerateOutput":
         """Generates a response asynchronously, using the [Anthropic Async API definition](https://github.com/anthropics/anthropic-sdk-python).
 
@@ -146,10 +145,10 @@ class AnthropicLLM(AsyncLLM):
             messages=input,
             max_tokens=max_tokens,
             stream=False,
-            stop_sequences=stop_sequences,
+            stop_sequences=NOT_GIVEN if stop_sequences is None else stop_sequences,
             temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
+            top_p=NOT_GIVEN if top_p is None else top_p,
+            top_k=NOT_GIVEN if top_k is None else top_k,
         )
         generations = []
         if (content := completion.content[0].text) is None:
