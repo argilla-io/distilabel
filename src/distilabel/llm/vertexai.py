@@ -62,9 +62,9 @@ class VertexAILLM(AsyncLLM):
     """
 
     model: str
-    _aclient: Optional["GenerativeModel"] = PrivateAttr(...)
-    _content_class: Optional["Content"] = PrivateAttr(...)
-    _part_class: Optional["Part"] = PrivateAttr(...)
+    _aclient: Optional[Type["GenerativeModel"]] = PrivateAttr(...)
+    _content_class: Optional[Type["Content"]] = PrivateAttr(...)
+    _part_class: Optional[Type["Part"]] = PrivateAttr(...)
     _generation_config_class: Optional["GenerationConfig"] = PrivateAttr(...)
     _logger = PrivateAttr(default=get_logger("llm"))
 
@@ -94,7 +94,7 @@ class VertexAILLM(AsyncLLM):
             self._aclient = GenerativeModel(model_name=self.model)
         else:
             raise NotImplementedError(
-                "`VertexAILLM` is only implemented for `gemini` models that allow for `ChatType`data."
+                "`VertexAILLM` is only implemented for `gemini` models that allow for `ChatType` data."
             )
 
     @property
