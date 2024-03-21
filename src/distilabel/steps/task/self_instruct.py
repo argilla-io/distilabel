@@ -52,7 +52,7 @@ class SelfInstruct(Task):
 
     Input columns:
         num_instructions (`int`): The number of instructions to be generated. Defaults to 5.
-        criteria_for_query_generation (`str`): The criteria for the query generation. Defaults to the criteria seen in the constant value.
+        criteria_for_query_generation (`str`): The criteria for the query generation. Defaults to the criteria defined within the paper.
         application_description (`str`): The description of the AI application that
             one want to build with these instructions. Defaults to `AI assistant`.
         input (`str`): The input to generate the instructions. It's also called seed in the paper
@@ -77,18 +77,22 @@ class SelfInstruct(Task):
 
     @property
     def inputs(self) -> List[str]:
-        """The input for the task are `num_instructions`, `criteria_for_query_generation`, `application_description` and `input`."""
+        """The input for the task is the `input` i.e. seed text."""
         return ["input"]
 
-    def format_input(self, input: str) -> "ChatType":
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
-        input["application_description"] = self.application_description
-        input["criteria_for_query_generation"] = self.criteria_for_query_generation
-        input["num_instructions"] = self.num_instructions
-
-        return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
+        return [{
+            "role": "user",
+            "content": self._template.render(
+                input=input["input"],
+                application_description=self.application_description,
+                criteria_for_query_generation=self.criteria_for_query_generation,
+                num_instructions=self.num_instructions,
+            )
+        }]
 
     @property
     def outputs(self):
@@ -99,20 +103,15 @@ class SelfInstruct(Task):
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         """The output is formatted as a list with the generated instructions.
+
         Args:
             output: the raw output of the LLM.
             input: the input to the task. Used for obtaining the number of responses.
+
         Returns:
             A dict with containing the generated instructions.
         """
 
-        instructions = []
-        instruction_lines = output.split("\n")
-
-        for _, line in enumerate(instruction_lines):
-            # Skip empty lines
-            if line == "":
-                continue
-            instructions.append(line)
-
-        return {self.outputs[0]: instructions}
+        return {
+            "instructions": [line for line in output.split("\n") if line != ""],
+        }
