@@ -33,9 +33,11 @@ class LoadData(GeneratorStep):
 
     - `batch_size`: The batch size to use when processing the data.
 
-    Columns:
-    - `input`: None
-    - `output`: dynamic, based on the keys found on the first dictionary of the list
+    Input columns:
+        None
+
+    Output columns:
+        Dynamic, based on the keys found on the first dictionary of the list
     """
 
     data: List[Dict[str, Any]]
@@ -52,7 +54,7 @@ class LoadData(GeneratorStep):
         """
         if offset:
             self.data = self.data[offset:]
-        
+
         while self.data:
             batch = self.data[: self.batch_size]
             self.data = self.data[self.batch_size :]
