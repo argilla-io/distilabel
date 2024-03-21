@@ -22,14 +22,31 @@ from distilabel.llm.openai import OpenAILLM
 
 @patch("openai.AsyncOpenAI")
 class TestOpenAILLM:
-    def test_openai_llm(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+    model_id: str = "gpt-4"
+
+    def test_openai_llm(self, _: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+
         assert isinstance(llm, OpenAILLM)
-        assert llm.model_name == "gpt-4"
+        assert llm.model_name == self.model_id
+
+    def test_openai_llm_env_vars(self, _: MagicMock) -> None:
+        os.environ["OPENAI_API_KEY"] = "another.api.key"
+        os.environ["OPENAI_BASE_URL"] = "https://example.com"
+
+        llm = OpenAILLM(model=self.model_id)
+
+        assert isinstance(llm, OpenAILLM)
+        assert llm.model_name == self.model_id
+        assert llm.base_url == "https://example.com"
+        assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
+
+        del os.environ["OPENAI_API_KEY"]
+        del os.environ["OPENAI_BASE_URL"]
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = mock_openai
 
         mocked_completion = Mock(
@@ -49,7 +66,7 @@ class TestOpenAILLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = mock_openai
 
         mocked_completion = Mock(
@@ -71,13 +88,12 @@ class TestOpenAILLM:
             ]
         )
 
-    def test_serialization(self, mock_openai: MagicMock) -> None:
-        os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = OpenAILLM(model="gpt-4")  # type: ignore
+    def test_serialization(self, _: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id)
 
         _dump = {
-            "model": "gpt-4",
-            "base_url": None,
+            "model": self.model_id,
+            "base_url": "https://api.openai.com/v1",
             "type_info": {
                 "module": "distilabel.llm.openai",
                 "name": "OpenAILLM",
