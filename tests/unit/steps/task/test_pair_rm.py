@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.pair_rm import PairRM
 
 
+@patch("llm_blender.Blender")
 class TestPairRM:
     def test_process(self, mocker: MagicMock) -> None:
         ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
@@ -48,7 +49,7 @@ class TestPairRM:
             },
         ]
 
-    def test_serialization(self, mocker: MagicMock) -> None:
+    def test_serialization(self, _: MagicMock) -> None:
         ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
         assert ranker.dump() == {
             "name": ranker.name,
