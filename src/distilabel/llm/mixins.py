@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
 from pydantic import BaseModel, Field, PrivateAttr
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import DictProxy
     from multiprocessing.synchronize import Lock
 
 
@@ -43,7 +44,9 @@ class CudaDevicePlacementMixin(BaseModel):
     cuda_devices: Union[List[int], Literal["auto"]] = Field(default="auto")
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
-    _device_llm_placement_map: Union[Dict[str, Any], None] = PrivateAttr(default=None)
+    _device_llm_placement_map: Union["DictProxy[str, Any]", None] = PrivateAttr(
+        default=None
+    )
     _device_llm_placement_lock: Union["Lock", None] = PrivateAttr(default=None)
     _available_cuda_devices: Union[List[int], None] = PrivateAttr(default=None)
     _can_check_cuda_devices: bool = PrivateAttr(default=False)
@@ -77,7 +80,7 @@ class CudaDevicePlacementMixin(BaseModel):
     def set_device_placement_info(
         self,
         llm_identifier: str,
-        device_llm_placement_map: Dict[str, Any],
+        device_llm_placement_map: "DictProxy[str, Any]",
         device_llm_placement_lock: "Lock",
     ) -> None:
         """Sets the value of `_device_llm_placement_map` to be used to assign CUDA devices
