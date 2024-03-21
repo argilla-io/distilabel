@@ -50,6 +50,9 @@ class LoadData(GeneratorStep):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
+        if offset:
+            self.data = self.data[offset:]
+        
         while self.data:
             batch = self.data[: self.batch_size]
             self.data = self.data[self.batch_size :]
