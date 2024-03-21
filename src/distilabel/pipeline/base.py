@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     List,
@@ -606,23 +605,19 @@ class _BatchManager(_Serializable):
             batch and batch.last_batch for batch in self._last_batch_received.values()
         )
 
-    def register_batch(self, batch: _Batch, callback: Callable[[], None]) -> None:
+    def register_batch(self, batch: _Batch) -> None:
         """Method to register a batch received from a step. It will keep track of the
         sequence number and the last batch received from the step in the internal maps.
 
         Args:
             batch: _Batch from which we will register the sequence number and the last batch received.
-            callback: A callback to be called after the batch is registered.
         """
         self._last_batch_received[batch.step_name] = batch
-        callback()
 
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         return self._last_batch_received.get(step_name)
 
-    def add_batch(
-        self, to_step: str, batch: _Batch, callback: Callable[[], None]
-    ) -> Union[_Batch, None]:
+    def add_batch(self, to_step: str, batch: _Batch) -> Union[_Batch, None]:
         """Add an output batch from `batch.step_name` to `to_step`. If there is enough
         data for creating a `_Batch` for `to_step`, then it will return the batch to be
         processed. Otherwise, it will return `None`.

@@ -147,17 +147,11 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch to add to the `_BatchManager`.
         """
-        # Register the batch so we can keep track of the last batch processed
-        # by each step
-        self._batch_manager.register_batch(batch, lambda: self._cache())  # type: ignore
-
-        # Add the received batch to the `_BatchManager`, and send a new batch
-        # to successors if there is enough data
-        for step_name in self.dag.get_step_successors(batch.step_name):
-            if new_batch := self._batch_manager.add_batch(  # type: ignore
-                to_step=step_name, batch=batch, callback=lambda: self._cache()
-            ):
+        self._batch_manager.register_batch(batch)  # type: ignore
+        for to_step in self.dag.get_step_successors(batch.step_name):
+            if new_batch := self._batch_manager.add_batch(to_step, batch):  # type: ignore
                 self._send_batch_to_step(new_batch)
+        self._cache()
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
