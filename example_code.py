@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     with Pipeline() as pipeline:
         load_hub_dataset = LoadHubDataset(
-            name="load_hub_dataset", output_mappings={"prompt": "input"}
+            name="load_hub_dataset", output_mappings={"seeds": "input"}
         )
         self_instruct = SelfInstruct(
             name="self_instruct",
@@ -33,6 +33,7 @@ if __name__ == "__main__":
                 model="gpt-4",
                 api_key="",  # type: ignore
             ),
+            num_instructions=2,
         )
 
         push_to_hub = PushToHub(name="push_to_hub")  # type: ignore
@@ -43,8 +44,8 @@ if __name__ == "__main__":
     pipeline.run(
         parameters={
             "load_hub_dataset": {
-                "repo_id": "HuggingFaceH4/instruction-dataset",
-                "split": "test",
+                "repo_id": "ignacioct/math_topics",
+                "split": "train",
             },
             "push_to_hub": {
                 "repo_id": "ignacioct/selfinstruct",

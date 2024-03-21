@@ -88,6 +88,10 @@ class SelfInstruct(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
+        input["application_description"] = self.application_description
+        input["criteria_for_query_generation"] = self.criteria_for_query_generation
+        input["num_instructions"] = self.num_instructions
+
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
 
     @property
@@ -109,11 +113,10 @@ class SelfInstruct(Task):
         instructions = []
         instruction_lines = output.split("\n")
 
-        for i, line in enumerate(instruction_lines):
-            match = _PARSE_OUTPUT_REGEX.match(line)
-            instruction = float(match.group(1)) if match else None
-            instructions.append(instruction)
-            if i == len(input["instructions"]) - 1:
-                break
+        for _, line in enumerate(instruction_lines):
+            # Skip empty lines
+            if line == "":
+                continue
+            instructions.append(line)
 
         return {self.outputs[0]: instructions}
