@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pydantic import PrivateAttr
+import os
+from typing import Optional
+
+from pydantic import Field, PrivateAttr, SecretStr
 
 from distilabel.llm.openai import OpenAILLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+_ANYSCALE_API_KEY_ENV_VAR_NAME = "ANYSCALE_API_KEY"
 
 
 class AnyscaleLLM(OpenAILLM):
@@ -33,6 +39,13 @@ class AnyscaleLLM(OpenAILLM):
             `None` if not set.
     """
 
-    _base_url_env_var: str = PrivateAttr(default="ANYSCALE_BASE_URL")
-    _default_base_url: str = PrivateAttr("https://api.endpoints.anyscale.com/v1")
-    _api_key_env_var: str = PrivateAttr(default="ANYSCALE_API_KEY")
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default=os.getenv("ANYSCALE_BASE_URL", "https://api.endpoints.anyscale.com/v1"),
+        description="The base URL to use for the Anyscale API requests.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default=os.getenv(_ANYSCALE_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Anyscale API.",
+    )
+
+    _api_key_env_var: str = PrivateAttr(_ANYSCALE_API_KEY_ENV_VAR_NAME)

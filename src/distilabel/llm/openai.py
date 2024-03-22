@@ -13,23 +13,20 @@
 # limitations under the License.
 
 import os
-import sys
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
-
-from pydantic import PrivateAttr, SecretStr, model_validator
+from pydantic import Field, PrivateAttr, SecretStr
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+_OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
 
 
 class OpenAILLM(AsyncLLM):
@@ -47,25 +44,19 @@ class OpenAILLM(AsyncLLM):
     """
 
     model: str
-    base_url: Optional[str] = None
-    api_key: Optional[SecretStr] = None
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+        description="The base URL to use for the OpenAI API requests.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default=os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the OpenAI API.",
+    )
 
-    _base_url_env_var: str = PrivateAttr(default="OPENAI_BASE_URL")
-    _default_base_url: str = PrivateAttr("https://api.openai.com/v1")
-    _api_key_env_var: str = PrivateAttr(default="OPENAI_API_KEY")
+    _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
 
-    @model_validator(mode="after")
-    def base_url_provided_or_env_var(self) -> Self:
-        if self.base_url is None:
-            self.base_url = os.getenv(self._base_url_env_var, self._default_base_url)
-        if self.api_key is None:
-            self.api_key = os.getenv(self._api_key_env_var, None)  # type: ignore
-        if self.api_key is not None and isinstance(self.api_key, str):
-            self.api_key = SecretStr(self.api_key)
-        return self
-
-    def load(self, api_key: Optional[Union[str, SecretStr]] = None) -> None:
+    def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
 
         try:
@@ -76,13 +67,11 @@ class OpenAILLM(AsyncLLM):
                 " `pip install openai`."
             ) from ie
 
-        # TODO: this may not be needed at the end, and a simple `self.api_key = self.api_key or api_key`
-        # may do the work.
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key,
-            load_value=api_key,
-            env_var=self._api_key_env_var,
-        )
+        if self.api_key is None:
+            raise ValueError(
+                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
+                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
+            )
 
         self._aclient = AsyncOpenAI(
             base_url=self.base_url,
