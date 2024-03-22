@@ -15,6 +15,8 @@
 import re
 import sys
 
+from distilabel.utils.dicts import combine_dicts
+
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
@@ -152,51 +154,82 @@ class UltraFeedback(Task):
             "instruction-following",
             "overall-rating",
         ]:
-            return self._format_ratings_rationales_output(output)
+            return self._format_ratings_rationales_output(output, input)
         else:
-            return self._format_types_ratings_rationales_output(output)
+            return self._format_types_ratings_rationales_output(output, input)
 
     def _format_ratings_rationales_output(
-        self, output: Union[str, None]
-    ) -> Dict[str, Any]:
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, List[Any]]:
         """Formats the output when the aspect is either `honesty`, `instruction-following`, or `overall-rating`."""
-        pattern = r"Rating: (.+?)\nRationale: (.+)"
-
-        matches = None
-        if output is not None and output != "":
-            matches = re.search(pattern, output, re.DOTALL)
-        if not matches:
-            return {"ratings": "N/A", "rationales": "N/A"}
-
-        return {
-            "ratings": re.findall(r"\b\d+\b", matches.group(1))[0]
-            if matches.group(1) != "N/A"
-            else "N/A",
-            "rationales": matches.group(2),
-        }
-
-    def _format_types_ratings_rationales_output(
-        self, output: Union[str, None]
-    ) -> Dict[str, Any]:
-        """Formats the output when the aspect is either `helpfulness` or `truthfulness`."""
-        pattern = r"Type: (.+?)\nRationale: (.+?)\nRating: (.+?)\nRationale: (.+)"
-
-        matches = None
-        if output is not None and output != "":
-            matches = re.search(pattern, output, re.DOTALL)
-        if not matches:
+        if output is None:
             return {
-                "types": "N/A",
-                "rationales": "N/A",
-                "ratings": "N/A",
-                "rationales-for-ratings": "N/A",
+                "ratings": ["N/A"] * len(input["generations"]),
+                "rationales": ["N/A"] * len(input["generations"]),
             }
 
-        return {
-            "types": re.findall(r"\b\d+\b", matches.group(1))
-            if matches.group(1) != "None"
-            else "None",
-            "rationales": matches.group(2),
-            "ratings": re.findall(r"\b\d+\b", matches.group(3))[0],
-            "rationales-for-ratings": matches.group(4),
-        }
+        pattern = r"Rating: (.+?)\nRationale: (.+)"
+        sections = output.split("\n\n")
+
+        formatted_outputs = []
+        for section in sections:
+            matches = None
+            if section is not None and section != "":
+                matches = re.search(pattern, section, re.DOTALL)
+            if not matches:
+                formatted_outputs.append({"ratings": "N/A", "rationales": "N/A"})
+                continue
+
+            formatted_outputs.append(
+                {
+                    "ratings": int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                    if matches.group(1) != "N/A"
+                    else "N/A",
+                    "rationales": matches.group(2),
+                }
+            )
+        return combine_dicts(*formatted_outputs)
+
+    def _format_types_ratings_rationales_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, List[Any]]:
+        """Formats the output when the aspect is either `helpfulness` or `truthfulness`."""
+        if output is None:
+            return {
+                "types": ["N/A"] * len(input["generations"]),
+                "rationales": ["N/A"] * len(input["generations"]),
+                "ratings": ["N/A"] * len(input["generations"]),
+                "rationales-for-ratings": ["N/A"] * len(input["generations"]),
+            }
+
+        pattern = r"Type: (.+?)\nRationale: (.+?)\nRating: (.+?)\nRationale: (.+)"
+
+        sections = output.split("\n\n")
+
+        formatted_outputs = []
+        for section in sections:
+            matches = None
+            if section is not None and section != "":
+                matches = re.search(pattern, section, re.DOTALL)
+            if not matches:
+                formatted_outputs.append(
+                    {
+                        "types": "N/A",
+                        "rationales": "N/A",
+                        "ratings": "N/A",
+                        "rationales-for-ratings": "N/A",
+                    }
+                )
+                continue
+
+            formatted_outputs.append(
+                {
+                    "types": int(re.findall(r"\b\d+\b", matches.group(1))[0])
+                    if matches.group(1) != "None"
+                    else "None",
+                    "rationales": matches.group(2),
+                    "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0]),
+                    "rationales-for-ratings": matches.group(4),
+                }
+            )
+        return combine_dicts(*formatted_outputs)
