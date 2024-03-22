@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import sys
 
 if sys.version_info < (3, 9):
@@ -116,7 +117,12 @@ class UltraFeedback(Task):
     @property
     def outputs(self) -> List[str]:
         """The output for the task is the `generation` and the `model_name`."""
-        return ["ratings", "rationales", "model_name"]
+        columns = []
+        if self.aspect in ["honesty", "instruction-following"]:
+            columns = ["rating", "rationale"]
+        elif self.aspect in ["helpfulness", "truthfulness"]:
+            columns = ["type", "rationale", "rating", "rationale-for-rating"]
+        return columns + ["model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -130,19 +136,67 @@ class UltraFeedback(Task):
             input: the input to the task, as required by some tasks to format the output.
 
         Returns:
-            A dictionary containing the `ratings` and `rationales` for each of the provided
-            `generations` for the given `instruction`.
+            A dictionary containing either the `ratings` and `rationales` for each of the provided
+            `generations` for the given `instruction` if the provided aspect is either `honesty`
+            or `instruction-following`, or the `type`, `rationale`, `rating`, and `rationale-for-rating`
+            for each of the provided `generations` for the given `instruction` if the provided aspect is
+            either `helpfulness` or `truthfulness`.
         """
-        formatted_output = {"rationales": [], "ratings": []}
+        if self.aspect in ["honesty", "instruction-following"]:
+            return self._format_honesty_and_instruction_following_output(output)
 
-        if output:
-            for section in output.split("#### Output for Text ")[1:]:
-                rating, rationale = section.split("\n")[1:3]
+        if self.aspect in ["helpfulness", "truthfulness"]:
+            return self._format_helpfulness_and_truthfulness_output(output)
 
-                rating = float(rating.split(": ")[1])
-                formatted_output["ratings"].append(rating)
+        return self._format_custom_overall_assessment_output(output)
 
-                rationale = rationale.split(": ")[1]
-                formatted_output["rationales"].append(rationale)
+    def _format_honesty_and_instruction_following_output(
+        self, output: Union[str, None]
+    ) -> Dict[str, Any]:
+        """Formats the output when the aspect is either `honesty` or `instruction-following`."""
+        pattern = r"Rating: (.+?)\nRationale: (.+)"
 
-        return formatted_output
+        matches = None
+        if output is not None and output != "":
+            matches = re.search(pattern, output, re.DOTALL)
+        if not matches:
+            return {"rating": "N/A", "rationale": "N/A"}
+
+        return {
+            "rating": re.findall(r"\b\d+\b", matches.group(1))[0]
+            if matches.group(1) != "N/A"
+            else "N/A",
+            "rationale": matches.group(2),
+        }
+
+    def _format_helpfulness_and_truthfulness_output(
+        self, output: Union[str, None]
+    ) -> Dict[str, Any]:
+        """Formats the output when the aspect is either `helpfulness` or `truthfulness`."""
+        pattern = r"Type: (.+?)\nRationale: (.+?)\nRating: (.+?)\nRationale: (.+)"
+
+        matches = None
+        if output is not None and output != "":
+            matches = re.search(pattern, output, re.DOTALL)
+        if not matches:
+            return {
+                "type": "N/A",
+                "rationale": "N/A",
+                "rating": "N/A",
+                "rationale-for-rating": "N/A",
+            }
+
+        return {
+            "type": re.findall(r"\b\d+\b", matches.group(1))
+            if matches.group(1) != "None"
+            else "None",
+            "rationale": matches.group(2),
+            "rating": re.findall(r"\b\d+\b", matches.group(3))[0],
+            "rationale-for-rating": matches.group(4),
+        }
+
+    def _format_custom_overall_assessment_output(
+        self, output: Union[str, None]
+    ) -> Dict[str, Any]:
+        """Formats the output when the aspect is `custom-overall-assessment`."""
+        return {}
