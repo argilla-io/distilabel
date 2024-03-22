@@ -75,8 +75,4 @@ class TestUltraCM:
         task.load()
 
         result = task.format_output(output=output)
-        import json
-
-        print(json.dumps(result, indent=2))
-
         assert result == expected
