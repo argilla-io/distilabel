@@ -90,9 +90,12 @@ class BasePipeline(_Serializable):
         dag: The `DAG` instance that represents the pipeline.
     """
 
-    def __init__(self, cache_dir: Optional["PathLike"] = None) -> None:
+    def __init__(
+        self, cache_dir: Optional["PathLike"] = None, use_cache: bool = True
+    ) -> None:
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
+        self._use_cache = use_cache
         self._logger = get_logger("pipeline")
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
@@ -255,6 +258,9 @@ class BasePipeline(_Serializable):
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
+        if not self._use_cache:
+            return
+
         self.save(
             path=self._cache_location["pipeline"],
             format=self._cache_location["pipeline"].suffix.replace(".", ""),
@@ -269,9 +275,11 @@ class BasePipeline(_Serializable):
         """Will try to load the `BasePipeline` from the cache dir if found, updating
         the internal `DAG` and `_BatchManager`.
         """
+        if not self._use_cache:
+            return
+
         # Store the _cache_filename in a variable to avoid it changing when refreshing
         # the dag
-
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
