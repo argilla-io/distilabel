@@ -182,7 +182,7 @@ class EvolInstruct(Task):
             generated_prompts = flatten_responses(
                 self.llm.generate(
                     formatted_prompts,
-                    **self.generation_kwargs,  # type: ignore
+                    **self.llm.generation_kwargs,  # type: ignore
                 )
             )
 
@@ -226,7 +226,7 @@ class EvolInstruct(Task):
         ]
         responses = self.llm.generate(
             _formatted_instructions,
-            **self.generation_kwargs,  # type: ignore
+            **self.llm.generation_kwargs,  # type: ignore
         )
         return flatten_responses(responses)
 
