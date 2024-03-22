@@ -13,14 +13,14 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
 from distilabel.llm.base import LLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
-    RuntimeParameter,
     Step,
     StepInput,
     _Step,
@@ -55,25 +55,10 @@ class _Task(_Step, ABC):
     """
 
     llm: LLM
-    llm_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
-        default_factory=dict,
-        description="The kwargs to be propagated to the `LLM` constructor. Note that these"
-        " kwargs will be specific to each LLM, and while some as `model` may be present"
-        " on each `LLM`, some others may not, so read the `LLM` constructor signature in"
-        " advance to see which kwargs are available.",
-    )
 
     group_generations: bool = False
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
-    )
-    generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
-        default_factory=dict,
-        description="The kwargs to be propagated to either `generate` or `agenerate`"
-        " methods within each `LLM`. Note that these kwargs will be specific to each"
-        " LLM, and while some as `temperature` may be present on each `LLM`, some others"
-        " may not, so read the `LLM.{generate,agenerate}` signatures in advance to see"
-        " which kwargs are available.",
     )
 
     @property
@@ -86,10 +71,10 @@ class _Task(_Step, ABC):
             A dictionary with the name of the runtime parameters as keys and a boolean
             indicating if the parameter is optional or not.
         """
-        runtime_parameters_names = super().runtime_parameters_names
-        for param, is_optional in self.llm.runtime_parameters_names.items():
-            runtime_parameters_names[f"generation_kwargs.{param}"] = is_optional
-        return runtime_parameters_names
+        return {
+            **super().runtime_parameters_names,
+            **self.llm.runtime_parameters_names,
+        }
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
@@ -135,7 +120,7 @@ class _Task(_Step, ABC):
         """Returns a dictionary with the outputs of the task set to `None`."""
         return {output: None for output in self.outputs}  # type: ignore
 
-    def _get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
         """Gets the information of the runtime parameters of the task such as the name and
         the description, as well as the information of the runtime parameters of the LLM
         used by the task. This function is meant to include the information of the runtime
@@ -144,18 +129,10 @@ class _Task(_Step, ABC):
         Returns:
             A list containing the information for each runtime parameter of the task.
         """
-        runtime_parameters_info = super()._get_runtime_parameters_info()
-        for runtime_parameter_info in runtime_parameters_info:
-            if runtime_parameter_info["name"] == "generation_kwargs":
-                generate_docstring_args = self.llm.generate_parsed_docstring["args"]
-                runtime_parameter_info["keys"] = []
-                for name, is_optional in self.llm.runtime_parameters_names.items():
-                    key = {"name": name, "optional": is_optional}
-                    if description := generate_docstring_args.get(name):
-                        key["description"] = description
-                    runtime_parameter_info["keys"].append(key)
-                break
-        return runtime_parameters_info
+        return (
+            super().get_runtime_parameters_info()
+            + self.llm.get_runtime_parameters_info()
+        )
 
 
 class Task(_Task, Step):

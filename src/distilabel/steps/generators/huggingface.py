@@ -19,7 +19,8 @@ import requests
 from datasets import IterableDataset, load_dataset
 from pydantic import Field, PrivateAttr
 
-from distilabel.steps.base import GeneratorStep, RuntimeParameter
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput

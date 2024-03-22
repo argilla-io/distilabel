@@ -14,8 +14,9 @@
 
 from typing import Any, Dict, Generator, List
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import RuntimeParameter, Step, StepInput
+from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
 from distilabel.utils.distiset import Distiset
 

@@ -18,10 +18,14 @@ import logging
 import sys
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, PrivateAttr, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, SecretStr
 
+from distilabel.mixins.runtime_parameters import (
+    RuntimeParameter,
+    RuntimeParametersMixin,
+)
 from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
@@ -32,9 +36,18 @@ if TYPE_CHECKING:
     from distilabel.utils.docstring import Docstring
 
 
-class LLM(BaseModel, _Serializable, ABC):
+class LLM(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
     model_config = ConfigDict(
         arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
+    )
+
+    generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to either `generate` or `agenerate`"
+        " methods within each `LLM`. Note that these kwargs will be specific to each"
+        " LLM, and while some as `temperature` may be present on each `LLM`, some others"
+        " may not, so read the `LLM.{generate,agenerate}` signatures in advance to see"
+        " which kwargs are available.",
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
@@ -80,13 +93,49 @@ class LLM(BaseModel, _Serializable, ABC):
             A dictionary with the name of the runtime parameters as keys and a boolean
             indicating if the parameter is optional or not.
         """
-        runtime_parameters = {}
+        runtime_parameters = super().runtime_parameters_names
+
+        # runtime parameters from the `generate` method
         for param in self.generate_parameters:
-            if param.name not in ["input", "inputs", "num_generations"]:
+            if param.name in ["input", "inputs", "num_generations"]:
                 continue
             is_optional = param.default != inspect.Parameter.empty
-            runtime_parameters[param.name] = is_optional
+            runtime_parameters[f"generation_kwargs.{param.name}"] = is_optional
+
         return runtime_parameters
+
+    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+        """Gets the information of the runtime parameters of the `LLM` such as the name
+        and the description. This function is meant to include the information of the runtime
+        parameters in the serialized data of the `LLM`.
+
+        Returns:
+            A list containing the information for each runtime parameter of the `LLM`.
+        """
+        runtime_parameters_info = super().get_runtime_parameters_info()
+
+        generation_kwargs_info = next(
+            runtime_parameter_info
+            for runtime_parameter_info in runtime_parameters_info
+            if runtime_parameter_info["name"] == "generation_kwargs"
+        )
+
+        generate_docstring_args = self.generate_parsed_docstring["args"]
+
+        generation_kwargs_info["keys"] = []
+        for name, is_optional in self.runtime_parameters_names.items():
+            if not name.startswith("generation_kwargs."):
+                continue
+
+            key = {"name": name, "optional": is_optional}
+
+            arg_name = name.split(".", 1)[1]
+            if description := generate_docstring_args.get(arg_name):
+                key["description"] = description
+
+            generation_kwargs_info["keys"].append(key)
+
+        return runtime_parameters_info
 
     @cached_property
     def generate_parsed_docstring(self) -> "Docstring":

@@ -14,7 +14,7 @@
 
 import sys
 
-from distilabel.steps.base import RuntimeParameter
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.lists import flatten_responses
 
 if sys.version_info < (3, 9):
