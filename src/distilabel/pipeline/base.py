@@ -264,9 +264,6 @@ class BasePipeline(_Serializable):
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
-        if not self._use_cache:
-            return
-
         self.save(
             path=self._cache_location["pipeline"],
             format=self._cache_location["pipeline"].suffix.replace(".", ""),
@@ -284,8 +281,6 @@ class BasePipeline(_Serializable):
         if not self._use_cache:
             return
 
-        # Store the _cache_filename in a variable to avoid it changing when refreshing
-        # the dag
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager

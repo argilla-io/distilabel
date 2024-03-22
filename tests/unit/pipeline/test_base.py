@@ -971,6 +971,7 @@ class TestPipelineSerialization:
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipeline:
+                print(len(pipeline.dag))
                 assert pipeline._use_cache == use_cache
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -980,15 +981,15 @@ class TestPipelineSerialization:
                 dummy_step_1.connect(dummy_step_2)
 
                 assert not pipeline._cache_location["pipeline"].exists()
+                # Set the _BatchManager to the pipeline to check it exists afterwards
+                pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
                 pipeline._cache()
-            # Check the file exists AFTER we are out of the context manager
-            if use_cache:
+
                 assert pipeline._cache_location["pipeline"].exists()
-            else:
-                assert not pipeline._cache_location["pipeline"].exists()
 
             with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipe:
                 assert pipe._use_cache == use_cache
+
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -996,15 +997,11 @@ class TestPipelineSerialization:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
 
-                cache_filename = pipe._cache_location["pipeline"]
-                # assert pipe._cache_location["pipeline"].exists()
-                # Run the pipeline and check the _cache_filename is the same afterwards
-                pipe.run()
+                pipe._load_from_cache()
                 if use_cache:
-                    assert pipe._cache_location["pipeline"].exists()
+                    assert pipe._batch_manager
                 else:
-                    assert not pipe._cache_location["pipeline"].exists()
-                assert cache_filename == pipe._cache_location["pipeline"]
+                    assert not pipe._batch_manager
 
 
 class TestWriteBuffer:
