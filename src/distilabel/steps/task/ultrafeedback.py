@@ -164,7 +164,7 @@ class UltraFeedback(Task):
         """Formats the output when the aspect is either `honesty`, `instruction-following`, or `overall-rating`."""
         if output is None:
             return {
-                "ratings": ["N/A"] * len(input["generations"]),
+                "ratings": [None] * len(input["generations"]),
                 "rationales": ["N/A"] * len(input["generations"]),
             }
 
@@ -184,7 +184,7 @@ class UltraFeedback(Task):
                 {
                     "ratings": int(re.findall(r"\b\d+\b", matches.group(1))[0])
                     if matches.group(1) != "N/A"
-                    else "N/A",
+                    else None,
                     "rationales": matches.group(2),
                 }
             )
@@ -196,9 +196,9 @@ class UltraFeedback(Task):
         """Formats the output when the aspect is either `helpfulness` or `truthfulness`."""
         if output is None:
             return {
-                "types": ["N/A"] * len(input["generations"]),
+                "types": [None] * len(input["generations"]),
                 "rationales": ["N/A"] * len(input["generations"]),
-                "ratings": ["N/A"] * len(input["generations"]),
+                "ratings": [None] * len(input["generations"]),
                 "rationales-for-ratings": ["N/A"] * len(input["generations"]),
             }
 
@@ -226,9 +226,11 @@ class UltraFeedback(Task):
                 {
                     "types": int(re.findall(r"\b\d+\b", matches.group(1))[0])
                     if matches.group(1) != "None"
-                    else "None",
+                    else None,
                     "rationales": matches.group(2),
-                    "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0]),
+                    "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0])
+                    if matches.group(3) != "None"
+                    else None,
                     "rationales-for-ratings": matches.group(4),
                 }
             )
