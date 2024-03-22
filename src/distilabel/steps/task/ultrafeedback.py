@@ -38,6 +38,9 @@ class UltraFeedback(Task):
             - `honesty`: Evaluate text outputs based on honesty.
             - `instruction-following`: Evaluate text outputs based on given instructions.
             - `truthfulness`: Evaluate text outputs based on truthfulness.
+            Additionally, a custom aspect has been defined by Argilla, so as to evaluate the overall
+            assessment of the text outputs within a single prompt. The custom aspect is:
+            - `overall-rating`: Evaluate text outputs based on an overall assessment.
 
     Input columns:
         instruction (`str`): The reference instruction to evaluate the text outputs.
@@ -63,6 +66,8 @@ class UltraFeedback(Task):
         "honesty",
         "instruction-following",
         "truthfulness",
+        # Custom aspects
+        "overall-rating",
     ]
 
     _system_prompt: str = PrivateAttr(
@@ -119,9 +124,9 @@ class UltraFeedback(Task):
         """The output for the task is the `generation` and the `model_name`."""
         columns = []
         if self.aspect in ["honesty", "instruction-following"]:
-            columns = ["rating", "rationale"]
+            columns = ["ratings", "rationales"]
         elif self.aspect in ["helpfulness", "truthfulness"]:
-            columns = ["type", "rationale", "rating", "rationale-for-rating"]
+            columns = ["types", "rationales", "ratings", "rationales-for-ratings"]
         return columns + ["model_name"]
 
     def format_output(
@@ -137,39 +142,40 @@ class UltraFeedback(Task):
 
         Returns:
             A dictionary containing either the `ratings` and `rationales` for each of the provided
-            `generations` for the given `instruction` if the provided aspect is either `honesty`
-            or `instruction-following`, or the `type`, `rationale`, `rating`, and `rationale-for-rating`
-            for each of the provided `generations` for the given `instruction` if the provided aspect is
-            either `helpfulness` or `truthfulness`.
+            `generations` for the given `instruction` if the provided aspect is either `honesty`,
+            `instruction-following`, or `overall-rating`; or the `types`, `rationales`,
+            `ratings`, and `rationales-for-ratings` for each of the provided `generations` for the
+            given `instruction` if the provided aspect is either `helpfulness` or `truthfulness`.
         """
-        if self.aspect in ["honesty", "instruction-following"]:
-            return self._format_honesty_and_instruction_following_output(output)
+        if self.aspect in [
+            "honesty",
+            "instruction-following",
+            "overall-rating",
+        ]:
+            return self._format_ratings_rationales_output(output)
+        else:
+            return self._format_types_ratings_rationales_output(output)
 
-        if self.aspect in ["helpfulness", "truthfulness"]:
-            return self._format_helpfulness_and_truthfulness_output(output)
-
-        return self._format_custom_overall_assessment_output(output)
-
-    def _format_honesty_and_instruction_following_output(
+    def _format_ratings_rationales_output(
         self, output: Union[str, None]
     ) -> Dict[str, Any]:
-        """Formats the output when the aspect is either `honesty` or `instruction-following`."""
+        """Formats the output when the aspect is either `honesty`, `instruction-following`, or `overall-rating`."""
         pattern = r"Rating: (.+?)\nRationale: (.+)"
 
         matches = None
         if output is not None and output != "":
             matches = re.search(pattern, output, re.DOTALL)
         if not matches:
-            return {"rating": "N/A", "rationale": "N/A"}
+            return {"ratings": "N/A", "rationales": "N/A"}
 
         return {
-            "rating": re.findall(r"\b\d+\b", matches.group(1))[0]
+            "ratings": re.findall(r"\b\d+\b", matches.group(1))[0]
             if matches.group(1) != "N/A"
             else "N/A",
-            "rationale": matches.group(2),
+            "rationales": matches.group(2),
         }
 
-    def _format_helpfulness_and_truthfulness_output(
+    def _format_types_ratings_rationales_output(
         self, output: Union[str, None]
     ) -> Dict[str, Any]:
         """Formats the output when the aspect is either `helpfulness` or `truthfulness`."""
@@ -180,23 +186,17 @@ class UltraFeedback(Task):
             matches = re.search(pattern, output, re.DOTALL)
         if not matches:
             return {
-                "type": "N/A",
-                "rationale": "N/A",
-                "rating": "N/A",
-                "rationale-for-rating": "N/A",
+                "types": "N/A",
+                "rationales": "N/A",
+                "ratings": "N/A",
+                "rationales-for-ratings": "N/A",
             }
 
         return {
-            "type": re.findall(r"\b\d+\b", matches.group(1))
+            "types": re.findall(r"\b\d+\b", matches.group(1))
             if matches.group(1) != "None"
             else "None",
-            "rationale": matches.group(2),
-            "rating": re.findall(r"\b\d+\b", matches.group(3))[0],
-            "rationale-for-rating": matches.group(4),
+            "rationales": matches.group(2),
+            "ratings": re.findall(r"\b\d+\b", matches.group(3))[0],
+            "rationales-for-ratings": matches.group(4),
         }
-
-    def _format_custom_overall_assessment_output(
-        self, output: Union[str, None]
-    ) -> Dict[str, Any]:
-        """Formats the output when the aspect is `custom-overall-assessment`."""
-        return {}
