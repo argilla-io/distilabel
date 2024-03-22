@@ -86,6 +86,12 @@ class _GlobalPipelineManager:
 class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
+    Args:
+        cache_dir: The directory where the pipeline will be cached. Defaults to `None`, which will
+            define it internally.
+        use_cache: A flag to indicate if the pipeline should be cached and loaded if available.
+            Defaults to `True`.
+
     Attributes:
         dag: The `DAG` instance that represents the pipeline.
     """
