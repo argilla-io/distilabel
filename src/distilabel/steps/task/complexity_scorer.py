@@ -74,7 +74,7 @@ class ComplexityScorer(Task):
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         if output is None:
-            return {self.outputs[0]: [None] * len(input["instructions"])}
+            return {"complexity_score": [None] * len(input["instructions"])}
 
         scores = []
         score_lines = output.split("\n")
@@ -85,4 +85,4 @@ class ComplexityScorer(Task):
             if i == len(input["instructions"]) - 1:
                 break
 
-        return {self.outputs[0]: scores}
+        return {"complexity_score": scores}
