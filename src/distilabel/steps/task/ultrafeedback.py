@@ -33,11 +33,10 @@ class UltraFeedback(Task):
 
     Attributes:
         task: The task to perform with the `UltraFeedback` model. The available tasks are:
-            - `instruction-following`: Evaluate text outputs based on given instructions.
-            - `honesty`: Evaluate text outputs based on honesty.
-            - `truthfulness`: Evaluate text outputs based on truthfulness.
-            - `harmlessness`: Evaluate text outputs based on harmlessness.
             - `helpfulness`: Evaluate text outputs based on helpfulness.
+            - `honesty`: Evaluate text outputs based on honesty.
+            - `instruction-following`: Evaluate text outputs based on given instructions.
+            - `truthfulness`: Evaluate text outputs based on truthfulness.
 
     Input columns:
         instruction (`str`): The reference instruction to evaluate the text outputs.
@@ -54,11 +53,10 @@ class UltraFeedback(Task):
     """
 
     task: Literal[
-        "instruction-following",
-        "honesty",
-        "truthfulness",
-        "harmlessness",
         "helpfulness",
+        "honesty",
+        "instruction-following",
+        "truthfulness",
     ]
 
     _system_prompt: str = PrivateAttr(
