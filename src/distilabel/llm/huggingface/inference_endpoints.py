@@ -16,10 +16,11 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import PrivateAttr, SecretStr, ValidationError, model_validator
+from pydantic import Field, PrivateAttr, SecretStr, ValidationError, model_validator
 from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
 
 class InferenceEndpointsLLM(AsyncLLM):
@@ -57,12 +60,22 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     model_id: Optional[str] = None
 
-    endpoint_name: Optional[str] = None
-    endpoint_namespace: Optional[str] = None
-
-    base_url: Optional[str] = None
-
-    api_key: Optional[SecretStr] = os.getenv("HF_TOKEN", None)  # type: ignore
+    endpoint_name: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The name of the Inference Endpoint to use for the LLM.",
+    )
+    endpoint_namespace: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The namespace of the Inference Endpoint to use for the LLM.",
+    )
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The base URL to use for the Inference Endpoints API requests.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default=os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Inference Endpoints API.",
+    )
 
     tokenizer_id: Optional[str] = None
     model_display_name: Optional[str] = None
@@ -70,7 +83,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _env_var: str = PrivateAttr(default="HF_TOKEN")
+    _api_key_env_var: str = PrivateAttr(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
     _aclient: Optional[Union["AsyncInferenceClient", "AsyncOpenAI"]] = PrivateAttr(...)
 
     @model_validator(mode="after")
@@ -81,8 +94,10 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         if self.model_id and (not self.endpoint_name and not self.base_url):
             return self
+
         if self.endpoint_name and (not self.model_id and not self.base_url):
             return self
+
         if self.base_url and (not self.model_id and not self.endpoint_name):
             return self
 
@@ -92,7 +107,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             f" `base_url`={self.base_url}."
         )
 
-    def load(self, api_key: Optional[str] = None) -> None:
+    def load(self) -> None:
         """Loads the either the `AsyncInferenceClient` or the `AsyncOpenAI` client to benefit
         from async requests, running the Hugging Face Inference Endpoint underneath via the
         `/v1/chat/completions` endpoint, exposed for the models running on TGI using the
@@ -121,11 +136,11 @@ class InferenceEndpointsLLM(AsyncLLM):
                 " `pip install huggingface-hub`."
             ) from ie
 
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key,
-            load_value=api_key,
-            env_var=self._env_var,
-        )
+        if self.api_key is None:
+            raise ValueError(
+                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
+                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
+            )
 
         if self.model_id is not None:
             client = InferenceClient()
