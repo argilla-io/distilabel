@@ -83,7 +83,7 @@ class UltraCM(Task):
         " assistant. The assistant gives helpful, very detailed, and polite answers to"
         " the user's questions.</s>"
     )
-    _template: Union[Template, None] = PrivateAttr(...)
+    _template: Optional["Template"] = PrivateAttr(...)
 
     def load(self) -> None:
         super().load()
