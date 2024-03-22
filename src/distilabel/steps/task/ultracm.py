@@ -132,9 +132,9 @@ class UltraCM(Task):
             critique, score = output.split("Overall Score:")
             critique = critique.strip("\n").strip()
             score = float(score.strip("\n").strip())
-            result[self.outputs[0]] = score
-            result[self.outputs[1]] = critique
+            result["score"] = score
+            result["critique"] = critique
         else:
-            result[self.outputs[2]] = output
+            result["raw_output"] = output
 
         return result
