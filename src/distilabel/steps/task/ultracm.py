@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from jinja2 import Template
@@ -26,8 +25,7 @@ if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
 
 
-_ULTRACM_TEMPLATE = """
-Given my answer to an instruction, your role is to provide specific and constructive feedback for me. You should find the best way for me to learn from your feedback and improve my performance.
+_ULTRACM_TEMPLATE = """Given my answer to an instruction, your role is to provide specific and constructive feedback for me. You should find the best way for me to learn from your feedback and improve my performance.
 
 You should consider multiple aspects of my answer, including helpfulness, truthfulness, honesty, and to what extent the answer follows instructions.
 ---
@@ -43,12 +41,12 @@ Please act as a teacher and provide specific and constructive feedback. Besides 
 
 *Format*
 ### Feedback
-Overall Score: [1-10]
 [Your feedback]
+Overall Score: [1-10]
+—--
 
----""".lstrip()
-
-_PARSE_ULTRACM_RESPONSE_REGEX = re.compile(r"(\d+(?:\.\d+)?)\s*(.*)", re.IGNORECASE)
+### Feedback
+"""
 
 
 class UltraCM(Task):
@@ -108,7 +106,7 @@ class UltraCM(Task):
             {"role": "system", "content": self.system_prompt},
             {
                 "role": "user",
-                "content": f"User: {self._template.render(**input)}</s>\nAssistant: ### Feedback\nOverall Score: ",
+                "content": f"User: {self._template.render(**input)}</s>\nAssistant: ",
             },
         ]  # type: ignore
 
@@ -129,10 +127,13 @@ class UltraCM(Task):
         if output is None:
             return result
 
-        match = _PARSE_ULTRACM_RESPONSE_REGEX.match(output)
-        if match:
-            result[self.outputs[0]] = float(match.group(1))
-            result[self.outputs[1]] = match.group(2).strip()
+        output = output.strip("\n").strip()
+        if "Overall Score:" in output:
+            critique, score = output.split("Overall Score:")
+            critique = critique.strip("\n").strip()
+            score = float(score.strip("\n").strip())
+            result[self.outputs[0]] = score
+            result[self.outputs[1]] = critique
         else:
             result[self.outputs[2]] = output
 
