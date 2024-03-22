@@ -19,7 +19,7 @@ from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
+from pydantic import ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
@@ -41,7 +41,7 @@ extra metadata that allows `distilabel` to perform validations over the `process
 method defined in each `Step`"""
 
 
-class _Step(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
+class _Step(RuntimeParametersMixin, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -98,7 +98,6 @@ class _Step(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
-    _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("steps"))
 
@@ -140,17 +139,6 @@ class _Step(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
         pass
-
-    def _set_runtime_parameters(self, runtime_parameters: Dict[str, Any]) -> None:
-        """Sets the runtime parameters of the step.
-
-        Args:
-            runtime_parameters: A dictionary with the runtime parameters for the step.
-        """
-        for name, value in runtime_parameters.items():
-            if name in self.runtime_parameters_names:
-                setattr(self, name, value)
-                self._runtime_parameters[name] = value
 
     @property
     def is_generator(self) -> bool:

@@ -198,7 +198,7 @@ class BasePipeline(_Serializable):
         """
         for step_name, step_parameters in parameters.items():
             step: "_Step" = self.dag.get_step(step_name)["step"]
-            step._set_runtime_parameters(step_parameters)
+            step.set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the DAG content to a dict.

@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
-from pydantic import Field
+from pydantic import BaseModel, Field, PrivateAttr
 from typing_extensions import Annotated, get_args, get_origin
 
 if TYPE_CHECKING:
@@ -27,13 +27,17 @@ RuntimeParameter = Annotated[
 ]
 """Used to mark the attributes of a `Step` as a runtime parameter."""
 
+RuntimeParametersNames = Dict[str, Union[bool, "RuntimeParametersNames"]]
 
-class RuntimeParametersMixin:
+
+class RuntimeParametersMixin(BaseModel):
     """Mixin for classes that have `RuntimeParameter`s attributes. Classes inheriting from
     this mixin must inherit from `pydantic.BaseModel` too."""
 
+    _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
+
     @property
-    def runtime_parameters_names(self) -> Dict[str, bool]:
+    def runtime_parameters_names(self) -> RuntimeParametersNames:
         """Returns a dictionary containing the name of the runtime parameters of the class
         as keys and whether the parameter is required or not as values.
 
@@ -67,6 +71,27 @@ class RuntimeParametersMixin:
                     info["description"] = field_info.description
                 runtime_parameters_info.append(info)
         return runtime_parameters_info
+
+    def set_runtime_parameters(self, runtime_parameters: Dict[str, Any]) -> None:
+        """Sets the runtime parameters of the class using the provided values. If the attr
+        to be set is a `RuntimeParametersMixin`, it will call `set_runtime_parameters` on
+        the attr.
+
+        Args:
+            runtime_parameters: A dictionary containing the values of the runtime parameters
+                to set.
+        """
+        for name, value in runtime_parameters.items():
+            if name not in self.runtime_parameters_names:
+                continue
+
+            attr = getattr(self, name)
+            if isinstance(attr, RuntimeParametersMixin):
+                attr.set_runtime_parameters(value)
+                continue
+
+            setattr(self, name, value)
+            self._runtime_parameters[name] = value
 
 
 def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:

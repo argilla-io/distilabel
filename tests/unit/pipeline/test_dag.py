@@ -322,7 +322,7 @@ class TestDAG:
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)  # type: ignore
-        step._set_runtime_parameters({})
+        step.set_runtime_parameters({})
 
         dag = DAG()
         dag.add_step(step)

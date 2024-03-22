@@ -20,7 +20,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, SecretStr
+from pydantic import ConfigDict, Field, PrivateAttr, SecretStr
 
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -32,11 +32,12 @@ from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput, HiddenState
+    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.task.typing import ChatType
     from distilabel.utils.docstring import Docstring
 
 
-class LLM(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
+class LLM(RuntimeParametersMixin, _Serializable, ABC):
     model_config = ConfigDict(
         arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
     )
@@ -84,7 +85,7 @@ class LLM(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
         return list(inspect.signature(self.generate).parameters.values())
 
     @property
-    def runtime_parameters_names(self) -> Dict[str, bool]:
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
         """Returns the runtime parameters of the `LLM`, which are combination of the
         attributes of the `LLM` type hinted with `RuntimeParameter` and the parameters
         of the `generate` method that are not `input` and `num_generations`.
@@ -94,13 +95,14 @@ class LLM(BaseModel, _Serializable, RuntimeParametersMixin, ABC):
             indicating if the parameter is optional or not.
         """
         runtime_parameters = super().runtime_parameters_names
+        runtime_parameters["generation_kwargs"] = {}
 
         # runtime parameters from the `generate` method
         for param in self.generate_parameters:
             if param.name in ["input", "inputs", "num_generations"]:
                 continue
             is_optional = param.default != inspect.Parameter.empty
-            runtime_parameters[f"generation_kwargs.{param.name}"] = is_optional
+            runtime_parameters["generation_kwargs"][param.name] = is_optional
 
         return runtime_parameters
 

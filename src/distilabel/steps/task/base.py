@@ -29,6 +29,7 @@ from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput
+    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.task.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
@@ -62,7 +63,7 @@ class _Task(_Step, ABC):
     )
 
     @property
-    def runtime_parameters_names(self) -> Dict[str, bool]:
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
         """Returns the runtime parameters of the task, which are combination of the
         attributes of the task type hinted with `RuntimeParameter` and the runtime parameters
         of the `LLM` used by the task.
@@ -71,10 +72,9 @@ class _Task(_Step, ABC):
             A dictionary with the name of the runtime parameters as keys and a boolean
             indicating if the parameter is optional or not.
         """
-        return {
-            **super().runtime_parameters_names,
-            **self.llm.runtime_parameters_names,
-        }
+        runtime_parameters_names = super().runtime_parameters_names
+        runtime_parameters_names["llm"] = self.llm.runtime_parameters_names
+        return runtime_parameters_names
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
@@ -186,7 +186,7 @@ class Task(_Task, Step):
         formatted_inputs = self._format_inputs(inputs)
         outputs = self.llm.generate(
             inputs=formatted_inputs,
-            num_generations=self.num_generations,
+            num_generations=self.num_generations,  # type: ignore
             **self.generation_kwargs,  # type: ignore
         )
 
