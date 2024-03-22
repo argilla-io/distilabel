@@ -32,9 +32,6 @@ class TestUltraCM:
                 "completion": "answer 1",
             }
         )
-        import json
-
-        print(json.dumps(result, indent=2))
 
         assert result == [
             {
