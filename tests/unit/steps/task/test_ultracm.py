@@ -28,8 +28,8 @@ class TestUltraCM:
 
         result = task.format_input(
             input={
-                "instruction": ["instruction 1"],
-                "completion": ["answer 1"],
+                "instruction": "instruction 1",
+                "completion": "answer 1",
             }
         )
 
@@ -40,7 +40,7 @@ class TestUltraCM:
             },
             {
                 "role": "user",
-                "content": "User: Given my answer to an instruction, your role is to provide specific and constructive feedback for me. You should find the best way for me to learn from your feedback and improve my performance.\n\nYou should consider multiple aspects of my answer, including helpfulness, truthfulness, honesty, and to what extent the answer follows instructions.\n---\n\n### Instruction\n['instruction 1']\n\n### Answer\n['answer 1']\n---\n\nPlease act as a teacher and provide specific and constructive feedback. Besides describing the weaknesses of the answer, you should also provide specific suggestions to guide me toward understanding how to improve. Please note, however, that your suggestions should help me better complete the instructions, but you should not introduce new requirements that are not mentioned in the instructions. Your feedback should focus on enhancing my ability to think critically and respond accurately. However, never explicitly provide the reference answer, nor do polite phrases be required. Only respond with concise feedback in chat style. Finally, score the overall quality of the answer from 1 to 10, where 1 is the worst and 10 is the best.\n\n*Format*\n### Feedback\nOverall Score: [1-10]\n[Your feedback]\n\n---</s>\nAssistant: ### Feedback\nOverall Score: ",
+                "content": "User: Given my answer to an instruction, your role is to provide specific and constructive feedback for me. You should find the best way for me to learn from your feedback and improve my performance.\n\nYou should consider multiple aspects of my answer, including helpfulness, truthfulness, honesty, and to what extent the answer follows instructions.\n---\n\n### Instruction\ninstruction 1\n\n### Answer\nanswer 1\n---\n\nPlease act as a teacher and provide specific and constructive feedback. Besides describing the weaknesses of the answer, you should also provide specific suggestions to guide me toward understanding how to improve. Please note, however, that your suggestions should help me better complete the instructions, but you should not introduce new requirements that are not mentioned in the instructions. Your feedback should focus on enhancing my ability to think critically and respond accurately. However, never explicitly provide the reference answer, nor do polite phrases be required. Only respond with concise feedback in chat style. Finally, score the overall quality of the answer from 1 to 10, where 1 is the worst and 10 is the best.\n\n*Format*\n### Feedback\nOverall Score: [1-10]\n[Your feedback]\n\n---</s>\nAssistant: ### Feedback\nOverall Score: ",
             },
         ]
 
@@ -49,24 +49,31 @@ class TestUltraCM:
         [
             (
                 "1 \nThis is a critique.",
-                {"score": 1.0, "critique": "This is a critique."},
+                {"score": 1.0, "critique": "This is a critique.", "raw_output": None},
             ),
             (
                 None,
-                {"score": None, "critique": None},
+                {"score": None, "critique": None, "raw_output": None},
             ),
             (
                 "Text that cannot be parsed.",
-                {"score": None, "critique": None},
+                {
+                    "score": None,
+                    "critique": None,
+                    "raw_output": "Text that cannot be parsed.",
+                },
             ),
         ],
     )
     def test_format_output(
         self, output: Union[str, None], expected: Dict[str, Any]
     ) -> None:
-        task = UltraCM(name="complexity_score", llm=DummyLLM(), pipeline=Pipeline())
+        task = UltraCM(name="ultracm", llm=DummyLLM(), pipeline=Pipeline())
         task.load()
 
         result = task.format_output(output=output)
+        import json
+
+        print(json.dumps(result, indent=2))
 
         assert result == expected

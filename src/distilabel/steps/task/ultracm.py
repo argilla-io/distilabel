@@ -19,7 +19,7 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.llm.base import LLM
-from distilabel.llm.huggingface.transformers import TransformersLLM
+from distilabel.llm.vllm import vLLM
 from distilabel.steps.task.base import Task
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ _PARSE_ULTRACM_RESPONSE_REGEX = re.compile(r"(\d+(?:\.\d+)?)\s*(.*)", re.IGNOREC
 class UltraCM(Task):
     """A critique specialized `Task` following the prompt templated used by UltraCM (from UltraFeedback).
 
-    By default will be initialized with a specific `LLM` model from Hugging Face Hub using `TransformersLLM`, which
+    By default will be initialized with a specific `LLM` model from Hugging Face Hub using `vLLM`, which
     corresponds to the `openbmb/UltraCM-13b` model, the model that was trained to be used with this task.
     Take into account that independent of the engine used for the model, it's prepared to work with this specific one.
 
@@ -65,6 +65,7 @@ class UltraCM(Task):
     Output columns:
         - `score` (`float`): The overall score of the answer from 1 to 10.
         - `critique` (`str`): The feedback given from the model to improve the answer.
+        - `raw_output` (`str`): The raw output from the model, in case it couldn't be parsed.
 
     Notes:
         Since the UltraCM model has been trained with OpenAI API generated data, the prompting
@@ -78,7 +79,7 @@ class UltraCM(Task):
         - [`openbmb/UltraCM-13b`](https://huggingface.co/openbmb/UltraCM-13b)
     """
 
-    llm: LLM = TransformersLLM(model="openbmb/UltraCM-13b")
+    llm: LLM = vLLM(model="openbmb/UltraCM-13b")
     system_prompt: str = (
         "User: A one-turn chat between a curious user and an artificial intelligence"
         " assistant. The assistant gives helpful, very detailed, and polite answers to"
@@ -98,7 +99,7 @@ class UltraCM(Task):
     @property
     def outputs(self) -> List[str]:
         """The output for the task are `score` and `critique`."""
-        return ["score", "critique"]
+        return ["score", "critique", "raw_output"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` with a default system prompt as defined in the
@@ -132,5 +133,7 @@ class UltraCM(Task):
         if match:
             result[self.outputs[0]] = float(match.group(1))
             result[self.outputs[1]] = match.group(2).strip()
+        else:
+            result[self.outputs[2]] = output
 
         return result
