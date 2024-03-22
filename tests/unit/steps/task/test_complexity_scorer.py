@@ -44,15 +44,15 @@ class TestComplexityScorer:
         [
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
-                {"complexity_scorer": [1.0, 2.0, 3.0]},
+                {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
-                {"complexity_scorer": [1.0, 2.0, 3.0]},
+                {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 None,
-                {"complexity_scorer": [None, None, None]},
+                {"scores": [None, None, None]},
             ),
         ],
     )
