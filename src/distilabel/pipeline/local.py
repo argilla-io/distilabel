@@ -407,6 +407,7 @@ class _ProcessWrapper:
         except Exception as e:
             raise _ProcessWrapperException.create_load_error(str(e), self.step) from e
 
+        self.step._logger.info(f"✅ Step '{self.step.name}' loaded successfully")
         self._notify_load()
 
         if self.step.is_generator:
