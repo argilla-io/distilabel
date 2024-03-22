@@ -123,9 +123,8 @@ class UltraCM(Task):
         Returns:
             A dict with containing the the score and critique for the response.
         """
-        result = {output: None for output in self.outputs}
         if output is None:
-            return result
+            return {output: None for output in self.outputs}
 
         output = output.strip("\n").strip()
         if "Overall Score:" in output:
