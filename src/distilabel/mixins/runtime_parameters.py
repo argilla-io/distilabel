@@ -48,10 +48,15 @@ class RuntimeParametersMixin(BaseModel):
 
         runtime_parameters = {}
 
-        for name, info in self.model_fields.items():  # type: ignore
-            is_runtime_param, is_optional = _is_runtime_parameter(info)
+        for name, field_info in self.model_fields.items():  # type: ignore
+            is_runtime_param, is_optional = _is_runtime_parameter(field_info)
             if is_runtime_param:
                 runtime_parameters[name] = is_optional
+                continue
+
+            attr = getattr(self, name)
+            if isinstance(attr, RuntimeParametersMixin):
+                runtime_parameters[name] = attr.runtime_parameters_names
 
         return runtime_parameters
 
