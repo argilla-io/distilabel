@@ -165,7 +165,7 @@ class UltraFeedback(Task):
         if output is None:
             return {
                 "ratings": [None] * len(input["generations"]),
-                "rationales": ["N/A"] * len(input["generations"]),
+                "rationales": [None] * len(input["generations"]),
             }
 
         pattern = r"Rating: (.+?)\nRationale: (.+)"
@@ -177,13 +177,13 @@ class UltraFeedback(Task):
             if section is not None and section != "":
                 matches = re.search(pattern, section, re.DOTALL)
             if not matches:
-                formatted_outputs.append({"ratings": "N/A", "rationales": "N/A"})
+                formatted_outputs.append({"ratings": None, "rationales": None})
                 continue
 
             formatted_outputs.append(
                 {
                     "ratings": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) != "N/A"
+                    if matches.group(1) not in ["None", "N/A"]
                     else None,
                     "rationales": matches.group(2),
                 }
@@ -197,9 +197,9 @@ class UltraFeedback(Task):
         if output is None:
             return {
                 "types": [None] * len(input["generations"]),
-                "rationales": ["N/A"] * len(input["generations"]),
+                "rationales": [None] * len(input["generations"]),
                 "ratings": [None] * len(input["generations"]),
-                "rationales-for-ratings": ["N/A"] * len(input["generations"]),
+                "rationales-for-ratings": [None] * len(input["generations"]),
             }
 
         pattern = r"Type: (.+?)\nRationale: (.+?)\nRating: (.+?)\nRationale: (.+)"
@@ -214,10 +214,10 @@ class UltraFeedback(Task):
             if not matches:
                 formatted_outputs.append(
                     {
-                        "types": "N/A",
-                        "rationales": "N/A",
-                        "ratings": "N/A",
-                        "rationales-for-ratings": "N/A",
+                        "types": None,
+                        "rationales": None,
+                        "ratings": None,
+                        "rationales-for-ratings": None,
                     }
                 )
                 continue
@@ -225,11 +225,11 @@ class UltraFeedback(Task):
             formatted_outputs.append(
                 {
                     "types": int(re.findall(r"\b\d+\b", matches.group(1))[0])
-                    if matches.group(1) != "None"
+                    if matches.group(1) not in ["None", "N/A"]
                     else None,
                     "rationales": matches.group(2),
                     "ratings": int(re.findall(r"\b\d+\b", matches.group(3))[0])
-                    if matches.group(3) != "None"
+                    if matches.group(3) not in ["None", "N/A"]
                     else None,
                     "rationales-for-ratings": matches.group(4),
                 }
