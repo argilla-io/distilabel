@@ -47,6 +47,11 @@ class UltraFeedback(Task):
         rationales (`List[str]`): The rationales for each of the provided text outputs.
         model_name (`str`): The name of the model used to generate the ratings and rationales.
 
+    Runtime arguments:
+        llm_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `load`.
+        generation_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `process`.
+        num_generations (`int`): The number of passes on top of the `process` method for each input. Defaults to `1`.
+
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
@@ -71,6 +76,7 @@ class UltraFeedback(Task):
     _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
+        """Loads the Jinja2 template for the given `task`."""
         super().load()
 
         _path = str(
