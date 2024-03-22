@@ -151,6 +151,8 @@ class InferenceEndpointsLLM(AsyncLLM):
             )
             if client.status in ["paused", "scaledToZero"]:
                 client.resume().wait(timeout=300)
+            elif client.status in ["initializing"]:
+                client.wait(timeout=300)
 
             self.base_url = client.url
             self._model_name = client.repository
