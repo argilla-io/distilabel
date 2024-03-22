@@ -116,7 +116,7 @@ class UltraFeedback(Task):
     @property
     def outputs(self) -> List[str]:
         """The output for the task is the `generation` and the `model_name`."""
-        return ["ratings", "rationales", "raw", "model_name"]
+        return ["ratings", "rationales", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
