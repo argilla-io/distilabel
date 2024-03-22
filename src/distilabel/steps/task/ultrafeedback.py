@@ -32,7 +32,7 @@ class UltraFeedback(Task):
     """UltraFeedback: Boosting Language Models with High-quality Feedback.
 
     Attributes:
-        task: The task to perform with the `UltraFeedback` model. The available tasks are:
+        aspect: The aspect to perform with the `UltraFeedback` model. The available aspects are:
             - `helpfulness`: Evaluate text outputs based on helpfulness.
             - `honesty`: Evaluate text outputs based on honesty.
             - `instruction-following`: Evaluate text outputs based on given instructions.
@@ -57,7 +57,7 @@ class UltraFeedback(Task):
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
     """
 
-    task: Literal[
+    aspect: Literal[
         "helpfulness",
         "honesty",
         "instruction-following",
@@ -76,7 +76,7 @@ class UltraFeedback(Task):
     _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template for the given `task`."""
+        """Loads the Jinja2 template for the given `aspect`."""
         super().load()
 
         _path = str(
@@ -85,7 +85,7 @@ class UltraFeedback(Task):
             / "task"
             / "templates"
             / "ultrafeedback"
-            / f"{self.task}.jinja2"
+            / f"{self.aspect}.jinja2"
         )
 
         self._template = Template(open(_path).read())
