@@ -40,4 +40,5 @@ __all__ = [
     "OllamaLLM",
     "vLLM",
     "AnyscaleLLM",
+    "GroqLLM",
 ]
