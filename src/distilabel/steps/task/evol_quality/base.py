@@ -165,7 +165,7 @@ class EvolQuality(Task):
 
             generated_responses = self.llm.generate(
                 formatted_prompts,
-                **self.generation_kwargs,  # type: ignore
+                **self.llm.generation_kwargs,  # type: ignore
             )
 
             if self.store_evolutions:

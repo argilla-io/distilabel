@@ -78,12 +78,12 @@ class TestEvoQuality:
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
             "llm": {
+                "generation_kwargs": {},
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
-                }
+                },
             },
-            "llm_kwargs": {},
             "num_evolutions": task.num_evolutions,
             "store_evolutions": task.store_evolutions,
             "mutation_templates": {
@@ -97,23 +97,22 @@ class TestEvoQuality:
             },
             "num_generations": task.num_generations,
             "group_generations": task.group_generations,
-            "generation_kwargs": {},
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
-                    "name": "llm_kwargs",
-                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
-                    "optional": True,
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "name": "generation_kwargs",
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [],
+                        }
+                    ],
                 },
                 {
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
-                },
-                {
-                    "name": "generation_kwargs",
-                    "optional": True,
-                    "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
                 },
                 {
                     "name": "seed",
