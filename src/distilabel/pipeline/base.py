@@ -86,13 +86,22 @@ class _GlobalPipelineManager:
 class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
+    Args:
+        cache_dir: The directory where the pipeline will be cached. Defaults to `None`, which will
+            define it internally.
+        use_cache: A flag to indicate if the pipeline should be cached and loaded if available.
+            Defaults to `True`.
+
     Attributes:
         dag: The `DAG` instance that represents the pipeline.
     """
 
-    def __init__(self, cache_dir: Optional["PathLike"] = None) -> None:
+    def __init__(
+        self, cache_dir: Optional["PathLike"] = None, use_cache: bool = True
+    ) -> None:
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
+        self._use_cache = use_cache
         self._logger = get_logger("pipeline")
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
@@ -269,8 +278,8 @@ class BasePipeline(_Serializable):
         """Will try to load the `BasePipeline` from the cache dir if found, updating
         the internal `DAG` and `_BatchManager`.
         """
-        # Store the _cache_filename in a variable to avoid it changing when refreshing
-        # the dag
+        if not self._use_cache:
+            return
 
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
