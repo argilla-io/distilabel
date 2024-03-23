@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
+from pydantic.types import _SecretField
 from typing_extensions import Annotated, get_args, get_origin
 
 if TYPE_CHECKING:
@@ -112,6 +114,12 @@ class RuntimeParametersMixin(BaseModel):
                 attr.set_runtime_parameters(value)
                 continue
 
+            # Handle settings values for `_SecretField`
+            field_info = self.model_fields[name]
+            inner_type = _extract_runtime_parameter_inner_type(field_info.annotation)
+            if inspect.isclass(inner_type) and issubclass(inner_type, _SecretField):
+                value = inner_type(value)
+
             setattr(self, name, value)
             self._runtime_parameters[name] = value
 
@@ -148,3 +156,22 @@ def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
             return True, is_optional
 
     return False, False
+
+
+def _extract_runtime_parameter_inner_type(type_hint: Any) -> Any:
+    """Extracts the inner type of a `RuntimeParameter` type hint.
+
+    Args:
+        type_hint: The type hint to extract the inner type from.
+
+    Returns:
+        The inner type of the `RuntimeParameter` type hint.
+    """
+    type_hint_args = get_args(type_hint)
+    if get_origin(type_hint) is Annotated:
+        return _extract_runtime_parameter_inner_type(type_hint_args[0])
+
+    if get_origin(type_hint) is Union and type(None) in type_hint_args:
+        return _extract_runtime_parameter_inner_type(type_hint_args[0])
+
+    return type_hint
