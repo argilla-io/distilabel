@@ -110,8 +110,8 @@ class TestEvolInstructGenerator:
             "llm": {
                 "generation_kwargs": {},
                 "type_info": {
-                    "module": "tests.unit.steps.task.conftest",
-                    "name": "DummyLLM",
+                    "module": task.llm.__class__.__module__,
+                    "name": task.llm.__class__.__name__,
                 },
             },
             "input_mappings": task.input_mappings,

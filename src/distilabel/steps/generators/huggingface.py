@@ -65,6 +65,7 @@ class LoadHubDataset(GeneratorStep):
 
     Runtime parameters:
 
+    - `batch_size`: The batch size to use when processing the data.
     - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
     - `split`: The split of the dataset to load.
     - `config`: The configuration of the dataset to load. This is optional and only needed if the

@@ -69,15 +69,6 @@ class EvolInstruct(Task):
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
 
-    @override
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
-        """
-        super().model_post_init(__context)
-
-        np.random.seed(self.seed)
-
     @property
     def inputs(self) -> List[str]:
         """The input for the task is the `instruction`."""
@@ -188,9 +179,8 @@ class EvolInstruct(Task):
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
-                evolved_instructions.append(
-                    generated_prompt.split("Prompt#:")[-1].strip()
-                )
+                generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
+                evolved_instructions.append(generated_prompt)
 
             if self.store_evolutions:
                 instructions = [
