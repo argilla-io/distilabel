@@ -169,8 +169,8 @@ class GroqLLM(LLM):
         Returns:
             List[List[LLMOutput]]: the generated outputs.
         """
-        prompts = self._generate_prompts(inputs, default_format="llama2")  # Use llama2 rather than openai as default format, 
-                                                                            # because that's what Groq offers
+        prompts = self._generate_prompts(inputs, default_format="openai")  # Groq is compatibe with OpenAI
+                                                                           #  Use OpenAI format, *not* llama2 format
         outputs = []
         for prompt in prompts:
             chat_completions = self.client.chat.completions.create(
