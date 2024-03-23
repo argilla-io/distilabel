@@ -125,17 +125,13 @@ class LLM(RuntimeParametersMixin, _Serializable, ABC):
         generate_docstring_args = self.generate_parsed_docstring["args"]
 
         generation_kwargs_info["keys"] = []
-        for name, is_optional in self.runtime_parameters_names.items():
-            if not name.startswith("generation_kwargs."):
-                continue
+        for key, value in generation_kwargs_info["optional"].items():
+            info = {"name": key, "optional": value}
+            if description := generate_docstring_args.get(key):
+                info["description"] = description
+            generation_kwargs_info["keys"].append(info)
 
-            key = {"name": name, "optional": is_optional}
-
-            arg_name = name.split(".", 1)[1]
-            if description := generate_docstring_args.get(arg_name):
-                key["description"] = description
-
-            generation_kwargs_info["keys"].append(key)
+        generation_kwargs_info.pop("optional")
 
         return runtime_parameters_info
 

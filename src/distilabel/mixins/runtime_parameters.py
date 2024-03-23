@@ -31,8 +31,13 @@ RuntimeParametersNames = Dict[str, Union[bool, "RuntimeParametersNames"]]
 
 
 class RuntimeParametersMixin(BaseModel):
-    """Mixin for classes that have `RuntimeParameter`s attributes. Classes inheriting from
-    this mixin must inherit from `pydantic.BaseModel` too."""
+    """Mixin for classes that have `RuntimeParameter`s attributes.
+
+    Attributes:
+        _runtime_parameters: A dictionary containing the values of the runtime parameters
+            of the class. This attribute is meant to be used internally and should not be
+            accessed directly.
+    """
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
