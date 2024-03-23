@@ -17,9 +17,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 import pytest
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
+from distilabel.steps.base import GeneratorStep, Step, StepInput
 
 from .utils import DummyGeneratorStep
 

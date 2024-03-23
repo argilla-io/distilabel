@@ -34,7 +34,6 @@ class TestEvolInstructGenerator:
         assert task.llm is dummy_llm
         assert task.num_instructions == 2
         assert task.mutation_templates == GenerationMutationTemplates
-        assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self, dummy_llm: LLM) -> None:
@@ -44,7 +43,6 @@ class TestEvolInstructGenerator:
             )
             assert task.name == "task"
             assert task.llm is dummy_llm
-            assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
     def test_with_errors(self, dummy_llm: LLM) -> None:
@@ -109,16 +107,16 @@ class TestEvolInstructGenerator:
         )
         assert task.dump() == {
             "name": "task",
-            "input_mappings": task.input_mappings,
-            "output_mappings": task.output_mappings,
-            "batch_size": task.batch_size,
             "llm": {
+                "generation_kwargs": {},
                 "type_info": {
                     "module": "tests.unit.steps.task.conftest",
                     "name": "DummyLLM",
-                }
+                },
             },
-            "llm_kwargs": {},
+            "input_mappings": task.input_mappings,
+            "output_mappings": task.output_mappings,
+            "batch_size": task.batch_size,
             "num_instructions": task.num_instructions,
             "generate_answers": task.generate_answers,
             "mutation_templates": {
@@ -132,25 +130,24 @@ class TestEvolInstructGenerator:
             },
             "num_generations": task.num_generations,
             "group_generations": task.group_generations,
-            "generation_kwargs": {},
             "min_length": task.min_length,
             "max_length": task.max_length,
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
-                    "name": "llm_kwargs",
-                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
-                    "optional": True,
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [],
+                            "name": "generation_kwargs",
+                        },
+                    ],
                 },
                 {
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
-                },
-                {
-                    "name": "generation_kwargs",
-                    "optional": True,
-                    "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
                 },
                 {
                     "name": "min_length",

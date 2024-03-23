@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING, Any, Callable, List, Literal, Type, TypeVar, U
 
 from pydantic import create_model
 
+from distilabel.mixins.runtime_parameters import _RUNTIME_PARAMETER_ANNOTATION
 from distilabel.steps.base import (
-    _RUNTIME_PARAMETER_ANNOTATION,
     _STEP_INPUT_ANNOTATION,
     GeneratorStep,
     GlobalStep,

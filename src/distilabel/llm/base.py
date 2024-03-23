@@ -45,10 +45,7 @@ class LLM(RuntimeParametersMixin, _Serializable, ABC):
     generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="The kwargs to be propagated to either `generate` or `agenerate`"
-        " methods within each `LLM`. Note that these kwargs will be specific to each"
-        " LLM, and while some as `temperature` may be present on each `LLM`, some others"
-        " may not, so read the `LLM.{generate,agenerate}` signatures in advance to see"
-        " which kwargs are available.",
+        " methods within each `LLM`.",
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
