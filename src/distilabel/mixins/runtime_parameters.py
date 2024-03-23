@@ -70,11 +70,23 @@ class RuntimeParametersMixin(BaseModel):
         """
         runtime_parameters_info = []
         for name, field_info in self.model_fields.items():  # type: ignore
-            if name in self.runtime_parameters_names:
-                info = {"name": name, "optional": self.runtime_parameters_names[name]}
-                if field_info.description is not None:
-                    info["description"] = field_info.description
-                runtime_parameters_info.append(info)
+            if name not in self.runtime_parameters_names:
+                continue
+
+            attr = getattr(self, name)
+            if isinstance(attr, RuntimeParametersMixin):
+                runtime_parameters_info.append(
+                    {
+                        "name": name,
+                        "runtime_parameters_info": attr.get_runtime_parameters_info(),
+                    }
+                )
+                continue
+
+            info = {"name": name, "optional": self.runtime_parameters_names[name]}
+            if field_info.description is not None:
+                info["description"] = field_info.description
+            runtime_parameters_info.append(info)
         return runtime_parameters_info
 
     def set_runtime_parameters(self, runtime_parameters: Dict[str, Any]) -> None:
