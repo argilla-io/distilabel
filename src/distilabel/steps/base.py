@@ -284,23 +284,6 @@ class _Step(RuntimeParametersMixin, _Serializable, ABC):
         """
         return [self.output_mappings.get(output, output) for output in self.outputs]
 
-    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
-        """Gets the information of the runtime parameters of the step such as the name and
-        the description. This function is meant to include the information of the runtime
-        parameters in the serialized data of the step.
-
-        Returns:
-            A list containing the information for each runtime parameter of the step.
-        """
-        runtime_parameters_info = []
-        for name, field_info in self.model_fields.items():
-            if name in self.runtime_parameters_names:
-                info = {"name": name, "optional": self.runtime_parameters_names[name]}
-                if field_info.description is not None:
-                    info["description"] = field_info.description
-                runtime_parameters_info.append(info)
-        return runtime_parameters_info
-
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "_Step":
         """Create a Step from a dict containing the serialized data.

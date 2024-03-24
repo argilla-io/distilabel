@@ -100,7 +100,7 @@ class TestTask:
     def test_process(
         self, group_generations: bool, expected: List[Dict[str, Any]]
     ) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = DummyTask(
             name="task",

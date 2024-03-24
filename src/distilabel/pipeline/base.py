@@ -105,6 +105,8 @@ class BasePipeline(_Serializable):
         cache_dir: Optional["PathLike"] = None,
         use_cache: bool = True,
     ) -> None:
+        self.name = name
+        self.description = description
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
         self._use_cache = use_cache

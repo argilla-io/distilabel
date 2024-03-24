@@ -24,7 +24,9 @@ from tests.unit.steps.task.utils import DummyLLM
 class TestComplexityScore:
     def test_format_input(self) -> None:
         task = ComplexityScorer(
-            name="complexity_score", llm=DummyLLM(), pipeline=Pipeline()
+            name="complexity_score",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
 
@@ -60,7 +62,9 @@ class TestComplexityScore:
         self, output: Union[str, None], expected: Dict[str, Any]
     ) -> None:
         task = ComplexityScorer(
-            name="complexity_score", llm=DummyLLM(), pipeline=Pipeline()
+            name="complexity_score",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
 

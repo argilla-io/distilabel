@@ -33,7 +33,7 @@ MockFeedbackDataset = rg.FeedbackDataset(
 
 class TestPromptCompletionToArgilla:
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = PromptCompletionToArgilla(
             name="step",
             api_url="https://example.com",
@@ -54,7 +54,7 @@ class TestPromptCompletionToArgilla:
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = PromptCompletionToArgilla(
             name="step",
             api_url="https://example.com",
@@ -77,6 +77,6 @@ class TestPromptCompletionToArgilla:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_step = PromptCompletionToArgilla.from_dict(step.dump())
             assert isinstance(new_step, PromptCompletionToArgilla)

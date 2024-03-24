@@ -996,7 +996,7 @@ class TestPipelineSerialization:
                 assert isinstance(pipe_from_file, BasePipeline)
 
     def test_base_pipeline_signature(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
         signature = pipeline._create_signature()
@@ -1007,7 +1007,7 @@ class TestPipelineSerialization:
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(name="dummy_step_1")
             dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -1026,7 +1026,9 @@ class TestPipelineSerialization:
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipeline:
+            with BasePipeline(
+                name="unit-test-pipeline", cache_dir=tmpdirname, use_cache=use_cache
+            ) as pipeline:
                 print(len(pipeline.dag))
                 assert pipeline._use_cache == use_cache
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1043,7 +1045,9 @@ class TestPipelineSerialization:
 
                 assert pipeline._cache_location["pipeline"].exists()
 
-            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipe:
+            with BasePipeline(
+                name="unit-test-pipeline", cache_dir=tmpdirname, use_cache=use_cache
+            ) as pipe:
                 assert pipe._use_cache == use_cache
 
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
@@ -1064,7 +1068,7 @@ class TestWriteBuffer:
     def test_write_buffer_one_leaf_step_and_create_dataset(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data"
-            with Pipeline() as pipeline:
+            with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -1090,7 +1094,7 @@ class TestWriteBuffer:
     def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data"
-            with Pipeline() as pipeline:
+            with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
                 dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
