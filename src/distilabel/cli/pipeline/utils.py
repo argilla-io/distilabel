@@ -220,7 +220,7 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
             expand=True,
         )
 
-        table.add_column("Runtime parameter", style="dim")
+        table.add_column("Runtime parameter", style="dim", width=50)
         table.add_column("Description", width=100)
         table.add_column("Optional", justify="right")
         _add_rows(table, runtime_params)
@@ -241,7 +241,7 @@ def _build_steps_connection_panel(pipeline: "BasePipeline") -> "Panel":
     from rich.table import Table
 
     table = Table(show_header=True, header_style="bold magenta", expand=True)
-    table.add_column("From step", style="dim")
+    table.add_column("From step", style="dim", width=18)
     table.add_column("To steps", style="dim")
 
     G = pipeline.dag.G
@@ -254,7 +254,7 @@ def _build_steps_connection_panel(pipeline: "BasePipeline") -> "Panel":
             continue
 
         # If a node has no successors, indicate it as such
-        table.add_row(str(node), "No outgoing edges")
+        table.add_row(str(node), "No downstream steps")
 
     return Panel(
         table,
