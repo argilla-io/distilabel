@@ -45,6 +45,22 @@ def run(
         List[Any],
         typer.Option(help="", parser=parse_runtime_param, default_factory=list),
     ],
+    ignore_cache: bool = typer.Option(
+        False, help="Whether to ignore the cache and re-run the pipeline from scratch."
+    ),
+    repo_id: str = typer.Option(
+        None,
+        help="The Hugging Face Hub repository ID to push the resulting dataset to.",
+    ),
+    commit_message: str = typer.Option(
+        None, help="The commit message to use when pushing the dataset."
+    ),
+    private: bool = typer.Option(
+        False, help="Whether to make the resulting dataset private on the Hub."
+    ),
+    token: str = typer.Option(
+        None, help="The Hugging Face Hub API token to use when pushing the dataset."
+    ),
 ) -> None:
     from distilabel.cli.pipeline.utils import get_pipeline, parse_runtime_parameters
 
@@ -55,7 +71,15 @@ def run(
         raise typer.Exit(code=1) from e
 
     parameters = parse_runtime_parameters(param)
-    pipeline.run(parameters=parameters)
+    distiset = pipeline.run(parameters=parameters, use_cache=not ignore_cache)
+
+    if repo_id is not None:
+        distiset.push_to_hub(
+            repo_id=repo_id,
+            commit_message=commit_message,
+            private=private,
+            token=token,
+        )
 
 
 @app.command(name="info", help="Get information about a Distilabel pipeline.")
