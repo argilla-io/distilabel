@@ -12,59 +12,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
-from mistralai.async_client import MistralAsyncClient
-from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import Annotated
+from pydantic import Field, PrivateAttr, SecretStr
+from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
+    from mistralai.async_client import MistralAsyncClient
+
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+_MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
 
 
 class MistralLLM(AsyncLLM):
-    """Mistral LLM implementation running the Async API client.
+    """Mistral LLM implementation running the async API client.
 
     Args:
-        api_key: the API key to authenticate the requests to the Mistral API.
         model: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.
         endpoint: the endpoint to use for the Mistral API. Defaults to "https://api.mistral.ai".
+        api_key: the API key to authenticate the requests to the Mistral API. Defaults to `None` which
+            means that the value set for the environment variable `OPENAI_API_KEY` will be used, or
+            `None` if not set.
         max_retries: the maximum number of retries to attempt when a request fails. Defaults to 5.next
         timeout: the maximum time in seconds to wait for a response. Defaults to 120.next
         max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
     """
 
-    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
-    model: str = "mistral-medium"
+    model: str
     endpoint: str = "https://api.mistral.ai"
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default=os.getenv(_MISTRALAI_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Mistral API.",
+    )
     max_retries: int = 5
     timeout: int = 120
     max_concurrent_requests: int = 64
 
+    _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
-
-    @field_validator("api_key")
-    @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
-        """Ensures that either the `api_key` or the environment variable `MISTRAL_API_KEY` are set.
-
-        Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
-        from being leaked and/or included within the logs or the serialization of the object.
-        """
-        v = v or os.getenv("MISTRAL_API_KEY", None)  # type: ignore
-        if v is None:
-            raise ValueError("You must provide an API key to use Mistral.")
-        if not isinstance(v, SecretStr):
-            v = SecretStr(v)
-        return v
 
     def load(self) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
+
+        try:
+            from mistralai.async_client import MistralAsyncClient
+        except ImportError as ie:
+            raise ImportError(
+                "MistralAI Python client is not installed. Please install it using"
+                " `pip install mistralai`."
+            ) from ie
+
+        if self.api_key is None:
+            raise ValueError(
+                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
+                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
+            )
+
         self._aclient = MistralAsyncClient(
-            api_key=self.api_key.get_secret_value(),  # type: ignore
+            api_key=self.api_key.get_secret_value(),
             endpoint=self.endpoint,
             max_retries=self.max_retries,
             timeout=self.timeout,
@@ -76,19 +89,66 @@ class MistralLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    # TODO: add `num_generations` parameter once Mistral client allows `n` parameter
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
+        max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
         top_p: Optional[float] = None,
-    ) -> str:
-        """Generates a response asynchronously, using the Mistral Async API."""
+    ) -> "GenerateOutput":
+        """Generates `num_generations` responses for the given input using the MistralAI async
+        client.
+
+        Args:
+            input: a single input in chat format to generate responses for.
+            max_new_tokens: the maximun number of new tokens that the model will generate.
+                Defaults to `128`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
         completion = await self._aclient.chat(  # type: ignore
             messages=input,
             model=self.model,
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_tokens=max_new_tokens,
             top_p=top_p,
         )
-        return completion.choices[0].message.content  # type: ignore
+        generations = []
+        for choice in completion.choices:
+            if (content := choice.message.content) is None:
+                self._logger.warning(
+                    f"Received no response using MistralAI client (model: '{self.model}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(content)
+        return generations
+
+    # TODO: remove this function once Mistral client allows `n` parameter
+    @override
+    def generate(
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
+        async def agenerate(
+            inputs: List["ChatType"], **kwargs: Any
+        ) -> "GenerateOutput":
+            """Internal function to parallelize the asynchronous generation of responses."""
+            tasks = [
+                asyncio.create_task(self.agenerate(input=input, **kwargs))
+                for input in inputs
+                for _ in range(num_generations)
+            ]
+            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
+
+        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

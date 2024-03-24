@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 from typing import Any, Dict, Generator, List
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import RuntimeParameter, Step, StepInput
+from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.utils.distiset import Distiset
 
 
 class RenameColumns(Step):
@@ -46,8 +47,13 @@ class GenerateResponse(Step):
         return ["instruction"]
 
     def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+        import time
+
+        time.sleep(1)
+
         for input in inputs:
             input["response"] = "I don't know"
+
         yield inputs
 
     @property
@@ -55,32 +61,41 @@ class GenerateResponse(Step):
         return ["response"]
 
 
-def test_Pipeline(name="unit-test-pipeline"):
+def run_pipeline():
     with Pipeline(name="unit-test-pipeline") as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")  # type: ignore
-        generate_response = GenerateResponse(name="generate_response")
+        load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
+        rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
+        generate_response = GenerateResponse(
+            name="generate_response", input_batch_size=16
+        )
 
         load_hub_dataset.connect(rename_columns)
         rename_columns.connect(generate_response)
-        dump = pipeline.dump()
 
-    # Recreate the pipeline from the dump
-    with Pipeline(name="unit-test-pipeline") as pipe:
-        pipe = pipe.from_dict(dump)
+        return pipeline.run(
+            parameters={
+                "load_dataset": {
+                    "repo_id": "plaguss/test",
+                    "split": "train",
+                },
+                "rename_columns": {
+                    "rename_mappings": {
+                        "prompt": "instruction",
+                    },
+                },
+            }
+        )
 
-    pipe.run(
-        parameters={
-            "load_dataset": {
-                "repo_id": "alvarobartt/test",
-                "split": "train",
-            },
-            "rename_columns": {
-                "rename_mappings": {
-                    "prompt": "instruction",
-                }
-            },
-        }
-    )
-    assert Path("data.jsonl").exists()
-    Path("data.jsonl").unlink()
+
+def test_pipeline_cached():
+    ds = run_pipeline()
+    print()
+    print("----- RUNNING PIPELINE AGAIN -----")
+    print()
+    ds = run_pipeline()
+    assert isinstance(ds, Distiset)
+    assert len(ds["generate_response"]) == 80
+
+
+if __name__ == "__main__":
+    test_pipeline_cached()

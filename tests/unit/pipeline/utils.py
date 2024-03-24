@@ -14,16 +14,13 @@
 
 from typing import List
 
+from distilabel.pipeline.base import _Batch
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
 class DummyGeneratorStep(GeneratorStep):
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    def process(self) -> GeneratorStepOutput:  # type: ignore
+    def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}], False
 
     @property
@@ -68,3 +65,14 @@ class DummyStep2(Step):
     @property
     def outputs(self) -> List[str]:
         return ["evol_response"]
+
+
+def batch_gen(
+    step_name: str, seq_no: int = 0, last_batch: bool = False, col_name: str = "a"
+):
+    return _Batch(
+        seq_no=seq_no,
+        step_name=step_name,
+        last_batch=last_batch,
+        data=[[{col_name: 1}, {col_name: 2}, {col_name: 3}]],
+    )

@@ -15,11 +15,11 @@
 from typing import List, Optional
 
 import pytest
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import (
     GeneratorStep,
     GlobalStep,
-    RuntimeParameter,
     Step,
     StepInput,
 )
@@ -199,9 +199,9 @@ class TestStep:
         )
 
         assert outputs == [
-            {"prompt": "hello 1", "response": "unit test"},
-            {"prompt": "hello 2", "response": "unit test"},
-            {"prompt": "hello 3", "response": "unit test"},
+            {"prompt": "hello 1", "generation": "unit test"},
+            {"prompt": "hello 2", "generation": "unit test"},
+            {"prompt": "hello 3", "generation": "unit test"},
         ]
 
 

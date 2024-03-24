@@ -23,13 +23,22 @@ def get_logger(suffix: str) -> logging.Logger:
     """Gets the `logging.Logger` for the `distilabel` package with a custom
     configuration. Also uses `rich` for better formatting.
     """
+    # Disable logging for argilla.client.feedback.dataset.local.mixins
+    # as it's too verbose, and there's no way to disable all the `argilla` logs
+    logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
 
-    logging.basicConfig(
-        level="INFO", format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
-    )
     # Remove `datasets` logger to only log on `critical` mode
     # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
+
+    logging.getLogger("httpx").setLevel(logging.CRITICAL)
+
+    logging.basicConfig(
+        level="INFO",
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler()],
+    )
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO")
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:

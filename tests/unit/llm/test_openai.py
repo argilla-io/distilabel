@@ -12,24 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 import os
+from typing import Generator
+from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llm import openai
+
+
+@pytest.fixture
+def reload_openai_module() -> Generator[None, None, None]:
+    importlib.reload(openai)
+    yield
 
 
 @patch("openai.AsyncOpenAI")
+@pytest.mark.usefixtures("reload_openai_module")
 class TestOpenAILLM:
-    def test_openai_llm(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
-        assert isinstance(llm, OpenAILLM)
-        assert llm.model_name == "gpt-4"
+    model_id: str = "gpt-4"
+
+    def test_openai_llm(self, _: MagicMock) -> None:
+        llm = openai.OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+
+        assert isinstance(llm, openai.OpenAILLM)
+        assert llm.model_name == self.model_id
+
+    def test_openai_llm_env_vars(self, _: MagicMock) -> None:
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["OPENAI_API_KEY"] = "another.api.key"
+            os.environ["OPENAI_BASE_URL"] = "https://example.com"
+
+            importlib.reload(openai)
+
+            llm = openai.OpenAILLM(model=self.model_id)
+
+            assert isinstance(llm, openai.OpenAILLM)
+            assert llm.model_name == self.model_id
+            assert llm.base_url == "https://example.com"
+            assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = openai.OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = mock_openai
 
         mocked_completion = Mock(
@@ -49,7 +76,7 @@ class TestOpenAILLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_openai: MagicMock) -> None:
-        llm = OpenAILLM(model="gpt-4", api_key="api.key")  # type: ignore
+        llm = openai.OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = mock_openai
 
         mocked_completion = Mock(
@@ -71,12 +98,13 @@ class TestOpenAILLM:
             ]
         )
 
-    def test_serialization(self, mock_openai: MagicMock) -> None:
-        os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = OpenAILLM(model="gpt-4")  # type: ignore
+    def test_serialization(self, _: MagicMock) -> None:
+        llm = openai.OpenAILLM(model=self.model_id)
 
         _dump = {
-            "model": "gpt-4",
+            "model": self.model_id,
+            "generation_kwargs": {},
+            "base_url": "https://api.openai.com/v1",
             "type_info": {
                 "module": "distilabel.llm.openai",
                 "name": "OpenAILLM",
@@ -84,4 +112,4 @@ class TestOpenAILLM:
         }
 
         assert llm.dump() == _dump
-        assert isinstance(OpenAILLM.from_dict(_dump), OpenAILLM)
+        assert isinstance(openai.OpenAILLM.from_dict(_dump), openai.OpenAILLM)

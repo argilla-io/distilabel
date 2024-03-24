@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.typing import ChatType
@@ -22,6 +22,11 @@ class TextGeneration(Task):
     """TextGeneration is a pre-defined task that defines the `instruction` as the input
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
+
+    Columns:
+
+    - `input`: instruction
+    - `output`: generation, model_name
     """
 
     @property
@@ -33,7 +38,7 @@ class TextGeneration(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         return [
-            {"role": "user", "content": input[self.inputs[0]]},
+            {"role": "user", "content": input["instruction"]},
         ]
 
     @property
@@ -41,7 +46,9 @@ class TextGeneration(Task):
         """The output for the task is the `generation` and the `model_name`."""
         return ["generation", "model_name"]
 
-    def format_output(self, output: str) -> Dict[str, Any]:
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
-        return {self.outputs[0]: output}
+        return {"generation": output}

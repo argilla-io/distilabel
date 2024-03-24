@@ -32,7 +32,8 @@ import networkx as nx
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import _Step
+    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 class DAG(_Serializable):
@@ -153,8 +154,10 @@ class DAG(_Serializable):
 
     def get_step_predecessors(self, step_name: str) -> Iterable[str]:
         """Gets the predecessors of a step.
+
         Args:
             step_name: The name of the step.
+
         Returns:
             An iterable with the names of the steps that are predecessors of the given step.
         """
@@ -241,17 +244,18 @@ class DAG(_Serializable):
             for step_name in steps:
                 step: "_Step" = self.get_step(step_name)["step"]
 
+                self._validate_step_process_arguments(step)
                 step.verify_inputs_mappings()
                 step.verify_outputs_mappings()
-                self._validate_step_process_arguments(step)
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
                     if not step.is_generator:
                         raise ValueError(
-                            f"Step '{step_name}' should be `GeneratorStep` as it doesn't"
-                            " have any previous steps"
+                            f"Step '{step_name}' cannot be a root step because it is not"
+                            " a `GeneratorStep`. It should have a previous step in the pipeline."
                         )
+                    self._validate_generator_step_process_signature(step)  # type: ignore
                 else:
                     self._step_inputs_are_available(step)
 
@@ -342,7 +346,9 @@ class DAG(_Serializable):
             )
 
     def _validate_step_process_runtime_parameters(self, step: "_Step") -> None:
-        """Validates that the required runtime parameters of the step are provided.
+        """Validates that the required runtime parameters of the step are provided. A
+        runtime parameter is considered required if it doesn't have a default value. The
+        name of the runtime parameters are separated by dots to represent nested parameters.
 
         Args:
             step: The step to validate.
@@ -351,13 +357,75 @@ class DAG(_Serializable):
             ValueError: If not all the required runtime parameters haven't been provided
                 with a value.
         """
-        runtime_parameters_values = step._runtime_parameters
-        for param_name, has_default_value in step.runtime_parameters_names.items():
-            if param_name not in runtime_parameters_values and not has_default_value:
+
+        def _get_pipeline_aux_code(step_name: str, param_name: str) -> str:
+            parts = param_name.split(".")
+            result = f'pipeline.run(parameters={{"{step_name}":'
+            nested_dict = "..."
+            for part in reversed(parts):
+                nested_dict = f'{{"{part}": {nested_dict}}}'
+            result += nested_dict + "})"
+            return result
+
+        def _check_required_parameter(
+            param_name: str,
+            composed_param_name: str,
+            is_optional_or_nested: Union[bool, "RuntimeParametersNames"],
+            runtime_parameters: Dict[str, Any],
+            runtime_parameters_names: "RuntimeParametersNames",
+        ) -> None:
+            if isinstance(is_optional_or_nested, dict):
+                runtime_parameters_names = runtime_parameters_names[param_name]  # type: ignore
+                for subparam, value in runtime_parameters_names.items():
+                    _check_required_parameter(
+                        param_name=subparam,
+                        composed_param_name=f"{composed_param_name}.{subparam}",
+                        is_optional_or_nested=value,
+                        runtime_parameters=runtime_parameters.get(subparam, {}),
+                        runtime_parameters_names=runtime_parameters_names,
+                    )
+                return
+
+            if not is_optional_or_nested and param_name not in runtime_parameters:
+                aux_code = _get_pipeline_aux_code(step.name, composed_param_name)
                 raise ValueError(
                     f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
-                    " Please, provide a value for it when calling `Pipeline.run`"
+                    " Please, provide a value for it when calling `Pipeline.run` method:\n\n"
+                    f"    {aux_code}"
                 )
+
+        runtime_parameters_names = step.runtime_parameters_names
+        for param_name, value in runtime_parameters_names.items():
+            _check_required_parameter(
+                param_name=param_name,
+                composed_param_name=param_name,
+                is_optional_or_nested=value,
+                runtime_parameters=step._runtime_parameters,
+                runtime_parameters_names=runtime_parameters_names,
+            )
+
+    def _validate_generator_step_process_signature(self, step: "GeneratorStep") -> None:
+        """Validates that the `process` method of the `GeneratorStep` does not expect the
+        `inputs` arg within the method signature, and also the `offset` arg should always
+        be present.
+
+        Args:
+            step: The step to validate.
+
+        Raises:
+            ValueError: If the `process` method of the `GeneratorStep` expects the `inputs` arg.
+            ValueError: If the `process` method of the `GeneratorStep` does not expect the `offset` arg.
+        """
+        if step.get_process_step_input() is not None:
+            raise ValueError(
+                f"Generator step '{step.name}' should not have a parameter with type hint"
+                " `StepInput` within the `process` method signature."
+            )
+        if not any("offset" == parameter.name for parameter in step.process_parameters):
+            raise ValueError(
+                f"Generator step '{step.name}' should have an `offset` parameter within"
+                " the `process` method signature."
+            )
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the DAG to a dict.

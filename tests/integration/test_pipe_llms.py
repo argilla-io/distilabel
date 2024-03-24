@@ -17,8 +17,9 @@ from typing import Any, Dict, Generator, List
 
 from distilabel.llm.huggingface.transformers import TransformersLLM
 from distilabel.llm.openai import OpenAILLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import RuntimeParameter, Step, StepInput
+from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
 from distilabel.steps.task.text_generation import TextGeneration
 
@@ -52,7 +53,7 @@ def test_pipeline_with_llms_serde():
         os.environ["OPENAI_API_KEY"] = "sk-***"
         generate_response = TextGeneration(
             name="generate_response",
-            llm=OpenAILLM(),
+            llm=OpenAILLM(model="gpt-3.5-turbo"),
             output_mappings={"generation": "output"},
         )
         rename_columns.connect(generate_response)
