@@ -84,11 +84,11 @@ def run(
 
 @app.command(name="info", help="Get information about a Distilabel pipeline.")
 def info(config: ConfigOption) -> None:
-    from distilabel.cli.pipeline.utils import get_pipeline, print_pipeline_info
+    from distilabel.cli.pipeline.utils import display_pipeline_information, get_pipeline
 
     try:
         pipeline = get_pipeline(config)
-        print_pipeline_info(pipeline)
+        display_pipeline_information(pipeline)
     except Exception as e:
         typer.secho(str(e), fg=typer.colors.RED, bold=True)
         raise typer.Exit(code=1) from e

@@ -23,6 +23,8 @@ from pydantic.type_adapter import TypeAdapter
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:
+    from rich.panel import Panel
+
     from distilabel.pipeline.base import BasePipeline
 
 
@@ -118,45 +120,145 @@ def get_pipeline(config: str) -> "BasePipeline":
     raise FileNotFoundError(f"Config file '{config}' does not exist.")
 
 
-def build_markdown(pipeline: "BasePipeline") -> str:
-    """Builds a markdown string with the pipeline information.
-
-    Args:
-        pipeline: The pipeline.
-
-    Returns:
-        The markdown string.
-    """
-    markdown = "**Pipeline Information**\n\n"
-    markdown += f"- **Name**: `{pipeline.name}`\n"
-    if pipeline.description:
-        markdown += f"- **Description**: `{pipeline.description}`\n\n"
-
-    markdown += "**Steps**\n\n"
-    for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():
-        step = pipeline.dag.get_step(step_name)["step"]
-        class_name = step.__class__.__name__
-        markdown += f"- `{step_name}`\n"
-        markdown += f"  - *Type*: `{class_name}`\n"
-        markdown += "  - *Runtime Parameters*:\n"
-        for info in runtime_params:
-            name = info["name"]
-            description = info["description"]
-            optional = info["optional"]
-            markdown += f"    - `{name}`: {description}\n"
-            markdown += f"      - *Optional*: {optional}\n"
-
-    return markdown
-
-
-def print_pipeline_info(pipeline: "BasePipeline") -> None:
-    """Prints the pipeline information to the console.
+def display_pipeline_information(pipeline: "BasePipeline") -> None:
+    """Displays the pipeline information to the console.
 
     Args:
         pipeline: The pipeline.
     """
     from rich.console import Console
-    from rich.markdown import Markdown
 
-    console = Console()
-    console.print(Markdown(build_markdown(pipeline)))
+    Console().print(_build_pipeline_panel(pipeline))
+
+
+def _build_pipeline_panel(pipeline: "BasePipeline") -> "Panel":
+    """Builds a panel to display the information of the pipeline.
+
+    Args:
+        pipeline: The pipeline
+
+    Returns:
+        A `rich.panel.Panel` containing the information of the pipeline.
+    """
+    from rich.console import Group
+    from rich.panel import Panel
+
+    information: List[Any] = [f"[bold][magenta]Name:[/bold][/magenta] {pipeline.name}"]
+
+    if pipeline.description:
+        information.append(
+            f"[bold][magenta]Description:[/bold][/magenta] {pipeline.description}"
+        )
+
+    information.extend(
+        [
+            "\n",
+            _build_steps_panel(pipeline),
+            "\n",
+            _build_steps_connection_panel(pipeline),
+        ]
+    )
+
+    return Panel(
+        Group(*information),
+        title="[magenta]Pipeline Information[/magenta]",
+        expand=False,
+        style="light_cyan3",
+    )
+
+
+def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
+    """Builds a panel to display the information of the steps.
+
+    Args:
+        pipeline: The pipeline
+
+    Returns:
+        A `rich.panel.Panel` containing the information of the steps.
+    """
+    from rich.console import Group
+    from rich.panel import Panel
+    from rich.table import Table
+
+    def _add_rows(
+        table: Table, runtime_params: List[Dict[str, Any]], prefix: str = ""
+    ) -> None:
+        for param in runtime_params:
+            # nested (for example `LLM` in `Task`)
+            if "runtime_parameters_info" in param:
+                _add_rows(
+                    table=table,
+                    runtime_params=param["runtime_parameters_info"],
+                    prefix=f"{prefix}{param['name']}.",
+                )
+                continue
+
+            # `LLM` special case
+            if "keys" in param:
+                _add_rows(
+                    table=table,
+                    runtime_params=param["keys"],
+                    prefix=f"{prefix}{param['name']}.",
+                )
+                continue
+
+            optional = param.get("optional", "")
+            if optional != "":
+                optional = "Yes" if optional else "No"
+
+            table.add_row(prefix + param["name"], param.get("description"), optional)
+
+    steps = []
+    for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():
+        step = pipeline.dag.get_step(step_name)["step"]
+        class_name = step.__class__.__name__
+
+        table = Table(
+            title=f"{step.name} ([bold][magenta]{class_name}[/bold][/magenta])",
+            show_header=True,
+            header_style="bold magenta",
+            expand=True,
+        )
+
+        table.add_column("Runtime parameter", style="dim")
+        table.add_column("Description", width=100)
+        table.add_column("Optional", justify="right")
+        _add_rows(table, runtime_params)
+
+        steps.append(table)
+
+    return Panel(
+        Group(*steps),
+        title="[magenta]Steps[/magenta]",
+        expand=False,
+        padding=(1, 1, 0, 1),
+        style="light_cyan3",
+    )
+
+
+def _build_steps_connection_panel(pipeline: "BasePipeline") -> "Panel":
+    from rich.panel import Panel
+    from rich.table import Table
+
+    table = Table(show_header=True, header_style="bold magenta", expand=True)
+    table.add_column("From step", style="dim")
+    table.add_column("To steps", style="dim")
+
+    G = pipeline.dag.G
+
+    for node in G.nodes:
+        if successors := list(G.successors(node)):
+            # Convert list of successors to string
+            successors_str = ", ".join(map(str, successors))
+            table.add_row(str(node), successors_str)
+            continue
+
+        # If a node has no successors, indicate it as such
+        table.add_row(str(node), "No outgoing edges")
+
+    return Panel(
+        table,
+        title="[magenta]Steps connections[/magenta]",
+        style="light_cyan3",
+        expand=True,
+    )
