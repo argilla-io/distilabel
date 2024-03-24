@@ -24,7 +24,6 @@ from jinja2 import Template
 from pydantic import PrivateAttr
 
 from distilabel.llm.base import LLM
-from distilabel.llm.vllm import vLLM
 from distilabel.steps.task.base import Task
 
 if TYPE_CHECKING:
@@ -34,9 +33,7 @@ if TYPE_CHECKING:
 class UltraCM(Task):
     """A critique specialized `Task` following the prompt templated used by UltraCM (from UltraFeedback).
 
-    By default will be initialized with a specific `LLM` model from Hugging Face Hub using `vLLM`, which
-    corresponds to the `openbmb/UltraCM-13b` model, the model that was trained to be used with this task.
-    Take into account that independent of the engine used for the model, it's prepared to work with this specific one.
+    This task should use a `LLM` with "openbmb/UltraCM-13b" model to generate a critique for a given completion.
 
     Input columns:
         - `instruction` (`str`): The instruction that was used to generate the `completion`.
@@ -46,6 +43,7 @@ class UltraCM(Task):
         - `score` (`float`): The overall score of the answer from 1 to 10.
         - `critique` (`str`): The feedback given from the model to improve the answer.
         - `raw_output` (`str`): The raw output from the model, in case it couldn't be parsed.
+        - `model_name` (`str`): The model name used to generate the critique.
 
     Notes:
         Since the UltraCM model has been trained with OpenAI API generated data, the prompting
@@ -59,7 +57,7 @@ class UltraCM(Task):
         - [`openbmb/UltraCM-13b`](https://huggingface.co/openbmb/UltraCM-13b)
     """
 
-    llm: LLM = vLLM(model="openbmb/UltraCM-13b")
+    llm: LLM
     system_prompt: str = (
         "User: A one-turn chat between a curious user and an artificial intelligence"
         " assistant. The assistant gives helpful, very detailed, and polite answers to"
