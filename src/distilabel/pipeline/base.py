@@ -86,16 +86,14 @@ class _GlobalPipelineManager:
 class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
-    Args:
-        cache_dir: The directory where the pipeline will be cached. Defaults to `None`, which will
-            define it internally.
-        use_cache: A flag to indicate if the pipeline should be cached and loaded if available.
-            Defaults to `True`.
-
     Attributes:
         name: The name of the pipeline.
         description: A description of the pipeline.
         dag: The `DAG` instance that represents the pipeline.
+        _cache_dir: The directory where the pipeline will be cached.
+        _logger: The logger instance that will be used by the pipeline.
+        _batch_manager: The batch manager that will manage the batches received from the
+            steps while running the pipeline.
     """
 
     def __init__(
@@ -103,14 +101,20 @@ class BasePipeline(_Serializable):
         name: str,
         description: Optional[str] = None,
         cache_dir: Optional["PathLike"] = None,
-        use_cache: bool = True,
     ) -> None:
+        """Initialize the `BasePipeline` instance.
+
+        Args:
+            name: The name of the pipeline.
+            description: A description of the pipeline. Defaults to `None`.
+            cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
+        """
         self.name = name
         self.description = description
         self.dag = DAG()
         self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
-        self._use_cache = use_cache
         self._logger = get_logger("pipeline")
+
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
 
@@ -171,7 +175,11 @@ class BasePipeline(_Serializable):
 
         return hasher.hexdigest()
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":  # type: ignore
+    def run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        use_cache: bool = True,
+    ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
 
@@ -180,14 +188,17 @@ class BasePipeline(_Serializable):
 
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
-                the parameter name as the key and the parameter value as the value.
+                the runtime parameters for the step as the value. Defaults to `None`.
+            use_cache: whether to use the cache from previous pipeline runs. Defaults to
+                `True`.
 
         Returns:
             The `Distiset` created by the pipeline.
         """
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
-        self._load_from_cache()
+        if use_cache:
+            self._load_from_cache()
 
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.
@@ -302,9 +313,6 @@ class BasePipeline(_Serializable):
         """Will try to load the `BasePipeline` from the cache dir if found, updating
         the internal `DAG` and `_BatchManager`.
         """
-        if not self._use_cache:
-            return
-
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
