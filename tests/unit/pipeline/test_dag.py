@@ -229,7 +229,7 @@ class TestDAG:
 
         with pytest.raises(
             ValueError,
-            match="Step 'dummy_step_1' should be `GeneratorStep` as it doesn't have any previous steps",
+            match="Step 'dummy_step_1' cannot be a root step because it is not a `GeneratorStep`.",
         ):
             dag.validate()
 

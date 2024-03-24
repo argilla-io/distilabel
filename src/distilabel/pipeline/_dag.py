@@ -252,8 +252,8 @@ class DAG(_Serializable):
                 if trophic_level == 1:
                     if not step.is_generator:
                         raise ValueError(
-                            f"Step '{step_name}' should be `GeneratorStep` as it doesn't"
-                            " have any previous steps"
+                            f"Step '{step_name}' cannot be a root step because it is not"
+                            " a `GeneratorStep`. It should have a previous step in the pipeline."
                         )
                     self._validate_generator_step_process_signature(step)  # type: ignore
                 else:
