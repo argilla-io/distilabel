@@ -12,13 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 import pytest
+from distilabel.llm.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.task.typing import ChatType
 from distilabel.steps.task.ultracm import UltraCM
 
 from tests.unit.steps.task.utils import DummyLLM
+
+
+class UltraCMLLM(DummyLLM):
+    @property
+    def model_name(self) -> str:
+        return "ultracm-model"
+
+    def generate(
+        self, inputs: List[ChatType], num_generations: int = 1, **kwargs: Any
+    ) -> List[GenerateOutput]:
+        return [
+            ["This is a critique.\n\nOverall Score: 7" for _ in range(num_generations)]
+            for _ in inputs
+        ]
 
 
 class TestUltraCM:
@@ -53,7 +69,12 @@ class TestUltraCM:
             ),
             (
                 None,
-                {"score": None, "critique": None, "raw_output": None},
+                {
+                    "score": None,
+                    "critique": None,
+                    "raw_output": None,
+                    "model_name": None,
+                },
             ),
             (
                 "Text that cannot be parsed.",
@@ -73,3 +94,20 @@ class TestUltraCM:
 
         result = task.format_output(output=output)
         assert result == expected
+
+    def test_process(self) -> None:
+        task = UltraCM(name="ultracm", llm=UltraCMLLM(), pipeline=Pipeline())
+        task.load()
+        result = next(
+            task.process([{"instruction": "test", "completion": "completion"}])
+        )
+        assert result == [
+            {
+                "instruction": "test",
+                "completion": "completion",
+                "score": 7.0,
+                "critique": "This is a critique.",
+                "raw_output": None,
+                "model_name": "ultracm-model",
+            }
+        ]

@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 from jinja2 import Template
 from pydantic import PrivateAttr
@@ -23,30 +29,6 @@ from distilabel.steps.task.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
-
-
-_ULTRACM_TEMPLATE = """Given my answer to an instruction, your role is to provide specific and constructive feedback for me. You should find the best way for me to learn from your feedback and improve my performance.
-
-You should consider multiple aspects of my answer, including helpfulness, truthfulness, honesty, and to what extent the answer follows instructions.
----
-
-### Instruction
-{{ instruction }}
-
-### Answer
-{{ completion }}
----
-
-Please act as a teacher and provide specific and constructive feedback. Besides describing the weaknesses of the answer, you should also provide specific suggestions to guide me toward understanding how to improve. Please note, however, that your suggestions should help me better complete the instructions, but you should not introduce new requirements that are not mentioned in the instructions. Your feedback should focus on enhancing my ability to think critically and respond accurately. However, never explicitly provide the reference answer, nor do polite phrases be required. Only respond with concise feedback in chat style. Finally, score the overall quality of the answer from 1 to 10, where 1 is the worst and 10 is the best.
-
-*Format*
-### Feedback
-[Your feedback]
-Overall Score: [1-10]
-—--
-
-### Feedback
-"""
 
 
 class UltraCM(Task):
@@ -81,13 +63,21 @@ class UltraCM(Task):
     system_prompt: str = (
         "User: A one-turn chat between a curious user and an artificial intelligence"
         " assistant. The assistant gives helpful, very detailed, and polite answers to"
-        " the user's questions.</s>"
+        " the user's questions."
     )
-    _template: Optional["Template"] = PrivateAttr(...)
+    _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
         super().load()
-        self._template = Template(_ULTRACM_TEMPLATE)
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "task"
+            / "templates"
+            / "ultracm.jinja2"
+        )
+        with open(_path, "r") as f:
+            self._template = Template(f.read())
 
     @property
     def inputs(self) -> List[str]:
@@ -97,13 +87,13 @@ class UltraCM(Task):
     @property
     def outputs(self) -> List[str]:
         """The output for the task are `score` and `critique`."""
-        return ["score", "critique", "raw_output"]
+        return ["score", "critique", "raw_output", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` with a default system prompt as defined in the
         model."""
         return [
-            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": self.system_prompt + "</s>"},
             {
                 "role": "user",
                 "content": f"User: {self._template.render(**input)}</s>\nAssistant: ",
@@ -126,6 +116,7 @@ class UltraCM(Task):
         if output is None:
             return {output: None for output in self.outputs}
 
+        result = {"score": None, "critique": None, "raw_output": None}
         output = output.strip("\n").strip()
         if "Overall Score:" in output:
             critique, score = output.split("Overall Score:")
