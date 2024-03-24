@@ -237,6 +237,14 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
 
 
 def _build_steps_connection_panel(pipeline: "BasePipeline") -> "Panel":
+    """Builds a panel to display the connections of the steps of the pipeline.
+
+    Args:
+        pipeline: The pipeline
+
+    Returns:
+        A `rich.panel.Panel` containing the connection of the steps.
+    """
     from rich.panel import Panel
     from rich.table import Table
 
