@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import multiprocessing as mp
 import signal
 import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
+
+import multiprocess as mp
 
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
@@ -82,7 +83,7 @@ class Pipeline(BasePipeline):
         write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
         num_processes = len(self.dag)
-        ctx = mp.get_context("forkserver")
+        ctx = mp.get_context("fork")  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(num_processes) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
@@ -119,7 +120,7 @@ class Pipeline(BasePipeline):
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
         while self._batch_manager.can_generate():  # type: ignore
-            self._logger.debug("Waiting for output batch from step...")
+            self._logger.debug("🫷Waiting for output batch from step...")
             if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG or batch is None:
                 self._logger.debug(
                     "Received `_BATCH_STOP_FLAG` from output queue. Breaking loop."
@@ -127,7 +128,7 @@ class Pipeline(BasePipeline):
                 break
 
             self._logger.debug(
-                f"Received {batch.seq_no} from step '{batch.step_name}' from output"
+                f"🧤Received {batch.seq_no} from step '{batch.step_name}' from output"
                 f" queue: {batch}"
             )
 
