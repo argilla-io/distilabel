@@ -83,9 +83,10 @@ class Distiset(dict):
                     ),
                     tags=["synthetic", "distilabel", "rlaif"],
                 ),
+                repo_id=repo_id,
             )
             card.push_to_hub(
-                repo_id=repo_id,
+                repo_id,
                 repo_type="dataset",
                 token=token,
             )
