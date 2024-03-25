@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import hashlib
+import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import (
@@ -112,7 +113,14 @@ class BasePipeline(_Serializable):
         self.name = name
         self.description = description
         self.dag = DAG()
-        self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
+
+        if cache_dir:
+            self._cache_dir = Path(cache_dir)
+        elif env_cache_dir := os.getenv("DISTILABEL_CACHE_DIR"):
+            self._cache_dir = Path(env_cache_dir)
+        else:
+            self._cache_dir = BASE_CACHE_DIR
+
         self._logger = get_logger("pipeline")
 
         # It's set to None here, will be created in the call to run

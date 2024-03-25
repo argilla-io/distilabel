@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from unittest import mock
 
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -121,6 +123,12 @@ class TestBasePipeline:
                 },
             ],
         }
+
+    def test_cache_dir_env_variable(self) -> None:
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["DISTILABEL_CACHE_DIR"] = "/tmp/unit-test"
+            pipeline = BasePipeline(name="unit-test-pipeline")
+            assert pipeline._cache_dir == Path("/tmp/unit-test")
 
 
 class TestBatch:
