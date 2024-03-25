@@ -26,7 +26,7 @@ from pydantic import ValidationError
 
 class TestEvolInstruct:
     def test_passing_pipeline(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -37,7 +37,7 @@ class TestEvolInstruct:
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self, dummy_llm: LLM) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             task = EvolInstruct(
                 name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
             )
@@ -49,13 +49,13 @@ class TestEvolInstruct:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
-            EvolInstruct(name="task", pipeline=Pipeline())  # type: ignore
+            EvolInstruct(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             EvolInstruct(name="task", llm=dummy_llm, num_evolutions=2)
 
     def test_process(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -70,7 +70,7 @@ class TestEvolInstruct:
         ]
 
     def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task",
             llm=dummy_llm,
@@ -89,7 +89,7 @@ class TestEvolInstruct:
         ]
 
     def test_process_generate_answers(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task",
             llm=dummy_llm,
@@ -109,7 +109,7 @@ class TestEvolInstruct:
         ]
 
     def test_serialization(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -168,6 +168,6 @@ class TestEvolInstruct:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = EvolInstruct.from_dict(task.dump())
             assert isinstance(new_task, EvolInstruct)

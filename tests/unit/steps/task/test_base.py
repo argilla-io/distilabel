@@ -42,7 +42,7 @@ class DummyTask(Task):
 
 class TestTask:
     def test_passing_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.name == "task"
@@ -52,7 +52,7 @@ class TestTask:
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             llm = DummyLLM()
             task = DummyTask(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
@@ -66,7 +66,7 @@ class TestTask:
         with pytest.raises(
             ValidationError, match="llm\n  Field required \\[type=missing"
         ):
-            DummyTask(name="task", pipeline=Pipeline())  # type: ignore
+            DummyTask(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(
             TypeError,
@@ -100,7 +100,7 @@ class TestTask:
     def test_process(
         self, group_generations: bool, expected: List[Dict[str, Any]]
     ) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = DummyTask(
             name="task",
@@ -113,7 +113,7 @@ class TestTask:
         assert result == expected
 
     def test_serialization(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
@@ -159,6 +159,6 @@ class TestTask:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = DummyTask.from_dict(task.dump())
             assert isinstance(new_task, DummyTask)

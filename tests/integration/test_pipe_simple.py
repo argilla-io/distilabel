@@ -62,7 +62,7 @@ class GenerateResponse(Step):
 
 
 def run_pipeline():
-    with Pipeline() as pipeline:
+    with Pipeline(name="unit-test-pipeline") as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
         rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
         generate_response = GenerateResponse(
