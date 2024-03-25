@@ -20,9 +20,9 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   features:
-    - navigation.instant
-    - navigation.tabs
-    - toc.follow
+    - navigation.sections  # Sections are included in the navigation on the left.
+    - toc.integrate  # # Table of contents is integrated on the left; does not appear separately on the right.
+    - header.autohide  # header disappears as you scroll
     - content.code.copy
     - content.code.annotate
   palette:
@@ -64,34 +64,46 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - footnotes
-  # activating permalink: true makes the anchor link works in the notebooks
   - toc:
       permalink: true
 
 plugins:
   - search
+  - autorefs  # Cross-links to headings
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          selection:
+            inherited_members: true  # Allow looking up inherited methods
+          rendering:
+            show_root_heading: true  # actually display anything at all...
+            # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            show_source: false  # don't include source code
+            members_order: source  # order methods according to their order of definition in the source code, not alphabetical order
+            heading_level: 4
   - social
-  - mknotebooks
 
 nav:
   - Getting started: index.md
-  - Concepts: concepts.md
-  - Tutorials:
-      - ⚖️ Create a legal preference dataset: tutorials/pipeline-notus-instructions-preferences-legal.ipynb
-      - 🧼 Clean an existing preference dataset: tutorials/clean-preference-dataset-judgelm-gpt.ipynb
-      - 🧮 Create a mathematical preference dataset : tutorials/create-a-math-preference-dataset.ipynb
-      - 🦒 Improving Text Embeddings with LLMs : tutorials/improving-text-embeddings-with-llms.ipynb
-  - Technical References:
-      - Concept Guides:
-          - technical-reference/index.md
-          - LLMs: technical-reference/llms.md
-          - Tasks: technical-reference/tasks.md
-          - Pipelines: technical-reference/pipeline.md
-      - API Reference: reference/
+  - API Reference:
+    - LLMs:
+      - 'api/llm/anthropic.md'
+      - 'api/llm/anyscale.md'
+      - 'api/llm/litellm.md'
+      - 'api/llm/llamacpp.md'
+      - 'api/llm/mistral.md'
+      - 'api/llm/ollama.md'
+      - 'api/llm/openai.md'
+      - 'api/llm/together.md'
+      - 'api/llm/vertexai.md'
+      - 'api/llm/vllm.md'
+    - Integrations:
+      - 'api/integrations/argilla.md'    
