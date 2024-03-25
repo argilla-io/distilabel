@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
+import sys
 from typing import TYPE_CHECKING, Any, Dict, List, Union
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 from jinja2 import Template
 from pydantic import PrivateAttr
@@ -22,25 +27,6 @@ from distilabel.steps.task.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
-
-_SELF_INSTRUCT_TEMPLATE = """
-# Task Description
-Develop {{ num_instructions }} user queries that can be received by the given AI application and applicable to the provided context. Emphasize diversity in verbs and linguistic structures within the model's textual capabilities.
-
-# Criteria for Queries
-{{ criteria_for_query_generation }}
-Write each query on a separate line and avoid using numbered lists or bullet points.
-
-# AI Application
-{{ application_description }}
-
-# Context
-{{ input }}
-
-# Output
-"""
-
-_PARSE_OUTPUT_REGEX = re.compile(r"(?<=# Output\n)(.*)", re.IGNORECASE)
 
 
 class SelfInstruct(Task):
@@ -64,15 +50,31 @@ class SelfInstruct(Task):
     """
 
     num_instructions: int = 5
+
     criteria_for_query_generation: str = (
         "Incorporate a diverse range of verbs, avoiding repetition.\n"
         "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
         "Design queries to be self-contained and standalone.\n"
         'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
     )
+
     application_description: str = "AI assistant"
 
-    _template: Template = PrivateAttr(default=Template(_SELF_INSTRUCT_TEMPLATE))
+    _template: Template = PrivateAttr(default=...)
+
+    def load(self) -> None:
+        """Loads the Jinja2 template for SelfInstruct."""
+        super().load()
+
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "task"
+            / "templates"
+            / "self-instruct.jinja2"
+        )
+
+        self._template = Template(open(_path).read())
 
     @property
     def inputs(self) -> List[str]:
@@ -83,15 +85,17 @@ class SelfInstruct(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
-        return [{
-            "role": "user",
-            "content": self._template.render(
-                input=input["input"],
-                application_description=self.application_description,
-                criteria_for_query_generation=self.criteria_for_query_generation,
-                num_instructions=self.num_instructions,
-            )
-        }]
+        return [
+            {
+                "role": "user",
+                "content": self._template.render(
+                    input=input["input"],
+                    application_description=self.application_description,
+                    criteria_for_query_generation=self.criteria_for_query_generation,
+                    num_instructions=self.num_instructions,
+                ),
+            }
+        ]
 
     @property
     def outputs(self):
