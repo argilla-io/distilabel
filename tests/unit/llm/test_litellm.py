@@ -85,6 +85,7 @@ class TestLiteLLM:
                 "module": "distilabel.llm.litellm",
                 "name": "LiteLLM",
             },
+            "generation_kwargs": {},
         }
 
         assert llm.dump() == _dump
