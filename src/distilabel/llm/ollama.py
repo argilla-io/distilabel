@@ -14,9 +14,10 @@
 
 from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from ollama import AsyncClient, Options
@@ -28,15 +29,16 @@ class OllamaLLM(AsyncLLM):
     """Ollama LLM implementation running the Async API client.
 
     Args:
-        model: the model name to use for the LLM e.g. "notus", etc.
+        model: the model name to use for the LLM e.g. "notus".
         host: the host to use for the LLM e.g. "https://ollama.com".
         max_retries: the maximum number of retries for the LLM.
         timeout: the timeout for the LLM.
-
     """
 
     model: str
-    host: Union[str, None] = None
+    host: Optional[RuntimeParameter[str]] = Field(
+        default=None, description="The host of the Ollama API."
+    )
     timeout: int = 120
     follow_redirects: bool = True
 
@@ -63,7 +65,7 @@ class OllamaLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    async def agenerate(
+    async def agenerate(  # type: ignore
         self,
         input: "ChatType",
         num_generations: int = 1,
@@ -77,7 +79,7 @@ class OllamaLLM(AsyncLLM):
         Args:
             input: the input to use for the generation.
             num_generations: the number of generations to produce. Defaults to `1`.
-            format: the format to use for the generation. Defaults to "".
+            format: the format to use for the generation. Defaults to `""`.
             options: the options to use for the generation. Defaults to `None`.
             keep_alive: whether to keep the connection alive. Defaults to `None`.
 
@@ -85,15 +87,17 @@ class OllamaLLM(AsyncLLM):
             A list of strings as completion for the given input.
         """
         generations = []
+        # TODO: remove this for-loop and override the `generate` method
         for _ in range(num_generations):
-            completion = await self._aclient.chat(
+            completion = await self._aclient.chat(  # type: ignore
                 model=self.model,
-                messages=input,
+                messages=input,  # type: ignore
                 stream=False,
                 format=format,
                 options=options,
                 keep_alive=keep_alive,
             )
+            # TODO: improve error handling
             generations.append(completion["message"]["content"])
 
         return generations

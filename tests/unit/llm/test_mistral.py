@@ -86,6 +86,7 @@ class TestMistralLLM:
         _dump = {
             "model": "mistral-tiny",
             "endpoint": "https://api.mistral.ai",
+            "generation_kwargs": {},
             "max_retries": 5,
             "timeout": 120,
             "max_concurrent_requests": 64,

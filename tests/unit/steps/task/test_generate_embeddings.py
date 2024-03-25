@@ -25,6 +25,7 @@ def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
         model="TaylorAI/bge-micro-v2",
         model_kwargs={"is_decoder": True},
+        cuda_devices=[],
     )
     llm.load()
 

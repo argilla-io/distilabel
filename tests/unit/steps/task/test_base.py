@@ -49,7 +49,6 @@ class TestTask:
         assert task.llm is llm
         assert task.num_generations == 1
         assert task.group_generations is False
-        assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self) -> None:
@@ -58,7 +57,6 @@ class TestTask:
             task = DummyTask(name="task", llm=llm, pipeline=pipeline)
             assert task.name == "task"
             assert task.llm is llm
-            assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
     def test_with_errors(self) -> None:
@@ -124,30 +122,35 @@ class TestTask:
             "output_mappings": {},
             "input_batch_size": 50,
             "llm": {
+                "generation_kwargs": {},
                 "type_info": {
                     "module": "tests.unit.steps.task.utils",
                     "name": "DummyLLM",
-                }
+                },
             },
-            "llm_kwargs": {},
-            "generation_kwargs": {},
             "group_generations": False,
             "num_generations": 1,
             "runtime_parameters_info": [
                 {
-                    "name": "llm_kwargs",
-                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
-                    "optional": True,
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The kwargs to be propagated to either `generate` or "
+                            "`agenerate` methods within each `LLM`.",
+                            "keys": [
+                                {
+                                    "name": "kwargs",
+                                    "optional": False,
+                                },
+                            ],
+                            "name": "generation_kwargs",
+                        },
+                    ],
                 },
                 {
                     "name": "num_generations",
                     "description": "The number of generations to be produced per input.",
                     "optional": True,
-                },
-                {
-                    "name": "generation_kwargs",
-                    "optional": True,
-                    "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
                 },
             ],
             "type_info": {

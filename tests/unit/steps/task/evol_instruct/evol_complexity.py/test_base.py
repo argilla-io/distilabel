@@ -32,5 +32,4 @@ class TestEvolComplexity:
         assert task.llm is dummy_llm
         assert task.num_evolutions == 2
         assert task.mutation_templates == MutationTemplates
-        assert task.generation_kwargs == {}
         assert "BREADTH" not in task.mutation_templates.__members__

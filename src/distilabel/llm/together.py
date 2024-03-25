@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pydantic import PrivateAttr
+import os
+from typing import Optional
+
+from pydantic import Field, PrivateAttr, SecretStr
 
 from distilabel.llm.openai import OpenAILLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+_TOGETHER_API_KEY_ENV_VAR_NAME = "TOGETHER_API_KEY"
 
 
 class TogetherLLM(OpenAILLM):
@@ -32,6 +38,15 @@ class TogetherLLM(OpenAILLM):
             used, or `None` if not set.
     """
 
-    _base_url_env_var: str = PrivateAttr(default="TOGETHER_BASE_URL")
-    _default_base_url: str = PrivateAttr("https://api.together.xyz/v1")
-    _api_key_env_var: str = PrivateAttr(default="TOGETHER_API_KEY")
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default_factory=lambda: os.getenv(
+            "TOGETHER_BASE_URL", "https://api.together.xyz/v1"
+        ),
+        description="The base URL to use for the Together API requests.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default_factory=lambda: os.getenv(_TOGETHER_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Together API.",
+    )
+
+    _api_key_env_var: str = PrivateAttr(_TOGETHER_API_KEY_ENV_VAR_NAME)

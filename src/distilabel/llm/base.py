@@ -13,24 +13,39 @@
 # limitations under the License.
 
 import asyncio
+import inspect
 import logging
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, PrivateAttr, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from distilabel.mixins.runtime_parameters import (
+    RuntimeParameter,
+    RuntimeParametersMixin,
+)
+from distilabel.utils.docstring import parse_google_docstring
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.llm.typing import GenerateOutput, HiddenState
+    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.task.typing import ChatType
+    from distilabel.utils.docstring import Docstring
 
 
-class LLM(BaseModel, _Serializable, ABC):
+class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     model_config = ConfigDict(
         arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
+    )
+
+    generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="The kwargs to be propagated to either `generate` or `agenerate`"
+        " methods within each `LLM`.",
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
@@ -57,6 +72,75 @@ class LLM(BaseModel, _Serializable, ABC):
         per input in `inputs`."""
         pass
 
+    @cached_property
+    def generate_parameters(self) -> List[inspect.Parameter]:
+        """Returns the parameters of the `generate` method.
+
+        Returns:
+            A list containing the parameters of the `generate` method.
+        """
+        return list(inspect.signature(self.generate).parameters.values())
+
+    @property
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
+        """Returns the runtime parameters of the `LLM`, which are combination of the
+        attributes of the `LLM` type hinted with `RuntimeParameter` and the parameters
+        of the `generate` method that are not `input` and `num_generations`.
+
+        Returns:
+            A dictionary with the name of the runtime parameters as keys and a boolean
+            indicating if the parameter is optional or not.
+        """
+        runtime_parameters = super().runtime_parameters_names
+        runtime_parameters["generation_kwargs"] = {}
+
+        # runtime parameters from the `generate` method
+        for param in self.generate_parameters:
+            if param.name in ["input", "inputs", "num_generations"]:
+                continue
+            is_optional = param.default != inspect.Parameter.empty
+            runtime_parameters["generation_kwargs"][param.name] = is_optional
+
+        return runtime_parameters
+
+    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+        """Gets the information of the runtime parameters of the `LLM` such as the name
+        and the description. This function is meant to include the information of the runtime
+        parameters in the serialized data of the `LLM`.
+
+        Returns:
+            A list containing the information for each runtime parameter of the `LLM`.
+        """
+        runtime_parameters_info = super().get_runtime_parameters_info()
+
+        generation_kwargs_info = next(
+            runtime_parameter_info
+            for runtime_parameter_info in runtime_parameters_info
+            if runtime_parameter_info["name"] == "generation_kwargs"
+        )
+
+        generate_docstring_args = self.generate_parsed_docstring["args"]
+
+        generation_kwargs_info["keys"] = []
+        for key, value in generation_kwargs_info["optional"].items():
+            info = {"name": key, "optional": value}
+            if description := generate_docstring_args.get(key):
+                info["description"] = description
+            generation_kwargs_info["keys"].append(info)
+
+        generation_kwargs_info.pop("optional")
+
+        return runtime_parameters_info
+
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
+        """Returns the parsed docstring of the `generate` method.
+
+        Returns:
+            The parsed docstring of the `generate` method.
+        """
+        return parse_google_docstring(self.generate)
+
     def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
 
@@ -71,56 +155,6 @@ class LLM(BaseModel, _Serializable, ABC):
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
         )
 
-    def _handle_api_key_value(
-        self,
-        self_value: Union[str, SecretStr, None],
-        load_value: Union[str, SecretStr, None],
-        env_var: str,
-    ) -> SecretStr:
-        """Method to handle the API key for the LLM, either from the `self_value` or the
-        `load_value` i.e. the value provided within the `__init__` method of the `LLM` if
-        applicable, and the value provided via the `load` method as a `RuntimeParameter` propagated
-        via the `llm_kwargs`. Additionally, the `env_var` is also provided to guide the user on
-        what's the environment variable name that needs to be used to assign the API Key value.
-
-        Args:
-            self_value: the value provided within the `__init__` method of the `LLM`.
-            load_value: the value provided via the `load` method as a `RuntimeParameter`.
-            env_var: the environment variable name to be used to assign the API Key value.
-
-        Raises:
-            ValueError: if the `api_key` is not present in the `LLM`.
-            ValueError: if the `api_key` is and is not provided either via the `api_key` arg or
-                runtime parameter. At most one of them should be provided.
-
-        Returns:
-            The API key value as a `SecretStr`.
-        """
-
-        if not hasattr(self, "api_key"):
-            raise ValueError(
-                f"You are trying to assign the `api_key` to the current `LLM={self.__class__.__name__}`,"
-                " but the `api_key` attribute is not present."
-            )
-
-        if self_value is None and load_value is None:
-            raise ValueError(
-                "You must provide an API key either via the `api_key` arg or runtime"
-                f" parameter, or either via the `{env_var}` environment variable."
-            )
-
-        if self_value is not None and load_value is not None:
-            raise ValueError(
-                "You must provide an API key either via the `api_key` arg or runtime"
-                f" parameter, or either via the `{env_var}` environment variable,"
-                " but not both."
-            )
-
-        api_key = self_value if self_value is not None else load_value
-        if isinstance(api_key, str):
-            api_key = SecretStr(api_key)  # type: ignore
-        return api_key  # type: ignore
-
 
 class AsyncLLM(LLM):
     """Abstract class for asynchronous LLMs, so as to benefit from the async capabilities
@@ -130,6 +164,24 @@ class AsyncLLM(LLM):
     """
 
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
+
+    @cached_property
+    def generate_parameters(self) -> List[inspect.Parameter]:
+        """Returns the parameters of the `agenerate` method.
+
+        Returns:
+            A list containing the parameters of the `agenerate` method.
+        """
+        return list(inspect.signature(self.agenerate).parameters.values())
+
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
+        """Returns the parsed docstring of the `agenerate` method.
+
+        Returns:
+            The parsed docstring of the `agenerate` method.
+        """
+        return parse_google_docstring(self.agenerate)
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":

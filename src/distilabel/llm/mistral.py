@@ -14,18 +14,13 @@
 
 import asyncio
 import os
-import sys
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
-
-from pydantic import PrivateAttr, SecretStr, model_validator
+from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -33,6 +28,8 @@ if TYPE_CHECKING:
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+_MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
 
 
 class MistralLLM(AsyncLLM):
@@ -51,23 +48,18 @@ class MistralLLM(AsyncLLM):
 
     model: str
     endpoint: str = "https://api.mistral.ai"
-    api_key: Optional[SecretStr] = None
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default_factory=lambda: os.getenv(_MISTRALAI_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Mistral API.",
+    )
     max_retries: int = 5
     timeout: int = 120
     max_concurrent_requests: int = 64
 
-    _api_key_env_var: str = PrivateAttr(default="MISTRAL_API_KEY")
+    _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
 
-    @model_validator(mode="after")
-    def api_key_provided_or_env_var(self) -> Self:
-        if self.api_key is None:
-            self.api_key = os.getenv(self._api_key_env_var, None)  # type: ignore
-        if self.api_key is not None and isinstance(self.api_key, str):
-            self.api_key = SecretStr(self.api_key)
-        return self
-
-    def load(self, api_key: Optional[Union[str, SecretStr]] = None) -> None:
+    def load(self) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
 
         try:
@@ -78,13 +70,11 @@ class MistralLLM(AsyncLLM):
                 " `pip install mistralai`."
             ) from ie
 
-        # TODO: this may not be needed at the end, and a simple `self.api_key = self.api_key or api_key`
-        # may do the work.
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key,
-            load_value=api_key,
-            env_var=self._api_key_env_var,
-        )
+        if self.api_key is None:
+            raise ValueError(
+                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
+                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
+            )
 
         self._aclient = MistralAsyncClient(
             api_key=self.api_key.get_secret_value(),
