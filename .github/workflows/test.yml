@@ -49,7 +49,7 @@ jobs:
           else
             pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,llama-cpp,anthropic]
           fi
-          pip install git+https://github.com/yuchenlin/LLM-Blender.git
+          pip install git+https://github.com/yuchenlin/LLM-Blender.git@3c2d71f
 
       - name: Lint
         run: make lint
