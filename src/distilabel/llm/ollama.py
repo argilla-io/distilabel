@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
 
 
-class OllamalLLM(AsyncLLM):
-    """Mistral LLM implementation running the async API client.
+class OllamaLLM(AsyncLLM):
+    """Ollama LLM implementation running the Async API client.
 
     Args:
         model: the model name to use for the LLM e.g. "notus".
