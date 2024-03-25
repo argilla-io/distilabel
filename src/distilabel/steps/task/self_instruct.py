@@ -44,8 +44,7 @@ _PARSE_OUTPUT_REGEX = re.compile(r"(?<=# Output\n)(.*)", re.IGNORECASE)
 
 
 class SelfInstruct(Task):
-    """
-    SelfInstructTask is a pre-defined task that, given a number of instructions, a certain criteria for query_generation,
+    """SelfInstruct is a pre-defined task that, given a number of instructions, a certain criteria for query generations,
     an application description, and an input, generates a number of instruction related to the given input and following
     what is stated in the criteria for query generation and the application description. It is based in the SelfInstruct
     framework from the paper 'Self-Instruct: Aligning Language Models with Self-Generated Instructions'.
