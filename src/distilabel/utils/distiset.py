@@ -21,7 +21,7 @@ from pyarrow.lib import ArrowInvalid
 
 from distilabel.utils.logging import get_logger
 
-logger = get_logger("utils.data")
+logger = get_logger("utils.distiset")
 
 
 class Distiset(dict):
@@ -31,12 +31,15 @@ class Distiset(dict):
     `DAG` and the values are `datasets.Dataset`.
     """
 
+    pipeline_path: Optional[Path] = None
+
     def push_to_hub(
         self,
         repo_id: str,
         commit_message: Optional[str] = None,
         private: bool = False,
         token: Optional[str] = None,
+        generate_card: bool = True,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
         corresponding to the leaf step that generated it.
@@ -54,6 +57,8 @@ class Distiset(dict):
                 An optional authentication token for the Hugging Face Hub. If no token is passed, will default
                 to the token saved locally when logging in with `huggingface-cli login`. Will raise an error
                 if no token is passed and the user is not logged-in.
+            generate_card:
+                Whether to generate a dataset card or not. Defaults to True.
         """
         for name, dataset in self.items():
             dataset.push_to_hub(
@@ -61,6 +66,23 @@ class Distiset(dict):
                 config_name=name,
                 commit_message=commit_message,
                 private=private,
+                token=token,
+            )
+
+        if generate_card:
+            from huggingface_hub import DatasetCardData
+
+            from distilabel.utils.card.dataset_card import DistilabelDatasetCard
+
+            card = DistilabelDatasetCard.from_template(
+                card_data=DatasetCardData(
+                    config_names=sorted(self.keys()),
+                    tags=["synthetic", "distilabel", "rlaif"],
+                ),
+            )
+            card.push_to_hub(
+                repo_id=repo_id,
+                repo_type="dataset",
                 token=token,
             )
 
