@@ -67,7 +67,7 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        super().run(parameters)
+        super().run(parameters, use_cache)
 
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)

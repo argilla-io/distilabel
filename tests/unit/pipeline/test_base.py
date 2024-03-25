@@ -1027,16 +1027,17 @@ class TestPipelineSerialization:
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             with BasePipeline(
-                name="unit-test-pipeline", cache_dir=tmpdirname, use_cache=use_cache
+                name="unit-test-pipeline", cache_dir=tmpdirname
             ) as pipeline:
                 print(len(pipeline.dag))
-                assert pipeline._use_cache == use_cache
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
+
+                pipeline.run({}, use_cache=use_cache)
 
                 assert not pipeline._cache_location["pipeline"].exists()
                 # Set the _BatchManager to the pipeline to check it exists afterwards
@@ -1045,11 +1046,7 @@ class TestPipelineSerialization:
 
                 assert pipeline._cache_location["pipeline"].exists()
 
-            with BasePipeline(
-                name="unit-test-pipeline", cache_dir=tmpdirname, use_cache=use_cache
-            ) as pipe:
-                assert pipe._use_cache == use_cache
-
+            with BasePipeline(name="unit-test-pipeline", cache_dir=tmpdirname) as pipe:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -1057,7 +1054,7 @@ class TestPipelineSerialization:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
 
-                pipe._load_from_cache()
+                pipe.run({}, use_cache=use_cache)
                 if use_cache:
                     assert pipe._batch_manager
                 else:

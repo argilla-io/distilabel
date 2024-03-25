@@ -29,10 +29,19 @@ def test_parse_runtime_parameters() -> None:
             (["step_1", "key2"], "value2"),
             (["step_2", "key1"], "value1"),
             (["step_2", "key2"], "value2"),
+            (["step_2", "key3", "subkey1"], "subvalue1"),
+            (["step_2", "key3", "subkey2"], "subvalue2"),
         ]
     ) == {
         "step_1": {"key1": "value1", "key2": "value2"},
-        "step_2": {"key1": "value1", "key2": "value2"},
+        "step_2": {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": {
+                "subkey1": "subvalue1",
+                "subkey2": "subvalue2",
+            },
+        },
     }
 
 
