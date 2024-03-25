@@ -23,8 +23,6 @@ from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep
 
-
-class TestPipeline:
     def test_request_initial_batches(
         self, dummy_generator_step: "GeneratorStep"
     ) -> None:
@@ -65,7 +63,7 @@ class TestPipeline:
         queue = mock.MagicMock()
         shared_info = mock.MagicMock()
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(name="dummy_step_1")
             dummy_step_2 = DummyStep2(name="dummy_step_2")
