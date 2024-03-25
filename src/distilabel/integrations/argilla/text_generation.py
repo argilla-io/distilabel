@@ -31,41 +31,45 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class PromptCompletionToArgilla(Argilla):
+class TextGenerationToArgilla(Argilla):
     """Step that creates a dataset in Argilla during the load phase, and then pushses the input
-    batches into it as records. This dataset is a prompt-completion dataset, where there's one field
-    per each input, and then a label question to rate the quality of the completion in either bad,
-    good or excellent.
+    batches into it as records. This dataset is a text-generation dataset, where there's one field
+    per each input, and then a label question to rate the quality of the completion in either bad
+    (represented with 👎) or good (represented with 👍).
 
     Args:
+        dataset_name: The name of the dataset in Argilla.
+        dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
+            `None`, which means it will be created in the default workspace.
         api_url: The URL of the Argilla API. Defaults to `None`, which means it will be read from
             the `ARGILLA_API_URL` environment variable.
         api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
             be read from the `ARGILLA_API_KEY` environment variable.
-        dataset_name: The name of the dataset in Argilla.
-        dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
-            None, which means it will be created in the default workspace.
+
+    Runtime parameters:
+        - `api_url`: The base URL to use for the Argilla API requests.
+        - `api_key`: The API key to authenticate the requests to the Argilla API.
 
     Input columns:
-        prompt (str): The prompt that was used to generate the completion.
-        completion (str): The completion that was generated based on the prompt.
+        - instruction (`str`): The instruction that was used to generate the completion.
+        - generation (`str`): The completion that was generated based on the input instruction.
     """
 
-    _prompt: str = PrivateAttr(...)
-    _completion: str = PrivateAttr(...)
+    _instruction: str = PrivateAttr(...)
+    _generation: str = PrivateAttr(...)
 
     def load(self) -> None:
-        """Sets the `_prompt` and `_completion` attributes based on the `inputs_mapping`, otherwise
+        """Sets the `_instruction` and `_generation` attributes based on the `inputs_mapping`, otherwise
         uses the default values; and then uses those values to createa a `FeedbackDataset` suited for
         the prompt-completion scenario. And then it pushes it to Argilla.
         """
         self._rg_init()
 
-        self._prompt = (
-            self.input_mappings["prompt"] if self.input_mappings else "prompt"
+        self._instruction = (
+            self.input_mappings["instruction"] if self.input_mappings else "instruction"
         )
-        self._completion = (
-            self.input_mappings["completion"] if self.input_mappings else "completion"
+        self._generation = (
+            self.input_mappings["generation"] if self.input_mappings else "generation"
         )
 
         if self._rg_dataset_exists():
@@ -76,26 +80,26 @@ class PromptCompletionToArgilla(Argilla):
 
             for field in _rg_dataset.fields:
                 if (
-                    field.name not in [self._prompt, self._completion]
+                    field.name not in [self._instruction, self._generation]
                     and field.required
                 ):
                     raise ValueError(
                         f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                        f" but contains at least a required field that is neither `{self._prompt}` nor `{self._completion}`."
+                        f" but contains at least a required field that is neither `{self._instruction}` nor `{self._generation}`."
                     )
 
             self._rg_dataset = _rg_dataset
         else:
             _rg_dataset = rg.FeedbackDataset(
                 fields=[
-                    rg.TextField(name=self._prompt),  # type: ignore
-                    rg.TextField(name=self._completion),  # type: ignore
+                    rg.TextField(name=self._instruction),  # type: ignore
+                    rg.TextField(name=self._generation),  # type: ignore
                 ],
                 questions=[
                     rg.LabelQuestion(  # type: ignore
                         name="quality",
-                        title=f"What's the quality of the {self._completion} for the given {self._prompt}?",
-                        labels=["bad", "good", "excellent"],
+                        title=f"What's the quality of the {self._generation} for the given {self._instruction}?",
+                        labels=["👍", "👎"],
                     )
                 ],
             )
@@ -106,7 +110,7 @@ class PromptCompletionToArgilla(Argilla):
     @property
     def inputs(self) -> List[str]:
         """The inputs for the step are the `prompt` and the `completion`."""
-        return ["prompt", "completion"]
+        return ["instruction", "generation"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":
@@ -122,8 +126,8 @@ class PromptCompletionToArgilla(Argilla):
             [
                 rg.FeedbackRecord(
                     fields={
-                        self._prompt: input["prompt"],
-                        self._completion: input["completion"],
+                        self._instruction: input["instruction"],
+                        self._generation: input["generation"],
                     },
                 )
                 for input in inputs

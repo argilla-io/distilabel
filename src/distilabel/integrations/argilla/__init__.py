@@ -12,3 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.integrations.argilla.text_generation import TextGenerationToArgilla
+
+__all__ = ["TextGenerationToArgilla"]
