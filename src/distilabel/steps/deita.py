@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Type
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GlobalStep, StepInput
 
 if TYPE_CHECKING:
+    from scikit_learn.neighbors import NearestNeighbors
+
     from distilabel.steps.typing import StepOutput
 
 
@@ -33,6 +35,8 @@ class DeitaFiltering(GlobalStep):
         " greater than this value, it will be included in the filtered dataset.",
     )
 
+    _NearestNeighbors: Type["NearestNeighbors"] = PrivateAttr(...)
+
     def load(self) -> None:
         try:
             from sklearn.neighbors import NearestNeighbors
@@ -41,7 +45,7 @@ class DeitaFiltering(GlobalStep):
                 "`scikit-learn` is not installed. Please install it using `pip install huggingface-hub`."
             ) from ie
 
-        self.NearestNeighbors = NearestNeighbors
+        self._NearestNeighbors = NearestNeighbors
 
     @property
     def inputs(self) -> List[str]:
@@ -60,7 +64,7 @@ class DeitaFiltering(GlobalStep):
 
     def _compute_nearest_neighbor(self, inputs: StepInput) -> StepInput:
         embeddings = [input["embedding"] for input in inputs]
-        nn = self.NearestNeighbors(
+        nn = self._NearestNeighbors(
             n_neighbors=2, metric="cosine", algorithm="brute"
         ).fit(embeddings)
         distances, _ = nn.kneighbors(embeddings, return_distance=True)
