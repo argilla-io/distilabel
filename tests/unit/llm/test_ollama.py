@@ -83,7 +83,7 @@ class TestOllamaLLM:
             "follow_redirects": True,
             "type_info": {
                 "module": "distilabel.llm.ollama",
-                "name": "OllamalLLM",
+                "name": "OllamaLLM",
             },
         }
 
