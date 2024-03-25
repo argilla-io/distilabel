@@ -166,7 +166,7 @@ class BasePipeline(_Serializable):
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
                     step_info += "-".join([str(v) for v in value])
-                elif isinstance(value, (int, str)):
+                elif isinstance(value, (int, str, float)):
                     # batch_size/name
                     step_info += str(value)
                 else:
