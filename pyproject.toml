@@ -24,14 +24,12 @@ dependencies = [
     "datasets >= 2.14.0",
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "Jinja2 >= 3.1.2",
-    "pydantic >= 2.0",
-    "networkx >= 3.0",
-    "typer >= 0.9.0",
     "multiprocess >= 0.70",
     "networkx >= 3.0",
     "pydantic >= 2.0",
     "rich >= 13.5.0",
     "scipy >= 1.10.0",
+    "typer >= 0.9.0",
 ]
 dynamic = ["version"]
 
