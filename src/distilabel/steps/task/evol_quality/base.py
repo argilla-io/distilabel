@@ -26,12 +26,12 @@ from pydantic import Field
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_quality.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -46,13 +46,14 @@ class EvolQuality(Task):
         responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
     Output columns:
-        There's multiple scenarios:
-        - `store_evolutions=False`, `generate_answers=False` -> (evolved_response, model_name)
-        - `store_evolutions=True`, `generate_answers=False` -> (evolved_responses, model_name)
+        evolved_response (`str`): The evolved response if `store_evolutions=False`.
+        evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
+        model_name (`str`): The model name.
     """
 
     num_evolutions: int
     store_evolutions: bool = False
+    include_original_response: bool = False
     mutation_templates: EnumType = Field(default=MutationTemplates)
 
     seed: RuntimeParameter[int] = Field(
@@ -187,7 +188,7 @@ class EvolQuality(Task):
         return responses
 
     @override
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -201,7 +202,8 @@ class EvolQuality(Task):
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_responses` list
-            responses = [response[1:] for response in responses]
+            from_ = 1 if not self.include_original_response else 0
+            responses = [response[from_:] for response in responses]
 
         for input, response in zip(inputs, responses):
             input.update(self.format_output(response))
