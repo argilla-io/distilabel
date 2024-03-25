@@ -31,6 +31,8 @@ def get_logger(suffix: str) -> logging.Logger:
     # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
 
+    logging.getLogger("httpx").setLevel(logging.CRITICAL)
+
     logging.basicConfig(
         level="INFO",
         format="%(message)s",

@@ -13,9 +13,13 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
+
+if TYPE_CHECKING:
+    from multiprocessing.managers import DictProxy
+    from multiprocessing.synchronize import Lock
 
 
 class CudaDevicePlacementMixin(BaseModel):
@@ -40,7 +44,10 @@ class CudaDevicePlacementMixin(BaseModel):
     cuda_devices: Union[List[int], Literal["auto"]] = Field(default="auto")
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
-    _device_llm_placement_map: Union[Dict[str, Any], None] = PrivateAttr(default=None)
+    _device_llm_placement_map: Union["DictProxy[str, Any]", None] = PrivateAttr(
+        default=None
+    )
+    _device_llm_placement_lock: Union["Lock", None] = PrivateAttr(default=None)
     _available_cuda_devices: Union[List[int], None] = PrivateAttr(default=None)
     _can_check_cuda_devices: bool = PrivateAttr(default=False)
 
@@ -73,7 +80,8 @@ class CudaDevicePlacementMixin(BaseModel):
     def set_device_placement_info(
         self,
         llm_identifier: str,
-        device_llm_placement_map: Dict[str, Any],
+        device_llm_placement_map: "DictProxy[str, Any]",
+        device_llm_placement_lock: "Lock",
     ) -> None:
         """Sets the value of `_device_llm_placement_map` to be used to assign CUDA devices
         to the LLM.
@@ -86,9 +94,12 @@ class CudaDevicePlacementMixin(BaseModel):
                 a lock object to be used to synchronize the access to the device placement
                 information. The second key is "value" and its value is a dictionary with the
                 device placement information for each LLM.
+            device_llm_placement_lock: a lock object to be used to synchronize the access to
+                `_device_llm_placement_map`.
         """
         self._llm_identifier = llm_identifier
         self._device_llm_placement_map = device_llm_placement_map
+        self._device_llm_placement_lock = device_llm_placement_lock
 
     def _assign_cuda_devices(self) -> None:
         """Assigns CUDA devices to the LLM based on the device placement information provided
@@ -99,14 +110,15 @@ class CudaDevicePlacementMixin(BaseModel):
         logged."""
 
         if self._device_llm_placement_map is not None:
-            if self.cuda_devices == "auto":
-                self.cuda_devices = [
-                    self._get_cuda_device(self._device_llm_placement_map)
-                ]
-            else:
-                self._check_cuda_devices(self._device_llm_placement_map)
+            with self._device_llm_placement_lock:  # type: ignore
+                if self.cuda_devices == "auto":
+                    self.cuda_devices = [
+                        self._get_cuda_device(self._device_llm_placement_map)
+                    ]
+                else:
+                    self._check_cuda_devices(self._device_llm_placement_map)
 
-            self._device_llm_placement_map[self._llm_identifier] = self.cuda_devices
+                self._device_llm_placement_map[self._llm_identifier] = self.cuda_devices  # type: ignore
 
         # `_device_llm_placement_map` was not provided and user didn't set the `cuda_devices`
         # attribute. In this case, the `cuda_devices` attribute will be set to an empty list.
