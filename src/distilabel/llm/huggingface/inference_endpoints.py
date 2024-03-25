@@ -165,7 +165,9 @@ class InferenceEndpointsLLM(AsyncLLM):
                 token=self.api_key.get_secret_value(),
             )
             if client.status in ["paused", "scaledToZero"]:
-                client.resume().wait(timeout=30)
+                client.resume().wait(timeout=300)
+            elif client.status in ["initializing"]:
+                client.wait(timeout=300)
 
             self.base_url = client.url
             self._model_name = client.repository

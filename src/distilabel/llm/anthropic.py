@@ -57,11 +57,13 @@ class AnthropicLLM(AsyncLLM):
 
     model: str
     base_url: Optional[RuntimeParameter[str]] = Field(
-        default=os.getenv("ANTHROPIC_BASE_URL", "https://api.anthropic.com"),
+        default_factory=lambda: os.getenv(
+            "ANTHROPIC_BASE_URL", "https://api.anthropic.com"
+        ),
         description="The base URL to use for the Anthropic API.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv("ANTHROPIC_API_KEY"),
+        default_factory=lambda: os.getenv(_ANTHROPIC_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the Anthropic API.",
     )
     timeout: float = 600.0

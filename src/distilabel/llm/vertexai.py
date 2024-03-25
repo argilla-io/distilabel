@@ -154,6 +154,7 @@ class VertexAILLM(AsyncLLM):
         """
         contents = self._chattype_to_content(input)
         generations = []
+        # TODO: remove this for-loop and override `generate`
         for _ in range(num_generations):
             content = await self._aclient.generate_content_async(
                 contents=contents,

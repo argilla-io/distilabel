@@ -255,7 +255,7 @@ class DAG(_Serializable):
                             f"Step '{step_name}' cannot be a root step because it is not"
                             " a `GeneratorStep`. It should have a previous step in the pipeline."
                         )
-                    self._validate_generator_step_process_signature(step)  # type: ignore
+                    self._validate_generator_step_process_signature(step)
                 else:
                     self._step_inputs_are_available(step)
 

@@ -39,11 +39,13 @@ class TogetherLLM(OpenAILLM):
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(
-        default=os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1"),
+        default_factory=lambda: os.getenv(
+            "TOGETHER_BASE_URL", "https://api.together.xyz/v1"
+        ),
         description="The base URL to use for the Together API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_TOGETHER_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(_TOGETHER_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the Together API.",
     )
 
