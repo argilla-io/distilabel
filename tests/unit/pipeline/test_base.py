@@ -31,7 +31,7 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GlobalStep, Step, StepInput
-from distilabel.utils.distiset import Distiset, _create_dataset
+from distilabel.utils.distiset import Distiset, create_distiset
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from pydantic import Field
 
@@ -1091,7 +1091,7 @@ class TestWriteBuffer:
             assert write_buffer._get_filename(batch.step_name).exists()
             write_buffer.close()
 
-            ds = _create_dataset(write_buffer._path)
+            ds = create_distiset(write_buffer._path)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 1
             assert len(ds["dummy_step_2"]) == 3
@@ -1126,7 +1126,7 @@ class TestWriteBuffer:
             assert write_buffer._get_filename(batch_step_3.step_name).exists()
             write_buffer.close()
 
-            ds = _create_dataset(write_buffer._path)
+            ds = create_distiset(write_buffer._path)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 2
             assert len(ds["dummy_step_2"]) == 3

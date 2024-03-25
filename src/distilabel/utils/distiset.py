@@ -100,7 +100,7 @@ class Distiset(dict):
         return f"Distiset({{\n{repr}\n}})"
 
 
-def _create_dataset(data_dir: Path) -> Distiset:
+def create_distiset(data_dir: Path) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
     Args:
@@ -123,8 +123,4 @@ def _create_dataset(data_dir: Path) -> Distiset:
             logger.warning(f"❌ Failed to load the subset from {file}.")
             continue
 
-    if len(distiset) == 0:
-        logger.warning(
-            "❌ No parquet files found in the buffer. Returning an empty dataset."
-        )
     return distiset

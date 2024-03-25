@@ -23,7 +23,7 @@ from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.steps.task.base import _Task
-from distilabel.utils.distiset import _create_dataset
+from distilabel.utils.distiset import create_distiset
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -80,7 +80,7 @@ class Pipeline(BasePipeline):
                 "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
                 " `Distiset` from cache data..."
             )
-            return _create_dataset(self._cache_location["data"])
+            return create_distiset(self._cache_location["data"])
 
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
@@ -115,8 +115,7 @@ class Pipeline(BasePipeline):
             pool.join()
 
         write_buffer.close()
-        self._batch_manager = None
-        return _create_dataset(self._cache_location["data"])
+        return create_distiset(self._cache_location["data"])
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
