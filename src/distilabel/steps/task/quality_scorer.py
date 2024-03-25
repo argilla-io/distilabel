@@ -38,8 +38,7 @@ _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class QualityScorer(Task):
-    """
-    QualityScorerTask is a pre-defined task that defines the `instruction` as the input
+    """QualityScorer is a pre-defined task that defines the `instruction` as the input
     and `score` as the output. This task is used to rate the quality of instructions and responses.
     It's an implementation of the quality score task from the paper 'What Makes Good Data
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.

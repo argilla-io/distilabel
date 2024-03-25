@@ -21,10 +21,10 @@ from distilabel.steps.task.complexity_scorer import ComplexityScorer
 from tests.unit.steps.task.utils import DummyLLM
 
 
-class TestComplexityScore:
+class TestComplexityScorer:
     def test_format_input(self) -> None:
         task = ComplexityScorer(
-            name="complexity_score", llm=DummyLLM(), pipeline=Pipeline()
+            name="complexity_scorer", llm=DummyLLM(), pipeline=Pipeline()
         )
         task.load()
 
@@ -44,15 +44,15 @@ class TestComplexityScore:
         [
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\n",
-                {"complexity_score": [1.0, 2.0, 3.0]},
+                {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 "[1] Score: 1\n[2] Score: 2\n[3] Score: 3\njfjfjfjjfjfjf this is noise from the llm\nlallalalala more noise\nand more noise",
-                {"complexity_score": [1.0, 2.0, 3.0]},
+                {"scores": [1.0, 2.0, 3.0]},
             ),
             (
                 None,
-                {"complexity_score": [None, None, None]},
+                {"scores": [None, None, None]},
             ),
         ],
     )
@@ -60,7 +60,7 @@ class TestComplexityScore:
         self, output: Union[str, None], expected: Dict[str, Any]
     ) -> None:
         task = ComplexityScorer(
-            name="complexity_score", llm=DummyLLM(), pipeline=Pipeline()
+            name="complexity_scorer", llm=DummyLLM(), pipeline=Pipeline()
         )
         task.load()
 
