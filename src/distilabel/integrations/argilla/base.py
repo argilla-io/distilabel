@@ -14,10 +14,9 @@
 
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional
 
-from pydantic import Field, PrivateAttr, SecretStr, field_validator
-from typing_extensions import Annotated
+from pydantic import Field, PrivateAttr, SecretStr
 
 try:
     import argilla as rg
@@ -26,12 +25,16 @@ except ImportError as ie:
         "Argilla is not installed. Please install it using `pip install argilla`."
     ) from ie
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
     from argilla.client.feedback.dataset.remote.dataset import RemoteFeedbackDataset
 
     from distilabel.steps.typing import StepOutput
+
+
+_ARGILLA_API_KEY_ENV_VAR_NAME = "ARGILLA_API_KEY"
 
 
 class Argilla(Step, ABC):
@@ -43,50 +46,35 @@ class Argilla(Step, ABC):
         This class is not intended to be instanced directly, but via subclass.
 
     Args:
+        dataset_name: The name of the dataset in Argilla.
+        dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
+            None, which means it will be created in the default workspace.
         api_url: The URL of the Argilla API. Defaults to `None`, which means it will be read from
             the `ARGILLA_API_URL` environment variable.
         api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
             be read from the `ARGILLA_API_KEY` environment variable.
-        dataset_name: The name of the dataset in Argilla.
-        dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
-            None, which means it will be created in the default workspace.
-    """
 
-    api_url: Annotated[Optional[str], Field(validate_default=True)] = None
-    api_key: Annotated[Optional[SecretStr], Field(validate_default=True)] = None
+    Runtime parameters:
+        - `api_url`: The base URL to use for the Argilla API requests.
+        - `api_key`: The API key to authenticate the requests to the Argilla API.
+
+    Input columns:
+        - dynamic, based on the `inputs` value provided
+    """
 
     dataset_name: str
     dataset_workspace: Optional[str] = None
 
+    api_url: Optional[RuntimeParameter[str]] = Field(
+        default_factory=lambda: os.getenv("ARGILLA_BASE_URL"),
+        description="The base URL to use for the Argilla API requests.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default_factory=lambda: os.getenv(_ARGILLA_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Argilla API.",
+    )
+
     _rg_dataset: Optional["RemoteFeedbackDataset"] = PrivateAttr(...)
-
-    @field_validator("api_url")
-    @classmethod
-    def api_url_must_not_be_none(cls, v: Optional[str]) -> str:
-        """Ensures that either the `api_url` or the environment variable `ARGILLA_API_URL` are set."""
-        v = v or os.getenv("ARGILLA_API_URL", None)  # type: ignore
-        if v is None:
-            raise ValueError(
-                "You must provide an API URL either via `api_url` arg or setting `ARGILLA_API_URL` environment variable to use Argilla."
-            )
-        return v
-
-    @field_validator("api_key")
-    @classmethod
-    def api_key_must_not_be_none(cls, v: Union[str, SecretStr, None]) -> SecretStr:
-        """Ensures that either the `api_key` or the environment variable `ARGILLA_API_KEY` are set.
-
-        Additionally, the `api_key` when provided is casted to `pydantic.SecretStr` to prevent it
-        from being leaked and/or included within the logs or the serialization of the object.
-        """
-        v = v or os.getenv("ARGILLA_API_KEY", None)  # type: ignore
-        if v is None:
-            raise ValueError(
-                "You must provide an API key either via `api_key` arg or setting `ARGILLA_API_URL` environment variable to use Argilla."
-            )
-        if not isinstance(v, SecretStr):
-            v = SecretStr(v)
-        return v
 
     def _rg_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
