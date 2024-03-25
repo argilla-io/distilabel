@@ -65,7 +65,7 @@ class ComplexityScorer(Task):
 
     @property
     def outputs(self) -> List[str]:
-        return ["complexity_score"]
+        return ["scores"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
@@ -74,7 +74,7 @@ class ComplexityScorer(Task):
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         if output is None:
-            return {self.outputs[0]: [None] * len(input["instructions"])}
+            return {"scores": [None] * len(input["instructions"])}
 
         scores = []
         score_lines = output.split("\n")
@@ -85,4 +85,4 @@ class ComplexityScorer(Task):
             if i == len(input["instructions"]) - 1:
                 break
 
-        return {self.outputs[0]: scores}
+        return {"scores": scores}

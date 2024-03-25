@@ -1,0 +1,51 @@
+# Instruction Following Assessment
+
+Evaluate alignment between output and intent. Assess understanding of task goal and restrictions.
+
+**Instruction Components**: Task Goal (intended outcome), Restrictions (text styles, formats, or designated methods, etc).
+
+**Scoring**: Rate outputs 1 to 5:
+1. **Irrelevant**: No alignment.
+2. **Partial Focus**: Addresses one aspect poorly.
+3. **Partial Compliance**:
+    - (1) Meets goal or restrictions, neglecting other.
+    - (2) Acknowledges both but slight deviations.
+4. **Almost There**: Near alignment, minor deviations.
+5. **Comprehensive Compliance**: Fully aligns, meets all requirements.
+
+## Format:
+
+### Input
+Instruction: [Clearly specify the task goal and restrictions]
+
+Texts:
+{%- for index in range(generations|length) %}
+<text {{ index + 1}}> [Text {{ index + 1}}]
+{%- endfor %}
+
+### Output
+#### Output for Text 1
+Rating: [Rating for text 1]
+Rationale: [Rationale for the rating in short sentences]
+
+{%- for index in range(1, generations|length) %}
+
+#### Output for Text {{ index + 1}}
+Rating: [Rating]
+Rationale: [Rationale]
+{%- endfor %}
+
+---
+
+## Annotation
+
+### Input
+Instruction: {{ instruction }}
+
+Texts:
+{%- for generation in generations %}
+<text {{ loop.index }}> {{ generation }}
+{%- endfor %}
+
+### Output
+

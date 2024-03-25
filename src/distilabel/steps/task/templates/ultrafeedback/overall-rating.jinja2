@@ -1,0 +1,54 @@
+# General Text Quality Assessment
+
+Evaluate the model's outputs based on various criteria:
+
+1. **Correctness & Informativeness**: Does the output provide accurate and helpful information?
+2. **Honesty & Uncertainty**: How confidently does the model convey its information, and does it express uncertainty appropriately?
+3. **Truthfulness & Hallucination**: Does the model introduce misleading or fabricated details?
+4. **Instruction Following**: Does the model's output align with given instructions and the user's intent?
+
+Your role is to provide a holistic assessment considering all the above factors.
+
+**Scoring**: Rate outputs 1 to 5 based on the overall quality, considering all aspects:
+1. **Low Quality**: Contains inaccuracies, may be entirely wrong or has severe hallucinations.
+2. **Moderate Quality**: Addresses some aspects, but has errors or is partially aligned with instructions.
+3. **Good**: Generally accurate but may contain minor errors or slight deviations.
+4. **Very Good**: Near perfect, with minor issues in terms of alignment or confidence.
+5, **Excellent**: Accurate, confident, aligned with instructions, and free of hallucinations.
+
+## Format:
+
+### Input
+Instruction: [Clearly specify the task goal and restrictions]
+
+Texts:
+{%- for index in range(generations|length) %}
+<text {{ index + 1}}> [Text {{ index + 1}}]
+{%- endfor %}
+
+### Output
+#### Output for Text 1
+Rating: [Rating for text 1]
+Rationale: [Rationale for the rating in short sentences]
+
+{%- for index in range(1, generations|length) %}
+
+#### Output for Text {{ index + 1}}
+Rating: [Rating]
+Rationale: [Rationale]
+{%- endfor %}
+
+---
+
+## Annotation
+
+### Input
+Instruction: {{ instruction }}
+
+Texts:
+{%- for generation in generations %}
+<text {{ loop.index }}> {{ generation }}
+{%- endfor %}
+
+### Output
+

@@ -120,7 +120,7 @@ class Pipeline(BasePipeline):
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
         while self._batch_manager.can_generate():  # type: ignore
-            self._logger.debug("Waiting for output batch from step...")
+            self._logger.debug("🫷Waiting for output batch from step...")
             if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG or batch is None:
                 self._logger.debug(
                     "Received `_BATCH_STOP_FLAG` from output queue. Breaking loop."
@@ -128,7 +128,7 @@ class Pipeline(BasePipeline):
                 break
 
             self._logger.debug(
-                f"Received {batch.seq_no} from step '{batch.step_name}' from output"
+                f"🧤Received {batch.seq_no} from step '{batch.step_name}' from output"
                 f" queue: {batch}"
             )
 
