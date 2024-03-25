@@ -172,6 +172,7 @@ class TestInferenceEndpointsLLM:
             "endpoint_namespace": None,
             "base_url": None,
             "tokenizer_id": None,
+            "generation_kwargs": {},
             "model_display_name": None,
             "use_openai_client": False,
             "type_info": {

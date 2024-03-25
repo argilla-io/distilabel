@@ -76,7 +76,8 @@ class TestAnthropicLLM:
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore
 
         _dump = {
-            "base_url": None,
+            "base_url": "https://api.anthropic.com",
+            "generation_kwargs": {},
             "max_retries": 2,
             "model": "claude-3-opus-20240229",
             "timeout": 600.0,

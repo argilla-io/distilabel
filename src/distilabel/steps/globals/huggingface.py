@@ -19,7 +19,8 @@ from typing import TYPE_CHECKING, Optional
 from datasets import Dataset
 from pydantic import Field
 
-from distilabel.steps.base import GlobalStep, RuntimeParameter, StepInput
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import GlobalStep, StepInput
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput

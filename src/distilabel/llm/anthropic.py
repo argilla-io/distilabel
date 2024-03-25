@@ -26,11 +26,12 @@ from typing import (
     get_type_hints,
 )
 
-import httpx
+from httpx import AsyncClient
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
 from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -38,6 +39,8 @@ if TYPE_CHECKING:
 
     from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
+
+_ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
 
 
 class AnthropicLLM(AsyncLLM):
@@ -52,14 +55,22 @@ class AnthropicLLM(AsyncLLM):
         max_retries: the maximum number of retries for the LLM. Defaults to 2.
     """
 
-    model: str = "claude-3-opus-20240229"
-    api_key: Optional[SecretStr] = os.getenv("ANTHROPIC_API_KEY", None)  # type: ignore
-    base_url: Union[str, None] = None
+    model: str
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default_factory=lambda: os.getenv(
+            "ANTHROPIC_BASE_URL", "https://api.anthropic.com"
+        ),
+        description="The base URL to use for the Anthropic API.",
+    )
+    api_key: Optional[RuntimeParameter[SecretStr]] = Field(
+        default_factory=lambda: os.getenv(_ANTHROPIC_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Anthropic API.",
+    )
     timeout: float = 600.0
-    http_client: Union[httpx.Client, None] = Field(default=None, exclude=True)
+    http_client: Union[AsyncClient, None] = Field(default=None, exclude=True)
     max_retries: int = 2
 
-    _env_var: Optional[str] = PrivateAttr(default="ANTHROPIC_API_KEY")
+    _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
 
     def _check_model_exists(self) -> None:
@@ -80,7 +91,7 @@ class AnthropicLLM(AsyncLLM):
                 f"The available models are {', '.join(models)}"
             )
 
-    def load(self, api_key: Optional[str] = None) -> None:
+    def load(self) -> None:
         """Loads the `AsyncAnthropic` client to use the Anthropic async API."""
         try:
             from anthropic import AsyncAnthropic
@@ -90,13 +101,13 @@ class AnthropicLLM(AsyncLLM):
                 " `pip install anthropic`."
             ) from ie
 
-        self._check_model_exists()
+        if self.api_key is None:
+            raise ValueError(
+                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
+                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
+            )
 
-        self.api_key = self._handle_api_key_value(
-            self_value=self.api_key,
-            load_value=api_key,
-            env_var=self._env_var,  # type: ignore
-        )
+        self._check_model_exists()
 
         self._aclient = AsyncAnthropic(
             api_key=self.api_key.get_secret_value(),
