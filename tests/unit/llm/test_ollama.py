@@ -21,7 +21,7 @@ from distilabel.llm.ollama import OllamalLLM
 
 @patch("ollama.AsyncClient")
 class TestOllamaLLM:
-    def test_ollama_llm(self, mock_ollama: MagicMock) -> None:
+    def test_ollama_llm(self, _: MagicMock) -> None:
         llm = OllamalLLM(model="notus")  # type: ignore
         assert isinstance(llm, OllamalLLM)
         assert llm.model_name == "notus"
@@ -73,7 +73,7 @@ class TestOllamaLLM:
             ]
         )
 
-    def test_serialization(self, mock_ollama: MagicMock) -> None:
+    def test_serialization(self, _: MagicMock) -> None:
         llm = OllamalLLM(model="notus")  # type: ignore
 
         _dump = {
