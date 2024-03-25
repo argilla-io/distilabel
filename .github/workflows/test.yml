@@ -45,9 +45,9 @@ jobs:
           python_version=$(python -c "import sys; print(sys.version_info[:2])")
 
           if [ "${python_version}" != "(3, 8)" ]; then
-            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai,llama-cpp]
+            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai,llama-cpp,anthropic]
           else
-            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,llama-cpp]
+            pip install -e .[dev,tests,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,llama-cpp,anthropic]
           fi
           pip install git+https://github.com/yuchenlin/LLM-Blender.git
 

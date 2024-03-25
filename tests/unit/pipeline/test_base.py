@@ -962,14 +962,17 @@ class TestPipelineSerialization:
         signature = pipeline._create_signature()
         assert signature == "9da791477eab8cab62c09af59fb08ac42e039ce5"
 
-    def test_run_pipe_and_load_from_cache(self):
+    @pytest.mark.parametrize("use_cache", [True, False])
+    def test_run_pipe_and_load_from_cache(self, use_cache: bool):
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.base import BasePipeline
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            with BasePipeline(tmpdirname) as pipeline:
+            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipeline:
+                print(len(pipeline.dag))
+                assert pipeline._use_cache == use_cache
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -978,11 +981,15 @@ class TestPipelineSerialization:
                 dummy_step_1.connect(dummy_step_2)
 
                 assert not pipeline._cache_location["pipeline"].exists()
+                # Set the _BatchManager to the pipeline to check it exists afterwards
+                pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
                 pipeline._cache()
-            # Check the file exists AFTER we are out of the context manager
-            assert pipeline._cache_location["pipeline"].exists()
 
-            with BasePipeline(tmpdirname) as pipe:
+                assert pipeline._cache_location["pipeline"].exists()
+
+            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipe:
+                assert pipe._use_cache == use_cache
+
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -990,12 +997,11 @@ class TestPipelineSerialization:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
 
-                cache_filename = pipe._cache_location["pipeline"]
-                assert pipe._cache_location["pipeline"].exists()
-                # Run the pipeline and check the _cache_filename is the same afterwards
-                pipe.run()
-                assert pipe._cache_location["pipeline"].exists()
-                assert cache_filename == pipe._cache_location["pipeline"]
+                pipe._load_from_cache()
+                if use_cache:
+                    assert pipe._batch_manager
+                else:
+                    assert not pipe._batch_manager
 
 
 class TestWriteBuffer:
