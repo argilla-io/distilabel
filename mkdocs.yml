@@ -94,6 +94,16 @@ plugins:
 nav:
   - Getting started: index.md
   - API Reference:
+    - Pipeline:
+      - 'api/pipeline/pipeline.md'
+    - Steps:
+      - 'api/steps/steps.md'
+      - Generator Steps: 'api/steps/generator_steps/generator_steps.md'
+      - Global Steps: 'api/steps/global_steps/global_steps.md'
+      - Tasks:
+        - 'api/steps/tasks/text_generation.md'
+        - 'api/steps/tasks/preference_tasks.md'
+        - 'api/steps/tasks/embeddings.md'
     - LLMs:
       - 'api/llm/anthropic.md'
       - 'api/llm/anyscale.md'
@@ -105,5 +115,6 @@ nav:
       - 'api/llm/together.md'
       - 'api/llm/vertexai.md'
       - 'api/llm/vllm.md'
+      - 'api/llm/huggingface.md'
     - Integrations:
       - 'api/integrations/argilla.md'    
