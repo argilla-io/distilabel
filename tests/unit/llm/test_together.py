@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib
 import os
-from typing import Generator
 from unittest import mock
 
-import pytest
 from distilabel.llm import together
 
 
-@pytest.fixture
-def reload_together_module() -> Generator[None, None, None]:
-    importlib.reload(together)
-    yield
-
-
-@pytest.mark.usefixtures("reload_together_module")
 class TestTogetherLLM:
     model_id: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
@@ -41,8 +31,6 @@ class TestTogetherLLM:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["TOGETHER_API_KEY"] = "another.api.key"
             os.environ["TOGETHER_BASE_URL"] = "https://example.com"
-
-            importlib.reload(together)
 
             llm = together.TogetherLLM(model=self.model_id)
 

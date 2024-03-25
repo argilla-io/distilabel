@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib
 import os
-from typing import Generator
 from unittest import mock
 
-import pytest
 from distilabel.llm import anyscale
 
 
-@pytest.fixture
-def reload_anyscale_module() -> Generator[None, None, None]:
-    importlib.reload(anyscale)
-    yield
-
-
-@pytest.mark.usefixtures("reload_anyscale_module")
 class TestAnyscaleLLM:
     model_id: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
@@ -41,8 +31,6 @@ class TestAnyscaleLLM:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["ANYSCALE_API_KEY"] = "another.api.key"
             os.environ["ANYSCALE_BASE_URL"] = "https://example.com"
-
-            importlib.reload(anyscale)
 
             llm = anyscale.AnyscaleLLM(model=self.model_id)
 

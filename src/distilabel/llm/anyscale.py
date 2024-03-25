@@ -40,11 +40,13 @@ class AnyscaleLLM(OpenAILLM):
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(
-        default=os.getenv("ANYSCALE_BASE_URL", "https://api.endpoints.anyscale.com/v1"),
+        default_factory=lambda: os.getenv(
+            "ANYSCALE_BASE_URL", "https://api.endpoints.anyscale.com/v1"
+        ),
         description="The base URL to use for the Anyscale API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_ANYSCALE_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(_ANYSCALE_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the Anyscale API.",
     )
 

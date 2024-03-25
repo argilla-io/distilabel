@@ -49,7 +49,7 @@ class MistralLLM(AsyncLLM):
     model: str
     endpoint: str = "https://api.mistral.ai"
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_MISTRALAI_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(_MISTRALAI_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the Mistral API.",
     )
     max_retries: int = 5

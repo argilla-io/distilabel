@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib
 import os
-from typing import Generator
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
@@ -23,14 +21,7 @@ import pytest
 from distilabel.llm import openai
 
 
-@pytest.fixture
-def reload_openai_module() -> Generator[None, None, None]:
-    importlib.reload(openai)
-    yield
-
-
 @patch("openai.AsyncOpenAI")
-@pytest.mark.usefixtures("reload_openai_module")
 class TestOpenAILLM:
     model_id: str = "gpt-4"
 
@@ -44,8 +35,6 @@ class TestOpenAILLM:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["OPENAI_API_KEY"] = "another.api.key"
             os.environ["OPENAI_BASE_URL"] = "https://example.com"
-
-            importlib.reload(openai)
 
             llm = openai.OpenAILLM(model=self.model_id)
 
