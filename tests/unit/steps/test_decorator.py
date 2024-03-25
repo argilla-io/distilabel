@@ -58,6 +58,17 @@ class TestStepDecorator:
             def UnitTestStep(inputs: StepInput) -> StepOutput:
                 yield []
 
+    def test_creating_step_with_more_than_one_step_input(self) -> None:
+        with pytest.raises(
+            ValueError,
+            match="Function 'UnitTestStep' has more than one parameter annotated with `StepInput`.",
+        ):
+
+            @step(inputs=["instruction"], outputs=["generation"])
+            def UnitTestStep(inputs: StepInput, inputs2: StepInput) -> StepOutput:
+                """A dummy step for the unit test"""
+                yield []
+
     def test_creating_global_step(self) -> None:
         @step(inputs=["instruction"], outputs=["generation"], step_type="global")
         def UnitTestStep(

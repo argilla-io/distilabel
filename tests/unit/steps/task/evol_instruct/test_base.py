@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
-
 import pytest
 from distilabel.llm.base import LLM
 from distilabel.pipeline.local import Pipeline
@@ -21,62 +19,48 @@ from distilabel.steps.task.evol_instruct.base import (
     EvolInstruct,
 )
 from distilabel.steps.task.evol_instruct.utils import (
-    MutationTemplatesEvolInstruct,
+    MutationTemplates,
 )
 from pydantic import ValidationError
 
-if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
-
-
-class DummyLLM(LLM):
-    def load(self) -> None:
-        pass
-
-    @property
-    def model_name(self) -> str:
-        return "test"
-
-    def generate(self, inputs: List["ChatType"]) -> List[str]:
-        return ["output" for _ in inputs]
-
 
 class TestEvolInstruct:
-    def test_passing_pipeline(self) -> None:
+    def test_passing_pipeline(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = EvolInstruct(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = EvolInstruct(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
         assert task.name == "task"
-        assert task.llm is llm
+        assert task.llm is dummy_llm
         assert task.num_evolutions == 2
-        assert task.mutation_templates == MutationTemplatesEvolInstruct
+        assert task.mutation_templates == MutationTemplates
         assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
-    def test_within_pipeline_context(self) -> None:
+    def test_within_pipeline_context(self, dummy_llm: LLM) -> None:
         with Pipeline() as pipeline:
-            llm = DummyLLM()
             task = EvolInstruct(
-                name="task", llm=llm, num_evolutions=2, pipeline=pipeline
+                name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
             )
             assert task.name == "task"
-            assert task.llm is llm
+            assert task.llm is dummy_llm
             assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
-    def test_with_errors(self) -> None:
+    def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
             EvolInstruct(name="task", pipeline=Pipeline())  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            EvolInstruct(name="task", llm=DummyLLM(), num_evolutions=2)
+            EvolInstruct(name="task", llm=dummy_llm, num_evolutions=2)
 
-    def test_process(self) -> None:
+    def test_process(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = EvolInstruct(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = EvolInstruct(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
         assert list(task.process([{"instruction": "test"}])) == [
             [
                 {
@@ -87,12 +71,11 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_process_store_evolutions(self, task_class_base) -> None:
+    def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = task_class_base(
+        task = EvolInstruct(
             name="task",
-            llm=llm,
+            llm=dummy_llm,
             num_evolutions=2,
             store_evolutions=True,
             pipeline=pipeline,
@@ -107,12 +90,11 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_process_generate_answers(self) -> None:
+    def test_process_generate_answers(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
         task = EvolInstruct(
             name="task",
-            llm=llm,
+            llm=dummy_llm,
             num_evolutions=2,
             generate_answers=True,
             pipeline=pipeline,
@@ -128,10 +110,11 @@ class TestEvolInstruct:
             ]
         ]
 
-    def test_serialization(self) -> None:
+    def test_serialization(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline()
-        llm = DummyLLM()
-        task = EvolInstruct(name="task", llm=llm, num_evolutions=2, pipeline=pipeline)
+        task = EvolInstruct(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,
@@ -139,8 +122,8 @@ class TestEvolInstruct:
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "type_info": {
-                    "module": "tests.unit.steps.task.evol_instruct.test_base",
-                    "name": "DummyLLM",
+                    "module": task.llm.__module__,
+                    "name": task.llm.__class__.__name__,
                 }
             },
             "llm_kwargs": {},

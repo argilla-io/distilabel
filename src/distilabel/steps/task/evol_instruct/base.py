@@ -14,6 +14,8 @@
 
 import sys
 
+from distilabel.utils.lists import flatten_responses
+
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
 else:
@@ -27,9 +29,7 @@ from typing_extensions import override
 
 from distilabel.steps.base import RuntimeParameter, StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import (
-    MutationTemplatesEvolInstruct,
-)
+from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -61,21 +61,12 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplatesEvolInstruct)
+    mutation_templates: EnumType = Field(default=MutationTemplates)
 
     seed: RuntimeParameter[int] = Field(
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
-
-    @override
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
-        """
-        super().model_post_init(__context)
-
-        np.random.seed(self.seed)
 
     @property
     def inputs(self) -> List[str]:
@@ -178,16 +169,17 @@ class EvolInstruct(Task):
             formatted_prompts = [
                 self.format_input(prompt) for prompt in formatted_prompts
             ]
-            generated_prompts = self.llm.generate(
-                formatted_prompts,
-                **self.generation_kwargs,  # type: ignore
+            generated_prompts = flatten_responses(
+                self.llm.generate(
+                    formatted_prompts,
+                    **self.generation_kwargs,  # type: ignore
+                )
             )
 
             evolved_instructions = []
             for generated_prompt in generated_prompts:
-                evolved_instructions.append(
-                    generated_prompt.split("Prompt#:")[-1].strip()
-                )
+                generated_prompt = generated_prompt.split("Prompt#:")[-1].strip()
+                evolved_instructions.append(generated_prompt)
 
             if self.store_evolutions:
                 instructions = [
@@ -221,10 +213,11 @@ class EvolInstruct(Task):
         _formatted_instructions = [
             self.format_input(instruction[-1]) for instruction in instructions
         ]
-        return self.llm.generate(
+        responses = self.llm.generate(
             _formatted_instructions,
             **self.generation_kwargs,  # type: ignore
         )
+        return flatten_responses(responses)
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore

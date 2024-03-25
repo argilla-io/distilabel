@@ -23,7 +23,7 @@ from distilabel.steps.task.generate_embeddings import GenerateEmbeddings
 @pytest.fixture(scope="module")
 def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
-        model="sentence-transformers/all-MiniLM-L6-v2",
+        model="TaylorAI/bge-micro-v2",
         model_kwargs={"is_decoder": True},
     )
     llm.load()
