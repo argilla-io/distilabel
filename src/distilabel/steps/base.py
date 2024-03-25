@@ -19,7 +19,7 @@ from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
-from pydantic import ConfigDict, Field, PositiveInt, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
@@ -41,7 +41,7 @@ extra metadata that allows `distilabel` to perform validations over the `process
 method defined in each `Step`"""
 
 
-class _Step(RuntimeParametersMixin, _Serializable, ABC):
+class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this

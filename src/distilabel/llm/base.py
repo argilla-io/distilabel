@@ -20,7 +20,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from distilabel.utils.docstring import Docstring
 
 
-class LLM(RuntimeParametersMixin, _Serializable, ABC):
+class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     model_config = ConfigDict(
         arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
     )
