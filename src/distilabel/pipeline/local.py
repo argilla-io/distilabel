@@ -58,7 +58,7 @@ class Pipeline(BasePipeline):
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
                 the runtime parameters for the step as the value. Defaults to `None`.
-            use_cache: whether to use the cache from previous pipeline runs. Defaults to
+            use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
 
         Returns:
