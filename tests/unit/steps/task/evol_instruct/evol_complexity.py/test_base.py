@@ -24,7 +24,7 @@ from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
 
 class TestEvolComplexity:
     def test_mutation_templates(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolComplexity(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -32,5 +32,4 @@ class TestEvolComplexity:
         assert task.llm is dummy_llm
         assert task.num_evolutions == 2
         assert task.mutation_templates == MutationTemplates
-        assert task.generation_kwargs == {}
         assert "BREADTH" not in task.mutation_templates.__members__

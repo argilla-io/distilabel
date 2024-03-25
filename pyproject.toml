@@ -29,13 +29,14 @@ dependencies = [
     "pydantic >= 2.0",
     "rich >= 13.5.0",
     "scipy >= 1.10.0",
-    "tenacity >= 8",
+    "typer >= 0.9.0",
 ]
 dynamic = ["version"]
 
+[project.scripts]
+distilabel = "distilabel.cli.app:app"
+
 [project.optional-dependencies]
-anthropic = ["anthropic >= 0.20.0"]
-argilla = ["argilla >= 1.23.0"]
 dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
 docs = [
     "mkdocs-material >= 9.5.0",
@@ -48,8 +49,13 @@ docs = [
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
 ]
+
+# Optional LLMs, integrations, etc
+anthropic = ["anthropic >= 0.20.0"]
+argilla = ["argilla >= 1.23.0"]
 hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
+litellm = ["litellm >= 1.30.0"]
 llama-cpp = ["llama-cpp-python >= 0.2.0"]
 mistralai = ["mistralai >= 0.1.0"]
 ollama = ["ollama >= 0.1.7"]
@@ -58,7 +64,6 @@ tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 together = ["together"]
 vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
-
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
@@ -75,9 +80,6 @@ exclude = ["docs"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
 ignore = ["E501", "B905", "B008"]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 14
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

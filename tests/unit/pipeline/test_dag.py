@@ -17,9 +17,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 import pytest
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import GeneratorStep, RuntimeParameter, Step, StepInput
+from distilabel.steps.base import GeneratorStep, Step, StepInput
 
 from .utils import DummyGeneratorStep
 
@@ -228,7 +229,7 @@ class TestDAG:
 
         with pytest.raises(
             ValueError,
-            match="Step 'dummy_step_1' should be `GeneratorStep` as it doesn't have any previous steps",
+            match="Step 'dummy_step_1' cannot be a root step because it is not a `GeneratorStep`.",
         ):
             dag.validate()
 
@@ -322,7 +323,7 @@ class TestDAG:
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)  # type: ignore
-        step._set_runtime_parameters({})
+        step.set_runtime_parameters({})
 
         dag = DAG()
         dag.add_step(step)
@@ -465,7 +466,7 @@ class TestDagSerialization:
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
-        with Pipeline():
+        with Pipeline(name="unit-test-pipeline"):
             new_dag = DAG.from_dict(dag.dump())
         assert isinstance(new_dag, DAG)
         assert "dummy_step_1" in new_dag.G
@@ -512,6 +513,6 @@ class TestDagSerialization:
             else:
                 dag.save(filename, format=format)
                 assert filename.exists()
-                with Pipeline():
+                with Pipeline(name="unit-test-pipeline"):
                     dag_from_file = loader(filename)
                     assert isinstance(dag_from_file, DAG)

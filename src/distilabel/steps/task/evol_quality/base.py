@@ -25,7 +25,7 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
-from distilabel.steps.base import RuntimeParameter
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_quality.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
@@ -165,7 +165,7 @@ class EvolQuality(Task):
 
             generated_responses = self.llm.generate(
                 formatted_prompts,
-                **self.generation_kwargs,  # type: ignore
+                **self.llm.generation_kwargs,  # type: ignore
             )
 
             if self.store_evolutions:

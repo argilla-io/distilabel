@@ -17,29 +17,22 @@ import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
-from typing_extensions import Annotated, get_args, get_origin
+from typing_extensions import Annotated
 
+from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
-from distilabel.utils.typing import is_parameter_annotated_with
+from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
-    from pydantic.fields import FieldInfo
-
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
-_T = TypeVar("_T")
-_RUNTIME_PARAMETER_ANNOTATION = "distilabel_step_runtime_parameter"
-RuntimeParameter = Annotated[
-    Union[_T, None], Field(default=None), _RUNTIME_PARAMETER_ANNOTATION
-]
-"""Used to mark the attributes of a `Step` as a runtime parameter."""
 
 _STEP_INPUT_ANNOTATION = "distilabel_step_input"
 StepInput = Annotated[List[Dict[str, Any]], _STEP_INPUT_ANNOTATION]
@@ -48,7 +41,7 @@ extra metadata that allows `distilabel` to perform validations over the `process
 method defined in each `Step`"""
 
 
-class _Step(BaseModel, _Serializable, ABC):
+class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -105,7 +98,6 @@ class _Step(BaseModel, _Serializable, ABC):
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
-    _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(get_logger("steps"))
 
@@ -147,17 +139,6 @@ class _Step(BaseModel, _Serializable, ABC):
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
         pass
-
-    def _set_runtime_parameters(self, runtime_parameters: Dict[str, Any]) -> None:
-        """Sets the runtime parameters of the step.
-
-        Args:
-            runtime_parameters: A dictionary with the runtime parameters for the step.
-        """
-        for name, value in runtime_parameters.items():
-            if name in self.runtime_parameters_names:
-                setattr(self, name, value)
-                self._runtime_parameters[name] = value
 
     @property
     def is_generator(self) -> bool:
@@ -214,25 +195,6 @@ class _Step(BaseModel, _Serializable, ABC):
             The parameters of the `process` method of the step.
         """
         return list(inspect.signature(self.process).parameters.values())  # type: ignore
-
-    @property
-    def runtime_parameters_names(self) -> Dict[str, bool]:
-        """Returns a dictionary containing the name of the runtime parameters of the step
-        as keys and whether the parameter is required or not as values.
-
-        Returns:
-            A dictionary containing the name of the runtime parameters of the step as keys
-            and whether the parameter is required or not as values.
-        """
-
-        runtime_parameters = {}
-
-        for name, info in self.model_fields.items():
-            is_runtime_param, is_optional = _is_runtime_parameter(info)
-            if is_runtime_param:
-                runtime_parameters[name] = is_optional
-
-        return runtime_parameters
 
     def has_multiple_inputs(self) -> bool:
         """Whether the `process` method of the step receives more than one input or not
@@ -366,25 +328,8 @@ class _Step(BaseModel, _Serializable, ABC):
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         dump = super()._model_dump(obj, **kwargs)
-        dump["runtime_parameters_info"] = self._get_runtime_parameters_info()
+        dump["runtime_parameters_info"] = self.get_runtime_parameters_info()
         return dump
-
-    def _get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
-        """Gets the information of the runtime parameters of the step such as the name and
-        the description. This function is meant to include the information of the runtime
-        parameters in the serialized data of the step.
-
-        Returns:
-            A list containing the information for each runtime parameter of the step.
-        """
-        runtime_parameters_info = []
-        for name, field_info in self.model_fields.items():
-            if name in self.runtime_parameters_names:
-                info = {"name": name, "optional": self.runtime_parameters_names[name]}
-                if field_info.description is not None:
-                    info["description"] = field_info.description
-                runtime_parameters_info.append(info)
-        return runtime_parameters_info
 
 
 class Step(_Step, ABC):
@@ -526,37 +471,3 @@ class GlobalStep(Step, ABC):
     @property
     def outputs(self) -> List[str]:
         return []
-
-
-def _is_runtime_parameter(field: "FieldInfo") -> Tuple[bool, bool]:
-    """Check if a `pydantic.BaseModel` field is a `RuntimeParameter` and if it's optional
-    i.e. providing a value for the field in `Pipeline.run` is optional.
-
-    Args:
-        field: The info of the field of the `pydantic.BaseModel` to check.
-
-    Returns:
-        A tuple with two booleans. The first one indicates if the field is a
-        `RuntimeParameter` or not, and the second one indicates if the field is optional
-        or not.
-    """
-    # Case 1: `runtime_param: RuntimeParameter[int]`
-    # Mandatory runtime parameter that needs to be provided when running the pipeline
-    if _RUNTIME_PARAMETER_ANNOTATION in field.metadata:
-        return True, field.default is not None
-
-    # Case 2: `runtime_param: Union[RuntimeParameter[int], None] = None`
-    # Optional runtime parameter that doesn't need to be provided when running the pipeline
-    type_args = get_args(field.annotation)
-    for arg in type_args:
-        is_runtime_param = (
-            get_origin(arg) is Annotated
-            and get_args(arg)[-1] == _RUNTIME_PARAMETER_ANNOTATION
-        )
-        if is_runtime_param:
-            is_optional = (
-                get_origin(field.annotation) is Union and type(None) in type_args
-            )
-            return True, is_optional
-
-    return False, False

@@ -25,6 +25,7 @@ def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
         model="TaylorAI/bge-micro-v2",
         model_kwargs={"is_decoder": True},
+        cuda_devices=[],
     )
     llm.load()
 
@@ -34,7 +35,9 @@ def transformers_llm() -> Generator[TransformersLLM, None, None]:
 class TestGenerateEmbeddings:
     def test_process(self, transformers_llm: TransformersLLM) -> None:
         task = GenerateEmbeddings(
-            name="task", llm=transformers_llm, pipeline=Pipeline()
+            name="task",
+            llm=transformers_llm,
+            pipeline=Pipeline(name="unit-test-pipeline"),
         )
         result = next(task.process([{"text": "Hello, how are you?"}]))
 

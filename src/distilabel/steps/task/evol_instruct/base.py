@@ -27,7 +27,8 @@ import numpy as np
 from pydantic import Field
 from typing_extensions import override
 
-from distilabel.steps.base import RuntimeParameter, StepInput
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Task
 from distilabel.steps.task.evol_instruct.utils import MutationTemplates
 from distilabel.steps.task.typing import ChatType
@@ -172,7 +173,7 @@ class EvolInstruct(Task):
             generated_prompts = flatten_responses(
                 self.llm.generate(
                     formatted_prompts,
-                    **self.generation_kwargs,  # type: ignore
+                    **self.llm.generation_kwargs,  # type: ignore
                 )
             )
 
@@ -215,7 +216,7 @@ class EvolInstruct(Task):
         ]
         responses = self.llm.generate(
             _formatted_instructions,
-            **self.generation_kwargs,  # type: ignore
+            **self.llm.generation_kwargs,  # type: ignore
         )
         return flatten_responses(responses)
 

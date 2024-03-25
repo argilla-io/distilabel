@@ -26,13 +26,13 @@ class TestEvoQuality:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
-            EvolQuality(name="task", pipeline=Pipeline())  # type: ignore
+            EvolQuality(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             EvolQuality(name="task", llm=dummy_llm, num_evolutions=2)
 
     def test_process(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -48,7 +48,7 @@ class TestEvoQuality:
         ]
 
     def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task",
             llm=dummy_llm,
@@ -68,7 +68,7 @@ class TestEvoQuality:
         ]
 
     def test_serialization(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -78,12 +78,12 @@ class TestEvoQuality:
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
             "llm": {
+                "generation_kwargs": {},
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
-                }
+                },
             },
-            "llm_kwargs": {},
             "num_evolutions": task.num_evolutions,
             "store_evolutions": task.store_evolutions,
             "mutation_templates": {
@@ -97,23 +97,22 @@ class TestEvoQuality:
             },
             "num_generations": task.num_generations,
             "group_generations": task.group_generations,
-            "generation_kwargs": {},
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
-                    "name": "llm_kwargs",
-                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
-                    "optional": True,
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "name": "generation_kwargs",
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [],
+                        }
+                    ],
                 },
                 {
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
-                },
-                {
-                    "name": "generation_kwargs",
-                    "optional": True,
-                    "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
                 },
                 {
                     "name": "seed",
@@ -127,6 +126,6 @@ class TestEvoQuality:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = EvolQuality.from_dict(task.dump())
             assert isinstance(new_task, EvolQuality)

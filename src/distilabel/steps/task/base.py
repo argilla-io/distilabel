@@ -13,14 +13,14 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
 from distilabel.llm.base import LLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
-    RuntimeParameter,
     Step,
     StepInput,
     _Step,
@@ -40,45 +40,21 @@ class _Task(_Step, ABC):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
-        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
-            kwargs will be specific to each LLM, and while some as `model` may be present
-            on each `LLM`, some others may not, so read the `LLM` constructor signature in
-            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
-        generation_kwargs: The kwargs to be propagated to either `generate` or
-            `agenerate` methods within each `LLM`. Note that these kwargs will be
-            specific to each LLM, and while some as `temperature` may be present on each
-            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
-            in advance to see which kwargs are available.
     """
 
     llm: LLM
-    llm_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
-        default_factory=dict,
-        description="The kwargs to be propagated to the `LLM` constructor. Note that these"
-        " kwargs will be specific to each LLM, and while some as `model` may be present"
-        " on each `LLM`, some others may not, so read the `LLM` constructor signature in"
-        " advance to see which kwargs are available.",
-    )
 
     group_generations: bool = False
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
-    generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
-        default_factory=dict,
-        description="The kwargs to be propagated to either `generate` or `agenerate`"
-        " methods within each `LLM`. Note that these kwargs will be specific to each"
-        " LLM, and while some as `temperature` may be present on each `LLM`, some others"
-        " may not, so read the `LLM.{generate,agenerate}` signatures in advance to see"
-        " which kwargs are available.",
-    )
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
-        self.llm.load(**self.llm_kwargs)  # type: ignore
+        self.llm.load()
 
     @abstractmethod
     def format_output(
@@ -127,18 +103,9 @@ class Task(_Task, Step):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
-        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
-            kwargs will be specific to each LLM, and while some as `model` may be present
-            on each `LLM`, some others may not, so read the `LLM` constructor signature in
-            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
-        generation_kwargs: The kwargs to be propagated to either `generate` or
-            `agenerate` methods within each `LLM`. Note that these kwargs will be
-            specific to each LLM, and while some as `temperature` may be present on each
-            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
-            in advance to see which kwargs are available.
     """
 
     @abstractmethod
@@ -172,8 +139,8 @@ class Task(_Task, Step):
         formatted_inputs = self._format_inputs(inputs)
         outputs = self.llm.generate(
             inputs=formatted_inputs,
-            num_generations=self.num_generations,
-            **self.generation_kwargs,  # type: ignore
+            num_generations=self.num_generations,  # type: ignore
+            **self.llm.generation_kwargs,  # type: ignore
         )
 
         task_outputs = []
@@ -202,18 +169,9 @@ class GeneratorTask(_Task, GeneratorStep):
 
     Args:
         llm: the `LLM` to be used to generate the outputs of the task.
-        llm_kwargs: The kwargs to be propagated to the `LLM` constructor. Note that these
-            kwargs will be specific to each LLM, and while some as `model` may be present
-            on each `LLM`, some others may not, so read the `LLM` constructor signature in
-            advance to see which kwargs are available.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
-        generation_kwargs: The kwargs to be propagated to either `generate` or
-            `agenerate` methods within each `LLM`. Note that these kwargs will be
-            specific to each LLM, and while some as `temperature` may be present on each
-            `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures
-            in advance to see which kwargs are available.
     """
 
     pass

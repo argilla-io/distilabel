@@ -116,6 +116,7 @@ class TestVertexAILLM:
 
         _dump = {
             "model": "gemini-1.0-pro",
+            "generation_kwargs": {},
             "type_info": {
                 "module": "distilabel.llm.vertexai",
                 "name": "VertexAILLM",

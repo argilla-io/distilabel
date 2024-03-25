@@ -48,14 +48,18 @@ _STOP_CALLED_LOCK = threading.Lock()
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":
+    def run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        use_cache: bool = True,
+    ) -> "Distiset":
         """Runs the pipeline.
 
         Args:
-            parameters: a dictionary containing the runtime parameters for each step.
-                The keys are the step names and the values are dictionaries in which the
-                keys are the parameter names (defined in the `process` method of the step)
-                and the values are the parameter values.
+            parameters: A dictionary with the step name as the key and a dictionary with
+                the runtime parameters for the step as the value. Defaults to `None`.
+            use_cache: Whether to use the cache from previous pipeline runs. Defaults to
+                `True`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -63,7 +67,7 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        super().run(parameters)
+        super().run(parameters, use_cache)
 
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
@@ -95,6 +99,7 @@ class Pipeline(BasePipeline):
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 write_buffer.close()
+                self._batch_manager = None
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 )

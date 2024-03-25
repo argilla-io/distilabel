@@ -26,7 +26,7 @@ from pydantic import ValidationError
 
 class TestEvolInstruct:
     def test_passing_pipeline(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -34,30 +34,28 @@ class TestEvolInstruct:
         assert task.llm is dummy_llm
         assert task.num_evolutions == 2
         assert task.mutation_templates == MutationTemplates
-        assert task.generation_kwargs == {}
         assert task.pipeline is pipeline
 
     def test_within_pipeline_context(self, dummy_llm: LLM) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             task = EvolInstruct(
                 name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
             )
             assert task.name == "task"
             assert task.llm is dummy_llm
-            assert task.generation_kwargs == {}
         assert task.pipeline == pipeline
 
     def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
-            EvolInstruct(name="task", pipeline=Pipeline())  # type: ignore
+            EvolInstruct(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             EvolInstruct(name="task", llm=dummy_llm, num_evolutions=2)
 
     def test_process(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -72,7 +70,7 @@ class TestEvolInstruct:
         ]
 
     def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task",
             llm=dummy_llm,
@@ -91,7 +89,7 @@ class TestEvolInstruct:
         ]
 
     def test_process_generate_answers(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task",
             llm=dummy_llm,
@@ -111,7 +109,7 @@ class TestEvolInstruct:
         ]
 
     def test_serialization(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -121,12 +119,14 @@ class TestEvolInstruct:
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
             "llm": {
+                "generation_kwargs": {},
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
-                }
+                },
             },
-            "llm_kwargs": {},
+            "group_generations": task.group_generations,
+            "num_generations": task.num_generations,
             "num_evolutions": task.num_evolutions,
             "store_evolutions": task.store_evolutions,
             "generate_answers": task.generate_answers,
@@ -139,25 +139,22 @@ class TestEvolInstruct:
                     for mutation in task.mutation_templates.__members__.values()  # type: ignore
                 },
             },
-            "num_generations": task.num_generations,
-            "group_generations": task.group_generations,
-            "generation_kwargs": {},
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
-                    "name": "llm_kwargs",
-                    "description": "The kwargs to be propagated to the `LLM` constructor. Note that these kwargs will be specific to each LLM, and while some as `model` may be present on each `LLM`, some others may not, so read the `LLM` constructor signature in advance to see which kwargs are available.",
-                    "optional": True,
+                    "name": "llm",
+                    "runtime_parameters_info": [
+                        {
+                            "name": "generation_kwargs",
+                            "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
+                            "keys": [],
+                        }
+                    ],
                 },
                 {
                     "name": "num_generations",
                     "optional": True,
                     "description": "The number of generations to be produced per input.",
-                },
-                {
-                    "name": "generation_kwargs",
-                    "optional": True,
-                    "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`. Note that these kwargs will be specific to each LLM, and while some as `temperature` may be present on each `LLM`, some others may not, so read the `LLM.{generate,agenerate}` signatures in advance to see which kwargs are available.",
                 },
                 {
                     "name": "seed",
@@ -166,11 +163,11 @@ class TestEvolInstruct:
                 },
             ],
             "type_info": {
-                "module": task.__module__,
-                "name": task.__class__.__name__,
+                "module": "distilabel.steps.task.evol_instruct.base",
+                "name": "EvolInstruct",
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = EvolInstruct.from_dict(task.dump())
             assert isinstance(new_task, EvolInstruct)

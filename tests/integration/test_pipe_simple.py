@@ -14,8 +14,9 @@
 
 from typing import Any, Dict, Generator, List
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import RuntimeParameter, Step, StepInput
+from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
 from distilabel.utils.distiset import Distiset
 
@@ -61,7 +62,7 @@ class GenerateResponse(Step):
 
 
 def run_pipeline():
-    with Pipeline() as pipeline:
+    with Pipeline(name="unit-test-pipeline") as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
         rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
         generate_response = GenerateResponse(

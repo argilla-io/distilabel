@@ -16,19 +16,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.ollama import OllamalLLM
+from distilabel.llm.ollama import OllamaLLM
 
 
 @patch("ollama.AsyncClient")
 class TestOllamaLLM:
     def test_ollama_llm(self, _: MagicMock) -> None:
-        llm = OllamalLLM(model="notus")  # type: ignore
-        assert isinstance(llm, OllamalLLM)
+        llm = OllamaLLM(model="notus")  # type: ignore
+        assert isinstance(llm, OllamaLLM)
         assert llm.model_name == "notus"
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_ollama: MagicMock) -> None:
-        llm = OllamalLLM(model="notus")  # type: ignore
+        llm = OllamaLLM(model="notus")  # type: ignore
         llm._aclient = mock_ollama
 
         mocked_completion = {
@@ -48,7 +48,7 @@ class TestOllamaLLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_ollama: MagicMock) -> None:
-        llm = OllamalLLM(model="notus")  # type: ignore
+        llm = OllamaLLM(model="notus")  # type: ignore
         llm._aclient = mock_ollama
 
         mocked_completion = {
@@ -74,18 +74,19 @@ class TestOllamaLLM:
         )
 
     def test_serialization(self, _: MagicMock) -> None:
-        llm = OllamalLLM(model="notus")  # type: ignore
+        llm = OllamaLLM(model="notus")  # type: ignore
 
         _dump = {
             "model": "notus",
             "host": None,
             "timeout": 120,
             "follow_redirects": True,
+            "generation_kwargs": {},
             "type_info": {
                 "module": "distilabel.llm.ollama",
-                "name": "OllamalLLM",
+                "name": "OllamaLLM",
             },
         }
 
         assert llm.dump() == _dump
-        assert isinstance(OllamalLLM.from_dict(_dump), OllamalLLM)
+        assert isinstance(OllamaLLM.from_dict(_dump), OllamaLLM)
