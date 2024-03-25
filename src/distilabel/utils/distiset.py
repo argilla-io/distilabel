@@ -17,8 +17,13 @@ from pathlib import Path
 from typing import Optional
 
 from datasets import load_dataset
+from huggingface_hub import DatasetCardData, HfApi
 from pyarrow.lib import ArrowInvalid
 
+from distilabel.utils.card.dataset_card import (
+    DistilabelDatasetCard,
+    size_categories_parser,
+)
 from distilabel.utils.logging import get_logger
 
 logger = get_logger("utils.distiset")
@@ -70,13 +75,12 @@ class Distiset(dict):
             )
 
         if generate_card:
-            from huggingface_hub import DatasetCardData
-
-            from distilabel.utils.card.dataset_card import DistilabelDatasetCard
-
             card = DistilabelDatasetCard.from_template(
                 card_data=DatasetCardData(
                     config_names=sorted(self.keys()),
+                    size_categories=size_categories_parser(
+                        max(len(dataset) for dataset in self.values())
+                    ),
                     tags=["synthetic", "distilabel", "rlaif"],
                 ),
             )
@@ -85,6 +89,15 @@ class Distiset(dict):
                 repo_type="dataset",
                 token=token,
             )
+            if self.pipeline_path:
+                # If the pipeline.yaml is available, upload it to the hub as well.
+                HfApi().upload_file(
+                    path_or_fileobj=self.pipeline_path,
+                    path_in_repo="pipeline.yaml",
+                    repo_id=repo_id,
+                    repo_type="dataset",
+                    token=token,
+                )
 
     def train_test_split(
         self,
@@ -122,7 +135,7 @@ class Distiset(dict):
         return f"Distiset({{\n{repr}\n}})"
 
 
-def create_distiset(data_dir: Path) -> Distiset:
+def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
     Args:
@@ -144,5 +157,8 @@ def create_distiset(data_dir: Path) -> Distiset:
         except ArrowInvalid:
             logger.warning(f"❌ Failed to load the subset from {file}.")
             continue
+
+    if pipeline_path:
+        distiset.pipeline_path = pipeline_path
 
     return distiset
