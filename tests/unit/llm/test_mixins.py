@@ -84,7 +84,9 @@ class TestCudaDevicePlacementMixin:
 
         with mp.Manager() as manager:
             llm.set_device_placement_info(
-                llm_identifier="unit-test", device_llm_placement_map=manager.dict()
+                llm_identifier="unit-test",
+                device_llm_placement_map=manager.dict(),
+                device_llm_placement_lock=manager.Lock(),
             )
 
         assert llm._llm_identifier == "unit-test"
@@ -93,11 +95,13 @@ class TestCudaDevicePlacementMixin:
     def test_set_cuda_visible_devices_auto(self) -> None:
         with mp.Manager() as manager:
             device_llm_placement_map = manager.dict()
+            lock = manager.Lock()
 
             llm1 = DummyCudaLLM()
             llm1.set_device_placement_info(
                 llm_identifier="unit-test-1",
                 device_llm_placement_map=device_llm_placement_map,
+                device_llm_placement_lock=lock,
             )
             llm1.load()
 
@@ -107,6 +111,7 @@ class TestCudaDevicePlacementMixin:
             llm2.set_device_placement_info(
                 llm_identifier="unit-test-2",
                 device_llm_placement_map=device_llm_placement_map,
+                device_llm_placement_lock=lock,
             )
             llm2.load()
 
@@ -115,6 +120,7 @@ class TestCudaDevicePlacementMixin:
     def test_set_cuda_visible_devices_auto_not_enough_devices(self) -> None:
         with mp.Manager() as manager:
             device_llm_placement_map = manager.dict()
+            lock = manager.Lock()
 
             with pytest.raises(
                 RuntimeError, match="Couldn't find an available CUDA device"
@@ -125,17 +131,20 @@ class TestCudaDevicePlacementMixin:
                     llm.set_device_placement_info(
                         llm_identifier=f"unit-test-{i}",
                         device_llm_placement_map=device_llm_placement_map,
+                        device_llm_placement_lock=lock,
                     )
                     llm.load()
 
     def test_check_cuda_devices(self, caplog) -> None:
         with mp.Manager() as manager:
             device_llm_placement_map = manager.dict()
+            lock = manager.Lock()
 
             llm1 = DummyCudaLLM(cuda_devices=[1])
             llm1.set_device_placement_info(
                 llm_identifier="unit-test-1",
                 device_llm_placement_map=device_llm_placement_map,
+                device_llm_placement_lock=lock,
             )
             llm1.load()
 
@@ -143,6 +152,7 @@ class TestCudaDevicePlacementMixin:
             llm2.set_device_placement_info(
                 llm_identifier="unit-test-2",
                 device_llm_placement_map=device_llm_placement_map,
+                device_llm_placement_lock=lock,
             )
             llm2.load()
 

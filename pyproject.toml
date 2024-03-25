@@ -24,6 +24,7 @@ dependencies = [
     "datasets >= 2.14.0",
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "Jinja2 >= 3.1.2",
+    "multiprocess >= 0.70",
     "networkx >= 3.0",
     "pydantic >= 2.0",
     "rich >= 13.5.0",
@@ -33,6 +34,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+anthropic = ["anthropic >= 0.20.0"]
 argilla = ["argilla >= 1.23.0"]
 dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
 docs = [

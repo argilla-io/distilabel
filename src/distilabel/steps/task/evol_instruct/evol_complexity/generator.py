@@ -17,14 +17,9 @@ import sys
 from pydantic import Field
 
 from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
-    GenerationMutationTemplatesEvolComplexity,
+    GenerationMutationTemplates,
 )
 from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
-
-if sys.version_info < (3, 9):
-    pass
-else:
-    pass
 
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
@@ -57,6 +52,4 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - `generate_answers=True` -> (instruction, model_name, answer)
     """
 
-    mutation_templates: EnumType = Field(
-        default=GenerationMutationTemplatesEvolComplexity
-    )
+    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
