@@ -99,6 +99,7 @@ class Pipeline(BasePipeline):
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 write_buffer.close()
+                self._batch_manager = None
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 )
@@ -114,6 +115,7 @@ class Pipeline(BasePipeline):
             pool.join()
 
         write_buffer.close()
+        self._batch_manager = None
         return _create_dataset(self._cache_location["data"])
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
