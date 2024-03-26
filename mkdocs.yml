@@ -93,6 +93,7 @@ plugins:
 
 nav:
   - Getting started: index.md
+  - Overview: 'overview.md'
   - API Reference:
     - Pipeline:
       - 'api/pipeline/pipeline.md'
