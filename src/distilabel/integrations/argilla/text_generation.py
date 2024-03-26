@@ -71,12 +71,8 @@ class TextGenerationToArgilla(Argilla):
         """
         self._rg_init()
 
-        self._instruction = (
-            self.input_mappings["instruction"] if self.input_mappings else "instruction"
-        )
-        self._generation = (
-            self.input_mappings["generation"] if self.input_mappings else "generation"
-        )
+        self._instruction = self.input_mappings.get("instruction", "instruction")
+        self._generation = self.input_mappings.get("generation", "generation")
 
         if self._rg_dataset_exists():
             _rg_dataset = rg.FeedbackDataset.from_argilla(
@@ -91,7 +87,8 @@ class TextGenerationToArgilla(Argilla):
                 ):
                     raise ValueError(
                         f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                        f" but contains at least a required field that is neither `{self._instruction}` nor `{self._generation}`."
+                        f" but contains at least a required field that is neither `{self._id}`, `{self._instruction}`"
+                        f", nor `{self._generation}`."
                     )
 
             self._rg_dataset = _rg_dataset
