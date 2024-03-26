@@ -75,37 +75,48 @@ class Distiset(dict):
             )
 
         if generate_card:
-            sample_records = {}
-            for name, dataset in self.items():
-                sample_records[name] = (
-                    dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
-                )
+            self._generate_card(repo_id, token)
 
-            card = DistilabelDatasetCard.from_template(
-                card_data=DatasetCardData(
-                    config_names=sorted(self.keys()),
-                    size_categories=size_categories_parser(
-                        max(len(dataset) for dataset in self.values())
-                    ),
-                    tags=["synthetic", "distilabel", "rlaif"],
-                ),
-                repo_id=repo_id,
-                sample_records=sample_records,
+    def _generate_card(self, repo_id: str, token: Optional[str]) -> None:
+        """Generates a dataset card and pushes it to the Hugging Face Hub, and
+        if the `pipeline.yaml` path is available in the `Distiset`, uploads that
+        to the same repository.
+
+        Args:
+            repo_id: The ID of the repository to push to, from the `push_to_hub` method.
+            token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+        """
+        sample_records = {}
+        for name, dataset in self.items():
+            sample_records[name] = (
+                dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
-            card.push_to_hub(
-                repo_id,
+
+        card = DistilabelDatasetCard.from_template(
+            card_data=DatasetCardData(
+                config_names=sorted(self.keys()),
+                size_categories=size_categories_parser(
+                    max(len(dataset) for dataset in self.values())
+                ),
+                tags=["synthetic", "distilabel", "rlaif"],
+            ),
+            repo_id=repo_id,
+            sample_records=sample_records,
+        )
+        card.push_to_hub(
+            repo_id,
+            repo_type="dataset",
+            token=token,
+        )
+        if self.pipeline_path:
+            # If the pipeline.yaml is available, upload it to the hub as well.
+            HfApi().upload_file(
+                path_or_fileobj=self.pipeline_path,
+                path_in_repo="pipeline.yaml",
+                repo_id=repo_id,
                 repo_type="dataset",
                 token=token,
             )
-            if self.pipeline_path:
-                # If the pipeline.yaml is available, upload it to the hub as well.
-                HfApi().upload_file(
-                    path_or_fileobj=self.pipeline_path,
-                    path_in_repo="pipeline.yaml",
-                    repo_id=repo_id,
-                    repo_type="dataset",
-                    token=token,
-                )
 
     def train_test_split(
         self,
