@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 from typing import TYPE_CHECKING, List
 
 from pydantic import PrivateAttr
@@ -37,6 +38,10 @@ class TextGenerationToArgilla(Argilla):
     per each input, and then a label question to rate the quality of the completion in either bad
     (represented with 👎) or good (represented with 👍).
 
+    Note:
+        This step is meant to be used in conjunction with a `TextGeneration` step and no column mapping
+        is needed, as it will use the default values for the `instruction` and `generation` columns.
+
     Args:
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
@@ -52,7 +57,7 @@ class TextGenerationToArgilla(Argilla):
 
     Input columns:
         - instruction (`str`): The instruction that was used to generate the completion.
-        - generation (`str`): The completion that was generated based on the input instruction.
+        - generation (`str` or `List[str]`): The completions that were generated based on the input instruction.
     """
 
     _instruction: str = PrivateAttr(...)
@@ -61,7 +66,7 @@ class TextGenerationToArgilla(Argilla):
     def load(self) -> None:
         """Sets the `_instruction` and `_generation` attributes based on the `inputs_mapping`, otherwise
         uses the default values; and then uses those values to createa a `FeedbackDataset` suited for
-        the prompt-completion scenario. And then it pushes it to Argilla.
+        the text-generation scenario. And then it pushes it to Argilla.
         """
         self._rg_init()
 
@@ -99,7 +104,7 @@ class TextGenerationToArgilla(Argilla):
                     rg.LabelQuestion(  # type: ignore
                         name="quality",
                         title=f"What's the quality of the {self._generation} for the given {self._instruction}?",
-                        labels=["👍", "👎"],
+                        labels=["👎", "👍"],
                     )
                 ],
             )
@@ -109,7 +114,7 @@ class TextGenerationToArgilla(Argilla):
 
     @property
     def inputs(self) -> List[str]:
-        """The inputs for the step are the `prompt` and the `completion`."""
+        """The inputs for the step are the `instruction` and the `generation`."""
         return ["instruction", "generation"]
 
     @override
@@ -122,16 +127,23 @@ class TextGenerationToArgilla(Argilla):
         Returns:
             A list of Python dictionaries with the outputs of the task.
         """
-        self._rg_dataset.add_records(  # type: ignore
-            [
-                rg.FeedbackRecord(
-                    fields={
-                        self._instruction: input["instruction"],
-                        self._generation: input["generation"],
-                    },
+        records = []
+        for input in inputs:
+            instruction_id = hashlib.sha256(
+                input["instruction"].encode("utf-8")
+            ).hexdigest()
+            generations = input["generation"]
+            if not isinstance(generations, list):
+                generations = [generations]
+            for generation in generations:
+                records.append(
+                    rg.FeedbackRecord(
+                        fields={
+                            self._instruction: input["instruction"],
+                            self._generation: generation,
+                        },
+                        metadata={"instruction_id": instruction_id},
+                    )
                 )
-                for input in inputs
-            ]
-        )
-        # Empty yield as it's intended to be a leaf step
-        yield [{}]
+        self._rg_dataset.add_records(records)  # type: ignore
+        yield inputs
