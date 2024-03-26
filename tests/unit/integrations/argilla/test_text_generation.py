@@ -20,12 +20,16 @@ from distilabel.integrations.argilla.text_generation import TextGenerationToArgi
 from distilabel.pipeline.local import Pipeline
 
 MockFeedbackDataset = rg.FeedbackDataset(
-    fields=[rg.TextField(name="instruction"), rg.TextField(name="generation")],  # type: ignore
+    fields=[
+        rg.TextField(name="id", title="id"),  # type: ignore
+        rg.TextField(name="instruction", title="instruction"),  # type: ignore
+        rg.TextField(name="generation", title="generation"),  # type: ignore
+    ],
     questions=[
         rg.LabelQuestion(  # type: ignore
             name="quality",
             title="What's the quality of the generation for the given instruction?",
-            labels=["👍", "👎"],
+            labels={"bad": "👎", "good": "👍"},
         )
     ],
 )
@@ -49,7 +53,7 @@ class TestTextGenerationToArgilla:
         step._rg_dataset = MockFeedbackDataset  # type: ignore
 
         assert list(step.process([{"instruction": "test", "generation": "test"}])) == [
-            [{}]
+            [{"instruction": "test", "generation": "test"}]
         ]
         assert len(step._rg_dataset.records) == 1
 
