@@ -14,6 +14,29 @@
 
 This dataset has been created with [Distilabel](https://distilabel.argilla.io/).
 
-### Dataset Summary
+## Dataset Summary
 
-This dataset contains a `pipeline.yaml` which can be used to reproduce the pipeline that generated it in distilabel using the the `distilabel` CLI.
+This dataset contains a `pipeline.yaml` which can be used to reproduce the pipeline that generated it in distilabel using the `distilabel` CLI.
+
+
+## Dataset structure
+
+The examples have the following structure per configuration:
+
+{% for config_name, record in sample_records.items() %}
+<details><summary> Configuration: {{ config_name }} </summary><hr>
+
+```json
+{{ record | tojson(indent=4) }}
+```
+
+This subset can be loaded as:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("{{ repo_id }}", "{{ config_name }}")
+```
+
+</details>
+{% endfor %}
