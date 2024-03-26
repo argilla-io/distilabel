@@ -12,15 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-from distilabel.utils.lists import flatten_responses
-
-if sys.version_info < (3, 11):
-    from enum import EnumMeta as EnumType
-else:
-    from enum import EnumType
-
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
@@ -30,8 +21,9 @@ from typing_extensions import override
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import MutationTemplates
+from distilabel.steps.task.evol_instruct.utils import MUTATION_TEMPLATES
 from distilabel.steps.task.typing import ChatType
+from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -62,7 +54,7 @@ class EvolInstruct(Task):
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    mutation_templates: Dict[str, str] = MUTATION_TEMPLATES
 
     seed: RuntimeParameter[int] = Field(
         default=42,
@@ -130,11 +122,8 @@ class EvolInstruct(Task):
 
     @property
     def mutation_templates_names(self) -> List[str]:
-        """Returns the names i.e. keys of the provided `mutation_templates` enum."""
-        return [
-            member.name  # type: ignore
-            for member in self.mutation_templates.__members__.values()  # type: ignore
-        ]
+        """Returns the names i.e. keys of the provided `mutation_templates`."""
+        return list(self.mutation_templates.keys())
 
     def _apply_random_mutation(self, instruction: str) -> str:
         """Applies a random mutation from the ones provided as part of the `mutation_templates`
@@ -147,7 +136,7 @@ class EvolInstruct(Task):
             A random mutation prompt with the provided instruction.
         """
         mutation = np.random.choice(self.mutation_templates_names)
-        return self.mutation_templates[mutation].value.replace("<PROMPT>", instruction)  # type: ignore
+        return self.mutation_templates[mutation].replace("<PROMPT>", instruction)  # type: ignore
 
     def _evolve_instructions(self, inputs: "StepInput") -> List[List[str]]:
         """Evolves the instructions provided as part of the inputs of the task.
