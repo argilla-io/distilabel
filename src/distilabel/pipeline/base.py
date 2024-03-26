@@ -813,6 +813,7 @@ class _WriteBuffer:
         self._buffers: Dict[str, List[Dict[str, Any]]] = {
             step: [] for step in leaf_steps
         }
+        # TODO: make this configurable
         self._buffers_dump_batch_size: Dict[str, int] = {
             step: 50 for step in leaf_steps
         }

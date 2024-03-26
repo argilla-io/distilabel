@@ -68,11 +68,15 @@ class DummyStep2(Step):
 
 
 def batch_gen(
-    step_name: str, seq_no: int = 0, last_batch: bool = False, col_name: str = "a"
+    step_name: str,
+    seq_no: int = 0,
+    last_batch: bool = False,
+    col_name: str = "a",
+    num_rows: int = 5,
 ):
     return _Batch(
         seq_no=seq_no,
         step_name=step_name,
         last_batch=last_batch,
-        data=[[{col_name: 1}, {col_name: 2}, {col_name: 3}]],
+        data=[[{col_name: i} for i in range(num_rows)]],
     )
