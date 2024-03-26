@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import multiprocessing as mp
 import signal
 import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
-
-import multiprocess as mp
 
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
@@ -80,7 +79,10 @@ class Pipeline(BasePipeline):
                 "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
                 " `Distiset` from cache data..."
             )
-            return create_distiset(self._cache_location["data"])
+            return create_distiset(
+                self._cache_location["data"],
+                pipeline_path=self._cache_location["pipeline"],
+            )
 
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
@@ -115,7 +117,9 @@ class Pipeline(BasePipeline):
             pool.join()
 
         write_buffer.close()
-        return create_distiset(self._cache_location["data"])
+        return create_distiset(
+            self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
+        )
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the

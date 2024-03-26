@@ -14,18 +14,10 @@
 
 import sys
 
-from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.utils.lists import flatten_responses
-
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
-
-if sys.version_info < (3, 11):
-    from enum import EnumMeta as EnumType
-else:
-    from enum import EnumType
 
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
@@ -34,8 +26,10 @@ import numpy as np
 from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import GenerationMutationTemplates
+from distilabel.steps.task.evol_instruct.utils import GENERATION_MUTATION_TEMPLATES
+from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -66,7 +60,7 @@ class EvolInstructGenerator(GeneratorTask):
 
     num_instructions: int
     generate_answers: bool = False
-    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
+    mutation_templates: Dict[str, str] = GENERATION_MUTATION_TEMPLATES
 
     min_length: RuntimeParameter[int] = Field(
         default=512,
@@ -98,7 +92,7 @@ class EvolInstructGenerator(GeneratorTask):
         for _ in range(self.num_instructions * 10):
             num_words = np.random.choice([1, 2, 3, 4])
             seed_texts.append(
-                self.mutation_templates.FRESH_START.value.replace(  # type: ignore
+                self.mutation_templates["FRESH_START"].replace(  # type: ignore
                     "<PROMPT>",
                     ", ".join(
                         [
@@ -171,11 +165,8 @@ class EvolInstructGenerator(GeneratorTask):
 
     @property
     def mutation_templates_names(self) -> List[str]:
-        """Returns the names i.e. keys of the provided `mutation_templates` enum."""
-        return [
-            member.name  # type: ignore
-            for member in self.mutation_templates.__members__.values()  # type: ignore
-        ]
+        """Returns the names i.e. keys of the provided `mutation_templates`."""
+        return list(self.mutation_templates.keys())
 
     def _apply_random_mutation(self, iter_no: int) -> List["ChatType"]:
         """Applies a random mutation from the ones provided as part of the `mutation_templates`
@@ -201,7 +192,7 @@ class EvolInstructGenerator(GeneratorTask):
                     self._prompts[idx] = np.random.choice(self._seed_texts)  # type: ignore
 
             prompt_with_template = (
-                self.mutation_templates[mutation].value.replace(  # type: ignore
+                self.mutation_templates[mutation].replace(  # type: ignore
                     "<PROMPT>",
                     self._prompts[idx],  # type: ignore
                 )  # type: ignore

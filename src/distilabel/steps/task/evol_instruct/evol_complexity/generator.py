@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-from pydantic import Field
+from typing import Dict
 
 from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
-    GenerationMutationTemplates,
+    GENERATION_MUTATION_TEMPLATES,
 )
 from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
-
-if sys.version_info < (3, 11):
-    from enum import EnumMeta as EnumType
-else:
-    from enum import EnumType
 
 
 class EvolComplexityGenerator(EvolInstructGenerator):
@@ -52,4 +45,4 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - `generate_answers=True` -> (instruction, model_name, answer)
     """
 
-    mutation_templates: EnumType = Field(default=GenerationMutationTemplates)
+    mutation_templates: Dict[str, str] = GENERATION_MUTATION_TEMPLATES
