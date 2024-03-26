@@ -94,7 +94,7 @@ def test_pipeline_cached():
     print()
     ds = run_pipeline()
     assert isinstance(ds, Distiset)
-    assert len(ds["generate_response"]) == 80
+    assert len(ds["generate_response"]["train"]) == 80
 
 
 if __name__ == "__main__":
