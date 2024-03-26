@@ -107,7 +107,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             f" `base_url`={self.base_url}."
         )
 
-    def load(self) -> None:
+    def load(self) -> None:  # noqa: C901
         """Loads the either the `AsyncInferenceClient` or the `AsyncOpenAI` client to benefit
         from async requests, running the Hugging Face Inference Endpoint underneath via the
         `/v1/chat/completions` endpoint, exposed for the models running on TGI using the

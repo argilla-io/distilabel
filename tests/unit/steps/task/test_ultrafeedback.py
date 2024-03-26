@@ -43,7 +43,7 @@ class UltraFeedbackLLM(LLM):
 
 class TestUltraFeedback:
     def test_process_with_simple_aspect(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = UltraFeedbackLLM()
 
         task = UltraFeedback(
@@ -67,7 +67,7 @@ class TestUltraFeedback:
         ]
 
     def test_process_with_complex_aspect(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = UltraFeedbackLLM()
 
         task = UltraFeedback(

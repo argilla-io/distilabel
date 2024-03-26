@@ -37,7 +37,7 @@ MockFeedbackDataset = rg.FeedbackDataset(
 
 class TestTextGenerationToArgilla:
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = TextGenerationToArgilla(
             name="step",
             api_url="https://example.com",
@@ -60,7 +60,7 @@ class TestTextGenerationToArgilla:
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = TextGenerationToArgilla(
             name="step",
             api_url="https://example.com",
@@ -94,6 +94,6 @@ class TestTextGenerationToArgilla:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_step = TextGenerationToArgilla.from_dict(step.dump())
             assert isinstance(new_step, TextGenerationToArgilla)

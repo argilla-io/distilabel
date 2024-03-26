@@ -61,7 +61,7 @@ def mock_feedback_dataset() -> rg.FeedbackDataset:
 
 class TestPreferenceToArgilla:
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = PreferenceToArgilla(
             name="step",
             num_generations=2,
@@ -85,7 +85,7 @@ class TestPreferenceToArgilla:
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = PreferenceToArgilla(
             name="step",
             num_generations=2,
@@ -121,6 +121,6 @@ class TestPreferenceToArgilla:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_step = PreferenceToArgilla.from_dict(step.dump())
             assert isinstance(new_step, PreferenceToArgilla)

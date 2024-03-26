@@ -12,17 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.text_generation import TextGeneration
+import os
 
-from tests.unit.steps.task.utils import DummyLLM
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-
-class TestTextGeneration:
-    def test_process(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-        assert next(task.process([{"instruction": "test"}])) == [
-            {"instruction": "test", "generation": "output", "model_name": "test"}
-        ]
+TEST_PIPELINE_PATH = os.path.join(current_dir, "test_pipeline.yaml")

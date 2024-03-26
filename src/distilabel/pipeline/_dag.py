@@ -363,7 +363,7 @@ class DAG(_Serializable):
             result = f'pipeline.run(parameters={{"{step_name}":'
             nested_dict = "..."
             for part in reversed(parts):
-                nested_dict = f'{{"{part}": {nested_dict}}}'
+                nested_dict = f' {{"{part}": {nested_dict}}}'
             result += nested_dict + "})"
             return result
 
