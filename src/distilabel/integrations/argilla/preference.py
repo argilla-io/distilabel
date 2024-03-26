@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import hashlib
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Union
 
 from pydantic import PrivateAttr
 from typing_extensions import override
@@ -32,12 +32,18 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class PreferenceRatingToArgilla(Argilla):
+class PreferenceToArgilla(Argilla):
     """Step that creates a dataset in Argilla during the load phase, and then pushses the input
     batches into it as records. This dataset is a preference dataset, where there's one field
     for the instruction and one extra field per each generation within the same record, and then
     a rating question per each of the generation fields. The rating question asks the annotator to
     set a rating from 1 to 5 for each of the provided generations.
+
+    Note:
+        This step is meant to be used in conjunction with the `UltraFeedback` step, or any other step
+        generating both ratings and responses for a given set of instruction and generations for the
+        given instruction. But alternatively, it can also be used with any other task or step generating
+        only the `instruction` and `generations`, as the `ratings` and `rationales` are optional.
 
     Args:
         num_generations: The number of generations to include in the dataset.
@@ -56,6 +62,10 @@ class PreferenceRatingToArgilla(Argilla):
     Input columns:
         - instruction (`str`): The instruction that was used to generate the completion.
         - generations (`List[str]`): The completion that was generated based on the input instruction.
+        - ratings (`List[str]`, optional): The ratings for the generations. If not provided, the
+            generated ratings won't be pushed to Argilla.
+        - rationales (`List[str]`, optional): The rationales for the ratings. If not provided, the
+            generated rationales won't be pushed to Argilla.
     """
 
     num_generations: int
@@ -63,6 +73,8 @@ class PreferenceRatingToArgilla(Argilla):
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
     _generations: str = PrivateAttr(...)
+    _ratings: str = PrivateAttr(...)
+    _rationales: str = PrivateAttr(...)
 
     def load(self) -> None:
         """Sets the `_instruction` and `_generations` attributes based on the `inputs_mapping`, otherwise
@@ -71,8 +83,12 @@ class PreferenceRatingToArgilla(Argilla):
         """
         self._rg_init()
 
+        # Both `instruction` and `generations` will be used as the fields of the dataset
         self._instruction = self.input_mappings.get("instruction", "instruction")
         self._generations = self.input_mappings.get("generations", "generations")
+        # Both `ratings` and `rationales` will be used as suggestions to the default questions of the dataset
+        self._ratings = self.input_mappings.get("ratings", "ratings")
+        self._rationales = self.input_mappings.get("rationales", "rationales")
 
         if self._rg_dataset_exists():
             _rg_dataset = rg.FeedbackDataset.from_argilla(
@@ -98,6 +114,35 @@ class PreferenceRatingToArgilla(Argilla):
 
             self._rg_dataset = _rg_dataset
         else:
+
+            def rating_rationale_pairs() -> (
+                List[Union[rg.RatingQuestion, rg.TextQuestion]]
+            ):
+                questions = []
+                for idx in range(self.num_generations):
+                    questions.extend(
+                        [
+                            rg.RatingQuestion(  # type: ignore
+                                name=f"{self._generations}-{idx}-rating",
+                                title=f"Rate {self._generations}-{idx} given {self._instruction} based on the annotation guidelines.",
+                                description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                                if idx != 0
+                                else None,
+                                values=[1, 2, 3, 4, 5],
+                                required=True if idx == 0 else False,
+                            ),
+                            rg.TextQuestion(  # type: ignore
+                                name=f"{self._generations}-{idx}-rationale",
+                                title=f"Specify the rationale for {self._generations}-{idx}'s rating.",
+                                description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                                if idx != 0
+                                else None,
+                                required=False,
+                            ),
+                        ]
+                    )
+                return questions
+
             _rg_dataset = rg.FeedbackDataset(
                 fields=[
                     rg.TextField(name=self._id, title=self._id),  # type: ignore
@@ -111,18 +156,7 @@ class PreferenceRatingToArgilla(Argilla):
                     )
                     for idx in range(self.num_generations)
                 ],
-                questions=[
-                    rg.RatingQuestion(  # type: ignore
-                        name=f"{self._generations}-{idx}",
-                        title=f"Rate the quality of the {self._generations}-{idx}",
-                        description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
-                        if idx != 0
-                        else None,
-                        values=[1, 2, 3, 4, 5],
-                        required=True if idx == 0 else False,
-                    )
-                    for idx in range(self.num_generations)
-                ],
+                questions=rating_rationale_pairs(),  # type: ignore
             )
             self._rg_dataset = _rg_dataset.push_to_argilla(
                 name=self.dataset_name, workspace=self.dataset_workspace
@@ -130,7 +164,8 @@ class PreferenceRatingToArgilla(Argilla):
 
     @property
     def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generations`."""
+        """The inputs for the step are the `instruction` and the `generations`. Optionally, one could also
+        provide the `ratings` and the `rationales` for the generations."""
         return ["instruction", "generations"]
 
     @override
@@ -145,20 +180,53 @@ class PreferenceRatingToArgilla(Argilla):
         """
         records = []
         for input in inputs:
+            # Generate the SHA-256 hash of the instruction to use it as the metadata
             instruction_id = hashlib.sha256(
                 input["instruction"].encode("utf-8")
             ).hexdigest()
+
             generations = {
                 f"{self._generations}-{idx}": generation
                 for idx, generation in enumerate(input["generations"])
             }
-            records.append(
+
+            # Since the `suggestions` i.e. answers to the `questions` are optional, will default to {}
+            suggestions = []
+            # If `ratings` is in `input`, then add those as suggestions
+            if self._ratings in input:
+                suggestions.extend(
+                    [
+                        {
+                            "question_name": f"{self._generations}-{idx}-rating",
+                            "value": rating,
+                        }
+                        for idx, rating in enumerate(input[self._ratings])
+                        if rating is not None
+                        and isinstance(rating, int)
+                        and rating in [1, 2, 3, 4, 5]
+                    ],
+                )
+            # If `rationales` is in `input`, then add those as suggestions
+            if self._rationales in input:
+                suggestions.extend(
+                    [
+                        {
+                            "question_name": f"{self._generations}-{idx}-rationale",
+                            "value": rationale,
+                        }
+                        for idx, rationale in enumerate(input[self._rationales])
+                        if rationale is not None and isinstance(rationale, str)
+                    ],
+                )
+
+            records.append(  # type: ignore
                 rg.FeedbackRecord(  # type: ignore
                     fields={
                         "id": instruction_id,
                         "instruction": input["instruction"],
                         **generations,
                     },
+                    suggestions=suggestions,
                 )
             )
         self._rg_dataset.add_records(records)  # type: ignore
