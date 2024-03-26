@@ -75,6 +75,12 @@ class Distiset(dict):
             )
 
         if generate_card:
+            sample_records = {}
+            for name, dataset in self.items():
+                sample_records[name] = (
+                    dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
+                )
+
             card = DistilabelDatasetCard.from_template(
                 card_data=DatasetCardData(
                     config_names=sorted(self.keys()),
@@ -84,6 +90,7 @@ class Distiset(dict):
                     tags=["synthetic", "distilabel", "rlaif"],
                 ),
                 repo_id=repo_id,
+                sample_records=sample_records,
             )
             card.push_to_hub(
                 repo_id,
