@@ -19,6 +19,7 @@ from typing import Optional
 from datasets import load_dataset
 from pyarrow.lib import ArrowInvalid
 
+from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.logging import get_logger
 
 logger = get_logger("utils.data")
@@ -113,14 +114,17 @@ def create_distiset(data_dir: Path) -> Distiset:
     """
     distiset = Distiset()
     for file in data_dir.iterdir():
-        if file.suffix != ".parquet":
+        if file.is_file():
             continue
+
         try:
             distiset[file.stem] = load_dataset(
-                "parquet", name=file.stem, data_files={"train": str(file)}
-            )["train"]
+                "parquet",
+                name=file.stem,
+                data_files={"train": [str(f) for f in list_files_in_dir(file)]},
+            )
         except ArrowInvalid:
-            logger.warning(f"❌ Failed to load the subset from {file}.")
+            logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue
 
     return distiset
