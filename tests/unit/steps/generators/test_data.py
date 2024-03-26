@@ -21,7 +21,7 @@ class TestLoadDataFromDictsTask:
     data = [{"instruction": "test"}] * 10
 
     def test_init(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
         task = LoadDataFromDicts(
             name="task", pipeline=pipeline, data=data, batch_size=10
@@ -30,12 +30,12 @@ class TestLoadDataFromDictsTask:
         assert task.batch_size == 10
 
     def test_with_errors(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         with pytest.raises(ValidationError):
             LoadDataFromDicts(name="task", pipeline=pipeline)
 
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
         batch_size = 1
         task = LoadDataFromDicts(

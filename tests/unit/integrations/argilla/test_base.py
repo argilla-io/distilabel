@@ -39,7 +39,7 @@ class CustomArgilla(Argilla):
 
 class TestArgilla:
     def test_passing_pipeline(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = CustomArgilla(
             name="step",
             api_url="https://example.com",
@@ -56,7 +56,7 @@ class TestArgilla:
         assert step.pipeline is pipeline
 
     def test_within_pipeline_context(self) -> None:
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             step = CustomArgilla(
                 name="step",
                 api_url="https://example.com",
@@ -91,7 +91,7 @@ class TestArgilla:
                 api_key="api.key",  # type: ignore
                 dataset_name="argilla",
                 dataset_workspace="argilla",
-                pipeline=Pipeline(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
             )
 
         with pytest.raises(
@@ -103,7 +103,7 @@ class TestArgilla:
                 api_url="https://example.com",
                 dataset_name="argilla",
                 dataset_workspace="argilla",
-                pipeline=Pipeline(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
             )
 
         with pytest.raises(
@@ -114,17 +114,17 @@ class TestArgilla:
                 api_url="https://example.com",
                 api_key="api.key",  # type: ignore
                 dataset_workspace="argilla",
-                pipeline=Pipeline(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
             )
 
         with pytest.raises(
             TypeError,
             match="Can't instantiate abstract class Argilla with abstract methods inputs, load, process",
         ):
-            Argilla(name="step", pipeline=Pipeline())  # type: ignore
+            Argilla(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = CustomArgilla(
             name="step",
             api_url="https://example.com",
@@ -138,7 +138,7 @@ class TestArgilla:
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         step = CustomArgilla(
             name="step",
             api_url="https://example.com",
@@ -161,6 +161,6 @@ class TestArgilla:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_step = CustomArgilla.from_dict(step.dump())
             assert isinstance(new_step, CustomArgilla)

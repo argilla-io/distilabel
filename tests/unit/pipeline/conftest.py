@@ -20,7 +20,7 @@ from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
 @pytest.fixture(name="pipeline")
 def pipeline_fixture() -> Pipeline:
-    return Pipeline()
+    return Pipeline(name="unit-test-pipeline")
 
 
 @pytest.fixture(name="dummy_step_1")
