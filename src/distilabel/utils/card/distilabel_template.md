@@ -16,8 +16,17 @@ This dataset has been created with [Distilabel](https://distilabel.argilla.io/).
 
 ## Dataset Summary
 
-This dataset contains a `pipeline.yaml` which can be used to reproduce the pipeline that generated it in distilabel using the `distilabel` CLI.
+This dataset contains a `pipeline.yaml` which can be used to reproduce the pipeline that generated it in distilabel using the `distilabel` CLI:
 
+```console
+❯ distilabel pipeline run --config "https://huggingface.co/datasets/{{ repo_id }}/raw/main/pipeline.yaml"
+```
+
+or explore the configuration:
+
+```console
+❯ distilabel pipeline info --config "https://huggingface.co/datasets/{{ repo_id }}/raw/main/pipeline.yaml"
+```
 
 ## Dataset structure
 
