@@ -18,7 +18,7 @@ from distilabel.steps.task.evol_instruct.evol_complexity.base import (
     EvolComplexity,
 )
 from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
-    MutationTemplates,
+    MUTATION_TEMPLATES,
 )
 
 
@@ -31,5 +31,5 @@ class TestEvolComplexity:
         assert task.name == "task"
         assert task.llm is dummy_llm
         assert task.num_evolutions == 2
-        assert task.mutation_templates == MutationTemplates
-        assert "BREADTH" not in task.mutation_templates.__members__
+        assert task.mutation_templates == MUTATION_TEMPLATES
+        assert "BREADTH" not in task.mutation_templates

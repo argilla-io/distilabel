@@ -12,35 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
 from distilabel.steps.task.evol_instruct.utils import (
-    GenerationMutationTemplates as GenerationMutationTemplatesEvolInstruct,
+    GENERATION_MUTATION_TEMPLATES as GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT,
 )
 from distilabel.steps.task.evol_instruct.utils import (
-    MutationTemplates as MutationTemplatesEvolInstruct,
+    MUTATION_TEMPLATES as MUTATION_TEMPLATSE_EVOL_INSTRUCT,
 )
 
-if sys.version_info < (3, 11):
-    from enum import Enum as StrEnum
-else:
-    from enum import StrEnum
+MUTATION_TEMPLATES = {
+    "CONSTRAINTS": MUTATION_TEMPLATSE_EVOL_INSTRUCT["CONSTRAINTS"],
+    "DEEPENING": MUTATION_TEMPLATSE_EVOL_INSTRUCT["DEEPENING"],
+    "CONCRETIZING": MUTATION_TEMPLATSE_EVOL_INSTRUCT["CONCRETIZING"],
+    "INCREASED_REASONING_STEPS": MUTATION_TEMPLATSE_EVOL_INSTRUCT[
+        "INCREASED_REASONING_STEPS"
+    ],
+}
 
-
-class MutationTemplates(StrEnum):
-    CONSTRAINTS = MutationTemplatesEvolInstruct.CONSTRAINTS.value
-    DEEPENING = MutationTemplatesEvolInstruct.DEEPENING.value
-    CONCRETIZING = MutationTemplatesEvolInstruct.CONCRETIZING.value
-    INCREASED_REASONING_STEPS = (
-        MutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
-    )
-
-
-class GenerationMutationTemplates(StrEnum):
-    FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
-    CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.CONSTRAINTS.value
-    DEEPENING = GenerationMutationTemplatesEvolInstruct.DEEPENING.value
-    CONCRETIZING = GenerationMutationTemplatesEvolInstruct.CONCRETIZING.value
-    INCREASED_REASONING_STEPS = (
-        GenerationMutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
-    )
+GENERATION_MUTATION_TEMPLATES = {
+    "FRESH_START": GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT["FRESH_START"],
+    "CONSTRAINTS": GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT["CONSTRAINTS"],
+    "DEEPENING": GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT["DEEPENING"],
+    "CONCRETIZING": GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT["CONCRETIZING"],
+    "INCREASED_REASONING_STEPS": GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT[
+        "INCREASED_REASONING_STEPS"
+    ],
+}
+# class GenerationMutationTemplates(StrEnum):
+#     FRESH_START = GenerationMutationTemplatesEvolInstruct.FRESH_START.value
+#     CONSTRAINTS = GenerationMutationTemplatesEvolInstruct.CONSTRAINTS.value
+#     DEEPENING = GenerationMutationTemplatesEvolInstruct.DEEPENING.value
+#     CONCRETIZING = GenerationMutationTemplatesEvolInstruct.CONCRETIZING.value
+#     INCREASED_REASONING_STEPS = (
+#         GenerationMutationTemplatesEvolInstruct.INCREASED_REASONING_STEPS.value
+#     )
