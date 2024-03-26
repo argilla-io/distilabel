@@ -17,11 +17,17 @@ from pathlib import Path
 from typing import Optional
 
 from datasets import load_dataset
+from huggingface_hub import DatasetCardData, HfApi
 from pyarrow.lib import ArrowInvalid
 
+from distilabel.utils.card.dataset_card import (
+    DistilabelDatasetCard,
+    size_categories_parser,
+)
+from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.logging import get_logger
 
-logger = get_logger("utils.data")
+logger = get_logger("utils.distiset")
 
 
 class Distiset(dict):
@@ -31,12 +37,15 @@ class Distiset(dict):
     `DAG` and the values are `datasets.Dataset`.
     """
 
+    pipeline_path: Optional[Path] = None
+
     def push_to_hub(
         self,
         repo_id: str,
         commit_message: Optional[str] = None,
         private: bool = False,
         token: Optional[str] = None,
+        generate_card: bool = True,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
         corresponding to the leaf step that generated it.
@@ -54,6 +63,8 @@ class Distiset(dict):
                 An optional authentication token for the Hugging Face Hub. If no token is passed, will default
                 to the token saved locally when logging in with `huggingface-cli login`. Will raise an error
                 if no token is passed and the user is not logged-in.
+            generate_card:
+                Whether to generate a dataset card or not. Defaults to True.
         """
         for name, dataset in self.items():
             dataset.push_to_hub(
@@ -61,6 +72,50 @@ class Distiset(dict):
                 config_name=name,
                 commit_message=commit_message,
                 private=private,
+                token=token,
+            )
+
+        if generate_card:
+            self._generate_card(repo_id, token)
+
+    def _generate_card(self, repo_id: str, token: Optional[str]) -> None:
+        """Generates a dataset card and pushes it to the Hugging Face Hub, and
+        if the `pipeline.yaml` path is available in the `Distiset`, uploads that
+        to the same repository.
+
+        Args:
+            repo_id: The ID of the repository to push to, from the `push_to_hub` method.
+            token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+        """
+        sample_records = {}
+        for name, dataset in self.items():
+            sample_records[name] = (
+                dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
+            )
+
+        card = DistilabelDatasetCard.from_template(
+            card_data=DatasetCardData(
+                config_names=sorted(self.keys()),
+                size_categories=size_categories_parser(
+                    max(len(dataset) for dataset in self.values())
+                ),
+                tags=["synthetic", "distilabel", "rlaif"],
+            ),
+            repo_id=repo_id,
+            sample_records=sample_records,
+        )
+        card.push_to_hub(
+            repo_id,
+            repo_type="dataset",
+            token=token,
+        )
+        if self.pipeline_path:
+            # If the pipeline.yaml is available, upload it to the hub as well.
+            HfApi().upload_file(
+                path_or_fileobj=self.pipeline_path,
+                path_in_repo="pipeline.yaml",
+                repo_id=repo_id,
+                repo_type="dataset",
                 token=token,
             )
 
@@ -100,7 +155,7 @@ class Distiset(dict):
         return f"Distiset({{\n{repr}\n}})"
 
 
-def create_distiset(data_dir: Path) -> Distiset:
+def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
     Args:
@@ -113,14 +168,20 @@ def create_distiset(data_dir: Path) -> Distiset:
     """
     distiset = Distiset()
     for file in data_dir.iterdir():
-        if file.suffix != ".parquet":
+        if file.is_file():
             continue
+
         try:
             distiset[file.stem] = load_dataset(
-                "parquet", name=file.stem, data_files={"train": str(file)}
-            )["train"]
+                "parquet",
+                name=file.stem,
+                data_files={"train": [str(f) for f in list_files_in_dir(file)]},
+            )
         except ArrowInvalid:
-            logger.warning(f"❌ Failed to load the subset from {file}.")
+            logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue
+
+    if pipeline_path:
+        distiset.pipeline_path = pipeline_path
 
     return distiset

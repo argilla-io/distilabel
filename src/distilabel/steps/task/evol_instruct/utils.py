@@ -12,13 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info < (3, 11):
-    from enum import Enum as StrEnum
-else:
-    from enum import StrEnum
-
 
 REWRITE_INSTRUCTION = """
 I want you act as a Prompt Rewriter.\n
@@ -42,34 +35,36 @@ The #Created Prompt# must be reasonable and must be understood and responded by 
 """.lstrip()
 
 
-class MutationTemplates(StrEnum):
-    CONSTRAINTS = REWRITE_INSTRUCTION.format(
+MUTATION_TEMPLATES = {
+    "CONSTRAINTS": REWRITE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
-    )
-    DEEPENING = REWRITE_INSTRUCTION.format(
+    ),
+    "DEEPENING": REWRITE_INSTRUCTION.format(
         "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
-    )
-    CONCRETIZING = REWRITE_INSTRUCTION.format(
+    ),
+    "CONCRETIZING": REWRITE_INSTRUCTION.format(
         "Please replace general concepts with more specific concepts."
-    )
-    INCREASED_REASONING_STEPS = REWRITE_INSTRUCTION.format(
+    ),
+    "INCREASED_REASONING_STEPS": REWRITE_INSTRUCTION.format(
         "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
-    )
-    BREADTH = CREATE_INSTRUCTION
+    ),
+    "BREADTH": CREATE_INSTRUCTION,
+}
 
 
-class GenerationMutationTemplates(StrEnum):
-    FRESH_START = "Write one question or request containing one or more of the following words: <PROMPT>"
-    CONSTRAINTS = REWRITE_INSTRUCTION.format(
+GENERATION_MUTATION_TEMPLATES = {
+    "FRESH_START": "Write one question or request containing one or more of the following words: <PROMPT>",
+    "CONSTRAINTS": REWRITE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
-    )
-    DEEPENING = REWRITE_INSTRUCTION.format(
+    ),
+    "DEEPENING": REWRITE_INSTRUCTION.format(
         "If #The Given Prompt# contains inquiries about certain issues, the depth and breadth of the inquiry can be increased."
-    )
-    CONCRETIZING = REWRITE_INSTRUCTION.format(
+    ),
+    "CONCRETIZING": REWRITE_INSTRUCTION.format(
         "Please replace general concepts with more specific concepts."
-    )
-    INCREASED_REASONING_STEPS = REWRITE_INSTRUCTION.format(
+    ),
+    "INCREASED_REASONING_STEPS": REWRITE_INSTRUCTION.format(
         "If #The Given Prompt# can be solved with just a few simple thinking processes, you can rewrite it to explicitly request multiple-step reasoning."
-    )
-    BREADTH = CREATE_INSTRUCTION
+    ),
+    "BREADTH": CREATE_INSTRUCTION,
+}
