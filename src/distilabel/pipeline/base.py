@@ -806,8 +806,10 @@ class _WriteBuffer:
         self._path = Path(path)
         if not self._path.exists():
             self._path.mkdir(parents=True, exist_ok=True)
+
         if not self._path.is_dir():
             raise ValueError(f"The path should be a directory, not a file: {path}")
+
         self._buffers: Dict[str, List[Dict[str, Any]]] = {
             step: [] for step in leaf_steps
         }
@@ -815,6 +817,7 @@ class _WriteBuffer:
             step: 50 for step in leaf_steps
         }
         self._buffer_last_schema = {}
+        self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
         self._logger = get_logger("write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
@@ -879,16 +882,8 @@ class _WriteBuffer:
                 self._buffer_last_schema[step_name] = new_schema
                 table = table.cast(new_schema)
 
-        # list files in `step_parquet_dir` and get last parquet file. parquet files names
-        # are 00001.parquet, 00002.parquet, etc.
-        files_in_dir = list_files_in_dir(step_parquet_dir)
-        if files_in_dir:
-            last_file = sorted(files_in_dir)[-1]
-            last_file_name = last_file.name
-            last_file_number = int(last_file_name.split(".")[0])
-            next_file_number = last_file_number + 1
-        else:
-            next_file_number = 1
+        next_file_number = self._buffers_last_file[step_name]
+        self._buffers_last_file[step_name] = next_file_number + 1
 
         parquet_file = step_parquet_dir / f"{str(next_file_number).zfill(5)}.parquet"
         pq.write_table(table, parquet_file)
