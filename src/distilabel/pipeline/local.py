@@ -474,7 +474,7 @@ class _ProcessWrapper:
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
-        if isinstance(self.step, _Task) and isinstance(
+        if hasattr(self.step, "llm") and isinstance(
             self.step.llm, CudaDevicePlacementMixin
         ):
             self.step.llm.set_device_placement_info(
