@@ -12,17 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
-
 from rich.traceback import install
 
 __version__ = "1.0.0.b0"
 
 install(show_locals=True)
-
-
-# Fix for macOS fork() error because added security to restrict multithreading in macOS
-# High Sierra and later versions of macOS
-if sys.platform == "darwin":
-    os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
