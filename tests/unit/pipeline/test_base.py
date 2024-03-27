@@ -1114,8 +1114,6 @@ class TestWriteBuffer:
             batch = batch_gen(dummy_step_2.name)
             write_buffer.add_batch(batch.step_name, batch)
 
-            assert not Path(folder, "dummy_step_2").exists()
-
             # Add 45 more rows, should write now
             for _ in range(9):
                 batch = batch_gen(dummy_step_2.name)

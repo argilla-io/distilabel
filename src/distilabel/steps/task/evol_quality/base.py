@@ -15,9 +15,9 @@
 import sys
 
 if sys.version_info <= (3, 11):
-    from enum import EnumMeta as EnumType
+    pass
 else:
-    from enum import EnumType
+    pass
 
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -26,34 +26,51 @@ from pydantic import Field
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_quality.utils import MutationTemplates
+from distilabel.steps.task.evol_quality.utils import MUTATION_TEMPLATES
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import StepInput
     from distilabel.steps.typing import StepOutput
 
 
 class EvolQuality(Task):
-    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
+    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt,
+    by generating a new response with a language model. This step implements the evolution
+    quality task from the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
+    Automatic Data Selection in Instruction Tuning'.
+
+    Args:
+        num_evolutions: The number of evolutions to be performed on the responses.
+        store_evolutions: Whether to store all the evolved responses or just the last one.
+            Defaults to `False`.
+        include_original_response: Whether to include the original response within the evolved
+            responses. Defaults to `False`.
+        mutation_templates: The mutation templates to be used to evolve the responses.
+        seed: The seed to be set for `numpy` in order to randomly pick a mutation method.
+            Defaults to `42`.
+
+    Runtime parameters:
+        - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
+
+    Input columns:
+        - instruction (`str`): The instruction that was used to generate the `responses`.
+        - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+
+    Output columns:
+        - evolved_response (`str`): The evolved response if `store_evolutions=False`.
+        - evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
+        - model_name (`str`): The model name.
 
     Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
-
-    Input columns:
-        instruction (`str`): The instruction that was used to generate the `responses`.
-        responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
-
-    Output columns:
-        There's multiple scenarios:
-        - `store_evolutions=False`, `generate_answers=False` -> (evolved_response, model_name)
-        - `store_evolutions=True`, `generate_answers=False` -> (evolved_responses, model_name)
     """
 
     num_evolutions: int
     store_evolutions: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    include_original_response: bool = False
+    mutation_templates: Dict[str, str] = MUTATION_TEMPLATES
 
     seed: RuntimeParameter[int] = Field(
         default=42,
@@ -116,10 +133,7 @@ class EvolQuality(Task):
     @property
     def mutation_templates_names(self) -> List[str]:
         """Returns the names i.e. keys of the provided `mutation_templates` enum."""
-        return [
-            member.name  # type: ignore
-            for member in self.mutation_templates.__members__.values()  # type: ignore
-        ]
+        return list(self.mutation_templates.keys())
 
     def _apply_random_mutation(self, instruction: str, response: str) -> str:
         """Applies a random mutation from the ones provided as part of the `mutation_templates`
@@ -134,7 +148,7 @@ class EvolQuality(Task):
         mutation = np.random.choice(self.mutation_templates_names)
         return (
             self.mutation_templates[mutation]
-            .value.replace("<PROMPT>", instruction)
+            .replace("<PROMPT>", instruction)
             .replace("<RESPONSE>", response[-1])
         )
 
@@ -187,7 +201,7 @@ class EvolQuality(Task):
         return responses
 
     @override
-    def process(self, inputs: "StepInput") -> "StepOutput":  # type: ignore
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Processes the inputs of the task and generates the outputs using the LLM.
 
         Args:
@@ -201,7 +215,8 @@ class EvolQuality(Task):
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_responses` list
-            responses = [response[1:] for response in responses]
+            from_ = 1 if not self.include_original_response else 0
+            responses = [response[from_:] for response in responses]
 
         for input, response in zip(inputs, responses):
             input.update(self.format_output(response))

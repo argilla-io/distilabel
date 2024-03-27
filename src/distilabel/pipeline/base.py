@@ -488,6 +488,13 @@ class _BatchManagerStep(_Serializable):
             The name of the previous steps for which the input buffer for this step is
             empty.
         """
+        if self.accumulate:
+            return [
+                previous_step
+                for previous_step in self.data.keys()
+                if previous_step not in self.last_batch_received
+            ]
+
         return [
             previous_step
             for previous_step, buffer in self.data.items()
@@ -806,6 +813,8 @@ class _WriteBuffer:
         self._path = Path(path)
         if not self._path.exists():
             self._path.mkdir(parents=True, exist_ok=True)
+            for step in leaf_steps:
+                (self._path / step).mkdir(parents=True, exist_ok=True)
 
         if not self._path.is_dir():
             raise ValueError(f"The path should be a directory, not a file: {path}")
