@@ -89,7 +89,7 @@ class Pipeline(BasePipeline):
         write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
         num_processes = len(self.dag)
-        ctx = mp.get_context("spawn")  # type: ignore
+        ctx = mp.get_context("forkserver")  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(num_processes) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
