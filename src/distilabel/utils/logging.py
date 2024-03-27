@@ -13,41 +13,55 @@
 # limitations under the License.
 
 import logging
+import multiprocessing as mp
 import os
 import warnings
+from logging.handlers import QueueHandler, QueueListener
 
 from rich.logging import RichHandler
 
+log_queue = mp.Queue()
+
+
+def setup_logging() -> None:
+    """Sets up logging to use a queue across all processes."""
+    handlers = [RichHandler()]
+
+    # Create a listener (background thread) to listen for logs from the queue. The listener
+    # will be stopped when the main process exits or when `queue_listener.stop()` is called.
+    queue_listener = QueueListener(log_queue, *handlers)
+    queue_listener.start()
+
+    # Handler for subprocesses to use
+    queue_handler = QueueHandler(log_queue)
+    logging.basicConfig(handlers=[queue_handler], level=logging.INFO)
+
 
 def get_logger(suffix: str) -> logging.Logger:
-    """Gets the `logging.Logger` for the `distilabel` package with a custom
-    configuration. Also uses `rich` for better formatting.
+    """Returns a logger with the specified suffix. It will return the right logger depending
+    on whether it is called in the main process or a child process.
+
+    Args:
+        suffix: The suffix to append to the logger name.
+
+    Returns:
+        The logger with the specified suffix.
     """
-    # Disable logging for argilla.client.feedback.dataset.local.mixins
-    # as it's too verbose, and there's no way to disable all the `argilla` logs
+    logger_name = f"distilabel.{suffix}"
+
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
-
-    # Remove `datasets` logger to only log on `critical` mode
-    # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
-
     logging.getLogger("httpx").setLevel(logging.CRITICAL)
 
-    logging.basicConfig(
-        level="INFO",
-        format="%(message)s",
-        datefmt="[%X]",
-        handlers=[RichHandler()],
-    )
-
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
-    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+    if log_level not in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
         warnings.warn(
-            f"Invalid log level '{log_level}', using default 'INFO' instead.",
+            f"Invalid log level {log_level}. Defaulting to INFO.",
+            UserWarning,
             stacklevel=2,
         )
         log_level = "INFO"
 
-    logger = logging.getLogger(f"distilabel.{suffix}")
+    logger = logging.getLogger(logger_name)
     logger.setLevel(log_level)
     return logger

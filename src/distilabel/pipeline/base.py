@@ -35,7 +35,7 @@ from typing_extensions import Self
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
 from distilabel.utils.files import list_files_in_dir
-from distilabel.utils.logging import get_logger
+from distilabel.utils.logging import get_logger, setup_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
 if TYPE_CHECKING:
@@ -121,6 +121,8 @@ class BasePipeline(_Serializable):
             self._cache_dir = Path(env_cache_dir)
         else:
             self._cache_dir = BASE_CACHE_DIR
+
+        setup_logging()
 
         self._logger = get_logger("pipeline")
 
