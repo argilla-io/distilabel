@@ -45,6 +45,9 @@ class QualityScorer(Task):
     The task follows the same scheme as the Complexity Scorer, but the instruction-response pairs
     are scored in terms of quality, obtaining a quality score for each instruction.
 
+    Attributes:
+        _template: a Jinja2 template used to format the input for the LLM.
+
     Input columns:
         - instruction (`str`): The instruction that was used to generate the `responses`.
         - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.

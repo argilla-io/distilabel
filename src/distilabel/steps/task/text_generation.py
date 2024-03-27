@@ -23,10 +23,12 @@ class TextGeneration(Task):
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
 
-    Columns:
+    Input columns:
+        - instruction (`str`): The instruction to generate text from.
 
-    - `input`: instruction
-    - `output`: generation, model_name
+    Output columns:
+        - generation (`str`): The generated text.
+        - model_name (`str`): The model name used to generate the text.
     """
 
     @property

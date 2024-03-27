@@ -32,6 +32,9 @@ from distilabel.steps.task.typing import ChatType
 class InstructionBacktranslation(Task):
     """Self-Alignment with Instruction Backtranslation.
 
+    Attributes:
+        _template: the Jinja2 template to use for the Instruction Backtranslation task.
+
     Input columns:
         - instruction (`str`): The reference instruction to evaluate the text output.
         - generation (`str`): The text output to evaluate for the given instruction.

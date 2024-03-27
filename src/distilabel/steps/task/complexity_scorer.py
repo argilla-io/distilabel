@@ -43,6 +43,9 @@ class ComplexityScorer(Task):
     an implementation of the complexity score task from the paper 'What Makes Good Data
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
 
+    Attributes:
+        _template: The Jinja2 template used to format the input data.
+
     Input columns:
         - instructions (`List[str]`): The list of instructions to be scored.
 

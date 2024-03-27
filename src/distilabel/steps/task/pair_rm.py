@@ -26,13 +26,18 @@ if TYPE_CHECKING:
 class PairRM(Step):
     """Rank the candidates based on the input using the `LLM` model.
 
+    Attributes:
+        model: The model to use for the ranking. Defaults to `"llm-blender/PairRM"`.
+        input_batch_size: The batch size to use when processing the input. Defauls to `8`.
+        instructions: The instructions to use for the model. Defaults to `None`.
+
     Input columns:
-        inputs (`List[Dict[str, Any]]`): The input text or conversation to rank the candidates for.
-        candidates (`List[Dict[str, Any]]`): The candidates to rank.
+        - inputs (`List[Dict[str, Any]]`): The input text or conversation to rank the candidates for.
+        - candidates (`List[Dict[str, Any]]`): The candidates to rank.
 
     Output columns:
-        ranks (`List[int]`): The ranks of the candidates based on the input.
-        ranked_candidates (`List[Dict[str, Any]]`): The candidates ranked based on the input.
+        - ranks (`List[int]`): The ranks of the candidates based on the input.
+        - ranked_candidates (`List[Dict[str, Any]]`): The candidates ranked based on the input.
 
     References:
         - [LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion](https://arxiv.org/abs/2306.02561).

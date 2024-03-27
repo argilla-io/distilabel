@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 class OllamaLLM(AsyncLLM):
     """Ollama LLM implementation running the Async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM e.g. "notus".
         host: the host to use for the LLM e.g. "https://ollama.com".
         max_retries: the maximum number of retries for the LLM.

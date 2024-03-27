@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 class LlamaCppLLM(LLM):
     """llama.cpp LLM implementation running the Python bindings for the C++ code.
 
-    Args:
+    Attributes:
         model_path: contains the path to the GGUF quantized model, compatible with the
             installed version of the `llama.cpp` Python bindings.
         chat_format: the chat format to use for the model. Defaults to `chatml`.

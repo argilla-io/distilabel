@@ -39,23 +39,35 @@ if TYPE_CHECKING:
 class EvolInstructGenerator(GeneratorTask):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
-    Reference:
-        - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
-        - https://github.com/nlpxucan/WizardLM/Evol_Instruct
+    Attributes:
+        num_instructions: The number of instructions to be generated.
+        generate_answers: Whether to generate answers for the instructions or not. Defaults
+            to `False`.
+        mutation_templates: The mutation templates to be used for the generation of the
+            instructions.
+        min_length: Defines the length (in bytes) that the generated instruction needs to
+            be higher than, to be considered valid. Defaults to `512`.
+        max_length: Defines the length (in bytes) that the generated instruction needs to
+            be lower than, to be considered valid. Defaults to `1024`.
+        seed: The seed to be set for `numpy` in order to randomly pick a mutation method.
+            Defaults to `42`.
 
     Runtime parameters:
+        - `min_length`: Defines the length (in bytes) that the generated instruction needs
+            to be higher than, to be considered valid.
+        - `max_length`: Defines the length (in bytes) that the generated instruction needs
+            to be lower than, to be considered valid.
+        - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
 
-    - `min_length`: Defines the length (in bytes) that the generated instruction needs to be higher than, to be considered valid.
-    - `max_length`: Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.
-    - `seed`: The number of evolutions to be run.
+    Output columns:
+        - instruction (`str`): The generated instruction if `generate_answers=False`.
+        - answer (`str`): The generated answer if `generate_answers=True`.
+        - instructions (`List[str]`): The generated instructions if `generate_answers=True`.
+        - model_name (`str`): The model name used for the LLM.
 
-    Columns:
-
-    - `input`: instruction
-    - `output`: there's multiple scenarios:
-        - `generate_answers=False` -> (instruction, model_name)
-        - `generate_answers=True` -> (instruction, model_name, answer)
+    Reference:
+        - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
+        - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
     """
 
     num_instructions: int
@@ -209,9 +221,11 @@ class EvolInstructGenerator(GeneratorTask):
             instructions: A list of lists where each item is a list with either the last
                 evolved instruction if `store_evolutions=False` or all the evolved instructions
                 if `store_evolutions=True`.
+
         Returns:
             A list of answers for the last instruction in `instructions`.
         """
+        # TODO: update to generate answers for all the instructions
         _formatted_instructions = [
             [{"role": "user", "content": instruction[-1]}]
             for instruction in instructions

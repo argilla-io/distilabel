@@ -28,7 +28,7 @@ class GenerateEmbeddings(Step):
     described in the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
 
-    Args:
+    Attributes:
         llm: The `LLM` to use to generate the embeddings.
 
     Input columns:

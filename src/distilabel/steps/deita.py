@@ -29,7 +29,7 @@ class DeitaFiltering(GlobalStep):
     It's an implementation of the filtering step from the paper 'What Makes Good Data
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
 
-    Args:
+    Attributes:
         data_budget: The desired size of the dataset after filtering.
         diversity_threshold: If a row has a cosine distance with respect to it's nearest
             neighbor greater than this value, it will be included in the filtered dataset.

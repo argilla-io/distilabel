@@ -35,7 +35,7 @@ _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
 class MistralLLM(AsyncLLM):
     """Mistral LLM implementation running the async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.
         endpoint: the endpoint to use for the Mistral API. Defaults to "https://api.mistral.ai".
         api_key: the API key to authenticate the requests to the Mistral API. Defaults to `None` which

@@ -45,18 +45,13 @@ class UltraFeedback(Task):
             - `overall-rating`: Evaluate text outputs based on an overall assessment.
 
     Input columns:
-        instruction (`str`): The reference instruction to evaluate the text outputs.
-        generations (`List[str]`): The text outputs to evaluate for the given instruction.
+        - instruction (`str`): The reference instruction to evaluate the text outputs.
+        - generations (`List[str]`): The text outputs to evaluate for the given instruction.
 
     Output columns:
-        ratings (`List[float]`): The ratings for each of the provided text outputs.
-        rationales (`List[str]`): The rationales for each of the provided text outputs.
-        model_name (`str`): The name of the model used to generate the ratings and rationales.
-
-    Runtime arguments:
-        llm_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `load`.
-        generation_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `process`.
-        num_generations (`int`): The number of passes on top of the `process` method for each input. Defaults to `1`.
+        - ratings (`List[float]`): The ratings for each of the provided text outputs.
+        - rationales (`List[str]`): The rationales for each of the provided text outputs.
+        - model_name (`str`): The name of the model used to generate the ratings and rationales.
 
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
