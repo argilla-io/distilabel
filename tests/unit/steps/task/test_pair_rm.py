@@ -22,7 +22,9 @@ from distilabel.steps.task.pair_rm import PairRM
 @patch("llm_blender.Blender")
 class TestPairRM:
     def test_process(self, mocker: MagicMock) -> None:
-        ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
+        ranker = PairRM(
+            name="pair_rm_ranker", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         ranker._blender = mocker
         ranker._blender.rank = MagicMock(return_value=np.array([[2, 1, 3], [2, 1, 3]]))
 
@@ -50,7 +52,9 @@ class TestPairRM:
         ]
 
     def test_serialization(self, _: MagicMock) -> None:
-        ranker = PairRM(name="pair_rm_ranker", pipeline=Pipeline())
+        ranker = PairRM(
+            name="pair_rm_ranker", pipeline=Pipeline(name="unit-test-pipeline")
+        )
         assert ranker.dump() == {
             "name": ranker.name,
             "input_mappings": {},

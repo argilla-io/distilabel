@@ -21,7 +21,6 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
-from distilabel.steps.task.base import _Task
 from distilabel.utils.distiset import create_distiset
 
 if TYPE_CHECKING:
@@ -478,7 +477,7 @@ class _ProcessWrapper:
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
-        if isinstance(self.step, _Task) and isinstance(
+        if hasattr(self.step, "llm") and isinstance(
             self.step.llm, CudaDevicePlacementMixin
         ):
             self.step.llm.set_device_placement_info(
@@ -593,7 +592,7 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
-            # `result` is initally an empty list so f `process` method raises an exception
+            # `result` is initially an empty list so f `process` method raises an exception
             # an empty batch will be sent to the `output_queue`
             result = []
             try:

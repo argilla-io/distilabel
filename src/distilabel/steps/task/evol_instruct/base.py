@@ -32,28 +32,43 @@ if TYPE_CHECKING:
 class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
-    Reference:
-        - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
-        - https://github.com/nlpxucan/WizardLM/Evol_Instruct
+    Args:
+        num_evolutions: The number of evolutions to be performed.
+        store_evolutions: Whether to store all the evolutions or just the last one. Defaults
+            to `False`.
+        generate_answers: Whether to generate answers for the evolved instructions. Defaults
+            to `False`.
+        include_original_instruction: Whether to include the original instruction in the
+            `evolved_instructions` output column. Defaults to `False`.
+        mutation_templates: The mutation templates to be used for evolving the instructions.
+            Defaults to the ones provided in the `utils.py` file.
+        seed: The seed to be set for `numpy` in order to randomly pick a mutation method.
+            Defaults to `42`.
 
     Runtime parameters:
+        - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
 
-    - `seed`: The number of evolutions to be run.
+    Input columns:
+        - instruction (`str`): The instruction to be evolved.
 
-    Columns:
+    Output columns:
+        - evolved_instruction (`str`): The evolved instruction if `store_evolutions=False`.
+        - evolved_instructions (`List[str]`): The evolved instructions if `store_evolutions=True`.
+        - model_name (`str`): The model name.
+        - answer (`str`): The answer to the evolved instruction if `generate_answers=True`
+            and `store_evolutions=False`.
+        - answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
+            and `store_evolutions=True`.
 
-    - `input`: instruction
-    - `output`: there's multiple scenarios:
-        - `store_evolutions=False`, `generate_answers=False` -> (evolved_instruction, model_name)
-        - `store_evolutions=True`, `generate_answers=False` -> (evolved_instructions, model_name)
-        - `store_evolutions=False`, `generate_answers=True` -> (evolved_instruction, model_name, answer)
-        - `store_evolutions=True`, `generate_answers=True` -> (evolved_instructions, model_name, answer)
+    Reference:
+        - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
+        - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
     """
 
     num_evolutions: int
     store_evolutions: bool = False
     generate_answers: bool = False
+    include_original_instruction: bool = False
     mutation_templates: Dict[str, str] = MUTATION_TEMPLATES
 
     seed: RuntimeParameter[int] = Field(
@@ -88,11 +103,11 @@ class EvolInstruct(Task):
             "model_name",
         ]
         if self.generate_answers:
-            _outputs.append("answer")
+            _outputs.append("answer" if not self.store_evolutions else "answers")
         return _outputs
 
     def format_output(
-        self, instructions: Union[str, List[str]], answer: Optional[str] = None
+        self, instructions: Union[str, List[str]], answers: Optional[List[str]] = None
     ) -> Dict[str, Any]:  # type: ignore
         """The output for the task is a dict with: `evolved_instruction` or `evolved_instructions`,
         depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
@@ -100,7 +115,7 @@ class EvolInstruct(Task):
 
         Args:
             instructions: The instructions to be included within the output.
-            answer: The answer to be included within the output if `generate_answers=True`.
+            answers: The answers to be included within the output if `generate_answers=True`.
 
         Returns:
             If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ..., "answer": ...};
@@ -114,8 +129,11 @@ class EvolInstruct(Task):
         else:
             _output["evolved_instructions"] = instructions
 
-        if self.generate_answers and answer is not None:
-            _output["answer"] = answer
+        if self.generate_answers and answers:
+            if not self.store_evolutions:
+                _output["answer"] = answers[-1]
+            else:
+                _output["answers"] = answers
 
         _output["model_name"] = self.llm.model_name
         return _output
@@ -190,24 +208,40 @@ class EvolInstruct(Task):
 
         return instructions
 
-    def _generate_answers(self, instructions: List[List[str]]) -> List[str]:
-        """Generates the answer for the last instruction in `instructions`.
+    def _generate_answers(
+        self, evolved_instructions: List[List[str]]
+    ) -> List[List[str]]:
+        """Generates the answer for the instructions in `instructions`.
 
         Args:
-            instructions: A list of lists where each item is a list with either the last
+            evolved_instructions: A list of lists where each item is a list with either the last
                 evolved instruction if `store_evolutions=False` or all the evolved instructions
                 if `store_evolutions=True`.
+
         Returns:
-            A list of answers for the last instruction in `instructions`.
+            A list of answers for each instruction.
         """
-        _formatted_instructions = [
-            self.format_input(instruction[-1]) for instruction in instructions
+        formatted_instructions = [
+            self.format_input(instruction)
+            for instructions in evolved_instructions
+            for instruction in instructions
         ]
+
         responses = self.llm.generate(
-            _formatted_instructions,
+            formatted_instructions,
+            num_generations=1,
             **self.llm.generation_kwargs,  # type: ignore
         )
-        return flatten_responses(responses)
+
+        step = (
+            self.num_evolutions
+            if not self.include_original_instruction
+            else self.num_evolutions + 1
+        )
+        return [
+            flatten_responses(responses[i : i + step])
+            for i in range(0, len(responses), step)
+        ]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
@@ -220,30 +254,38 @@ class EvolInstruct(Task):
             A list of Python dictionaries with the outputs of the task.
         """
 
-        instructions = self._evolve_instructions(inputs)
+        evolved_instructions = self._evolve_instructions(inputs)
 
         if self.store_evolutions:
             # Remove the input instruction from the `evolved_instructions` list
-            instructions = [instruction[1:] for instruction in instructions]
+            from_ = 1 if not self.include_original_instruction else 0
+            evolved_instructions = [
+                instruction[from_:] for instruction in evolved_instructions
+            ]
 
         if not self.generate_answers:
-            for input, instruction in zip(inputs, instructions):
+            for input, instruction in zip(inputs, evolved_instructions):
                 input.update(self.format_output(instruction))
             yield inputs
 
-        self._logger.info(f"🎉 Finished evolving {len(instructions)} instructions!")
+        self._logger.info(
+            f"🎉 Finished evolving {len(evolved_instructions)} instructions!"
+        )
 
         if self.generate_answers:
             self._logger.info(
-                f"🧠 Generating answers for the {len(instructions)} evolved instructions!"
+                f"🧠 Generating answers for the {len(evolved_instructions)} evolved instructions!"
             )
 
-            answers = self._generate_answers(instructions)
+            answers = self._generate_answers(evolved_instructions)
 
             self._logger.info(
-                f"🎉 Finished generating answers for the {len(instructions)} evolved instructions!"
+                f"🎉 Finished generating answers for the {len(evolved_instructions)} evolved"
+                " instructions!"
             )
 
-            for idx, (input, instruction) in enumerate(zip(inputs, instructions)):
+            for idx, (input, instruction) in enumerate(
+                zip(inputs, evolved_instructions)
+            ):
                 input.update(self.format_output(instruction, answers[idx]))
             yield inputs

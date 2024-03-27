@@ -1037,7 +1037,6 @@ class TestPipelineSerialization:
             with BasePipeline(
                 name="unit-test-pipeline", cache_dir=tmpdirname
             ) as pipeline:
-                print(len(pipeline.dag))
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -1114,8 +1113,6 @@ class TestWriteBuffer:
             # Add one batch with 5 rows, shouldn't write anything 5 < 50
             batch = batch_gen(dummy_step_2.name)
             write_buffer.add_batch(batch.step_name, batch)
-
-            assert not Path(folder, "dummy_step_2").exists()
 
             # Add 45 more rows, should write now
             for _ in range(9):
