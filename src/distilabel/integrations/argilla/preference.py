@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 
 class PreferenceToArgilla(Argilla):
-    """Step that creates a dataset in Argilla during the load phase, and then pushses the input
+    """Step that creates a dataset in Argilla during the load phase, and then pushes the input
     batches into it as records. This dataset is a preference dataset, where there's one field
     for the instruction and one extra field per each generation within the same record, and then
     a rating question per each of the generation fields. The rating question asks the annotator to
@@ -78,7 +78,7 @@ class PreferenceToArgilla(Argilla):
 
     def load(self) -> None:
         """Sets the `_instruction` and `_generations` attributes based on the `inputs_mapping`, otherwise
-        uses the default values; and then uses those values to createa a `FeedbackDataset` suited for
+        uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
         self._rg_init()

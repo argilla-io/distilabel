@@ -60,7 +60,7 @@ class _Task(_Step, ABC):
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Asbtract method to format the outputs of the task. It needs to receive an output
+        """Abstract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task. In
         addition the `input` used to generate the output is also received just in case it's
         needed to be able to parse the output correctly.
@@ -110,7 +110,7 @@ class Task(_Task, Step):
 
     @abstractmethod
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        """Asbtract method to format the inputs of the task. It needs to receive an input
+        """Abstract method to format the inputs of the task. It needs to receive an input
         as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
         pass
 

@@ -82,7 +82,7 @@ class LlamaCppLLM(LLM):
             inputs: a list of inputs in chat format to generate responses for.
             num_generations: the number of generations to create per input. Defaults to
                 `1`.
-            max_new_tokens: the maximun number of new tokens that the model will generate.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
             frequence_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.

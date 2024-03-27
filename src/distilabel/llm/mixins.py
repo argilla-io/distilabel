@@ -138,7 +138,7 @@ class CudaDevicePlacementMixin(BaseModel):
                 if device in devices:
                     self._logger.warning(
                         f"LLM with identifier '{llm}' is also going to use CUDA device "
-                        f"'{device}'. This may lead to performance issues or runnning out"
+                        f"'{device}'. This may lead to performance issues or running out"
                         " of memory depending on the device capabilities and the loaded"
                         " models."
                     )

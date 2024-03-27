@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 
 class TextGenerationToArgilla(Argilla):
-    """Step that creates a dataset in Argilla during the load phase, and then pushses the input
+    """Step that creates a dataset in Argilla during the load phase, and then pushes the input
     batches into it as records. This dataset is a text-generation dataset, where there's one field
     per each input, and then a label question to rate the quality of the completion in either bad
     (represented with 👎) or good (represented with 👍).
@@ -66,7 +66,7 @@ class TextGenerationToArgilla(Argilla):
 
     def load(self) -> None:
         """Sets the `_instruction` and `_generation` attributes based on the `inputs_mapping`, otherwise
-        uses the default values; and then uses those values to createa a `FeedbackDataset` suited for
+        uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
         self._rg_init()
