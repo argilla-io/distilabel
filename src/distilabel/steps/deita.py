@@ -181,7 +181,7 @@ class DeitaFiltering(GlobalStep):
         """
         inputs = self._compute_deita_score(inputs)
         inputs = self._compute_nearest_neighbor(inputs)
-        inputs.sort(key=lambda x: x["deita_score"])
+        inputs.sort(key=lambda x: x["deita_score"], reverse=True)
 
         selected_rows = []
         for input in inputs:
@@ -189,4 +189,4 @@ class DeitaFiltering(GlobalStep):
                 break
             if input["nearest_neighbor_distance"] >= self.diversity_threshold:
                 selected_rows.append(input)
-        yield inputs
+        yield selected_rows
