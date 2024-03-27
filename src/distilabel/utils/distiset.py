@@ -24,6 +24,7 @@ from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
 )
+from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.logging import get_logger
 
 logger = get_logger("utils.distiset")
@@ -167,14 +168,17 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
     """
     distiset = Distiset()
     for file in data_dir.iterdir():
-        if file.suffix != ".parquet":
+        if file.is_file():
             continue
+
         try:
             distiset[file.stem] = load_dataset(
-                "parquet", name=file.stem, data_files={"train": str(file)}
-            )["train"]
+                "parquet",
+                name=file.stem,
+                data_files={"train": [str(f) for f in list_files_in_dir(file)]},
+            )
         except ArrowInvalid:
-            logger.warning(f"❌ Failed to load the subset from {file}.")
+            logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue
 
     if pipeline_path:

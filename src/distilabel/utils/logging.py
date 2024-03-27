@@ -40,7 +40,7 @@ def get_logger(suffix: str) -> logging.Logger:
         handlers=[RichHandler()],
     )
 
-    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO")
+    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
         warnings.warn(
             f"Invalid log level '{log_level}', using default 'INFO' instead.",
