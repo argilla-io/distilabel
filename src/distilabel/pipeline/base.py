@@ -806,6 +806,8 @@ class _WriteBuffer:
         self._path = Path(path)
         if not self._path.exists():
             self._path.mkdir(parents=True, exist_ok=True)
+            for step in leaf_steps:
+                (self._path / step).mkdir(parents=True, exist_ok=True)
 
         if not self._path.is_dir():
             raise ValueError(f"The path should be a directory, not a file: {path}")
