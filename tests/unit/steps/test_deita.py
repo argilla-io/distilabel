@@ -54,6 +54,10 @@ class TestDeitaFiltering:
                 "evol_response_score": 0.5,
                 "embedding": [-8.12729941, -5.24642847, -6.34003029],
                 "deita_score": 0.25,
+                "deita_score_computed_with": [
+                    "evol_instruction_score",
+                    "evol_response_score",
+                ],
                 "nearest_neighbor_distance": 1.9042812683723933,
             }
         ]

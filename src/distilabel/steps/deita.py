@@ -52,6 +52,8 @@ class DeitaFiltering(GlobalStep):
 
     Output columns:
         - deita_score (`float`): The DEITA score for the instruction-response pair.
+        - deita_score_computed_with (`List[str]`): The scores used to compute the DEITA
+            score.
         - nearest_neighbor_distance (`float`): The cosine distance between the embeddings
             of the instruction-response pair.
 
@@ -82,7 +84,7 @@ class DeitaFiltering(GlobalStep):
 
     @property
     def outputs(self) -> List[str]:
-        return ["deita_score", "nearest_neighbor_distance"]
+        return ["deita_score", "nearest_neighbor_distance", "deita_score_computed_with"]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Filter the dataset based on the DEITA score and the cosine distance between the
@@ -122,26 +124,35 @@ class DeitaFiltering(GlobalStep):
 
             if evol_instruction_score and evol_response_score:
                 deita_score = evol_instruction_score * evol_response_score
+                score_computed_with = ["evol_instruction_score", "evol_response_score"]
             elif evol_instruction_score:
                 self._logger.warning(
                     "Response score is missing for the instruction-response pair. Using"
                     " instruction score as DEITA score."
                 )
                 deita_score = evol_instruction_score
+                score_computed_with = ["evol_instruction_score"]
             elif evol_response_score:
                 self._logger.warning(
                     "Instruction score is missing for the instruction-response pair. Using"
                     " response score as DEITA score."
                 )
                 deita_score = evol_response_score
+                score_computed_with = ["evol_response_score"]
             else:
                 self._logger.warning(
                     "Instruction and response scores are missing for the instruction-response"
                     " pair. Setting DEITA score to 0."
                 )
                 deita_score = 0
+                score_computed_with = []
 
-            input_["deita_score"] = deita_score
+            input_.update(
+                {
+                    "deita_score": deita_score,
+                    "deita_score_computed_with": score_computed_with,
+                }
+            )
         return inputs
 
     def _compute_nearest_neighbor(self, inputs: StepInput) -> StepInput:
