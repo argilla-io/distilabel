@@ -17,20 +17,28 @@ import multiprocessing as mp
 import os
 import warnings
 from logging.handlers import QueueHandler, QueueListener
+from typing import TYPE_CHECKING, Any
 
 from rich.logging import RichHandler
 
-log_queue = mp.Queue()
+if TYPE_CHECKING:
+    from queue import Queue
 
 
-def setup_logging() -> None:
+def setup_logging(log_queue: "Queue[Any]") -> None:
     """Sets up logging to use a queue across all processes."""
-    handlers = [RichHandler()]
 
-    # Create a listener (background thread) to listen for logs from the queue. The listener
-    # will be stopped when the main process exits or when `queue_listener.stop()` is called.
-    queue_listener = QueueListener(log_queue, *handlers)
-    queue_listener.start()
+    # Disable overly verbose loggers
+    logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
+    logging.getLogger("datasets").setLevel(logging.CRITICAL)
+    logging.getLogger("httpx").setLevel(logging.CRITICAL)
+
+    # If the current process is the main process, set up a QueueListener
+    # to handle logs from all subprocesses
+    if mp.current_process().name == "MainProcess":
+        handlers = [RichHandler()]
+        queue_listener = QueueListener(log_queue, *handlers)
+        queue_listener.start()
 
     # Handler for subprocesses to use
     queue_handler = QueueHandler(log_queue)
@@ -38,30 +46,20 @@ def setup_logging() -> None:
 
 
 def get_logger(suffix: str) -> logging.Logger:
-    """Returns a logger with the specified suffix. It will return the right logger depending
-    on whether it is called in the main process or a child process.
-
-    Args:
-        suffix: The suffix to append to the logger name.
-
-    Returns:
-        The logger with the specified suffix.
     """
-    logger_name = f"distilabel.{suffix}"
-
-    logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
-    logging.getLogger("datasets").setLevel(logging.CRITICAL)
-    logging.getLogger("httpx").setLevel(logging.CRITICAL)
-
+    Gets the `logging.Logger` for the `distilabel` package with a custom configuration.
+    Also uses `rich` for better formatting. Compatible with multiprocessing using `QueueHandler`.
+    """
+    # Set the log level from environment or default
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
-    if log_level not in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
+    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
         warnings.warn(
-            f"Invalid log level {log_level}. Defaulting to INFO.",
-            UserWarning,
+            f"Invalid log level '{log_level}', using default 'INFO' instead.",
             stacklevel=2,
         )
         log_level = "INFO"
 
-    logger = logging.getLogger(logger_name)
+    # Configure root logger
+    logger = logging.getLogger(f"distilabel.{suffix}")
     logger.setLevel(log_level)
     return logger

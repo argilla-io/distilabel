@@ -22,6 +22,7 @@ from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.utils.distiset import create_distiset
+from distilabel.utils.logging import get_logger, setup_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -41,6 +42,10 @@ _CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+
+
+def _init_worker(queue: "Queue[Any]") -> None:
+    setup_logging(queue)
 
 
 class Pipeline(BasePipeline):
@@ -65,6 +70,10 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        log_queue = mp.Queue()
+        setup_logging(log_queue)  # type: ignore
+        self._logger = get_logger("pipeline")
+
         super().run(parameters, use_cache)
 
         if self._batch_manager is None:
@@ -89,7 +98,9 @@ class Pipeline(BasePipeline):
 
         num_processes = len(self.dag)
         ctx = mp.get_context("forkserver")  # type: ignore
-        with ctx.Manager() as manager, ctx.Pool(num_processes) as pool:
+        with ctx.Manager() as manager, ctx.Pool(
+            num_processes, initializer=_init_worker, initargs=(log_queue,)
+        ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
             self._handle_keyboard_interrupt()
