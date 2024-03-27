@@ -1,4 +1,5 @@
 # Integrations
 
 ::: distilabel.integrations.argilla.base
-::: distilabel.integrations.argilla.prompt_completion
+::: distilabel.integrations.argilla.preference
+::: distilabel.integrations.argilla.text_generation
