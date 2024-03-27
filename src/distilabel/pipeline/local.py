@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import multiprocessing as mp
 import signal
 import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
-import multiprocess as mp
-
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
-from distilabel.steps.task.base import _Task
-from distilabel.utils.distiset import _create_dataset
+from distilabel.utils.distiset import create_distiset
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -48,14 +46,18 @@ _STOP_CALLED_LOCK = threading.Lock()
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":
+    def run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        use_cache: bool = True,
+    ) -> "Distiset":
         """Runs the pipeline.
 
         Args:
-            parameters: a dictionary containing the runtime parameters for each step.
-                The keys are the step names and the values are dictionaries in which the
-                keys are the parameter names (defined in the `process` method of the step)
-                and the values are the parameter values.
+            parameters: A dictionary with the step name as the key and a dictionary with
+                the runtime parameters for the step as the value. Defaults to `None`.
+            use_cache: Whether to use the cache from previous pipeline runs. Defaults to
+                `True`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -63,7 +65,7 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        super().run(parameters)
+        super().run(parameters, use_cache)
 
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
@@ -76,7 +78,10 @@ class Pipeline(BasePipeline):
                 "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
                 " `Distiset` from cache data..."
             )
-            return _create_dataset(self._cache_location["data"])
+            return create_distiset(
+                self._cache_location["data"],
+                pipeline_path=self._cache_location["pipeline"],
+            )
 
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
@@ -95,6 +100,7 @@ class Pipeline(BasePipeline):
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 write_buffer.close()
+                self._batch_manager = None
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 )
@@ -110,7 +116,9 @@ class Pipeline(BasePipeline):
             pool.join()
 
         write_buffer.close()
-        return _create_dataset(self._cache_location["data"])
+        return create_distiset(
+            self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
+        )
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
@@ -469,7 +477,7 @@ class _ProcessWrapper:
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
-        if isinstance(self.step, _Task) and isinstance(
+        if hasattr(self.step, "llm") and isinstance(
             self.step.llm, CudaDevicePlacementMixin
         ):
             self.step.llm.set_device_placement_info(
@@ -584,7 +592,7 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
-            # `result` is initally an empty list so f `process` method raises an exception
+            # `result` is initially an empty list so f `process` method raises an exception
             # an empty batch will be sent to the `output_queue`
             result = []
             try:

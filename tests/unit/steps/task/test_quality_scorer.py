@@ -23,7 +23,11 @@ from tests.unit.steps.task.utils import DummyLLM
 
 class TestQualityScorer:
     def test_format_input(self) -> None:
-        task = QualityScorer(name="quality_scorer", llm=DummyLLM(), pipeline=Pipeline())
+        task = QualityScorer(
+            name="quality_scorer",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
         task.load()
 
         result = task.format_input(
@@ -60,7 +64,11 @@ class TestQualityScorer:
     def test_format_output(
         self, output: Union[str, None], expected: Dict[str, Any]
     ) -> None:
-        task = QualityScorer(name="quality_score", llm=DummyLLM(), pipeline=Pipeline())
+        task = QualityScorer(
+            name="quality_score",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
         task.load()
 
         result = task.format_output(
@@ -70,7 +78,5 @@ class TestQualityScorer:
                 "responses": ["response 1", "response 2", "response 3"],
             },
         )
-
-        print(result)
 
         assert result == expected

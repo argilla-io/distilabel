@@ -16,25 +16,29 @@ import os
 from unittest.mock import patch
 
 import argilla as rg
-from distilabel.integrations.argilla.prompt_completion import PromptCompletionToArgilla
+from distilabel.integrations.argilla.text_generation import TextGenerationToArgilla
 from distilabel.pipeline.local import Pipeline
 
 MockFeedbackDataset = rg.FeedbackDataset(
-    fields=[rg.TextField(name="prompt"), rg.TextField(name="completion")],  # type: ignore
+    fields=[
+        rg.TextField(name="id", title="id"),  # type: ignore
+        rg.TextField(name="instruction", title="instruction"),  # type: ignore
+        rg.TextField(name="generation", title="generation"),  # type: ignore
+    ],
     questions=[
         rg.LabelQuestion(  # type: ignore
             name="quality",
-            title="What's the quality of the completion for the given prompt?",
-            labels=["bad", "good", "excellent"],
+            title="What's the quality of the generation for the given instruction?",
+            labels={"bad": "👎", "good": "👍"},
         )
     ],
 )
 
 
-class TestPromptCompletionToArgilla:
+class TestTextGenerationToArgilla:
     def test_process(self) -> None:
-        pipeline = Pipeline()
-        step = PromptCompletionToArgilla(
+        pipeline = Pipeline(name="unit-test-pipeline")
+        step = TextGenerationToArgilla(
             name="step",
             api_url="https://example.com",
             api_key="api.key",  # type: ignore
@@ -42,20 +46,22 @@ class TestPromptCompletionToArgilla:
             dataset_workspace="argilla",
             pipeline=pipeline,
         )
-        with patch.object(PromptCompletionToArgilla, "load"):
+        with patch.object(TextGenerationToArgilla, "load"):
             step.load()
-        step._prompt = "prompt"
-        step._completion = "completion"
+        step._instruction = "instruction"
+        step._generation = "generation"
         step._rg_dataset = MockFeedbackDataset  # type: ignore
 
-        assert list(step.process([{"prompt": "test", "completion": "test"}])) == [[{}]]
+        assert list(step.process([{"instruction": "test", "generation": "test"}])) == [
+            [{"instruction": "test", "generation": "test"}]
+        ]
         assert len(step._rg_dataset.records) == 1
 
     def test_serialization(self) -> None:
         os.environ["ARGILLA_API_KEY"] = "api.key"
 
-        pipeline = Pipeline()
-        step = PromptCompletionToArgilla(
+        pipeline = Pipeline(name="unit-test-pipeline")
+        step = TextGenerationToArgilla(
             name="step",
             api_url="https://example.com",
             dataset_name="argilla",
@@ -67,16 +73,27 @@ class TestPromptCompletionToArgilla:
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
-            "api_url": "https://example.com",
             "dataset_name": "argilla",
             "dataset_workspace": "argilla",
-            "runtime_parameters_info": [],
+            "api_url": "https://example.com",
+            "runtime_parameters_info": [
+                {
+                    "name": "api_url",
+                    "optional": True,
+                    "description": "The base URL to use for the Argilla API requests.",
+                },
+                {
+                    "name": "api_key",
+                    "optional": True,
+                    "description": "The API key to authenticate the requests to the Argilla API.",
+                },
+            ],
             "type_info": {
-                "module": "distilabel.integrations.argilla.prompt_completion",
-                "name": "PromptCompletionToArgilla",
+                "module": "distilabel.integrations.argilla.text_generation",
+                "name": "TextGenerationToArgilla",
             },
         }
 
-        with Pipeline() as pipeline:
-            new_step = PromptCompletionToArgilla.from_dict(step.dump())
-            assert isinstance(new_step, PromptCompletionToArgilla)
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            new_step = TextGenerationToArgilla.from_dict(step.dump())
+            assert isinstance(new_step, TextGenerationToArgilla)

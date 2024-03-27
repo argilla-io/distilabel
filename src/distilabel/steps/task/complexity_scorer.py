@@ -44,10 +44,10 @@ class ComplexityScorer(Task):
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
 
     Input columns:
-        instructions (`List[str]`): The list of instructions to be scored.
+        - instructions (`List[str]`): The list of instructions to be scored.
 
     Output columns:
-        complexity_score (`List[float]`): The complexity score for each instruction.
+        - complexity_score (`List[float]`): The complexity score for each instruction.
 
     Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

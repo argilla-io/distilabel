@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from unittest import mock
 
 import pytest
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.base import (
     BasePipeline,
@@ -27,14 +30,15 @@ from distilabel.pipeline.base import (
     _WriteBuffer,
 )
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import GlobalStep
-from distilabel.utils.distiset import Distiset, _create_dataset
+from distilabel.steps.base import GlobalStep, Step, StepInput
+from distilabel.utils.distiset import Distiset, create_distiset
 from distilabel.utils.serialization import TYPE_INFO_KEY
+from pydantic import Field
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2, batch_gen
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import GeneratorStep, Step
+    from distilabel.steps.base import GeneratorStep
 
 
 class TestGlobalPipelineManager:
@@ -42,7 +46,7 @@ class TestGlobalPipelineManager:
         _GlobalPipelineManager.set_pipeline(None)
 
     def test_set_pipeline(self) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -51,7 +55,7 @@ class TestGlobalPipelineManager:
         assert _GlobalPipelineManager.get_pipeline() is None
 
     def test_get_pipeline(self) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -60,11 +64,71 @@ class TestBasePipeline:
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
-        with BasePipeline() as pipeline:
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
             assert pipeline is not None
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
         assert _GlobalPipelineManager.get_pipeline() is None
+
+    def test_get_runtime_parameters_info(self) -> None:
+        class DummyStep1(Step):
+            runtime_param1: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param1 description"
+            )
+            runtime_param2: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param2 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        class DummyStep2(Step):
+            runtime_param3: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param3 description"
+            )
+            runtime_param4: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param4 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
+            DummyStep1(name="dummy_step_1")
+            DummyStep2(name="dummy_step_2")
+
+        assert pipeline.get_runtime_parameters_info() == {
+            "dummy_step_1": [
+                {
+                    "name": "runtime_param1",
+                    "description": "runtime_param1 description",
+                    "optional": False,
+                },
+                {
+                    "name": "runtime_param2",
+                    "description": "runtime_param2 description",
+                    "optional": True,
+                },
+            ],
+            "dummy_step_2": [
+                {
+                    "name": "runtime_param3",
+                    "description": "runtime_param3 description",
+                    "optional": False,
+                },
+                {
+                    "name": "runtime_param4",
+                    "description": "runtime_param4 description",
+                    "optional": True,
+                },
+            ],
+        }
+
+    def test_cache_dir_env_variable(self) -> None:
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["DISTILABEL_CACHE_DIR"] = "/tmp/unit-test"
+            pipeline = BasePipeline(name="unit-test-pipeline")
+            assert pipeline._cache_dir == Path("/tmp/unit-test")
 
 
 class TestBatch:
@@ -886,7 +950,7 @@ class TestBatchManager:
 
 class TestPipelineSerialization:
     def test_base_pipeline_dump(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
         assert "pipeline" in dump
@@ -896,14 +960,14 @@ class TestPipelineSerialization:
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
 
     def test_base_pipeline_from_dict(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         pipe = BasePipeline.from_dict(pipeline.dump())
         assert isinstance(pipe, BasePipeline)
 
     def test_pipeline_dump(self):
         from distilabel.pipeline.local import Pipeline
 
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
         assert "pipeline" in dump
@@ -926,7 +990,7 @@ class TestPipelineSerialization:
         name: str,
         loader: Callable,
     ) -> None:
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             filename = Path(tmpdirname) / name
@@ -940,7 +1004,7 @@ class TestPipelineSerialization:
                 assert isinstance(pipe_from_file, BasePipeline)
 
     def test_base_pipeline_signature(self):
-        pipeline = BasePipeline()
+        pipeline = BasePipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
         signature = pipeline._create_signature()
@@ -951,7 +1015,7 @@ class TestPipelineSerialization:
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(name="dummy_step_1")
             dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -970,15 +1034,17 @@ class TestPipelineSerialization:
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipeline:
-                print(len(pipeline.dag))
-                assert pipeline._use_cache == use_cache
+            with BasePipeline(
+                name="unit-test-pipeline", cache_dir=tmpdirname
+            ) as pipeline:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
 
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
+
+                pipeline.run({}, use_cache=use_cache)
 
                 assert not pipeline._cache_location["pipeline"].exists()
                 # Set the _BatchManager to the pipeline to check it exists afterwards
@@ -987,9 +1053,7 @@ class TestPipelineSerialization:
 
                 assert pipeline._cache_location["pipeline"].exists()
 
-            with BasePipeline(cache_dir=tmpdirname, use_cache=use_cache) as pipe:
-                assert pipe._use_cache == use_cache
-
+            with BasePipeline(name="unit-test-pipeline", cache_dir=tmpdirname) as pipe:
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
@@ -997,7 +1061,7 @@ class TestPipelineSerialization:
                 dummy_generator.connect(dummy_step_1)
                 dummy_step_1.connect(dummy_step_2)
 
-                pipe._load_from_cache()
+                pipe.run({}, use_cache=use_cache)
                 if use_cache:
                     assert pipe._batch_manager
                 else:
@@ -1005,36 +1069,10 @@ class TestPipelineSerialization:
 
 
 class TestWriteBuffer:
-    def test_write_buffer_one_leaf_step_and_create_dataset(self):
+    def test_create(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdirname:
             folder = Path(tmpdirname) / "data"
-            with Pipeline() as pipeline:
-                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
-
-                dummy_generator.connect(dummy_step_1)
-                dummy_step_1.connect(dummy_step_2)
-
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
-            batch = batch_gen(dummy_step_2.name)
-            assert len(write_buffer._buffers) == 1
-
-            assert all(values is None for _, values in write_buffer._buffers.items())
-
-            write_buffer.add_batch(batch.step_name, batch)
-            assert write_buffer._get_filename(batch.step_name).exists()
-            write_buffer.close()
-
-            ds = _create_dataset(write_buffer._path)
-            assert isinstance(ds, Distiset)
-            assert len(ds.keys()) == 1
-            assert len(ds["dummy_step_2"]) == 3
-
-    def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "data"
-            with Pipeline() as pipeline:
+            with Pipeline(name="unit-test-pipeline") as pipeline:
                 dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
                 dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -1048,21 +1086,106 @@ class TestWriteBuffer:
 
             write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
 
-            # Now we write here only in case we are working with leaf steps
-            batch_step_2 = batch_gen(dummy_step_2.name, col_name="a")
-            batch_step_3 = batch_gen(dummy_step_3.name, col_name="b")
-            assert all(values is None for _, values in write_buffer._buffers.items())
-            assert len(write_buffer._buffers) == 2
+            assert write_buffer._buffers == {"dummy_step_2": [], "dummy_step_3": []}
+            assert write_buffer._buffers_dump_batch_size == {
+                "dummy_step_2": 50,
+                "dummy_step_3": 50,
+            }
+            assert write_buffer._buffer_last_schema == {}
+            assert write_buffer._buffers_last_file == {
+                "dummy_step_2": 1,
+                "dummy_step_3": 1,
+            }
 
-            write_buffer.add_batch(batch_step_2.step_name, batch_step_2)
-            assert write_buffer._get_filename(batch_step_2.step_name).exists()
-            assert not write_buffer._get_filename(batch_step_3.step_name).exists()
-            write_buffer.add_batch(batch_step_3.step_name, batch_step_3)
-            assert write_buffer._get_filename(batch_step_3.step_name).exists()
+    def test_write_buffer_one_leaf_step_and_create_dataset(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "data"
+            with Pipeline(name="unit-test-pipeline") as pipeline:
+                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+                dummy_generator.connect(dummy_step_1)
+                dummy_step_1.connect(dummy_step_2)
+
+            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+
+            # Add one batch with 5 rows, shouldn't write anything 5 < 50
+            batch = batch_gen(dummy_step_2.name)
+            write_buffer.add_batch(batch.step_name, batch)
+
+            # Add 45 more rows, should write now
+            for _ in range(9):
+                batch = batch_gen(dummy_step_2.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
+
+            # Add 50 more rows, we should have a new file
+            for _ in range(10):
+                batch = batch_gen(dummy_step_2.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
+
+            # Add more rows and close the write buffer, we should have a new file
+            for _ in range(5):
+                batch = batch_gen(dummy_step_2.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
             write_buffer.close()
 
-            ds = _create_dataset(write_buffer._path)
+            assert Path(folder, "dummy_step_2", "00003.parquet").exists()
+
+            ds = create_distiset(write_buffer._path)
+            assert isinstance(ds, Distiset)
+            assert len(ds.keys()) == 1
+            assert len(ds["dummy_step_2"]["train"]) == 125
+
+    def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "data"
+            with Pipeline(name="unit-test-pipeline") as pipeline:
+                dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
+                dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
+                dummy_step_1 = DummyStep1(name="dummy_step_1")
+                dummy_step_2 = DummyStep2(name="dummy_step_2")
+                dummy_step_3 = DummyStep2(name="dummy_step_3")
+
+                dummy_generator_1.connect(dummy_step_1)
+                dummy_generator_2.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_2)
+                dummy_step_1.connect(dummy_step_3)
+
+            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
+
+            for _ in range(10):
+                batch = batch_gen(dummy_step_2.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
+
+            for _ in range(10):
+                batch = batch_gen(dummy_step_3.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            assert Path(folder, "dummy_step_3", "00001.parquet").exists()
+
+            for _ in range(5):
+                batch = batch_gen(dummy_step_2.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            for _ in range(5):
+                batch = batch_gen(dummy_step_3.name)
+                write_buffer.add_batch(batch.step_name, batch)
+
+            write_buffer.close()
+
+            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
+            assert Path(folder, "dummy_step_3", "00002.parquet").exists()
+
+            ds = create_distiset(write_buffer._path)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 2
-            assert len(ds["dummy_step_2"]) == 3
-            assert len(ds["dummy_step_3"]) == 3
+            assert len(ds["dummy_step_2"]["train"]) == 75
+            assert len(ds["dummy_step_3"]["train"]) == 75

@@ -102,7 +102,7 @@ class MistralLLM(AsyncLLM):
 
         Args:
             input: a single input in chat format to generate responses for.
-            max_new_tokens: the maximun number of new tokens that the model will generate.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.

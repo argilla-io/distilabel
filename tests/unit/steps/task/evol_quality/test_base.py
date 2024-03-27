@@ -18,6 +18,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.steps.task.evol_quality.base import (
     EvolQuality,
 )
+from distilabel.steps.task.evol_quality.utils import MUTATION_TEMPLATES
 from pydantic import ValidationError
 
 
@@ -26,13 +27,13 @@ class TestEvoQuality:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
-            EvolQuality(name="task", pipeline=Pipeline())  # type: ignore
+            EvolQuality(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
         with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
             EvolQuality(name="task", llm=dummy_llm, num_evolutions=2)
 
     def test_process(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -48,7 +49,7 @@ class TestEvoQuality:
         ]
 
     def test_process_store_evolutions(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task",
             llm=dummy_llm,
@@ -68,7 +69,7 @@ class TestEvoQuality:
         ]
 
     def test_serialization(self, dummy_llm: LLM) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
@@ -86,17 +87,10 @@ class TestEvoQuality:
             },
             "num_evolutions": task.num_evolutions,
             "store_evolutions": task.store_evolutions,
-            "mutation_templates": {
-                "_type": "enum",
-                "_enum_type": "str",
-                "_name": task.mutation_templates.__name__,
-                "_values": {
-                    mutation.name: mutation.value  # type: ignore
-                    for mutation in task.mutation_templates.__members__.values()  # type: ignore
-                },
-            },
+            "mutation_templates": MUTATION_TEMPLATES,
             "num_generations": task.num_generations,
             "group_generations": task.group_generations,
+            "include_original_response": task.include_original_response,
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
@@ -126,6 +120,6 @@ class TestEvoQuality:
             },
         }
 
-        with Pipeline() as pipeline:
+        with Pipeline(name="unit-test-pipeline") as pipeline:
             new_task = EvolQuality.from_dict(task.dump())
             assert isinstance(new_task, EvolQuality)

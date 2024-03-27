@@ -107,7 +107,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             f" `base_url`={self.base_url}."
         )
 
-    def load(self) -> None:
+    def load(self) -> None:  # noqa: C901
         """Loads the either the `AsyncInferenceClient` or the `AsyncOpenAI` client to benefit
         from async requests, running the Hugging Face Inference Endpoint underneath via the
         `/v1/chat/completions` endpoint, exposed for the models running on TGI using the
@@ -262,7 +262,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             input: a single input in chat format to generate responses for.
             num_generations: the number of generations to create per input. Defaults to
                 `1`, and only works with `1`.
-            max_new_tokens: the maximun number of new tokens that the model will generate.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
             frequence_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`. Only applies if `use_openai_client=True`.

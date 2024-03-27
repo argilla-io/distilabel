@@ -13,7 +13,16 @@
 # limitations under the License.
 
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, List, Literal, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    List,
+    Literal,
+    Type,
+    Union,
+    overload,
+)
 
 from pydantic import create_model
 
@@ -36,9 +45,34 @@ _STEP_MAPPING = {
     "generator": GeneratorStep,
 }
 
-ProcessingFunc = TypeVar(
-    "ProcessingFunc", bound=Callable[..., Union["StepOutput", "GeneratorStepOutput"]]
-)
+ProcessingFunc = Callable[..., Union["StepOutput", "GeneratorStepOutput"]]
+
+
+@overload
+def step(
+    inputs: Union[List[str], None] = None,
+    outputs: Union[List[str], None] = None,
+    step_type: Literal["normal"] = "normal",
+) -> Callable[..., Type["Step"]]:
+    ...
+
+
+@overload
+def step(
+    inputs: Union[List[str], None] = None,
+    outputs: Union[List[str], None] = None,
+    step_type: Literal["global"] = "global",
+) -> Callable[..., Type["GlobalStep"]]:
+    ...
+
+
+@overload
+def step(
+    inputs: None = None,
+    outputs: Union[List[str], None] = None,
+    step_type: Literal["generator"] = "generator",
+) -> Callable[..., Type["GeneratorStep"]]:
+    ...
 
 
 def step(
@@ -51,10 +85,10 @@ def step(
     Args:
         inputs: a list containing the name of the inputs columns/keys expected by this step.
             If not provided the default will be an empty list `[]` and it will be assumed
-            that the step doesn't need any spefic columns. Defaults to `None`.
+            that the step doesn't need any specific columns. Defaults to `None`.
         outputs: a list containing the name of the outputs columns/keys that the step
             will generate. If not provided the default will be an empty list `[]` and it
-            will be assumed that the step doesn't need any spefic columns. Defaults to
+            will be assumed that the step doesn't need any specific columns. Defaults to
             `None`.
         step_type: the kind of step to create. Valid choices are: "normal" (`Step`),
             "global" (`GlobalStep`) or "generator" (`GeneratorStep`). Defaults to
@@ -95,9 +129,7 @@ def step(
     inputs = inputs or []
     outputs = outputs or []
 
-    def decorator(
-        func: Callable[..., Union["StepOutput", "GeneratorStepOutput"]],
-    ) -> Type["_Step"]:
+    def decorator(func: ProcessingFunc) -> Type["_Step"]:
         if step_type not in _STEP_MAPPING:
             raise ValueError(
                 f"Invalid step type '{step_type}'. Please, review the '{func.__name__}'"

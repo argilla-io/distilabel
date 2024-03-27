@@ -20,7 +20,7 @@ from tests.unit.steps.task.utils import DummyLLM
 
 class TestTextGeneration:
     def test_process(self) -> None:
-        pipeline = Pipeline()
+        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
         assert next(task.process([{"instruction": "test"}])) == [

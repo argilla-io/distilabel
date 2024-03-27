@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import hashlib
+import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import (
@@ -33,6 +34,7 @@ from typing_extensions import Self
 
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
+from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
@@ -86,23 +88,42 @@ class _GlobalPipelineManager:
 class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
-    Args:
-        cache_dir: The directory where the pipeline will be cached. Defaults to `None`, which will
-            define it internally.
-        use_cache: A flag to indicate if the pipeline should be cached and loaded if available.
-            Defaults to `True`.
-
     Attributes:
+        name: The name of the pipeline.
+        description: A description of the pipeline.
         dag: The `DAG` instance that represents the pipeline.
+        _cache_dir: The directory where the pipeline will be cached.
+        _logger: The logger instance that will be used by the pipeline.
+        _batch_manager: The batch manager that will manage the batches received from the
+            steps while running the pipeline.
     """
 
     def __init__(
-        self, cache_dir: Optional["PathLike"] = None, use_cache: bool = True
+        self,
+        name: str,
+        description: Optional[str] = None,
+        cache_dir: Optional["PathLike"] = None,
     ) -> None:
+        """Initialize the `BasePipeline` instance.
+
+        Args:
+            name: The name of the pipeline.
+            description: A description of the pipeline. Defaults to `None`.
+            cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
+        """
+        self.name = name
+        self.description = description
         self.dag = DAG()
-        self._cache_dir = Path(cache_dir) if cache_dir else BASE_CACHE_DIR
-        self._use_cache = use_cache
+
+        if cache_dir:
+            self._cache_dir = Path(cache_dir)
+        elif env_cache_dir := os.getenv("DISTILABEL_CACHE_DIR"):
+            self._cache_dir = Path(env_cache_dir)
+        else:
+            self._cache_dir = BASE_CACHE_DIR
+
         self._logger = get_logger("pipeline")
+
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
 
@@ -146,7 +167,7 @@ class BasePipeline(_Serializable):
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
                     step_info += "-".join([str(v) for v in value])
-                elif isinstance(value, (int, str)):
+                elif isinstance(value, (int, str, float)):
                     # batch_size/name
                     step_info += str(value)
                 else:
@@ -163,7 +184,11 @@ class BasePipeline(_Serializable):
 
         return hasher.hexdigest()
 
-    def run(self, parameters: Optional[Dict[str, Dict[str, Any]]] = None) -> "Distiset":  # type: ignore
+    def run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        use_cache: bool = True,
+    ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
 
@@ -172,14 +197,30 @@ class BasePipeline(_Serializable):
 
         Args:
             parameters: A dictionary with the step name as the key and a dictionary with
-                the parameter name as the key and the parameter value as the value.
+                the runtime parameters for the step as the value. Defaults to `None`.
+            use_cache: Whether to use the cache from previous pipeline runs. Defaults to
+                `True`.
 
         Returns:
             The `Distiset` created by the pipeline.
         """
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
-        self._load_from_cache()
+        if use_cache:
+            self._load_from_cache()
+
+    def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Get the runtime parameters for the steps in the pipeline.
+
+        Returns:
+            A dictionary with the step name as the key and a list of dictionaries with
+            the parameter name and the parameter info as the value.
+        """
+        runtime_parameters = {}
+        for step_name in self.dag:
+            step: "_Step" = self.dag.get_step(step_name)["step"]
+            runtime_parameters[step_name] = step.get_runtime_parameters_info()
+        return runtime_parameters
 
     def _add_step(self, step: "_Step") -> None:
         """Add a step to the pipeline.
@@ -222,15 +263,17 @@ class BasePipeline(_Serializable):
         return self.dag.dump()
 
     def dump(self, **kwargs: Any) -> Dict[str, Any]:
-        """Transforms the pipeline to it's dictionary representation.
-
-        Returns:
-            Dict[str, Any]: Dictionary representing the pipeline.
-        """
-        return {"pipeline": super().dump(), "distilabel": {"version": __version__}}
+        return {
+            "distilabel": {"version": __version__},
+            "pipeline": {
+                "name": self.name,
+                "description": self.description,
+                **super().dump(),
+            },
+        }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "BasePipeline":
+    def from_dict(cls, data: Dict[str, Any]) -> Self:
         """Create a Pipeline from a dict containing the serialized data.
 
         Note:
@@ -242,8 +285,9 @@ class BasePipeline(_Serializable):
         Returns:
             BasePipeline: Pipeline recreated from the dictionary info.
         """
-
-        with cls() as pipe:
+        name = data["pipeline"]["name"]
+        description = data["pipeline"].get("description")
+        with cls(name=name, description=description) as pipe:
             pipe.dag = DAG.from_dict(data["pipeline"])
         return pipe
 
@@ -278,9 +322,6 @@ class BasePipeline(_Serializable):
         """Will try to load the `BasePipeline` from the cache dir if found, updating
         the internal `DAG` and `_BatchManager`.
         """
-        if not self._use_cache:
-            return
-
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             # Refresh the DAG to avoid errors when it's created within a context manager
@@ -447,6 +488,13 @@ class _BatchManagerStep(_Serializable):
             The name of the previous steps for which the input buffer for this step is
             empty.
         """
+        if self.accumulate:
+            return [
+                previous_step
+                for previous_step in self.data.keys()
+                if previous_step not in self.last_batch_received
+            ]
+
         return [
             previous_step
             for previous_step, buffer in self.data.items()
@@ -518,7 +566,7 @@ class _BatchManagerStep(_Serializable):
         """
         if self.accumulate:
             return all(
-                step in self.last_batch_received and len(rows) > 0
+                step in self.last_batch_received and len(rows) >= 0
                 for step, rows in self.data.items()
             )
 
@@ -765,10 +813,22 @@ class _WriteBuffer:
         self._path = Path(path)
         if not self._path.exists():
             self._path.mkdir(parents=True, exist_ok=True)
+            for step in leaf_steps:
+                (self._path / step).mkdir(parents=True, exist_ok=True)
+
         if not self._path.is_dir():
             raise ValueError(f"The path should be a directory, not a file: {path}")
-        self._buffers: Dict[str, Any] = {step: None for step in leaf_steps}
-        self._writers: Dict[str, pq.ParquetWriter] = {}
+
+        self._buffers: Dict[str, List[Dict[str, Any]]] = {
+            step: [] for step in leaf_steps
+        }
+        # TODO: make this configurable
+        self._buffers_dump_batch_size: Dict[str, int] = {
+            step: 50 for step in leaf_steps
+        }
+        self._buffer_last_schema = {}
+        self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
+        self._logger = get_logger("write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
@@ -787,7 +847,7 @@ class _WriteBuffer:
         Returns:
             Whether the buffer is full.
         """
-        return bool(self._buffers[step_name])
+        return len(self._buffers[step_name]) >= self._buffers_dump_batch_size[step_name]
 
     def add_batch(self, step_name: str, batch: "_Batch") -> None:
         """Adds a batch to the buffer and writes the buffer to the file if it's full.
@@ -796,8 +856,16 @@ class _WriteBuffer:
             step_name (str): Name of the step to which the data pertains.
             batch (_Batch): Batch to add to the buffer.
         """
-        self._buffers[step_name] = batch.data
+        data = batch.data[0]
+        self._buffers[step_name].extend(data)
+        self._logger.debug(
+            f"Added batch to buffer for step '{step_name}' with {len(data)} rows."
+        )
         if self.is_full(step_name):
+            self._logger.debug(
+                f"Buffer for step '{step_name}' is full (rows: {len(self._buffers[step_name])},"
+                f" full: {self._buffers_dump_batch_size[step_name]}), writing to file..."
+            )
             self._write(step_name)
 
     def _write(self, step_name: str) -> None:
@@ -806,123 +874,50 @@ class _WriteBuffer:
         Args:
             step_name (str): Name of the step to which the data pertains.
         """
-        # NOTE: The parquet files should be rotated to different files up to a given size (i.e. 500Mb).
-        data = self._buffers[step_name]
-        writer = self._get_writer(step_name, data)
-        for batch in data:
-            arrow_batch = pa.RecordBatch.from_pylist(batch)
-            if not writer.schema.equals(arrow_batch.schema):
-                new_schema = pa.unify_schemas([writer.schema, arrow_batch.schema])
-                writer.close()
-                writer = self._get_writer(step_name, data, new_schema, recreate=True)
-                arrow_batch = pa.RecordBatch.from_pylist(batch, schema=new_schema)
-            writer.write_batch(arrow_batch)
+        step_parquet_dir = Path(self._path, step_name)
+        if not step_parquet_dir.exists():
+            self._logger.debug(
+                f"Creating directory for step '{step_name}' parquet files..."
+            )
+            step_parquet_dir.mkdir()
+
+        table = pa.Table.from_pylist(self._buffers[step_name])
+
+        last_schema = self._buffer_last_schema.get(step_name)
+        if last_schema is None:
+            self._buffer_last_schema[step_name] = table.schema
+        else:
+            if not last_schema.equals(table.schema):
+                new_schema = pa.unify_schemas([last_schema, table.schema])
+                self._buffer_last_schema[step_name] = new_schema
+                table = table.cast(new_schema)
+
+        next_file_number = self._buffers_last_file[step_name]
+        self._buffers_last_file[step_name] = next_file_number + 1
+
+        parquet_file = step_parquet_dir / f"{str(next_file_number).zfill(5)}.parquet"
+        pq.write_table(table, parquet_file)
+        self._logger.debug(f"Written to file '{parquet_file}'")
 
         self._clean_buffer(step_name)
 
-    def _get_writer(
-        self,
-        step_name: str,
-        batch_data: List[List[Dict[str, Any]]],
-        schema: Optional[pa.Schema] = None,
-        recreate: bool = False,
-    ) -> pq.ParquetWriter:
-        """Creates (or grabs if already generated) the writer for the step, and uses the sample
-        batch_data to infer the schema for the parquet file.
-
-        Args:
-            step_name: Name of the step for which we want a writer. Will reuse one if already
-                created.
-            batch_data: Batch sample data used to generate the necessary schema for the
-                parquet file.
-            schema: Schema to use for the parquet file. If not provided, it will be inferred
-                from the batch_data first element.
-            recreate: Whether to recreate the writer or not.
-
-        Returns:
-            The `pq.ParquetWriter` that will be in charge of writing the different parquet files.
-        """
-        if not recreate and (writer := self._writers.get(step_name)):
-            return writer
-
-        filename = self._get_filename(step_name)
-        schema = schema or _map_batch_items_to_pyarrow_schema(batch_data[0][0])
-        writer = pq.ParquetWriter(filename, schema)
-        self._writers[step_name] = writer
-        return writer
-
     def _clean_buffer(self, step_name: str) -> None:
-        """Cleans the buffer by setting it's content to None.
+        """Cleans the buffer by setting it's content to `None`.
 
         Args:
-            step_name (str): The name of the buffer to clean.
+            step_name: The name of the buffer to clean.
         """
-        buffs = {}
-        for step, data in self._buffers.items():
-            if step_name == step:
-                buffs[step] = None
-            else:
-                buffs[step] = data
-        self._buffers = buffs
+        self._buffers[step_name] = []
 
     def close(self) -> None:
-        """Closes the writers."""
-        for writer in self._writers.values():
-            writer.close()
+        """Closes the buffer by writing the remaining content to the file."""
+        for step_name in self._buffers:
+            if self._buffers[step_name]:
+                self._write(step_name)
 
-
-def _map_to_pyarrow_type(value: Any) -> pa.DataType:
-    """Maps a Python object to its corresponding PyArrow DataType.
-
-    Args:
-        value: Element from which to infer the PyArrow DataType.
-
-    Returns:
-        PyArrow DataType
-    """
-    if isinstance(value, bool):
-        return pa.bool_()
-
-    if isinstance(value, int):
-        return pa.int64()
-
-    if isinstance(value, float):
-        return pa.float64()
-
-    if isinstance(value, str):
-        return pa.string()
-
-    if isinstance(value, type(None)):
-        return pa.null()
-
-    if isinstance(value, list):
-        # Assuming list elements have the same type
-        if len(value) > 0:
-            element_type = _map_to_pyarrow_type(value[0])
-            return pa.list_(element_type)
-        return pa.list_(pa.null())
-
-    if isinstance(value, dict):
-        struct_elements = [
-            (key, _map_to_pyarrow_type(value)) for key, value in value.items()
-        ]
-        return pa.struct(struct_elements)
-
-    # For any other types, return as binary, we shouldn't be here
-    return pa.binary()
-
-
-def _map_batch_items_to_pyarrow_schema(batch_items: Dict[str, Any]) -> pa.Schema:
-    """Maps a dictionary of Python objects to a PyArrow Schema.
-
-    Args:
-        batch_items: Dictionary with Python objects
-
-    Returns:
-        PyArrow Schema
-    """
-    fields = []
-    for key, value in batch_items.items():
-        field_type = _map_to_pyarrow_type(value)
-        fields.append(pa.field(key, field_type))
-    return pa.schema(fields)
+            # We need to read the parquet files and write them again to ensure the schema
+            # is correct. Otherwise, the first parquets won't have the last schema and
+            # then we will have issues when reading them.
+            for file in list_files_in_dir(self._path / step_name):
+                table = pq.read_table(file, schema=self._buffer_last_schema[step_name])
+                pq.write_table(table, file)

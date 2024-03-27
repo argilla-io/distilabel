@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info <= (3, 11):
-    from enum import Enum as StrEnum
-else:
-    from enum import StrEnum
+from typing import Dict
 
 REWRITE_INSTRUCTION = """
 I want you to act as a Response Rewriter.
@@ -34,18 +29,18 @@ You should try your best not to make the #Rewritten Response# become verbose, #R
 #Rewritten Response#:
 """.lstrip()
 
-
-class MutationTemplates(StrEnum):
-    HELPFULNESS = REWRITE_INSTRUCTION.format(
+MUTATION_TEMPLATES: Dict[str, str] = {
+    "HELPFULNESS": REWRITE_INSTRUCTION.format(
         "Please make the Response more helpful to the user."
-    )
-    RELEVANCE = REWRITE_INSTRUCTION.format(
+    ),
+    "RELEVANCE": REWRITE_INSTRUCTION.format(
         "Please make the Response more relevant to #Given Prompt#."
-    )
-    DEEPENING = REWRITE_INSTRUCTION.format("Please make the Response more in-depth.")
-    CREATIVITY = REWRITE_INSTRUCTION.format(
+    ),
+    "DEEPENING": REWRITE_INSTRUCTION.format("Please make the Response more in-depth."),
+    "CREATIVITY": REWRITE_INSTRUCTION.format(
         "Please increase the creativity of the response."
-    )
-    DETAILS = REWRITE_INSTRUCTION.format(
+    ),
+    "DETAILS": REWRITE_INSTRUCTION.format(
         "Please increase the detail level of Response."
-    )
+    ),
+}

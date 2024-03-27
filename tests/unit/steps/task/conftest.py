@@ -18,6 +18,7 @@ import pytest
 from distilabel.llm.base import LLM
 
 if TYPE_CHECKING:
+    from distilabel.llm.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
@@ -31,7 +32,9 @@ def dummy_llm() -> LLM:
         def model_name(self) -> str:
             return "test"
 
-        def generate(self, inputs: List["ChatType"]) -> List[List[str]]:
+        def generate(  # type: ignore
+            self, inputs: List["ChatType"], num_generations: int = 1
+        ) -> List["GenerateOutput"]:
             return [["output"] for _ in inputs]
 
     return DummyLLM()
@@ -46,5 +49,7 @@ class DummyLLM(LLM):
     def model_name(self) -> str:
         return "test"
 
-    def generate(self, inputs: List["ChatType"]) -> List[List[str]]:
+    def generate(  # type: ignore
+        self, inputs: List["ChatType"], num_generations: int = 1
+    ) -> List["GenerateOutput"]:
         return [["output"] for _ in inputs]
