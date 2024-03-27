@@ -33,15 +33,11 @@ class InstructionBacktranslation(Task):
     """Self-Alignment with Instruction Backtranslation.
 
     Input columns:
-        instruction (`str`): The reference instruction to evaluate the text output.
-        generation (`str`): The text output to evaluate for the given instruction.
+        - instruction (`str`): The reference instruction to evaluate the text output.
+        - generation (`str`): The text output to evaluate for the given instruction.
 
     Output columns:
-        score (`str`): The score for the generation based on the given instruction.
-
-    Runtime arguments:
-        llm_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `load`.
-        generation_kwargs (`Dict[str, Any]`): The keyword arguments to pass to the LLM model during `process`.
+        - score (`str`): The score for the generation based on the given instruction.
 
     References:
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
