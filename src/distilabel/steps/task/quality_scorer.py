@@ -46,11 +46,11 @@ class QualityScorer(Task):
     are scored in terms of quality, obtaining a quality score for each instruction.
 
     Input columns:
-        instruction (`str`): The instruction that was used to generate the `responses`.
-        responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+        - instruction (`str`): The instruction that was used to generate the `responses`.
+        - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
     Output columns:
-        quality_score (`List[float]`): The quality score for each instruction.
+        - quality_score (`List[float]`): The quality score for each instruction.
 
     Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

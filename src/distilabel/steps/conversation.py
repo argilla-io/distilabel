@@ -21,15 +21,35 @@ if TYPE_CHECKING:
 
 
 class ConversationTemplate(Step):
+    """Generate a conversation template from an instruction and a response.
+
+    Input columns:
+        - instruction (`str`): The instruction to be used in the conversation.
+        - response (`str`): The response to be used in the conversation.
+
+    Output columns:
+        - conversation (`ChatType`): The conversation template.
+    """
+
     @property
     def inputs(self) -> List[str]:
+        """The instruction and response."""
         return ["instruction", "response"]
 
     @property
     def outputs(self) -> List[str]:
+        """The conversation template."""
         return ["conversation"]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        """Generate a conversation template from an instruction and a response.
+
+        Args:
+            inputs: The input data.
+
+        Yields:
+            The input data with the conversation template.
+        """
         for input in inputs:
             input["conversation"] = [
                 {"role": "user", "content": input["instruction"]},

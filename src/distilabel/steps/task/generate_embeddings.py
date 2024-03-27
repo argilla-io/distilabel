@@ -28,12 +28,15 @@ class GenerateEmbeddings(Step):
     described in the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
 
+    Args:
+        llm: The `LLM` to use to generate the embeddings.
+
     Input columns:
-        text (`str`, `List[Dict[str, str]]`): The input text or conversation to generate
+        - text (`str`, `List[Dict[str, str]]`): The input text or conversation to generate
             embeddings for.
 
     Output columns:
-        embedding (`List[float]`): The embedding of the input text or conversation.
+        - embedding (`List[float]`): The embedding of the input text or conversation.
 
     Reference:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)

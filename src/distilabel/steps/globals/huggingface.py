@@ -30,18 +30,25 @@ class PushToHub(GlobalStep):
     """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
     it to the Hugging Face Hub.
 
+    Args:
+        repo_id: The Hugging Face Hub repository ID where the dataset will be uploaded.
+        split: The split of the dataset that will be pushed. Defaults to `"train"`.
+        private: Whether the dataset to be pushed should be private or not. Defaults to
+            `False`.
+        token: The token that will be used to authenticate in the Hub. If not provided, the
+            token will be tried to be obtained from the environment variable `HF_TOKEN`.
+            If not provided using one of the previous methods, then `huggingface_hub` library
+            will try to use the token from the local Hugging Face CLI configuration. Defaults
+            to `None`.
+
     Runtime parameters:
+        - `repo_id`: The Hugging Face Hub repository ID where the dataset will be uploaded.
+        - `split`: The split of the dataset that will be pushed.
+        - `private`: Whether the dataset to be pushed should be private or not.
+        - `token`: The token that will be used to authenticate in the Hub.
 
-    - `repo_id`: The Hugging Face Hub repository ID to push the dataset to.
-    - `split`: The split of the dataset to push, otherwise will use "train" as default.
-    - `private`: Whether the dataset should be private or not. Defaults to `False`.
-    - `token`: The token to authenticate in the Hub, otherwise will try to use the
-        environment variable `HF_TOKEN` or the local Hugging Face CLI configuration.
-
-    Columns:
-
-    - `input`: dynamic, based on the existing data within inputs
-    - `output`: None
+    Input columns:
+        - dynamic, based on the existing data within inputs
     """
 
     repo_id: RuntimeParameter[str] = Field(

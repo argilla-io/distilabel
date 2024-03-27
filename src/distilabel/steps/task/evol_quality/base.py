@@ -15,9 +15,9 @@
 import sys
 
 if sys.version_info <= (3, 11):
-    from enum import EnumMeta as EnumType
+    pass
 else:
-    from enum import EnumType
+    pass
 
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -28,7 +28,7 @@ from typing_extensions import override
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_quality.utils import MutationTemplates
+from distilabel.steps.task.evol_quality.utils import MUTATION_TEMPLATES
 from distilabel.steps.task.typing import ChatType
 
 if TYPE_CHECKING:
@@ -36,25 +36,41 @@ if TYPE_CHECKING:
 
 
 class EvolQuality(Task):
-    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt, by generating a new response with a language model.
+    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt,
+    by generating a new response with a language model. This step implements the evolution
+    quality task from the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
+    Automatic Data Selection in Instruction Tuning'.
+
+    Args:
+        num_evolutions: The number of evolutions to be performed on the responses.
+        store_evolutions: Whether to store all the evolved responses or just the last one.
+            Defaults to `False`.
+        include_original_response: Whether to include the original response within the evolved
+            responses. Defaults to `False`.
+        mutation_templates: The mutation templates to be used to evolve the responses.
+        seed: The seed to be set for `numpy` in order to randomly pick a mutation method.
+            Defaults to `42`.
+
+    Runtime parameters:
+        - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
+
+    Input columns:
+        - instruction (`str`): The instruction that was used to generate the `responses`.
+        - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+
+    Output columns:
+        - evolved_response (`str`): The evolved response if `store_evolutions=False`.
+        - evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
+        - model_name (`str`): The model name.
 
     Reference:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
-
-    Input columns:
-        instruction (`str`): The instruction that was used to generate the `responses`.
-        responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
-
-    Output columns:
-        evolved_response (`str`): The evolved response if `store_evolutions=False`.
-        evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
-        model_name (`str`): The model name.
     """
 
     num_evolutions: int
     store_evolutions: bool = False
     include_original_response: bool = False
-    mutation_templates: EnumType = Field(default=MutationTemplates)
+    mutation_templates: Dict[str, str] = MUTATION_TEMPLATES
 
     seed: RuntimeParameter[int] = Field(
         default=42,

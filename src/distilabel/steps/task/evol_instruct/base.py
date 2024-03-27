@@ -32,25 +32,37 @@ if TYPE_CHECKING:
 class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
-    Reference:
-        - https://arxiv.org/abs/2304.12244
-        - https://github.com/h2oai/h2o-wizardlm
-        - https://github.com/nlpxucan/WizardLM/Evol_Instruct
+    Args:
+        num_evolutions: The number of evolutions to be performed.
+        store_evolutions: Whether to store all the evolutions or just the last one. Defaults
+            to `False`.
+        generate_answers: Whether to generate answers for the evolved instructions. Defaults
+            to `False`.
+        include_original_instruction: Whether to include the original instruction in the
+            `evolved_instructions` output column. Defaults to `False`.
+        mutation_templates: The mutation templates to be used for evolving the instructions.
+            Defaults to the ones provided in the `utils.py` file.
+        seed: The seed to be set for `numpy` in order to randomly pick a mutation method.
+            Defaults to `42`.
 
     Runtime parameters:
-        seed:
+        - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
 
     Input columns:
-        instruction (`str`): The instruction to be evolved.
+        - instruction (`str`): The instruction to be evolved.
 
     Output columns:
-        evolved_instruction (`str`): The evolved instruction if `store_evolutions=False`.
-        evolved_instructions (`List[str]`): The evolved instructions if `store_evolutions=True`.
-        model_name (`str`): The model name.
-        answer (`str`): The answer to the evolved instruction if `generate_answers=True`
+        - evolved_instruction (`str`): The evolved instruction if `store_evolutions=False`.
+        - evolved_instructions (`List[str]`): The evolved instructions if `store_evolutions=True`.
+        - model_name (`str`): The model name.
+        - answer (`str`): The answer to the evolved instruction if `generate_answers=True`
             and `store_evolutions=False`.
-        answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
+        - answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
             and `store_evolutions=True`.
+
+    Reference:
+        - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
+        - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
     """
 
     num_evolutions: int
