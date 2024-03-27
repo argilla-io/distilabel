@@ -14,6 +14,8 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
+from typing_extensions import override
+
 from distilabel.pipeline.utils import combine_dicts
 from distilabel.steps.base import Step, StepInput
 
@@ -56,17 +58,18 @@ class CombineColumns(Step):
             else [f"merged_{column}" for column in self.columns]
         )
 
-    def process(self, *args: StepInput) -> "StepOutput":
+    @override
+    def process(self, *inputs: StepInput) -> "StepOutput":
         """The `process` method calls the `combine_dicts` function to handle and combine a list of `StepInput`.
 
         Args:
-            *args: A list of `StepInput` to be combined.
+            *inputs: A list of `StepInput` to be combined.
 
         Yields:
             A `StepOutput` with the combined `StepInput` using the `combine_dicts` function.
         """
         yield combine_dicts(
-            *args,
+            *inputs,
             merge_keys=self.inputs,
             output_merge_keys=self.outputs,
         )
