@@ -14,6 +14,8 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
+from typing_extensions import override
+
 from distilabel.pipeline.utils import combine_dicts
 from distilabel.steps.base import Step, StepInput
 
@@ -24,48 +26,50 @@ if TYPE_CHECKING:
 class CombineColumns(Step):
     """CombineColumns is a Step that implements the `process` method that calls the `combine_dicts`
     function to handle and combine a list of `StepInput`. Also `CombineColumns` provides two attributes
-    `merge_columns` and `output_merge_columns` to specify the columns to merge and the output columns
+    `columns` and `output_columns` to specify the columns to merge and the output columns
     which will override the default value for the properties `inputs` and `outputs`, respectively.
 
     Args:
-        merge_columns: List of strings with the names of the columns to merge.
-        output_merge_columns: Optional list of strings with the names of the output columns.
+        columns: List of strings with the names of the columns to merge.
+        output_columns: Optional list of strings with the names of the output columns.
 
-    Columns:
+    Input columns:
+        - dynamic, based on the `columns` value provided.
 
-    - `input`: dynamic, based on the `merge_columns` value provided
-    - `output`: dynamic, based on the `output_merge_columns` value provided or `merged_{column}` for each column in `merge_columns`
+    Output columns:
+        - dynamic, based on the `output_columns` value provided or `merged_{column}` for each column in `columns`.
     """
 
-    merge_columns: List[str]
-    output_merge_columns: Optional[List[str]] = None
+    columns: List[str]
+    output_columns: Optional[List[str]] = None
 
     @property
     def inputs(self) -> List[str]:
-        """The inputs for the task are the column names in `merge_columns`."""
-        return self.merge_columns
+        """The inputs for the task are the column names in `columns`."""
+        return self.columns
 
     @property
     def outputs(self) -> List[str]:
-        """The outputs for the task are the column names in `output_merge_columns` or
-        `merged_{column}` for each column in `merge_columns`."""
+        """The outputs for the task are the column names in `output_columns` or
+        `merged_{column}` for each column in `columns`."""
         return (
-            self.output_merge_columns
-            if self.output_merge_columns is not None
-            else [f"merged_{column}" for column in self.merge_columns]
+            self.output_columns
+            if self.output_columns is not None
+            else [f"merged_{column}" for column in self.columns]
         )
 
-    def process(self, *args: StepInput) -> "StepOutput":
+    @override
+    def process(self, *inputs: StepInput) -> "StepOutput":
         """The `process` method calls the `combine_dicts` function to handle and combine a list of `StepInput`.
 
         Args:
-            *args: A list of `StepInput` to be combined.
+            *inputs: A list of `StepInput` to be combined.
 
         Yields:
             A `StepOutput` with the combined `StepInput` using the `combine_dicts` function.
         """
         yield combine_dicts(
-            *args,
+            *inputs,
             merge_keys=self.inputs,
             output_merge_keys=self.outputs,
         )

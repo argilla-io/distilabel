@@ -114,7 +114,7 @@ class EvolQuality(Task):
         and, finally, the `model_name`.
 
         Args:
-            responses: The reponses to be included within the output.
+            responses: The responses to be included within the output.
 
         Returns:
             if `store_evolutions=False` return {"evolved_response": ..., "model_name": ...};
