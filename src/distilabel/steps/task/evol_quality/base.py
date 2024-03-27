@@ -133,10 +133,7 @@ class EvolQuality(Task):
     @property
     def mutation_templates_names(self) -> List[str]:
         """Returns the names i.e. keys of the provided `mutation_templates` enum."""
-        return [
-            member.name  # type: ignore
-            for member in self.mutation_templates.__members__.values()  # type: ignore
-        ]
+        return list(self.mutation_templates.keys())
 
     def _apply_random_mutation(self, instruction: str, response: str) -> str:
         """Applies a random mutation from the ones provided as part of the `mutation_templates`
@@ -151,7 +148,7 @@ class EvolQuality(Task):
         mutation = np.random.choice(self.mutation_templates_names)
         return (
             self.mutation_templates[mutation]
-            .value.replace("<PROMPT>", instruction)
+            .replace("<PROMPT>", instruction)
             .replace("<RESPONSE>", response[-1])
         )
 
