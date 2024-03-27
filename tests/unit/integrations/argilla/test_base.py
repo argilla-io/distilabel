@@ -83,30 +83,6 @@ class TestArgilla:
             )
 
         with pytest.raises(
-            ValidationError,
-            match="api_url\n  Value error, You must provide an API URL either via \\`api_url\\` arg or setting \\`ARGILLA_API_URL\\` environment variable to use Argilla. \\[type=value_error",
-        ):
-            CustomArgilla(
-                name="step",
-                api_key="api.key",  # type: ignore
-                dataset_name="argilla",
-                dataset_workspace="argilla",
-                pipeline=Pipeline(name="unit-test-pipeline"),
-            )
-
-        with pytest.raises(
-            ValidationError,
-            match="api_key\n  Value error, You must provide an API key either via \\`api_key\\` arg or setting \\`ARGILLA_API_URL\\` environment variable to use Argilla. \\[type=value_error",
-        ):
-            CustomArgilla(
-                name="step",
-                api_url="https://example.com",
-                dataset_name="argilla",
-                dataset_workspace="argilla",
-                pipeline=Pipeline(name="unit-test-pipeline"),
-            )
-
-        with pytest.raises(
             ValidationError, match="dataset_name\n  Field required \\[type=missing"
         ):
             CustomArgilla(
@@ -151,10 +127,21 @@ class TestArgilla:
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
-            "api_url": "https://example.com",
             "dataset_name": "argilla",
             "dataset_workspace": "argilla",
-            "runtime_parameters_info": [],
+            "api_url": "https://example.com",
+            "runtime_parameters_info": [
+                {
+                    "name": "api_url",
+                    "optional": True,
+                    "description": "The base URL to use for the Argilla API requests.",
+                },
+                {
+                    "name": "api_key",
+                    "optional": True,
+                    "description": "The API key to authenticate the requests to the Argilla API.",
+                },
+            ],
             "type_info": {
                 "module": "tests.unit.integrations.argilla.test_base",
                 "name": "CustomArgilla",

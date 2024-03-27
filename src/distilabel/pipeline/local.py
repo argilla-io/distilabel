@@ -593,7 +593,7 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
-            # `result` is initally an empty list so f `process` method raises an exception
+            # `result` is initially an empty list so f `process` method raises an exception
             # an empty batch will be sent to the `output_queue`
             result = []
             try:

@@ -79,6 +79,4 @@ class TestQualityScorer:
             },
         )
 
-        print(result)
-
         assert result == expected
