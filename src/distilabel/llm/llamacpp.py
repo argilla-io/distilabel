@@ -84,7 +84,7 @@ class LlamaCppLLM(LLM):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequence_penalty: the repetition penalty to use for the generation. Defaults
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
                 `0.0`.

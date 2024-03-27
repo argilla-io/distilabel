@@ -89,8 +89,7 @@ class PairRM(Step):
         ranks obtained.
 
         Args:
-            A list of Python dictionaries with `input` being an instruction and `candidates`
-            the list of responses from an `LLM`.
+            inputs: A list of Python dictionaries with the inputs of the task.
 
         Yields:
             An iterator with the inputs containing the `ranks` and the `ranked_candidates`.

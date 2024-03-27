@@ -113,10 +113,6 @@ class InferenceEndpointsLLM(AsyncLLM):
         `/v1/chat/completions` endpoint, exposed for the models running on TGI using the
         `text-generation` task.
 
-        Args:
-            api_key: the API key to authenticate the requests to the Inference Endpoints API,
-                which is the same as the Hugging Face Hub token.
-
         Raises:
             ImportError: if the `openai` Python client is not installed.
             ImportError: if the `huggingface-hub` Python client is not installed.
@@ -260,11 +256,9 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         Args:
             input: a single input in chat format to generate responses for.
-            num_generations: the number of generations to create per input. Defaults to
-                `1`, and only works with `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequence_penalty: the repetition penalty to use for the generation. Defaults
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`. Only applies if `use_openai_client=True`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
                 `0.0`. Only applies if `use_openai_client=True`.
