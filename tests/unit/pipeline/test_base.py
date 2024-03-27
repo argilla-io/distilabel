@@ -1037,7 +1037,6 @@ class TestPipelineSerialization:
             with BasePipeline(
                 name="unit-test-pipeline", cache_dir=tmpdirname
             ) as pipeline:
-                print(len(pipeline.dag))
                 dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
                 dummy_step_1 = DummyStep1(name="dummy_step_1")
                 dummy_step_2 = DummyStep2(name="dummy_step_2")
