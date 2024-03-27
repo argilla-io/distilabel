@@ -104,10 +104,32 @@ class DeitaFiltering(GlobalStep):
         Returns:
             The input data with the DEITA score computed.
         """
-        for input in inputs:
-            input["deita_score"] = (
-                input["evol_instruction_score"] * input["evol_response_score"]
-            )
+        for input_ in inputs:
+            evol_instruction_score = input_.get("evol_instruction_score")
+            evol_response_score = input_.get("evol_response_score")
+
+            if evol_instruction_score and evol_response_score:
+                deita_score = evol_instruction_score * evol_response_score
+            elif evol_instruction_score:
+                self._logger.warning(
+                    "Response score is missing for the instruction-response pair. Using"
+                    " instruction score as DEITA score."
+                )
+                deita_score = evol_instruction_score
+            elif evol_response_score:
+                self._logger.warning(
+                    "Instruction score is missing for the instruction-response pair. Using"
+                    " response score as DEITA score."
+                )
+                deita_score = evol_response_score
+            else:
+                self._logger.warning(
+                    "Instruction and response scores are missing for the instruction-response"
+                    " pair. Setting DEITA score to 0."
+                )
+                deita_score = 0
+
+            input_["deita_score"] = deita_score
         return inputs
 
     def _compute_nearest_neighbor(self, inputs: StepInput) -> StepInput:
@@ -123,6 +145,7 @@ class DeitaFiltering(GlobalStep):
         embeddings = [input["embedding"] for input in inputs]
         if self.normalize_embeddings:
             embeddings = self._normalize_embeddings(embeddings)
+        self._logger.info("📏 Computing nearest neighbor distance...")
         nn = self._NearestNeighbors(
             n_neighbors=2, metric="cosine", algorithm="brute"
         ).fit(embeddings)
@@ -140,6 +163,7 @@ class DeitaFiltering(GlobalStep):
         Returns:
             The normalized embeddings.
         """
+        self._logger.info("⚖️ Normalizing embeddings...")
         for i, embedding in enumerate(embeddings):
             norm = np.linalg.norm(embedding)
             embeddings[i] = embedding / norm
@@ -165,4 +189,4 @@ class DeitaFiltering(GlobalStep):
                 break
             if input["nearest_neighbor_distance"] >= self.diversity_threshold:
                 selected_rows.append(input)
-        yield selected_rows
+        yield inputs
