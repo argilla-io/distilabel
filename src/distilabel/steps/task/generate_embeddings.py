@@ -45,6 +45,8 @@ class GenerateEmbeddings(Step):
     llm: LLM
 
     def load(self) -> None:
+        """Loads the `LLM` used to generate the embeddings."""
+        super().load()
         self.llm.load()
 
     @property
