@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.text_generation import TextGeneration
+from distilabel.steps.tasks.text_generation import TextGeneration
 
-from tests.unit.steps.task.utils import DummyLLM
+from tests.unit.steps.tasks.utils import DummyLLM
 
 
 class TestTextGeneration:

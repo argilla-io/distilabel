@@ -16,9 +16,9 @@ from typing import Any, Dict, Union
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.complexity_scorer import ComplexityScorer
+from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 
-from tests.unit.steps.task.utils import DummyLLM
+from tests.unit.steps.tasks.utils import DummyLLM
 
 
 class TestComplexityScorer:

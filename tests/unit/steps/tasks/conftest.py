@@ -19,7 +19,7 @@ from distilabel.llms.base import LLM
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 @pytest.fixture

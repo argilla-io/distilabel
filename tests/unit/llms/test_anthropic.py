@@ -82,7 +82,7 @@ class TestAnthropicLLM:
             "model": "claude-3-opus-20240229",
             "timeout": 600.0,
             "type_info": {
-                "module": "distilabel.llm.anthropic",
+                "module": "distilabel.llms.anthropic",
                 "name": "AnthropicLLM",
             },
         }

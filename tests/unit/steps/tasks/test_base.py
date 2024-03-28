@@ -16,13 +16,13 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.base import Task
+from distilabel.steps.tasks.base import Task
 from pydantic import ValidationError
 
-from tests.unit.steps.task.utils import DummyLLM
+from tests.unit.steps.tasks.utils import DummyLLM
 
 if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 class DummyTask(Task):
@@ -124,7 +124,7 @@ class TestTask:
             "llm": {
                 "generation_kwargs": {},
                 "type_info": {
-                    "module": "tests.unit.steps.task.utils",
+                    "module": "tests.unit.steps.tasks.utils",
                     "name": "DummyLLM",
                 },
             },
@@ -154,7 +154,7 @@ class TestTask:
                 },
             ],
             "type_info": {
-                "module": "tests.unit.steps.task.test_base",
+                "module": "tests.unit.steps.tasks.test_base",
                 "name": "DummyTask",
             },
         }

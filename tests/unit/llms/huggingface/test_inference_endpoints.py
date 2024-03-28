@@ -176,7 +176,7 @@ class TestInferenceEndpointsLLM:
             "model_display_name": None,
             "use_openai_client": False,
             "type_info": {
-                "module": "distilabel.llm.huggingface.inference_endpoints",
+                "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",
             },
         }

@@ -118,7 +118,7 @@ class TestVertexAILLM:
             "model": "gemini-1.0-pro",
             "generation_kwargs": {},
             "type_info": {
-                "module": "distilabel.llm.vertexai",
+                "module": "distilabel.llms.vertexai",
                 "name": "VertexAILLM",
             },
         }

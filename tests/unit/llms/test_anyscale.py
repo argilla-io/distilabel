@@ -47,7 +47,7 @@ class TestAnyscaleLLM:
             "generation_kwargs": {},
             "base_url": "https://api.endpoints.anyscale.com/v1",
             "type_info": {
-                "module": "distilabel.llm.anyscale",
+                "module": "distilabel.llms.anyscale",
                 "name": "AnyscaleLLM",
             },
         }

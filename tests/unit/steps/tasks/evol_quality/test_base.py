@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import pytest
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_quality.base import (
+from distilabel.steps.tasks.evol_quality.base import (
     EvolQuality,
 )
-from distilabel.steps.task.evol_quality.utils import MUTATION_TEMPLATES
+from distilabel.steps.tasks.evol_quality.utils import MUTATION_TEMPLATES
 from pydantic import ValidationError
 
 

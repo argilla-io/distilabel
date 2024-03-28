@@ -82,7 +82,7 @@ class TestLiteLLM:
             "model": model,
             "verbose": False,
             "type_info": {
-                "module": "distilabel.llm.litellm",
+                "module": "distilabel.llms.litellm",
                 "name": "LiteLLM",
             },
             "generation_kwargs": {},

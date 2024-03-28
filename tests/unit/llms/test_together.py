@@ -47,7 +47,7 @@ class TestTogetherLLM:
             "generation_kwargs": {},
             "base_url": "https://api.together.xyz/v1",
             "type_info": {
-                "module": "distilabel.llm.together",
+                "module": "distilabel.llms.together",
                 "name": "TogetherLLM",
             },
         }

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.evol_instruct.evol_complexity.generator import (
+from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
     EvolComplexityGenerator,
 )
-from distilabel.steps.task.evol_instruct.evol_complexity.utils import (
+from distilabel.steps.tasks.evol_instruct.evol_complexity.utils import (
     GENERATION_MUTATION_TEMPLATES,
 )
 

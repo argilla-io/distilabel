@@ -14,8 +14,8 @@
 
 from typing import Any, List, Union
 
-from distilabel.llm.base import LLM
-from distilabel.steps.task.typing import ChatType
+from distilabel.llms.base import LLM
+from distilabel.steps.tasks.typing import ChatType
 
 
 class DummyLLM(LLM):

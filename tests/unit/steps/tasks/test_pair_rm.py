@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.pair_rm import PairRM
+from distilabel.steps.tasks.pair_rm import PairRM
 
 
 @patch("llm_blender.Blender")
@@ -63,5 +63,5 @@ class TestPairRM:
             "model": ranker.model,
             "instructions": None,
             "runtime_parameters_info": [],
-            "type_info": {"module": "distilabel.steps.task.pair_rm", "name": "PairRM"},
+            "type_info": {"module": "distilabel.steps.tasks.pair_rm", "name": "PairRM"},
         }

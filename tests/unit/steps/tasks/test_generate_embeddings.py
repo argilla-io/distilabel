@@ -15,9 +15,9 @@
 from typing import Generator
 
 import pytest
-from distilabel.llm.huggingface.transformers import TransformersLLM
+from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.generate_embeddings import GenerateEmbeddings
+from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 
 
 @pytest.fixture(scope="module")

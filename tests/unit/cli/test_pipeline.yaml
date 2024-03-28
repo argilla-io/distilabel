@@ -40,7 +40,7 @@ pipeline:
           model: gpt-3.5-turbo
           base_url: https://api.openai.com/v1
           type_info:
-            module: distilabel.llm.openai
+            module: distilabel.llms.openai
             name: OpenAILLM
         group_generations: false
         num_generations: 3
@@ -80,7 +80,7 @@ pipeline:
             optional: true
             description: The number of generations to be produced per input.
         type_info:
-          module: distilabel.steps.task.text_generation
+          module: distilabel.steps.tasks.text_generation
           name: TextGeneration
       name: text_generation_gpt
     - step:
@@ -94,7 +94,7 @@ pipeline:
           model: gpt-3.5-turbo
           base_url: https://api.openai.com/v1
           type_info:
-            module: distilabel.llm.openai
+            module: distilabel.llms.openai
             name: OpenAILLM
         group_generations: true
         num_generations: 3
@@ -134,7 +134,7 @@ pipeline:
             optional: true
             description: The number of generations to be produced per input.
         type_info:
-          module: distilabel.steps.task.text_generation
+          module: distilabel.steps.tasks.text_generation
           name: TextGeneration
       name: text_generation_gpt_2
     - step:

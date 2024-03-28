@@ -16,9 +16,9 @@ from typing import Any, Dict, Union
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.quality_scorer import QualityScorer
+from distilabel.steps.tasks.quality_scorer import QualityScorer
 
-from tests.unit.steps.task.utils import DummyLLM
+from tests.unit.steps.tasks.utils import DummyLLM
 
 
 class TestQualityScorer:
@@ -40,7 +40,7 @@ class TestQualityScorer:
         assert result == [
             {
                 "role": "user",
-                "content": """Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-3.\nScore each response from 1 to 3, with 4 reserved for responses that are already very well written and cannot be improved further. You should respond with the format:\n[1] Score: 1\n[2] Score: 2\n...\n#Question#: instruction 1\n#Response List#:\n\n[1] response 1\n[2] response 2\n[3] response 3""",
+                "content": "Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-3.\nScore each response from 1 to 3, with 4 reserved for responses that are already very well written and cannot be improved further. You should respond with the format:\n[1] Score: 1\n[2] Score: 2\n...\n#Question#: instruction 1\n#Response List#:\n\n[1] response 1\n[2] response 2\n[3] response 3",
             }
         ]
 

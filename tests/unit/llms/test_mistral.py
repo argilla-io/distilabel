@@ -91,7 +91,7 @@ class TestMistralLLM:
             "timeout": 120,
             "max_concurrent_requests": 64,
             "type_info": {
-                "module": "distilabel.llm.mistral",
+                "module": "distilabel.llms.mistral",
                 "name": "MistralLLM",
             },
         }

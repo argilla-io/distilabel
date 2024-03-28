@@ -95,7 +95,7 @@ class TestOpenAILLM:
             "generation_kwargs": {},
             "base_url": "https://api.openai.com/v1",
             "type_info": {
-                "module": "distilabel.llm.openai",
+                "module": "distilabel.llms.openai",
                 "name": "OpenAILLM",
             },
         }

@@ -14,11 +14,11 @@
 
 from typing import Any, List
 
-from distilabel.llm.base import LLM
-from distilabel.llm.typing import GenerateOutput
+from distilabel.llms.base import LLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.task.typing import ChatType
-from distilabel.steps.task.ultrafeedback import UltraFeedback
+from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 
 class UltraFeedbackLLM(LLM):
