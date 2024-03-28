@@ -41,7 +41,7 @@ class EvolQuality(Task):
     quality task from the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
 
-    Args:
+    Attributes:
         num_evolutions: The number of evolutions to be performed on the responses.
         store_evolutions: Whether to store all the evolved responses or just the last one.
             Defaults to `False`.

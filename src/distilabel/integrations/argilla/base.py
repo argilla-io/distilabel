@@ -45,7 +45,7 @@ class Argilla(Step, ABC):
     Note:
         This class is not intended to be instanced directly, but via subclass.
 
-    Args:
+    Attributes:
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
             None, which means it will be created in the default workspace.

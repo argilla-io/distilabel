@@ -33,7 +33,7 @@ class KeepColumns(Step):
         using the provided order, which is useful before pushing either a `dataset.Dataset` via
         the `PushToHub` step or a `distilabel.Distiset` via the `Pipeline.run` output variable.
 
-    Args:
+    Attributes:
         columns: List of strings with the names of the columns to keep.
 
     Input columns:

@@ -105,13 +105,12 @@ class OpenAILLM(AsyncLLM):
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequence_penalty: the repetition penalty to use for the generation. Defaults
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
             presence_penalty: the presence penalty to use for the generation. Defaults to
                 `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            top_k: the top-k value to use for the generation. Defaults to `0`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.

@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 class EvolInstruct(Task):
     """WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
-    Args:
+    Attributes:
         num_evolutions: The number of evolutions to be performed.
         store_evolutions: Whether to store all the evolutions or just the last one. Defaults
             to `False`.

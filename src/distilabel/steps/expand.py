@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class ExpandColumns(Step):
     """Expand columns that contain lists into multiple rows.
 
-    Args:
+    Attributes:
         columns: A dictionary that maps the column to be expanded to the new column name
             or a list of columns to be expanded. If a list is provided, the new column name
             will be the same as the column name.

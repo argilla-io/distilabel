@@ -42,7 +42,7 @@ class TextGenerationToArgilla(Argilla):
         This step is meant to be used in conjunction with a `TextGeneration` step and no column mapping
         is needed, as it will use the default values for the `instruction` and `generation` columns.
 
-    Args:
+    Attributes:
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
             `None`, which means it will be created in the default workspace.

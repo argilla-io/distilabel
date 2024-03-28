@@ -46,7 +46,7 @@ _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
 class AnthropicLLM(AsyncLLM):
     """Anthropic LLM implementation running the Async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM.
         api_key: the API key to authenticate the requests to the Anthropic API.
         base_url: the base URL to use for the Anthropic API. Defaults to `None` which means that `https://api.anthropic.com` will be used internally.

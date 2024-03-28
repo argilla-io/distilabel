@@ -101,7 +101,7 @@ class Task(_Task, Step):
     """Task is a class that implements the `_Task` abstract class and adds the `Step`
     interface to be used as a step in the pipeline.
 
-    Args:
+    Attributes:
         llm: the `LLM` to be used to generate the outputs of the task.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
@@ -167,7 +167,7 @@ class GeneratorTask(_Task, GeneratorStep):
     """GeneratorTask is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
-    Args:
+    Attributes:
         llm: the `LLM` to be used to generate the outputs of the task.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.

@@ -45,7 +45,7 @@ class PreferenceToArgilla(Argilla):
         given instruction. But alternatively, it can also be used with any other task or step generating
         only the `instruction` and `generations`, as the `ratings` and `rationales` are optional.
 
-    Args:
+    Attributes:
         num_generations: The number of generations to include in the dataset.
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
