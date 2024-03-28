@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import logging
+import multiprocessing as mp
 import os
 import warnings
 from logging.handlers import QueueHandler, QueueListener
 from typing import TYPE_CHECKING, Any
 
-import multiprocess as mp
 from rich.logging import RichHandler
 
 if TYPE_CHECKING:
