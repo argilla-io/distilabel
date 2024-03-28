@@ -94,30 +94,31 @@ plugins:
 nav:
   - Getting started: index.md
   - Paper reproductions:
-      - 'papers/ultrafeedback.md'
-      - 'papers/instruction_backtranslation.md'
+      - "papers/papers.md"
+      - "Self-Alignment with Instruction Backtranslation": "papers/instruction_backtranslation.md"
+      - "UltraFeedback: Boosting Language Models with High-quality Feedback": "papers/ultrafeedback.md"
   - API Reference:
     - Pipeline:
-      - 'api/pipeline/pipeline.md'
+      - "api/pipeline/pipeline.md"
     - Steps:
-      - 'api/steps/steps.md'
-      - Generator Steps: 'api/steps/generator_steps/generator_steps.md'
-      - Global Steps: 'api/steps/global_steps/global_steps.md'
+      - "api/steps/steps.md"
+      - Generator Steps: "api/steps/generator_steps/generator_steps.md"
+      - Global Steps: "api/steps/global_steps/global_steps.md"
       - Tasks:
-        - 'api/steps/tasks/text_generation.md'
-        - 'api/steps/tasks/preference_tasks.md'
-        - 'api/steps/tasks/embeddings.md'
+        - "api/steps/tasks/text_generation.md"
+        - "api/steps/tasks/preference_tasks.md"
+        - "api/steps/tasks/embeddings.md"
     - LLMs:
-      - 'api/llms/anthropic.md'
-      - 'api/llms/anyscale.md'
-      - 'api/llms/huggingface.md'
-      - 'api/llms/litellm.md'
-      - 'api/llms/llamacpp.md'
-      - 'api/llms/mistral.md'
-      - 'api/llms/ollama.md'
-      - 'api/llms/openai.md'
-      - 'api/llms/together.md'
-      - 'api/llms/vertexai.md'
-      - 'api/llms/vllm.md'
+      - "api/llms/anthropic.md"
+      - "api/llms/anyscale.md"
+      - "api/llms/huggingface.md"
+      - "api/llms/litellm.md"
+      - "api/llms/llamacpp.md"
+      - "api/llms/mistral.md"
+      - "api/llms/ollama.md"
+      - "api/llms/openai.md"
+      - "api/llms/together.md"
+      - "api/llms/vertexai.md"
+      - "api/llms/vllm.md"
     - Integrations:
-      - 'api/integrations/argilla.md'
+      - "api/integrations/argilla.md"
