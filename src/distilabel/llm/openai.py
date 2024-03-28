@@ -31,7 +31,7 @@ from distilabel.logger import get_logger
 from distilabel.utils.imports import _OPENAI_AVAILABLE
 
 if _OPENAI_AVAILABLE:
-    from openai import OpenAI
+    from openai import OpenAI, AzureOpenAI
 
 if TYPE_CHECKING:
     from distilabel.tasks.base import Task
@@ -45,7 +45,7 @@ class OpenAILLM(LLM):
         self,
         task: "Task",
         model: str = "gpt-3.5-turbo",
-        client: Union["OpenAI", None] = None,
+        client: Union["OpenAI", "AzureOpenAI", None] = None,
         api_key: Union[str, None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -117,12 +117,15 @@ class OpenAILLM(LLM):
 
         self.client = client or OpenAI(api_key=api_key, max_retries=6)
 
-        try:
-            assert (
-                model in self.available_models
-            ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
-        except AttributeError:
-            logger.warning("Unable to check if model is available in your account.")
+        if not isinstance(self.client, AzureOpenAI):
+            # In Azure, the model in create() is actually the deployment_name and therefore it can be any arbitrarily
+            # chosen name. So it is not a given that it is part of the available models
+            try:
+                assert (
+                    model in self.available_models
+                ), f"Provided `model` is not available in your OpenAI account, available models are {self.available_models}"
+            except AttributeError:
+                logger.warning("Unable to check if model is available in your account.")
         self.model = model
 
     def __rich_repr__(self) -> Generator[Any, None, None]:

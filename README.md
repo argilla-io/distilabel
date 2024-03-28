@@ -29,7 +29,7 @@ In addition, the following extras are available:
 
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
 - `hf-inference-endpoints`: for using the [HuggingFace Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
-- `openai`: for using OpenAI API models via the `OpenAILLM` integration.
+- `openai`: for using (Azure) OpenAI API models via the `OpenAILLM` integration.
 - `vllm`: for using [vllm](https://github.com/vllm-project/vllm) serving engine via the `vLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) as Python bindings for `llama.cpp`.
 - `ollama`: for using [Ollama](https://github.com/ollama/ollama) and their available models via their Python client.
@@ -90,6 +90,44 @@ rg_dataset = dataset.to_argilla()
 
 # Push the dataset to Argilla
 rg_dataset.push_to_argilla(name="preference-dataset", workspace="admin")
+```
+
+## Azure OpenAI API
+
+To use the Azure OpenAI API you can use the `distilabel.llm.OpenAILLM` but in a slightly different way than using 
+the regular OpenAI API. For now, you will need to instantiate an `openai.AzureOpenAI` client yourself and pass
+that to the `OpenAILLM` constructor rather than relying on its `model` and `api_key` arguments. Secondly,
+instead of using `model` to define the model you want to use (like `gpt4`), you need to set `model` to your
+Azure deployment name.
+
+An example
+
+```python
+from distilabel.llm import OpenAILLM
+from distilabel.tasks import TextGenerationTask
+from openai import AzureOpenAI
+
+
+api_key= "<azure-super-secret-api-key>"
+api_version = "2024-02-15-preview"  # replace with your own
+azure_endpoint = "https://<endpoint-name>.openai.azure.com"
+deployment = "<deployment-name>"
+
+client = AzureOpenAI(
+    api_key=api_key,
+    api_version=api_version,
+    azure_endpoint=azure_endpoint
+)
+
+llm = OpenAILLM(
+    task=TextGenerationTask(),
+    client=client,  # Important!
+    model=deployment,  # Important!
+)
+
+messages = [{"input": "Write me a short poem."}]
+
+print(llm.generate(messages))
 ```
 
 ## More examples
