@@ -18,8 +18,8 @@ from typing import Any, Dict, List, Union
 from jinja2 import Template
 from pydantic import PrivateAttr
 
-from distilabel.steps.task.base import Task
-from distilabel.steps.task.typing import ChatType
+from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.typing import ChatType
 
 _QUALITY_SCORER_TEMPLATE = """
 Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-{{ responses|length }}.
@@ -55,7 +55,7 @@ class QualityScorer(Task):
     Output columns:
         - quality_score (`List[float]`): The quality score for each instruction.
 
-    Reference:
+    References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 

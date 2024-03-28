@@ -57,7 +57,7 @@ class DeitaFiltering(GlobalStep):
         - nearest_neighbor_distance (`float`): The cosine distance between the embeddings
             of the instruction-response pair.
 
-    Reference:
+    References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 

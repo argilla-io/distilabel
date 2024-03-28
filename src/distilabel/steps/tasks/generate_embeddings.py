@@ -14,12 +14,12 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 
@@ -38,7 +38,7 @@ class GenerateEmbeddings(Step):
     Output columns:
         - embedding (`List[float]`): The embedding of the input text or conversation.
 
-    Reference:
+    References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
     """
 

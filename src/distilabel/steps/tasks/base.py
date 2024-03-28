@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
@@ -28,8 +28,8 @@ from distilabel.steps.base import (
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
-    from distilabel.llm.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.llms.typing import GenerateOutput
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 

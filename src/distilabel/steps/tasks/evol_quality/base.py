@@ -12,13 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info <= (3, 11):
-    pass
-else:
-    pass
-
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import numpy as np
@@ -27,9 +20,9 @@ from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
-from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_quality.utils import MUTATION_TEMPLATES
-from distilabel.steps.task.typing import ChatType
+from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.evol_quality.utils import MUTATION_TEMPLATES
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -61,9 +54,9 @@ class EvolQuality(Task):
     Output columns:
         - evolved_response (`str`): The evolved response if `store_evolutions=False`.
         - evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
-        - model_name (`str`): The model name.
+        - model_name (`str`): The name of the LLM used to evolve the responses.
 
-    Reference:
+    References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 

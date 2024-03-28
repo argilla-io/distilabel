@@ -25,8 +25,8 @@ from typing import Any, Dict, List, Optional, Union
 from jinja2 import Template
 from pydantic import PrivateAttr
 
-from distilabel.steps.task.base import Task
-from distilabel.steps.task.typing import ChatType
+from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.typing import ChatType
 
 
 class InstructionBacktranslation(Task):

@@ -27,12 +27,12 @@ from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.task.base import GeneratorTask
-from distilabel.steps.task.evol_instruct.utils import GENERATION_MUTATION_TEMPLATES
+from distilabel.steps.tasks.base import GeneratorTask
+from distilabel.steps.tasks.evol_instruct.utils import GENERATION_MUTATION_TEMPLATES
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import GeneratorStepOutput
 
 
@@ -63,9 +63,9 @@ class EvolInstructGenerator(GeneratorTask):
         - instruction (`str`): The generated instruction if `generate_answers=False`.
         - answer (`str`): The generated answer if `generate_answers=True`.
         - instructions (`List[str]`): The generated instructions if `generate_answers=True`.
-        - model_name (`str`): The model name used for the LLM.
+        - model_name (`str`): The name of the LLM used to generate and evolve the instructions.
 
-    Reference:
+    References:
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
         - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
     """
@@ -134,7 +134,7 @@ class EvolInstructGenerator(GeneratorTask):
     def _english_nouns(self) -> List[str]:
         """A list of English nouns to be used as part of the starting prompts for the task.
 
-        Reference:
+        References:
             - https://github.com/h2oai/h2o-wizardlm
         """
         _path = str(

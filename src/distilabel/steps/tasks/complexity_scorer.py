@@ -18,10 +18,10 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from jinja2 import Template
 from pydantic import PrivateAttr
 
-from distilabel.steps.task.base import Task
+from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 _COMPLEXITY_SCORER_TEMPLATE = """
 Ranking the following questions according to the difficulty and complexity. Score 1-{{ instructions|length }}.
@@ -52,7 +52,7 @@ class ComplexityScorer(Task):
     Output columns:
         - complexity_score (`List[float]`): The complexity score for each instruction.
 
-    Reference:
+    References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
     """
 

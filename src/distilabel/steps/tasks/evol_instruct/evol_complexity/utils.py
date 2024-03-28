@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.steps.task.evol_instruct.utils import (
+from distilabel.steps.tasks.evol_instruct.utils import (
     GENERATION_MUTATION_TEMPLATES as GENERATION_MUTATION_TEMPLATES_EVOL_INSTRUCT,
 )
-from distilabel.steps.task.evol_instruct.utils import (
+from distilabel.steps.tasks.evol_instruct.utils import (
     MUTATION_TEMPLATES as MUTATION_TEMPLATES_EVOL_INSTRUCT,
 )
 

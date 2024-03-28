@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 REWRITE_INSTRUCTION = """
 I want you act as a Prompt Rewriter.\n
 Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.\n
@@ -34,7 +33,6 @@ The #Created Prompt# must be reasonable and must be understood and responded by 
 #Given Prompt#:\n<PROMPT>\n#Created Prompt#:\n
 """.lstrip()
 
-
 MUTATION_TEMPLATES = {
     "CONSTRAINTS": REWRITE_INSTRUCTION.format(
         "Please add one more constraints/requirements into '#The Given Prompt#'"
@@ -50,7 +48,6 @@ MUTATION_TEMPLATES = {
     ),
     "BREADTH": CREATE_INSTRUCTION,
 }
-
 
 GENERATION_MUTATION_TEMPLATES = {
     "FRESH_START": "Write one question or request containing one or more of the following words: <PROMPT>",

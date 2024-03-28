@@ -15,10 +15,10 @@
 from typing import TYPE_CHECKING, List
 
 import pytest
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 
 if TYPE_CHECKING:
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 

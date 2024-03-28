@@ -20,9 +20,9 @@ from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
-from distilabel.steps.task.base import Task
-from distilabel.steps.task.evol_instruct.utils import MUTATION_TEMPLATES
-from distilabel.steps.task.typing import ChatType
+from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.evol_instruct.utils import MUTATION_TEMPLATES
+from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.lists import flatten_responses
 
 if TYPE_CHECKING:
@@ -49,18 +49,18 @@ class EvolInstruct(Task):
         - `seed`: The seed to be set for `numpy` in order to randomly pick a mutation method.
 
     Input columns:
-        - instruction (`str`): The instruction to be evolved.
+        - instruction (`str`): The instruction to evolve.
 
     Output columns:
         - evolved_instruction (`str`): The evolved instruction if `store_evolutions=False`.
         - evolved_instructions (`List[str]`): The evolved instructions if `store_evolutions=True`.
-        - model_name (`str`): The model name.
+        - model_name (`str`): The name of the LLM used to evolve the instructions.
         - answer (`str`): The answer to the evolved instruction if `generate_answers=True`
             and `store_evolutions=False`.
         - answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
             and `store_evolutions=True`.
 
-    Reference:
+    References:
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
         - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
     """
@@ -106,7 +106,8 @@ class EvolInstruct(Task):
             _outputs.append("answer" if not self.store_evolutions else "answers")
         return _outputs
 
-    def format_output(
+    @override
+    def format_output(  # type: ignore
         self, instructions: Union[str, List[str]], answers: Optional[List[str]] = None
     ) -> Dict[str, Any]:  # type: ignore
         """The output for the task is a dict with: `evolved_instruction` or `evolved_instructions`,

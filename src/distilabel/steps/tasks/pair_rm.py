@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import numpy as np
 
 from distilabel.steps.base import StepInput
-from distilabel.steps.task.base import Step
+from distilabel.steps.tasks.base import Step
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
