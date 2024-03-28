@@ -70,7 +70,7 @@ class QualityScorer(Task):
         """The input for the task are `instruction` and `responses`."""
         return ["instruction", "responses"]
 
-    def format_input(self, input: str) -> ChatType:  # type: ignore
+    def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
