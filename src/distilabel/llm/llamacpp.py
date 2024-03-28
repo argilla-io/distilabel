@@ -46,7 +46,6 @@ class LlamaCppLLM(LLM):
 
     def load(self) -> None:
         """Loads the `Llama` model from the `model_path`."""
-        super().load()
 
         try:
             from llama_cpp import Llama
@@ -61,6 +60,8 @@ class LlamaCppLLM(LLM):
             n_gpu_layers=self.n_gpu_layers,
             verbose=self.verbose,
         )
+
+        super().load()
 
     @property
     def model_name(self) -> str:
