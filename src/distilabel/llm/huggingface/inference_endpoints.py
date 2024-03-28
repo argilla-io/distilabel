@@ -35,7 +35,7 @@ if _HUGGINGFACE_HUB_AVAILABLE:
         InferenceTimeoutError,
         get_inference_endpoint,
     )
-    from huggingface_hub.inference._text_generation import TextGenerationError
+    from huggingface_hub.errors import TextGenerationError
 
     _INFERENCE_ENDPOINTS_API_RETRY_ON_EXCEPTIONS = (
         InferenceTimeoutError,
