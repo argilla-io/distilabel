@@ -14,6 +14,8 @@
 
 import logging
 import multiprocessing as mp
+import os
+import warnings
 from logging.handlers import QueueHandler, QueueListener
 from typing import TYPE_CHECKING, Any
 
@@ -29,7 +31,6 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     # Disable overly verbose loggers
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
-    logging.getLogger("httpx").setLevel(logging.CRITICAL)
 
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
@@ -39,14 +40,14 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
         queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
         queue_listener.start()
 
-    # $ log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
-    # $ if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-    # $     warnings.warn(
-    # $         f"Invalid log level '{log_level}', using default 'INFO' instead.",
-    # $         stacklevel=2,
-    # $     )
-    # $     log_level = "INFO"
+    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
+    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+        warnings.warn(
+            f"Invalid log level '{log_level}', using default 'INFO' instead.",
+            stacklevel=2,
+        )
+        log_level = "INFO"
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
