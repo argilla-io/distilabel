@@ -14,8 +14,6 @@
 
 import logging
 import multiprocessing as mp
-import os
-import warnings
 from logging.handlers import QueueHandler, QueueListener
 from typing import TYPE_CHECKING, Any
 
@@ -33,33 +31,23 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
     logging.getLogger("httpx").setLevel(logging.CRITICAL)
 
-    # If the current process is the main process, set up a QueueListener
+    # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
     if mp.current_process().name == "MainProcess":
-        handlers = [RichHandler()]
-        queue_listener = QueueListener(log_queue, *handlers)
+        print(f"SETTING UP QUEUE LISTENER {mp.current_process().name=}")
+        # Only in the main process, set up a listener to handle logs from the queue
+        handlers = [RichHandler(rich_tracebacks=True)]
+        queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
         queue_listener.start()
 
-    # Handler for subprocesses to use
-    queue_handler = QueueHandler(log_queue)
-    logging.basicConfig(handlers=[queue_handler], level=logging.INFO)
+    # $ log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
+    # $ if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+    # $     warnings.warn(
+    # $         f"Invalid log level '{log_level}', using default 'INFO' instead.",
+    # $         stacklevel=2,
+    # $     )
+    # $     log_level = "INFO"
 
-
-def get_logger(suffix: str) -> logging.Logger:
-    """
-    Gets the `logging.Logger` for the `distilabel` package with a custom configuration.
-    Also uses `rich` for better formatting. Compatible with multiprocessing using `QueueHandler`.
-    """
-    # Set the log level from environment or default
-    log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
-    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-        warnings.warn(
-            f"Invalid log level '{log_level}', using default 'INFO' instead.",
-            stacklevel=2,
-        )
-        log_level = "INFO"
-
-    # Configure root logger
-    logger = logging.getLogger(f"distilabel.{suffix}")
-    logger.setLevel(log_level)
-    return logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(QueueHandler(log_queue))

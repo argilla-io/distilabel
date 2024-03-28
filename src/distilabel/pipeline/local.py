@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import multiprocessing as mp
 import signal
 import threading
@@ -22,7 +23,7 @@ from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.utils.distiset import create_distiset
-from distilabel.utils.logging import get_logger, setup_logging
+from distilabel.utils.logging import setup_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -45,6 +46,7 @@ _STOP_CALLED_LOCK = threading.Lock()
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(queue)
 
 
@@ -72,7 +74,7 @@ class Pipeline(BasePipeline):
         """
         log_queue = mp.Queue()
         setup_logging(log_queue)  # type: ignore
-        self._logger = get_logger("pipeline")
+        self._logger = logging.getLogger("distilabel.pipeline.local")
 
         super().run(parameters, use_cache)
 
@@ -321,9 +323,14 @@ class Pipeline(BasePipeline):
             shared_info: The shared information between the processes.
         """
         for step_name in self.dag:
-            step = self.dag.get_step(step_name)["step"]
+            step: "Step" = self.dag.get_step(step_name)["step"]
             input_queue = manager.Queue()
             self.dag.set_step_attr(step.name, "input_queue", input_queue)
+
+            # Set `pipeline` to `None` as in some Python environments the pipeline is not
+            # picklable and it will raise an error when trying to send the step to the process.
+            # `TypeError: cannot pickle 'code' object`
+            step.pipeline = None
 
             process_wrapper = _ProcessWrapper(
                 step=step,
@@ -508,12 +515,9 @@ class _ProcessWrapper:
         `process` method of the `Step`.
         """
 
-        # Ignore KeyboardInterrupt signals in the process
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
         try:
-            self.step._logger.debug(f"Loading step '{self.step.name}'...")
             self.step.load()
+            print(f"{self.step._logger=}")
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
             raise _ProcessWrapperException.create_load_error(str(e), self.step) from e

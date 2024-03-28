@@ -27,7 +27,6 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
-from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -49,11 +48,10 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     )
 
     _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
-    _logger: logging.Logger = PrivateAttr(get_logger("llm"))
+    _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
-    @abstractmethod
     def load(self) -> None:
-        pass
+        self._logger = logging.getLogger(f"llm.{self.model_name}")
 
     @property
     @abstractmethod

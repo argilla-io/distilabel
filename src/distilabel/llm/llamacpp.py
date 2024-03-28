@@ -46,6 +46,7 @@ class LlamaCppLLM(LLM):
 
     def load(self) -> None:
         """Loads the `Llama` model from the `model_path`."""
+        super().load()
 
         try:
             from llama_cpp import Llama

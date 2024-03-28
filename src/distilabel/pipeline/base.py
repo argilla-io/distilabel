@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import hashlib
+import logging
 import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -35,7 +36,6 @@ from typing_extensions import Self
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
 from distilabel.utils.files import list_files_in_dir
-from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
 if TYPE_CHECKING:
@@ -826,7 +826,7 @@ class _WriteBuffer:
         }
         self._buffer_last_schema = {}
         self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
-        self._logger = get_logger("write_buffer")
+        self._logger = logging.getLogger("write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
