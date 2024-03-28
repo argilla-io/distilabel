@@ -93,6 +93,9 @@ plugins:
 
 nav:
   - Getting started: index.md
+  - Paper reproductions:
+      - 'papers/ultrafeedback.md'
+      - 'papers/instruction_backtranslation.md'
   - API Reference:
     - Pipeline:
       - 'api/pipeline/pipeline.md'
