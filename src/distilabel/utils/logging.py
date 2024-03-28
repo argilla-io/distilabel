@@ -13,32 +13,33 @@
 # limitations under the License.
 
 import logging
+import multiprocessing as mp
 import os
 import warnings
+from logging.handlers import QueueHandler, QueueListener
+from typing import TYPE_CHECKING, Any
 
 from rich.logging import RichHandler
 
+if TYPE_CHECKING:
+    from queue import Queue
 
-def get_logger(suffix: str) -> logging.Logger:
-    """Gets the `logging.Logger` for the `distilabel` package with a custom
-    configuration. Also uses `rich` for better formatting.
-    """
-    # Disable logging for argilla.client.feedback.dataset.local.mixins
-    # as it's too verbose, and there's no way to disable all the `argilla` logs
+
+def setup_logging(log_queue: "Queue[Any]") -> None:
+    """Sets up logging to use a queue across all processes."""
+
+    # Disable overly verbose loggers
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
-
-    # Remove `datasets` logger to only log on `critical` mode
-    # as it produces `PyTorch` messages to update on `info`
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
-
     logging.getLogger("httpx").setLevel(logging.CRITICAL)
 
-    logging.basicConfig(
-        level="INFO",
-        format="%(message)s",
-        datefmt="[%X]",
-        handlers=[RichHandler()],
-    )
+    # If the current process is the main process, set up a `QueueListener`
+    # to handle logs from all subprocesses
+    if mp.current_process().name == "MainProcess":
+        # Only in the main process, set up a listener to handle logs from the queue
+        handlers = [RichHandler(rich_tracebacks=True)]
+        queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
+        queue_listener.start()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -48,6 +49,6 @@ def get_logger(suffix: str) -> logging.Logger:
         )
         log_level = "INFO"
 
-    logger = logging.getLogger(f"distilabel.{suffix}")
-    logger.setLevel(log_level)
-    return logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    root_logger.addHandler(QueueHandler(log_queue))

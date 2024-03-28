@@ -79,6 +79,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
+        super().load()
+
         if self.device == "cuda":
             CudaDevicePlacementMixin.load(self)
 

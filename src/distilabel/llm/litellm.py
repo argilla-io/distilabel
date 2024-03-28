@@ -43,6 +43,7 @@ class LiteLLM(AsyncLLM):
         """
         Loads the `acompletion` LiteLLM client to benefit from async requests.
         """
+        super().load()
 
         try:
             import litellm

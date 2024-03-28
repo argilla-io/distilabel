@@ -123,6 +123,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             ValueError: if the model is not currently deployed or is not running the TGI framework.
             ImportError: if the `transformers` Python client is not installed.
         """
+        super().load()
 
         try:
             from huggingface_hub import (

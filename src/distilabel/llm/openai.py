@@ -60,6 +60,7 @@ class OpenAILLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
+        super().load()
 
         try:
             from openai import AsyncOpenAI

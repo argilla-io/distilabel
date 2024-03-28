@@ -95,6 +95,8 @@ class LoadHubDataset(GeneratorStep):
 
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
+        super().load()
+
         self._dataset = load_dataset(
             self.repo_id,  # type: ignore
             self.config,

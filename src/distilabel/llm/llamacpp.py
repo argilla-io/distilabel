@@ -61,6 +61,8 @@ class LlamaCppLLM(LLM):
             verbose=self.verbose,
         )
 
+        super().load()
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""

@@ -66,6 +66,7 @@ class TestEvolInstructGenerator:
             max_length=10,
             pipeline=pipeline,
         )
+        task.load()
         assert list(task.process()) == [
             (
                 [
@@ -89,6 +90,7 @@ class TestEvolInstructGenerator:
             generate_answers=True,
             pipeline=pipeline,
         )
+        task.load()
         assert list(task.process()) == [
             (
                 [
@@ -107,6 +109,7 @@ class TestEvolInstructGenerator:
         task = EvolInstructGenerator(
             name="task", llm=dummy_llm, num_instructions=2, pipeline=pipeline
         )
+        task.load()
 
         assert task.dump() == {
             "name": "task",
