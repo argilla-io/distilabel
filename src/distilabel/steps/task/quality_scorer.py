@@ -85,6 +85,7 @@ class QualityScorer(Task):
 
         Args:
             output: the raw output of the LLM.
+            input: the input to the task. Used for obtaining the number of responses.
 
         Returns:
             A dict with containing the scores for each instruction-response pair.
