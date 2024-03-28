@@ -72,7 +72,10 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        mp.set_start_method("forkserver")
+        try:
+            mp.set_start_method("forkserver")
+        except RuntimeError:
+            pass
         log_queue = mp.Queue()
         setup_logging(log_queue)  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
