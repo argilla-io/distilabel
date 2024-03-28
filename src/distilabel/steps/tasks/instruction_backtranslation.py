@@ -55,7 +55,7 @@ class InstructionBacktranslation(Task):
         _path = str(
             importlib_resources.files("distilabel")
             / "steps"
-            / "task"
+            / "tasks"
             / "templates"
             / "instruction-backtranslation.jinja2"
         )

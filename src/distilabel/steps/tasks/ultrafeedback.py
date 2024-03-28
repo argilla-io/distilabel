@@ -85,7 +85,7 @@ class UltraFeedback(Task):
         _path = str(
             importlib_resources.files("distilabel")
             / "steps"
-            / "task"
+            / "tasks"
             / "templates"
             / "ultrafeedback"
             / f"{self.aspect}.jinja2"

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from transformers.tokenization_utils import PreTrainedTokenizer
 
     from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 class TransformersLLM(LLM, CudaDevicePlacementMixin):

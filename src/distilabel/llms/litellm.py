@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 from pydantic import PrivateAttr
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from litellm import Choices
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 class LiteLLM(AsyncLLM):
@@ -37,12 +37,10 @@ class LiteLLM(AsyncLLM):
     model: str
     verbose: bool = False
 
-    _aclient: Optional["callable"] = PrivateAttr(...)
+    _aclient: Optional["Callable"] = PrivateAttr(...)
 
     def load(self) -> None:
-        """
-        Loads the `acompletion` LiteLLM client to benefit from async requests.
-        """
+        """Loads the `acompletion` LiteLLM client to benefit from async requests."""
 
         try:
             import litellm
@@ -136,7 +134,7 @@ class LiteLLM(AsyncLLM):
         async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []
             while len(choices) < num_generations:
-                completion = await self._aclient(
+                completion = await self._aclient(  # type: ignore
                     model=self.model,
                     messages=input,
                     n=num_generations,

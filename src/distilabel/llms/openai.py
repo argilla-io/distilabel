@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from openai import AsyncOpenAI
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
 

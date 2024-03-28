@@ -22,7 +22,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 if TYPE_CHECKING:
     from ollama import AsyncClient, Options
 
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 class OllamaLLM(AsyncLLM):

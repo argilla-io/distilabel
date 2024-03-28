@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 class LlamaCppLLM(LLM):

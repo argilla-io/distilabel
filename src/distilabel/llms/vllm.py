@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from vllm import LLM as _vLLM
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 SamplingParams = None
 

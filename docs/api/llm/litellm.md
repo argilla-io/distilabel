@@ -1,3 +1,0 @@
-## LiteLLM
-
-::: distilabel.llm.litellm

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
@@ -52,7 +52,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
     Examples:
-        >>> from distilabel.llm.huggingface import AsyncInferenceEndpointsLLM
+        >>> from distilabel.llms.huggingface import AsyncInferenceEndpointsLLM
         >>> llm = AsyncInferenceEndpointsLLM(model_id="model-id")
         >>> llm.load()
         >>> output = await llm.agenerate([{"role": "user", "content": "Hello world!"}])
@@ -86,7 +86,7 @@ class InferenceEndpointsLLM(AsyncLLM):
     _api_key_env_var: str = PrivateAttr(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
     _aclient: Optional[Union["AsyncInferenceClient", "AsyncOpenAI"]] = PrivateAttr(...)
 
-    @model_validator(mode="after")
+    @model_validator(mode="after")  # type: ignore
     def only_one_of_model_id_endpoint_name_or_base_url_provided(
         self,
     ) -> "InferenceEndpointsLLM":
@@ -200,7 +200,8 @@ class InferenceEndpointsLLM(AsyncLLM):
             self._tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
 
     @property
-    def model_name(self) -> Union[str, None]:
+    @override
+    def model_name(self) -> Union[str, None]:  # type: ignore
         """Returns the model name used for the LLM."""
         return (
             self.model_display_name

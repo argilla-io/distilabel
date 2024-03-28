@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from mistralai.async_client import MistralAsyncClient
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
 

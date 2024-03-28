@@ -1,3 +1,3 @@
 # Embeddings
 
-::: distilabel.steps.task.generate_embeddings
+::: distilabel.steps.tasks.generate_embeddings

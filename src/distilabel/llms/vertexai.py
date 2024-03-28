@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     )
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 
 def _is_gemini_model(model: str) -> bool:

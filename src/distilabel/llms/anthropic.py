@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.task.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
 
