@@ -9,4 +9,3 @@ This section contains the reference for HuggingFace integrations:
 ## Transformers
 
 ::: distilabel.llm.huggingface.transformers
-
