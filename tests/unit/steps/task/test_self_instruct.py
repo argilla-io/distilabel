@@ -20,7 +20,11 @@ from tests.unit.steps.task.utils import DummyLLM
 
 class TestSelfInstruct:
     def test_format_input(self) -> None:
-        task = SelfInstruct(name="self_instruct", llm=DummyLLM(), pipeline=Pipeline())
+        task = SelfInstruct(
+            name="self_instruct",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
         task.load()
 
         input = task.format_input(input={"input": "test"})
@@ -32,7 +36,11 @@ class TestSelfInstruct:
         ]
 
     def test_format_output(self) -> None:
-        task = SelfInstruct(name="self_instruct", llm=DummyLLM(), pipeline=Pipeline())
+        task = SelfInstruct(
+            name="self_instruct",
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
         task.load()
 
         output = task.format_output(
