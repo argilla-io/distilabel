@@ -70,8 +70,8 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         per input in `inputs`."""
         pass
 
-    @cached_property
-    def generate_parameters(self) -> List[inspect.Parameter]:
+    @property
+    def generate_parameters(self) -> List["inspect.Parameter"]:
         """Returns the parameters of the `generate` method.
 
         Returns:
