@@ -72,6 +72,7 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        mp.set_start_method("forkserver")
         log_queue = mp.Queue()
         setup_logging(log_queue)  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
@@ -517,7 +518,6 @@ class _ProcessWrapper:
 
         try:
             self.step.load()
-            print(f"{self.step._logger=}")
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
             raise _ProcessWrapperException.create_load_error(str(e), self.step) from e

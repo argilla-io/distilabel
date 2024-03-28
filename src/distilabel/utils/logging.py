@@ -34,7 +34,6 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
     if mp.current_process().name == "MainProcess":
-        print(f"SETTING UP QUEUE LISTENER {mp.current_process().name=}")
         # Only in the main process, set up a listener to handle logs from the queue
         handlers = [RichHandler(rich_tracebacks=True)]
         queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
