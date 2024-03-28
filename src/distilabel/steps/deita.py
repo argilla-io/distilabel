@@ -194,7 +194,7 @@ class DeitaFiltering(GlobalStep):
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
         return embeddings / norms
 
-    def _cosine_distance(self, embeddings: np.array) -> np.array:
+    def _cosine_distance(self, embeddings: np.array) -> np.array:  # type: ignore
         """Computes the cosine distance between the embeddings.
 
         Args:
@@ -209,7 +209,7 @@ class DeitaFiltering(GlobalStep):
         np.fill_diagonal(cosine_distance, np.inf)
         return np.min(cosine_distance, axis=1)
 
-    def _manhattan_distance(self, embeddings: np.array) -> np.array:
+    def _manhattan_distance(self, embeddings: np.array) -> np.array:  # type: ignore
         """Computes the manhattan distance between the embeddings.
 
         Args:
