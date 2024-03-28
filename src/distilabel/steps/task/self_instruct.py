@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import sys
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 if sys.version_info < (3, 9):
     import importlib_resources
@@ -108,7 +108,9 @@ class SelfInstruct(Task):
         return ["instructions"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self,
+        output: Union[str, None],
+        input: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """The output is formatted as a list with the generated instructions.
 
