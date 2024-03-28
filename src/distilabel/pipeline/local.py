@@ -242,7 +242,7 @@ class Pipeline(BasePipeline):
         # TODO: not very important, but we could use a different lock for each matter
         return manager.dict(
             **{
-                _STEPS_LOADED_KEY: 0,
+                _STEPS_LOADED_KEY: manager.list(),
                 _STEPS_LOADED_LOCK: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
                 _CUDA_LLM_DEVICE_PLACEMENT_LOCK: manager.Lock(),
@@ -260,17 +260,23 @@ class Pipeline(BasePipeline):
         while True:
             with self.shared_info[_STEPS_LOADED_LOCK]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+                num_steps_loaded = (
+                    len(steps_loaded)
+                    if steps_loaded != [_STEPS_LOADED_ERROR_CODE]
+                    else 0
+                )
+                self._logger.debug(f"Steps loaded: {steps_loaded}")
 
-                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
-                if steps_loaded > 0 and message != previous_message:
+                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}"
+                if num_steps_loaded > 0 and message != previous_message:
                     self._logger.info(message)
                     previous_message = message
 
-                if steps_loaded == len(self.dag):
+                if num_steps_loaded == len(self.dag):
                     self._logger.info("✅ All the steps have been loaded!")
                     return True
 
-                if steps_loaded == _STEPS_LOADED_ERROR_CODE:
+                if steps_loaded == [_STEPS_LOADED_ERROR_CODE]:
                     self._logger.error("❌ Failed to load all the steps")
                     return False
 
@@ -403,7 +409,7 @@ class Pipeline(BasePipeline):
         # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
         while self.output_queue.qsize() != 0:
             pass
-        self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+        self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
         self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(_BATCH_STOP_FLAG)
 
@@ -534,7 +540,7 @@ class _ProcessWrapper:
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
         with self.shared_info[_STEPS_LOADED_LOCK]:
-            self.shared_info[_STEPS_LOADED_KEY] += 1
+            self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method
