@@ -93,6 +93,8 @@ class AnthropicLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncAnthropic` client to use the Anthropic async API."""
+        super().load()
+
         try:
             from anthropic import AsyncAnthropic
         except ImportError as ie:

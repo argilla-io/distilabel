@@ -54,6 +54,7 @@ class _Task(_Step, ABC):
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
+        super().load()
         self.llm.load()
 
     @abstractmethod

@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+import multiprocessing as mp
 import signal
 import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
-import multiprocess as mp
-
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.utils.distiset import create_distiset
+from distilabel.utils.logging import setup_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -42,6 +43,11 @@ _CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+
+
+def _init_worker(queue: "Queue[Any]") -> None:
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    setup_logging(queue)
 
 
 class Pipeline(BasePipeline):
@@ -66,6 +72,14 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        try:
+            mp.set_start_method("forkserver")
+        except RuntimeError:
+            pass
+        log_queue = mp.Queue()
+        setup_logging(log_queue)  # type: ignore
+        self._logger = logging.getLogger("distilabel.pipeline.local")
+
         super().run(parameters, use_cache)
 
         if self._batch_manager is None:
@@ -90,7 +104,9 @@ class Pipeline(BasePipeline):
 
         num_processes = len(self.dag)
         ctx = mp.get_context("forkserver")  # type: ignore
-        with ctx.Manager() as manager, ctx.Pool(num_processes) as pool:
+        with ctx.Manager() as manager, ctx.Pool(
+            num_processes, initializer=_init_worker, initargs=(log_queue,)
+        ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
             self._handle_keyboard_interrupt()
@@ -229,7 +245,7 @@ class Pipeline(BasePipeline):
         # TODO: not very important, but we could use a different lock for each matter
         return manager.dict(
             **{
-                _STEPS_LOADED_KEY: 0,
+                _STEPS_LOADED_KEY: manager.list(),
                 _STEPS_LOADED_LOCK: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
                 _CUDA_LLM_DEVICE_PLACEMENT_LOCK: manager.Lock(),
@@ -247,17 +263,23 @@ class Pipeline(BasePipeline):
         while True:
             with self.shared_info[_STEPS_LOADED_LOCK]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+                num_steps_loaded = (
+                    len(steps_loaded)
+                    if steps_loaded != [_STEPS_LOADED_ERROR_CODE]
+                    else 0
+                )
+                self._logger.debug(f"Steps loaded: {steps_loaded}")
 
-                message = f"⏳ Steps loaded: {steps_loaded}/{len(self.dag)}"
-                if steps_loaded > 0 and message != previous_message:
+                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}"
+                if num_steps_loaded > 0 and message != previous_message:
                     self._logger.info(message)
                     previous_message = message
 
-                if steps_loaded == len(self.dag):
+                if num_steps_loaded == len(self.dag):
                     self._logger.info("✅ All the steps have been loaded!")
                     return True
 
-                if steps_loaded == _STEPS_LOADED_ERROR_CODE:
+                if steps_loaded == [_STEPS_LOADED_ERROR_CODE]:
                     self._logger.error("❌ Failed to load all the steps")
                     return False
 
@@ -311,9 +333,14 @@ class Pipeline(BasePipeline):
             shared_info: The shared information between the processes.
         """
         for step_name in self.dag:
-            step = self.dag.get_step(step_name)["step"]
+            step: "Step" = self.dag.get_step(step_name)["step"]
             input_queue = manager.Queue()
             self.dag.set_step_attr(step.name, "input_queue", input_queue)
+
+            # Set `pipeline` to `None` as in some Python environments the pipeline is not
+            # picklable and it will raise an error when trying to send the step to the process.
+            # `TypeError: cannot pickle 'code' object`
+            step.pipeline = None
 
             process_wrapper = _ProcessWrapper(
                 step=step,
@@ -385,7 +412,7 @@ class Pipeline(BasePipeline):
         # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
         while self.output_queue.qsize() != 0:
             pass
-        self.shared_info[_STEPS_LOADED_KEY] = _STEPS_LOADED_ERROR_CODE
+        self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
         self._logger.info("🛑 Stopping pipeline...")
         self.output_queue.put(_BATCH_STOP_FLAG)
 
@@ -498,11 +525,7 @@ class _ProcessWrapper:
         `process` method of the `Step`.
         """
 
-        # Ignore KeyboardInterrupt signals in the process
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
         try:
-            self.step._logger.debug(f"Loading step '{self.step.name}'...")
             self.step.load()
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
@@ -520,7 +543,7 @@ class _ProcessWrapper:
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
         with self.shared_info[_STEPS_LOADED_LOCK]:
-            self.shared_info[_STEPS_LOADED_KEY] += 1
+            self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method

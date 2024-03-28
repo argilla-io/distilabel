@@ -59,6 +59,7 @@ class TestEvolInstruct:
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
+        task.load()
         assert list(task.process([{"instruction": "test"}])) == [
             [
                 {
@@ -78,6 +79,7 @@ class TestEvolInstruct:
             store_evolutions=True,
             pipeline=pipeline,
         )
+        task.load()
         assert list(task.process([{"instruction": "test"}])) == [
             [
                 {
@@ -97,6 +99,7 @@ class TestEvolInstruct:
             generate_answers=True,
             pipeline=pipeline,
         )
+        task.load()
         assert list(task.process([{"instruction": "test"}])) == [
             [
                 {
@@ -113,9 +116,7 @@ class TestEvolInstruct:
         task = EvolInstruct(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
-        import json
-
-        print(json.dumps(task.dump(), indent=2))
+        task.load()
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,

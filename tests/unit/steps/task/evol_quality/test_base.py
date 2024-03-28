@@ -37,6 +37,7 @@ class TestEvoQuality:
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
+        task.load()
         assert list(task.process([{"instruction": "test", "response": "mock"}])) == [
             [
                 {
@@ -57,6 +58,7 @@ class TestEvoQuality:
             store_evolutions=True,
             pipeline=pipeline,
         )
+        task.load()
         assert list(task.process([{"instruction": "test", "response": "mock"}])) == [
             [
                 {
@@ -73,6 +75,7 @@ class TestEvoQuality:
         task = EvolQuality(
             name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
         )
+        task.load()
         assert task.dump() == {
             "name": "task",
             "input_mappings": task.input_mappings,
