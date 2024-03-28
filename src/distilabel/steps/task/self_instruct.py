@@ -30,20 +30,25 @@ if TYPE_CHECKING:
 
 
 class SelfInstruct(Task):
-    """SelfInstruct is a pre-defined task that, given a number of instructions, a certain criteria for query generations,
-    an application description, and an input, generates a number of instruction related to the given input and following
-    what is stated in the criteria for query generation and the application description. It is based in the SelfInstruct
-    framework from the paper 'Self-Instruct: Aligning Language Models with Self-Generated Instructions'.
+    """SelfInstruct is a pre-defined task that, given a number of instructions, a
+    certain criteria for query generations, an application description, and an input,
+    generates a number of instruction related to the given input and following what
+    is stated in the criteria for query generation and the application description.
+    It is based in the SelfInstruct framework from the paper "Self-Instruct: Aligning
+    Language Models with Self-Generated Instructions".
+
+    Attributes:
+        num_instructions: The number of instructions to be generated. Defaults to 5.
+        criteria_for_query_generation: The criteria for the query generation. Defaults
+            to the criteria defined within the paper.
+        application_description: The description of the AI application that one want
+            to build with these instructions. Defaults to `AI assistant`.
 
     Input columns:
-        num_instructions (`int`): The number of instructions to be generated. Defaults to 5.
-        criteria_for_query_generation (`str`): The criteria for the query generation. Defaults to the criteria defined within the paper.
-        application_description (`str`): The description of the AI application that
-            one want to build with these instructions. Defaults to `AI assistant`.
-        input (`str`): The input to generate the instructions. It's also called seed in the paper
+        - input (`str`): The input to generate the instructions. It's also called seed in the paper.
 
     Output columns:
-        instructions (`List[str]`): The generated instructions.
+        - instructions (`List[str]`): The generated instructions.
 
     Reference:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
@@ -115,6 +120,8 @@ class SelfInstruct(Task):
             A dict with containing the generated instructions.
         """
 
-        return {
-            "instructions": [line for line in output.split("\n") if line != ""],
-        }
+        if output is None:
+            return {"instructions": []}
+
+        lines = [line for line in output.split("\n") if line != ""]
+        return {"instructions": lines}
