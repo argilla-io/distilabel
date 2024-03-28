@@ -31,6 +31,7 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     # Disable overly verbose loggers
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
     logging.getLogger("datasets").setLevel(logging.CRITICAL)
+    logging.getLogger("httpx").setLevel(logging.CRITICAL)
 
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
