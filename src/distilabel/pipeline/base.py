@@ -122,6 +122,8 @@ class BasePipeline(_Serializable):
         else:
             self._cache_dir = BASE_CACHE_DIR
 
+        self._logger = logging.getLogger("pipeline")
+
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
 
