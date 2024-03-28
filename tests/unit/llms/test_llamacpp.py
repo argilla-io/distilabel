@@ -17,7 +17,7 @@ import urllib.request
 from typing import Generator
 
 import pytest
-from distilabel.llm.llamacpp import LlamaCppLLM
+from distilabel.llms.llamacpp import LlamaCppLLM
 
 
 @pytest.fixture(scope="module")

@@ -17,7 +17,7 @@ from typing import Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 _ANYSCALE_API_KEY_ENV_VAR_NAME = "ANYSCALE_API_KEY"

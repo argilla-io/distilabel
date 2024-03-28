@@ -17,12 +17,12 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 
 if TYPE_CHECKING:
     from litellm import Choices
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 

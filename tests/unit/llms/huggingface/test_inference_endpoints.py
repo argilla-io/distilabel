@@ -16,7 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 
 
 @patch("huggingface_hub.AsyncInferenceClient")

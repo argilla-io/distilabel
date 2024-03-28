@@ -16,12 +16,12 @@ from typing import TYPE_CHECKING, List, Optional
 
 from pydantic import FilePath, PrivateAttr
 
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 

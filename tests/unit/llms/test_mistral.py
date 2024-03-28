@@ -12,34 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import sys
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.litellm import LiteLLM
+
+try:
+    from distilabel.llms.mistral import MistralLLM
+except ImportError:
+    MistralLLM = None
 
 
-@pytest.fixture(params=["mistral/mistral-tiny", "gpt-4"])
-def model(request) -> list:
-    return request.param
-
-
-@patch("litellm.acompletion")
-class TestLiteLLM:
-    def test_litellm_llm(self, _: MagicMock, model: str) -> None:
-        llm = LiteLLM(model=model)  # type: ignore
-        assert isinstance(llm, LiteLLM)
-        assert llm.model_name == model
+@pytest.mark.skipif(
+    sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+)
+@patch("mistralai.async_client.MistralAsyncClient")
+class TestMistralLLM:
+    def test_mistral_llm(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        assert isinstance(llm, MistralLLM)  # type: ignore
+        assert llm.model_name == "mistral-tiny"
 
     @pytest.mark.asyncio
-    async def test_agenerate(self, mock_litellm: MagicMock, model: str) -> None:
-        llm = LiteLLM(model=model)  # type: ignore
-        llm._aclient = mock_litellm
+    async def test_agenerate(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm._aclient = mock_mistral
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
             input=[
@@ -52,14 +56,14 @@ class TestLiteLLM:
         )
 
     @pytest.mark.asyncio
-    async def test_generate(self, mock_litellm: MagicMock, model: str) -> None:
-        llm = LiteLLM(model=model)  # type: ignore
-        llm._aclient = mock_litellm
+    async def test_generate(self, mock_mistral: MagicMock) -> None:
+        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
+        llm._aclient = mock_mistral
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
@@ -75,18 +79,22 @@ class TestLiteLLM:
             ]
         )
 
-    def test_serialization(self, _: MagicMock, model: str) -> None:
-        llm = LiteLLM(model=model)  # type: ignore
+    def test_serialization(self, mock_mistral: MagicMock) -> None:
+        os.environ["MISTRAL_API_KEY"] = "api.key"
+        llm = MistralLLM(model="mistral-tiny")  # type: ignore
 
         _dump = {
-            "model": model,
-            "verbose": False,
-            "type_info": {
-                "module": "distilabel.llm.litellm",
-                "name": "LiteLLM",
-            },
+            "model": "mistral-tiny",
+            "endpoint": "https://api.mistral.ai",
             "generation_kwargs": {},
+            "max_retries": 5,
+            "timeout": 120,
+            "max_concurrent_requests": 64,
+            "type_info": {
+                "module": "distilabel.llm.mistral",
+                "name": "MistralLLM",
+            },
         }
 
         assert llm.dump() == _dump
-        assert isinstance(LiteLLM.from_dict(_dump), LiteLLM)
+        assert isinstance(MistralLLM.from_dict(_dump), MistralLLM)  # type: ignore

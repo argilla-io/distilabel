@@ -17,13 +17,13 @@ from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"

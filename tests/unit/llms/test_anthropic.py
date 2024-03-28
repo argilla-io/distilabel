@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.anthropic import AnthropicLLM
+from distilabel.llms.anthropic import AnthropicLLM
 
 
 @patch("anthropic.AsyncAnthropic")

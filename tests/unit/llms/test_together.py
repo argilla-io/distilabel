@@ -15,16 +15,16 @@
 import os
 from unittest import mock
 
-from distilabel.llm import together
+from distilabel.llms.together import TogetherLLM
 
 
 class TestTogetherLLM:
     model_id: str = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
     def test_together_llm(self) -> None:
-        llm = together.TogetherLLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm = TogetherLLM(model=self.model_id, api_key="api.key")  # type: ignore
 
-        assert isinstance(llm, together.TogetherLLM)
+        assert isinstance(llm, TogetherLLM)
         assert llm.model_name == self.model_id
 
     def test_together_llm_env_vars(self) -> None:
@@ -32,15 +32,15 @@ class TestTogetherLLM:
             os.environ["TOGETHER_API_KEY"] = "another.api.key"
             os.environ["TOGETHER_BASE_URL"] = "https://example.com"
 
-            llm = together.TogetherLLM(model=self.model_id)
+            llm = TogetherLLM(model=self.model_id)
 
-            assert isinstance(llm, together.TogetherLLM)
+            assert isinstance(llm, TogetherLLM)
             assert llm.model_name == self.model_id
             assert llm.base_url == "https://example.com"
             assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
 
     def test_serialization(self) -> None:
-        llm = together.TogetherLLM(model=self.model_id)
+        llm = TogetherLLM(model=self.model_id)
 
         _dump = {
             "model": self.model_id,
@@ -53,4 +53,4 @@ class TestTogetherLLM:
         }
 
         assert llm.dump() == _dump
-        assert isinstance(together.TogetherLLM.from_dict(_dump), together.TogetherLLM)
+        assert isinstance(TogetherLLM.from_dict(_dump), TogetherLLM)

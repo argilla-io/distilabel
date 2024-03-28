@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-from distilabel.llm.vertexai import VertexAILLM
+from distilabel.llms.vertexai import VertexAILLM
 from vertexai.generative_models import (
     Content,
     GenerationConfig,
@@ -86,7 +86,7 @@ class TestVertexAILLM:
         with pytest.raises(
             ValueError, match="`VertexAILLM only supports the roles 'user' or 'model'."
         ):
-            await llm.generate(
+            llm.generate(
                 inputs=[
                     [
                         {"role": "system", "content": ""},

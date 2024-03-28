@@ -12,3 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+from distilabel.llms.huggingface.transformers import TransformersLLM
+
+__all__ = ["InferenceEndpointsLLM", "TransformersLLM"]

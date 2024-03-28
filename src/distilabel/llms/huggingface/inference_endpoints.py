@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 from pydantic import Field, PrivateAttr, SecretStr, ValidationError, model_validator
 from typing_extensions import override
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from openai import AsyncOpenAI
     from transformers import PreTrainedTokenizer
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"

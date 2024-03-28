@@ -30,14 +30,14 @@ from httpx import AsyncClient
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
@@ -49,7 +49,8 @@ class AnthropicLLM(AsyncLLM):
     Attributes:
         model: the model name to use for the LLM.
         api_key: the API key to authenticate the requests to the Anthropic API.
-        base_url: the base URL to use for the Anthropic API. Defaults to `None` which means that `https://api.anthropic.com` will be used internally.
+        base_url: the base URL to use for the Anthropic API. Defaults to `None` which
+            means that `https://api.anthropic.com` will be used internally.
         http_client: the HTTP client to use for the Anthropic API. Defaults to None.
         timeout: the maximum time in seconds to wait for a response. Defaults to 600.0.
         max_retries: the maximum number of retries for the LLM. Defaults to 2.

@@ -19,14 +19,14 @@ from typing import TYPE_CHECKING, Any, List, Optional
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from mistralai.async_client import MistralAsyncClient
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"

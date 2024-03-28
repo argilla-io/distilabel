@@ -31,7 +31,7 @@ from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
-    from distilabel.llm.typing import GenerateOutput, HiddenState
+    from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.task.typing import ChatType
     from distilabel.utils.docstring import Docstring

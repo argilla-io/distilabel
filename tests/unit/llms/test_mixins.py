@@ -19,8 +19,8 @@ from typing import TYPE_CHECKING, Any, Generator, List, Union
 from unittest import mock
 
 import pytest
-from distilabel.llm.base import LLM
-from distilabel.llm.mixins import CudaDevicePlacementMixin
+from distilabel.llms.base import LLM
+from distilabel.llms.mixins import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from distilabel.steps.task.typing import ChatType
@@ -86,7 +86,7 @@ class TestCudaDevicePlacementMixin:
             llm.set_device_placement_info(
                 llm_identifier="unit-test",
                 device_llm_placement_map=manager.dict(),
-                device_llm_placement_lock=manager.Lock(),
+                device_llm_placement_lock=manager.Lock(),  # type: ignore
             )
 
         assert llm._llm_identifier == "unit-test"
@@ -101,7 +101,7 @@ class TestCudaDevicePlacementMixin:
             llm1.set_device_placement_info(
                 llm_identifier="unit-test-1",
                 device_llm_placement_map=device_llm_placement_map,
-                device_llm_placement_lock=lock,
+                device_llm_placement_lock=lock,  # type: ignore
             )
             llm1.load()
 
@@ -111,7 +111,7 @@ class TestCudaDevicePlacementMixin:
             llm2.set_device_placement_info(
                 llm_identifier="unit-test-2",
                 device_llm_placement_map=device_llm_placement_map,
-                device_llm_placement_lock=lock,
+                device_llm_placement_lock=lock,  # type: ignore
             )
             llm2.load()
 
@@ -131,7 +131,7 @@ class TestCudaDevicePlacementMixin:
                     llm.set_device_placement_info(
                         llm_identifier=f"unit-test-{i}",
                         device_llm_placement_map=device_llm_placement_map,
-                        device_llm_placement_lock=lock,
+                        device_llm_placement_lock=lock,  # type: ignore
                     )
                     llm.load()
 
@@ -144,7 +144,7 @@ class TestCudaDevicePlacementMixin:
             llm1.set_device_placement_info(
                 llm_identifier="unit-test-1",
                 device_llm_placement_map=device_llm_placement_map,
-                device_llm_placement_lock=lock,
+                device_llm_placement_lock=lock,  # type: ignore
             )
             llm1.load()
 
@@ -152,7 +152,7 @@ class TestCudaDevicePlacementMixin:
             llm2.set_device_placement_info(
                 llm_identifier="unit-test-2",
                 device_llm_placement_map=device_llm_placement_map,
-                device_llm_placement_lock=lock,
+                device_llm_placement_lock=lock,  # type: ignore
             )
             llm2.load()
 

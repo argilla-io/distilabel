@@ -15,7 +15,7 @@
 from typing import Generator
 
 import pytest
-from distilabel.llm.huggingface.transformers import TransformersLLM
+from distilabel.llms.huggingface.transformers import TransformersLLM
 
 
 # load the model just once for all the tests in the module

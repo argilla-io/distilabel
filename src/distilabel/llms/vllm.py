@@ -16,15 +16,15 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import LLM
-from distilabel.llm.constants import CHATML_TEMPLATE
-from distilabel.llm.mixins import CudaDevicePlacementMixin
+from distilabel.llms.base import LLM
+from distilabel.llms.chat_templates import CHATML_TEMPLATE
+from distilabel.llms.mixins import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 SamplingParams = None

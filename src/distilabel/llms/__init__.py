@@ -12,24 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llm.anthropic import AnthropicLLM
-from distilabel.llm.anyscale import AnyscaleLLM
-from distilabel.llm.litellm import LiteLLM
-from distilabel.llm.llamacpp import LlamaCppLLM
-from distilabel.llm.mistral import MistralLLM
-from distilabel.llm.ollama import OllamaLLM
-from distilabel.llm.together import TogetherLLM
-from distilabel.llm.vertexai import VertexAILLM
-from distilabel.llm.vllm import vLLM
+from distilabel.llms.anthropic import AnthropicLLM
+from distilabel.llms.anyscale import AnyscaleLLM
+from distilabel.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
+from distilabel.llms.litellm import LiteLLM
+from distilabel.llms.llamacpp import LlamaCppLLM
+from distilabel.llms.mistral import MistralLLM
+from distilabel.llms.ollama import OllamaLLM
+from distilabel.llms.together import TogetherLLM
+from distilabel.llms.vertexai import VertexAILLM
+from distilabel.llms.vllm import vLLM
 
 __all__ = [
     "AnthropicLLM",
     "AnyscaleLLM",
+    "InferenceEndpointsLLM",
     "LiteLLM",
     "LlamaCppLLM",
     "MistralLLM",
     "OllamaLLM",
     "TogetherLLM",
+    "TransformersLLM",
     "VertexAILLM",
     "vLLM",
 ]

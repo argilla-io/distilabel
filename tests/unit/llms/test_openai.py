@@ -13,37 +13,45 @@
 # limitations under the License.
 
 import os
-import sys
+from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
-
-try:
-    from distilabel.llm.mistral import MistralLLM
-except ImportError:
-    pass
+from distilabel.llms.openai import OpenAILLM
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
-)
-@patch("mistralai.async_client.MistralAsyncClient")
-class TestMistralLLM:
-    def test_mistral_llm(self, mock_mistral: MagicMock) -> None:
-        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
-        assert isinstance(llm, MistralLLM)
-        assert llm.model_name == "mistral-tiny"
+@patch("openai.AsyncOpenAI")
+class TestOpenAILLM:
+    model_id: str = "gpt-4"
+
+    def test_openai_llm(self, _: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+
+        assert isinstance(llm, OpenAILLM)
+        assert llm.model_name == self.model_id
+
+    def test_openai_llm_env_vars(self, _: MagicMock) -> None:
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["OPENAI_API_KEY"] = "another.api.key"
+            os.environ["OPENAI_BASE_URL"] = "https://example.com"
+
+            llm = OpenAILLM(model=self.model_id)
+
+            assert isinstance(llm, OpenAILLM)
+            assert llm.model_name == self.model_id
+            assert llm.base_url == "https://example.com"
+            assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
 
     @pytest.mark.asyncio
-    async def test_agenerate(self, mock_mistral: MagicMock) -> None:
-        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
-        llm._aclient = mock_mistral
+    async def test_agenerate(self, mock_openai: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = mock_openai
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
         await llm.agenerate(
             input=[
@@ -56,14 +64,14 @@ class TestMistralLLM:
         )
 
     @pytest.mark.asyncio
-    async def test_generate(self, mock_mistral: MagicMock) -> None:
-        llm = MistralLLM(model="mistral-tiny", api_key="api.key")  # type: ignore
-        llm._aclient = mock_mistral
+    async def test_generate(self, mock_openai: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
+        llm._aclient = mock_openai
 
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
         nest_asyncio.apply()
 
@@ -79,22 +87,18 @@ class TestMistralLLM:
             ]
         )
 
-    def test_serialization(self, mock_mistral: MagicMock) -> None:
-        os.environ["MISTRAL_API_KEY"] = "api.key"
-        llm = MistralLLM(model="mistral-tiny")  # type: ignore
+    def test_serialization(self, _: MagicMock) -> None:
+        llm = OpenAILLM(model=self.model_id)
 
         _dump = {
-            "model": "mistral-tiny",
-            "endpoint": "https://api.mistral.ai",
+            "model": self.model_id,
             "generation_kwargs": {},
-            "max_retries": 5,
-            "timeout": 120,
-            "max_concurrent_requests": 64,
+            "base_url": "https://api.openai.com/v1",
             "type_info": {
-                "module": "distilabel.llm.mistral",
-                "name": "MistralLLM",
+                "module": "distilabel.llm.openai",
+                "name": "OpenAILLM",
             },
         }
 
         assert llm.dump() == _dump
-        assert isinstance(MistralLLM.from_dict(_dump), MistralLLM)
+        assert isinstance(OpenAILLM.from_dict(_dump), OpenAILLM)

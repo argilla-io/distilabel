@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, List, Optional, Type
 
 from pydantic import PrivateAttr
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         Tool,
     )
 
-    from distilabel.llm.typing import GenerateOutput
+    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.task.typing import ChatType
 
 
