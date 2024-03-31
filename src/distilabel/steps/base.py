@@ -119,7 +119,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
     def connect(
         self, step: "_Step", input_mappings: Union[Dict[str, str], None] = None
-    ) -> None:
+    ) -> "_Step":
         """Connects the current step to another step in the pipeline, which means that
         the output of this step will be the input of the other step.
 
@@ -130,17 +130,37 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                 columns will be mapped by name. This is useful when the names of the
                 output columns of the current step are different from the names of the
                 input columns of the other step. Defaults to `None`.
+
+        Returns:
+            The step connected, to allow nested calls to the `connect` method.
         """
         if input_mappings is not None:
             step.input_mappings = input_mappings
         self.pipeline._add_edge(self.name, step.name)  # type: ignore
+        return step
+
+    def __rshift__(self, step: "_Step") -> "_Step":
+        """Allows using the `>>` operator to connect steps in the pipeline.
+
+        Args:
+            step: The step to connect to.
+
+        Returns:
+            The connected step
+
+        Example:
+            ```python
+            step1 >> step2
+            # Would be equivalent to:
+            step1.connect(step2)
+            ```
+        """
+        return self.connect(step)
 
     def load(self) -> None:
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
-        # self._logger = logging.getLogger(f"step.{self.name}")
-        # self._logger.info("WHY THE FUCK IS THIS NOT WORKING")
         self._logger = logging.getLogger(f"step.{self.name}")
 
     @property
