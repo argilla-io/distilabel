@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from distilabel.distiset import Distiset, create_distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.base import (
@@ -31,7 +32,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GlobalStep, Step, StepInput
-from distilabel.utils.distiset import Distiset, create_distiset
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from pydantic import Field
 

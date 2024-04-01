@@ -16,8 +16,8 @@ import os
 from typing import TYPE_CHECKING, List
 
 import pytest
-from distilabel.integrations.argilla.base import Argilla
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
 from pydantic import ValidationError
 
@@ -143,7 +143,7 @@ class TestArgilla:
                 },
             ],
             "type_info": {
-                "module": "tests.unit.integrations.argilla.test_base",
+                "module": "tests.unit.steps.argilla.test_base",
                 "name": "CustomArgilla",
             },
         }
