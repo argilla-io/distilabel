@@ -14,9 +14,10 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
-from pydantic import FilePath, PrivateAttr
+from pydantic import Field, FilePath, PrivateAttr
 
 from distilabel.llm.base import LLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama
@@ -28,19 +29,34 @@ if TYPE_CHECKING:
 class LlamaCppLLM(LLM):
     """llama.cpp LLM implementation running the Python bindings for the C++ code.
 
-    Args:
+    Attributes:
+        chat_format: the chat format to use for the model. Defaults to `chatml`.
         model_path: contains the path to the GGUF quantized model, compatible with the
             installed version of the `llama.cpp` Python bindings.
-        chat_format: the chat format to use for the model. Defaults to `chatml`.
         n_gpu_layers: the number of layers to use for the GPU. Defaults to `-1`, meaning that
             the available GPU device will be used.
         verbose: whether to print verbose output. Defaults to `False`.
+        _model: the Llama model instance. This attribute is meant to be used internally and
+            should not be accessed directly. It will be set in the `load` method.
+
+    Runtime parameters:
+        - `model_path`: the path to the GGUF quantized model.
+        - `n_gpu_layers`: the number of layers to use for the GPU. Defaults to `-1`.
+        - `verbose`: whether to print verbose output. Defaults to `False`.
     """
 
-    model_path: FilePath
     chat_format: str = "chatml"
-    n_gpu_layers: int = -1
-    verbose: bool = False
+    model_path: RuntimeParameter[FilePath] = Field(
+        default=None, description="The path to the GGUF quantized model."
+    )
+    n_gpu_layers: RuntimeParameter[int] = Field(
+        default=-1,
+        description="The number of layers that will be loaded in the GPU.",
+    )
+    verbose: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to print verbose output from llama.cpp library.",
+    )
 
     _model: Optional["Llama"] = PrivateAttr(...)
 

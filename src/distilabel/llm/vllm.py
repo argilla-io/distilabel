@@ -14,11 +14,12 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.llm.base import LLM
 from distilabel.llm.constants import CHATML_TEMPLATE
 from distilabel.llm.mixins import CudaDevicePlacementMixin
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -42,10 +43,23 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             sending them to the model. If not provided, the chat template defined in the
             tokenizer config will be used. If not provided and the tokenizer doesn't have
             a chat template, then ChatML template will be used. Defaults to `None`.
+        _model: the `vLLM` model instance. This attribute is meant to be used internally
+            and should not be accessed directly. It will be set in the `load` method.
+        _tokenizer: the tokenizer instance used to format the prompt before passing it to
+            the `LLM`. This attribute is meant to be used internally and should not be
+            accessed directly. It will be set in the `load` method.
+
+    Runtime parameters:
+        - `model_kwargs`: additional dictionary of keyword arguments that will be passed to
+            the `LLM` class of `vllm` library.
     """
 
     model: str
-    model_kwargs: Optional[Dict[str, Any]] = {}
+    model_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="Additional dictionary of keyword arguments that will be passed to the"
+        " `LLM` class of `vllm` library.",
+    )
     chat_template: Optional[str] = None
 
     _model: Optional["_vLLM"] = PrivateAttr(...)

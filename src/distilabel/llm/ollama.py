@@ -28,18 +28,25 @@ if TYPE_CHECKING:
 class OllamaLLM(AsyncLLM):
     """Ollama LLM implementation running the Async API client.
 
-    Args:
+    Attributes:
         model: the model name to use for the LLM e.g. "notus".
-        host: the host to use for the LLM e.g. "https://ollama.com".
-        max_retries: the maximum number of retries for the LLM.
-        timeout: the timeout for the LLM.
+        host: the Ollama server host.
+        timeout: the timeout for the LLM. Defaults to `120`.
+        _aclient: the `AsyncClient` to use for the Ollama API. It is meant to be used internally.
+            Set in the `load` method.
+
+    Runtime parameters:
+        - `host`: the Ollama server host.
+        - `timeout`: the client timeout for the Ollama API. Defaults to `120`.
     """
 
     model: str
     host: Optional[RuntimeParameter[str]] = Field(
         default=None, description="The host of the Ollama API."
     )
-    timeout: int = 120
+    timeout: RuntimeParameter[int] = Field(
+        default=120, description="The timeout for the Ollama API."
+    )
     follow_redirects: bool = True
 
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
