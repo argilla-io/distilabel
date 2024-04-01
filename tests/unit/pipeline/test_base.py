@@ -100,6 +100,12 @@ class TestBasePipeline:
         assert pipeline.get_runtime_parameters_info() == {
             "dummy_step_1": [
                 {
+                    "description": "The number of rows that will contain the batches processed by the "
+                    "step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+                {
                     "name": "runtime_param1",
                     "description": "runtime_param1 description",
                     "optional": False,
@@ -111,6 +117,12 @@ class TestBasePipeline:
                 },
             ],
             "dummy_step_2": [
+                {
+                    "description": "The number of rows that will contain the batches processed by the "
+                    "step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
                 {
                     "name": "runtime_param3",
                     "description": "runtime_param3 description",
@@ -1024,7 +1036,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_step_2)
 
         signature = pipeline._create_signature()
-        assert signature == "9da791477eab8cab62c09af59fb08ac42e039ce5"
+        assert signature == "81ed33f28947896a2601a0eea1b3637712f33e36"
 
     @pytest.mark.parametrize("use_cache", [True, False])
     def test_run_pipe_and_load_from_cache(self, use_cache: bool):

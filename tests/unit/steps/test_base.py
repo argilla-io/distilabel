@@ -102,6 +102,7 @@ class TestStep:
         )  # type: ignore
 
         assert step.runtime_parameters_names == {
+            "input_batch_size": True,
             "runtime_param1": False,
             "runtime_param2": True,
             "runtime_param3": True,
@@ -242,7 +243,13 @@ class TestStepSerialization:
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
-            "runtime_parameters_info": [],
+            "runtime_parameters_info": [
+                {
+                    "description": "The number of rows that will contain the batches processed by the step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+            ],
             TYPE_INFO_KEY: {
                 "module": "tests.unit.steps.test_base",
                 "name": "DummyStep",

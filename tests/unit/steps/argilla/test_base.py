@@ -132,6 +132,11 @@ class TestArgilla:
             "api_url": "https://example.com",
             "runtime_parameters_info": [
                 {
+                    "description": "The number of rows that will contain the batches processed by the step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+                {
                     "name": "api_url",
                     "optional": True,
                     "description": "The base URL to use for the Argilla API requests.",
