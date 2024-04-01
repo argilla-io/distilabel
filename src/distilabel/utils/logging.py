@@ -25,20 +25,34 @@ if TYPE_CHECKING:
     from queue import Queue
 
 
+_SILENT_LOGGERS = [
+    "datasets",
+    "httpx",
+    "openai._base_client",
+    "httpcore.http11",
+    "httpcore.connection",
+    "urllib3.connectionpool",
+    "filelock",
+    "fsspec",
+    "asyncio",
+]
+
+
 def setup_logging(log_queue: "Queue[Any]") -> None:
     """Sets up logging to use a queue across all processes."""
 
     # Disable overly verbose loggers
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
-    logging.getLogger("datasets").setLevel(logging.CRITICAL)
-    logging.getLogger("httpx").setLevel(logging.CRITICAL)
+    for logger in _SILENT_LOGGERS:
+        logging.getLogger(logger).setLevel(logging.CRITICAL)
 
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
     if mp.current_process().name == "MainProcess":
-        # Only in the main process, set up a listener to handle logs from the queue
-        handlers = [RichHandler(rich_tracebacks=True)]
-        queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
+        formatter = logging.Formatter("['%(name)s'] %(message)s")
+        handler = RichHandler(rich_tracebacks=True)
+        handler.setFormatter(formatter)
+        queue_listener = QueueListener(log_queue, handler, respect_handler_level=False)
         queue_listener.start()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()

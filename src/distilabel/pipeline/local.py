@@ -33,7 +33,6 @@ if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep
     from distilabel.utils.distiset import Distiset
 
-_BATCH_STOP_FLAG = "__STOP__"
 
 _STEPS_LOADED_KEY = "steps_loaded"
 _STEPS_LOADED_LOCK = "steps_loaded_lock"
@@ -145,15 +144,13 @@ class Pipeline(BasePipeline):
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
         while self._batch_manager.can_generate():  # type: ignore
-            self._logger.debug("🫷Waiting for output batch from step...")
-            if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG or batch is None:
-                self._logger.debug(
-                    "Received `_BATCH_STOP_FLAG` from output queue. Breaking loop."
-                )
+            self._logger.debug("Waiting for output batch from step...")
+            if (batch := self.output_queue.get()) is None:
+                self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
             self._logger.debug(
-                f"🧤Received {batch.seq_no} from step '{batch.step_name}' from output"
+                f"Received {batch.seq_no} from step '{batch.step_name}' from output"
                 f" queue: {batch}"
             )
 
@@ -388,33 +385,51 @@ class Pipeline(BasePipeline):
         self._stop()
 
     def _stop(self) -> None:
-        """Stops the pipeline execution. It will first send the `_BATCH_STOP_FLAG` to the
-        input queues of all the steps and then wait until the output queue is empty i.e.
-        all the steps finished processing the batches that were sent before the stop flag.
-        Then it will send the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline
-        to stop."""
+        """Stops the pipeline execution. It will first send `None` to the input queues
+        of all the steps and then wait until the output queue is empty i.e. all the steps
+        finished processing the batches that were sent before the stop flag. Then it will
+        send `None` to the output queue to notify the pipeline to stop."""
 
         global _STOP_CALLED
 
         with _STOP_CALLED_LOCK:
             if _STOP_CALLED:
+                self._logger.warning(
+                    "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
+                    " for the pipeline to finish..."
+                )
                 return
             _STOP_CALLED = True
 
+        self._logger.info("🛑 Stopping pipeline...")
+
+        # Send `None` to the input queues of all the steps
         for step_name in self.dag:
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
-                input_queue.put(_BATCH_STOP_FLAG)
+                input_queue.put(None)
+                self._logger.debug(f"Send `None` to step '{step_name}' input queue.")
+
+        # Wait until all the steps finish processing the batches that were sent before
+        for step_name in self.dag:
+            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+                while input_queue.qsize() != 0:
+                    pass
                 self._logger.debug(
-                    f"Send `_BATCH_STOP_FLAG` to step '{step_name}' input queue."
+                    f"Remaining tasks in input queue of step '{step_name}':"
+                    f" {input_queue.qsize()}"
                 )
+
         # Wait until the output queue is empty which means that all the steps finished
-        # processing the batches that were sent before the `_BATCH_STOP_FLAG`. Then send
-        # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
+        # processing the batches that were sent before `None`. Then send `None` to the
+        # output queue to notify the pipeline to stop.
         while self.output_queue.qsize() != 0:
             pass
+        self._logger.debug(
+            f"Remaining tasks in output queue: {self.output_queue.qsize()}"
+        )
         self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
-        self._logger.info("🛑 Stopping pipeline...")
-        self.output_queue.put(_BATCH_STOP_FLAG)
+        self.output_queue.put(None)
+        self._logger.debug("Sent `None` to output queue to stop pipeline.")
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -425,10 +440,6 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._logger.info(
-                "🚨 CTRL+C signal, waiting steps to finish processing and stopping"
-                " pipeline..."
-            )
             self._stop()
 
         signal.signal(signal.SIGINT, signal_handler)
@@ -560,7 +571,7 @@ class _ProcessWrapper:
         step = cast("GeneratorStep", self.step)
 
         try:
-            if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+            if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
                     f"🛑 Stopping yielding batches from step '{self.step.name}'"
                 )
@@ -584,7 +595,7 @@ class _ProcessWrapper:
                 self.step._logger.debug(
                     f"Step '{self.step.name}' waiting for next batch request..."
                 )
-                if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+                if (batch := self.input_queue.get()) is None:
                     self.step._logger.info(
                         f"🛑 Stopping yielding batches from step '{self.step.name}'"
                     )
@@ -607,7 +618,7 @@ class _ProcessWrapper:
                 `process` method and the step is global.
         """
         while True:
-            if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+            if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
                     f"🛑 Stopping processing batches from step '{self.step.name}'"
                 )
