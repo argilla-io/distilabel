@@ -88,6 +88,7 @@ nav:
       - 🧼 Clean an existing preference dataset: tutorials/clean-preference-dataset-judgelm-gpt.ipynb
       - 🧮 Create a mathematical preference dataset : tutorials/create-a-math-preference-dataset.ipynb
       - 🦒 Improving Text Embeddings with LLMs : tutorials/improving-text-embeddings-with-llms.ipynb
+      - 🧙 Create an evol-instruct dataset : tutorials/create-evol-instruct-dataset.ipynb
   - Technical References:
       - Concept Guides:
           - technical-reference/index.md
