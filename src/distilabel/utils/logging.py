@@ -17,7 +17,7 @@ import multiprocessing as mp
 import os
 import warnings
 from logging.handlers import QueueHandler, QueueListener
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 
 from rich.logging import RichHandler
 
@@ -37,9 +37,12 @@ _SILENT_LOGGERS = [
     "asyncio",
 ]
 
+queue_listener: Union[QueueListener, None] = None
+
 
 def setup_logging(log_queue: "Queue[Any]") -> None:
     """Sets up logging to use a queue across all processes."""
+    global queue_listener
 
     # Disable overly verbose loggers
     logging.getLogger("argilla.client.feedback.dataset.local.mixins").disabled = True
@@ -66,3 +69,11 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
+
+
+def stop_logging() -> None:
+    """Stops the `QueueListener` if it's running."""
+    global queue_listener
+    if queue_listener is not None:
+        queue_listener.stop()
+        queue_listener = None

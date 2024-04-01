@@ -23,7 +23,7 @@ from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
 from distilabel.utils.distiset import create_distiset
-from distilabel.utils.logging import setup_logging
+from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
@@ -117,6 +117,7 @@ class Pipeline(BasePipeline):
             if not self._all_steps_loaded():
                 write_buffer.close()
                 self._batch_manager = None
+                stop_logging()
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 )
@@ -132,9 +133,11 @@ class Pipeline(BasePipeline):
             pool.join()
 
         write_buffer.close()
-        return create_distiset(
+        distiset = create_distiset(
             self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
         )
+        stop_logging()
+        return distiset
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
