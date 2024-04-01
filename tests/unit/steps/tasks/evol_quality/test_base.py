@@ -22,7 +22,7 @@ from distilabel.steps.tasks.evol_quality.utils import MUTATION_TEMPLATES
 from pydantic import ValidationError
 
 
-class TestEvoQuality:
+class TestEvolQuality:
     def test_with_errors(self, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
@@ -96,6 +96,11 @@ class TestEvoQuality:
             "include_original_response": task.include_original_response,
             "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "description": "The number of rows that will contain the batches processed by the step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
                 {
                     "name": "llm",
                     "runtime_parameters_info": [

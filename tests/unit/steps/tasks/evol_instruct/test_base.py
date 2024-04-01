@@ -145,6 +145,11 @@ class TestEvolInstruct:
             "seed": task.seed,
             "runtime_parameters_info": [
                 {
+                    "description": "The number of rows that will contain the batches processed by the step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+                {
                     "name": "llm",
                     "runtime_parameters_info": [
                         {
