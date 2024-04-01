@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.steps.argilla.preference import PreferenceToArgilla
+from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step
 from distilabel.steps.combine import CombineColumns
 from distilabel.steps.conversation import ConversationTemplate
@@ -25,6 +27,8 @@ from distilabel.steps.keep import KeepColumns
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
+    "PreferenceToArgilla",
+    "TextGenerationToArgilla",
     "CombineColumns",
     "ConversationTemplate",
     "DeitaFiltering",
