@@ -164,7 +164,7 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
         The dataset created from the buffer folder, where the different leaf steps will
         correspond to different configurations of the dataset.
     """
-    logger = logging.getLogger("distiset")
+    logger = logging.getLogger("distilabel.distiset")
 
     distiset = Distiset()
     for file in data_dir.iterdir():
@@ -172,11 +172,16 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
             continue
 
         try:
-            distiset[file.stem] = load_dataset(
-                "parquet",
-                name=file.stem,
-                data_files={"train": [str(f) for f in list_files_in_dir(file)]},
-            )
+            files = [str(file) for file in list_files_in_dir(file)]
+            if files:
+                distiset[file.stem] = load_dataset(
+                    "parquet", name=file.stem, data_files={"train": files}
+                )
+            else:
+                logger.warning(
+                    f"No output files for step '{file.stem}', can't create a dataset."
+                    " Did the step produce any data?"
+                )
         except ArrowInvalid:
             logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue

@@ -139,9 +139,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
-        # self._logger = logging.getLogger(f"step.{self.name}")
-        # self._logger.info("WHY THE FUCK IS THIS NOT WORKING")
-        self._logger = logging.getLogger(f"step.{self.name}")
+        self._logger = logging.getLogger(f"distilabel.step.{self.name}")
 
     @property
     def is_generator(self) -> bool:
