@@ -122,7 +122,7 @@ class GraphvizMixin:
                     "splines": "ortho",
                     # The name of the Pipeline that will be shown on the top of the graph
                     "label": self.name,
-                    "pad": "2.0",
+                    "pad": "0.5",
                     "nodesep": "0.60",
                     "ranksep": "0.5",
                     "fontname": "Sans-Serif",
