@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, List, Optional, Type
 from pydantic import PrivateAttr
 
 from distilabel.llms.base import AsyncLLM
-from distilabel.utils.logging import get_logger
 
 if TYPE_CHECKING:
     from vertexai.generative_models import (
@@ -66,10 +65,10 @@ class VertexAILLM(AsyncLLM):
     _content_class: Optional[Type["Content"]] = PrivateAttr(...)
     _part_class: Optional[Type["Part"]] = PrivateAttr(...)
     _generation_config_class: Optional["GenerationConfig"] = PrivateAttr(...)
-    _logger = PrivateAttr(default=get_logger("llm"))
 
     def load(self) -> None:
         """Loads the `GenerativeModel` class which has access to `generate_content_async` to benefit from async requests."""
+        super().load()
 
         try:
             from vertexai.generative_models import (

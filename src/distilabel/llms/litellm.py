@@ -40,7 +40,10 @@ class LiteLLM(AsyncLLM):
     _aclient: Optional["Callable"] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the `acompletion` LiteLLM client to benefit from async requests."""
+        """
+        Loads the `acompletion` LiteLLM client to benefit from async requests.
+        """
+        super().load()
 
         try:
             import litellm

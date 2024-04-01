@@ -46,6 +46,8 @@ class OllamaLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncClient` to use Ollama async API."""
+        super().load()
+
         try:
             from ollama import AsyncClient
 

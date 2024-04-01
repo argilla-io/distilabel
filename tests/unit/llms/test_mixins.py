@@ -40,6 +40,7 @@ def mock_pynvml() -> Generator[None, None, None]:
 
 class DummyCudaLLM(LLM, CudaDevicePlacementMixin):
     def load(self) -> None:
+        super().load()
         CudaDevicePlacementMixin.load(self)
 
     @property

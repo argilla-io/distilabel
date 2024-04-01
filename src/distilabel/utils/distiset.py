@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import re
 from pathlib import Path
 from typing import Optional
@@ -25,9 +26,6 @@ from distilabel.utils.card.dataset_card import (
     size_categories_parser,
 )
 from distilabel.utils.files import list_files_in_dir
-from distilabel.utils.logging import get_logger
-
-logger = get_logger("utils.distiset")
 
 
 class Distiset(dict):
@@ -166,17 +164,24 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
         The dataset created from the buffer folder, where the different leaf steps will
         correspond to different configurations of the dataset.
     """
+    logger = logging.getLogger("distilabel.distiset")
+
     distiset = Distiset()
     for file in data_dir.iterdir():
         if file.is_file():
             continue
 
         try:
-            distiset[file.stem] = load_dataset(
-                "parquet",
-                name=file.stem,
-                data_files={"train": [str(f) for f in list_files_in_dir(file)]},
-            )
+            files = [str(file) for file in list_files_in_dir(file)]
+            if files:
+                distiset[file.stem] = load_dataset(
+                    "parquet", name=file.stem, data_files={"train": files}
+                )
+            else:
+                logger.warning(
+                    f"No output files for step '{file.stem}', can't create a dataset."
+                    " Did the step produce any data?"
+                )
         except ArrowInvalid:
             logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue

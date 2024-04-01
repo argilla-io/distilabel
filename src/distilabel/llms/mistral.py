@@ -61,6 +61,7 @@ class MistralLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `MistralAsyncClient` client to benefit from async requests."""
+        super().load()
 
         try:
             from mistralai.async_client import MistralAsyncClient

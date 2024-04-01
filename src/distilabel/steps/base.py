@@ -24,11 +24,12 @@ from typing_extensions import Annotated
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
 from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
-from distilabel.utils.logging import get_logger
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
+    from logging import Logger
+
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -99,7 +100,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     output_mappings: Dict[str, str] = {}
 
     _built_from_decorator: bool = PrivateAttr(default=False)
-    _logger: logging.Logger = PrivateAttr(get_logger("steps"))
+    _logger: Union["Logger", None] = PrivateAttr(...)
 
     def model_post_init(self, __context: Any) -> None:
         super().model_post_init(__context)
@@ -138,7 +139,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
-        pass
+        self._logger = logging.getLogger(f"distilabel.step.{self.name}")
 
     @property
     def is_generator(self) -> bool:
