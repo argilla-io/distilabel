@@ -64,6 +64,7 @@ tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 together = ["together"]
 vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
+graphviz = ["graphviz >= 0.20.3"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
