@@ -47,22 +47,4 @@ will create a `labeller` LLM using `OpenAILLM` with the `UltraFeedback` task for
 
 For a more complete example, check out our awesome tutorials in the docs or the example below:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb) [![Open Source in Github](https://img.shields.io/badge/github-view%20source-black.svg)](https://github.com/argilla-io/distilabel/blob/main/docs/tutorials/pipeline-notus-instructions-preferences-legal.ipynb)
 
-## Navigation
-
-<div class="grid cards" markdown>
-
--   <p align="center"> [**Concept Guides**](./technical-reference/llms.md)</p>
-
-    ---
-
-    Understand the components and their interactions.
-
--   <p align="center"> [**API Reference**](./reference/distilabel/index.md)</p>
-
-    ---
-
-    Technical description of the classes and functions.
-
-</div>
