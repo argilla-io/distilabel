@@ -172,7 +172,7 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
             continue
 
         try:
-            files = list_files_in_dir(file)
+            files = [str(file) for file in list_files_in_dir(file)]
             if files:
                 distiset[file.stem] = load_dataset(
                     "parquet", name=file.stem, data_files={"train": files}
