@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from pydantic import Field, FilePath, PrivateAttr
 
-from distilabel.llm.base import LLM
+from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:

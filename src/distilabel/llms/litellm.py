@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 from pydantic import Field, PrivateAttr
 
-from distilabel.llm.base import AsyncLLM
+from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:

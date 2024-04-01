@@ -139,7 +139,7 @@ class EvolInstructGenerator(GeneratorTask):
         """
         _path = str(
             importlib_resources.files("distilabel")
-            / "steps/task/evol_instruct/english_nouns.txt"
+            / "steps/tasks/evol_instruct/english_nouns.txt"
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]

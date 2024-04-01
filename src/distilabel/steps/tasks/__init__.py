@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llm.anthropic import AnthropicLLM
-from distilabel.llm.anyscale import AnyscaleLLM
-from distilabel.llm.base import LLM, AsyncLLM
-from distilabel.llm.huggingface.inference_endpoints import InferenceEndpointsLLM
-from distilabel.llm.huggingface.transformers import TransformersLLM
-from distilabel.llm.litellm import LiteLLM
-from distilabel.llm.llamacpp import LlamaCppLLM
-from distilabel.llm.mistral import MistralLLM
-from distilabel.llm.mixins import CudaDevicePlacementMixin
-from distilabel.llm.openai import OpenAILLM
-from distilabel.llm.together import TogetherLLM
-from distilabel.llm.typing import GenerateOutput, HiddenState
-from distilabel.llm.vertexai import VertexAILLM
-from distilabel.llm.vllm import vLLM
+from distilabel.llms.anthropic import AnthropicLLM
+from distilabel.llms.anyscale import AnyscaleLLM
+from distilabel.llms.base import LLM, AsyncLLM
+from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+from distilabel.llms.huggingface.transformers import TransformersLLM
+from distilabel.llms.litellm import LiteLLM
+from distilabel.llms.llamacpp import LlamaCppLLM
+from distilabel.llms.mistral import MistralLLM
+from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.openai import OpenAILLM
+from distilabel.llms.together import TogetherLLM
+from distilabel.llms.typing import GenerateOutput, HiddenState
+from distilabel.llms.vertexai import VertexAILLM
+from distilabel.llms.vllm import vLLM
 
 __all__ = [
     "AnthropicLLM",

@@ -16,9 +16,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import Field, PrivateAttr
 
-from distilabel.llm.base import LLM
-from distilabel.llm.constants import CHATML_TEMPLATE
-from distilabel.llm.mixins import CudaDevicePlacementMixin
+from distilabel.llms.base import LLM
+from distilabel.llms.chat_templates import CHATML_TEMPLATE
+from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:

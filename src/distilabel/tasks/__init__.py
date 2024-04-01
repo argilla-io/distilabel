@@ -12,22 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.steps.task.base import GeneratorTask, Task
-from distilabel.steps.task.complexity_scorer import ComplexityScorer
-from distilabel.steps.task.evol_instruct.base import EvolInstruct
-from distilabel.steps.task.evol_instruct.evol_complexity.base import EvolComplexity
-from distilabel.steps.task.evol_instruct.evol_complexity.generator import (
+from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
+from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
+from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
+from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
     EvolComplexityGenerator,
 )
-from distilabel.steps.task.evol_instruct.generator import EvolInstructGenerator
-from distilabel.steps.task.generate_embeddings import GenerateEmbeddings
-from distilabel.steps.task.instruction_backtranslation import InstructionBacktranslation
-from distilabel.steps.task.pair_rm import PairRM
-from distilabel.steps.task.quality_scorer import QualityScorer
-from distilabel.steps.task.self_instruct import SelfInstruct
-from distilabel.steps.task.text_generation import TextGeneration
-from distilabel.steps.task.typing import ChatItem, ChatType
-from distilabel.steps.task.ultrafeedback import UltraFeedback
+from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
+from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
+from distilabel.steps.tasks.instruction_backtranslation import (
+    InstructionBacktranslation,
+)
+from distilabel.steps.tasks.pair_rm import PairRM
+from distilabel.steps.tasks.quality_scorer import QualityScorer
+from distilabel.steps.tasks.self_instruct import SelfInstruct
+from distilabel.steps.tasks.text_generation import TextGeneration
+from distilabel.steps.tasks.typing import ChatItem, ChatType
+from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
     "Task",
