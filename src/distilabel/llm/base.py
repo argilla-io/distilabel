@@ -66,7 +66,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
     def load(self) -> None:
         """Method to be called to initialize the `LLM` and its logger."""
-        self._logger = logging.getLogger(f"llm.{self.model_name}")
+        self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
 
     @property
     @abstractmethod

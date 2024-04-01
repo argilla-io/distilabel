@@ -55,7 +55,7 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
         formatter = logging.Formatter("['%(name)s'] %(message)s")
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
-        queue_listener = QueueListener(log_queue, handler, respect_handler_level=False)
+        queue_listener = QueueListener(log_queue, handler, respect_handler_level=True)
         queue_listener.start()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
@@ -67,6 +67,7 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
         log_level = "INFO"
 
     root_logger = logging.getLogger()
+    root_logger.handlers.clear()
     root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
 
