@@ -122,7 +122,7 @@ class BasePipeline(_Serializable):
         else:
             self._cache_dir = BASE_CACHE_DIR
 
-        self._logger = logging.getLogger("pipeline")
+        self._logger = logging.getLogger("distilabel.pipeline")
 
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
@@ -828,7 +828,7 @@ class _WriteBuffer:
         }
         self._buffer_last_schema = {}
         self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
-        self._logger = logging.getLogger("write_buffer")
+        self._logger = logging.getLogger("distilabel.write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
