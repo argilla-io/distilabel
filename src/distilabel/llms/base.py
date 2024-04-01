@@ -37,6 +37,21 @@ if TYPE_CHECKING:
 
 
 class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+    """Base class for `LLM`s to be used in `distilabel` framework.
+
+    To implement an `LLM` subclass, you need to subclass this class and implement:
+        - `load` method to load the `LLM` if needed. Don't forget to call `super().load()`,
+            so the `_logger` attribute is initialized.
+        - `model_name` property to return the model name used for the LLM.
+        - `generate` method to generate `num_generations` per input in `inputs`.
+
+    Attributes:
+        generation_kwargs: the kwargs to be propagated to either `generate` or `agenerate`
+            methods within each `LLM`.
+        _logger: the logger to be used for the `LLM`. It will be initialized when the `load`
+            method is called.
+    """
+
     model_config = ConfigDict(
         arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
     )
@@ -47,11 +62,11 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         " methods within each `LLM`.",
     )
 
-    _values: Dict[str, Any] = PrivateAttr(default_factory=dict)
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        self._logger = logging.getLogger(f"llm.{self.model_name}")
+        """Method to be called to initialize the `LLM` and its logger."""
+        self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
 
     @property
     @abstractmethod
@@ -67,7 +82,23 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
         """Abstract method to be implemented by each LLM to generate `num_generations`
-        per input in `inputs`."""
+        per input in `inputs`.
+
+        Args:
+            inputs: the list of inputs to generate responses for which follows OpenAI's
+                API format:
+
+                ```python
+                [
+                    {"role": "system", "content": "You're a helpful assistant..."},
+                    {"role": "user", "content": "Give a template email for B2B communications..."},
+                    {"role": "assistant", "content": "Sure, here's a template you can use..."},
+                    {"role": "user", "content": "Modify the second paragraph..."}
+                ]
+                ```
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+        """
         pass
 
     @property
@@ -159,11 +190,14 @@ class AsyncLLM(LLM):
     of each LLM implementation. This class is meant to be subclassed by each LLM, and the
     method `agenerate` needs to be implemented to provide the asynchronous generation of
     responses.
+
+    Attributes:
+        _event_loop: the event loop to be used for the asynchronous generation of responses.
     """
 
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
 
-    @cached_property
+    @property
     def generate_parameters(self) -> List[inspect.Parameter]:
         """Returns the parameters of the `agenerate` method.
 

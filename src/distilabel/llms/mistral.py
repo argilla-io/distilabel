@@ -41,9 +41,22 @@ class MistralLLM(AsyncLLM):
         api_key: the API key to authenticate the requests to the Mistral API. Defaults to `None` which
             means that the value set for the environment variable `OPENAI_API_KEY` will be used, or
             `None` if not set.
-        max_retries: the maximum number of retries to attempt when a request fails. Defaults to 5.next
-        timeout: the maximum time in seconds to wait for a response. Defaults to 120.next
-        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults to 64.
+        max_retries: the maximum number of retries to attempt when a request fails. Defaults to `5`.
+        timeout: the maximum time in seconds to wait for a response. Defaults to `120`.
+        max_concurrent_requests: the maximum number of concurrent requests to send. Defaults
+            to `64`.
+        _api_key_env_var: the name of the environment variable to use for the API key. It is meant to
+            be used internally.
+        _aclient: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.
+            Set in the `load` method.
+
+    Runtime parameters:
+        - `api_key`: the API key to authenticate the requests to the Mistral API.
+        - `max_retries`: the maximum number of retries to attempt when a request fails.
+            Defaults to `5`.
+        - `timeout`: the maximum time in seconds to wait for a response. Defaults to `120`.
+        - `max_concurrent_requests`: the maximum number of concurrent requests to send.
+            Defaults to `64`.
     """
 
     model: str
@@ -52,9 +65,18 @@ class MistralLLM(AsyncLLM):
         default_factory=lambda: os.getenv(_MISTRALAI_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the Mistral API.",
     )
-    max_retries: int = 5
-    timeout: int = 120
-    max_concurrent_requests: int = 64
+    max_retries: RuntimeParameter[int] = Field(
+        default=6,
+        description="The maximum number of times to retry the request to the API before"
+        " failing.",
+    )
+    timeout: RuntimeParameter[int] = Field(
+        default=120,
+        description="The maximum time in seconds to wait for a response from the API.",
+    )
+    max_concurrent_requests: RuntimeParameter[int] = Field(
+        default=64, description="The maximum number of concurrent requests to send."
+    )
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)

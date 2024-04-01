@@ -37,6 +37,8 @@ class AnyscaleLLM(OpenAILLM):
         api_key: the API key to authenticate the requests to the Anyscale API. Defaults to `None` which
             means that the value set for the environment variable `ANYSCALE_API_KEY` will be used, or
             `None` if not set.
+        _api_key_env_var: the name of the environment variable to use for the API key.
+            It is meant to be used internally.
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(

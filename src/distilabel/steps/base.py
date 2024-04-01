@@ -23,7 +23,6 @@ from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
-from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -93,9 +92,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str
-    pipeline: Annotated[
-        Union[BasePipeline, None], Field(exclude=True, repr=False)
-    ] = None
+    pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
@@ -103,6 +100,8 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     _logger: Union["Logger", None] = PrivateAttr(...)
 
     def model_post_init(self, __context: Any) -> None:
+        from distilabel.pipeline.base import _GlobalPipelineManager
+
         super().model_post_init(__context)
 
         if self.pipeline is None:

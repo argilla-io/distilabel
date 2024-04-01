@@ -15,9 +15,10 @@
 import logging
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
-from distilabel.llms.base import AsyncLLM
+from distilabel.llm.base import AsyncLLM
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 if TYPE_CHECKING:
     from litellm import Choices
@@ -32,12 +33,17 @@ class LiteLLM(AsyncLLM):
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo" or "mistral/mistral-large", etc.
         verbose: whether to log the LiteLLM client's logs. Defaults to `False`.
+
+    Runtime parameters:
+        - `verbose`: whether to log the LiteLLM client's logs. Defaults to `False`.
     """
 
     model: str
-    verbose: bool = False
+    verbose: RuntimeParameter[bool] = Field(
+        default=False, description="Whether to log the LiteLLM client's logs."
+    )
 
-    _aclient: Optional["Callable"] = PrivateAttr(...)
+    _aclient: Optional[Callable] = PrivateAttr(...)
 
     def load(self) -> None:
         """

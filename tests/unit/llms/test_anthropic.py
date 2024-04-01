@@ -78,7 +78,7 @@ class TestAnthropicLLM:
         _dump = {
             "base_url": "https://api.anthropic.com",
             "generation_kwargs": {},
-            "max_retries": 2,
+            "max_retries": 6,
             "model": "claude-3-opus-20240229",
             "timeout": 600.0,
             "type_info": {

@@ -45,7 +45,9 @@ class TestAnyscaleLLM:
         _dump = {
             "model": self.model_id,
             "generation_kwargs": {},
+            "max_retries": 6,
             "base_url": "https://api.endpoints.anyscale.com/v1",
+            "timeout": 120,
             "type_info": {
                 "module": "distilabel.llms.anyscale",
                 "name": "AnyscaleLLM",

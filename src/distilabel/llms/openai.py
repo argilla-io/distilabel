@@ -35,12 +35,25 @@ class OpenAILLM(AsyncLLM):
     Attributes:
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
             Supported models can be found [here](https://platform.openai.com/docs/guides/text-generation).
-        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which means that
-            the value set for the environment variable `OPENAI_BASE_URL` will be used, or "https://api.openai.com/v1"
-            if not set.
-        api_key: the API key to authenticate the requests to the OpenAI API. Defaults to `None` which
-            means that the value set for the environment variable `OPENAI_API_KEY` will be used, or
-            `None` if not set.
+        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which
+            means that the value set for the environment variable `OPENAI_BASE_URL` will
+            be used, or "https://api.openai.com/v1" if not set.
+        api_key: the API key to authenticate the requests to the OpenAI API. Defaults to
+            `None` which means that the value set for the environment variable `OPENAI_API_KEY`
+            will be used, or `None` if not set.
+        max_retries: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        timeout: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+
+    Runtime parameters:
+        - `base_url`: the base URL to use for the OpenAI API requests. Defaults to `None`.
+        - `api_key`: the API key to authenticate the requests to the OpenAI API. Defaults
+            to `None`.
+        - `max_retries`: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
     """
 
     model: str
@@ -53,6 +66,15 @@ class OpenAILLM(AsyncLLM):
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
         default_factory=lambda: os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
         description="The API key to authenticate the requests to the OpenAI API.",
+    )
+    max_retries: RuntimeParameter[int] = Field(
+        default=6,
+        description="The maximum number of times to retry the request to the API before"
+        " failing.",
+    )
+    timeout: RuntimeParameter[int] = Field(
+        default=120,
+        description="The maximum time in seconds to wait for a response from the API.",
     )
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
@@ -79,7 +101,8 @@ class OpenAILLM(AsyncLLM):
         self._aclient = AsyncOpenAI(
             base_url=self.base_url,
             api_key=self.api_key.get_secret_value(),
-            max_retries=6,
+            max_retries=self.max_retries,
+            timeout=self.timeout,
         )
 
     @property
