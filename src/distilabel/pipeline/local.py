@@ -19,10 +19,10 @@ import threading
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
+from distilabel.distiset import create_distiset
 from distilabel.llm.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
-from distilabel.utils.distiset import create_distiset
 from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
@@ -30,8 +30,8 @@ if TYPE_CHECKING:
     from multiprocessing.pool import Pool
     from queue import Queue
 
+    from distilabel.distiset import Distiset
     from distilabel.steps.base import GeneratorStep
-    from distilabel.utils.distiset import Distiset
 
 
 _STEPS_LOADED_KEY = "steps_loaded"

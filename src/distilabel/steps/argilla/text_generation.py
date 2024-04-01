@@ -25,7 +25,7 @@ except ImportError as ie:
         "Argilla is not installed. Please install it using `pip install argilla`."
     ) from ie
 
-from distilabel.integrations.argilla.base import Argilla
+from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:

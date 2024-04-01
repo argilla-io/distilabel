@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, List, Optional
 
 from pydantic import PrivateAttr
 
@@ -21,9 +21,7 @@ from distilabel.llm.base import AsyncLLM
 if TYPE_CHECKING:
     from vertexai.generative_models import (
         Content,
-        GenerationConfig,
         GenerativeModel,
-        Part,
         SafetySettingsType,
         Tool,
     )
@@ -58,28 +56,20 @@ class VertexAILLM(AsyncLLM):
 
     Attributes:
         model: the model name to use for the LLM e.g. "gemini-1.0-pro". [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).
+        _aclient: the `GenerativeModel` to use for the Vertex AI Gemini API. It is meant
+            to be used internally. Set in the `load` method.
     """
 
     model: str
-    _aclient: Optional[Type["GenerativeModel"]] = PrivateAttr(...)
-    _content_class: Optional[Type["Content"]] = PrivateAttr(...)
-    _part_class: Optional[Type["Part"]] = PrivateAttr(...)
-    _generation_config_class: Optional["GenerationConfig"] = PrivateAttr(...)
+    _aclient: Optional["GenerativeModel"] = PrivateAttr(...)
 
     def load(self) -> None:
         """Loads the `GenerativeModel` class which has access to `generate_content_async` to benefit from async requests."""
         super().load()
 
         try:
-            from vertexai.generative_models import (
-                Content,
-                GenerationConfig,
-                GenerativeModel,
-                Part,
-            )
+            from vertexai.generative_models import GenerationConfig, GenerativeModel
 
-            self._content_class = Content
-            self._part_class = Part
             self._generation_config_class = GenerationConfig
         except ImportError as e:
             raise ImportError(
@@ -108,6 +98,8 @@ class VertexAILLM(AsyncLLM):
         Returns:
             List[str]: a list of content items expected by the API.
         """
+        from vertexai.generative_models import Content, Part
+
         contents = []
         for message in input:
             if message["role"] not in ["user", "model"]:
@@ -115,9 +107,8 @@ class VertexAILLM(AsyncLLM):
                     "`VertexAILLM only supports the roles 'user' or 'model'."
                 )
             contents.append(
-                self._content_class(
-                    role=message["role"],
-                    parts=[self._part_class.from_text(message["content"])],
+                Content(
+                    role=message["role"], parts=[Part.from_text(message["content"])]
                 )
             )
         return contents
@@ -151,13 +142,15 @@ class VertexAILLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from vertexai.generative_models import GenerationConfig
+
         contents = self._chattype_to_content(input)
         generations = []
         # TODO: remove this for-loop and override `generate`
         for _ in range(num_generations):
-            content = await self._aclient.generate_content_async(
+            content = await self._aclient.generate_content_async(  # type: ignore
                 contents=contents,
-                generation_config=self._generation_config_class(
+                generation_config=GenerationConfig(
                     candidate_count=1,  # only one candidate allowed per call
                     temperature=temperature,
                     top_k=top_k,

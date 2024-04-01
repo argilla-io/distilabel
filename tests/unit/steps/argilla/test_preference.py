@@ -16,8 +16,8 @@ import os
 from unittest.mock import patch
 
 import argilla as rg
-from distilabel.integrations.argilla.preference import PreferenceToArgilla
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.argilla.preference import PreferenceToArgilla
 
 
 def mock_feedback_dataset() -> rg.FeedbackDataset:
@@ -116,7 +116,7 @@ class TestPreferenceToArgilla:
                 },
             ],
             "type_info": {
-                "module": "distilabel.integrations.argilla.preference",
+                "module": "distilabel.steps.argilla.preference",
                 "name": "PreferenceToArgilla",
             },
         }

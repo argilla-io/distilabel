@@ -16,8 +16,8 @@ import os
 from unittest.mock import patch
 
 import argilla as rg
-from distilabel.integrations.argilla.text_generation import TextGenerationToArgilla
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 
 MockFeedbackDataset = rg.FeedbackDataset(
     fields=[
@@ -89,7 +89,7 @@ class TestTextGenerationToArgilla:
                 },
             ],
             "type_info": {
-                "module": "distilabel.integrations.argilla.text_generation",
+                "module": "distilabel.steps.argilla.text_generation",
                 "name": "TextGenerationToArgilla",
             },
         }

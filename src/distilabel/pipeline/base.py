@@ -41,8 +41,8 @@ from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 if TYPE_CHECKING:
     from os import PathLike
 
+    from distilabel.distiset import Distiset
     from distilabel.steps.base import _Step
-    from distilabel.utils.distiset import Distiset
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"

@@ -14,7 +14,7 @@
 
 import pytest
 from datasets import Dataset, DatasetDict
-from distilabel.utils.distiset import Distiset
+from distilabel.distiset import Distiset
 
 
 @pytest.fixture(scope="function")
