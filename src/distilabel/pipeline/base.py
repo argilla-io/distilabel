@@ -34,6 +34,7 @@ import pyarrow.parquet as pq
 from typing_extensions import Self
 
 from distilabel import __version__
+from distilabel.mixins.graph_viz import GraphvizMixin
 from distilabel.pipeline._dag import DAG
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
@@ -85,7 +86,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(_Serializable):
+class BasePipeline(GraphvizMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
