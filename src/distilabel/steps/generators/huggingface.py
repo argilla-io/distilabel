@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -46,11 +47,18 @@ def _get_hf_dataset_info(
     if config is not None:
         params["config"] = config
 
+    if "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+
     response = requests.get(
-        "https://datasets-server.huggingface.co/info", params=params
+        "https://datasets-server.huggingface.co/info", params=params, headers=headers
     )
 
-    assert response.status_code == 200, f"Failed to get '{repo_id}' dataset info."
+    assert (
+        response.status_code == 200
+    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
 
     return response.json()["dataset_info"]
 
