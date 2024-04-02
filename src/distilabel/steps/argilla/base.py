@@ -13,8 +13,9 @@
 # limitations under the License.
 
 import os
+import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
@@ -75,6 +76,10 @@ class Argilla(Step, ABC):
     )
 
     _rg_dataset: Optional["RemoteFeedbackDataset"] = PrivateAttr(...)
+
+    def model_post_init(self, __context: Any) -> None:
+        warnings.filterwarnings("ignore")
+        return super().model_post_init(__context)
 
     def _rg_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
