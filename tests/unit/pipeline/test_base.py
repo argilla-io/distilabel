@@ -904,39 +904,64 @@ class TestBatchManager:
         }
 
     def test_from_dict(self) -> None:
-        batch_manager = _BatchManager.from_dict(
+        batch_manager_step = _BatchManagerStep.from_dict(
             {
-                "steps": {
-                    "step3": {
-                        "step_name": "step3",
-                        "accumulate": False,
-                        "input_batch_size": 5,
-                        "data": {"step1": [], "step2": []},
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                },
-                "last_batch_received": {
-                    "step3": {
-                        "seq_no": 0,
-                        "step_name": "step3",
-                        "last_batch": False,
-                        "data": [],
-                        "accumulated": False,
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    }
+                "step_name": "step3",
+                "accumulate": True,
+                "input_batch_size": None,
+                "data": {
+                    "step1": [
+                        {"a": 1},
+                        {"a": 2},
+                        {"a": 3},
+                        {"a": 4},
+                        {"a": 5},
+                        {"a": 6},
+                    ],
+                    "step2": [
+                        {"b": 1},
+                        {"b": 2},
+                        {"b": 3},
+                        {"b": 4},
+                        {"b": 5},
+                        {"b": 6},
+                        {"b": 7},
+                    ],
                 },
                 "type_info": {
                     "module": "distilabel.pipeline.base",
-                    "name": "_BatchManager",
+                    "name": "_BatchManagerStep",
                 },
             }
         )
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            batch_manager_step.save(Path(tmpdirname) / "batch_manager_step3.json")
+
+            batch_manager = _BatchManager.from_dict(
+                {
+                    "steps": {
+                        "step3": str(Path(tmpdirname) / "batch_manager_step3.json")
+                    },
+                    "last_batch_received": {
+                        "step3": {
+                            "seq_no": 0,
+                            "step_name": "step3",
+                            "last_batch": False,
+                            "data": [],
+                            "accumulated": False,
+                            "type_info": {
+                                "module": "distilabel.pipeline.base",
+                                "name": "_Batch",
+                            },
+                        }
+                    },
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_BatchManager",
+                    },
+                }
+            )
         assert isinstance(batch_manager, _BatchManager)
         assert all(
             isinstance(step, _BatchManagerStep)
