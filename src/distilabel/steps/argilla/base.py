@@ -97,9 +97,11 @@ class Argilla(Step, ABC):
         """
         return []
 
-    @abstractmethod
     def load(self) -> None:
-        ...
+        """Method to perform any initialization logic before the `process` method is
+        called. For example, to load an LLM, stablish a connection to a database, etc.
+        """
+        super().load()
 
     @property
     @abstractmethod
@@ -107,5 +109,5 @@ class Argilla(Step, ABC):
         ...
 
     @abstractmethod
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, *inputs: StepInput) -> "StepOutput":
         ...

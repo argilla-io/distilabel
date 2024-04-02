@@ -81,6 +81,8 @@ class PreferenceToArgilla(Argilla):
         uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
+        super().load()
+
         self._rg_init()
 
         # Both `instruction` and `generations` will be used as the fields of the dataset
