@@ -1,3 +1,0 @@
-# vLLM
-
-::: distilabel.llm.vllm

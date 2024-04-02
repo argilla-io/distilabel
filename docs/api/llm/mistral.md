@@ -1,3 +1,0 @@
-## MistralLLM
-
-::: distilabel.llm.mistral

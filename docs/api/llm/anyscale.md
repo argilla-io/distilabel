@@ -1,3 +1,0 @@
-## AnyscaleLLM
-
-::: distilabel.llm.anyscale

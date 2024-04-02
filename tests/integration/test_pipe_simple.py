@@ -14,11 +14,11 @@
 
 from typing import Any, Dict, Generator, List
 
+from distilabel.distiset import Distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
-from distilabel.utils.distiset import Distiset
 
 
 class RenameColumns(Step):
@@ -94,7 +94,7 @@ def test_pipeline_cached():
     print()
     ds = run_pipeline()
     assert isinstance(ds, Distiset)
-    assert len(ds["generate_response"]) == 80
+    assert len(ds["generate_response"]["train"]) == 80
 
 
 if __name__ == "__main__":

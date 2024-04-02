@@ -20,9 +20,9 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   features:
-    - navigation.sections  # Sections are included in the navigation on the left.
-    - toc.integrate  # # Table of contents is integrated on the left; does not appear separately on the right.
-    - header.autohide  # header disappears as you scroll
+    - navigation.sections # Sections are included in the navigation on the left.
+    - toc.integrate # # Table of contents is integrated on the left; does not appear separately on the right.
+    - header.autohide # header disappears as you scroll
     - content.code.copy
     - content.code.annotate
   palette:
@@ -69,7 +69,7 @@ markdown_extensions:
 
 plugins:
   - search
-  - autorefs  # Cross-links to headings
+  - autorefs # Cross-links to headings
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_pages.py
@@ -80,42 +80,45 @@ plugins:
       handlers:
         python:
           selection:
-            inherited_members: true  # Allow looking up inherited methods
+            inherited_members: true # Allow looking up inherited methods
           rendering:
-            show_root_heading: true  # actually display anything at all...
+            show_root_heading: true # actually display anything at all...
             # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
             show_if_no_docstring: true
             show_signature_annotations: true
-            show_source: false  # don't include source code
-            members_order: source  # order methods according to their order of definition in the source code, not alphabetical order
+            show_source: false # don't include source code
+            members_order: source # order methods according to their order of definition in the source code, not alphabetical order
             heading_level: 4
   - social
 
 nav:
   - Getting started: index.md
-  - Overview: 'overview.md'
+  - Learn:
+      - sections/learn/index.md
+  - Paper reproductions:
+      - "sections/papers/papers.md"
+      - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
+      - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
   - API Reference:
-    - Pipeline:
-      - 'api/pipeline/pipeline.md'
-    - Steps:
-      - 'api/steps/steps.md'
-      - Generator Steps: 'api/steps/generator_steps/generator_steps.md'
-      - Global Steps: 'api/steps/global_steps/global_steps.md'
-      - Tasks:
-        - 'api/steps/tasks/text_generation.md'
-        - 'api/steps/tasks/preference_tasks.md'
-        - 'api/steps/tasks/embeddings.md'
-    - LLMs:
-      - 'api/llm/anthropic.md'
-      - 'api/llm/anyscale.md'
-      - 'api/llm/litellm.md'
-      - 'api/llm/llamacpp.md'
-      - 'api/llm/mistral.md'
-      - 'api/llm/ollama.md'
-      - 'api/llm/openai.md'
-      - 'api/llm/together.md'
-      - 'api/llm/vertexai.md'
-      - 'api/llm/vllm.md'
-      - 'api/llm/huggingface.md'
-    - Integrations:
-      - 'api/integrations/argilla.md'    
+      - Pipeline:
+          - "api/pipeline/pipeline.md"
+      - Steps:
+          - "api/steps/steps.md"
+          - Generator Steps: "api/steps/generator_steps/generator_steps.md"
+          - Global Steps: "api/steps/global_steps/global_steps.md"
+          - Tasks:
+              - "api/steps/tasks/text_generation.md"
+              - "api/steps/tasks/preference_tasks.md"
+              - "api/steps/tasks/embeddings.md"
+      - LLMs:
+          - "api/llms/anthropic.md"
+          - "api/llms/anyscale.md"
+          - "api/llms/huggingface.md"
+          - "api/llms/litellm.md"
+          - "api/llms/llamacpp.md"
+          - "api/llms/mistral.md"
+          - "api/llms/ollama.md"
+          - "api/llms/openai.md"
+          - "api/llms/together.md"
+          - "api/llms/vertexai.md"
+          - "api/llms/vllm.md"

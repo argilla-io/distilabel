@@ -1,3 +1,3 @@
 # Preference tasks
 
-::: distilabel.steps.task.ultrafeedback
+::: distilabel.steps.tasks.ultrafeedback

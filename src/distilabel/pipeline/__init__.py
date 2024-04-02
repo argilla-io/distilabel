@@ -12,3 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.pipeline.local import Pipeline
+
+__all__ = ["Pipeline"]
