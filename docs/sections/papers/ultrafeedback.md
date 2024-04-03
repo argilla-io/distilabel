@@ -99,7 +99,7 @@ with Pipeline(name="ultrafeedback-pipeline") as pipeline:
     )
     ultrafeedback.connect(keep_columns)
 
-    # # Optional: Push the generated dataset to Argilla
+    # # Optional: Push the generated dataset to Argilla, but will need to `pip install argilla` first
     # push_to_argilla = PreferenceToArgilla(
     #     name="push_to_argilla",
     #     api_url="<ARGILLA_API_URL>",

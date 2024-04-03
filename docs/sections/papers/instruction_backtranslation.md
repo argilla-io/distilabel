@@ -19,7 +19,7 @@ To replicate the paper we will be using `distilabel` and a smaller dataset creat
 To replicate Self Alignment with Instruction Backtranslation one will need to install `distilabel` as it follows:
 
 ```bash
-pip install "distilabel[argilla,hf-inference-endpoints,openai]>=1.0.0"
+pip install "distilabel[hf-inference-endpoints,openai]>=1.0.0"
 ```
 
 And since we will be using `hf-inference-endpoints` we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the `HF_TOKEN` (to use the `InferenceEndpointsLLM`) and the `OPENAI_API_KEY` environment variable value (to use the `OpenAILLM`).
