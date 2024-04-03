@@ -142,3 +142,5 @@ nav:
       - "api/llms/together.md"
       - "api/llms/vertexai.md"
       - "api/llms/vllm.md"
+    - Command Line Interface:
+      - "api/cli.md"
