@@ -33,7 +33,7 @@ class CustomArgilla(Argilla):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, *inputs: StepInput) -> "StepOutput":
         yield [{}]
 
 
@@ -95,7 +95,7 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class Argilla with abstract methods inputs, load, process",
+            match="Can't instantiate abstract class Argilla with abstract methods inputs, process",
         ):
             Argilla(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 

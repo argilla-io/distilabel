@@ -55,7 +55,7 @@ def test_imports() -> None:
         step,
     )
 
-    from distilabel.tasks import (
+    from distilabel.steps.tasks import (
         Task,
         GeneratorTask,
         ChatItem,
