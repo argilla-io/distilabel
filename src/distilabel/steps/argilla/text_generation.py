@@ -69,6 +69,8 @@ class TextGenerationToArgilla(Argilla):
         uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
+        super().load()
+
         self._rg_init()
 
         self._instruction = self.input_mappings.get("instruction", "instruction")
@@ -117,7 +119,7 @@ class TextGenerationToArgilla(Argilla):
         return ["instruction", "generation"]
 
     @override
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
 
         Args:

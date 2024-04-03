@@ -93,7 +93,7 @@ class AnthropicLLM(AsyncLLM):
         description="The maximum number of times to retry the request to the API before"
         " failing.",
     )
-    http_client: Union[AsyncClient, None] = Field(default=None, exclude=True)
+    http_client: Optional[AsyncClient] = Field(default=None, exclude=True)
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
