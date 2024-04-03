@@ -26,7 +26,6 @@ from typing import (
     get_type_hints,
 )
 
-from httpx import AsyncClient
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
 
@@ -36,6 +35,7 @@ from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
+    from httpx import AsyncClient
 
     from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType
@@ -93,7 +93,7 @@ class AnthropicLLM(AsyncLLM):
         description="The maximum number of times to retry the request to the API before"
         " failing.",
     )
-    http_client: Union[AsyncClient, None] = Field(default=None, exclude=True)
+    http_client: Optional["AsyncClient"] = Field(default=None, exclude=True)
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
