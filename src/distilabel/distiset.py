@@ -33,6 +33,9 @@ class Distiset(dict):
 
     It's a dictionary where the keys correspond to the different leaf_steps from the internal
     `DAG` and the values are `datasets.Dataset`.
+
+    Attributes:
+        pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
     """
 
     pipeline_path: Optional[Path] = None
@@ -159,6 +162,9 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
     Args:
         data_dir: Folder where the data buffers were written by the `_WriteBuffer`.
             It should correspond to `CacheLocation.data`.
+        pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
+            Internally this will be passed to the `Distiset` object on creation to allow
+            uploading the `pipeline.yaml` file to the repo upon `Distiset.push_to_hub`.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
