@@ -122,4 +122,13 @@ This `@step` decorator has a special type depending `step_type` which will be be
 
 ## Types of steps
 
-In the next section we will see specific types of steps and how to use them.
+Other than the general or normal steps we have seen, there are special types of steps that have a restricted behaviour compared to the general `Step`.
+
+### Generator steps
+
+These are steps that are able to generate data, and don't need to receive any input from previous step, as it's implied in the normal steps. The typical use for these steps will be loading data for example, as can be seen in [`LoadDataFromDicts`][distilabel.steps.generators.data]. For this type of steps we will only need to define the `process` method, and we can optionally pass a `batch_size` argument, that will determine the batch size of the generated batches.
+
+### Global steps
+
+Other special type of step are the global steps. These steps don't have any `inputs` or `outputs`, and their `process` method receives all the data at once instead of using batches. This kind of behavior is necessary for example to push a dataset to a specific place, or doing some filtering on the whole data before continuing with the pipeline.
+ 
