@@ -12,36 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llms.anthropic import AnthropicLLM
-from distilabel.llms.anyscale import AnyscaleLLM
-from distilabel.llms.base import LLM, AsyncLLM
-from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
-from distilabel.llms.huggingface.transformers import TransformersLLM
-from distilabel.llms.litellm import LiteLLM
-from distilabel.llms.llamacpp import LlamaCppLLM
-from distilabel.llms.mistral import MistralLLM
-from distilabel.llms.mixins import CudaDevicePlacementMixin
-from distilabel.llms.openai import OpenAILLM
-from distilabel.llms.together import TogetherLLM
-from distilabel.llms.typing import GenerateOutput, HiddenState
-from distilabel.llms.vertexai import VertexAILLM
-from distilabel.llms.vllm import vLLM
+from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
+from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
+from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
+from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
+    EvolComplexityGenerator,
+)
+from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
+from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
+from distilabel.steps.tasks.instruction_backtranslation import (
+    InstructionBacktranslation,
+)
+from distilabel.steps.tasks.pair_rm import PairRM
+from distilabel.steps.tasks.quality_scorer import QualityScorer
+from distilabel.steps.tasks.self_instruct import SelfInstruct
+from distilabel.steps.tasks.text_generation import TextGeneration
+from distilabel.steps.tasks.typing import ChatItem, ChatType
+from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
-    "AnthropicLLM",
-    "AnyscaleLLM",
-    "AsyncLLM",
-    "CudaDevicePlacementMixin",
-    "GenerateOutput",
-    "HiddenState",
-    "InferenceEndpointsLLM",
-    "LlamaCppLLM",
-    "LLM",
-    "LiteLLM",
-    "MistralLLM",
-    "OpenAILLM",
-    "TogetherLLM",
-    "TransformersLLM",
-    "VertexAILLM",
-    "vLLM",
+    "Task",
+    "GeneratorTask",
+    "ChatItem",
+    "ChatType",
+    "ComplexityScorer",
+    "EvolInstruct",
+    "EvolComplexity",
+    "EvolComplexityGenerator",
+    "EvolInstructGenerator",
+    "GenerateEmbeddings",
+    "InstructionBacktranslation",
+    "PairRM",
+    "QualityScorer",
+    "SelfInstruct",
+    "TextGeneration",
+    "UltraFeedback",
 ]
