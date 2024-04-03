@@ -22,6 +22,7 @@ classifiers = [
 ]
 dependencies = [
     "datasets >= 2.14.0",
+    "httpx >= 0.25.2",
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "Jinja2 >= 3.1.2",
     "multiprocess >= 0.70",

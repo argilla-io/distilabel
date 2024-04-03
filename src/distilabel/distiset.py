@@ -40,7 +40,6 @@ class Distiset(dict):
     def push_to_hub(
         self,
         repo_id: str,
-        commit_message: Optional[str] = None,
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
@@ -53,7 +52,6 @@ class Distiset(dict):
                 The ID of the repository to push to in the following format: `<user>/<dataset_name>` or
                 `<org>/<dataset_name>`. Also accepts `<dataset_name>`, which will default to the namespace
                 of the logged-in user.
-            commit_message: Message to commit while pushing. Will default to `"Upload dataset"`.
             private:
                 Whether the dataset repository should be set to private or not. Only affects repository creation:
                 a repository that already exists will not be affected by that parameter.
@@ -68,7 +66,6 @@ class Distiset(dict):
             dataset.push_to_hub(
                 repo_id=repo_id,
                 config_name=name,
-                commit_message=commit_message,
                 private=private,
                 token=token,
             )
