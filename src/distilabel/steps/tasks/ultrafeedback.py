@@ -120,7 +120,7 @@ class UltraFeedback(Task):
     def outputs(self) -> List[str]:
         """The output for the task is the `generation` and the `model_name`."""
         columns = []
-        if self.aspect in ["honesty", "instruction-following"]:
+        if self.aspect in ["honesty", "instruction-following", "overall-rating"]:
             columns = ["ratings", "rationales"]
         elif self.aspect in ["helpfulness", "truthfulness"]:
             columns = ["types", "rationales", "ratings", "rationales-for-ratings"]
