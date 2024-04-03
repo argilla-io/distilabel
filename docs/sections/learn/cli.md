@@ -1,6 +1,6 @@
 # Command Line Interface
 
-`Distilabel` offers a `CLI` to initially *explore* and *rerun* `Pipelines`, let's take a look.
+`Distilabel` offers a [`CLI`][distilabel.cli.pipeline.utils] to initially *explore* and *rerun* `Pipelines`, let's take a look.
 
 ## Available commands
 
