@@ -24,7 +24,7 @@ else:
     from enum import EnumType
 
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Type, TypeVar, Union, get_args
+from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union, get_args
 
 import yaml
 from pydantic import BaseModel
@@ -189,6 +189,7 @@ class _Serializable:
         self,
         path: Union[StrOrPath, None] = None,
         format: SaveFormats = "json",
+        dump: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> None:
         """Serialized the object and saves it to a file.
@@ -197,11 +198,11 @@ class _Serializable:
             path: filename of the object to save. If a folder is given, will create the object
                 inside. If None is given, the file will be created at the current
                 working directory. Defaults to None.
-            path: the path where the file containing the serialized object will be saved.
-                If a folder is given, a file with the name 'distilabel-file.json' will be
-                created inside. Defaults to `None`.
             format: the format to use when saving the file. Valid options are 'json' and
                 'yaml'. Defaults to `"json"`.
+            dump: the serialized object to save. If None, the object will be serialized using
+                the default self.dump. This variable is here to allow extra customization, in
+                general should be set as None.
 
         Raises:
             ValueError: if the provided `format` is not valid.
@@ -213,10 +214,13 @@ class _Serializable:
             # If the path has no suffix, assume the user just wants a folder to write the task
             path = path / DISTILABEL_FILENAME
 
+        if dump is None:
+            dump = self.dump(**kwargs)
+
         if format == "json":
-            write_json(path, self.dump(**kwargs))
+            write_json(path, dump)
         elif format == "yaml":
-            write_yaml(path, self.dump(**kwargs))
+            write_yaml(path, dump)
         else:
             raise ValueError(
                 f"Invalid format: '{format}', must be one of {get_args(SaveFormats)}."

@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.steps.base import _Step
+    from distilabel.utils.serialization import SaveFormats, StrOrPath
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
@@ -782,14 +783,50 @@ class _BatchManager(_Serializable):
         # via _get_class
         return cls(
             {
-                name: _BatchManagerStep.from_dict(step)
-                for name, step in data["steps"].items()
+                name: _BatchManagerStep.from_file(step_path)
+                for name, step_path in data["steps"].items()
             },
             {
                 step_name: _Batch.from_dict(batch) if batch is not None else None
                 for step_name, batch in data["last_batch_received"].items()
             },
         )
+
+    def save(
+        self,
+        path: Union["StrOrPath", None] = None,
+        format: "SaveFormats" = "json",
+        dump: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Overrides the parent method to save the each `_BatchManagerStep` to a file, and the contents
+        keep in the `_BatchManager` dump the paths to those files.
+
+        Note:
+            Not expected to be used directly, but through the `Pipeline._cache` class.
+
+        Args:
+            path: filename of the object to save. If a folder is given, will create the object
+                inside. If None is given, the file will be created at the current
+                working directory. Defaults to None.
+            format: the format to use when saving the file. Valid options are 'json' and
+                'yaml'. Defaults to `"json"`.
+            dump: the serialized object to save. If None, the object will be serialized using
+                the default self.dump. This variable is here to allow extra customization, in
+                general should be set as None.
+        """
+        path = Path(path)
+        dump = self.dump()
+        batch_manager_step_files = {}
+        # Do this to avoid modifying the dictionary while iterating over it
+        batch_manager_steps = set(dump["steps"].keys())
+        for step_name in batch_manager_steps:
+            step_dump = dump["steps"].pop(step_name)
+            filename = str(path.parent / f"batch_manager_steps/{step_name}.json")
+            batch_manager_step_files[step_name] = filename
+            super().save(path=filename, format=format, dump=step_dump)
+        dump["steps"] = batch_manager_step_files
+        super().save(path=path, format=format, dump=dump)
 
 
 class _WriteBuffer:
