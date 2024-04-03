@@ -217,9 +217,14 @@ class AsyncLLM(LLM):
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":
-        if self._event_loop is None or self._event_loop.is_closed():
-            self._event_loop = asyncio.new_event_loop()  # type: ignore
-            asyncio.set_event_loop(self._event_loop)
+        if self._event_loop is None:
+            try:
+                self._event_loop = asyncio.get_running_loop()
+                if self._event_loop.is_closed():
+                    self._event_loop = asyncio.new_event_loop()  # type: ignore
+            except RuntimeError:
+                self._event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._event_loop)
         return self._event_loop
 
     @abstractmethod
