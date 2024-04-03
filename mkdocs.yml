@@ -126,6 +126,7 @@ nav:
         - "api/steps/tasks/text_generation.md"
         - "api/steps/tasks/preference_tasks.md"
         - "api/steps/tasks/embeddings.md"
+      - "api/steps/decorator.md"
     - LLMs:
       - "api/llms/anthropic.md"
       - "api/llms/anyscale.md"

@@ -89,6 +89,37 @@ It takes the dictionary with data, adds another `conversation` with the data for
 
 This is a small type step that shows what to expect when we are creating our `Step` objects, which can start from something as simple as generating a conversation template from some columns on a dataset.
 
+## step decorator
+
+If all that we want to apply in a step is some simple processing, it can be easier to just create a plain function, and decorate it. We can find more examples in the [API reference][distilabel.steps.decorator], but let's see how we could define the previous step as a function and use the decorator:
+
+```python
+from distilabel.steps.decorator import step
+from distilabel.steps.typing import StepOutput
+from distilabel.steps.base import StepInput
+
+# Normal step
+@step(inputs=["instruction", "response"], outputs=["conversation"])
+def ConversationTemplate(inputs: StepInput) -> StepOutput:
+    for input in inputs:
+        input["conversation"] = [
+            {"role": "user", "content": input["instruction"]},
+            {"role": "assistant", "content": input["response"]},
+        ]
+    yield inputs
+```
+
+Which can be instantiated exactly the same as the `ConversationTemplate` class:
+
+```python
+conversation_template = ConversationTemplate(
+    name="my-conversation-template",
+    pipeline=Pipeline(name="my-pipeline"),
+)
+```
+
+This `@step` decorator has a special type depending `step_type` which will be better understood once we see the different types of steps.
+
 ## Types of steps
 
 In the next section we will see specific types of steps and how to use them.
