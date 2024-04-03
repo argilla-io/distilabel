@@ -21,10 +21,8 @@ from pydantic import Field, PrivateAttr, SecretStr
 
 try:
     import argilla as rg
-except ImportError as ie:
-    raise ImportError(
-        "Argilla is not installed. Please install it using `pip install argilla`."
-    ) from ie
+except ImportError:
+    pass
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
@@ -78,6 +76,14 @@ class Argilla(Step, ABC):
     _rg_dataset: Optional["RemoteFeedbackDataset"] = PrivateAttr(...)
 
     def model_post_init(self, __context: Any) -> None:
+        """Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings."""
+        try:
+            import argilla as rg  # noqa
+        except ImportError as ie:
+            raise ImportError(
+                "Argilla is not installed. Please install it using `pip install argilla`."
+            ) from ie
+
         warnings.filterwarnings("ignore")
         return super().model_post_init(__context)
 
@@ -92,7 +98,7 @@ class Argilla(Step, ABC):
         """Checks if the dataset already exists in Argilla."""
         return self.dataset_name in [
             dataset.name
-            for dataset in rg.FeedbackDataset.list(workspace=self.dataset_workspace)
+            for dataset in rg.FeedbackDataset.list(workspace=self.dataset_workspace)  # type: ignore
         ]
 
     @property

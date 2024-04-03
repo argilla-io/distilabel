@@ -119,7 +119,7 @@ class TextGenerationToArgilla(Argilla):
         return ["instruction", "generation"]
 
     @override
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
 
         Args:
