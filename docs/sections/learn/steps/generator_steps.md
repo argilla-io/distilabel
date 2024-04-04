@@ -1,4 +1,4 @@
-# Generator steps
+# Generator Steps
 
 This section shows a special type of step that don't need a prior step to generate data, the generator steps, which will be in charge of loading and yielding data.
 
@@ -40,7 +40,7 @@ It will yield `GeneratorStepOutput` objects, an iterator of tuples where the fir
 
 Unless we are doing some testing, we are more likely going to work with a proper dataset:
 
-### Load dataset from HuggingFace hub
+### Load a dataset from HuggingFace hub
 
 The easiest way to ingest data from a dataset is using the [`LoadHubDataset`][distilabel.steps.generators.huggingface] step, let's see an example:
 

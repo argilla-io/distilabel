@@ -1,4 +1,4 @@
-# General steps
+# General Steps
 
 This section shows some steps that don't belong to the special category of `global` or `generator` steps.
 
