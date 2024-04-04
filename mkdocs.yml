@@ -100,6 +100,7 @@ nav:
         - "sections/learn/steps/index.md"
         - "sections/learn/steps/generator_steps.md"
         - "sections/learn/steps/global_steps.md"
+        - "sections/learn/steps/general_steps.md"
       - Pipeline:
         - "sections/learn/pipelines/base.md"
         - "sections/learn/pipelines/local.md"
