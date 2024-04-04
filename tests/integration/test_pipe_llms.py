@@ -13,15 +13,18 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, Generator, List
+from typing import TYPE_CHECKING, Dict, List
 
-from distilabel.llm.huggingface.transformers import TransformersLLM
-from distilabel.llm.openai import OpenAILLM
+from distilabel.llms.huggingface.transformers import TransformersLLM
+from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.huggingface import LoadHubDataset
-from distilabel.steps.task.text_generation import TextGeneration
+from distilabel.steps.tasks.text_generation import TextGeneration
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepOutput
 
 
 class RenameColumns(Step):
@@ -35,16 +38,18 @@ class RenameColumns(Step):
     def outputs(self) -> List[str]:
         return list(self.rename_mappings.values())  # type: ignore
 
-    def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, *inputs: StepInput) -> "StepOutput":
         outputs = []
         for input in inputs:
-            outputs.append(
-                {self.rename_mappings.get(k, k): v for k, v in input.items()}  # type: ignore
-            )
-        yield outputs
+            outputs = []
+            for item in input:
+                outputs.append(
+                    {self.rename_mappings.get(k, k): v for k, v in item.items()}  # type: ignore
+                )
+            yield outputs
 
 
-def test_pipeline_with_llms_serde():
+def test_pipeline_with_llms_serde() -> None:
     with Pipeline(name="unit-test-pipeline") as pipeline:
         load_hub_dataset = LoadHubDataset(name="load_dataset")
         rename_columns = RenameColumns(name="rename_columns")

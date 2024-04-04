@@ -15,7 +15,7 @@
 
 def test_imports() -> None:
     # ruff: noqa
-    from distilabel.llm import (
+    from distilabel.llms import (
         AnthropicLLM,
         AnyscaleLLM,
         AsyncLLM,
@@ -55,7 +55,7 @@ def test_imports() -> None:
         step,
     )
 
-    from distilabel.tasks import (
+    from distilabel.steps.tasks import (
         Task,
         GeneratorTask,
         ChatItem,

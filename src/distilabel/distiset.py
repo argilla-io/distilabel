@@ -33,6 +33,9 @@ class Distiset(dict):
 
     It's a dictionary where the keys correspond to the different leaf_steps from the internal
     `DAG` and the values are `datasets.Dataset`.
+
+    Attributes:
+        pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
     """
 
     pipeline_path: Optional[Path] = None
@@ -40,7 +43,6 @@ class Distiset(dict):
     def push_to_hub(
         self,
         repo_id: str,
-        commit_message: Optional[str] = None,
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
@@ -53,7 +55,6 @@ class Distiset(dict):
                 The ID of the repository to push to in the following format: `<user>/<dataset_name>` or
                 `<org>/<dataset_name>`. Also accepts `<dataset_name>`, which will default to the namespace
                 of the logged-in user.
-            commit_message: Message to commit while pushing. Will default to `"Upload dataset"`.
             private:
                 Whether the dataset repository should be set to private or not. Only affects repository creation:
                 a repository that already exists will not be affected by that parameter.
@@ -68,7 +69,6 @@ class Distiset(dict):
             dataset.push_to_hub(
                 repo_id=repo_id,
                 config_name=name,
-                commit_message=commit_message,
                 private=private,
                 token=token,
             )
@@ -159,6 +159,9 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
     Args:
         data_dir: Folder where the data buffers were written by the `_WriteBuffer`.
             It should correspond to `CacheLocation.data`.
+        pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
+            Internally this will be passed to the `Distiset` object on creation to allow
+            uploading the `pipeline.yaml` file to the repo upon `Distiset.push_to_hub`.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will

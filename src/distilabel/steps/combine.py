@@ -29,7 +29,7 @@ class CombineColumns(Step):
     `columns` and `output_columns` to specify the columns to merge and the output columns
     which will override the default value for the properties `inputs` and `outputs`, respectively.
 
-    Args:
+    Attributes:
         columns: List of strings with the names of the columns to merge.
         output_columns: Optional list of strings with the names of the output columns.
 

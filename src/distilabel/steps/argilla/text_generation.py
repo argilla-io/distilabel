@@ -42,7 +42,7 @@ class TextGenerationToArgilla(Argilla):
         This step is meant to be used in conjunction with a `TextGeneration` step and no column mapping
         is needed, as it will use the default values for the `instruction` and `generation` columns.
 
-    Args:
+    Attributes:
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
             `None`, which means it will be created in the default workspace.
@@ -69,6 +69,8 @@ class TextGenerationToArgilla(Argilla):
         uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
+        super().load()
+
         self._rg_init()
 
         self._instruction = self.input_mappings.get("instruction", "instruction")
@@ -117,7 +119,7 @@ class TextGenerationToArgilla(Argilla):
         return ["instruction", "generation"]
 
     @override
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
 
         Args:

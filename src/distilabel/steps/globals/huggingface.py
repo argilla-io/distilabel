@@ -30,7 +30,7 @@ class PushToHub(GlobalStep):
     """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
     it to the Hugging Face Hub.
 
-    Args:
+    Attributes:
         repo_id: The Hugging Face Hub repository ID where the dataset will be uploaded.
         split: The split of the dataset that will be pushed. Defaults to `"train"`.
         private: Whether the dataset to be pushed should be private or not. Defaults to
@@ -73,7 +73,7 @@ class PushToHub(GlobalStep):
         " to `None`",
     )
 
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Method that processes the input data, respecting the `datasets.Dataset` formatting,
         and pushes it to the Hugging Face Hub based on the `RuntimeParameter`s attributes.
 
