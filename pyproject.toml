@@ -26,6 +26,7 @@ dependencies = [
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "Jinja2 >= 3.1.2",
     "multiprocess >= 0.70",
+    "nest-asyncio >= 1.6.0",
     "networkx >= 3.0",
     "pydantic >= 2.0",
     "rich >= 13.5.0",
