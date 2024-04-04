@@ -133,3 +133,17 @@ print(json.dumps(next(expand_columns.process(combined)), indent=2))
 ```
 
 Obtaining the columns as a list of rows, that could be processed for a further step requiring the data in that special format.
+
+## Sending data to Argilla
+
+!!! Warning
+    Add examples of argilla steps, include screenshots
+
+### Text Generation data
+
+[`TextGenerationToArgilla`][distilabel.steps.argilla.text_generation]
+
+### Preference data
+
+[`PreferenceToArgilla`][distilabel.steps.argilla.preference]
+
