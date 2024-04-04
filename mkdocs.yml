@@ -101,6 +101,13 @@ nav:
         - "sections/learn/steps/generator_steps.md"
         - "sections/learn/steps/global_steps.md"
         - "sections/learn/steps/general_steps.md"
+      - Tasks:
+        - "sections/learn/tasks/index.md"
+        - "sections/learn/tasks/text_generation.md"
+        - "sections/learn/tasks/feedback_tasks.md"
+        - "sections/learn/tasks/special_tasks.md"
+      - LLMs:
+        - "sections/learn/llms/index.md"
       - Pipeline:
         - "sections/learn/pipelines/base.md"
         - "sections/learn/pipelines/local.md"
