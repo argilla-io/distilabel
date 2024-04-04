@@ -27,6 +27,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
+from distilabel.utils.notebook import is_notebook
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -34,6 +35,12 @@ if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.task.typing import ChatType
     from distilabel.utils.docstring import Docstring
+
+
+if is_notebook():
+    import nest_asyncio
+
+    nest_asyncio.apply()
 
 
 class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
