@@ -119,6 +119,7 @@ nav:
     - Papers:
       - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
       - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
+      - "DEITA: Data-Efficient Instruction Tuning for Alignment": "sections/papers/deita.md"
   - API Reference:
     - Pipeline:
       - "api/pipeline/pipeline.md"
