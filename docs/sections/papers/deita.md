@@ -1,5 +1,7 @@
 # 🤖 DEITA: Data-Efficient Instruction Tuning for Alignment: What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
 
+## Introduction
+
 DEITA (Data-Efficient Instruction Tuning for Alignment) studies an automatic data selection process by first quantifying the data quality based on complexity, quality and diversity. And second, selecting across the best potential combination from an open-source dataset that would fit into the budget you allocate to tune your own LLM.
 
 In most setting we cannot allocate unlimited resources for instruction-tuning LLMs. Therefore, the DEITA authors investigated how to select qualitative data for instruction-tuning based on a principle of fewer high quality samples. Liu et al. tackle the issue of first defining good data and second identifying it to respect an initial budget to instruct-tune your LLM.
@@ -10,7 +12,7 @@ The strategy utilizes **LLMs to replace human effort in time-intensive data qual
 
 You can see that we see again the dataset of instructions/responses and we kind of reproducing the second step when we learn how to optimize the responses according to an instruction by comparing several possibilities.
 
-## Datasets and budget
+### Datasets and budget
 
 We will dive deeper into the whole process. We will investigate each stage to efficiently select the final dataset used for supervised fine-tuning with a budget constraint. We will tackle technical challenges by explaining exactly how you would assess good data as presented in the paper.
 
@@ -24,17 +26,16 @@ The authors claim that the subsample size "correlates proportionally with the co
 
 To match the experimental set-up, dataset *X\_sota* is a meta-dataset combining major open-source datasets available to instruct-tune LLMs. This dataset is composed of [ShareGPT](https://huggingface.co/datasets/shibing624/sharegpt_gpt4) (58k instruction/response pairs), [UltraChat](https://huggingface.co/datasets/stingning/ultrachat) (105k instruction/response pairs) and [WizardLM](https://github.com/nlpxucan/WizardLM) (143k instruction/response pairs). It sums to more than 300k instruction/response pairs. We aim to reduce the final subsample to 6k instruction/response pairs.
 
-## 0. Setup the notebook and packages
+## Setup the notebook and packages
 
-Let's prepare our dependencies
+Let's prepare our dependencies:
 
 ```bash
-!pip install "distilabel[openai,hf-transformers]>=1.0.0"
+pip install "distilabel[openai,hf-transformers]>=1.0.0"
 pip install pynvml huggingface_hub argilla
 ```
 
-
-Import distilabel 
+Import distilabel:
 
 ```python
 from distilabel.llm.huggingface.transformers import TransformersLLM
@@ -57,15 +58,15 @@ Define the distilabel Pipeline and load the dataset from the Hugging Face Hub.
 pipeline = Pipeline(name="DEITA")
 
 load_data = LoadHubDataset(
-        name="load_data", batch_size=100, output_mappings={"prompt": "instruction"}, pipeline=pipeline
-    )
+    name="load_data", batch_size=100, output_mappings={"prompt": "instruction"}, pipeline=pipeline
+)
 ```
 
-## 1. EVOL-INSTRUCT: Generate Instructions with an LLM
+## EVOL-INSTRUCT: Generate Instructions with an LLM
 
 [Evol-Instruct](https://arxiv.org/abs/2304.12244) automates the creation of complex instruction data for training large language models (LLMs) by progressively rewriting an initial set of instructions into more complex forms. This generated data is then used to fine-tune a model named WizardLM.
 
-Evaluations show that instructions from Evol-Instruct are superior to human-created ones, and WizardLM achieves performance close to or exceeding GPT3.5-turbo in many skills.  In  distilabel, we initialise each step of the data generation pipeline. Later, we\'ll connect them together.
+Evaluations show that instructions from Evol-Instruct are superior to human-created ones, and WizardLM achieves performance close to or exceeding GPT3.5-turbo in many skills.  In  distilabel, we initialise each step of the data generation pipeline. Later, we'll connect them together.
 
 
 ```python
@@ -81,20 +82,24 @@ evol_instruction_complexity = EvolInstruct(
 
 evol_instruction_complexity.load()
 
-_evolved_instructions = next(evol_instruction_complexity.process(([{"instruction": "How many fish are there in a dozen fish?"}])))
-print(*_evolved_instructions, sep="\n")
+_evolved_instructions = next(evol_instruction_complexity.process(
+    ([{"instruction": "How many fish are there in a dozen fish?"}]))
+)
 
+print(*_evolved_instructions, sep="\n")
 ```
+
 Output:
+
 ```bash
 ( 1, 'How many fish are there in a dozen fish?')
 ( 2, 'How many rainbow trout are there in a dozen rainbow trout?')
 ( 3, 'What is the average weight in pounds of a dozen rainbow trout caught in a specific river in Alaska during the month of May?')
 ```
 
-## 2. EVOL COMPLEXITY: Evaluate complexity of generated instructions
+## EVOL COMPLEXITY: Evaluate complexity of generated instructions
 
-The second step is the evaluation of *complexity* for an instruction in a given instruction-response pair. Like EVOL-INSTRUCT, this method leverages LLMs instead of humans to automatically score instructions. From any instruction-response pair, *(I, R)*, we first generate new instructions following the In-Depth Evolving Response. We generate more complex instructions through prompting, as explained by authors, by adding some constraints or reasoning steps. Let\'s take an example from [GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM) which aims to generate observations by GPT-4 to instruct-tune LLMs with supervised fine-tuning. And, we have the instruction *instruction\_0*:
+The second step is the evaluation of *complexity* for an instruction in a given instruction-response pair. Like EVOL-INSTRUCT, this method leverages LLMs instead of humans to automatically score instructions. From any instruction-response pair, $(I, R)$, we first generate new instructions following the In-Depth Evolving Response. We generate more complex instructions through prompting, as explained by authors, by adding some constraints or reasoning steps. Let\'s take an example from [GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM) which aims to generate observations by GPT-4 to instruct-tune LLMs with supervised fine-tuning. And, we have the instruction $instruction_0$:
 
 ```python
 instruction_0 = "Give three tips for staying healthy."
@@ -103,8 +108,7 @@ instruction_0 = "Give three tips for staying healthy."
 To make it more complex, you can use, as the authors did, some prompt templates to add constraints or deepen the instruction. They provided some prompts in the paper appendix. For instance, this one was used to add constraints:
 
 ```python
-PROMPT = """
-I want you act as a Prompt Rewriter.
+PROMPT = """I want you act as a Prompt Rewriter.
 Your objective is to rewrite a given prompt into a more complex version to
 make those famous AI systems (e.g., ChatGPT and GPT4) a bit harder to handle.
 But the rewritten prompt must be reasonable and must be understood and
@@ -123,33 +127,33 @@ are not allowed to appear in #Rewritten Prompt#
 """
 ```
 
- Prompting this to an LLM, you automatically get a more complex instruction, called instruction\_1, from an initial instruction instruction\_0:
+Prompting this to an LLM, you automatically get a more complex instruction, called $instruction_1$, from an initial instruction $instruction_0$:
 
 ```python
 instruction_1 = "Provide three recommendations for maintaining well-being, ensuring one focuses on mental health."
 ```
 
-With sequences of evolved instructions, we use a further LLM to automatically rank and score them. We provide the 6 instructions at the same time. By providing all instructions together, we force the scoring model to look at minor complexity differences between evolved instructions. Encouraging the model to discriminate between instructions. Taking the example below, instruction\_0 and instruction\_1 could deserve the same score independently, but when compared together we would notice the slight difference that makes instruction\_1 more complex.
+With sequences of evolved instructions, we use a further LLM to automatically rank and score them. We provide the 6 instructions at the same time. By providing all instructions together, we force the scoring model to look at minor complexity differences between evolved instructions. Encouraging the model to discriminate between instructions. Taking the example below, $instruction_0$ and $instruction_1$ could deserve the same score independently, but when compared together we would notice the slight difference that makes $instruction_1$ more complex.
 
 In  distilabel, we implement this like so:
 
 ```python
 instruction_complexity_scorer = ComplexityScorer(
-        name="instruction_complexity_scorer",
-        llm=OpenAILLM(model="gpt-3.5-turbo"),
-        input_mappings={"instructions": "evolved_instructions"},
-        pipeline=pipeline,
+    name="instruction_complexity_scorer",
+    llm=OpenAILLM(model="gpt-3.5-turbo"),
+    input_mappings={"instructions": "evolved_instructions"},
+    pipeline=pipeline,
 )
 
 expand_evolved_instructions = ExpandColumns(
-        name="expand_evolved_instructions",
-        columns=["evolved_instructions", "answers", "scores"],
-        output_mappings={
-            "evolved_instructions": "evolved_instruction",
-            "answers": "answer",
-            "scores": "evol_instruction_score",
-        },
-        pipeline=pipeline,
+    name="expand_evolved_instructions",
+    columns=["evolved_instructions", "answers", "scores"],
+    output_mappings={
+        "evolved_instructions": "evolved_instruction",
+        "answers": "answer",
+        "scores": "evol_instruction_score",
+    },
+    pipeline=pipeline,
 )
 
 instruction_complexity_scorer.load()
@@ -161,7 +165,9 @@ print(instruction_1)
 print("\nEvolved Instruction:")
 print(_evolved_instructions[0]["evolved_instructions"][0].split("#Rewritten Prompt#:\n")[1])
 ```
+
 Output:
+
 ```
 Original Instruction:
 Provide three recommendations for maintaining well-being, ensuring one focuses on mental health.
@@ -170,13 +176,13 @@ Evolved Instruction:
 Provide three recommendations for maintaining well-being, ensuring one focuses on mental health.
 ```
 
-# 3. EVOL-QUALITY: Quality Evaluation
+## EVOL-QUALITY: Quality Evaluation
 
 Now that we have scored the *complexity* of the instructions, we will focus on the *quality* of the responses. Similar to *EVOL COMPLEXITY*, the authors introduced *EVOL QUALITY, a method* based on LLMs, instead of humans, to automatically score the quality of the response.
 
-From an instruction-response pair, *(I, R)*, the goal is to make the response evolve into a more helpful and relevant response. The key difference is that we need to also provide the first instruction to guide evolution. Let\'s take back our example from [GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM).
+From an instruction-response pair, $(I, R)$, the goal is to make the response evolve into a more helpful and relevant response. The key difference is that we need to also provide the first instruction to guide evolution. Let's take back our example from [GPT-4-LLM](https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM).
 
-Here we have the response *response\_0* and its initial instruction *instruction\_0*:
+Here we have the response $response_0$ and its initial instruction $instruction_0$:
 
 ```python
 instruction_0 = "Give three tips for staying healthy."
@@ -186,8 +192,7 @@ reponse_0 = "1. Eat a balanced and nutritious diet: Make sure your meals are inc
 Again the authors provided several prompts you could use to make your response evolve according to some guidelines. For example, this one was used to enrich the answer:
 
 ```python
-PROMPT = """
-I want you to act as a Response Rewriter
+PROMPT = """I want you to act as a Response Rewriter
 Your goal is to enhance the quality of the response given by an AI assistant
 to the #Given Prompt# through rewriting.
 But the rewritten response must be reasonable and must be understood by humans.
@@ -208,7 +213,7 @@ are not allowed to appear in #Rewritten Response#
 """
 ```
 
-Prompting this to an LLM, you will automatically get a more enriched response, called response\_1, from an initial response response\_0 and initial instruction instruction\_0:
+Prompting this to an LLM, you will automatically get a more enriched response, called $response_1$, from an initial response $response_0$ and initial instruction $instruction_0$:
 
 ```python
 evol_response_quality = EvolQuality(
@@ -234,7 +239,7 @@ print("\nEvolved Response:")
 print(*_evolved_responses[0]['evolved_responses'], sep="\n")
 ```
 
-And now, as in EVOL COMPLEXITY you iterate through this path and use different prompts to make your responses more relevant, helpful or creative. In the paper, they make 4 more iterations to get 5 evolved responses (R0,R1, R2, R3, R4 ) which makes 5 different responses for one initial instruction at the end of this step.
+And now, as in EVOL COMPLEXITY you iterate through this path and use different prompts to make your responses more relevant, helpful or creative. In the paper, they make 4 more iterations to get 5 evolved responses $(R0, R1, R2, R3, R4)$ which makes 5 different responses for one initial instruction at the end of this step.
 
 ```python
 response_quality_scorer = QualityScorer(
@@ -267,7 +272,9 @@ print(reponse_0)
 print("\nScore, Evolved Response:")
 print(*zip(_scored_responses[0]["scores"], _evolved_responses[0]['evolved_responses']), sep="\n")
 ```
+
 Output:
+
 ```bash
 Original Response:
 1. Eat a balanced and nutritious diet: Make sure your meals are inclusive of a variety of fruits and vegetables, lean protein, whole grains, and healthy fats. This helps to provide your body with the essential nutrients to function at its best and can help prevent chronic diseases. 2. Engage in regular physical activity: Exercise is crucial for maintaining strong bones, muscles, and cardiovascular health. Aim for at least 150 minutes of moderate aerobic exercise or 75 minutes of vigorous exercise each week. 3. Get enough sleep: Getting enough quality sleep is crucial for physical and mental well-being. It helps to regulate mood, improve cognitive function, and supports healthy growth and immune function. Aim for 7-9 hours of sleep each night.
@@ -276,14 +283,13 @@ Score, Evolved Response:
 (4.0, 'Here are three essential tips for maintaining good health: \n1. Prioritize regular exercise \n2. Eat a balanced diet with plenty of fruits and vegetables \n3. Get an adequate amount of sleep each night.')
 (2.0, 'Here are three effective strategies to maintain a healthy lifestyle.')
 (5.0, 'Here are three practical tips to maintain good health: Ensure a balanced diet, engage in regular exercise, and prioritize sufficient sleep. These practices support overall well-being.')
-
 ```
 
-## 4. Improving Data Diversity
+## Improving Data Diversity
 
 One main component of good data to instruct-tune LLMs is diversity. Real world data can often contain [redundancy](https://openreview.net/forum?id=u96ZBg_Shna) due repetitive and homogenous data.
 
-The authors of the DEITA paper tackle the challenge of ensuring data diversity in the instruction tuning LLMs to avoid the pitfalls of data redundancy that can lead to overfitting or poor generalization. They propose an embedding-based method to filter data for diversity. This method, called Repr Filter, uses embeddings generated by the LLaMA-1 13B model to represent instruction-response pairs in a vector space. The diversity of a new data sample is assessed based on the cosine distance between its embedding and that of its nearest neighbor in the already selected dataset. If this distance is greater than a specified threshold, the sample is considered diverse and is added to the selection. This process prioritizes diversity by assessing each sample\'s contribution to the variety of the dataset until the data selection budget is met. This approach effectively maintains the diversity of the data used for instruction tuning, as demonstrated by the DEITA models outperforming or matching state-of-the-art models with significantly less training data.
+The authors of the DEITA paper tackle the challenge of ensuring data diversity in the instruction tuning LLMs to avoid the pitfalls of data redundancy that can lead to overfitting or poor generalization. They propose an embedding-based method to filter data for diversity. This method, called Repr Filter, uses embeddings generated by the *LLaMA-1 13B* model to represent instruction-response pairs in a vector space. The diversity of a new data sample is assessed based on the cosine distance between its embedding and that of its nearest neighbor in the already selected dataset. If this distance is greater than a specified threshold, the sample is considered diverse and is added to the selection. This process prioritizes diversity by assessing each sample's contribution to the variety of the dataset until the data selection budget is met. This approach effectively maintains the diversity of the data used for instruction tuning, as demonstrated by the DEITA models outperforming or matching state-of-the-art models with significantly less training data.
 
 ![image.png](https://github.com/argilla-io/distilabel/blob/docs/deita-tutorial/docs/assets/tutorials-assets/deita/diversity.png)
 
@@ -311,10 +317,11 @@ generate_embeddings = GenerateEmbeddings(
 
 deita_filtering = DeitaFiltering(name="deita_filtering", pipeline=pipeline)
 ```
-# Build the ⚗ distilabel `Pipeline`
 
-Now we\'re ready to build a distilabel pipeline using the DEITA
-method.
+## Build the ⚗ distilabel `Pipeline`
+
+Now we're ready to build a distilabel pipeline using the DEITA
+method:
 
 ```python
 load_data.connect(evol_instruction_complexity)
@@ -329,7 +336,7 @@ generate_embeddings.connect(deita_filtering)
 ```
 
 Now we can run the pipeline. We use the step names to reference them in
-the pipeline configuration.
+the pipeline configuration:
 
 ```python
 distiset = pipeline.run(
@@ -354,7 +361,7 @@ distiset = pipeline.run(
 )
 ```
 
-We can push the results to the hub.
+We can push the results to the hub:
 
 ```python
 distiset.push_to_hub("distilabel-internal-testing/deita-colab")
