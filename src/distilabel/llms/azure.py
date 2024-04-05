@@ -24,7 +24,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 if TYPE_CHECKING:
     from openai import AsyncAzureOpenAI
 
-_AZURE_OPENAI_BASE_URL_ENV_VAR_NAME = "AZURE_OPENAI_BASE_URL"
+_AZURE_OPENAI_ENDPOINT_ENV_VAR_NAME = "AZURE_OPENAI_ENDPOINT"
 _AZURE_OPENAI_API_KEY_ENV_VAR_NAME = "AZURE_OPENAI_API_KEY"
 
 
@@ -34,17 +34,19 @@ class AzureOpenAILLM(OpenAILLM):
 
     Attributes:
         model: the model name to use for the LLM i.e. the name of the Azure deployment.
-        base_url: the base URL to use for the Azure OpenAI API can be set with `AZURE_OPENAI_BASE_URL`.
+        base_url: the base URL to use for the Azure OpenAI API can be set with `AZURE_OPENAI_ENDPOINT`.
             Defaults to `None` which means that the value set for the environment variable
             `TOGETHER_BASE_URL` will be used, or `None` if not set.
         api_key: the API key to authenticate the requests to the Azure OpenAI API. Defaults to `None`
             which means that the value set for the environment variable `AZURE_OPENAI_API_KEY` will be
             used, or `None` if not set.
-        api_version: the API version to use for the Azure OpenAI API.
+        api_version: the API version to use for the Azure OpenAI API. Defaults to `None` which means
+            that the value set for the environment variable `OPENAI_API_VERSION` will be used, or
+            `None` if not set.
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(
-        default_factory=lambda: os.getenv(_AZURE_OPENAI_BASE_URL_ENV_VAR_NAME, None),
+        default_factory=lambda: os.getenv(_AZURE_OPENAI_ENDPOINT_ENV_VAR_NAME),
         description="The base URL to use for the Azure OpenAI API requests i.e. the Azure OpenAI endpoint.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
@@ -53,11 +55,11 @@ class AzureOpenAILLM(OpenAILLM):
     )
 
     api_version: Optional[RuntimeParameter[str]] = Field(
-        default=...,
+        default_factory=lambda: os.getenv("OPENAI_API_VERSION"),
         description="The API version to use for the Azure OpenAI API.",
     )
 
-    _base_url_env_var: str = PrivateAttr(_AZURE_OPENAI_BASE_URL_ENV_VAR_NAME)
+    _base_url_env_var: str = PrivateAttr(_AZURE_OPENAI_ENDPOINT_ENV_VAR_NAME)
     _api_key_env_var: str = PrivateAttr(_AZURE_OPENAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAzureOpenAI"] = PrivateAttr(...)  # type: ignore
 
