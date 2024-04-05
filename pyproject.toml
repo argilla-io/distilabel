@@ -51,6 +51,7 @@ docs = [
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
 ]
+tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
@@ -62,8 +63,6 @@ llama-cpp = ["llama-cpp-python >= 0.2.0"]
 mistralai = ["mistralai >= 0.1.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
-tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
-together = ["together"]
 vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 
