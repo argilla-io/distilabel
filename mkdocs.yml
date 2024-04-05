@@ -96,14 +96,18 @@ nav:
   - Learn: 
     - "sections/learn/index.md"
     - Tutorial:
-      - Steps:
-        - "sections/learn/steps/steps.md"
-        - Generator Steps: "api/steps/generator_steps/generator_steps.md"
-        - Global Steps: "api/steps/global_steps/global_steps.md"
-        - Tasks:
-          - "api/steps/tasks/text_generation.md"
-          - "api/steps/tasks/preference_tasks.md"
-          - "api/steps/tasks/embeddings.md"
+      - Steps: 
+        - "sections/learn/steps/index.md"
+        - "sections/learn/steps/generator_steps.md"
+        - "sections/learn/steps/global_steps.md"
+        - "sections/learn/steps/general_steps.md"
+      - Tasks:
+        - "sections/learn/tasks/index.md"
+        - "sections/learn/tasks/text_generation.md"
+        - "sections/learn/tasks/feedback_tasks.md"
+        - "sections/learn/tasks/special_tasks.md"
+      - LLMs:
+        - "sections/learn/llms/index.md"
       - Pipeline:
         - "sections/learn/pipelines/base.md"
         - "sections/learn/pipelines/local.md"
@@ -130,6 +134,7 @@ nav:
         - "api/steps/tasks/text_generation.md"
         - "api/steps/tasks/preference_tasks.md"
         - "api/steps/tasks/embeddings.md"
+      - "api/steps/decorator.md"
     - LLMs:
       - "api/llms/anthropic.md"
       - "api/llms/anyscale.md"
@@ -142,3 +147,5 @@ nav:
       - "api/llms/together.md"
       - "api/llms/vertexai.md"
       - "api/llms/vllm.md"
+    - Command Line Interface:
+      - "api/cli.md"

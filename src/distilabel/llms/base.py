@@ -27,6 +27,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
+from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
@@ -34,6 +35,12 @@ if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.utils.docstring import Docstring
+
+
+if in_notebook():
+    import nest_asyncio
+
+    nest_asyncio.apply()
 
 
 class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -217,9 +224,14 @@ class AsyncLLM(LLM):
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":
-        if self._event_loop is None or self._event_loop.is_closed():
-            self._event_loop = asyncio.new_event_loop()  # type: ignore
-            asyncio.set_event_loop(self._event_loop)
+        if self._event_loop is None:
+            try:
+                self._event_loop = asyncio.get_running_loop()
+                if self._event_loop.is_closed():
+                    self._event_loop = asyncio.new_event_loop()  # type: ignore
+            except RuntimeError:
+                self._event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._event_loop)
         return self._event_loop
 
     @abstractmethod

@@ -14,6 +14,7 @@
 
 from distilabel.llms.anthropic import AnthropicLLM
 from distilabel.llms.anyscale import AnyscaleLLM
+from distilabel.llms.azure import AzureOpenAILLM
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
 from distilabel.llms.litellm import LiteLLM
@@ -30,6 +31,7 @@ from distilabel.llms.vllm import vLLM
 __all__ = [
     "AnthropicLLM",
     "AnyscaleLLM",
+    "AzureOpenAILLM",
     "LLM",
     "AsyncLLM",
     "InferenceEndpointsLLM",

@@ -19,6 +19,7 @@ def test_imports() -> None:
         AnthropicLLM,
         AnyscaleLLM,
         AsyncLLM,
+        AzureOpenAILLM,
         CudaDevicePlacementMixin,
         GenerateOutput,
         HiddenState,
