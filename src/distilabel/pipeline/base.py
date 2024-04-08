@@ -318,6 +318,7 @@ class BasePipeline(_Serializable):
                 self._cache_location["batch_manager"],
                 format=self._cache_location["batch_manager"].suffix.replace(".", ""),
             )
+        self._logger.debug("Pipeline and batch manager saved to cache.")
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -675,19 +676,12 @@ class _BatchManager(_Serializable):
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         return self._last_batch_received.get(step_name)
 
-    def add_batch(self, to_step: str, batch: _Batch) -> Union[_Batch, None]:
-        """Add an output batch from `batch.step_name` to `to_step`. If there is enough
-        data for creating a `_Batch` for `to_step`, then it will return the batch to be
-        processed. Otherwise, it will return `None`.
+    def add_batch(self, to_step: str, batch: _Batch) -> None:
+        """Add an output batch from `batch.step_name` to `to_step`.
 
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
-            callback: A callback to be called after the batch is added.
-
-        Returns:
-            If there is enough data for creating a batch for `to_step`, then it will return
-            the batch to be processed. Otherwise, it will return `None`.
 
         Raises:
             ValueError: If `to_step` is not found in the batch manager.
@@ -697,7 +691,6 @@ class _BatchManager(_Serializable):
 
         step = self._steps[to_step]
         step.add_batch(batch)
-        return step.get_batch()
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
@@ -896,7 +889,7 @@ class _WriteBuffer:
         data = batch.data[0]
         self._buffers[step_name].extend(data)
         self._logger.debug(
-            f"Added batch to buffer for step '{step_name}' with {len(data)} rows."
+            f"Added batch to write buffer for step '{step_name}' with {len(data)} rows."
         )
         if self.is_full(step_name):
             self._logger.debug(

@@ -811,17 +811,12 @@ class TestBatchManager:
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
 
-        batch = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
 
-        assert batch == _Batch(
-            step_name="step3",
-            seq_no=0,
-            last_batch=False,
-            data=[
-                [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
-                [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
-            ],
-        )
+        assert batch_manager._steps["step3"].data == {
+            "step1": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
+            "step2": [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
+        }
 
     def test_from_dag(
         self,
