@@ -1,4 +1,4 @@
-# Tasks
+# Tasks
 
 ## What is a Task in distilabel?
 
