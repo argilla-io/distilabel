@@ -89,6 +89,39 @@ It takes the dictionary with data, adds another `conversation` with the data for
 
 This is a small type step that shows what to expect when we are creating our `Step` objects, which can start from something as simple as generating a conversation template from some columns on a dataset.
 
+
+## Runtime Parameters
+
+Let's take a look at a special argument implementation that we will find when dealing with the `Steps`, the [Runtime paramaters][distilabel.mixins.runtime_parameters.RuntimeParameter]. Let's inspect them using the previous example class:
+
+```python
+print(conversation_template.runtime_parameters_names)
+# {'input_batch_size': True}
+```
+
+The `ConversationTemplate` only has one `runtime_parameter`, which comes defined from the `Step` class, and can be defined as such:
+
+```python
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+class Step(...):
+    ...
+    input_batch_size: RuntimeParameter[PositiveInt] = Field(
+        default=DEFAULT_INPUT_BATCH_SIZE,
+        description="The number of rows that will contain the batches processed by the"
+        " step.",
+    )
+```
+
+When we define the `input_batch_size` as a `RuntimeParameter`, the most direct effect we can see is we have some access to some extra information, thanks to the [RuntimeParamatersMixin][distilabel.mixins.runtime_parameters.RuntimeParametersMixin]:
+
+```python
+print(conversation_template.get_runtime_parameters_info())
+# [{'name': 'input_batch_size', 'optional': True, 'description': 'The number of rows that will contain the batches processed by the step.'}]
+```
+
+But other than accessing some extra information internally, we can directly interact with these parameters when we interacting or modifying the arguments of our `Steps` while running them in the context of a `Pipeline`. We will see them in action once we interact with the `Steps` inside of a `Pipeline`.
+
 ## step decorator
 
 If all that we want to apply in a step is some simple processing, it can be easier to just create a plain function, and decorate it. We can find more examples in the [API reference][distilabel.steps.decorator], but let's see how we could define the previous step as a function and use the decorator:
@@ -119,38 +152,6 @@ conversation_template = ConversationTemplate(
 ```
 
 This `@step` decorator has a special type depending `step_type` which will be better understood once we see the different types of steps.
-
-## Runtime Parameters
-
-There is one extra thing to keep in mind related to how we can interact with the step's parameters, the [Runtime paramaters][distilabel.mixins.runtime_parameters]. Let's inspect them using the previous example class:
-
-```python
-print(conversation_template.runtime_parameters_names)
-# {'input_batch_size': True}
-```
-
-The `ConversationTemplate` only has one `runtime_parameter`, which comes defined from the `Step` class, and can be defined as such:
-
-```python
-from distilabel.mixins.runtime_parameters import RuntimeParameter
-
-class Step(...):
-    ...
-    input_batch_size: RuntimeParameter[PositiveInt] = Field(
-        default=DEFAULT_INPUT_BATCH_SIZE,
-        description="The number of rows that will contain the batches processed by the"
-        " step.",
-    )
-```
-
-When we define the `input_batch_size` as a `RuntimeParameter`, the most direct effect we can see is we have some access to some extra information, thanks to the [RuntimeParamatersMixin][distilabel.mixins.runtime_parameters.RuntimeParametersMixin]:
-
-```python
-print(conversation_template.get_runtime_parameters_info())
-# [{'name': 'input_batch_size', 'optional': True, 'description': 'The number of rows that will contain the batches processed by the step.'}]
-```
-
-But other than accessing some extra information internally, we can directly interact with these parameters when we interacting or modifying the arguments of our `Steps` while running them in the context of a `Pipeline`. We will see them in action once we interact with the `Steps` inside of a `Pipeline`.
 
 ## Types of steps
 
