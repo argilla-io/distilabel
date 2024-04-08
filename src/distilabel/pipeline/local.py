@@ -157,8 +157,6 @@ class Pipeline(BasePipeline):
                 f" queue: {batch}"
             )
 
-            self._add_batch_to_batch_manager(batch)
-
             self._manage_batch_flow(batch)
 
             if batch.step_name in self.dag.leaf_steps:
@@ -192,24 +190,31 @@ class Pipeline(BasePipeline):
         """
         assert self._batch_manager, "Batch manager is not set"
 
+        self._batch_manager.register_batch(batch)
+
         if batch.last_batch:
             return
 
         step: "Step" = self.dag.get_step(batch.step_name)["step"]
 
-        # Check if the step is a generator and if there are successors that need data
-        # from this step. This usually happens when the generator `batch_size` is smaller
-        # than the `input_batch_size` of the successor steps.
-        if step.is_generator:
-            for successor in self.dag.get_step_successors(step.name):
-                if step.name not in self._batch_manager.step_empty_buffers(successor):
-                    continue
+        for successor in self.dag.get_step_successors(step.name):
+            self._batch_manager.add_batch(successor, batch)
+            self._cache()
 
-                # If the successor has an empty buffer, request a new batch to the this
-                # (generator) step
-                if last_batch := self._batch_manager.get_last_batch(step.name):
-                    self._send_batch_to_step(last_batch.next_batch())
-                    return
+            # Check if the step is a generator and if there are successors that need data
+            # from this step. This usually happens when the generator `batch_size` is smaller
+            # than the `input_batch_size` of the successor steps.
+            if (
+                step.is_generator
+                and step.name in self._batch_manager.step_empty_buffers(successor)
+            ):
+                last_batch = self._batch_manager.get_last_batch(step.name)
+                self._send_batch_to_step(last_batch.next_batch())  # type: ignore
+
+            if new_batch := self._batch_manager.get_batch(successor):
+                self._send_batch_to_step(new_batch)
+
+        if step.is_generator:
             return
 
         empty_buffers = self._batch_manager.step_empty_buffers(step.name)
