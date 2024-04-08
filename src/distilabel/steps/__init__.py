@@ -14,7 +14,7 @@
 
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
-from distilabel.steps.base import GeneratorStep, GlobalStep, Step
+from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.combine import CombineColumns
 from distilabel.steps.conversation import ConversationTemplate
 from distilabel.steps.decorator import step
@@ -40,6 +40,7 @@ __all__ = [
     "LoadHubDataset",
     "PushToHub",
     "Step",
+    "StepInput",
     "GeneratorStepOutput",
     "StepOutput",
     "step",
