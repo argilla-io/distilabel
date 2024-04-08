@@ -18,22 +18,37 @@ The dataset will be pushed with the following configuration:
     The `TextGenerationToArgilla` step will only work as is if the `Pipeline` contains one or multiple `TextGeneration` steps, or if the columns `instruction` and `generation` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generation` are mapped to one of the existing columns in the batch data.
 
 ```python
-from distilabel.steps import TextGenerationToArgilla
+from distilabel.llms import OpenAILLM
+from distilabel.steps import LoadDataFromDicts, PreferenceToArgilla
+from distilabel.steps.tasks import TextGeneration
 
 
-pipeline = Pipeline(name="my-pipeline")
+with Pipeline(name="my-pipeline") as pipeline:
+    load_dataset = LoadDataFromDicts(
+        name="load_dataset",
+        data=[
+            {
+                "instruction": "Write a short story about a dragon that saves a princess from a tower.",
+            },
+        ],
+    )
 
-...
+    text_generation = TextGeneration(
+        name="text_generation",
+        llm=OpenAILLM(model="gpt-4"),
+    )
+    load_dataset.connect(text_generation)
 
-step = TextGenerationToArgilla(
-    dataset_name="my-dataset",
-    dataset_workspace="admin",
-    api_url="<ARGILLA_API_URL>",
-    api_key="<ARGILLA_API_KEY>",
-    pipeline=pipeline,
-)
+    to_argilla = TextGenerationToArgilla(
+        dataset_name="my-dataset",
+        dataset_workspace="admin",
+        api_url="<ARGILLA_API_URL>",
+        api_key="<ARGILLA_API_KEY>",
+    )
 
-...
+    text_generation.connect(to_argilla)
+
+pipeline.run()
 ```
 
 ### Preference
@@ -53,20 +68,40 @@ The dataset will be pushed with the following configuration:
     Additionally, if the `Pipeline` contains an `UltraFeedback` step, the `ratings` and `rationales` will also be available, so if that's the case, those will be automatically injected as suggestions to the existing dataset so that the annotator only needs to review those, instead of fulfilling those by themselves.
 
 ```python
-from distilabel.steps import PreferenceToArgilla
+from distilabel.llms import OpenAILLM
+from distilabel.steps import LoadDataFromDicts, PreferenceToArgilla
+from distilabel.steps.tasks import TextGeneration
 
 
-pipeline = Pipeline(name="my-pipeline")
+with Pipeline(name="my-pipeline") as pipeline:
+    load_dataset = LoadDataFromDicts(
+        name="load_dataset",
+        data=[
+            {
+                "instruction": "Write a short story about a dragon that saves a princess from a tower.",
+            },
+        ],
+    )
 
-...
+    text_generation = TextGeneration(
+        name="text_generation",
+        llm=OpenAILLM(model="gpt-4"),
+        num_generations=4,
+        group_generations=True,
+    )
+    load_dataset.connect(text_generation)
 
-step = PreferenceToArgilla(
-    dataset_name="my-dataset",
-    dataset_workspace="admin",
-    api_url="<ARGILLA_API_URL>",
-    api_key="<ARGILLA_API_KEY>",
-    pipeline=pipeline,
-)
-...
+    to_argilla = PreferenceToArgilla(
+        dataset_name="my-dataset",
+        dataset_workspace="admin",
+        api_url="<ARGILLA_API_URL>",
+        api_key="<ARGILLA_API_KEY>",
+        num_generations=4,
+    )
+    text_generation.connect(to_argilla)
+
+pipeline.run()
 ```
 
+!!! NOTE
+    If you are willing to also add the suggestions, feel free to check [UltraFeedback: Boosting Language Models with High-quality Feedback](../../papers/ultrafeedback.md) where the `UltraFeedback` task is used to generate both ratings and rationales for each of the generations of a given instruction.
