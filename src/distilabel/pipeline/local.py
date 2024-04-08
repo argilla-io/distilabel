@@ -17,7 +17,7 @@ import multiprocessing as mp
 import signal
 import threading
 import time
-from typing import TYPE_CHECKING, Any, Dict, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from distilabel.distiset import create_distiset
 from distilabel.llm.mixins import CudaDevicePlacementMixin
@@ -35,13 +35,16 @@ if TYPE_CHECKING:
 
 
 _STEPS_LOADED_KEY = "steps_loaded"
-_STEPS_LOADED_LOCK = "steps_loaded_lock"
+_STEPS_LOADED_LOCK_KEY = "steps_loaded_lock"
 _STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
-_CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
+_CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+
+_STEPS_LOADED = set()
+_STEPS_LOADED_LOCK = threading.Lock()
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
@@ -229,9 +232,9 @@ class Pipeline(BasePipeline):
         return manager.dict(
             **{
                 _STEPS_LOADED_KEY: manager.list(),
-                _STEPS_LOADED_LOCK: manager.Lock(),
+                _STEPS_LOADED_LOCK_KEY: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
-                _CUDA_LLM_DEVICE_PLACEMENT_LOCK: manager.Lock(),
+                _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY: manager.Lock(),
             }
         )
 
@@ -241,10 +244,15 @@ class Pipeline(BasePipeline):
         Returns:
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
+
+        def _update_all_steps_loaded(steps_loaded: List[str]) -> None:
+            with _STEPS_LOADED_LOCK:
+                _STEPS_LOADED.update(steps_loaded)
+
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
         while True:
-            with self.shared_info[_STEPS_LOADED_LOCK]:
+            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
                 num_steps_loaded = (
                     len(steps_loaded)
@@ -260,10 +268,12 @@ class Pipeline(BasePipeline):
 
                 if num_steps_loaded == len(self.dag):
                     self._logger.info("✅ All the steps have been loaded!")
+                    _update_all_steps_loaded(steps_loaded)
                     return True
 
                 if steps_loaded == [_STEPS_LOADED_ERROR_CODE]:
                     self._logger.error("❌ Failed to load all the steps")
+                    _update_all_steps_loaded(steps_loaded)
                     return False
 
             time.sleep(2.5)
@@ -387,16 +397,29 @@ class Pipeline(BasePipeline):
                 return
             _STOP_CALLED = True
 
+        self._logger.debug(f"Steps loaded before calling `stop`: {_STEPS_LOADED}")
         self._logger.info("🛑 Stopping pipeline...")
 
         # Send `None` to the input queues of all the steps
         for step_name in self.dag:
+            if step_name not in _STEPS_LOADED:
+                self._logger.debug(
+                    f"Step '{step_name}' not loaded. Skipping sending sentinel `None`"
+                )
+                continue
+
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 input_queue.put(None)
                 self._logger.debug(f"Send `None` to step '{step_name}' input queue.")
 
         # Wait until all the steps finish processing the batches that were sent before
         for step_name in self.dag:
+            if step_name not in _STEPS_LOADED:
+                self._logger.debug(
+                    f"Step '{step_name}' not loaded. Avoiding waiting for it to finish."
+                )
+                continue
+
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 while input_queue.qsize() != 0:
                     pass
@@ -511,7 +534,7 @@ class _ProcessWrapper:
                     _CUDA_LLM_DEVICE_PLACEMENT_KEY
                 ],
                 device_llm_placement_lock=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK
+                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY
                 ],
             )
 
@@ -539,7 +562,7 @@ class _ProcessWrapper:
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
-        with self.shared_info[_STEPS_LOADED_LOCK]:
+        with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
             self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
 
     def _generator_step_process_loop(self) -> None:
