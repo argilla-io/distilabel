@@ -153,31 +153,14 @@ class Pipeline(BasePipeline):
                 break
 
             self._logger.debug(
-                f"Received {batch.seq_no} from step '{batch.step_name}' from output"
-                f" queue: {batch}"
+                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
+                f" from output queue: {batch}"
             )
 
             self._manage_batch_flow(batch)
 
             if batch.step_name in self.dag.leaf_steps:
                 write_buffer.add_batch(batch.step_name, batch)
-
-    def _add_batch_to_batch_manager(self, batch: "_Batch") -> None:
-        """Registers the batch in the `_BatchManager` and adds the batch to input buffer
-        of the successors steps from the step that generated the batch. If there's enough
-        data for creating a batch for a successor step, then the batch is created and sent
-        to that step.
-
-        Args:
-            batch: The batch to add to the `_BatchManager`.
-        """
-        assert self._batch_manager, "Batch manager is not set"
-
-        self._batch_manager.register_batch(batch)
-        for to_step in self.dag.get_step_successors(batch.step_name):
-            if new_batch := self._batch_manager.add_batch(to_step, batch):
-                self._send_batch_to_step(new_batch)
-        self._cache()
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -192,14 +175,10 @@ class Pipeline(BasePipeline):
 
         self._batch_manager.register_batch(batch)
 
-        if batch.last_batch:
-            return
-
         step: "Step" = self.dag.get_step(batch.step_name)["step"]
 
         for successor in self.dag.get_step_successors(step.name):
             self._batch_manager.add_batch(successor, batch)
-            self._cache()
 
             # Check if the step is a generator and if there are successors that need data
             # from this step. This usually happens when the generator `batch_size` is smaller
@@ -217,16 +196,13 @@ class Pipeline(BasePipeline):
         if step.is_generator:
             return
 
-        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
-
-        # Step has data in its buffers, send a new batch
-        if not empty_buffers and (
-            next_batch := self._batch_manager.get_batch(step.name)
-        ):
+        # Step has enough data on its buffers to create a new batch
+        if next_batch := self._batch_manager.get_batch(step.name):
             self._send_batch_to_step(next_batch)
             return
 
         # Request more batches to the predecessors generator steps
+        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
         for previous_step_name in empty_buffers:
             if previous_step_name not in self.dag.root_steps:
                 continue
@@ -237,6 +213,8 @@ class Pipeline(BasePipeline):
                     " empty. Requesting new batch..."
                 )
                 self._send_batch_to_step(last_batch.next_batch())
+
+        self._cache()
 
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.

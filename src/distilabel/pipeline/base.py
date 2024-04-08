@@ -318,6 +318,7 @@ class BasePipeline(_Serializable):
                 self._cache_location["batch_manager"],
                 format=self._cache_location["batch_manager"].suffix.replace(".", ""),
             )
+        self._logger.debug("Pipeline and batch manager saved to cache.")
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -888,7 +889,7 @@ class _WriteBuffer:
         data = batch.data[0]
         self._buffers[step_name].extend(data)
         self._logger.debug(
-            f"Added batch to buffer for step '{step_name}' with {len(data)} rows."
+            f"Added batch to write buffer for step '{step_name}' with {len(data)} rows."
         )
         if self.is_full(step_name):
             self._logger.debug(
