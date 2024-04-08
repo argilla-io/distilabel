@@ -120,6 +120,38 @@ conversation_template = ConversationTemplate(
 
 This `@step` decorator has a special type depending `step_type` which will be better understood once we see the different types of steps.
 
+## Runtime Parameters
+
+There is one extra thing to keep in mind related to how we can interact with the step's parameters, the [Runtime paramaters][distilabel.mixins.runtime_parameters]. Let's inspect them using the previous example class:
+
+```python
+print(conversation_template.runtime_parameters_names)
+# {'input_batch_size': True}
+```
+
+The `ConversationTemplate` only has one `runtime_parameter`, which comes defined from the `Step` class, and can be defined as such:
+
+```python
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+class Step(...):
+    ...
+    input_batch_size: RuntimeParameter[PositiveInt] = Field(
+        default=DEFAULT_INPUT_BATCH_SIZE,
+        description="The number of rows that will contain the batches processed by the"
+        " step.",
+    )
+```
+
+When we define the `input_batch_size` as a `RuntimeParameter`, the most direct effect we can see is we have some access to some extra information, thanks to the [RuntimeParamatersMixin][distilabel.mixins.runtime_parameters.RuntimeParametersMixin]:
+
+```python
+print(conversation_template.get_runtime_parameters_info())
+# [{'name': 'input_batch_size', 'optional': True, 'description': 'The number of rows that will contain the batches processed by the step.'}]
+```
+
+But other than accessing some extra information internally, we can directly interact with these parameters when we interacting or modifying the arguments of our `Steps` while running them in the context of a `Pipeline`. We will see them in action once we interact with the `Steps` inside of a `Pipeline`.
+
 ## Types of steps
 
 Other than the general or normal steps we have seen, there are special types of steps that have a restricted behaviour compared to the general `Step`.
@@ -131,4 +163,3 @@ These are steps that are able to generate data, and don't need to receive any in
 ### Global steps
 
 Other special type of step are the global steps. These steps don't have any `inputs` or `outputs`, and their `process` method receives all the data at once instead of using batches. This kind of behavior is necessary for example to push a dataset to a specific place, or doing some filtering on the whole data before continuing with the pipeline.
- 
