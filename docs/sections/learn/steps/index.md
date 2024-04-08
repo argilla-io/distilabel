@@ -131,5 +131,5 @@ These are steps that are able to generate data, and don't need to receive any in
 
 ### Global steps
 
-Other special type of step are the global steps. These steps don't have any `inputs` or `outputs`, and their `process` method receives all the data at once instead of using batches. This kind of behavior is necessary for example to push a dataset to a specific place, or doing some filtering on the whole data before continuing with the pipeline.
+Other special type of step are the global steps. The only difference with respect to the `Step` is that their `process` method receives all the data at once instead of using batches. This kind of behaviour is necessary for example to push a dataset to a specific place, or doing some filtering on the whole data before continuing with the pipeline.
  
