@@ -42,6 +42,33 @@ _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
 
 
 class CohereLLM(AsyncLLM):
+    """Cohere API implementation using the async client for concurrent text generation.
+
+
+    Attributes:
+        model: the name of the model from the Cohere API to use for the generation.
+        base_url: the base URL to use for the Cohere API requests. Defaults to
+            `"https://api.cohere.ai/v1"`.
+        api_key: the API key to authenticate the requests to the Cohere API. Defaults to
+            the value of the `COHERE_API_KEY` environment variable.
+        timeout: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        client_name: the name of the client to use for the API requests. Defaults to
+            `"distilabel"`.
+        _ChatMessage: the `ChatMessage` class from the `cohere` package.
+        _aclient: the `AsyncClient` client from the `cohere` package.
+
+    Runtime parameters:
+        - `base_url`: the base URL to use for the Cohere API requests. Defaults to
+            `"https://api.cohere.ai/v1"`.
+        - `api_key`: the API key to authenticate the requests to the Cohere API. Defaults
+            to the value of the `COHERE_API_KEY` environment variable.
+        - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        - `client_name`: the name of the client to use for the API requests. Defaults to
+            `"distilabel"`.
+    """
+
     model: str
     base_url: Optional[RuntimeParameter[str]] = Field(
         default_factory=lambda: os.getenv(
@@ -199,8 +226,7 @@ class CohereLLM(AsyncLLM):
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
         """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
+        synchronously awaiting for the response of each input sent to `agenerate`."""
 
         async def agenerate(
             inputs: List["ChatType"], **kwargs: Any
