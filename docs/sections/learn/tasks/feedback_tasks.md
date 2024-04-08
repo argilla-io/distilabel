@@ -2,7 +2,6 @@
 
 This section presents tasks that work on the `LLM` output to return some feedback on the inputs, like `UltraFeedback` which asks an `LLM` to rate the responses according to some criteria.
 
-Include here tasks like `UltraFeedback` that are intended to generate some feedback (in that case for preference) over some outputs
 
 ## UltraFeedback
 
