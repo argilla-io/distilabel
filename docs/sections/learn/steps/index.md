@@ -4,7 +4,7 @@ The [`Step`][distilabel.steps.base.Step] is the base class in `distilabel`, ever
 
 ## What's a Step in distilabel?
 
-This a base class is in charge of processing data, which in the end will be lists of dictionaries. In order to process, it will define the data, it defines two properties: `inputs` and `outputs`, which are a list of strings that represent the names of the columns that the step needs as input or output respectively.
+It's a base class is in charge of processing data, which in the end will be lists of dictionaries. In order to process, it defines two properties: `inputs` and `outputs`, which are a list of strings that represent the names of the columns that the step needs as input or output respectively i.e. the keys that have to be present in the list of dictionaries received by the step and the keys that will be added to these dictionaries after running it.
 
 Every `Step` is connected to a `Pipeline`, which in practice means that we will build them in the context of a `Pipeline`.
 
