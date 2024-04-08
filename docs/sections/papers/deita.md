@@ -60,7 +60,6 @@ load_data = LoadHubDataset(
 
 Evaluations show that instructions from Evol-Instruct are superior to human-created ones, and WizardLM achieves performance close to or exceeding GPT3.5-turbo in many skills. In distilabel, we initialise each step of the data generation pipeline. Later, we'll connect them together.
 
-
 ```python
 evol_instruction_complexity = EvolInstruct(
     name="evol_instruction_complexity",
