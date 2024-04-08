@@ -38,18 +38,10 @@ pip install pynvml huggingface_hub argilla
 Import distilabel:
 
 ```python
-from distilabel.llm.huggingface.transformers import TransformersLLM
-from distilabel.llm.openai import OpenAILLM
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.conversation import ConversationTemplate
-from distilabel.steps.deita import DeitaFiltering
-from distilabel.steps.expand import ExpandColumns
-from distilabel.steps.generators.huggingface import LoadHubDataset
-from distilabel.steps.task.complexity_scorer import ComplexityScorer
-from distilabel.steps.task.evol_instruct.base import EvolInstruct
-from distilabel.steps.task.evol_quality.base import EvolQuality
-from distilabel.steps.task.generate_embeddings import GenerateEmbeddings
-from distilabel.steps.task.quality_scorer import QualityScorer
+from distilabel.llms import TransformersLLM, OpenAILLM
+from distilabel.pipeline import Pipeline
+from distilabel.steps import ConversationTemplate, DeitaFiltering, ExpandColumns, LoadHubDataset
+from distilabel.steps.tasks import ComplexityScorer, EvolInstruct, EvolQuality, GenerateEmbeddings, QualityScorer
 ```
 
 Define the distilabel Pipeline and load the dataset from the Hugging Face Hub.
