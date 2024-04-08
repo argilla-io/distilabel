@@ -97,9 +97,7 @@ This is a small type step that shows what to expect when we are creating our `St
 If all that we want to apply in a step is some simple processing, it can be easier to just create a plain function, and decorate it. We can find more examples in the [API reference][distilabel.steps.decorator], but let's see how we could define the previous step as a function and use the decorator:
 
 ```python
-from distilabel.steps.decorator import step
-from distilabel.steps.typing import StepOutput
-from distilabel.steps.base import StepInput
+from distilabel.steps import StepInput, StepOutput, step 
 
 # Normal step
 @step(inputs=["instruction", "response"], outputs=["conversation"])
