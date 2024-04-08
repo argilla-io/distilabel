@@ -220,19 +220,164 @@ By tweaking the `num_instructions` and the `criteria_for_query_generation` we ca
 
 ### Evol Instruct
 
-[`EvolInstruct`][distilabel.steps.tasks.evol_instruct.base.EvolInstruct]
+This `Task` was defined in [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244), the idea is, starting from a series of initial instructions, evolve them according to a scheme of prompts to obtain more complex ones. Let's see how we can use [`EvolInstruct`][distilabel.steps.tasks.evol_instruct.base.EvolInstruct]:
+
+```python
+import os
+
+from distilabel.pipeline import Pipeline
+from distilabel.llms.mistral import MistralLLM
+from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
+
+evol_instruct = EvolInstruct(
+    name="evol-instruct",
+    num_evolutions=2,
+    store_evolutions=True,
+    input_batch_size=8,
+    llm=MistralLLM(
+        model="mistral-small",
+        api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+    ),
+    pipeline=Pipeline(name="evol-instruct-pipeline")
+)
+
+# remember to call .load() if testing outside of a Pipeline context
+evol_instruct.load()
+```
+
+We can now use a sample instruction to see what that yields:
+
+```python
+result = next(
+    evol_instruct.process(
+        [
+            {
+                "instruction": "What are fantasy novels?",
+            },
+        ] 
+    )
+)
+```
+
+!!! Note
+    As we used `store_evolutions=True`, we now can see the evolution from the starting point. Remember to visit the [`API Reference`][distilabel.steps.tasks.evol_instruct.base.EvolInstruct] to take into account all the parameters.
+
+Let's see the evolved instructions we obtained:
+
+```python
+import json
+print(json.dumps(result[0]["evolved_instructions"], indent=2))
+# [
+#   "Can you name some lesser-known literary genres that explore imaginary worlds, magical elements, and epic adventures, similar to fantasy novels, but with a unique twist and a smaller readership?",
+#   "How about you suggest some under-the-radar literary categories that, much like fantasy literature, delve into fictional realms, incorporate magical aspects, and narrate grand journeys, but with a distinct flavor and a more limited, devoted readership?"
+# ]
+```
+
+This strategy of evolving a set of instructions synthetically has yielded strong results as can be seen in the original paper, leading to the family of [WizardLM](https://github.com/nlpxucan/WizardLM).
+
+We will now take a look at some `EvolInstruct` *inspired* tasks that have been used for [`DEITA`]([`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)) datasets.
 
 #### Evol Complexity
 
-[`EvolComplexity`][distilabel.steps.tasks.evol_instruct.evol_complexity.base.EvolComplexity]
-
-### Evol Quality
-
-[`EvolQuality`][distilabel.steps.tasks.evol_quality.base.EvolQuality]
+[`EvolComplexity`][distilabel.steps.tasks.evol_instruct.evol_complexity.base.EvolComplexity] evolves the instructions to make them specifically more complex. It follows the evolutionary approach from `EvolInstruct` but with slightly different prompts.
 
 ```python
-llm=MistralLLM(
-    model="mistral-tiny",
-    api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+import os
+
+from distilabel.pipeline import Pipeline
+from distilabel.llms.mistral import MistralLLM
+from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
+
+evol_complexity = EvolComplexity(
+    name="evol-complexity",
+    num_evolutions=1,
+    input_batch_size=8,
+    llm=MistralLLM(
+        model="mistral-small",
+        api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+    ),
+    pipeline=Pipeline(name="evol-complexity-pipeline")
+)
+
+# remember to call .load() if testing outside of a Pipeline context
+evol_complexity.load()
+```
+
+Let's see it with the same previous example from `EvolInstruct`, this time with a single evolution and keeping the last generation:
+
+```python
+result = next(
+    evol_complexity.process(
+        [
+            {
+                "instruction": "What are fantasy novels?",
+            },
+        ] 
+    )
 )
 ```
+
+This would be the evolved instruction:
+
+```python
+print(result[0]["evolved_instruction"])
+# Could you explain the literary genre of fantasy novels, providing examples and discussing how they differ from science fiction?
+
+# (Note: I added a requirement to discuss the differences between fantasy novels and science fiction, and tried to keep the prompt reasonably concise.)
+```
+
+And we have similar results to what we obtained with `EvolInstruct`, with a slight modification in the inner prompts used.
+
+!!! Note
+    Take into account there isn't just randomness from the `LLM`, but also from the mutation selected (the prompt used to evolve the instruction).
+
+#### Evol Quality
+
+The [`EvolQuality`][distilabel.steps.tasks.evol_quality.base.EvolQuality] `Task` appeared in [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685), as a posterior step to the previous [`EvolComplexityGenerator`][distilabel.steps.tasks.evol_instruct.evol_complexity.generator.EvolComplexityGenerator]. It takes a different approach: we evolve the **quality** of the **responses** given a prompt. Let's see an example:
+
+```python
+import os
+
+from distilabel.pipeline import Pipeline
+from distilabel.llms.mistral import MistralLLM
+from distilabel.steps.tasks.evol_quality.base import EvolQuality
+
+evol_quality = EvolQuality(
+    name="evol-quality",
+    num_evolutions=1,
+    input_batch_size=8,
+    llm=MistralLLM(
+        model="mistral-small",
+        api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+    ),
+    pipeline=Pipeline(name="evol-quality-pipeline")
+)
+
+# remember to call .load() if testing outside of a Pipeline context
+evol_quality.load()
+```
+
+We will use it on the output from `EvolComplexity` task:
+
+```python
+result = next(
+    evol_quality.process(
+        [
+            {
+                "instruction": "What are fantasy novels?",
+                "response": "Could you explain the literary genre of fantasy novels, providing examples and discussing how they differ from science fiction?\n\n(Note: I added a requirement to discuss the differences between fantasy novels and science fiction, and tried to keep the prompt reasonably concise.)"
+            },
+        ] 
+    )
+)
+```
+
+And we obtain in return an evolution from the previous response with a *mutation* applied to the response:
+
+```python
+print(result[0]["evolved_response"])
+# Fantasy novels are a captivating genre of literature, immersing readers in imaginary worlds filled with magical elements, mythical creatures, and epic adventures. They often feature complex plotlines and unique characters, offering a delightful escape from reality.
+```
+
+!!! Note
+    Take into account that just as we had with the `EvolComplexity` task, there is randomness involved with the inner mutation prompt used.
