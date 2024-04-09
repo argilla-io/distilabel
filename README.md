@@ -74,6 +74,7 @@ Requires Python 3.8+
 In addition, the following extras are available:
 
 - `anthropic`: for using models available in [Anthropic API](https://www.anthropic.com/api) via the `AnthropicLLM` integration.
+- `cohere`: for using models available in [Cohere](https://cohere.ai/) via the `CohereLLM` integration.
 - `argilla`: for exporting the generated datasets to [Argilla](https://argilla.io/).
 - `hf-inference-endpoints`: for using the [Hugging Face Inference Endpoints](https://huggingface.co/inference-endpoints) via the `InferenceEndpointsLLM` integration.
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
