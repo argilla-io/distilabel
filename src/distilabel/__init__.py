@@ -14,6 +14,6 @@
 
 from rich.traceback import install
 
-__version__ = "1.0.0.b0"
+__version__ = "1.0.0"
 
 install(show_locals=True)
