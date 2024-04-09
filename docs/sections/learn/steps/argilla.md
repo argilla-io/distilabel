@@ -4,6 +4,14 @@ As an additional step, besides being able to restore the dataset from the `Pipel
 
 Being able to export the generated synthetic datasets to Argilla, was one of the core features we wanted to have fully integrated within `distilabel`, not only because we're biased, but also because we believe in the potential of synthetic data, but always having an annotator or group of annotators to review the data and draw conclusions from it. So on, the Argilla integration will make it easier than ever to push a dataset to Argilla while the `Pipeline` is running, and be able to follow along the generation process, as well as annotating the records on the fly.
 
+Before using any of the steps about to be described below, you should first have an Argilla instance up and running, so that you can successfully upload the data to Argilla. In order to deploy Argilla, the easiest and most straight forward way is to deploy it via the [Argilla Template in Hugging Face Spaces](https://docs.argilla.io/en/latest/getting_started/installation/deployments/huggingface-spaces.html) as simply as following the steps there, or just via the following button:
+
+<a  href="https://huggingface.co/new-space?template=argilla/argilla-template-space">
+    <img src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" />
+</a>
+
+Additionally, Argilla offer multiple deployment options listed in the [Argilla Documentation - Installation](https://docs.argilla.io/en/latest/getting_started/installation/deployments/deployments.html) page.
+
 ### Text Generation
 
 For text generation scenarios, i.e. when the `Pipeline` contains a `TextGeneration` step, we have designed the task [`TextGenerationToArgilla`][distilabel.steps.argilla.text_generation], which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.
