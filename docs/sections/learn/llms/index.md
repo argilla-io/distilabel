@@ -73,7 +73,8 @@ with Pipeline(name="text-generation-pipeline") as pipeline:
     )
     load_dataset.connect(text_generation)
 
-pipeline.run(params={"text_generation": {"llm": {"generation_kwargs": {"temperature": 0.3}}}})
+if __name__ == "__main__":
+    pipeline.run(params={"text_generation": {"llm": {"generation_kwargs": {"temperature": 0.3}}}})
 ```
 
 ## Defining custom LLMs
