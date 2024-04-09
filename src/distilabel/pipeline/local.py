@@ -178,7 +178,8 @@ class Pipeline(BasePipeline):
             # propagating the batches through the pipeline and making the stop process
             # slower.
             if _STOP_LOOP:
-                self._handle_stop()
+                self._handle_batch_on_stop(batch, write_buffer)
+                self._handle_stop(write_buffer)
                 break
 
             self._logger.debug(
@@ -189,10 +190,10 @@ class Pipeline(BasePipeline):
             self._manage_batch_flow(batch)
 
             if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
         if _STOP_LOOP:
-            self._handle_stop()
+            self._handle_stop(write_buffer)
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -252,10 +253,14 @@ class Pipeline(BasePipeline):
 
         self._cache()
 
-    def _handle_stop(self) -> None:
+    def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose
-        any data that was already processed by the steps before the stop was called."""
+        any data that was already processed by the steps before the stop was called.
+
+        Args:
+            write_buffer: The write buffer to write the data from the leaf steps to disk.
+        """
         self._logger.debug("Handling stop of the pipeline execution...")
 
         # Send `None` to the input queues of all the steps to notify them to stop
@@ -280,11 +285,26 @@ class Pipeline(BasePipeline):
         # processed by the steps before stop was called.
         while not self.output_queue.empty():
             batch = self.output_queue.get()
-            self._batch_manager.register_batch(batch)  # type: ignore
-            step: "Step" = self.dag.get_step(batch.step_name)["step"]
-            for successor in self.dag.get_step_successors(step.name):
-                self._batch_manager.add_batch(successor, batch)  # type: ignore
+            self._handle_batch_on_stop(batch, write_buffer)
         self._cache()
+
+    def _handle_batch_on_stop(
+        self, batch: "_Batch", write_buffer: "_WriteBuffer"
+    ) -> None:
+        """Handles a batch that was received from the output queue when the pipeline was
+        stopped. It will write the data to the write buffer if the step is a leaf step,
+        and will add and register the batch in the batch manager.
+
+        Args:
+            batch: The batch to handle.
+            write_buffer: The write buffer to write the data from the leaf steps to disk.
+        """
+        if batch.step_name in self.dag.leaf_steps:
+            write_buffer.add_batch(batch)
+        self._batch_manager.register_batch(batch)  # type: ignore
+        step: "Step" = self.dag.get_step(batch.step_name)["step"]
+        for successor in self.dag.get_step_successors(step.name):
+            self._batch_manager.add_batch(successor, batch)  # type: ignore
 
     def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
         """Waits for the input queue of a step to be empty.
