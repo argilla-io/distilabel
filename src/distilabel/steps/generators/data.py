@@ -31,11 +31,7 @@ class LoadDataFromDicts(GeneratorStep):
         data: The list of dictionaries to load the data from.
 
     Runtime parameters:
-
-    - `batch_size`: The batch size to use when processing the data.
-
-    Input columns:
-        None
+        - `batch_size`: The batch size to use when processing the data.
 
     Output columns:
         Dynamic, based on the keys found on the first dictionary of the list
@@ -48,10 +44,11 @@ class LoadDataFromDicts(GeneratorStep):
         """Yields batches from a list of dictionaries.
 
         Args:
-            offset: The offset to start the generation from. Defaults to 0.
+            offset: The offset to start the generation from. Defaults to `0`.
 
         Yields:
-            A list of Python dictionaries as read from the inputs (propagated in batches) and a flag indicating whether the yield batch is the last one.
+            A list of Python dictionaries as read from the inputs (propagated in batches)
+            and a flag indicating whether the yield batch is the last one.
         """
         if offset:
             self.data = self.data[offset:]

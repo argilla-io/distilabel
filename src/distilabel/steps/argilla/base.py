@@ -90,7 +90,15 @@ class Argilla(Step, ABC):
     def _rg_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
         try:
-            rg.init(api_url=self.api_url, api_key=self.api_key.get_secret_value())  # type: ignore
+            if "hf.space" in self.api_url and "HF_TOKEN" in os.environ:
+                headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+            else:
+                headers = None
+            rg.init(
+                api_url=self.api_url,
+                api_key=self.api_key.get_secret_value(),
+                extra_headers=headers,
+            )  # type: ignore
         except Exception as e:
             raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
 
