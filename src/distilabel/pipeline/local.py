@@ -173,12 +173,15 @@ class Pipeline(BasePipeline):
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
+            if batch.step_name in self.dag.leaf_steps:
+                write_buffer.add_batch(batch)
+
             # If `_STOP_LOOP` was set to `True` while waiting for the output queue, then
             # we need to handle the stop of the pipeline and break the loop to avoid
             # propagating the batches through the pipeline and making the stop process
             # slower.
             if _STOP_LOOP:
-                self._handle_batch_on_stop(batch, write_buffer)
+                self._handle_batch_on_stop(batch)
                 self._handle_stop(write_buffer)
                 break
 
@@ -188,9 +191,6 @@ class Pipeline(BasePipeline):
             )
 
             self._manage_batch_flow(batch)
-
-            if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch)
 
         if _STOP_LOOP:
             self._handle_stop(write_buffer)
@@ -285,22 +285,19 @@ class Pipeline(BasePipeline):
         # processed by the steps before stop was called.
         while not self.output_queue.empty():
             batch = self.output_queue.get()
-            self._handle_batch_on_stop(batch, write_buffer)
+            if batch.step_name in self.dag.leaf_steps:
+                write_buffer.add_batch(batch)
+            self._handle_batch_on_stop(batch)
+
         self._cache()
 
-    def _handle_batch_on_stop(
-        self, batch: "_Batch", write_buffer: "_WriteBuffer"
-    ) -> None:
+    def _handle_batch_on_stop(self, batch: "_Batch") -> None:
         """Handles a batch that was received from the output queue when the pipeline was
-        stopped. It will write the data to the write buffer if the step is a leaf step,
-        and will add and register the batch in the batch manager.
+        stopped. It will add and register the batch in the batch manager.
 
         Args:
             batch: The batch to handle.
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
-        if batch.step_name in self.dag.leaf_steps:
-            write_buffer.add_batch(batch)
         self._batch_manager.register_batch(batch)  # type: ignore
         step: "Step" = self.dag.get_step(batch.step_name)["step"]
         for successor in self.dag.get_step_successors(step.name):
