@@ -1144,26 +1144,26 @@ class TestWriteBuffer:
 
             # Add one batch with 5 rows, shouldn't write anything 5 < 50
             batch = batch_gen(dummy_step_2.name)
-            write_buffer.add_batch(batch.step_name, batch)
+            write_buffer.add_batch(batch)
 
             # Add 45 more rows, should write now
             for _ in range(9):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00001.parquet").exists()
 
             # Add 50 more rows, we should have a new file
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00002.parquet").exists()
 
             # Add more rows and close the write buffer, we should have a new file
             for _ in range(5):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             write_buffer.close()
 
@@ -1193,23 +1193,23 @@ class TestWriteBuffer:
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00001.parquet").exists()
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_3", "00001.parquet").exists()
 
             for _ in range(5):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             for _ in range(5):
                 batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             write_buffer.close()
 

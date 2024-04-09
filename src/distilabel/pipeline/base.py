@@ -879,13 +879,13 @@ class _WriteBuffer:
         """
         return len(self._buffers[step_name]) >= self._buffers_dump_batch_size[step_name]
 
-    def add_batch(self, step_name: str, batch: "_Batch") -> None:
+    def add_batch(self, batch: "_Batch") -> None:
         """Adds a batch to the buffer and writes the buffer to the file if it's full.
 
         Args:
-            step_name (str): Name of the step to which the data pertains.
-            batch (_Batch): Batch to add to the buffer.
+            batch: batch to add to the buffer.
         """
+        step_name = batch.step_name
         data = batch.data[0]
         self._buffers[step_name].extend(data)
         self._logger.debug(
