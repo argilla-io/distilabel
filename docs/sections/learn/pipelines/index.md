@@ -96,24 +96,6 @@ As the `CombineColumns` is the last step or it's a leaf step of the pipeline bec
 !!! NOTE
     One pipeline can have several leaf steps, which means that the outputs of all the leaf steps will be included in the returned `Distiset`, which will contain several subsets, one for each leaf step.
 
-## Creating the steps of our Pipeline
-
-
-TODO: WRITE THE WARNING WHEN WE NEED TO CALL THE RUN METHOD
-
-!!! Warning
-    Due to `multiprocessing`, the `pipeline.run` method **must** be run inside `__main__`:
-
-    ```python
-    with Pipeline("pipeline") as pipe:
-        ...
-
-    if __name__ == "__main__":
-        distiset = pipe.run()
-    ```
-
-    Otherwise an `EOFError` will raise.
-
 ## Running the pipeline
 
 Once we have created the pipeline, we can run it. To do so, we need to call the `run` method of the `Pipeline`, and specify the runtime parameters for each step:
