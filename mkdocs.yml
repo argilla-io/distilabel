@@ -116,6 +116,7 @@ nav:
       - LLMs:
         - "sections/learn/llms/index.md"
       - Pipeline:
+        - "sections/learn/pipelines/index.md"
         - "sections/learn/pipelines/base.md"
         - "sections/learn/pipelines/local.md"
       - Command Line Interface:
