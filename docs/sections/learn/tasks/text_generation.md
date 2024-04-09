@@ -158,7 +158,7 @@ print(json.dumps(result, indent=2))
 ```
 
 !!! Note
-    We can see the `response` contais "Not Equal", but it didn't strictly followed the prompt as requested. This can be a hint that a more powerful model is required, or the prompt needs some extra tuning.
+    We can see the `response` contains "Not Equal", but it didn't strictly followed the prompt as requested. This can be a hint that a more powerful model is required, or the prompt needs some extra tuning.
 
 ## Guided text generation
 
@@ -331,7 +331,7 @@ And we have similar results to what we obtained with `EvolInstruct`, with a slig
 !!! Note
     Take into account there isn't just randomness from the `LLM`, but also from the mutation selected (the prompt used to evolve the instruction).
 
-#### Evol Quality
+#### Evol Quality
 
 The [`EvolQuality`][distilabel.steps.tasks.evol_quality.base.EvolQuality] `Task` appeared in [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685), as a posterior step to the previous [`EvolComplexityGenerator`][distilabel.steps.tasks.evol_instruct.evol_complexity.generator.EvolComplexityGenerator]. It takes a different approach: we evolve the **quality** of the **responses** given a prompt. Let's see an example:
 
