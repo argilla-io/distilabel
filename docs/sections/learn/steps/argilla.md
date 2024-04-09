@@ -51,6 +51,8 @@ with Pipeline(name="my-pipeline") as pipeline:
 pipeline.run()
 ```
 
+![Text Generation to Argilla](/assets/images/sections/learn/steps/argilla/text_generation.png)
+
 ### Preference
 
 For preference scenarios, i.e. when the `Pipeline` contains multiple `TextGeneration` steps, we have designed the task [`PreferenceToArgilla`][distilabel.steps.argilla.preference], which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.
@@ -102,6 +104,8 @@ with Pipeline(name="my-pipeline") as pipeline:
 
 pipeline.run()
 ```
+
+![Preference to Argilla](/assets/images/sections/learn/steps/argilla/preference.png)
 
 !!! NOTE
     If you are willing to also add the suggestions, feel free to check [UltraFeedback: Boosting Language Models with High-quality Feedback](../../papers/ultrafeedback.md) where the `UltraFeedback` task is used to generate both ratings and rationales for each of the generations of a given instruction.
