@@ -12,5 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from rich.traceback import install
 
-__version__ = "0.6.0"
+__version__ = "1.0.0"
+
+install(show_locals=True)

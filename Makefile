@@ -1,4 +1,4 @@
-sources = src/distilabel tests examples
+sources = src/distilabel tests
 
 .PHONY: format
 format:
@@ -10,6 +10,10 @@ lint:
 	ruff $(sources)
 	ruff format --check $(sources)
 
-.PHONY: test
-test:
-	pytest
+.PHONY: unit-tests
+unit-tests:
+	pytest tests/unit
+
+.PHONY: integration-tests
+integration-tests:
+	pytest tests/integration

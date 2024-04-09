@@ -1,0 +1,227 @@
+distilabel:
+  version: 1.0.0.b0
+pipeline:
+  name: test-pipeline
+  description: As the name suggests, a test pipeline.
+  steps:
+    - step:
+        name: load_hub_dataset
+        input_mappings: {}
+        output_mappings:
+          prompt: instruction
+        batch_size: 100
+        repo_id: null
+        split: train
+        config: null
+        runtime_parameters_info:
+          - name: repo_id
+            optional: false
+            description: The Hugging Face Hub repository ID of the dataset to load.
+          - name: split
+            optional: true
+            description: The split of the dataset to load. Defaults to 'train'.
+          - name: config
+            optional: true
+            description:
+              The configuration of the dataset to load. This is optional and
+              only needed if the dataset has multiple configurations.
+        type_info:
+          module: distilabel.steps.generators.huggingface
+          name: LoadHubDataset
+      name: load_hub_dataset
+    - step:
+        name: text_generation_gpt
+        input_mappings: {}
+        output_mappings:
+          model_name: model
+        input_batch_size: 10
+        llm:
+          generation_kwargs: {}
+          model: gpt-3.5-turbo
+          base_url: https://api.openai.com/v1
+          type_info:
+            module: distilabel.llms.openai
+            name: OpenAILLM
+        group_generations: false
+        num_generations: 3
+        runtime_parameters_info:
+          - name: llm
+            runtime_parameters_info:
+              - name: generation_kwargs
+                description:
+                  The kwargs to be propagated to either `generate` or `agenerate`
+                  methods within each `LLM`.
+                keys:
+                  - name: max_new_tokens
+                    optional: true
+                    description:
+                      the maximun number of new tokens that the model will generate.  Defaults
+                      to `128`.
+                  - name: frequency_penalty
+                    optional: true
+                  - name: presence_penalty
+                    optional: true
+                    description:
+                      the presence penalty to use for the generation. Defaults
+                      to  `0.0`.
+                  - name: temperature
+                    optional: true
+                    description: the temperature to use for the generation. Defaults to `0.1`.
+                  - name: top_p
+                    optional: true
+                    description: the top-p value to use for the generation. Defaults to `1.0`.
+              - name: base_url
+                optional: true
+                description: The base URL to use for the OpenAI API requests.
+              - name: api_key
+                optional: true
+                description: The API key to authenticate the requests to the OpenAI API.
+          - name: num_generations
+            optional: true
+            description: The number of generations to be produced per input.
+        type_info:
+          module: distilabel.steps.tasks.text_generation
+          name: TextGeneration
+      name: text_generation_gpt
+    - step:
+        name: text_generation_gpt_2
+        input_mappings: {}
+        output_mappings:
+          model_name: model
+        input_batch_size: 10
+        llm:
+          generation_kwargs: {}
+          model: gpt-3.5-turbo
+          base_url: https://api.openai.com/v1
+          type_info:
+            module: distilabel.llms.openai
+            name: OpenAILLM
+        group_generations: true
+        num_generations: 3
+        runtime_parameters_info:
+          - name: llm
+            runtime_parameters_info:
+              - name: generation_kwargs
+                description:
+                  The kwargs to be propagated to either `generate` or `agenerate`
+                  methods within each `LLM`.
+                keys:
+                  - name: max_new_tokens
+                    optional: true
+                    description:
+                      the maximun number of new tokens that the model will generate.  Defaults
+                      to `128`.
+                  - name: frequency_penalty
+                    optional: true
+                  - name: presence_penalty
+                    optional: true
+                    description:
+                      the presence penalty to use for the generation. Defaults
+                      to  `0.0`.
+                  - name: temperature
+                    optional: true
+                    description: the temperature to use for the generation. Defaults to `0.1`.
+                  - name: top_p
+                    optional: true
+                    description: the top-p value to use for the generation. Defaults to `1.0`.
+              - name: base_url
+                optional: true
+                description: The base URL to use for the OpenAI API requests.
+              - name: api_key
+                optional: true
+                description: The API key to authenticate the requests to the OpenAI API.
+          - name: num_generations
+            optional: true
+            description: The number of generations to be produced per input.
+        type_info:
+          module: distilabel.steps.tasks.text_generation
+          name: TextGeneration
+      name: text_generation_gpt_2
+    - step:
+        name: push_to_hub
+        input_mappings: {}
+        output_mappings: {}
+        input_batch_size: 50
+        repo_id: null
+        split: train
+        private: false
+        token: null
+        runtime_parameters_info:
+          - name: repo_id
+            optional: false
+            description:
+              The Hugging Face Hub repository ID where the dataset will be
+              uploaded.
+          - name: split
+            optional: true
+            description: The split of the dataset that will be pushed. Defaults to 'train'.
+          - name: private
+            optional: true
+            description:
+              Whether the dataset to be pushed should be private or not. Defaults
+              to `False`.
+          - name: token
+            optional: true
+            description:
+              The token that will be used to authenticate in the Hub. If not
+              provided, the token will be tried to be obtained from the environment variable
+              `HF_TOKEN`. If not provided using one of the previous methods, then `huggingface_hub`
+              library will try to use the token from the local Hugging Face CLI configuration.
+              Defaults to `None`
+        type_info:
+          module: distilabel.steps.globals.huggingface
+          name: PushToHub
+      name: push_to_hub
+    - step:
+        name: push_to_hub_2
+        input_mappings: {}
+        output_mappings: {}
+        input_batch_size: 50
+        repo_id: null
+        split: train
+        private: false
+        token: null
+        runtime_parameters_info:
+          - name: repo_id
+            optional: false
+            description:
+              The Hugging Face Hub repository ID where the dataset will be
+              uploaded.
+          - name: split
+            optional: true
+            description: The split of the dataset that will be pushed. Defaults to 'train'.
+          - name: private
+            optional: true
+            description:
+              Whether the dataset to be pushed should be private or not. Defaults
+              to `False`.
+          - name: token
+            optional: true
+            description:
+              The token that will be used to authenticate in the Hub. If not
+              provided, the token will be tried to be obtained from the environment variable
+              `HF_TOKEN`. If not provided using one of the previous methods, then `huggingface_hub`
+              library will try to use the token from the local Hugging Face CLI configuration.
+              Defaults to `None`
+        type_info:
+          module: distilabel.steps.globals.huggingface
+          name: PushToHub
+      name: push_to_hub_2
+  connections:
+    - from: load_hub_dataset
+      to:
+        - text_generation_gpt
+        - text_generation_gpt_2
+    - from: text_generation_gpt
+      to:
+        - push_to_hub
+    - from: text_generation_gpt_2
+      to:
+        - push_to_hub_2
+    - from: push_to_hub
+      to: []
+    - from: push_to_hub_2
+      to: []
+  type_info:
+    module: distilabel.pipeline.local
+    name: Pipeline

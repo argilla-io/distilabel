@@ -41,9 +41,21 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e .[dev,tests,vertexai,ollama,openai,together,argilla,mistralai]
+        run: |
+          python_version=$(python -c "import sys; print(sys.version_info[:2])")
+
+          if [ "${python_version}" != "(3, 8)" ]; then
+            pip install -e .[dev,tests,cohere,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai,llama-cpp,anthropic,litellm]
+          else
+            pip install -e .[dev,tests,cohere,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,llama-cpp,anthropic,litellm]
+          fi
+          pip install git+https://github.com/yuchenlin/LLM-Blender.git@3c2d71f
+
       - name: Lint
         run: make lint
 
-      - name: Test
-        run: make test
+      - name: Unit Tests
+        run: make unit-tests
+
+      - name: Integration Tests
+        run: make integration-tests
