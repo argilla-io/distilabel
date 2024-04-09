@@ -23,6 +23,8 @@ from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep
 
+
+class TestLocalPipeline:
     def test_request_initial_batches(
         self, dummy_generator_step: "GeneratorStep"
     ) -> None:
@@ -102,14 +104,17 @@ if TYPE_CHECKING:
             [
                 mock.call(
                     process_wrapper_mock.return_value.run,
+                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
+                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
+                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
             ]
