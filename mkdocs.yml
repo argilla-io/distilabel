@@ -101,59 +101,58 @@ plugins:
 
 nav:
   - Getting started: index.md
-  - Learn: 
-    - "sections/learn/index.md"
-    - Tutorial:
-      - Steps: 
-        - "sections/learn/steps/index.md"
-        - "sections/learn/steps/generator_steps.md"
-        - "sections/learn/steps/global_steps.md"
-        - "sections/learn/steps/general_steps.md"
-      - Tasks:
-        - "sections/learn/tasks/index.md"
-        - "sections/learn/tasks/text_generation.md"
-        - "sections/learn/tasks/feedback_tasks.md"
-        - "sections/learn/tasks/special_tasks.md"
-      - LLMs:
-        - "sections/learn/llms/index.md"
-      - Pipeline:
-        - "sections/learn/pipelines/base.md"
-        - "sections/learn/pipelines/local.md"
-      - Command Line Interface:
-        - "sections/learn/cli.md"
-    - Advanced:
-      - Distiset:
-        - "sections/learn/distiset.md"
-      - Caching:
-        - "sections/learn/caching.md"
+  - Learn:
+      - "sections/learn/index.md"
+      - Tutorial:
+          - Steps:
+              - "sections/learn/steps/index.md"
+              - "sections/learn/steps/generator_steps.md"
+              - "sections/learn/steps/global_steps.md"
+              - "sections/learn/steps/general_steps.md"
+          - Tasks:
+              - "sections/learn/tasks/index.md"
+              - "sections/learn/tasks/text_generation.md"
+              - "sections/learn/tasks/feedback_tasks.md"
+              - "sections/learn/tasks/special_tasks.md"
+          - LLMs:
+              - "sections/learn/llms/index.md"
+          - Pipeline:
+              - "sections/learn/pipelines/index.md"
+          - Command Line Interface:
+              - "sections/learn/cli.md"
+      - Advanced:
+          - Distiset:
+              - "sections/learn/distiset.md"
+          - Caching:
+              - "sections/learn/caching.md"
   - Paper reproductions:
-    - "sections/papers/index.md"
-    - Papers:
-      - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
-      - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
+      - "sections/papers/index.md"
+      - Papers:
+          - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
+          - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
   - API Reference:
-    - Pipeline:
-      - "api/pipeline/pipeline.md"
-    - Steps:
-      - "api/steps/steps.md"
-      - Generator Steps: "api/steps/generator_steps/generator_steps.md"
-      - Global Steps: "api/steps/global_steps/global_steps.md"
-      - Tasks:
-        - "api/steps/tasks/text_generation.md"
-        - "api/steps/tasks/preference_tasks.md"
-        - "api/steps/tasks/embeddings.md"
-      - "api/steps/decorator.md"
-    - LLMs:
-      - "api/llms/anthropic.md"
-      - "api/llms/anyscale.md"
-      - "api/llms/huggingface.md"
-      - "api/llms/litellm.md"
-      - "api/llms/llamacpp.md"
-      - "api/llms/mistral.md"
-      - "api/llms/ollama.md"
-      - "api/llms/openai.md"
-      - "api/llms/together.md"
-      - "api/llms/vertexai.md"
-      - "api/llms/vllm.md"
-    - Command Line Interface:
-      - "api/cli.md"
+      - Pipeline:
+          - "api/pipeline/pipeline.md"
+      - Steps:
+          - "api/steps/steps.md"
+          - Generator Steps: "api/steps/generator_steps/generator_steps.md"
+          - Global Steps: "api/steps/global_steps/global_steps.md"
+          - Tasks:
+              - "api/steps/tasks/text_generation.md"
+              - "api/steps/tasks/preference_tasks.md"
+              - "api/steps/tasks/embeddings.md"
+          - "api/steps/decorator.md"
+      - LLMs:
+          - "api/llms/anthropic.md"
+          - "api/llms/anyscale.md"
+          - "api/llms/huggingface.md"
+          - "api/llms/litellm.md"
+          - "api/llms/llamacpp.md"
+          - "api/llms/mistral.md"
+          - "api/llms/ollama.md"
+          - "api/llms/openai.md"
+          - "api/llms/together.md"
+          - "api/llms/vertexai.md"
+          - "api/llms/vllm.md"
+      - Command Line Interface:
+          - "api/cli.md"
