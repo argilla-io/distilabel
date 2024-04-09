@@ -1,4 +1,4 @@
-# Tasks
+# Tasks
 
 This section presents the [`Task`][distilabel.steps.tasks.base.Task] class, a more concrete implementation of a [`Step`][distilabel.steps.base.Step] that includes extra formatting and the `LLM` to be directly used in a `Pipeline`.
 
