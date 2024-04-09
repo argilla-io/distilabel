@@ -122,7 +122,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
-        **extra_sampling_params: Any,
+        extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List["GenerateOutput"]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
@@ -140,10 +140,14 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
+            extra_sampling_params: dictionary with additional arguments to be passed to
+                the `SamplingParams` class from `vllm`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        if extra_sampling_params is None:
+            extra_sampling_params = {}
         sampling_params = SamplingParams(  # type: ignore
             n=num_generations,
             presence_penalty=presence_penalty,
