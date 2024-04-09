@@ -59,7 +59,7 @@ The pipeline information includes the steps used in the `Pipeline` along with th
 
 ### Running a Pipeline
 
-We can also run a `Pipeline` from the CLI just pointint to the same `pipeline.yaml` file calling `distilabel pipeline run`:
+We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling `distilabel pipeline run`:
 
 ```bash
 $ distilabel pipeline run --help
@@ -88,6 +88,20 @@ $ distilabel pipeline run --help
 │                                                                  [default: None]                                              │
 │    --help                                                        Show this message and exit.                                  │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+To specify the runtime parameters of the steps we will need to use the `--param` option and the value of the parameter in the following format:
+
+```bash
+distilabel pipeline run --config "https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml" \
+  --param load_dataset.repo_id=HuggingFaceH4/instruction-dataset \
+  --param load_dataset.split=test \
+  --param text_generation_with_notus.generation_kwargs.max_new_tokens=512 \
+  --param text_generation_with_notus.generation_kwargs.temperature=0.7 \
+  --param text_generation_with_zephyr.generation_kwargs.max_new_tokens=512 \
+  --param text_generation_with_zephyr.generation_kwargs.temperature=0.7 \
+  --param ultrafeedback_overall_rating.generation_kwargs.max_new_tokens=1024 \
+  --param ultrafeedback_overall_rating.generation_kwargs.temperature=0.7
 ```
 
 Again, this helps with the reproducibility of the results, and simplifies sharing not only the final dataset but also the process to generate it.
