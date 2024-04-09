@@ -596,16 +596,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/pipelines/base/</loc>
-         <lastmod>2024-04-09</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/pipelines/local/</loc>
-         <lastmod>2024-04-09</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/</loc>
          <lastmod>2024-04-09</lastmod>
          <changefreq>daily</changefreq>
