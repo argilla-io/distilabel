@@ -27,6 +27,9 @@ class LoadDataFromDicts(GeneratorStep):
 
     This step will load the dataset and yield the transformed data as it is loaded from the list of dictionaries.
 
+    Attributes:
+        data: The list of dictionaries to load the data from.
+
     Runtime parameters:
         - `batch_size`: The batch size to use when processing the data.
 

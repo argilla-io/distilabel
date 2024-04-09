@@ -71,18 +71,21 @@ class LoadHubDataset(GeneratorStep):
     entire dataset into memory at once. Instead, it will load the dataset in chunks and yield
     the transformed data as it is loaded from the Hugging Face Hub.
 
+    Attributes:
+        repo_id: The Hugging Face Hub repository ID of the dataset to load.
+        split: The split of the dataset to load.
+        config: The configuration of the dataset to load. This is optional and only needed
+            if the dataset has multiple configurations.
+
     Runtime parameters:
+        - `batch_size`: The batch size to use when processing the data.
+        - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
+        - `split`: The split of the dataset to load. Defaults to 'train'.
+        - `config`: The configuration of the dataset to load. This is optional and only
+            needed if the dataset has multiple configurations.
 
-    - `batch_size`: The batch size to use when processing the data.
-    - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
-    - `split`: The split of the dataset to load.
-    - `config`: The configuration of the dataset to load. This is optional and only needed if the
-        dataset has multiple configurations.
-
-    Columns:
-
-    - `input`: None
-    - `output`: dynamic, based on the dataset being loaded
+    Output columns
+        - dynamic, based on the dataset being loaded
     """
 
     repo_id: RuntimeParameter[str] = Field(

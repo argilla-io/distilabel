@@ -20,15 +20,20 @@ from typing_extensions import override
 
 try:
     import argilla as rg
-except ImportError as ie:
-    raise ImportError(
-        "Argilla is not installed. Please install it using `pip install argilla`."
-    ) from ie
+except ImportError:
+    pass
 
 from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
+    from argilla import (
+        RatingQuestion,
+        SuggestionSchema,
+        TextField,
+        TextQuestion,
+    )
+
     from distilabel.steps.typing import StepOutput
 
 
@@ -45,7 +50,7 @@ class PreferenceToArgilla(Argilla):
         given instruction. But alternatively, it can also be used with any other task or step generating
         only the `instruction` and `generations`, as the `ratings` and `rationales` are optional.
 
-    Args:
+    Attributes:
         num_generations: The number of generations to include in the dataset.
         dataset_name: The name of the dataset in Argilla.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
@@ -81,6 +86,8 @@ class PreferenceToArgilla(Argilla):
         uses the default values; and then uses those values to create a `FeedbackDataset` suited for
         the text-generation scenario. And then it pushes it to Argilla.
         """
+        super().load()
+
         self._rg_init()
 
         # Both `instruction` and `generations` will be used as the fields of the dataset
@@ -91,7 +98,7 @@ class PreferenceToArgilla(Argilla):
         self._rationales = self.input_mappings.get("rationales", "rationales")
 
         if self._rg_dataset_exists():
-            _rg_dataset = rg.FeedbackDataset.from_argilla(
+            _rg_dataset = rg.FeedbackDataset.from_argilla(  # type: ignore
                 name=self.dataset_name,
                 workspace=self.dataset_workspace,
             )
@@ -114,7 +121,7 @@ class PreferenceToArgilla(Argilla):
 
             self._rg_dataset = _rg_dataset
         else:
-            _rg_dataset = rg.FeedbackDataset(
+            _rg_dataset = rg.FeedbackDataset(  # type: ignore
                 fields=[
                     rg.TextField(name=self._id, title=self._id),  # type: ignore
                     rg.TextField(name=self._instruction, title=self._instruction),  # type: ignore
@@ -126,7 +133,7 @@ class PreferenceToArgilla(Argilla):
                 name=self.dataset_name, workspace=self.dataset_workspace
             )
 
-    def _generation_fields(self) -> List[rg.TextField]:
+    def _generation_fields(self) -> List["TextField"]:
         """Method to generate the fields for each of the generations."""
         return [
             rg.TextField(  # type: ignore
@@ -139,7 +146,7 @@ class PreferenceToArgilla(Argilla):
 
     def _rating_rationale_pairs(
         self,
-    ) -> List[Union[rg.RatingQuestion, rg.TextQuestion]]:
+    ) -> List[Union["RatingQuestion", "TextQuestion"]]:
         """Method to generate the rating and rationale questions for each of the generations."""
         questions = []
         for idx in range(self.num_generations):
@@ -174,7 +181,7 @@ class PreferenceToArgilla(Argilla):
 
     def _add_suggestions_if_any(
         self, input: Dict[str, Any]
-    ) -> List[rg.SuggestionSchema]:
+    ) -> List["SuggestionSchema"]:
         """Method to generate the suggestions for the `FeedbackRecord` based on the input."""
         # Since the `suggestions` i.e. answers to the `questions` are optional, will default to {}
         suggestions = []
@@ -207,7 +214,7 @@ class PreferenceToArgilla(Argilla):
         return suggestions
 
     @override
-    def process(self, inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.
 
         Args:
@@ -220,22 +227,22 @@ class PreferenceToArgilla(Argilla):
         for input in inputs:
             # Generate the SHA-256 hash of the instruction to use it as the metadata
             instruction_id = hashlib.sha256(
-                input["instruction"].encode("utf-8")
+                input["instruction"].encode("utf-8")  # type: ignore
             ).hexdigest()
 
             generations = {
                 f"{self._generations}-{idx}": generation
-                for idx, generation in enumerate(input["generations"])
+                for idx, generation in enumerate(input["generations"])  # type: ignore
             }
 
             records.append(  # type: ignore
                 rg.FeedbackRecord(  # type: ignore
                     fields={
                         "id": instruction_id,
-                        "instruction": input["instruction"],
+                        "instruction": input["instruction"],  # type: ignore
                         **generations,
                     },
-                    suggestions=self._add_suggestions_if_any(input),
+                    suggestions=self._add_suggestions_if_any(input),  # type: ignore
                 )
             )
         self._rg_dataset.add_records(records)  # type: ignore
