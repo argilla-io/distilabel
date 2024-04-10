@@ -509,6 +509,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../steps/argilla/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Argilla
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1712,8 +1733,8 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>distilabel<span class="w"> </span>pipeline<span class="w"> </span>info<span class="w"> </span>--config<span class="w"> </span><span class="s2">&quot;https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml&quot;</span>
 </span></code></pre></div>
 <p>If we take a look (this <code>Pipeline</code> is a bit long, so the following captures are shortened for brevity):</p>
-<p><img alt="CLI 1" src="/assets/images/sections/cli/cli_pipe_1.png" /></p>
-<p><img alt="CLI 2" src="/assets/images/sections/cli/cli_pipe_2.png" /></p>
+<p><img alt="CLI 1" src="../../../assets/images/sections/cli/cli_pipe_1.png" /></p>
+<p><img alt="CLI 2" src="../../../assets/images/sections/cli/cli_pipe_2.png" /></p>
 <p>The pipeline information includes the steps used in the <code>Pipeline</code> along with the <code>Runtime Parameter</code> that was used, as well as a description of each of them, and also the connections between these steps. These can be helpful to explore the Pipeline locally.</p>
 <h3 id="running-a-pipeline">Running a Pipeline<a class="headerlink" href="#running-a-pipeline" title="Permanent link">&para;</a></h3>
 <p>We can also run a <code>Pipeline</code> from the CLI just pointing to the same <code>pipeline.yaml</code> file or an URL pointing to it and calling <code>distilabel pipeline run</code>:</p>

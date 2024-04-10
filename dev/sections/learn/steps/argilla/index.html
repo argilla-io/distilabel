@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/learn/steps/argilla/">
       
       
+        <link rel="prev" href="../general_steps/">
+      
+      
+        <link rel="next" href="../../tasks/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
@@ -312,8 +316,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -323,11 +329,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           
@@ -349,7 +355,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Learn
@@ -360,6 +366,8 @@
                 
   
   
+    
+  
   
   
     
@@ -368,11 +376,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
         
           
           <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
@@ -386,7 +394,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_1">
             <span class="md-nav__icon md-icon"></span>
             Tutorial
@@ -397,6 +405,8 @@
                 
   
   
+    
+  
   
   
     
@@ -405,11 +415,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
         
           
           
@@ -431,7 +441,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_1_1">
             <span class="md-nav__icon md-icon"></span>
             Steps
@@ -496,6 +506,85 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Argilla
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Argilla
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#text-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text Generation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1633,7 +1722,7 @@
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span></code></pre></div>
-<p><img alt="Text Generation to Argilla" src="/assets/images/sections/learn/steps/argilla/text_generation.png" /></p>
+<p><img alt="Text Generation to Argilla" src="../../../../assets/images/sections/learn/steps/argilla/text_generation.png" /></p>
 <h3 id="preference">Preference<a class="headerlink" href="#preference" title="Permanent link">&para;</a></h3>
 <p>For preference scenarios, i.e. when the <code>Pipeline</code> contains multiple <code>TextGeneration</code> steps, we have designed the task <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/argilla/preference/#distilabel.steps.argilla.preference"><code>PreferenceToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
 <p>The dataset will be pushed with the following configuration:</p>
@@ -1687,7 +1776,7 @@
 </span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>
 </span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span></code></pre></div>
-<p><img alt="Preference to Argilla" src="/assets/images/sections/learn/steps/argilla/preference.png" /></p>
+<p><img alt="Preference to Argilla" src="../../../../assets/images/sections/learn/steps/argilla/preference.png" /></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you are willing to also add the suggestions, feel free to check <a href="../../../papers/ultrafeedback/">UltraFeedback: Boosting Language Models with High-quality Feedback</a> where the <code>UltraFeedback</code> task is used to generate both ratings and rationales for each of the generations of a given instruction.</p>
