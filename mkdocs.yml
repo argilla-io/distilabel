@@ -109,6 +109,7 @@ nav:
               - "sections/learn/steps/generator_steps.md"
               - "sections/learn/steps/global_steps.md"
               - "sections/learn/steps/general_steps.md"
+              - "sections/learn/steps/argilla.md"
           - Tasks:
               - "sections/learn/tasks/index.md"
               - "sections/learn/tasks/text_generation.md"

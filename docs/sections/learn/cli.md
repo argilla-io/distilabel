@@ -51,9 +51,9 @@ distilabel pipeline info --config "https://huggingface.co/datasets/distilabel-in
 
 If we take a look (this `Pipeline` is a bit long, so the following captures are shortened for brevity):
 
-![CLI 1](/assets/images/sections/cli/cli_pipe_1.png)
+![CLI 1](../../assets/images/sections/cli/cli_pipe_1.png)
 
-![CLI 2](/assets/images/sections/cli/cli_pipe_2.png)
+![CLI 2](../../assets/images/sections/cli/cli_pipe_2.png)
 
 The pipeline information includes the steps used in the `Pipeline` along with the `Runtime Parameter` that was used, as well as a description of each of them, and also the connections between these steps. These can be helpful to explore the Pipeline locally.
 
