@@ -66,9 +66,11 @@ if __name__ == "__main__":
                 "split": "test",
             },
             "generate_with_openai": {
-                "generation_kwargs": {
-                    "temperature": 0.7,
-                    "max_new_tokens": 512,
+                "llm": {
+                    "generation_kwargs": {
+                        "temperature": 0.7,
+                        "max_new_tokens": 512,
+                    }
                 }
             },
             "to_argilla": {
