@@ -128,6 +128,7 @@ nav:
   - Paper reproductions:
       - "sections/papers/index.md"
       - Papers:
+          - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/papers/deita.md"
           - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
           - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
   - API Reference:
