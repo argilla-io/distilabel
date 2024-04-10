@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/papers/instruction_backtranslation/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../deita/">
       
       
         <link rel="next" href="../ultrafeedback/">
@@ -108,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#self-alignment-with-instruction-backtranslation" class="md-skip">
+        <a href="#replication" class="md-skip">
           Skip to content
         </a>
       
@@ -887,6 +887,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../deita/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -932,16 +953,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#self-alignment-with-instruction-backtranslation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Self-Alignment with Instruction Backtranslation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Self-Alignment with Instruction Backtranslation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#replication" class="md-nav__link">
     <span class="md-ellipsis">
       Replication
@@ -975,11 +986,6 @@
       Code
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1621,16 +1627,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#self-alignment-with-instruction-backtranslation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Self-Alignment with Instruction Backtranslation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Self-Alignment with Instruction Backtranslation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#replication" class="md-nav__link">
     <span class="md-ellipsis">
       Replication
@@ -1671,11 +1667,6 @@
     </nav>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
       
     </ul>
   
@@ -1697,7 +1688,6 @@
 
   <h1>Self-Alignment with Instruction Backtranslation</h1>
 
-<h2 id="self-alignment-with-instruction-backtranslation">Self-Alignment with Instruction Backtranslation<a class="headerlink" href="#self-alignment-with-instruction-backtranslation" title="Permanent link">&para;</a></h2>
 <p>Self Alignment with Instruction Backtranslation presents a scalable method to build a high quality instruction following language model by automatically labelling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.</p>
 <p>Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents which includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.</p>
 <p>A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high quality example pairs to train an instruction following model.</p>

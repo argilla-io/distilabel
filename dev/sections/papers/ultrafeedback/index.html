@@ -108,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ultrafeedback-boosting-language-models-with-high-quality-feedback" class="md-skip">
+        <a href="#replication" class="md-skip">
           Skip to content
         </a>
       
@@ -890,6 +890,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../deita/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../instruction_backtranslation/" class="md-nav__link">
         
   
@@ -953,16 +974,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ultrafeedback-boosting-language-models-with-high-quality-feedback" class="md-nav__link">
-    <span class="md-ellipsis">
-      UltraFeedback: Boosting Language Models with High-quality Feedback
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="UltraFeedback: Boosting Language Models with High-quality Feedback">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#replication" class="md-nav__link">
     <span class="md-ellipsis">
       Replication
@@ -996,11 +1007,6 @@
       Code
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1621,16 +1627,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ultrafeedback-boosting-language-models-with-high-quality-feedback" class="md-nav__link">
-    <span class="md-ellipsis">
-      UltraFeedback: Boosting Language Models with High-quality Feedback
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="UltraFeedback: Boosting Language Models with High-quality Feedback">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#replication" class="md-nav__link">
     <span class="md-ellipsis">
       Replication
@@ -1671,11 +1667,6 @@
     </nav>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
       
     </ul>
   
@@ -1697,7 +1688,6 @@
 
   <h1>UltraFeedback: Boosting Language Models with High-quality Feedback</h1>
 
-<h2 id="ultrafeedback-boosting-language-models-with-high-quality-feedback">UltraFeedback: Boosting Language Models with High-quality Feedback<a class="headerlink" href="#ultrafeedback-boosting-language-models-with-high-quality-feedback" title="Permanent link">&para;</a></h2>
 <p>UltraFeedback is a large-scale, fine-grained, diverse preference dataset, used for training powerful reward models and critic models.</p>
 <p>UltraFeedback collects about 64k prompts from diverse resources (including UltraChat, ShareGPT, Evol-Instruct, TruthfulQA, FalseQA, and FLAN), then they use these prompts to query multiple LLMs (commercial models, Llama models ranging 7B to 70B, and non-Llama models) and generate four different responses for each prompt, resulting in a total of 256k samples i.e. the UltraFeedback will rate four responses on every OpenAI request.</p>
 <p>To collect high-quality preference and textual feedback, they design a fine-grained annotation instruction, which contains four different aspects, namely instruction-following, truthfulness, honesty and helpfulness (even though within the paper they also mention a fifth one named verbalized calibration). Finally, GPT-4 is used to generate the ratings for the generated responses to the given prompt using the previously mentioned aspects.</p>
