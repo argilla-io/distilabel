@@ -20,6 +20,7 @@ from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
     EvolComplexityGenerator,
 )
 from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
+from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
@@ -41,6 +42,7 @@ __all__ = [
     "EvolComplexity",
     "EvolComplexityGenerator",
     "EvolInstructGenerator",
+    "EvolQuality",
     "GenerateEmbeddings",
     "InstructionBacktranslation",
     "PairRM",
