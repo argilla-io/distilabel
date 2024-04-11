@@ -119,8 +119,6 @@ class LoadHubDataset(GeneratorStep):
             split=self.split,
             streaming=True,
         )
-        if self.num_examples:
-            self._dataset = self._dataset.select(range(self.num_examples))
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
@@ -133,8 +131,8 @@ class LoadHubDataset(GeneratorStep):
             A tuple containing a batch of rows and a boolean indicating if the batch is
             the last one.
         """
-        num_examples = self._get_dataset_num_examples()
-        # num_examples = self.num_examples if self.num_examples else self._get_dataset_num_examples()
+        # num_examples = self._get_dataset_num_examples()
+        num_examples = self.num_examples if self.num_examples else self._get_dataset_num_examples()
         num_returned_rows = 0
         for batch_num, batch in enumerate(
             self._dataset.iter(batch_size=self.batch_size)  # type: ignore
