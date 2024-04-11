@@ -49,8 +49,6 @@ _STEPS_LOADED_LOCK = threading.Lock()
 _STEPS_FINISHED = set()
 _STEPS_FINISHED_LOCK = threading.Lock()
 
-_STOP_LOOP = False
-
 
 def _init_worker(queue: "Queue[Any]") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -167,7 +165,7 @@ class Pipeline(BasePipeline):
         Args:
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
-        while self._batch_manager.can_generate() and not _STOP_LOOP:  # type: ignore
+        while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
             if (batch := self.output_queue.get()) is None:
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
@@ -176,11 +174,11 @@ class Pipeline(BasePipeline):
             if batch.step_name in self.dag.leaf_steps:
                 write_buffer.add_batch(batch)
 
-            # If `_STOP_LOOP` was set to `True` while waiting for the output queue, then
+            # If `_STOP_CALLED` was set to `True` while waiting for the output queue, then
             # we need to handle the stop of the pipeline and break the loop to avoid
             # propagating the batches through the pipeline and making the stop process
             # slower.
-            if _STOP_LOOP:
+            if _STOP_CALLED:
                 self._handle_batch_on_stop(batch)
                 self._handle_stop(write_buffer)
                 break
@@ -192,7 +190,7 @@ class Pipeline(BasePipeline):
 
             self._manage_batch_flow(batch)
 
-        if _STOP_LOOP:
+        if _STOP_CALLED:
             self._handle_stop(write_buffer)
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
@@ -520,9 +518,7 @@ class Pipeline(BasePipeline):
         finished processing the batches that were sent before the stop flag. Then it will
         send `None` to the output queue to notify the pipeline to stop."""
 
-        global _STOP_LOOP, _STOP_CALLED
-
-        _STOP_LOOP = True
+        global _STOP_CALLED
 
         with _STOP_CALLED_LOCK:
             if _STOP_CALLED:
