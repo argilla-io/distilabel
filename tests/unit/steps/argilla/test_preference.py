@@ -110,6 +110,18 @@ class TestPreferenceToArgilla:
                     "optional": True,
                 },
                 {
+                    "description": "The name of the dataset in Argilla.",
+                    "name": "dataset_name",
+                    "optional": False,
+                },
+                {
+                    "description": "The workspace where the dataset will be created in Argilla. "
+                    "Defaultsto `None` which means it will be created in the default "
+                    "workspace.",
+                    "name": "dataset_workspace",
+                    "optional": True,
+                },
+                {
                     "name": "api_url",
                     "optional": True,
                     "description": "The base URL to use for the Argilla API requests.",
