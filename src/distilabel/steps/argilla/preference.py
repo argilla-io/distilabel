@@ -88,8 +88,6 @@ class PreferenceToArgilla(Argilla):
         """
         super().load()
 
-        self._rg_init()
-
         # Both `instruction` and `generations` will be used as the fields of the dataset
         self._instruction = self.input_mappings.get("instruction", "instruction")
         self._generations = self.input_mappings.get("generations", "generations")
