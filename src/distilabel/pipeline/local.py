@@ -350,7 +350,7 @@ class Pipeline(BasePipeline):
 
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
-        while True:
+        while not _STOP_CALLED:
             with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
                 num_steps_loaded = (
@@ -376,6 +376,8 @@ class Pipeline(BasePipeline):
                     return False
 
             time.sleep(2.5)
+
+        return not _STOP_CALLED
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
