@@ -78,6 +78,7 @@ class LoadHubDataset(GeneratorStep):
             if the dataset has multiple configurations.
 
     Runtime parameters:
+        - `num_examples`: The number of examples to load from the dataset.
         - `batch_size`: The batch size to use when processing the data.
         - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
         - `split`: The split of the dataset to load. Defaults to 'train'.
@@ -88,6 +89,10 @@ class LoadHubDataset(GeneratorStep):
         - dynamic, based on the dataset being loaded
     """
 
+    num_examples: RuntimeParameter[int] = Field(
+        default=None,
+        description="The number of examples to load from the dataset.",
+    )
     repo_id: RuntimeParameter[str] = Field(
         default=None,
         description="The Hugging Face Hub repository ID of the dataset to load.",
@@ -114,6 +119,8 @@ class LoadHubDataset(GeneratorStep):
             split=self.split,
             streaming=True,
         )
+        if self.num_examples:
+            self._dataset = self._dataset.select(range(self.num_examples))
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
@@ -127,6 +134,7 @@ class LoadHubDataset(GeneratorStep):
             the last one.
         """
         num_examples = self._get_dataset_num_examples()
+        # num_examples = self.num_examples if self.num_examples else self._get_dataset_num_examples()
         num_returned_rows = 0
         for batch_num, batch in enumerate(
             self._dataset.iter(batch_size=self.batch_size)  # type: ignore
