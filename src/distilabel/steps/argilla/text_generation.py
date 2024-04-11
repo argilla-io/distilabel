@@ -20,10 +20,8 @@ from typing_extensions import override
 
 try:
     import argilla as rg
-except ImportError as ie:
-    raise ImportError(
-        "Argilla is not installed. Please install it using `pip install argilla`."
-    ) from ie
+except ImportError:
+    pass
 
 from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
