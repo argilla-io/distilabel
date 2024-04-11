@@ -49,7 +49,7 @@ class EvolQuality(Task):
 
     Input columns:
         - instruction (`str`): The instruction that was used to generate the `responses`.
-        - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+        - response (`str`): The responses to be rewritten.
 
     Output columns:
         - evolved_response (`str`): The evolved response if `store_evolutions=False`.
