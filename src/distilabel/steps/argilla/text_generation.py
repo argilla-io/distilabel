@@ -20,10 +20,8 @@ from typing_extensions import override
 
 try:
     import argilla as rg
-except ImportError as ie:
-    raise ImportError(
-        "Argilla is not installed. Please install it using `pip install argilla`."
-    ) from ie
+except ImportError:
+    pass
 
 from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
@@ -70,8 +68,6 @@ class TextGenerationToArgilla(Argilla):
         the text-generation scenario. And then it pushes it to Argilla.
         """
         super().load()
-
-        self._rg_init()
 
         self._instruction = self.input_mappings.get("instruction", "instruction")
         self._generation = self.input_mappings.get("generation", "generation")

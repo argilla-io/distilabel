@@ -45,15 +45,19 @@ class Argilla(Step, ABC):
         This class is not intended to be instanced directly, but via subclass.
 
     Attributes:
-        dataset_name: The name of the dataset in Argilla.
+        dataset_name: The name of the dataset in Argilla where the records will be added.
         dataset_workspace: The workspace where the dataset will be created in Argilla. Defaults to
-            None, which means it will be created in the default workspace.
+            `None`, which means it will be created in the default workspace.
         api_url: The URL of the Argilla API. Defaults to `None`, which means it will be read from
             the `ARGILLA_API_URL` environment variable.
         api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
             be read from the `ARGILLA_API_KEY` environment variable.
 
     Runtime parameters:
+        - `dataset_name`: The name of the dataset in Argilla where the records will be
+            added.
+        - `dataset_workspace`: The workspace where the dataset will be created in Argilla.
+            Defaults to `None`, which means it will be created in the default workspace.
         - `api_url`: The base URL to use for the Argilla API requests.
         - `api_key`: The API key to authenticate the requests to the Argilla API.
 
@@ -61,11 +65,17 @@ class Argilla(Step, ABC):
         - dynamic, based on the `inputs` value provided
     """
 
-    dataset_name: str
-    dataset_workspace: Optional[str] = None
+    dataset_name: RuntimeParameter[str] = Field(
+        default=None, description="The name of the dataset in Argilla."
+    )
+    dataset_workspace: Optional[RuntimeParameter[str]] = Field(
+        default=None,
+        description="The workspace where the dataset will be created in Argilla. Defaults"
+        "to `None` which means it will be created in the default workspace.",
+    )
 
     api_url: Optional[RuntimeParameter[str]] = Field(
-        default_factory=lambda: os.getenv("ARGILLA_BASE_URL"),
+        default_factory=lambda: os.getenv("ARGILLA_API_URL"),
         description="The base URL to use for the Argilla API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
@@ -121,6 +131,8 @@ class Argilla(Step, ABC):
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
         super().load()
+
+        self._rg_init()
 
     @property
     @abstractmethod
