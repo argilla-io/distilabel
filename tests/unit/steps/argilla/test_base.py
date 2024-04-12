@@ -19,7 +19,6 @@ import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
-from pydantic import ValidationError
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
@@ -83,17 +82,6 @@ class TestArgilla:
             )
 
         with pytest.raises(
-            ValidationError, match="dataset_name\n  Field required \\[type=missing"
-        ):
-            CustomArgilla(
-                name="step",
-                api_url="https://example.com",
-                api_key="api.key",  # type: ignore
-                dataset_workspace="argilla",
-                pipeline=Pipeline(name="unit-test-pipeline"),
-            )
-
-        with pytest.raises(
             TypeError,
             match="Can't instantiate abstract class Argilla with abstract methods inputs, process",
         ):
@@ -134,6 +122,18 @@ class TestArgilla:
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",
+                    "optional": True,
+                },
+                {
+                    "description": "The name of the dataset in Argilla.",
+                    "name": "dataset_name",
+                    "optional": False,
+                },
+                {
+                    "description": "The workspace where the dataset will be created in Argilla. "
+                    "Defaultsto `None` which means it will be created in the default "
+                    "workspace.",
+                    "name": "dataset_workspace",
                     "optional": True,
                 },
                 {
