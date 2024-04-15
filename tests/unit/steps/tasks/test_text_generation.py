@@ -19,6 +19,34 @@ from tests.unit.steps.tasks.utils import DummyLLM
 
 
 class TestTextGeneration:
+    def test_format_input_with_str(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyLLM()
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+
+        assert task.format_input({"instruction": "test"}) == [
+            {"role": "user", "content": "test"}
+        ]
+
+    def test_format_input_with_conversation(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyLLM()
+        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+
+        assert task.format_input(
+            {
+                "instruction": [
+                    {"role": "system", "content": "You're a helpful assistant"},
+                    {"role": "user", "content": "How much is 2+2?"},
+                    {"role": "system", "content": "4"},
+                ]
+            }
+        ) == [
+            {"role": "system", "content": "You're a helpful assistant"},
+            {"role": "user", "content": "How much is 2+2?"},
+            {"role": "system", "content": "4"},
+        ]
+
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
