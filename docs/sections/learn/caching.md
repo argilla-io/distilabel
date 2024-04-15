@@ -75,7 +75,9 @@ The `Pipeline` will have a signature created from the arguments that define it s
 
     Folder that stores the data generated, with a special folder to keep track of each `leaf_step` separately. We can recreate a `Distiset` from the contents of this folder (*Parquet* files), as we will see next.
 
-In case we wanted to regenerate the dataset from the `cache` folder for whatever reason, we can do it using the `create_distiset` and passing the path to the `/data` folder inside our `Pipeline`:
+## create_distiset
+
+In case we wanted to regenerate the dataset from the `cache`, we can do it using the [`create_distiset`][distilabel.distiset.create_distiset] and passing the path to the `/data` folder inside our `Pipeline`:
 
 ```python
 from pathlib import Path
@@ -93,3 +95,10 @@ ds
 #     })
 # })
 ```
+
+!!! Note
+
+    Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming
+    it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't
+    raise any error, but take into account that if the `Distiset` is pushed to the hub, the `pipeline.yaml` won't be
+    generated.

@@ -199,6 +199,8 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
     """
     logger = logging.getLogger("distilabel.distiset")
 
+    data_dir = Path(data_dir)
+
     distiset = Distiset()
     for file in data_dir.iterdir():
         if file.is_file():
@@ -221,5 +223,11 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
 
     if pipeline_path:
         distiset.pipeline_path = pipeline_path
+    else:
+        # If the pipeline path is not provided, try to find it in the parent directory
+        # and assume that's the wanted file.
+        pipeline_path = data_dir.parent / "pipeline.yaml"
+        if pipeline_path.exists():
+            distiset.pipeline_path = pipeline_path
 
     return distiset
