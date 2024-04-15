@@ -133,7 +133,7 @@ class LoadHubDataset(GeneratorStep):
         """
         # num_examples = self._get_dataset_num_examples()
         if self.num_examples:
-            num_example = min(self.num_examples, self._get_datset_num_examples())
+            num_example = min(self.num_examples, self._get_dataset_num_examples())
         else:    
             num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
