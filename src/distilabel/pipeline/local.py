@@ -490,12 +490,13 @@ class Pipeline(BasePipeline):
             self._logger.error(
                 f"✋ An error occurred when running global step '{e.step.name}' with no"
                 " successors and not in the last trophic level. Pipeline execution can"
-                f" continue. Error will be ignored: {e.message}"
+                f" continue. Error will be ignored."
             )
             self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
             return
 
-        self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
+        # Global step with successors failed
+        self._logger.error(f"An error occurred in global step '{e.step.name}'")
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
         self._cache()
         self._stop()
@@ -787,8 +788,11 @@ class _ProcessWrapper:
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
                 self.step._logger.warning(
-                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed:"
-                    f" {e}. Sending empty batch..."
+                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
+                    " Sending empty batch..."
+                )
+                self.step._logger.warning(
+                    f"Subprocess traceback:\n\n{traceback.format_exc()}"
                 )
             finally:
                 batch.data = [result]
