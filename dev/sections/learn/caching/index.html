@@ -868,6 +868,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#create_distiset" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_distiset
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1677,6 +1686,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#create_distiset" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_distiset
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1748,7 +1766,8 @@
 <p>Folder that stores the data generated, with a special folder to keep track of each <code>leaf_step</code> separately. We can recreate a <code>Distiset</code> from the contents of this folder (<em>Parquet</em> files), as we will see next.</p>
 </li>
 </ul>
-<p>In case we wanted to regenerate the dataset from the <code>cache</code> folder for whatever reason, we can do it using the <code>create_distiset</code> and passing the path to the <code>/data</code> folder inside our <code>Pipeline</code>:</p>
+<h2 id="create_distiset">create_distiset<a class="headerlink" href="#create_distiset" title="Permanent link">&para;</a></h2>
+<p>In case we wanted to regenerate the dataset from the <code>cache</code>, we can do it using the <a class="autorefs autorefs-internal" href="../../../reference/distilabel/distiset/#distilabel.distiset.create_distiset"><code>create_distiset</code></a> and passing the path to the <code>/data</code> folder inside our <code>Pipeline</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.distiset</span> <span class="kn">import</span> <span class="n">create_distiset</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -1764,6 +1783,13 @@
 </span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1">#     })</span>
 </span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1"># })</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Internally, the function will try to inject the <code>pipeline_path</code> variable if it's not passed via argument, assuming
+it's in the parent directory of the current one, called <code>pipeline.yaml</code>. If the file doesn't exist, it won't
+raise any error, but take into account that if the <code>Distiset</code> is pushed to the hub, the <code>pipeline.yaml</code> won't be
+generated.</p>
+</div>
 
 
 
