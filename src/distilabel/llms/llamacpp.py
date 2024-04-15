@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
-from pydantic import Field, FilePath, PrivateAttr
+from pydantic import Field, FilePath, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -84,6 +84,7 @@ class LlamaCppLLM(LLM):
         """Returns the model name used for the LLM."""
         return self._model.model_path  # type: ignore
 
+    @validate_call
     def generate(  # type: ignore
         self,
         inputs: List["ChatType"],

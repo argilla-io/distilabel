@@ -15,7 +15,7 @@
 import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from pydantic import PrivateAttr
+from pydantic import PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
@@ -129,6 +129,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             add_generation_prompt=True,
         )
 
+    @validate_call
     def generate(  # type: ignore
         self,
         inputs: List["ChatType"],

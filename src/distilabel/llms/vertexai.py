@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
-from pydantic import PrivateAttr
+from pydantic import PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 
@@ -113,6 +113,7 @@ class VertexAILLM(AsyncLLM):
             )
         return contents
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

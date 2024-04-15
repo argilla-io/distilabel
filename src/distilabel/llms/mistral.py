@@ -16,7 +16,7 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
@@ -113,6 +113,7 @@ class MistralLLM(AsyncLLM):
         return self.model
 
     # TODO: add `num_generations` parameter once Mistral client allows `n` parameter
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

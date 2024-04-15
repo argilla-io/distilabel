@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -74,6 +74,7 @@ class OllamaLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

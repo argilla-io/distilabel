@@ -25,7 +25,7 @@ from typing import (
     Union,
 )
 
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
@@ -153,7 +153,7 @@ class CohereLLM(AsyncLLM):
 
         return system, chat_history, message
 
-    @override
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

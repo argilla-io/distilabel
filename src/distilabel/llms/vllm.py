@@ -14,7 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
@@ -112,7 +112,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             add_generation_prompt=True,  # type: ignore
         )
 
-    def generate(
+    @validate_call
+    def generate(  # type: ignore
         self,
         inputs: List["ChatType"],
         num_generations: int = 1,

@@ -27,7 +27,7 @@ from typing import (
 )
 
 from httpx import AsyncClient
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
@@ -149,6 +149,7 @@ class AnthropicLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

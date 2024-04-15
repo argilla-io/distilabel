@@ -16,7 +16,14 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, SecretStr, ValidationError, model_validator
+from pydantic import (
+    Field,
+    PrivateAttr,
+    SecretStr,
+    ValidationError,
+    model_validator,
+    validate_call,
+)
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
@@ -241,6 +248,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         return [completion.choices[0].message.content]
 
     # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
+    @validate_call
     async def agenerate(  # type: ignore
         self,
         input: "ChatType",

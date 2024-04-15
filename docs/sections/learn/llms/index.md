@@ -98,6 +98,8 @@ Once those methods have been implemented, then the custom LLM will be ready to b
 ```python
 from typing import Any
 
+from pydantic import validate_call
+
 from distilabel.llms import AsyncLLM, LLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
 from distilabel.steps.tasks.typing import ChatType
@@ -107,6 +109,7 @@ class CustomLLM(LLM):
     def model_name(self) -> str:
         return "my-model"
 
+    @validate_call
     def generate(self, inputs: List[ChatType], num_generations: int = 1) -> List[GenerateOutput]:
         for _ in range(num_generations):
             ...
@@ -120,6 +123,7 @@ class CustomAsyncLLM(AsyncLLM):
     def model_name(self) -> str:
         return "my-model"
 
+    @validate_call
     async def agenerate(self, input: ChatType, num_generations: int = 1, **kwargs: Any) -> GenerateOutput:
         for _ in range(num_generations):
             ...
