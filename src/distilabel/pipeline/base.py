@@ -205,10 +205,10 @@ class BasePipeline(_Serializable):
         Returns:
             The `Distiset` created by the pipeline.
         """
-        self._set_runtime_parameters(parameters or {})
-        self.dag.validate()
         if use_cache:
             self._load_from_cache()
+        self._set_runtime_parameters(parameters or {})
+        self.dag.validate()
 
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.

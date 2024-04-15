@@ -92,7 +92,9 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     defined, validated, serialized and included in the `__init__` method of the step.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, validate_default=True, validate_assignment=True
+    )
 
     name: str
     pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None

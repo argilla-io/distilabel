@@ -91,16 +91,16 @@ class Distiset(dict):
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
 
-        metadata = self._extract_readme_metadata(repo_id, token)
+        metadata = {
+            **self._extract_readme_metadata(repo_id, token),
+            "size_categories": size_categories_parser(
+                max(len(dataset) for dataset in self.values())
+            ),
+            "tags": ["synthetic", "distilabel", "rlaif"],
+        }
 
         card = DistilabelDatasetCard.from_template(
-            card_data=DatasetCardData(
-                size_categories=size_categories_parser(
-                    max(len(dataset) for dataset in self.values())
-                ),
-                tags=["synthetic", "distilabel", "rlaif"],
-                **metadata,
-            ),
+            card_data=DatasetCardData(**metadata),
             repo_id=repo_id,
             sample_records=sample_records,
         )
