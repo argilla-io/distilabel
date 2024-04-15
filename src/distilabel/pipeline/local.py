@@ -180,7 +180,6 @@ class Pipeline(BasePipeline):
             # slower.
             if _STOP_CALLED:
                 self._handle_batch_on_stop(batch)
-                self._handle_stop(write_buffer)
                 break
 
             self._logger.debug(
@@ -264,15 +263,16 @@ class Pipeline(BasePipeline):
         # Send `None` to the input queues of all the steps to notify them to stop
         # processing batches.
         for step_name in self.dag:
-            if input_queue := self._wait_step_input_queue_empty(step_name):
-                if self._check_step_not_loaded_or_finished(step_name):
-                    self._logger.debug(
-                        f"Step '{step_name}' not loaded or already finished. Skipping sending"
-                        " sentinel `None`"
+            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+                while not input_queue.empty():
+                    batch = input_queue.get()
+                    self._batch_manager.add_batch(  # type: ignore
+                        to_step=step_name, batch=batch, prepend=True
                     )
-                    continue
+                    self._logger.debug(
+                        f"Adding batch back to the batch manager: {batch}"
+                    )
                 input_queue.put(None)
-                self._logger.debug(f"Send `None` to step '{step_name}' input queue.")
 
         # Wait for the input queue to be empty, which means that all the steps finished
         # processing the batches that were sent before the stop flag.
@@ -385,6 +385,9 @@ class Pipeline(BasePipeline):
 
         for step in self._batch_manager._steps.values():
             if batch := step.get_batch():
+                self._logger.debug(
+                    f"Sending initial batch to '{step.step_name}' step: {batch}"
+                )
                 self._send_batch_to_step(batch)
 
         for step_name in self.dag.root_steps:
@@ -392,6 +395,9 @@ class Pipeline(BasePipeline):
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
             batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
+            self._logger.debug(
+                f"Requesting initial batch to '{step_name}' generator step: {batch}"
+            )
             self._send_batch_to_step(batch)
 
     def _send_batch_to_step(self, batch: "_Batch") -> None:
