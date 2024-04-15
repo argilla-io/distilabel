@@ -69,8 +69,6 @@ class TextGenerationToArgilla(Argilla):
         """
         super().load()
 
-        self._rg_init()
-
         self._instruction = self.input_mappings.get("instruction", "instruction")
         self._generation = self.input_mappings.get("generation", "generation")
 

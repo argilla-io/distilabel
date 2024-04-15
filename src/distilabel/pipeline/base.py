@@ -452,15 +452,20 @@ class _BatchManagerStep(_Serializable):
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
 
-    def add_batch(self, batch: _Batch) -> None:
+    def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
         data and keep track of the last batch received from the predecessors.
 
         Args:
             batch: The output batch of an step to be processed by the step.
+            prepend: If `True`, the content of the batch will be added at the start of
+                the buffer.
         """
         from_step = batch.step_name
-        self.data[from_step].extend(batch.data[0])
+        if prepend:
+            self.data[from_step] = batch.data[0] + self.data[from_step]
+        else:
+            self.data[from_step].extend(batch.data[0])
         if batch.last_batch:
             self.last_batch_received.append(from_step)
 
@@ -676,12 +681,14 @@ class _BatchManager(_Serializable):
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         return self._last_batch_received.get(step_name)
 
-    def add_batch(self, to_step: str, batch: _Batch) -> None:
+    def add_batch(self, to_step: str, batch: _Batch, prepend: bool = False) -> None:
         """Add an output batch from `batch.step_name` to `to_step`.
 
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
+            prepend: If `True`, the content of the batch will be added at the start of
+                the buffer.
 
         Raises:
             ValueError: If `to_step` is not found in the batch manager.
@@ -690,7 +697,7 @@ class _BatchManager(_Serializable):
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
 
         step = self._steps[to_step]
-        step.add_batch(batch)
+        step.add_batch(batch, prepend)
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
