@@ -202,6 +202,10 @@ class TestBatch:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
 
+    def test_empty(self) -> None:
+        batch = _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
+        assert batch.empty
+
     def test_dump(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
         assert batch.dump() == {

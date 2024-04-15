@@ -136,6 +136,9 @@ class Pipeline(BasePipeline):
             # Start a loop to receive the output batches from the steps
             self._run_output_queue_loop_in_thread(write_buffer)
 
+            # Send `None` to steps `input_queue`s just in case some step is still waiting
+            self._notify_steps_to_stop()
+
             pool.close()
             pool.join()
 
@@ -157,6 +160,13 @@ class Pipeline(BasePipeline):
         thread = threading.Thread(target=self._output_queue_loop, args=(write_buffer,))
         thread.start()
         thread.join()
+
+    def _notify_steps_to_stop(self) -> None:
+        """Notifies the steps to stop their infinite running loop by sending `None` to
+        their input queues."""
+        for step_name in self.dag:
+            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+                input_queue.put(None)
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
@@ -541,6 +551,8 @@ class Pipeline(BasePipeline):
         self._logger.info(
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
+        self._logger.debug("Sending `None` to the output queue to notify stop...")
+        self.output_queue.put(None)
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
