@@ -87,6 +87,8 @@ class Argilla(Step, ABC):
 
     def model_post_init(self, __context: Any) -> None:
         """Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings."""
+        super().model_post_init(__context)
+
         try:
             import argilla as rg  # noqa
         except ImportError as ie:
@@ -95,7 +97,6 @@ class Argilla(Step, ABC):
             ) from ie
 
         warnings.filterwarnings("ignore")
-        return super().model_post_init(__context)
 
     def _rg_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""

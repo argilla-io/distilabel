@@ -60,7 +60,10 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     """
 
     model_config = ConfigDict(
-        arbitrary_types_allowed=True, protected_namespaces=(), validate_default=True
+        arbitrary_types_allowed=True,
+        protected_namespaces=(),
+        validate_default=True,
+        validate_assignment=True,
     )
 
     generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(

@@ -32,7 +32,7 @@ RuntimeParameter = Annotated[
 RuntimeParametersNames = Dict[str, Union[bool, "RuntimeParametersNames"]]
 
 
-class RuntimeParametersMixin(BaseModel, validate_assignment=True):
+class RuntimeParametersMixin(BaseModel):
     """Mixin for classes that have `RuntimeParameter`s attributes.
 
     Attributes:
