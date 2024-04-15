@@ -541,6 +541,8 @@ class Pipeline(BasePipeline):
         self._logger.info(
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
+        self._logger.debug("Sending `None` to the output queue to notify stop...")
+        self.output_queue.put(None)
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
