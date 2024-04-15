@@ -95,7 +95,6 @@ class Distiset(dict):
 
         card = DistilabelDatasetCard.from_template(
             card_data=DatasetCardData(
-                config_names=sorted(self.keys()),
                 size_categories=size_categories_parser(
                     max(len(dataset) for dataset in self.values())
                 ),
