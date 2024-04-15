@@ -20,14 +20,15 @@ from pydantic import PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.typing import GenerateOutput
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from transformers import Pipeline
     from transformers.modeling_utils import PreTrainedModel
     from transformers.tokenization_utils import PreTrainedTokenizer
 
-    from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.llms.typing import HiddenState
 
 
 class TransformersLLM(LLM, CudaDevicePlacementMixin):
@@ -132,7 +133,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List["ChatType"],
+        inputs: List[ChatType],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         temperature: float = 0.1,
@@ -140,7 +141,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-    ) -> List["GenerateOutput"]:
+    ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

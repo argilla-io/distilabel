@@ -31,14 +31,14 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
 
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 _ANTHROPIC_API_KEY_ENV_VAR_NAME = "ANTHROPIC_API_KEY"
 
@@ -152,13 +152,13 @@ class AnthropicLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         max_tokens: int = 128,
         stop_sequences: Union[List[str], None] = None,
         temperature: float = 1.0,
         top_p: Union[float, None] = None,
         top_k: Union[int, None] = None,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates a response asynchronously, using the [Anthropic Async API definition](https://github.com/anthropics/anthropic-sdk-python).
 
         Args:
@@ -174,14 +174,14 @@ class AnthropicLLM(AsyncLLM):
         """
         from anthropic._types import NOT_GIVEN
 
-        completion = await self._aclient.messages.create(
+        completion = await self._aclient.messages.create(  # type: ignore
             model=self.model,
             system=(
                 input.pop(0)["content"]
                 if input and input[0]["role"] == "system"
                 else NOT_GIVEN
             ),
-            messages=input,
+            messages=input,  # type: ignore
             max_tokens=max_tokens,
             stream=False,
             stop_sequences=NOT_GIVEN if stop_sequences is None else stop_sequences,

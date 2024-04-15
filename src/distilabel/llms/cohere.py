@@ -30,13 +30,13 @@ from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from cohere import AsyncClient, ChatMessage
 
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
 
@@ -156,7 +156,7 @@ class CohereLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         k: Optional[int] = None,
