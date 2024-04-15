@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.utils.chat import is_openai_format
 
 
 class TextGeneration(Task):
@@ -39,9 +40,19 @@ class TextGeneration(Task):
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [
-            {"role": "user", "content": input["instruction"]},
-        ]
+
+        instruction = input["instruction"]
+
+        if isinstance(instruction, str):
+            return [{"role": "user", "content": input["instruction"]}]
+
+        if not is_openai_format(instruction):
+            raise ValueError(
+                f"Input `instruction` must be a string or an OpenAI chat-like format. "
+                f"Got: {instruction}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+            )
+
+        return instruction
 
     @property
     def outputs(self) -> List[str]:
