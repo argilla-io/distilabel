@@ -102,19 +102,20 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadHubDataset, TextGenerationToArgilla
 from distilabel.steps.tasks import TextGeneration
 
-with Pipeline("pipe-name", description="My first pipe") as pipeline:
+with Pipeline(
+    name="simple-text-generation-pipeline",
+    description="A simple text generation pipeline",
+) as pipeline:
     load_dataset = LoadHubDataset(
         name="load_dataset",
         output_mappings={"prompt": "instruction"},
     )
 
     generate_with_openai = TextGeneration(
-        name="generate_with_openai", llm=OpenAILLM(model="gpt-4-0125-preview")
+        name="generate_with_gpt3.5", llm=OpenAILLM(model="gpt-3.5-turbo")
     )
 
-    to_argilla = TextGenerationToArgilla(
-        name="to_argilla", dataset_name="text-generation-with-gpt4"
-    )
+    to_argilla = TextGenerationToArgilla(name="to_argilla")
 
     load_dataset.connect(generate_with_openai)
     generate_with_openai.connect(to_argilla)
@@ -127,7 +128,7 @@ if __name__ == "__main__":
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            "generate_with_openai": {
+            "generate_with_gpt35": {
                 "llm": {
                     "generation_kwargs": {
                         "temperature": 0.7,
@@ -136,8 +137,8 @@ if __name__ == "__main__":
                 }
             },
             "to_argilla": {
-                "api_url": "https://cloud.argilla.io",
-                "api_key": "i.love.argilla",
+                "dataset_name": "text-generations-with-gpt35",
+                "dataset_workspace": "admin",
             },
         },
     )
