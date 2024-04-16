@@ -16,18 +16,18 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from mistralai.async_client import MistralAsyncClient
 
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 _MISTRALAI_API_KEY_ENV_VAR_NAME = "MISTRAL_API_KEY"
 
@@ -113,13 +113,14 @@ class MistralLLM(AsyncLLM):
         return self.model
 
     # TODO: add `num_generations` parameter once Mistral client allows `n` parameter
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the MistralAI async
         client.
 

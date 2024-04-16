@@ -14,16 +14,15 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
-from pydantic import Field, FilePath, PrivateAttr
+from pydantic import Field, FilePath, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama
-
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 
 class LlamaCppLLM(LLM):
@@ -84,16 +83,17 @@ class LlamaCppLLM(LLM):
         """Returns the model name used for the LLM."""
         return self._model.model_path  # type: ignore
 
+    @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List["ChatType"],
+        inputs: List[ChatType],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> List["GenerateOutput"]:
+    ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for the given input using the Llama model.
 
         Args:

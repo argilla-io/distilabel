@@ -15,16 +15,16 @@
 import os
 from typing import TYPE_CHECKING, Optional
 
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
 
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
 
@@ -110,16 +110,17 @@ class OpenAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
 
