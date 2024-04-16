@@ -110,7 +110,7 @@ class CustomLLM(LLM):
         return "my-model"
 
     @validate_call
-    def generate(self, inputs: List[ChatType], num_generations: int = 1) -> List[GenerateOutput]:
+    def generate(self, inputs: List[ChatType], num_generations: int = 1, **kwargs: Any) -> List[GenerateOutput]:
         for _ in range(num_generations):
             ...
 
