@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from rich import traceback as rich_traceback
-from tblib import pickling_support
 
 __version__ = "1.0.0"
 
 rich_traceback.install(show_locals=True)
-pickling_support.install()
