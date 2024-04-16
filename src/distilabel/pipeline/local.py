@@ -20,6 +20,8 @@ import time
 import traceback
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
+import tblib
+
 from distilabel.distiset import create_distiset
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
@@ -488,6 +490,9 @@ class Pipeline(BasePipeline):
             with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
             _SUBPROCESS_EXCEPTION = e.subprocess_exception
+            _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(
+                e.formatted_traceback
+            ).as_traceback()
             return
 
         # If the step is global, is not in the last trophic level and has no successors,
@@ -598,7 +603,9 @@ class _ProcessWrapperException(Exception):
         self.step = step
         self.code = code
         self.subprocess_exception = subprocess_exception
-        self.formatted_traceback = traceback.format_exc()
+        self.formatted_traceback = "".join(
+            traceback.format_exception(subprocess_exception)
+        )
 
     @classmethod
     def create_load_error(
