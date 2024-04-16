@@ -59,13 +59,13 @@ class InferenceEndpointsLLM(AsyncLLM):
         use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
     Examples:
+        ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
 
         # Free serverless Inference API
         llm = InferenceEndpointsLLM(
-            api_key="<HF_API_KEY>",
-            model_id="<MODEL_ID>",
+            model_id="mistralai/Mistral-7B-Instruct-v0.2",
         )
 
         # Dedicated Inference Endpoints
@@ -88,6 +88,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         # Asynchronous request
         output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
     """
 
     model_id: Optional[str] = None
