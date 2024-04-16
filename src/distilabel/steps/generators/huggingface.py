@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -46,11 +47,18 @@ def _get_hf_dataset_info(
     if config is not None:
         params["config"] = config
 
+    if "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+
     response = requests.get(
-        "https://datasets-server.huggingface.co/info", params=params
+        "https://datasets-server.huggingface.co/info", params=params, headers=headers
     )
 
-    assert response.status_code == 200, f"Failed to get '{repo_id}' dataset info."
+    assert (
+        response.status_code == 200
+    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
 
     return response.json()["dataset_info"]
 
@@ -63,18 +71,21 @@ class LoadHubDataset(GeneratorStep):
     entire dataset into memory at once. Instead, it will load the dataset in chunks and yield
     the transformed data as it is loaded from the Hugging Face Hub.
 
+    Attributes:
+        repo_id: The Hugging Face Hub repository ID of the dataset to load.
+        split: The split of the dataset to load.
+        config: The configuration of the dataset to load. This is optional and only needed
+            if the dataset has multiple configurations.
+
     Runtime parameters:
+        - `batch_size`: The batch size to use when processing the data.
+        - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
+        - `split`: The split of the dataset to load. Defaults to 'train'.
+        - `config`: The configuration of the dataset to load. This is optional and only
+            needed if the dataset has multiple configurations.
 
-    - `batch_size`: The batch size to use when processing the data.
-    - `repo_id`: The Hugging Face Hub repository ID of the dataset to load.
-    - `split`: The split of the dataset to load.
-    - `config`: The configuration of the dataset to load. This is optional and only needed if the
-        dataset has multiple configurations.
-
-    Columns:
-
-    - `input`: None
-    - `output`: dynamic, based on the dataset being loaded
+    Output columns
+        - dynamic, based on the dataset being loaded
     """
 
     repo_id: RuntimeParameter[str] = Field(

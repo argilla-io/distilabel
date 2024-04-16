@@ -17,32 +17,40 @@ import multiprocessing as mp
 import signal
 import threading
 import time
-from typing import TYPE_CHECKING, Any, Dict, Optional, cast
+import traceback
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
-from distilabel.llm.mixins import CudaDevicePlacementMixin
+from distilabel.distiset import create_distiset
+from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import BasePipeline, _Batch, _BatchManager, _WriteBuffer
 from distilabel.steps.base import Step
-from distilabel.utils.distiset import create_distiset
-from distilabel.utils.logging import setup_logging
+from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
     from multiprocessing.pool import Pool
     from queue import Queue
 
+    from distilabel.distiset import Distiset
     from distilabel.steps.base import GeneratorStep
-    from distilabel.utils.distiset import Distiset
 
-_BATCH_STOP_FLAG = "__STOP__"
 
 _STEPS_LOADED_KEY = "steps_loaded"
-_STEPS_LOADED_LOCK = "steps_loaded_lock"
+_STEPS_LOADED_LOCK_KEY = "steps_loaded_lock"
 _STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
-_CUDA_LLM_DEVICE_PLACEMENT_LOCK = "cuda_llm_device_placement_lock"
+_CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+
+_STEPS_LOADED = set()
+_STEPS_LOADED_LOCK = threading.Lock()
+
+_STEPS_FINISHED = set()
+_STEPS_FINISHED_LOCK = threading.Lock()
+
+_SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
@@ -93,6 +101,7 @@ class Pipeline(BasePipeline):
                 "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
                 " `Distiset` from cache data..."
             )
+            stop_logging()
             return create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
@@ -118,24 +127,49 @@ class Pipeline(BasePipeline):
             if not self._all_steps_loaded():
                 write_buffer.close()
                 self._batch_manager = None
+                stop_logging()
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
-                )
+                ) from _SUBPROCESS_EXCEPTION
 
             # Send the "first" batches to the steps so the batches starts flowing through
             # the input queues and output queue
             self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
-            self._output_queue_loop(write_buffer)
+            self._run_output_queue_loop_in_thread(write_buffer)
+
+            # Send `None` to steps `input_queue`s just in case some step is still waiting
+            self._notify_steps_to_stop()
 
             pool.close()
             pool.join()
 
         write_buffer.close()
-        return create_distiset(
+        distiset = create_distiset(
             self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
         )
+        stop_logging()
+        return distiset
+
+    def _run_output_queue_loop_in_thread(self, write_buffer: "_WriteBuffer") -> None:
+        """Runs the output queue loop in a separate thread to receive the output batches
+        from the steps. This is done to avoid the signal handler to block the loop, which
+        would prevent the pipeline from stopping correctly.
+
+        Args:
+            write_buffer: The write buffer to write the data from the leaf steps to disk.
+        """
+        thread = threading.Thread(target=self._output_queue_loop, args=(write_buffer,))
+        thread.start()
+        thread.join()
+
+    def _notify_steps_to_stop(self) -> None:
+        """Notifies the steps to stop their infinite running loop by sending `None` to
+        their input queues."""
+        for step_name in self.dag:
+            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+                input_queue.put(None)
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
@@ -144,42 +178,32 @@ class Pipeline(BasePipeline):
         Args:
             write_buffer: The write buffer to write the data from the leaf steps to disk.
         """
-        while self._batch_manager.can_generate():  # type: ignore
-            self._logger.debug("🫷Waiting for output batch from step...")
-            if (batch := self.output_queue.get()) == _BATCH_STOP_FLAG or batch is None:
-                self._logger.debug(
-                    "Received `_BATCH_STOP_FLAG` from output queue. Breaking loop."
-                )
+        while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
+            self._logger.debug("Waiting for output batch from step...")
+            if (batch := self.output_queue.get()) is None:
+                self._logger.debug("Received `None` from output queue. Breaking loop.")
+                break
+
+            if batch.step_name in self.dag.leaf_steps:
+                write_buffer.add_batch(batch)
+
+            # If `_STOP_CALLED` was set to `True` while waiting for the output queue, then
+            # we need to handle the stop of the pipeline and break the loop to avoid
+            # propagating the batches through the pipeline and making the stop process
+            # slower.
+            if _STOP_CALLED:
+                self._handle_batch_on_stop(batch)
                 break
 
             self._logger.debug(
-                f"🧤Received {batch.seq_no} from step '{batch.step_name}' from output"
-                f" queue: {batch}"
+                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
+                f" from output queue: {batch}"
             )
-
-            self._add_batch_to_batch_manager(batch)
 
             self._manage_batch_flow(batch)
 
-            if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch.step_name, batch)
-
-    def _add_batch_to_batch_manager(self, batch: "_Batch") -> None:
-        """Registers the batch in the `_BatchManager` and adds the batch to input buffer
-        of the successors steps from the step that generated the batch. If there's enough
-        data for creating a batch for a successor step, then the batch is created and sent
-        to that step.
-
-        Args:
-            batch: The batch to add to the `_BatchManager`.
-        """
-        assert self._batch_manager, "Batch manager is not set"
-
-        self._batch_manager.register_batch(batch)
-        for to_step in self.dag.get_step_successors(batch.step_name):
-            if new_batch := self._batch_manager.add_batch(to_step, batch):
-                self._send_batch_to_step(new_batch)
-        self._cache()
+        if _STOP_CALLED:
+            self._handle_stop(write_buffer)
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -192,36 +216,40 @@ class Pipeline(BasePipeline):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        if batch.last_batch:
-            return
+        self._batch_manager.register_batch(batch)
+        self._logger.debug(
+            f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
+            " manager"
+        )
 
         step: "Step" = self.dag.get_step(batch.step_name)["step"]
 
-        # Check if the step is a generator and if there are successors that need data
-        # from this step. This usually happens when the generator `batch_size` is smaller
-        # than the `input_batch_size` of the successor steps.
-        if step.is_generator:
-            for successor in self.dag.get_step_successors(step.name):
-                if step.name not in self._batch_manager.step_empty_buffers(successor):
-                    continue
+        for successor in self.dag.get_step_successors(step.name):
+            self._batch_manager.add_batch(successor, batch)
 
-                # If the successor has an empty buffer, request a new batch to the this
-                # (generator) step
-                if last_batch := self._batch_manager.get_last_batch(step.name):
-                    self._send_batch_to_step(last_batch.next_batch())
-                    return
+            # Check if the step is a generator and if there are successors that need data
+            # from this step. This usually happens when the generator `batch_size` is smaller
+            # than the `input_batch_size` of the successor steps.
+            if (
+                step.is_generator
+                and step.name in self._batch_manager.step_empty_buffers(successor)
+            ):
+                last_batch = self._batch_manager.get_last_batch(step.name)
+                self._send_batch_to_step(last_batch.next_batch())  # type: ignore
+
+            if new_batch := self._batch_manager.get_batch(successor):
+                self._send_batch_to_step(new_batch)
+
+        if step.is_generator:
             return
 
-        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
-
-        # Step has data in its buffers, send a new batch
-        if not empty_buffers and (
-            next_batch := self._batch_manager.get_batch(step.name)
-        ):
+        # Step has enough data on its buffers to create a new batch
+        if next_batch := self._batch_manager.get_batch(step.name):
             self._send_batch_to_step(next_batch)
             return
 
         # Request more batches to the predecessors generator steps
+        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
         for previous_step_name in empty_buffers:
             if previous_step_name not in self.dag.root_steps:
                 continue
@@ -232,6 +260,76 @@ class Pipeline(BasePipeline):
                     " empty. Requesting new batch..."
                 )
                 self._send_batch_to_step(last_batch.next_batch())
+
+        self._cache()
+
+    def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
+        """Handles the stop of the pipeline execution, which will stop the steps from
+        processing more batches and wait for the output queue to be empty, to not lose
+        any data that was already processed by the steps before the stop was called.
+
+        Args:
+            write_buffer: The write buffer to write the data from the leaf steps to disk.
+        """
+        self._logger.debug("Handling stop of the pipeline execution...")
+
+        # Send `None` to the input queues of all the steps to notify them to stop
+        # processing batches.
+        for step_name in self.dag:
+            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+                while not input_queue.empty():
+                    batch = input_queue.get()
+                    self._batch_manager.add_batch(  # type: ignore
+                        to_step=step_name, batch=batch, prepend=True
+                    )
+                    self._logger.debug(
+                        f"Adding batch back to the batch manager: {batch}"
+                    )
+                input_queue.put(None)
+
+        # Wait for the input queue to be empty, which means that all the steps finished
+        # processing the batches that were sent before the stop flag.
+        for step_name in self.dag:
+            self._wait_step_input_queue_empty(step_name)
+
+        # Consume the output queue until it's empty to not lose any data that was already
+        # processed by the steps before stop was called.
+        while not self.output_queue.empty():
+            batch = self.output_queue.get()
+            if batch.step_name in self.dag.leaf_steps:
+                write_buffer.add_batch(batch)
+            self._handle_batch_on_stop(batch)
+
+        self._cache()
+
+    def _handle_batch_on_stop(self, batch: "_Batch") -> None:
+        """Handles a batch that was received from the output queue when the pipeline was
+        stopped. It will add and register the batch in the batch manager.
+
+        Args:
+            batch: The batch to handle.
+        """
+        self._batch_manager.register_batch(batch)  # type: ignore
+        step: "Step" = self.dag.get_step(batch.step_name)["step"]
+        for successor in self.dag.get_step_successors(step.name):
+            self._batch_manager.add_batch(successor, batch)  # type: ignore
+
+    def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
+        """Waits for the input queue of a step to be empty.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The input queue of the step if it's not loaded or finished, `None` otherwise.
+        """
+        if self._check_step_not_loaded_or_finished(step_name):
+            return None
+
+        if input_queue := self.dag.get_step(step_name).get("input_queue"):
+            while input_queue.qsize() != 0:
+                pass
+            return input_queue
 
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
@@ -246,9 +344,9 @@ class Pipeline(BasePipeline):
         return manager.dict(
             **{
                 _STEPS_LOADED_KEY: manager.list(),
-                _STEPS_LOADED_LOCK: manager.Lock(),
+                _STEPS_LOADED_LOCK_KEY: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
-                _CUDA_LLM_DEVICE_PLACEMENT_LOCK: manager.Lock(),
+                _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY: manager.Lock(),
             }
         )
 
@@ -258,10 +356,15 @@ class Pipeline(BasePipeline):
         Returns:
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
+
+        def _update_all_steps_loaded(steps_loaded: List[str]) -> None:
+            with _STEPS_LOADED_LOCK:
+                _STEPS_LOADED.update(steps_loaded)
+
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
-        while True:
-            with self.shared_info[_STEPS_LOADED_LOCK]:
+        while not _STOP_CALLED:
+            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
                 num_steps_loaded = (
                     len(steps_loaded)
@@ -277,13 +380,17 @@ class Pipeline(BasePipeline):
 
                 if num_steps_loaded == len(self.dag):
                     self._logger.info("✅ All the steps have been loaded!")
+                    _update_all_steps_loaded(steps_loaded)
                     return True
 
                 if steps_loaded == [_STEPS_LOADED_ERROR_CODE]:
                     self._logger.error("❌ Failed to load all the steps")
+                    _update_all_steps_loaded(steps_loaded)
                     return False
 
             time.sleep(2.5)
+
+        return not _STOP_CALLED
 
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
@@ -291,6 +398,9 @@ class Pipeline(BasePipeline):
 
         for step in self._batch_manager._steps.values():
             if batch := step.get_batch():
+                self._logger.debug(
+                    f"Sending initial batch to '{step.step_name}' step: {batch}"
+                )
                 self._send_batch_to_step(batch)
 
         for step_name in self.dag.root_steps:
@@ -298,6 +408,9 @@ class Pipeline(BasePipeline):
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
             batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
+            self._logger.debug(
+                f"Requesting initial batch to '{step_name}' generator step: {batch}"
+            )
             self._send_batch_to_step(batch)
 
     def _send_batch_to_step(self, batch: "_Batch") -> None:
@@ -349,14 +462,20 @@ class Pipeline(BasePipeline):
                 shared_info=shared_info,
             )
 
-            pool.apply_async(process_wrapper.run, error_callback=self._error_callback)  # type: ignore
+            pool.apply_async(
+                process_wrapper.run,
+                callback=self._finished_callback,
+                error_callback=self._error_callback,
+            )  # type: ignore
 
-    def _error_callback(self, e: Exception) -> None:
+    def _error_callback(self, e: BaseException) -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
 
         Args:
             e: The exception raised by the process.
         """
+        global _SUBPROCESS_EXCEPTION
+
         # First we check that the exception is a `_ProcessWrapperException`, otherwise, we
         # print it out and stop the pipeline, since some errors may be unhandled
         if not isinstance(e, _ProcessWrapperException):
@@ -366,7 +485,9 @@ class Pipeline(BasePipeline):
 
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
-            self._stop()
+            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
+                self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
+            _SUBPROCESS_EXCEPTION = e.subprocess_exception
             return
 
         # If the step is global, is not in the last trophic level and has no successors,
@@ -379,42 +500,68 @@ class Pipeline(BasePipeline):
             self._logger.error(
                 f"✋ An error occurred when running global step '{e.step.name}' with no"
                 " successors and not in the last trophic level. Pipeline execution can"
-                f" continue. Error will be ignored: {e.message}"
+                f" continue. Error will be ignored."
             )
+            self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
             return
 
-        self._logger.error(f"An error occurred in step '{e.step.name}': {e.message}")
+        # Global step with successors failed
+        self._logger.error(f"An error occurred in global step '{e.step.name}'")
+        self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
         self._cache()
         self._stop()
 
+    def _finished_callback(self, step_name: str) -> None:
+        """Callback that will be called when a `Step` process finishes.
+
+        Args:
+            step_name: The name of the step that finished.
+        """
+        with _STEPS_FINISHED_LOCK:
+            _STEPS_FINISHED.add(step_name)
+
+    def _check_step_not_loaded_or_finished(self, step_name: str) -> bool:
+        """Checks if a step is not loaded or already finished.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            `True` if the step is not loaded or already finished, `False` otherwise.
+        """
+        with _STEPS_LOADED_LOCK:
+            if step_name not in _STEPS_LOADED:
+                return True
+
+        with _STEPS_FINISHED_LOCK:
+            if step_name in _STEPS_FINISHED:
+                return True
+
+        return False
+
     def _stop(self) -> None:
-        """Stops the pipeline execution. It will first send the `_BATCH_STOP_FLAG` to the
-        input queues of all the steps and then wait until the output queue is empty i.e.
-        all the steps finished processing the batches that were sent before the stop flag.
-        Then it will send the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline
-        to stop."""
+        """Stops the pipeline execution. It will first send `None` to the input queues
+        of all the steps and then wait until the output queue is empty i.e. all the steps
+        finished processing the batches that were sent before the stop flag. Then it will
+        send `None` to the output queue to notify the pipeline to stop."""
 
         global _STOP_CALLED
 
         with _STOP_CALLED_LOCK:
             if _STOP_CALLED:
+                self._logger.warning(
+                    "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
+                    " for the pipeline to finish..."
+                )
                 return
             _STOP_CALLED = True
 
-        for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get("input_queue"):
-                input_queue.put(_BATCH_STOP_FLAG)
-                self._logger.debug(
-                    f"Send `_BATCH_STOP_FLAG` to step '{step_name}' input queue."
-                )
-        # Wait until the output queue is empty which means that all the steps finished
-        # processing the batches that were sent before the `_BATCH_STOP_FLAG`. Then send
-        # the `_BATCH_STOP_FLAG` to the output queue to notify the pipeline to stop.
-        while self.output_queue.qsize() != 0:
-            pass
-        self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
-        self._logger.info("🛑 Stopping pipeline...")
-        self.output_queue.put(_BATCH_STOP_FLAG)
+        self._logger.debug(f"Steps loaded before calling `stop`: {_STEPS_LOADED}")
+        self._logger.info(
+            "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
+        )
+        self._logger.debug("Sending `None` to the output queue to notify stop...")
+        self.output_queue.put(None)
 
     def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
@@ -425,10 +572,6 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._logger.info(
-                "🚨 CTRL+C signal, waiting steps to finish processing and stopping"
-                " pipeline..."
-            )
             self._stop()
 
         signal.signal(signal.SIGINT, signal_handler)
@@ -441,27 +584,40 @@ class _ProcessWrapperException(Exception):
         message: The error message.
         step: The `Step` that raised the error.
         code: The error code.
+        subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
     """
 
-    def __init__(self, message: str, step: "Step", code: int) -> None:
+    def __init__(
+        self,
+        message: str,
+        step: "Step",
+        code: int,
+        subprocess_exception: Optional[Exception] = None,
+    ) -> None:
         self.message = message
         self.step = step
         self.code = code
+        self.subprocess_exception = subprocess_exception
+        self.formatted_traceback = traceback.format_exc()
 
     @classmethod
     def create_load_error(
-        cls, message: str, step: "Step"
+        cls,
+        message: str,
+        step: "Step",
+        subprocess_exception: Optional[Exception] = None,
     ) -> "_ProcessWrapperException":
         """Creates a `_ProcessWrapperException` for a load error.
 
         Args:
             message: The error message.
             step: The `Step` that raised the error.
+            subprocess_exception: The exception raised by the subprocess. Defaults to `None`.
 
         Returns:
             The `_ProcessWrapperException` instance.
         """
-        return cls(message, step, 1)
+        return cls(message, step, 1, subprocess_exception)
 
     @property
     def is_load_error(self) -> bool:
@@ -514,22 +670,27 @@ class _ProcessWrapper:
                     _CUDA_LLM_DEVICE_PLACEMENT_KEY
                 ],
                 device_llm_placement_lock=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK
+                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY
                 ],
             )
 
-    def run(self) -> None:
+    def run(self) -> str:
         """The target function executed by the process. This function will also handle
         the step lifecycle, executing first the `load` function of the `Step` and then
         waiting to receive a batch from the `input_queue` that will be handled by the
         `process` method of the `Step`.
+
+        Returns:
+            The name of the step that was executed.
         """
 
         try:
             self.step.load()
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
-            raise _ProcessWrapperException.create_load_error(str(e), self.step) from e
+            raise _ProcessWrapperException.create_load_error(
+                str(e), self.step, e
+            ) from e
 
         self._notify_load()
 
@@ -538,11 +699,19 @@ class _ProcessWrapper:
         else:
             self._non_generator_process_loop()
 
+        # Just in case `None` sentinel was sent
+        try:
+            self.input_queue.get(block=False)
+        except Exception:
+            pass
+
         self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
+
+        return self.step.name
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
-        with self.shared_info[_STEPS_LOADED_LOCK]:
+        with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
             self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
 
     def _generator_step_process_loop(self) -> None:
@@ -560,7 +729,7 @@ class _ProcessWrapper:
         step = cast("GeneratorStep", self.step)
 
         try:
-            if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+            if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
                     f"🛑 Stopping yielding batches from step '{self.step.name}'"
                 )
@@ -584,13 +753,13 @@ class _ProcessWrapper:
                 self.step._logger.debug(
                     f"Step '{self.step.name}' waiting for next batch request..."
                 )
-                if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+                if (batch := self.input_queue.get()) is None:
                     self.step._logger.info(
                         f"🛑 Stopping yielding batches from step '{self.step.name}'"
                     )
                     return
         except Exception as e:
-            raise _ProcessWrapperException(str(e), self.step, 2) from e
+            raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
     def _non_generator_process_loop(self) -> None:
         """Runs the process loop for a non-generator step. It will call the `process`
@@ -607,7 +776,7 @@ class _ProcessWrapper:
                 `process` method and the step is global.
         """
         while True:
-            if (batch := self.input_queue.get()) == _BATCH_STOP_FLAG:
+            if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
                     f"🛑 Stopping processing batches from step '{self.step.name}'"
                 )
@@ -626,13 +795,16 @@ class _ProcessWrapper:
                     result = next(self.step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
-                    raise _ProcessWrapperException(str(e), self.step, 2) from e
+                    raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
                 self.step._logger.warning(
-                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed:"
-                    f" {e}. Sending empty batch..."
+                    f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
+                    " Sending empty batch..."
+                )
+                self.step._logger.warning(
+                    f"Subprocess traceback:\n\n{traceback.format_exc()}"
                 )
             finally:
                 batch.data = [result]

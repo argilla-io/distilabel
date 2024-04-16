@@ -22,8 +22,10 @@ from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
 
-from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
-from distilabel.pipeline.base import BasePipeline, _GlobalPipelineManager
+from distilabel.mixins.runtime_parameters import (
+    RuntimeParameter,
+    RuntimeParametersMixin,
+)
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -93,9 +95,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str
-    pipeline: Annotated[
-        Union[BasePipeline, None], Field(exclude=True, repr=False)
-    ] = None
+    pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
@@ -103,6 +103,8 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     _logger: Union["Logger", None] = PrivateAttr(...)
 
     def model_post_init(self, __context: Any) -> None:
+        from distilabel.pipeline.base import _GlobalPipelineManager
+
         super().model_post_init(__context)
 
         if self.pipeline is None:
@@ -139,8 +141,35 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         self.pipeline._add_edge(self.name, step.name)  # type: ignore
         return step
 
-    def __rshift__(self, step: "_Step") -> "_Step":
+    def __rshift__(self, other: Union["_Step", List["_Step"]]) -> "_Step":
         """Allows using the `>>` operator to connect steps in the pipeline.
+
+        Args:
+            other: The step to connect to or a list of steps to connect to.
+
+        Returns:
+            The connected step, or the last one of the list of steps if a list is passed.
+
+        Example:
+            ```python
+            step1 >> step2
+            # Would be equivalent to:
+            step1.connect(step2)
+
+            # It also allows to connect a list of steps
+            step1 >> [step2, step3]
+            ```
+        """
+        if isinstance(other, list):
+            for step in other:
+                self.connect(step)
+            return other
+        else:
+            return self.connect(other)
+
+    def __rrshift__(self, other: List["_Step"]) -> "_Step":
+        """Allows using the [step1, step2] >> step3 operator to connect a list of steps in the pipeline
+        to a single step, as the list doesn't have the __rshift__ operator.
 
         Args:
             step: The step to connect to.
@@ -150,18 +179,21 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         Example:
             ```python
-            step1 >> step2
+            [step2, step3] >> step1
             # Would be equivalent to:
-            step1.connect(step2)
+            step2.connect(step1)
+            step3.connect(step1)
             ```
         """
-        return self.connect(step)
+        for o in other:
+            o.connect(self)
+        return self
 
     def load(self) -> None:
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
         """
-        self._logger = logging.getLogger(f"step.{self.name}")
+        self._logger = logging.getLogger(f"distilabel.step.{self.name}")
 
     @property
     def is_generator(self) -> bool:
@@ -356,11 +388,34 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
 
 class Step(_Step, ABC):
-    # TODO: this should be a `RuntimeParameter`
-    input_batch_size: PositiveInt = DEFAULT_INPUT_BATCH_SIZE
+    """Base class for the steps that can be included in a `Pipeline`.
+
+    Attributes:
+        input_batch_size: The number of rows that will contain the batches processed by
+            the step. Defaults to `50`.
+
+    Runtime parameters:
+        - `input_batch_size`: The number of rows that will contain the batches processed
+            by the step. Defaults to `50`.
+    """
+
+    input_batch_size: RuntimeParameter[PositiveInt] = Field(
+        default=DEFAULT_INPUT_BATCH_SIZE,
+        description="The number of rows that will contain the batches processed by the"
+        " step.",
+    )
 
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput":
+        """Method that defines the processing logic of the step. It should yield the
+        output rows.
+
+        Args:
+            *inputs: An argument used to receive the outputs of the previous steps. The
+                number of arguments depends on the number of previous steps. It doesn't
+                need to be an `*args` argument, it can be a regular argument annotated
+                with `StepInput` if the step has only one previous step.
+        """
         pass
 
     def process_applying_mappings(self, *args: List[Dict[str, Any]]) -> "StepOutput":
@@ -431,10 +486,21 @@ class Step(_Step, ABC):
 class GeneratorStep(_Step, ABC):
     """A special kind of `Step` that is able to generate data i.e. it doesn't receive
     any input from the previous steps.
+
+    Attributes:
+        batch_size: The number of rows that will contain the batches generated by the
+            step. Defaults to `50`.
+
+    Runtime parameters:
+        - `batch_size`: The number of rows that will contain the batches generated by
+            the step. Defaults to `50`.
     """
 
-    # TODO: this should be a `RuntimeParameter` and maybe be called `output_batch_size`
-    batch_size: int = 50
+    batch_size: RuntimeParameter[int] = Field(
+        default=50,
+        description="The number of rows that will contain the batches generated by the"
+        " step.",
+    )
 
     @abstractmethod
     def process(self, offset: int = 0) -> "GeneratorStepOutput":

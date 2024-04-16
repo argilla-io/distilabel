@@ -14,11 +14,94 @@
 
 from typing import Any, Dict, Generator, List
 
+from distilabel.distiset import Distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
-from distilabel.steps.generators.huggingface import LoadHubDataset
-from distilabel.utils.distiset import Distiset
+from distilabel.steps.generators.data import LoadDataFromDicts
+
+DATA = [
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+]
 
 
 class RenameColumns(Step):
@@ -63,28 +146,28 @@ class GenerateResponse(Step):
 
 def run_pipeline():
     with Pipeline(name="unit-test-pipeline") as pipeline:
-        load_hub_dataset = LoadHubDataset(name="load_dataset", batch_size=8)
+        load_dataset = LoadDataFromDicts(name="load_dataset", data=DATA, batch_size=8)
         rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
         generate_response = GenerateResponse(
             name="generate_response", input_batch_size=16
         )
 
-        load_hub_dataset.connect(rename_columns)
+        load_dataset.connect(rename_columns)
         rename_columns.connect(generate_response)
 
-        return pipeline.run(
-            parameters={
-                "load_dataset": {
-                    "repo_id": "plaguss/test",
-                    "split": "train",
+    return pipeline.run(
+        parameters={
+            "load_dataset": {
+                "repo_id": "plaguss/test",
+                "split": "train",
+            },
+            "rename_columns": {
+                "rename_mappings": {
+                    "prompt": "instruction",
                 },
-                "rename_columns": {
-                    "rename_mappings": {
-                        "prompt": "instruction",
-                    },
-                },
-            }
-        )
+            },
+        }
+    )
 
 
 def test_pipeline_cached():

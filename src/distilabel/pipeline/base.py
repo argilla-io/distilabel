@@ -41,8 +41,9 @@ from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 if TYPE_CHECKING:
     from os import PathLike
 
+    from distilabel.distiset import Distiset
     from distilabel.steps.base import _Step
-    from distilabel.utils.distiset import Distiset
+    from distilabel.utils.serialization import SaveFormats, StrOrPath
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
@@ -122,7 +123,7 @@ class BasePipeline(_Serializable):
         else:
             self._cache_dir = BASE_CACHE_DIR
 
-        self._logger = logging.getLogger("pipeline")
+        self._logger = logging.getLogger("distilabel.pipeline")
 
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
@@ -317,6 +318,7 @@ class BasePipeline(_Serializable):
                 self._cache_location["batch_manager"],
                 format=self._cache_location["batch_manager"].suffix.replace(".", ""),
             )
+        self._logger.debug("Pipeline and batch manager saved to cache.")
 
     def _load_from_cache(self) -> None:
         """Will try to load the `BasePipeline` from the cache dir if found, updating
@@ -365,6 +367,15 @@ class _Batch(_Serializable):
         return _Batch(
             seq_no=self.seq_no + 1, step_name=self.step_name, last_batch=self.last_batch
         )
+
+    @property
+    def empty(self) -> bool:
+        """Checks if the batch is empty.
+
+        Returns:
+            `True` if the batch is empty. Otherwise, `False`.
+        """
+        return all(len(rows) == 0 for rows in self.data)
 
     @classmethod
     def from_batches(cls, step_name: str, batches: List["_Batch"]) -> "_Batch":
@@ -450,15 +461,20 @@ class _BatchManagerStep(_Serializable):
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
 
-    def add_batch(self, batch: _Batch) -> None:
+    def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
         data and keep track of the last batch received from the predecessors.
 
         Args:
             batch: The output batch of an step to be processed by the step.
+            prepend: If `True`, the content of the batch will be added at the start of
+                the buffer.
         """
         from_step = batch.step_name
-        self.data[from_step].extend(batch.data[0])
+        if prepend:
+            self.data[from_step] = batch.data[0] + self.data[from_step]
+        else:
+            self.data[from_step].extend(batch.data[0])
         if batch.last_batch:
             self.last_batch_received.append(from_step)
 
@@ -658,6 +674,22 @@ class _BatchManager(_Serializable):
             `True` if there are still batches to be processed by the steps. Otherwise,
             `False`.
         """
+
+        # Check if any step that hasn't finished producing data (we haven't received its
+        # last batch) still needs data from its predecessors, and those predecessors have
+        # already sent their last batch and it's empty. In this case, we cannot continue
+        # the pipeline.
+        for batch_manager_step in self._steps.values():
+            for predecessor in batch_manager_step.data.keys():
+                batch = self._last_batch_received.get(predecessor)
+                if (
+                    batch
+                    and batch.last_batch
+                    and batch.empty
+                    and batch_manager_step.data[predecessor] == []
+                ):
+                    return False
+
         return not all(
             batch and batch.last_batch for batch in self._last_batch_received.values()
         )
@@ -674,19 +706,14 @@ class _BatchManager(_Serializable):
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         return self._last_batch_received.get(step_name)
 
-    def add_batch(self, to_step: str, batch: _Batch) -> Union[_Batch, None]:
-        """Add an output batch from `batch.step_name` to `to_step`. If there is enough
-        data for creating a `_Batch` for `to_step`, then it will return the batch to be
-        processed. Otherwise, it will return `None`.
+    def add_batch(self, to_step: str, batch: _Batch, prepend: bool = False) -> None:
+        """Add an output batch from `batch.step_name` to `to_step`.
 
         Args:
             to_step: The name of the step that will process the batch.
             batch: The output batch of an step to be processed by `to_step`.
-            callback: A callback to be called after the batch is added.
-
-        Returns:
-            If there is enough data for creating a batch for `to_step`, then it will return
-            the batch to be processed. Otherwise, it will return `None`.
+            prepend: If `True`, the content of the batch will be added at the start of
+                the buffer.
 
         Raises:
             ValueError: If `to_step` is not found in the batch manager.
@@ -695,8 +722,7 @@ class _BatchManager(_Serializable):
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
 
         step = self._steps[to_step]
-        step.add_batch(batch)
-        return step.get_batch()
+        step.add_batch(batch, prepend)
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
@@ -782,14 +808,50 @@ class _BatchManager(_Serializable):
         # via _get_class
         return cls(
             {
-                name: _BatchManagerStep.from_dict(step)
-                for name, step in data["steps"].items()
+                name: _BatchManagerStep.from_file(step_path)
+                for name, step_path in data["steps"].items()
             },
             {
                 step_name: _Batch.from_dict(batch) if batch is not None else None
                 for step_name, batch in data["last_batch_received"].items()
             },
         )
+
+    def save(
+        self,
+        path: Union["StrOrPath", None] = None,
+        format: "SaveFormats" = "json",
+        dump: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Overrides the parent method to save the each `_BatchManagerStep` to a file, and the contents
+        keep in the `_BatchManager` dump the paths to those files.
+
+        Note:
+            Not expected to be used directly, but through the `Pipeline._cache` class.
+
+        Args:
+            path: filename of the object to save. If a folder is given, will create the object
+                inside. If None is given, the file will be created at the current
+                working directory. Defaults to None.
+            format: the format to use when saving the file. Valid options are 'json' and
+                'yaml'. Defaults to `"json"`.
+            dump: the serialized object to save. If None, the object will be serialized using
+                the default self.dump. This variable is here to allow extra customization, in
+                general should be set as None.
+        """
+        path = Path(path)
+        dump = self.dump()
+        batch_manager_step_files = {}
+        # Do this to avoid modifying the dictionary while iterating over it
+        batch_manager_steps = set(dump["steps"].keys())
+        for step_name in batch_manager_steps:
+            step_dump = dump["steps"].pop(step_name)
+            filename = str(path.parent / f"batch_manager_steps/{step_name}.json")
+            batch_manager_step_files[step_name] = filename
+            super().save(path=filename, format=format, dump=step_dump)
+        dump["steps"] = batch_manager_step_files
+        super().save(path=path, format=format, dump=dump)
 
 
 class _WriteBuffer:
@@ -828,7 +890,7 @@ class _WriteBuffer:
         }
         self._buffer_last_schema = {}
         self._buffers_last_file: Dict[str, int] = {step: 1 for step in leaf_steps}
-        self._logger = logging.getLogger("write_buffer")
+        self._logger = logging.getLogger("distilabel.write_buffer")
 
     def _get_filename(self, step_name: str) -> Path:
         """Creates the filename for the step.
@@ -849,17 +911,17 @@ class _WriteBuffer:
         """
         return len(self._buffers[step_name]) >= self._buffers_dump_batch_size[step_name]
 
-    def add_batch(self, step_name: str, batch: "_Batch") -> None:
+    def add_batch(self, batch: "_Batch") -> None:
         """Adds a batch to the buffer and writes the buffer to the file if it's full.
 
         Args:
-            step_name (str): Name of the step to which the data pertains.
-            batch (_Batch): Batch to add to the buffer.
+            batch: batch to add to the buffer.
         """
+        step_name = batch.step_name
         data = batch.data[0]
         self._buffers[step_name].extend(data)
         self._logger.debug(
-            f"Added batch to buffer for step '{step_name}' with {len(data)} rows."
+            f"Added batch to write buffer for step '{step_name}' with {len(data)} rows."
         )
         if self.is_full(step_name):
             self._logger.debug(

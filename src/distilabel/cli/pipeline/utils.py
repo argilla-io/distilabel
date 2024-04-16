@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
@@ -87,8 +88,11 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
         raise ValueError(
             f"Unsupported file format for '{url}'. Only JSON and YAML are supported"
         )
-
-    response = requests.get(url)
+    if "huggingface.co" in url and "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+    response = requests.get(url, headers=headers)
     response.raise_for_status()
 
     if url.endswith((".yaml", ".yml")):

@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from distilabel.distiset import Distiset, create_distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.base import (
@@ -31,7 +32,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GlobalStep, Step, StepInput
-from distilabel.utils.distiset import Distiset, create_distiset
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from pydantic import Field
 
@@ -100,6 +100,12 @@ class TestBasePipeline:
         assert pipeline.get_runtime_parameters_info() == {
             "dummy_step_1": [
                 {
+                    "description": "The number of rows that will contain the batches processed by the "
+                    "step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+                {
                     "name": "runtime_param1",
                     "description": "runtime_param1 description",
                     "optional": False,
@@ -111,6 +117,12 @@ class TestBasePipeline:
                 },
             ],
             "dummy_step_2": [
+                {
+                    "description": "The number of rows that will contain the batches processed by the "
+                    "step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
                 {
                     "name": "runtime_param3",
                     "description": "runtime_param3 description",
@@ -190,6 +202,10 @@ class TestBatch:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
 
+    def test_empty(self) -> None:
+        batch = _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
+        assert batch.empty
+
     def test_dump(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
         assert batch.dump() == {
@@ -250,6 +266,46 @@ class TestBatchManagerStep:
         )
 
         assert batch_manager_step.data["step1"] == [{"a": 1}, {"a": 2}, {"a": 3}]
+        assert batch_manager_step.last_batch_received == []
+
+    def test_add_batch_with_prepend(self) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step2",
+            accumulate=False,
+            input_batch_size=10,
+            data={
+                "step1": [
+                    {"a": 6},
+                    {"a": 7},
+                    {"a": 8},
+                    {"a": 9},
+                    {"a": 10},
+                ]
+            },
+        )
+
+        batch_manager_step.add_batch(
+            _Batch(
+                seq_no=0,
+                step_name="step1",
+                last_batch=False,
+                data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+            ),
+            prepend=True,
+        )
+
+        assert batch_manager_step.data["step1"] == [
+            {"a": 1},
+            {"a": 2},
+            {"a": 3},
+            {"a": 4},
+            {"a": 5},
+            {"a": 6},
+            {"a": 7},
+            {"a": 8},
+            {"a": 9},
+            {"a": 10},
+        ]
         assert batch_manager_step.last_batch_received == []
 
     def test_add_batch_last_batch(self) -> None:
@@ -772,9 +828,56 @@ class TestBatchManager:
             last_batch=False,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
-        batch = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
 
-        assert batch is None
+        assert batch_manager._steps["step3"].data == {
+            "step1": [
+                {"a": 1},
+                {"a": 2},
+                {"a": 3},
+                {"a": 4},
+                {"a": 5},
+            ],
+            "step2": [],
+        }
+
+    def test_add_batch_with_prepend(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step3": _BatchManagerStep(
+                    step_name="step3",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={
+                        "step1": [{"a": 6}, {"a": 7}, {"a": 8}, {"a": 9}, {"a": 10}],
+                        "step2": [],
+                    },
+                )
+            },
+            last_batch_received={"step3": None},
+        )
+        batch_from_step_1 = _Batch(
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+        )
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1, prepend=True)
+        assert batch_manager._steps["step3"].data == {
+            "step1": [
+                {"a": 1},
+                {"a": 2},
+                {"a": 3},
+                {"a": 4},
+                {"a": 5},
+                {"a": 6},
+                {"a": 7},
+                {"a": 8},
+                {"a": 9},
+                {"a": 10},
+            ],
+            "step2": [],
+        }
 
     def test_add_batch_enough_data(self) -> None:
         batch_manager = _BatchManager(
@@ -799,17 +902,12 @@ class TestBatchManager:
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
 
-        batch = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
 
-        assert batch == _Batch(
-            step_name="step3",
-            seq_no=0,
-            last_batch=False,
-            data=[
-                [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
-                [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
-            ],
-        )
+        assert batch_manager._steps["step3"].data == {
+            "step1": [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
+            "step2": [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
+        }
 
     def test_from_dag(
         self,
@@ -904,39 +1002,64 @@ class TestBatchManager:
         }
 
     def test_from_dict(self) -> None:
-        batch_manager = _BatchManager.from_dict(
+        batch_manager_step = _BatchManagerStep.from_dict(
             {
-                "steps": {
-                    "step3": {
-                        "step_name": "step3",
-                        "accumulate": False,
-                        "input_batch_size": 5,
-                        "data": {"step1": [], "step2": []},
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                },
-                "last_batch_received": {
-                    "step3": {
-                        "seq_no": 0,
-                        "step_name": "step3",
-                        "last_batch": False,
-                        "data": [],
-                        "accumulated": False,
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    }
+                "step_name": "step3",
+                "accumulate": True,
+                "input_batch_size": None,
+                "data": {
+                    "step1": [
+                        {"a": 1},
+                        {"a": 2},
+                        {"a": 3},
+                        {"a": 4},
+                        {"a": 5},
+                        {"a": 6},
+                    ],
+                    "step2": [
+                        {"b": 1},
+                        {"b": 2},
+                        {"b": 3},
+                        {"b": 4},
+                        {"b": 5},
+                        {"b": 6},
+                        {"b": 7},
+                    ],
                 },
                 "type_info": {
                     "module": "distilabel.pipeline.base",
-                    "name": "_BatchManager",
+                    "name": "_BatchManagerStep",
                 },
             }
         )
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            batch_manager_step.save(Path(tmpdirname) / "batch_manager_step3.json")
+
+            batch_manager = _BatchManager.from_dict(
+                {
+                    "steps": {
+                        "step3": str(Path(tmpdirname) / "batch_manager_step3.json")
+                    },
+                    "last_batch_received": {
+                        "step3": {
+                            "seq_no": 0,
+                            "step_name": "step3",
+                            "last_batch": False,
+                            "data": [],
+                            "accumulated": False,
+                            "type_info": {
+                                "module": "distilabel.pipeline.base",
+                                "name": "_Batch",
+                            },
+                        }
+                    },
+                    "type_info": {
+                        "module": "distilabel.pipeline.base",
+                        "name": "_BatchManager",
+                    },
+                }
+            )
         assert isinstance(batch_manager, _BatchManager)
         assert all(
             isinstance(step, _BatchManagerStep)
@@ -1024,7 +1147,7 @@ class TestPipelineSerialization:
             dummy_step_1.connect(dummy_step_2)
 
         signature = pipeline._create_signature()
-        assert signature == "9da791477eab8cab62c09af59fb08ac42e039ce5"
+        assert signature == "81ed33f28947896a2601a0eea1b3637712f33e36"
 
     @pytest.mark.parametrize("use_cache", [True, False])
     def test_run_pipe_and_load_from_cache(self, use_cache: bool):
@@ -1091,16 +1214,119 @@ class TestPipelineSerialization:
 
             signature_2 = pipeline_2._create_signature()
 
-        with Pipeline(name="unit-test-pipeline-3") as pipeline_3:
+        assert signature_1 == signature_2
+
+    def test_binary_rshift_operator(self):
+        from distilabel.pipeline.local import Pipeline
+
+        from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+
+        with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            dummy_generator.connect(dummy_step_1)
+            dummy_step_1.connect(dummy_step_2)
+
+            signature_1 = pipeline_1._create_signature()
+
+        with Pipeline(name="unit-test-pipeline-3") as pipeline_2:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(name="dummy_step_1")
             dummy_step_2 = DummyStep2(name="dummy_step_2")
 
             dummy_generator >> dummy_step_1 >> dummy_step_2
 
-            signature_3 = pipeline_3._create_signature()
+            signature_2 = pipeline_2._create_signature()
 
-        assert signature_1 == signature_2 == signature_3
+        assert signature_1 == signature_2
+
+    def test_binary_rshift_operator_with_list(self):
+        # To work on lists of steps
+        from distilabel.pipeline.local import Pipeline
+
+        from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+
+        with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            dummy_generator.connect(dummy_step_1)
+            dummy_generator.connect(dummy_step_2)
+
+            signature_1 = pipeline_1._create_signature()
+
+        with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+
+            dummy_generator >> [dummy_step_1, dummy_step_2]
+
+            signature_2 = pipeline_2._create_signature()
+
+        assert signature_1 == signature_2
+
+    def test_binary_rrshift_operator(self):
+        from distilabel.pipeline.local import Pipeline
+
+        from tests.unit.pipeline.utils import DummyGlobalStep, DummyStep1, DummyStep2
+
+        with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+            dummy_global = DummyGlobalStep(name="dummy_global_step")
+
+            dummy_step_1.connect(dummy_global)
+            dummy_step_2.connect(dummy_global)
+
+            signature_1 = pipeline_1._create_signature()
+
+        with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+            dummy_global = DummyGlobalStep(name="dummy_global_step")
+
+            [dummy_step_1, dummy_step_2] >> dummy_global
+            signature_2 = pipeline_2._create_signature()
+
+        assert signature_1 == signature_2
+
+    def test_binary_operators(self):
+        from distilabel.pipeline.local import Pipeline
+
+        from tests.unit.pipeline.utils import (
+            DummyGeneratorStep,
+            DummyGlobalStep,
+            DummyStep1,
+            DummyStep2,
+        )
+
+        with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+            dummy_global = DummyGlobalStep(name="dummy_global_step")
+
+            dummy_generator.connect(dummy_step_1)
+            dummy_generator.connect(dummy_step_2)
+            dummy_step_1.connect(dummy_global)
+            dummy_step_2.connect(dummy_global)
+
+            signature_1 = pipeline_1._create_signature()
+
+        with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
+            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_2 = DummyStep2(name="dummy_step_2")
+            dummy_global = DummyGlobalStep(name="dummy_global_step")
+
+            dummy_generator >> [dummy_step_1, dummy_step_2] >> dummy_global
+            signature_2 = pipeline_2._create_signature()
+
+        assert signature_1 == signature_2
 
 
 class TestWriteBuffer:
@@ -1147,26 +1373,26 @@ class TestWriteBuffer:
 
             # Add one batch with 5 rows, shouldn't write anything 5 < 50
             batch = batch_gen(dummy_step_2.name)
-            write_buffer.add_batch(batch.step_name, batch)
+            write_buffer.add_batch(batch)
 
             # Add 45 more rows, should write now
             for _ in range(9):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00001.parquet").exists()
 
             # Add 50 more rows, we should have a new file
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00002.parquet").exists()
 
             # Add more rows and close the write buffer, we should have a new file
             for _ in range(5):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             write_buffer.close()
 
@@ -1196,23 +1422,23 @@ class TestWriteBuffer:
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_2", "00001.parquet").exists()
 
             for _ in range(10):
                 batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             assert Path(folder, "dummy_step_3", "00001.parquet").exists()
 
             for _ in range(5):
                 batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             for _ in range(5):
                 batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch.step_name, batch)
+                write_buffer.add_batch(batch)
 
             write_buffer.close()
 

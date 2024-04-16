@@ -22,14 +22,17 @@ classifiers = [
 ]
 dependencies = [
     "datasets >= 2.14.0",
+    "httpx >= 0.25.2",
     "importlib-resources >= 6.1.1; python_version < '3.9'",
     "Jinja2 >= 3.1.2",
     "multiprocess >= 0.70",
+    "nest-asyncio >= 1.6.0",
     "networkx >= 3.0",
     "pydantic >= 2.0",
     "rich >= 13.5.0",
     "scipy >= 1.10.0",
     "typer >= 0.9.0",
+    "tblib >= 3.0.0",
 ]
 dynamic = ["version"]
 
@@ -49,21 +52,21 @@ docs = [
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
 ]
+tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
 argilla = ["argilla >= 1.23.0"]
-hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
+cohere = ["cohere >= 5.2.0"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
+hf-transformers = ["transformers >= 4.34.1", "torch >= 2.0.0"]
 litellm = ["litellm >= 1.30.0"]
 llama-cpp = ["llama-cpp-python >= 0.2.0"]
 mistralai = ["mistralai >= 0.1.0"]
 ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
-tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio"]
-together = ["together"]
-vllm = ["vllm >= 0.2.1"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
+vllm = ["vllm >= 0.2.1", "filelock >= 3.13.4", "flash-attn >= 2.5.7"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
