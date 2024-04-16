@@ -46,7 +46,7 @@ class Distiset(dict):
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
         corresponding to the leaf step that generated it.
@@ -65,6 +65,8 @@ class Distiset(dict):
                 if no token is passed and the user is not logged-in.
             generate_card:
                 Whether to generate a dataset card or not. Defaults to True.
+            **kwargs:
+                Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
         """
         for name, dataset in self.items():
             dataset.push_to_hub(
