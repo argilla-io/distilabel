@@ -1,8 +1,8 @@
 # Global Steps
 
-The global steps are the ones that in order to do it's processing, they will need access to all the data at once. Some examples include creating a dataset to be pushed to the hub, or a filtering step in a `Pipeline`.
+The global steps are the ones that in order to do it's processing, they will need access to all the data at once. Some examples include creating a dataset to be pushed to the Hugging Face Hub, or a filtering step in a `Pipeline`.
 
-## Push data to HuggingFace Hub in batches
+## Push data to Hugging Face Hub in batches
 
 The first example of a `global` step corresponds to [`PushToHub`][distilabel.steps.globals.huggingface]:
 
@@ -22,7 +22,7 @@ push_to_hub = PushToHub(
 )
 ```
 
-This step can be used to push batches of the dataset to the hub as the process advances, enabling a checkpoint strategy in your pipeline.
+This step can be used to push batches of the dataset to the Hugging Face Hub as the process advances, enabling a checkpoint strategy in your pipeline.
 
 ## Data Filtering
 

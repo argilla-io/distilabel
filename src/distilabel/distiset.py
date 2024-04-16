@@ -114,7 +114,7 @@ class Distiset(dict):
             token=token,
         )
         if self.pipeline_path:
-            # If the pipeline.yaml is available, upload it to the hub as well.
+            # If the pipeline.yaml is available, upload it to the Hugging Face Hub as well.
             HfApi().upload_file(
                 path_or_fileobj=self.pipeline_path,
                 path_in_repo="pipeline.yaml",

@@ -57,9 +57,9 @@ Distiset({
 })
 ```
 
-### Push to HuggingFace hub
+### Push to Hugging Face Hub
 
-Pushes the internal subsets to a huggingface repo, where each one of the subsets will be a different configuration, so it's easy to download them and continue working with any of the pieces.
+Pushes the internal subsets to a Hugging Face repo, where each one of the subsets will be a different configuration, so it's easy to download them and continue working with any of the pieces.
 
 ```python
 ds.push_to_hub(

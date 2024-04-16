@@ -346,7 +346,7 @@ distiset = pipeline.run(
 )
 ```
 
-We can push the results to the hub:
+We can push the results to the Hugging Face Hub:
 
 ```python
 distiset.push_to_hub("distilabel-internal-testing/deita-colab")

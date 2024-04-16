@@ -65,7 +65,7 @@ The `Pipeline` will have a signature created from the arguments that define it s
 
 - `pipeline.yaml`
 
-    This file contains a representation of the `Pipeline` in *YAML* format. If we push a `Distiset` to the hub as obtained from calling `Pipeline.run`, this file will be stored at our datasets' repository, allowing to reproduce the `Pipeline` using the `CLI`:
+    This file contains a representation of the `Pipeline` in *YAML* format. If we push a `Distiset` to the Hugging Face Hub as obtained from calling `Pipeline.run`, this file will be stored at our datasets' repository, allowing to reproduce the `Pipeline` using the `CLI`:
 
     ```bash
     distilabel pipeline run --config "path/to/pipeline.yaml"
@@ -100,5 +100,5 @@ ds
 
     Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming
     it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't
-    raise any error, but take into account that if the `Distiset` is pushed to the hub, the `pipeline.yaml` won't be
+    raise any error, but take into account that if the `Distiset` is pushed to the Hugging Face Hub, the `pipeline.yaml` won't be
     generated.
