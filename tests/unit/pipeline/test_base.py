@@ -1263,7 +1263,7 @@ class TestWriteBuffer:
             ds = create_distiset(write_buffer._path)
             assert isinstance(ds, Distiset)
             assert len(ds.keys()) == 1
-            assert len(ds["dummy_step_2"]["train"]) == 125
+            assert len(ds["default"]["train"]) == 125
 
     def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
         with tempfile.TemporaryDirectory() as tmpdirname:

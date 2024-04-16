@@ -28,7 +28,7 @@ def distiset():
 
 
 class TestDistiset:
-    def test_train_test_split(self, distiset):
+    def test_train_test_split(self, distiset: Distiset) -> None:
         assert isinstance(distiset["leaf_step_1"], Dataset)
         ds = distiset.train_test_split(0.8)
         assert isinstance(ds, Distiset)
