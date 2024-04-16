@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from ollama import AsyncClient
 
 
+# Copied from `ollama._types.Options`
 class Options(TypedDict, total=False):
     # load time options
     numa: bool
@@ -119,6 +120,7 @@ class OllamaLLM(AsyncLLM):
         input: ChatType,
         num_generations: int = 1,
         format: Literal["", "json"] = "",
+        # TODO: include relevant options from `Options` in `agenerate` method.
         options: Union[Options, None] = None,
         keep_alive: Union[bool, None] = None,
     ) -> List[str]:
