@@ -12,17 +12,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, List, Literal, Optional, Sequence, Union
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validate_call
+from typing_extensions import TypedDict
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from ollama import AsyncClient, Options
+    from ollama import AsyncClient
 
-    from distilabel.steps.tasks.typing import ChatType
+
+# Copied from `ollama._types.Options`
+class Options(TypedDict, total=False):
+    # load time options
+    numa: bool
+    num_ctx: int
+    num_batch: int
+    num_gqa: int
+    num_gpu: int
+    main_gpu: int
+    low_vram: bool
+    f16_kv: bool
+    logits_all: bool
+    vocab_only: bool
+    use_mmap: bool
+    use_mlock: bool
+    embedding_only: bool
+    rope_frequency_base: float
+    rope_frequency_scale: float
+    num_thread: int
+
+    # runtime options
+    num_keep: int
+    seed: int
+    num_predict: int
+    top_k: int
+    top_p: float
+    tfs_z: float
+    typical_p: float
+    repeat_last_n: int
+    temperature: float
+    repeat_penalty: float
+    presence_penalty: float
+    frequency_penalty: float
+    mirostat: int
+    mirostat_tau: float
+    mirostat_eta: float
+    penalize_newline: bool
+    stop: Sequence[str]
 
 
 class OllamaLLM(AsyncLLM):
@@ -74,12 +114,14 @@ class OllamaLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         num_generations: int = 1,
         format: Literal["", "json"] = "",
-        options: Union["Options", None] = None,
+        # TODO: include relevant options from `Options` in `agenerate` method.
+        options: Union[Options, None] = None,
         keep_alive: Union[bool, None] = None,
     ) -> List[str]:
         """

@@ -16,11 +16,20 @@ import asyncio
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, SecretStr, ValidationError, model_validator
+from pydantic import (
+    Field,
+    PrivateAttr,
+    SecretStr,
+    ValidationError,
+    model_validator,
+    validate_call,
+)
 from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -28,8 +37,6 @@ if TYPE_CHECKING:
     from openai import AsyncOpenAI
     from transformers import PreTrainedTokenizer
 
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
@@ -220,7 +227,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: Optional[float] = None,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates completions for the given input using the OpenAI async client."""
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
@@ -241,9 +248,10 @@ class InferenceEndpointsLLM(AsyncLLM):
         return [completion.choices[0].message.content]
 
     # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,

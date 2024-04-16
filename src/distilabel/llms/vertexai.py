@@ -12,22 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from pydantic import PrivateAttr
+from pydantic import PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from vertexai.generative_models import (
-        Content,
-        GenerativeModel,
-        SafetySettingsType,
-        Tool,
-    )
-
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
+    from vertexai.generative_models import Content, GenerativeModel
 
 
 def _is_gemini_model(model: str) -> bool:
@@ -113,18 +107,19 @@ class VertexAILLM(AsyncLLM):
             )
         return contents
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         num_generations: int = 1,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
         top_k: Optional[int] = None,
         max_output_tokens: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
-        safety_settings: Optional["SafetySettingsType"] = None,
-        tools: Optional[List["Tool"]] = None,
-    ) -> "GenerateOutput":
+        safety_settings: Optional[Dict[str, Any]] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the [VertexAI async client definition](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini).
 
         Args:

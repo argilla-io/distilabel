@@ -15,16 +15,15 @@
 import logging
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from litellm import Choices
-
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 
 class LiteLLM(AsyncLLM):
@@ -74,9 +73,10 @@ class LiteLLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
+    @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "ChatType",
+        input: ChatType,
         num_generations: int = 1,
         functions: Optional[List] = None,
         function_call: Optional[str] = None,
@@ -96,7 +96,7 @@ class LiteLLM(AsyncLLM):
         mock_response: Optional[str] = None,
         force_timeout: Optional[int] = 600,
         custom_llm_provider: Optional[str] = None,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the [LiteLLM async client](https://github.com/BerriAI/litellm).
 
         Args:

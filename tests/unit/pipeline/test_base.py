@@ -202,6 +202,10 @@ class TestBatch:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
 
+    def test_empty(self) -> None:
+        batch = _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
+        assert batch.empty
+
     def test_dump(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
         assert batch.dump() == {
@@ -262,6 +266,46 @@ class TestBatchManagerStep:
         )
 
         assert batch_manager_step.data["step1"] == [{"a": 1}, {"a": 2}, {"a": 3}]
+        assert batch_manager_step.last_batch_received == []
+
+    def test_add_batch_with_prepend(self) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step2",
+            accumulate=False,
+            input_batch_size=10,
+            data={
+                "step1": [
+                    {"a": 6},
+                    {"a": 7},
+                    {"a": 8},
+                    {"a": 9},
+                    {"a": 10},
+                ]
+            },
+        )
+
+        batch_manager_step.add_batch(
+            _Batch(
+                seq_no=0,
+                step_name="step1",
+                last_batch=False,
+                data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+            ),
+            prepend=True,
+        )
+
+        assert batch_manager_step.data["step1"] == [
+            {"a": 1},
+            {"a": 2},
+            {"a": 3},
+            {"a": 4},
+            {"a": 5},
+            {"a": 6},
+            {"a": 7},
+            {"a": 8},
+            {"a": 9},
+            {"a": 10},
+        ]
         assert batch_manager_step.last_batch_received == []
 
     def test_add_batch_last_batch(self) -> None:
@@ -784,9 +828,56 @@ class TestBatchManager:
             last_batch=False,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
-        batch = batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
 
-        assert batch is None
+        assert batch_manager._steps["step3"].data == {
+            "step1": [
+                {"a": 1},
+                {"a": 2},
+                {"a": 3},
+                {"a": 4},
+                {"a": 5},
+            ],
+            "step2": [],
+        }
+
+    def test_add_batch_with_prepend(self) -> None:
+        batch_manager = _BatchManager(
+            steps={
+                "step3": _BatchManagerStep(
+                    step_name="step3",
+                    accumulate=False,
+                    input_batch_size=5,
+                    data={
+                        "step1": [{"a": 6}, {"a": 7}, {"a": 8}, {"a": 9}, {"a": 10}],
+                        "step2": [],
+                    },
+                )
+            },
+            last_batch_received={"step3": None},
+        )
+        batch_from_step_1 = _Batch(
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+        )
+        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1, prepend=True)
+        assert batch_manager._steps["step3"].data == {
+            "step1": [
+                {"a": 1},
+                {"a": 2},
+                {"a": 3},
+                {"a": 4},
+                {"a": 5},
+                {"a": 6},
+                {"a": 7},
+                {"a": 8},
+                {"a": 9},
+                {"a": 10},
+            ],
+            "step2": [],
+        }
 
     def test_add_batch_enough_data(self) -> None:
         batch_manager = _BatchManager(

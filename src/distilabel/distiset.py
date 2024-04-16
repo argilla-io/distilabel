@@ -15,7 +15,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from datasets import load_dataset
 from huggingface_hub import DatasetCardData, HfApi
@@ -93,14 +93,16 @@ class Distiset(dict):
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
 
-        card = DistilabelDatasetCard.from_template(
-            card_data=DatasetCardData(
-                config_names=sorted(self.keys()),
-                size_categories=size_categories_parser(
-                    max(len(dataset) for dataset in self.values())
-                ),
-                tags=["synthetic", "distilabel", "rlaif"],
+        metadata = {
+            **self._extract_readme_metadata(repo_id, token),
+            "size_categories": size_categories_parser(
+                max(len(dataset) for dataset in self.values())
             ),
+            "tags": ["synthetic", "distilabel", "rlaif"],
+        }
+
+        card = DistilabelDatasetCard.from_template(
+            card_data=DatasetCardData(**metadata),
             repo_id=repo_id,
             sample_records=sample_records,
         )
@@ -118,6 +120,34 @@ class Distiset(dict):
                 repo_type="dataset",
                 token=token,
             )
+
+    def _extract_readme_metadata(
+        self, repo_id: str, token: Optional[str]
+    ) -> Dict[str, Any]:
+        """Extracts the metadata from the README.md file of the dataset repository.
+
+        We have to download the previous README.md file in the repo, extract the metadata from it,
+        and generate a dict again to be passed thoruogh the `DatasetCardData` object.
+
+        Args:
+            repo_id: The ID of the repository to push to, from the `push_to_hub` method.
+            token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+
+        Returns:
+            The metadata extracted from the README.md file of the dataset repository as a dict.
+        """
+        import re
+
+        import yaml
+        from huggingface_hub.file_download import hf_hub_download
+
+        readme_path = Path(
+            hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
+        )
+        # Remove the '---' from the metadata
+        metadata = re.findall(r"---\n(.*?)\n---", readme_path.read_text(), re.DOTALL)[0]
+        metadata = yaml.safe_load(metadata)
+        return metadata
 
     def train_test_split(
         self,
@@ -171,6 +201,8 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
     """
     logger = logging.getLogger("distilabel.distiset")
 
+    data_dir = Path(data_dir)
+
     distiset = Distiset()
     for file in data_dir.iterdir():
         if file.is_file():
@@ -193,5 +225,11 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
 
     if pipeline_path:
         distiset.pipeline_path = pipeline_path
+    else:
+        # If the pipeline path is not provided, try to find it in the parent directory
+        # and assume that's the wanted file.
+        pipeline_path = data_dir.parent / "pipeline.yaml"
+        if pipeline_path.exists():
+            distiset.pipeline_path = pipeline_path
 
     return distiset

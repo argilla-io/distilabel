@@ -14,19 +14,19 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
-    from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
 
 SamplingParams = None
 
@@ -112,9 +112,10 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             add_generation_prompt=True,  # type: ignore
         )
 
-    def generate(
+    @validate_call
+    def generate(  # type: ignore
         self,
-        inputs: List["ChatType"],
+        inputs: List[ChatType],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -123,7 +124,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         top_p: float = 1.0,
         top_k: int = -1,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
-    ) -> List["GenerateOutput"]:
+    ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
 

@@ -62,13 +62,11 @@ class TestOllamaLLM:
         llm.generate(
             inputs=[
                 [
-                    [
-                        {"role": "system", "content": ""},
-                        {
-                            "role": "user",
-                            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                        },
-                    ]
+                    {"role": "system", "content": ""},
+                    {
+                        "role": "user",
+                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    },
                 ]
             ]
         )
