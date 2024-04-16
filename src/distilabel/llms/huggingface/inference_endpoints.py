@@ -59,10 +59,35 @@ class InferenceEndpointsLLM(AsyncLLM):
         use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
     Examples:
-        >>> from distilabel.llms.huggingface import AsyncInferenceEndpointsLLM
-        >>> llm = AsyncInferenceEndpointsLLM(model_id="model-id")
-        >>> llm.load()
-        >>> output = await llm.agenerate([{"role": "user", "content": "Hello world!"}])
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+
+        # Free serverless Inference API
+        llm = InferenceEndpointsLLM(
+            api_key="<HF_API_KEY>",
+            model_id="<MODEL_ID>",
+        )
+
+        # Dedicated Inference Endpoints
+        llm = InferenceEndpointsLLM(
+            endpoint_name="<ENDPOINT_NAME>",
+            api_key="<HF_API_KEY>",
+            endpoint_namespace="<USER|ORG>",
+        )
+
+        # Dedicated Inference Endpoints or TGI
+        llm = InferenceEndpointsLLM(
+            api_key="<HF_API_KEY>",
+            base_url="<BASE_URL>",
+        )
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
     """
 
     model_id: Optional[str] = None
