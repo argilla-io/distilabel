@@ -75,7 +75,7 @@ from distilabel.steps.tasks.text_generation import TextGeneration
 system_prompt = "You are an AI judge in charge of determining the equality of two instructions. "
 
 wizardllm_equal_prompt = """Here are two Instructions, do you think they are equal to each other and meet the following requirements?:
-1. They have the same constraints and requirments.
+1. They have the same constraints and requirements.
 2. They have the same depth and breadth of the inquiry.
 The First Prompt: {instruction_1}
 The Second Prompt: {instruction_2}

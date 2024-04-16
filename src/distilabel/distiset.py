@@ -129,7 +129,7 @@ class Distiset(dict):
         """Extracts the metadata from the README.md file of the dataset repository.
 
         We have to download the previous README.md file in the repo, extract the metadata from it,
-        and generate a dict again to be passed thoruogh the `DatasetCardData` object.
+        and generate a dict again to be passed thorough the `DatasetCardData` object.
 
         Args:
             repo_id: The ID of the repository to push to, from the `push_to_hub` method.

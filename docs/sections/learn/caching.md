@@ -1,6 +1,6 @@
 # Caching
 
-Distilabel `Pipelines` automatically save all the intermediate steps to to avoid loosing any data in case of error.
+Distilabel `Pipelines` automatically save all the intermediate steps to to avoid losing any data in case of error.
 
 ## Cache directory
 
@@ -13,7 +13,7 @@ with Pipeline("cache_testing") as pipeline:
     ...
 ```
 
-This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitely passing the `cache_dir` variable to the `Pipeline` constructor like so:
+This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitly passing the `cache_dir` variable to the `Pipeline` constructor like so:
 
 ```python
 with Pipeline("cache_testing", cache_dir="~/my_cache_dir") as pipeline:
@@ -42,7 +42,7 @@ Finally, if we decide to run the same `Pipeline` after it has finished completel
 
 ### Serialization
 
-Let's see what get's serialized by looking at a sample `Pipeline`'s cached folder:
+Let's see what gets serialized by looking at a sample `Pipeline`'s cached folder:
 
 ```bash
 $ tree ~/.cache/distilabel/pipelines/73ca3f6b7a613fb9694db7631cc038d379f1f533
