@@ -96,7 +96,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         arbitrary_types_allowed=True, validate_default=True, validate_assignment=True
     )
 
-    name: str
+    name: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
     pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}

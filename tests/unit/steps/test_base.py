@@ -25,6 +25,7 @@ from distilabel.steps.base import (
 )
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
+from pydantic import ValidationError
 
 
 class DummyStep(Step):
@@ -65,6 +66,17 @@ class DummyGlobalStep(GlobalStep):
 
 
 class TestStep:
+    def test_create_step_with_invalid_name(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+
+        with pytest.raises(ValidationError):
+            DummyStep(
+                name="this-is-not-va.li.d-because-it-contains-dots", pipeline=pipeline
+            )
+
+        with pytest.raises(ValidationError):
+            DummyStep(name="this is not valid because spaces", pipeline=pipeline)
+
     def test_create_step_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         step = DummyStep(name="dummy", pipeline=pipeline)
