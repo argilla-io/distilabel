@@ -225,6 +225,10 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
             logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue
 
+    # If there's only one dataset i.e. one config, then set the config name to `default`
+    if len(distiset.keys()) == 1:
+        distiset["default"] = distiset.pop(list(distiset.keys())[0])
+
     if pipeline_path:
         distiset.pipeline_path = pipeline_path
     else:
