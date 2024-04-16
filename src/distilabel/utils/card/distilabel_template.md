@@ -12,7 +12,7 @@
 
 # Dataset Card for {{ repo_id.split("/")[-1] }}
 
-This dataset has been created with [Distilabel](https://distilabel.argilla.io/).
+This dataset has been created with [distilabel](https://distilabel.argilla.io/).
 
 ## Dataset Summary
 
