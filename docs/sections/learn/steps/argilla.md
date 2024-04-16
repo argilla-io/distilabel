@@ -27,7 +27,7 @@ The dataset will be pushed with the following configuration:
 
 ```python
 from distilabel.llms import OpenAILLM
-from distilabel.steps import LoadDataFromDicts, PreferenceToArgilla
+from distilabel.steps import LoadDataFromDicts, TextGenerationToArgilla
 from distilabel.steps.tasks import TextGeneration
 
 
