@@ -46,6 +46,15 @@ from datasets import load_dataset
 
 ds = load_dataset("{{ repo_id }}", "{{ config_name }}")
 ```
+{% if config_name == "default" %}
+Or simply as it follows, since there's only one configuration and is named `default`: 
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("{{ repo_id }}")
+```
+{% endif %}
 
 </details>
 {% endfor %}
