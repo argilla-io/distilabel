@@ -132,6 +132,11 @@ class CustomAsyncLLM(AsyncLLM):
         ...
 ```
 
+`generate` and `agenerate` keyword arguments (but `input` and `num_generations`) are considered as `RuntimeParameter`s, so a value can be passed to them via the `parameters` argument of the `Pipeline.run` method.
+
+!!! NOTE
+    To have the arguments of the `generate` and `agenerate` coerced to the expected types, the `validate_call` decorator is used, which will automatically coerce the arguments to the expected types, and raise an error if the types are not correct. This is specially useful when providing a value for an argument of `generate` or `agenerate` from the CLI, since the CLI will always provide the arguments as strings.
+
 ## Available LLMs
 
 Here's a list with the available LLMs that can be used within the `distilabel` library:
