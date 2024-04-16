@@ -41,6 +41,7 @@ from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 if TYPE_CHECKING:
     from os import PathLike
 
+    from distilabel.distiset import Distiset
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
@@ -188,7 +189,7 @@ class BasePipeline(_Serializable):
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
         use_cache: bool = True,
-    ) -> None:
+    ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
 
