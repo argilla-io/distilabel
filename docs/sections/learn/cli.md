@@ -46,14 +46,12 @@ $ distilabel pipeline info --help
 As we can see from the help message, we need to pass either a `Path` or a `URL`. This second option comes handy for datasets stored in Hugging Face Hub, for example:
 
 ```bash
-distilabel pipeline info --config "https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml"
+distilabel pipeline info --config "https://huggingface.co/datasets/distilabel-internal-testing/instruction-dataset-mini-with-generations/raw/main/pipeline.yaml"
 ```
 
-If we take a look (this `Pipeline` is a bit long, so the following captures are shortened for brevity):
+If we take a look:
 
-![CLI 1](../../assets/images/sections/cli/cli_pipe_1.png)
-
-![CLI 2](../../assets/images/sections/cli/cli_pipe_2.png)
+![CLI 1](../../assets/images/sections/cli/cli_pipe.png)
 
 The pipeline information includes the steps used in the `Pipeline` along with the `Runtime Parameter` that was used, as well as a description of each of them, and also the connections between these steps. These can be helpful to explore the Pipeline locally.
 
@@ -93,15 +91,13 @@ $ distilabel pipeline run --help
 To specify the runtime parameters of the steps we will need to use the `--param` option and the value of the parameter in the following format:
 
 ```bash
-distilabel pipeline run --config "https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml" \
-  --param load_dataset.repo_id=HuggingFaceH4/instruction-dataset \
-  --param load_dataset.split=test \
-  --param text_generation_with_notus.generation_kwargs.max_new_tokens=512 \
-  --param text_generation_with_notus.generation_kwargs.temperature=0.7 \
-  --param text_generation_with_zephyr.generation_kwargs.max_new_tokens=512 \
-  --param text_generation_with_zephyr.generation_kwargs.temperature=0.7 \
-  --param ultrafeedback_overall_rating.generation_kwargs.max_new_tokens=1024 \
-  --param ultrafeedback_overall_rating.generation_kwargs.temperature=0.7
+distilabel pipeline run --config "https://huggingface.co/datasets/distilabel-internal-testing/instruction-dataset-mini-with-generations/raw/main/pipeline.yaml" \
+	--param load_dataset.repo_id=distilabel-internal-testing/instruction-dataset-mini \
+	--param load_dataset.split=test \
+	--param generate_with_gpt35.llm.generation_kwargs.max_new_tokens=512 \
+	--param generate_with_gpt35.llm.generation_kwargs.temperature=0.7 \
+	--param to_argilla.dataset_name=text_generation_with_gpt35 \
+	--param to_argilla.dataset_workspace=admin
 ```
 
 Again, this helps with the reproducibility of the results, and simplifies sharing not only the final dataset but also the process to generate it.
