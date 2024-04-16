@@ -12,7 +12,7 @@
 
 # Dataset Card for {{ repo_id.split("/")[-1] }}
 
-This dataset has been created with [Distilabel](https://distilabel.argilla.io/).
+This dataset has been created with [distilabel](https://distilabel.argilla.io/).
 
 ## Dataset Summary
 
@@ -46,6 +46,15 @@ from datasets import load_dataset
 
 ds = load_dataset("{{ repo_id }}", "{{ config_name }}")
 ```
+{% if config_name == "default" %}
+Or simply as it follows, since there's only one configuration and is named `default`: 
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("{{ repo_id }}")
+```
+{% endif %}
 
 </details>
 {% endfor %}

@@ -1,6 +1,6 @@
 # Caching
 
-Distilabel `Pipelines` automatically save all the intermediate steps to to avoid loosing any data in case of error.
+Distilabel `Pipelines` automatically save all the intermediate steps to to avoid losing any data in case of error.
 
 ## Cache directory
 
@@ -13,7 +13,7 @@ with Pipeline("cache_testing") as pipeline:
     ...
 ```
 
-This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitely passing the `cache_dir` variable to the `Pipeline` constructor like so:
+This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitly passing the `cache_dir` variable to the `Pipeline` constructor like so:
 
 ```python
 with Pipeline("cache_testing", cache_dir="~/my_cache_dir") as pipeline:
@@ -42,7 +42,7 @@ Finally, if we decide to run the same `Pipeline` after it has finished completel
 
 ### Serialization
 
-Let's see what get's serialized by looking at a sample `Pipeline`'s cached folder:
+Let's see what gets serialized by looking at a sample `Pipeline`'s cached folder:
 
 ```bash
 $ tree ~/.cache/distilabel/pipelines/73ca3f6b7a613fb9694db7631cc038d379f1f533
@@ -65,7 +65,7 @@ The `Pipeline` will have a signature created from the arguments that define it s
 
 - `pipeline.yaml`
 
-    This file contains a representation of the `Pipeline` in *YAML* format. If we push a `Distiset` to the hub as obtained from calling `Pipeline.run`, this file will be stored at our datasets' repository, allowing to reproduce the `Pipeline` using the `CLI`:
+    This file contains a representation of the `Pipeline` in *YAML* format. If we push a `Distiset` to the Hugging Face Hub as obtained from calling `Pipeline.run`, this file will be stored at our datasets' repository, allowing to reproduce the `Pipeline` using the `CLI`:
 
     ```bash
     distilabel pipeline run --config "path/to/pipeline.yaml"
@@ -100,5 +100,5 @@ ds
 
     Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming
     it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't
-    raise any error, but take into account that if the `Distiset` is pushed to the hub, the `pipeline.yaml` won't be
+    raise any error, but take into account that if the `Distiset` is pushed to the Hugging Face Hub, the `pipeline.yaml` won't be
     generated.

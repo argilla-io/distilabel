@@ -28,7 +28,7 @@ class PairRM(Step):
 
     Attributes:
         model: The model to use for the ranking. Defaults to `"llm-blender/PairRM"`.
-        input_batch_size: The batch size to use when processing the input. Defauls to `8`.
+        input_batch_size: The batch size to use when processing the input. Defaults to `8`.
         instructions: The instructions to use for the model. Defaults to `None`.
 
     Input columns:

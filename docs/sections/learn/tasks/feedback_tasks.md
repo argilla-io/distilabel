@@ -5,7 +5,7 @@ This section presents tasks that work on the `LLM` output to return some feedbac
 
 ## UltraFeedback
 
-[`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] is a `Task` inspired from [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377), where the authors present the methodology that leaded to the creation of their famous dataset:
+[`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] is a `Task` inspired from [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377), where the authors present the methodology that led to the creation of their famous dataset:
 
 ```python
 from distilabel.steps.tasks import UltraFeedback
@@ -65,7 +65,7 @@ Let's see what this different aspects mean.
 
 ### Different aspects of UltraFeedback
 
-The `UltraFeedback` paper proposes different types of aspect to rate the answers: `helpfulness`, `honesty`, `instruction-following`, `truthfulness`. If one want's to rate the responses according to the 4 aspects, it would imply running the `Pipeline` 4 times, incurring in more costs and time of processing. For that reason, we decided to include an extra aspect, which tries to sum up the other ones to return a special type of summary: `overall-rating`.
+The `UltraFeedback` paper proposes different types of aspect to rate the answers: `helpfulness`, `honesty`, `instruction-following`, `truthfulness`. If one wants to rate the responses according to the 4 aspects, it would imply running the `Pipeline` 4 times, incurring in more costs and time of processing. For that reason, we decided to include an extra aspect, which tries to sum up the other ones to return a special type of summary: `overall-rating`.
 
 !!! Note
     Take a look at this task in a complete `Pipeline` at [`UltraFeedback`](../../papers/ultrafeedback.md), where you can follow the paper implementation.

@@ -114,7 +114,7 @@ class Distiset(dict):
             token=token,
         )
         if self.pipeline_path:
-            # If the pipeline.yaml is available, upload it to the hub as well.
+            # If the pipeline.yaml is available, upload it to the Hugging Face Hub as well.
             HfApi().upload_file(
                 path_or_fileobj=self.pipeline_path,
                 path_in_repo="pipeline.yaml",
@@ -129,7 +129,7 @@ class Distiset(dict):
         """Extracts the metadata from the README.md file of the dataset repository.
 
         We have to download the previous README.md file in the repo, extract the metadata from it,
-        and generate a dict again to be passed thoruogh the `DatasetCardData` object.
+        and generate a dict again to be passed thorough the `DatasetCardData` object.
 
         Args:
             repo_id: The ID of the repository to push to, from the `push_to_hub` method.
@@ -224,6 +224,10 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
         except ArrowInvalid:
             logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
             continue
+
+    # If there's only one dataset i.e. one config, then set the config name to `default`
+    if len(distiset.keys()) == 1:
+        distiset["default"] = distiset.pop(list(distiset.keys())[0])
 
     if pipeline_path:
         distiset.pipeline_path = pipeline_path

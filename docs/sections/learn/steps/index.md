@@ -95,7 +95,7 @@ This is a small type step that shows what to expect when we are creating our `St
 
 ## Runtime Parameters
 
-Let's take a look at a special argument implementation that we will find when dealing with the `Steps`, the [Runtime paramaters][distilabel.mixins.runtime_parameters.RuntimeParameter]. Let's inspect them using the previous example class:
+Let's take a look at a special argument implementation that we will find when dealing with the `Steps`, the [Runtime parameters][distilabel.mixins.runtime_parameters.RuntimeParameter]. Let's inspect them using the previous example class:
 
 ```python
 print(conversation_template.runtime_parameters_names)

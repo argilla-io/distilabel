@@ -43,7 +43,7 @@ $ distilabel pipeline info --help
 ╰─────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-As we can see from the help message, we need to pass either a `Path` or a `URL`. This second option comes handy for datasets stored in HuggingFace hub, for example:
+As we can see from the help message, we need to pass either a `Path` or a `URL`. This second option comes handy for datasets stored in Hugging Face Hub, for example:
 
 ```bash
 distilabel pipeline info --config "https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml"

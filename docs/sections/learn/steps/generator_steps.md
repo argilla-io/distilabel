@@ -40,7 +40,7 @@ It will yield `GeneratorStepOutput` objects, an iterator of tuples where the fir
 
 Unless we are doing some testing, we are more likely going to work with a proper dataset:
 
-### Load a dataset from HuggingFace hub
+### Load a dataset from Hugging Face Hub
 
 The easiest way to ingest data from a dataset is using the [`LoadHubDataset`][distilabel.steps.generators.huggingface] step, let's see an example:
 
@@ -57,7 +57,7 @@ load_hub_dataset = LoadHubDataset(
 load_hub_dataset.load()
 ```
 
-We see that creating a step to load a dataset from the hub is almost the same as loading it directly using `datasets.load_dataset`, with one remark, we have to call `.load()` on our step. The reason for this extra step is because internally we want to do the actual processing at the correct moment in the whole pipeline, we don't just need to take care of this call because we are working with it outside of a `Pipeline`.
+We see that creating a step to load a dataset from the Hugging Face Hub is almost the same as loading it directly using `datasets.load_dataset`, with one remark, we have to call `.load()` on our step. The reason for this extra step is because internally we want to do the actual processing at the correct moment in the whole pipeline, we don't just need to take care of this call because we are working with it outside of a `Pipeline`.
 
 And let's request the following batch:
 
