@@ -1729,7 +1729,7 @@
 </span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│<span class="w">    </span>--help<span class="w">                </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                </span>│
 </span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>╰─────────────────────────────────────────────────────────────────────────────────────╯
 </span></code></pre></div>
-<p>As we can see from the help message, we need to pass either a <code>Path</code> or a <code>URL</code>. This second option comes handy for datasets stored in HuggingFace hub, for example:</p>
+<p>As we can see from the help message, we need to pass either a <code>Path</code> or a <code>URL</code>. This second option comes handy for datasets stored in Hugging Face Hub, for example:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>distilabel<span class="w"> </span>pipeline<span class="w"> </span>info<span class="w"> </span>--config<span class="w"> </span><span class="s2">&quot;https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini/raw/main/pipeline.yaml&quot;</span>
 </span></code></pre></div>
 <p>If we take a look (this <code>Pipeline</code> is a bit long, so the following captures are shortened for brevity):</p>

@@ -522,9 +522,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#push-data-to-huggingface-hub-in-batches" class="md-nav__link">
+  <a href="#push-data-to-hugging-face-hub-in-batches" class="md-nav__link">
     <span class="md-ellipsis">
-      Push data to HuggingFace Hub in batches
+      Push data to Hugging Face Hub in batches
     </span>
   </a>
   
@@ -1632,9 +1632,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#push-data-to-huggingface-hub-in-batches" class="md-nav__link">
+  <a href="#push-data-to-hugging-face-hub-in-batches" class="md-nav__link">
     <span class="md-ellipsis">
-      Push data to HuggingFace Hub in batches
+      Push data to Hugging Face Hub in batches
     </span>
   </a>
   
@@ -1668,8 +1668,8 @@
 
 
 <h1 id="global-steps">Global Steps<a class="headerlink" href="#global-steps" title="Permanent link">&para;</a></h1>
-<p>The global steps are the ones that in order to do it's processing, they will need access to all the data at once. Some examples include creating a dataset to be pushed to the hub, or a filtering step in a <code>Pipeline</code>.</p>
-<h2 id="push-data-to-huggingface-hub-in-batches">Push data to HuggingFace Hub in batches<a class="headerlink" href="#push-data-to-huggingface-hub-in-batches" title="Permanent link">&para;</a></h2>
+<p>The global steps are the ones that in order to do it's processing, they will need access to all the data at once. Some examples include creating a dataset to be pushed to the Hugging Face Hub, or a filtering step in a <code>Pipeline</code>.</p>
+<h2 id="push-data-to-hugging-face-hub-in-batches">Push data to Hugging Face Hub in batches<a class="headerlink" href="#push-data-to-hugging-face-hub-in-batches" title="Permanent link">&para;</a></h2>
 <p>The first example of a <code>global</code> step corresponds to <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/globals/huggingface/#distilabel.steps.globals.huggingface"><code>PushToHub</code></a>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">os</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -1685,7 +1685,7 @@
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;push-pipeline&quot;</span><span class="p">),</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>This step can be used to push batches of the dataset to the hub as the process advances, enabling a checkpoint strategy in your pipeline.</p>
+<p>This step can be used to push batches of the dataset to the Hugging Face Hub as the process advances, enabling a checkpoint strategy in your pipeline.</p>
 <h2 id="data-filtering">Data Filtering<a class="headerlink" href="#data-filtering" title="Permanent link">&para;</a></h2>
 <p>For some pipelines we may need to filter data according to some criteria. For example, the implementation of <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/deita/#distilabel.steps.deita"><code>DeitaFiltering</code></a> does some filtering to determine the examples to keep according to ensure the final dataset has enough diversity. We will see this step in it's own place because it may be difficult to follow out of context.</p>
 

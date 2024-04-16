@@ -1714,7 +1714,7 @@
 
 
 <h1 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h1>
-<p>Distilabel <code>Pipelines</code> automatically save all the intermediate steps to to avoid loosing any data in case of error.</p>
+<p>Distilabel <code>Pipelines</code> automatically save all the intermediate steps to to avoid losing any data in case of error.</p>
 <h2 id="cache-directory">Cache directory<a class="headerlink" href="#cache-directory" title="Permanent link">&para;</a></h2>
 <p>Out of the box, the <code>Pipeline</code> will use the <code>~/.cache/distilabel/pipelines</code> directory to store the different pipelines:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline.local</span> <span class="kn">import</span> <span class="n">Pipeline</span>
@@ -1722,7 +1722,7 @@
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;cache_testing&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">...</span>
 </span></code></pre></div>
-<p>This directory can be modified by setting the <code>DISTILABEL_CACHE_DIR</code> environment variable (<code>export DISTILABEL_CACHE_DIR=my_cache_dir</code>) or by explicitely passing the <code>cache_dir</code> variable to the <code>Pipeline</code> constructor like so:</p>
+<p>This directory can be modified by setting the <code>DISTILABEL_CACHE_DIR</code> environment variable (<code>export DISTILABEL_CACHE_DIR=my_cache_dir</code>) or by explicitly passing the <code>cache_dir</code> variable to the <code>Pipeline</code> constructor like so:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;cache_testing&quot;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s2">&quot;~/my_cache_dir&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="o">...</span>
 </span></code></pre></div>
@@ -1737,7 +1737,7 @@
 <p>Finally, if we decide to run the same <code>Pipeline</code> after it has finished completely, it won't start again but resume the process, as we already have all the data processed:</p>
 <p><img alt="Pipeline 4" src="../../../assets/images/sections/caching/caching_pipe_4.png" /></p>
 <h3 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h3>
-<p>Let's see what get's serialized by looking at a sample <code>Pipeline</code>'s cached folder:</p>
+<p>Let's see what gets serialized by looking at a sample <code>Pipeline</code>'s cached folder:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>tree<span class="w"> </span>~/.cache/distilabel/pipelines/73ca3f6b7a613fb9694db7631cc038d379f1f533
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├──<span class="w"> </span>batch_manager.json
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├──<span class="w"> </span>batch_manager_steps
@@ -1757,7 +1757,7 @@
 </li>
 <li>
 <p><code>pipeline.yaml</code></p>
-<p>This file contains a representation of the <code>Pipeline</code> in <em>YAML</em> format. If we push a <code>Distiset</code> to the hub as obtained from calling <code>Pipeline.run</code>, this file will be stored at our datasets' repository, allowing to reproduce the <code>Pipeline</code> using the <code>CLI</code>:</p>
+<p>This file contains a representation of the <code>Pipeline</code> in <em>YAML</em> format. If we push a <code>Distiset</code> to the Hugging Face Hub as obtained from calling <code>Pipeline.run</code>, this file will be stored at our datasets' repository, allowing to reproduce the <code>Pipeline</code> using the <code>CLI</code>:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>distilabel<span class="w"> </span>pipeline<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span><span class="s2">&quot;path/to/pipeline.yaml&quot;</span>
 </span></code></pre></div>
 </li>
@@ -1787,7 +1787,7 @@
 <p class="admonition-title">Note</p>
 <p>Internally, the function will try to inject the <code>pipeline_path</code> variable if it's not passed via argument, assuming
 it's in the parent directory of the current one, called <code>pipeline.yaml</code>. If the file doesn't exist, it won't
-raise any error, but take into account that if the <code>Distiset</code> is pushed to the hub, the <code>pipeline.yaml</code> won't be
+raise any error, but take into account that if the <code>Distiset</code> is pushed to the Hugging Face Hub, the <code>pipeline.yaml</code> won't be
 generated.</p>
 </div>
 
