@@ -1060,7 +1060,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../steps/steps/" class="md-nav__link ">
+            <a href="../steps/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1271,7 +1271,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../llms/anthropic/" class="md-nav__link ">
+            <a href="../llms/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1294,6 +1294,27 @@
             LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llms/anthropic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Anthropic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1566,39 +1587,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cli-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      CLI commands
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CLI commands">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#distilabel-pipeline-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      distilabel pipeline run
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel-pipeline-info" class="md-nav__link">
-    <span class="md-ellipsis">
-      distilabel pipeline info
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#utility-functions-for-the-pipeline-commands" class="md-nav__link">
     <span class="md-ellipsis">
       Utility functions for the pipeline commands
@@ -1704,39 +1692,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cli-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      CLI commands
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CLI commands">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#distilabel-pipeline-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      distilabel pipeline run
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distilabel-pipeline-info" class="md-nav__link">
-    <span class="md-ellipsis">
-      distilabel pipeline info
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#utility-functions-for-the-pipeline-commands" class="md-nav__link">
     <span class="md-ellipsis">
       Utility functions for the pipeline commands
@@ -1818,38 +1773,7 @@
 
 
 <h1 id="command-line-interface">Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permanent link">&para;</a></h1>
-<p>This section contains the API reference for the command line interface.</p>
-<h2 id="cli-commands">CLI commands<a class="headerlink" href="#cli-commands" title="Permanent link">&para;</a></h2>
-<p>This section shows the CLI commands:</p>
-<h3 id="distilabel-pipeline-run">distilabel pipeline run<a class="headerlink" href="#distilabel-pipeline-run" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>distilabel<span class="w"> </span>pipeline<span class="w"> </span>info<span class="w"> </span>--help
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w"> </span>Usage:<span class="w"> </span>distilabel<span class="w"> </span>pipeline<span class="w"> </span>info<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w"> </span>Get<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>a<span class="w"> </span>Distilabel<span class="w"> </span>pipeline.
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>╭─<span class="w"> </span>Options<span class="w"> </span>───────────────────────────────────────────────────────────────────────────╮
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│<span class="w"> </span>*<span class="w">  </span>--config<span class="w">        </span>TEXT<span class="w">  </span>Path<span class="w"> </span>or<span class="w"> </span>URL<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>Distilabel<span class="w"> </span>pipeline<span class="w"> </span>configuration<span class="w"> </span>file.<span class="w"> </span>│
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│<span class="w">                          </span><span class="o">[</span>default:<span class="w"> </span>None<span class="o">]</span><span class="w">                                            </span>│
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│<span class="w">                          </span><span class="o">[</span>required<span class="o">]</span><span class="w">                                                 </span>│
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│<span class="w">    </span>--help<span class="w">                </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                </span>│
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>╰─────────────────────────────────────────────────────────────────────────────────────╯
-</span></code></pre></div>
-<h3 id="distilabel-pipeline-info">distilabel pipeline info<a class="headerlink" href="#distilabel-pipeline-info" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>distilabel<span class="w"> </span>pipeline<span class="w"> </span>--help
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w"> </span>Usage:<span class="w"> </span>distilabel<span class="w"> </span>pipeline<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w"> </span>Commands<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>and<span class="w"> </span>inspect<span class="w"> </span>Distilabel<span class="w"> </span>pipelines.
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>╭─<span class="w"> </span>Options<span class="w"> </span>───────────────────────────────────────────────────────────────────────────────╮
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│<span class="w"> </span>--help<span class="w">          </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.<span class="w">                                             </span>│
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>╰─────────────────────────────────────────────────────────────────────────────────────────╯
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>╭─<span class="w"> </span>Commands<span class="w"> </span>──────────────────────────────────────────────────────────────────────────────╮
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│<span class="w"> </span>info<span class="w">      </span>Get<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>a<span class="w"> </span>Distilabel<span class="w"> </span>pipeline.<span class="w">                                  </span>│
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│<span class="w"> </span>run<span class="w">       </span>Run<span class="w"> </span>a<span class="w"> </span>Distilabel<span class="w"> </span>pipeline.<span class="w">                                                    </span>│
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>╰─────────────────────────────────────────────────────────────────────────────────────────╯
-</span></code></pre></div>
+<p>This section contains the API reference for the command line interface. For more information on how to use the command line interface, see the <a href="../../sections/learn/cli/">Tutorial - CLI</a>.</p>
 <h2 id="utility-functions-for-the-pipeline-commands">Utility functions for the pipeline commands<a class="headerlink" href="#utility-functions-for-the-pipeline-commands" title="Permanent link">&para;</a></h2>
 <p>Here are some utility functions to help working with the pipelines in the console.</p>
 
