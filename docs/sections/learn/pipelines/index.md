@@ -111,25 +111,31 @@ if __name__ == "__main__":
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            "text_generation_with_openai-gpt-4-0125-preview": {
-                "generation_kwargs": {
-                    "temperature": 0.7,
-                    "max_new_tokens": 512,
+            "text_generation_with_gpt-4-0125-preview": {
+                "llm": {
+                    "generation_kwargs": {
+                        "temperature": 0.7,
+                        "max_new_tokens": 512,
+                    }
                 }
             },
             "text_generation_with_mistral-large-2402": {
-                "generation_kwargs": {
-                    "temperature": 0.7,
-                    "max_new_tokens": 512,
+                "llm": {
+                    "generation_kwargs": {
+                        "temperature": 0.7,
+                        "max_new_tokens": 512,
+                    }
                 }
             },
-            "text_generation_with_vertexai-gemini-1.5-pro": {
-                "generation_kwargs": {
-                    "temperature": 0.7,
-                    "max_new_tokens": 512,
+            "text_generation_with_gemini-1.0-pro": {
+                "llm": {
+                    "generation_kwargs": {
+                        "temperature": 0.7,
+                        "max_new_tokens": 512,
+                    }
                 }
             },
-        }
+        },
     )
 ```
 
@@ -276,21 +282,27 @@ To sump up, here is the full code of the pipeline we have created in this sectio
                     "split": "test",
                 },
                 "text_generation_with_gpt-4-0125-preview": {
-                    "generation_kwargs": {
-                        "temperature": 0.7,
-                        "max_new_tokens": 512,
+                    "llm": {
+                        "generation_kwargs": {
+                            "temperature": 0.7,
+                            "max_new_tokens": 512,
+                        }
                     }
                 },
                 "text_generation_with_mistral-large-2402": {
-                    "generation_kwargs": {
-                        "temperature": 0.7,
-                        "max_new_tokens": 512,
+                    "llm": {
+                        "generation_kwargs": {
+                            "temperature": 0.7,
+                            "max_new_tokens": 512,
+                        }
                     }
                 },
                 "text_generation_with_gemini-1.0-pro": {
-                    "generation_kwargs": {
-                        "temperature": 0.7,
-                        "max_new_tokens": 512,
+                    "llm": {
+                        "generation_kwargs": {
+                            "temperature": 0.7,
+                            "max_new_tokens": 512,
+                        }
                     }
                 },
             },
