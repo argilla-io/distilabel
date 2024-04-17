@@ -97,7 +97,7 @@ To run the following example you must install `distilabel` with both `openai` ex
 pip install "distilabel[openai]" --upgrade
 ```
 
-Then run the following example:
+Then run:
 
 ```python
 from distilabel.llms import OpenAILLM
