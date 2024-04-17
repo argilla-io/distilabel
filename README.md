@@ -1,5 +1,8 @@
 <div align="center">
-  <h1>⚗️ distilabel</h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/argilla-io/distilabel/blob/main/docs/assets/distilabel-white.png?raw=true">
+    <img alt="Distilabel Logo" src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-black.png">
+  </picture>
 </div>
 <h3 align="center">Synthesize data for AI and add feedback on the fly!</h2>
 
