@@ -1,5 +1,7 @@
 # Tasks
 
+This section contains the API reference for the distilabel tasks. For an example on how to create and use a task, see the [Tutorial - Tasks](../../../sections/learn/tasks/index.md).
+
 ::: distilabel.steps.tasks.base
 
 ## General Text Generation
