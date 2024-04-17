@@ -136,7 +136,7 @@ nav:
       - Pipeline:
           - "api/pipeline/pipeline.md"
       - Steps:
-          - "api/steps/steps.md"
+          - "api/steps/index.md"
           - Generator Steps: "api/steps/generator_steps/generator_steps.md"
           - Global Steps: "api/steps/global_steps/global_steps.md"
           - Tasks:
@@ -145,6 +145,7 @@ nav:
               - "api/steps/tasks/embeddings.md"
           - "api/steps/decorator.md"
       - LLMs:
+          - "api/llms/index.md"
           - "api/llms/anthropic.md"
           - "api/llms/anyscale.md"
           - "api/llms/huggingface.md"
