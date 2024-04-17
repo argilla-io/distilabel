@@ -34,10 +34,18 @@ In addition, the following extras are available:
 
 ## Quick example
 
+To run the following example you must install `distilabel` with both `openai` extra:
+
+```sh
+pip install "distilabel[openai]" --upgrade
+```
+
+Then run:
+
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset, TextGenerationToArgilla
+from distilabel.steps import LoadHubDataset
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(
@@ -50,14 +58,10 @@ with Pipeline(
     )
 
     generate_with_openai = TextGeneration(
-        name="generate_with_gpt3.5", llm=OpenAILLM(model="gpt-3.5-turbo")
+        name="generate_with_gpt35", llm=OpenAILLM(model="gpt-3.5-turbo")
     )
 
-    to_argilla = TextGenerationToArgilla(name="to_argilla")
-
     load_dataset.connect(generate_with_openai)
-    generate_with_openai.connect(to_argilla)
-
 
 if __name__ == "__main__":
     distiset = pipeline.run(
@@ -74,13 +78,6 @@ if __name__ == "__main__":
                     }
                 }
             },
-            "to_argilla": {
-                "dataset_name": "text-generations-with-gpt35",
-                "dataset_workspace": "admin",
-            },
         },
-    )
-    distiset.push_to_hub(
-        "distilabel-internal-testing/instruction-dataset-mini-with-generations"
     )
 ```
