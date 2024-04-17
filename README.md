@@ -135,14 +135,7 @@ if __name__ == "__main__":
                     }
                 }
             },
-            "to_argilla": {
-                "dataset_name": "text-generations-with-gpt35",
-                "dataset_workspace": "admin",
-            },
         },
-    )
-    distiset.push_to_hub(
-        "instruction-dataset-mini-with-generations"
     )
 ```
 
