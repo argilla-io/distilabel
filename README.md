@@ -91,10 +91,10 @@ In addition, the following extras are available:
 
 ### Example
 
-To run the following example you must install `distilabel` with both `openai` and `argilla` extras:
+To run the following example you must install `distilabel` with both `openai` extra:
 
 ```sh
-pip install "distilabel[openai,argilla]" --upgrade
+pip install "distilabel[openai]" --upgrade
 ```
 
 Then run the following example:
@@ -102,7 +102,7 @@ Then run the following example:
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset, TextGenerationToArgilla
+from distilabel.steps import LoadHubDataset
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(
@@ -115,14 +115,10 @@ with Pipeline(
     )
 
     generate_with_openai = TextGeneration(
-        name="generate_with_gpt3.5", llm=OpenAILLM(model="gpt-3.5-turbo")
+        name="generate_with_gpt35", llm=OpenAILLM(model="gpt-3.5-turbo")
     )
 
-    to_argilla = TextGenerationToArgilla(name="to_argilla")
-
     load_dataset.connect(generate_with_openai)
-    generate_with_openai.connect(to_argilla)
-
 
 if __name__ == "__main__":
     distiset = pipeline.run(
@@ -146,12 +142,9 @@ if __name__ == "__main__":
         },
     )
     distiset.push_to_hub(
-        "distilabel-internal-testing/instruction-dataset-mini-with-generations"
+        "instruction-dataset-mini-with-generations"
     )
 ```
-
-Distilabel integrates smoothly with Argilla and provides all the necessary configurations to make giving a final human touch as easy as possible.
-
 
 ## Badges
 
