@@ -30,6 +30,7 @@ theme:
     - header.autohide # header disappears as you scroll
     - content.code.copy
     - content.code.annotate
+    - content.tabs.link
   palette:
     - media: "(prefers-color-scheme)"
       primary: white
