@@ -1242,7 +1242,7 @@ class TestPipelineSerialization:
 
         assert signature_1 == signature_2
 
-    def test_binary_rshift_operator_with_list(self):
+    def test_binary_rshift_operator_with_list(self) -> None:
         # To work on lists of steps
         from distilabel.pipeline.local import Pipeline
 
