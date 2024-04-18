@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Iterable,
     List,
@@ -45,6 +46,8 @@ if TYPE_CHECKING:
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
+
+RoutingBatchFunction = Callable[[List[str]], List[str]]
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 

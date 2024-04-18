@@ -17,7 +17,7 @@ import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
@@ -32,6 +32,7 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 if TYPE_CHECKING:
     from logging import Logger
 
+    from distilabel.pipeline.base import RoutingBatchFunction
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -122,26 +123,25 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         self.pipeline._add_step(self)
 
     def connect(
-        self, step: "_Step", input_mappings: Union[Dict[str, str], None] = None
-    ) -> "_Step":
+        self,
+        *steps: "_Step",
+        routing_batch_function: Optional["RoutingBatchFunction"] = None,
+    ) -> None:
         """Connects the current step to another step in the pipeline, which means that
         the output of this step will be the input of the other step.
 
         Args:
             step: The step to connect to.
-            input_mappings: A dictionary with the mapping of the columns from the output
-                of the current step to the input of the other step. If `None`, the
-                columns will be mapped by name. This is useful when the names of the
-                output columns of the current step are different from the names of the
-                input columns of the other step. Defaults to `None`.
-
-        Returns:
-            The step connected, to allow nested calls to the `connect` method.
         """
-        if input_mappings is not None:
-            step.input_mappings = input_mappings
-        self.pipeline._add_edge(self.name, step.name)  # type: ignore
-        return step
+        for step in steps:
+            self.pipeline._add_edge(self.name, step.name)
+
+        if routing_batch_function:
+            self.pipeline.dag.set_step_attr(
+                name=self.name,
+                attr="routing_batch_function",
+                value=routing_batch_function,
+            )
 
     def __rshift__(self, other: Union["_Step", List["_Step"]]) -> "_Step":
         """Allows using the `>>` operator to connect steps in the pipeline.
