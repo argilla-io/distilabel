@@ -1190,7 +1190,7 @@ class TestPipelineSerialization:
                 else:
                     assert not pipe._batch_manager
 
-    def test_connect_successive_steps(self):
+    def test_connect_successive_steps(self) -> None:
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
