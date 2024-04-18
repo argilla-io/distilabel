@@ -1294,7 +1294,7 @@ class TestPipelineSerialization:
 
         assert signature_1 == signature_2
 
-    def test_binary_operators(self):
+    def test_binary_operators(self) -> None:
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import (
