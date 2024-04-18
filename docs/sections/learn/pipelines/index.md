@@ -96,6 +96,76 @@ As the `CombineColumns` is the last step or it's a leaf step of the pipeline bec
 !!! NOTE
     One pipeline can have several leaf steps, which means that the outputs of all the leaf steps will be included in the returned `Distiset`, which will contain several subsets, one for each leaf step.
 
+### Connecting steps
+
+In the previous example we saw how to create a `Pipeline` and connect different steps using the `Step.connect` method: `step1.connect(step2)`, but there's an alternative way by making use of the `>>` operator, let's see how using the previous `Pipeline` as an example:
+
+=== "Step per step"
+
+    Each call to `step1.connect(step2)` has been exchanged by `step1 >> step2`:
+
+    ```python
+    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.pipeline import Pipeline
+    from distilabel.steps import CombineColumns, LoadHubDataset
+    from distilabel.steps.tasks import TextGeneration
+
+    with Pipeline("pipe-name", description="My first pipe") as pipeline:
+        load_dataset = LoadHubDataset(name="load_dataset")
+
+        combine_generations = CombineColumns(
+            name="combine_generations",
+            columns=["generation", "model_name"],
+            output_columns=["generations", "model_names"],
+        )
+
+        for llm in (
+            OpenAILLM(model="gpt-4-0125-preview"),
+            MistralLLM(model="mistral-large-2402"),
+            VertexAILLM(model="gemini-1.5-pro"),
+        ):
+            task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+            load_dataset >> task >> combine_generations  # (1)
+    ```
+
+    1. Here `load_dataset >> task >> combine_generations` was exchanged with `load_dataset.connect(task).connect(combine_generations)`.
+
+
+=== "Multiple steps at once"
+
+    All the calls to connections from the `load_dataset` step to the different `task` objects are done in a single call:
+
+    ```python
+    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.pipeline import Pipeline
+    from distilabel.steps import CombineColumns, LoadHubDataset
+    from distilabel.steps.tasks import TextGeneration
+
+    with Pipeline("pipe-name", description="My first pipe") as pipeline:
+        load_dataset = LoadHubDataset(name="load_dataset")
+
+        combine_generations = CombineColumns(
+            name="combine_generations",
+            columns=["generation", "model_name"],
+            output_columns=["generations", "model_names"],
+        )
+
+        tasks = []
+        for llm in (
+            OpenAILLM(model="gpt-4-0125-preview"),
+            MistralLLM(model="mistral-large-2402"),
+            VertexAILLM(model="gemini-1.5-pro"),
+        ):
+            tasks.append(
+                TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+            )
+
+        load_dataset >> tasks >> combine_generations  # (1)
+    ```
+
+    1. Notice how `tasks` is a list of different `Tasks`. In a single call to the operator we are connecting `load_dataset` with all the `tasks`, and all of those again to `combine_generations`.
+
+
 ## Running the pipeline
 
 Once we have created the pipeline, we can run it. To do so, we need to call the `run` method of the `Pipeline`, and specify the runtime parameters for each step:
