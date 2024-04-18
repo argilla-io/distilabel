@@ -164,8 +164,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             for step in other:
                 self.connect(step)
             return other
-        else:
-            return self.connect(other)
+        return self.connect(other)
 
     def __rrshift__(self, other: List["_Step"]) -> "_Step":
         """Allows using the [step1, step2] >> step3 operator to connect a list of steps in the pipeline
