@@ -224,9 +224,18 @@ class Pipeline(BasePipeline):
             " manager"
         )
 
-        step: "Step" = self.dag.get_step(batch.step_name)["step"]
+        node = self.dag.get_step(batch.step_name)
+        step: "Step" = node["step"]
 
-        for successor in self.dag.get_step_successors(step.name):
+        successors = list(self.dag.get_step_successors(step.name))
+        if routing_batch_function := node.get("routing_batch_function"):
+            successors = routing_batch_function(successors)
+            successors_str = ", ".join(f"'{successor}'" for successor in successors)
+            self._logger.info(
+                f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
+            )
+
+        for successor in successors:
             self._batch_manager.add_batch(successor, batch)
 
             # Check if the step is a generator and if there are successors that need data
