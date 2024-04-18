@@ -1217,6 +1217,7 @@ class TestPipelineSerialization:
         assert signature_1 == signature_2
 
     def test_binary_rshift_operator(self) -> None:
+        # Tests the steps can be connected using the >> operator.
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
@@ -1243,7 +1244,7 @@ class TestPipelineSerialization:
         assert signature_1 == signature_2
 
     def test_binary_rshift_operator_with_list(self) -> None:
-        # To work on lists of steps
+        # Tests the steps can be connected using the >> operator when using a list.
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
@@ -1270,6 +1271,10 @@ class TestPipelineSerialization:
         assert signature_1 == signature_2
 
     def test_binary_rrshift_operator(self) -> None:
+        # Tests that a list of steps can be connected to a single step using the >> operator.
+        # It usses the __rrshift__ method instead of the __rshift__ as it applies to the list
+        # instead of the Step.
+
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import DummyGlobalStep, DummyStep1, DummyStep2
@@ -1295,6 +1300,8 @@ class TestPipelineSerialization:
         assert signature_1 == signature_2
 
     def test_binary_operators(self) -> None:
+        # Tests the steps can be connected with the binary operators,
+        # the general case of step1 >> [step2, step3] >> step4
         from distilabel.pipeline.local import Pipeline
 
         from tests.unit.pipeline.utils import (
