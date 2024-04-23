@@ -20,7 +20,7 @@ text_generation = TextGeneration(
         api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
     ),
     input_batch_size=8,
-    pipeline=Pipeline(name="text-gen-pipeline")
+    pipeline=Pipeline(name="text-gen-pipeline"),
 )
 
 # remember to call .load() if testing outside of a Pipeline context
@@ -56,6 +56,84 @@ print(result[0]["generation"])
 # 5. Motown: The Beatles' influence extended beyond rock music, and their success paved the way for other genres to gain mainstream acceptance in the US. Motown, for instance, would have faced more resistance in breaking into the US market without The Beatles' paving the way.
 
 # It's also worth noting that The Beatles' influence extends far beyond their music. They were trendsetters in fashion, hairstyles, and cultural norms. Their break-up in 1970 marked the end of an era in popular culture, and the music industry has never been the same since. So, even if other bands and artists had taken their place, The Beatles' impact on music and culture would still be felt.
+```
+
+Additionally, note that the `TextGeneration` task admits an optional `system_prompt` within the input, that can be used to prepend a system message to the input instruction or conversation, and is controlled via the `use_system_prompt` attribute, meaning that when set to `True` i.e. the default scenario, the system prompt will be inserted into the conversation if the `system_prompt` column is available within the input; alternatively, if set to `False` even if the `system_prompt` key exists, it won't be used. This can be useful to provide context or additional information to the model, as shown in the following example:
+
+```python
+import os
+
+from distilabel.pipeline import Pipeline
+from distilabel.llms.mistral import MistralLLM
+from distilabel.steps.tasks.text_generation import TextGeneration
+
+text_generation = TextGeneration(
+    name="chat-generation",
+    llm=MistralLLM(
+        model="mistral-tiny",
+        api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+    ),
+    use_system_prompt=True,
+    input_batch_size=8,
+    pipeline=Pipeline(name="text-gen-pipeline"),
+)
+
+# remember to call .load() if testing outside of a Pipeline context
+text_generation.load()
+
+result = next(
+    text_generation.process(
+        [
+            {
+                "instruction": "What if the Beatles had never formed as a band?",
+                "system_prompt": "You are a helpful assistant, that knows everything about The Beatles."
+            },
+        ] 
+    )
+)
+```
+
+---
+
+Alternatively, we can also define the [`ChatGeneration`][distilabel.steps.tasks.text_generation.ChatGeneration] task, which has the same goal as the `TextGeneration` task, but expects a list of messages from a conversation formatted using the [OpenAI format](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models) instead of a single instruction, so that the last assistant response is generated no matter how long the conversation is.
+
+So that the task can be used in the same way as the previous one, we can instantiate it as follows:
+
+```python
+import os
+
+from distilabel.pipeline import Pipeline
+from distilabel.llms.mistral import MistralLLM
+from distilabel.steps.tasks.text_generation import ChatGeneration
+
+chat_generation = ChatGeneration(
+    name="chat-generation",
+    llm=MistralLLM(
+        model="mistral-tiny",
+        api_key=os.getenv("MISTRALAI_API_KEY"),  # type: ignore
+    ),
+    input_batch_size=8,
+    pipeline=Pipeline(name="text-gen-pipeline"),
+)
+
+# remember to call .load() if testing outside of a Pipeline context
+chat_generation.load()
+```
+
+We can just pass a simple task to test it:
+
+```python
+result = next(
+    chat_generation.process(
+        [
+            {
+                "messages": [
+                    {"role": "user", "content": "What if the Beatles had never formed as a band?"},
+                ],
+            },
+        ] 
+    )
+)
 ```
 
 Let's see now how we can tweak this task to adhere a bit more to another more customized task.
