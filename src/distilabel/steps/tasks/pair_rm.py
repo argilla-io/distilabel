@@ -28,7 +28,6 @@ class PairRM(Step):
 
     Attributes:
         model: The model to use for the ranking. Defaults to `"llm-blender/PairRM"`.
-        input_batch_size: The batch size to use when processing the input. Defaults to `8`.
         instructions: The instructions to use for the model. Defaults to `None`.
 
     Input columns:
@@ -49,7 +48,6 @@ class PairRM(Step):
     """
 
     model: str = "llm-blender/PairRM"
-    input_batch_size: int = 8
     instructions: Optional[str] = None
 
     def load(self) -> None:
