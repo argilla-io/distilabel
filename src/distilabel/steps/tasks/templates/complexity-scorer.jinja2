@@ -1,0 +1,9 @@
+Ranking the following questions according to the difficulty and complexity. Score 1-{{ instructions|length }}.
+You can give a score of {{ (instructions|length) + 1 }} if the question is too complex for you to answer it. You should
+respond with the format:
+[1] Score: 1
+[2] Score: 2
+...
+{% for instruction in instructions %}
+[{{ loop.index }}] {{ instruction }}
+{%- endfor %}

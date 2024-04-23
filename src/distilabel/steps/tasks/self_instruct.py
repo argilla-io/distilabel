@@ -13,12 +13,13 @@
 # limitations under the License.
 
 import sys
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
     import importlib.resources as importlib_resources
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
@@ -49,26 +50,25 @@ class SelfInstruct(Task):
 
     Output columns:
         - instructions (`List[str]`): The generated instructions.
+        - model_name (`str`): The model name used to generate the instructions.
 
     Reference:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)
     """
 
     num_instructions: int = 5
-
     criteria_for_query_generation: str = (
         "Incorporate a diverse range of verbs, avoiding repetition.\n"
         "Ensure queries are compatible with AI model's text generation functions and are limited to 1-2 sentences.\n"
         "Design queries to be self-contained and standalone.\n"
         'Blend interrogative (e.g., "What is the significance of x?") and imperative (e.g., "Detail the process of x.") styles.'
     )
-
     application_description: str = "AI assistant"
 
-    _template: Template = PrivateAttr(default=...)
+    _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template for SelfInstruct."""
+        """Loads the Jinja2 template."""
         super().load()
 
         _path = str(
@@ -89,7 +89,6 @@ class SelfInstruct(Task):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-
         return [
             {
                 "role": "user",
@@ -105,7 +104,7 @@ class SelfInstruct(Task):
     @property
     def outputs(self):
         """The output for the task is a list of `instructions` containing the generated instructions."""
-        return ["instructions"]
+        return ["instructions", "model_name"]
 
     def format_output(
         self,
@@ -121,9 +120,6 @@ class SelfInstruct(Task):
         Returns:
             A dict with containing the generated instructions.
         """
-
         if output is None:
             return {"instructions": []}
-
-        lines = [line for line in output.split("\n") if line != ""]
-        return {"instructions": lines}
+        return {"instructions": [line for line in output.split("\n") if line != ""]}

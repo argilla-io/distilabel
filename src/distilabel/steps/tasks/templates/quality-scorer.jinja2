@@ -1,0 +1,10 @@
+Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-{{ responses|length }}.
+Score each response from 1 to {{ responses|length }}, with {{ (responses|length) + 1}} reserved for responses that are already very well written and cannot be improved further. You should respond with the format:
+[1] Score: 1
+[2] Score: 2
+...
+#Question#: {{ instruction }}
+#Response List#:
+{% for response in responses %}
+[{{ loop.index }}] {{ response }}
+{%- endfor %}
