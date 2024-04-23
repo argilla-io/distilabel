@@ -109,15 +109,19 @@ class RuntimeParametersMixin(BaseModel):
         runtime_parameters_names = list(self.runtime_parameters_names.keys())
         for name, value in runtime_parameters.items():
             if name not in self.runtime_parameters_names:
-                closest = difflib.get_close_matches(
-                    name, runtime_parameters_names, cutoff=0.5
-                )
-                msg = f"⚠️  Runtime parameter '{name}' unknown in step '{self.name}'."
-                if closest:
-                    msg += f" Did you mean any of: {closest}"
-                else:
-                    msg += f" Available runtime parameters for the step: {runtime_parameters_names}."
-                self.pipeline._logger.warning(msg)
+                # Check done just to ensure the unit tests for the mixin run
+                if getattr(self, "pipeline", None):
+                    closest = difflib.get_close_matches(
+                        name, runtime_parameters_names, cutoff=0.5
+                    )
+                    msg = (
+                        f"⚠️  Runtime parameter '{name}' unknown in step '{self.name}'."
+                    )
+                    if closest:
+                        msg += f" Did you mean any of: {closest}"
+                    else:
+                        msg += f" Available runtime parameters for the step: {runtime_parameters_names}."
+                    self.pipeline._logger.warning(msg)
                 continue
 
             attr = getattr(self, name)
