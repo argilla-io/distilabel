@@ -23,33 +23,48 @@ class TestTextGeneration:
     def test_format_input(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(
+            name="task", llm=llm, pipeline=pipeline, use_system_prompt=False
+        )
 
-        assert task.format_input({"instruction": "test"}) == [
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
             {"role": "user", "content": "test"}
+        ]
+
+    def test_format_input_with_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyLLM()
+        task = TextGeneration(
+            name="task",
+            llm=llm,
+            pipeline=pipeline,
+            use_system_prompt=True,
+        )
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "test"},
         ]
 
     def test_format_input_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(
+            name="task", llm=llm, pipeline=pipeline, use_system_prompt=True
+        )
 
         with pytest.raises(
             ValueError, match=r"Input \`instruction\` must be a string. Got: 1."
         ):
             task.format_input({"instruction": 1})
 
-    def test_format_input_with_system_prompt(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = TextGeneration(
-            name="task", llm=llm, pipeline=pipeline, system_prompt="test"
-        )
-
-        assert task.format_input({"instruction": "test"}) == [
-            {"role": "system", "content": "test"},
-            {"role": "user", "content": "test"},
-        ]
+        with pytest.warns(
+            UserWarning,
+            match=r"\`use_system_prompt\` is set to \`True\`, but no \`system_prompt\` in input batch, so it will be ignored.",
+        ):
+            assert task.format_input({"instruction": "test"}) == [
+                {"role": "user", "content": "test"}
+            ]
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
@@ -96,29 +111,10 @@ class TestChatGeneration:
             {"role": "user", "content": "How much is 2+2?"},
         ]
 
-    def test_format_input_with_system_prompt(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = ChatGeneration(
-            name="task", llm=llm, pipeline=pipeline, system_prompt="test"
-        )
-        assert task.format_input(
-            {
-                "messages": [
-                    {"role": "user", "content": "Tell me a joke."},
-                ]
-            }
-        ) == [
-            {"role": "system", "content": "test"},
-            {"role": "user", "content": "Tell me a joke."},
-        ]
-
     def test_format_input_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = ChatGeneration(
-            name="task", llm=llm, pipeline=pipeline, system_prompt="test"
-        )
+        task = ChatGeneration(name="task", llm=llm, pipeline=pipeline)
 
         with pytest.raises(ValueError, match="The last message must be from the user"):
             task.format_input(
@@ -130,23 +126,11 @@ class TestChatGeneration:
                 }
             )
 
-        with pytest.warns(
-            UserWarning,
-            match=r"Providing \`system_prompt\` via attribute and also within the \`messages\` is redundant",
-        ):
-            task.format_input(
-                {
-                    "messages": [
-                        {"role": "system", "content": "You're a helpful assistant"},
-                        {"role": "user", "content": "How much is 2+2?"},
-                    ]
-                }
-            )
-
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
         task = ChatGeneration(name="task", llm=llm, pipeline=pipeline)
+
         assert next(
             task.process(
                 [
