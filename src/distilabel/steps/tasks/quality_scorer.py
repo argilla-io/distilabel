@@ -47,7 +47,8 @@ class QualityScorer(Task):
         - responses (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
 
     Output columns:
-        - quality_score (`List[float]`): The quality score for each instruction.
+        - scores (`List[float]`): The score for each instruction.
+        - model_name (`str`): The model name used to generate the scores.
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
@@ -56,6 +57,7 @@ class QualityScorer(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
+        """Loads the Jinja2 template."""
         super().load()
 
         _path = str(
@@ -70,19 +72,26 @@ class QualityScorer(Task):
 
     @property
     def inputs(self) -> List[str]:
-        """The input for the task are `instruction` and `responses`."""
+        """The inputs for the task are `instruction` and `responses`."""
         return ["instruction", "responses"]
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
-        return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
+        return [
+            {
+                "role": "user",
+                "content": self._template.render(  # type: ignore
+                    instruction=input["instruction"], responses=input["responses"]
+                ),
+            }
+        ]
 
     @property
     def outputs(self):
-        """The output for the task is a list of `quality_scores` containing the quality score for each
+        """The output for the task is a list of `scores` containing the quality score for each
         response in `responses`."""
-        return ["scores"]
+        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -94,11 +103,10 @@ class QualityScorer(Task):
             input: the input to the task. Used for obtaining the number of responses.
 
         Returns:
-            A dict with containing the scores for each instruction-response pair.
+            A dict with the key `scores` containing the scores for each instruction-response pair.
         """
-
         if output is None:
-            return {self.outputs[0]: [None] * len(input["responses"])}
+            return {"scores": [None] * len(input["responses"])}
 
         scores = []
         score_lines = output.split("\n")
@@ -109,5 +117,4 @@ class QualityScorer(Task):
             scores.append(score)
             if i == len(input["responses"]) - 1:
                 break
-
-        return {self.outputs[0]: scores}
+        return {"scores": scores}
