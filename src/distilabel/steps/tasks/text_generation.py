@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -25,6 +25,9 @@ class TextGeneration(Task):
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
 
+    Attributes:
+        system_prompt: The system prompt to be used in the generation. Defaults to `None`.
+
     Input columns:
         - instruction (`str`): The instruction to generate text from.
 
@@ -32,6 +35,8 @@ class TextGeneration(Task):
         - generation (`str`): The generated text.
         - model_name (`str`): The model name used to generate the text.
     """
+
+    system_prompt: Optional[str] = None
 
     @property
     def inputs(self) -> List[str]:
@@ -57,7 +62,10 @@ class TextGeneration(Task):
                 f"Input `instruction` must be a string. Got: {input['instruction']}."
             )
 
-        return [{"role": "user", "content": input["instruction"]}]
+        messages = [{"role": "user", "content": input["instruction"]}]
+        if self.system_prompt:
+            messages.insert(0, {"role": "system", "content": self.system_prompt})
+        return messages  # type: ignore
 
     @property
     def outputs(self) -> List[str]:
@@ -76,6 +84,11 @@ class ChatGeneration(TextGeneration):
     """ChatGeneration is a pre-defined task that defines the `messages` as the input
     and `generation` as the output. This task is used to generate text based on a conversation.
     The `model_name` is also returned as part of the output in order to enhance it.
+
+    Attributes:
+        system_prompt: The system prompt to be used in the generation. Defaults to `None`, and
+            if it is already present in the messages but also provided via attribute, it will be
+            set to the one provided via attribute.
 
     Input columns:
         - messages (`List[Dict[Literal["role", "content"], str]]`): The messages to generate the
@@ -105,6 +118,20 @@ class ChatGeneration(TextGeneration):
             raise ValueError(
                 "The last message must be from the user. Please check: "
                 "'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+            )
+
+        if self.system_prompt:
+            if input["messages"][0]["role"] == "system":
+                warnings.warn(
+                    "Providing `system_prompt` via attribute and also within the `messages`"
+                    " is redundant. The one provided via attribute will be used.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                return input["messages"]
+
+            input["messages"].insert(
+                0, {"role": "system", "content": self.system_prompt}
             )
 
         return input["messages"]
