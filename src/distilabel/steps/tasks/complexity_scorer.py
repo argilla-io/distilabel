@@ -35,18 +35,20 @@ _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class ComplexityScorer(Task):
-    """This task is used to rank a list of instructions based on their complexity. It's
-    an implementation of the complexity score task from the paper 'What Makes Good Data
-    for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
+    """ComplexityScorer is a pre-defined task used to rank a list of instructions based in
+    their complexity. It's an implementation of the complexity score task from the paper
+    'What MakesGood Data for Alignment? A Comprehensive Study of Automatic Data Selection
+    in Instruction Tuning'.
 
     Attributes:
-        _template: The Jinja2 template used to format the input data.
+        _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
         - instructions (`List[str]`): The list of instructions to be scored.
 
     Output columns:
-        - complexity_score (`List[float]`): The complexity score for each instruction.
+        - scores (`List[float]`): The score for each instruction.
+        - model_name (`str`): The model name used to generate the scores.
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
@@ -70,18 +72,37 @@ class ComplexityScorer(Task):
 
     @property
     def inputs(self) -> List[str]:
+        """The inputs for the task are the `instructions`."""
         return ["instructions"]
+
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        """The input is formatted as a `ChatType` assuming that the instruction
+        is the first interaction from the user within a conversation."""
+        return [
+            {
+                "role": "user",
+                "content": self._template.render(instructions=input["instructions"]),  # type: ignore
+            }
+        ]
 
     @property
     def outputs(self) -> List[str]:
-        return ["scores"]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        return [{"role": "user", "content": self._template.render(**input)}]  # type: ignore
+        """The output for the task are: a list of `scores` containing the complexity score for each
+        instruction in `instructions`, and the `model_name`."""
+        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
+        """The output is formatted as a list with the score of each instruction.
+
+        Args:
+            output: the raw output of the LLM.
+            input: the input to the task. Used for obtaining the number of responses.
+
+        Returns:
+            A dict with the key `scores` containing the scores for each instruction.
+        """
         if output is None:
             return {"scores": [None] * len(input["instructions"])}
 
@@ -93,5 +114,4 @@ class ComplexityScorer(Task):
             scores.append(score)
             if i == len(input["instructions"]) - 1:
                 break
-
         return {"scores": scores}
