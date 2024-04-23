@@ -8,13 +8,13 @@ This section contains the API reference for the distilabel tasks. For an example
 
 ::: distilabel.steps.tasks.text_generation
 
-## Evol Instruct
+## Evol Instruct
 
 ::: distilabel.steps.tasks.evol_instruct.base
 ::: distilabel.steps.tasks.evol_instruct.generator
 ::: distilabel.steps.tasks.evol_instruct.utils
 
-### Evol Complexity
+### Evol Complexity
 
 ::: distilabel.steps.tasks.evol_instruct.evol_complexity.base
 ::: distilabel.steps.tasks.evol_instruct.evol_complexity.generator
