@@ -22,19 +22,20 @@ from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
 from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
+from distilabel.steps.tasks.generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.quality_scorer import QualityScorer
 from distilabel.steps.tasks.self_instruct import SelfInstruct
-from distilabel.steps.tasks.text_generation import TextGeneration
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
     "Task",
     "GeneratorTask",
+    "ChatGeneration",
     "ChatItem",
     "ChatType",
     "ComplexityScorer",
