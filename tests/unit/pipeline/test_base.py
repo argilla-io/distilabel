@@ -136,6 +136,76 @@ class TestBasePipeline:
             ],
         }
 
+    # Test no log, Test log, test log without close match
+    @pytest.mark.parametrize(
+        "parameters, expected",
+        (
+            (
+                {
+                    "dummy_step_1": {"runtime_param1": "value1"},
+                    "dummy_step_2": {"runtime_param3": "value1"},
+                },
+                "",
+            ),
+            (
+                {
+                    "dummy_step_1": {"runtime_param1": "value1"},
+                    "dummy_step_2": {
+                        "runtime_param3": "value1",
+                        "runtime_param_unknown": "value1",
+                    },
+                },
+                "Did you mean any of:",
+            ),
+            (
+                {
+                    "dummy_step_1": {"runtime_param1": "value1"},
+                    "dummy_step_2": {
+                        "runtime_param3": "value1",
+                        "weird_name": "value1",
+                    },
+                },
+                "Available runtime parameters for the step",
+            ),
+        ),
+    )
+    def test_check_runtime_parameters(
+        self, caplog, parameters: Dict[str, Any], expected: str
+    ) -> None:
+        class DummyStep1(Step):
+            runtime_param1: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param1 description"
+            )
+            runtime_param2: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param2 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        class DummyStep2(Step):
+            runtime_param3: RuntimeParameter[str] = Field(
+                default=None, description="runtime_param3 description"
+            )
+            runtime_param4: Optional[RuntimeParameter[str]] = Field(
+                default=None, description="runtime_param4 description"
+            )
+
+            def process(self, inputs: StepInput) -> None:
+                pass
+
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
+            gen_step = DummyGeneratorStep(name="dummy_generator_step")
+            step1 = DummyStep1(name="dummy_step_1")
+            step2 = DummyStep2(name="dummy_step_2")
+            gen_step.connect(step1).connect(step2)
+
+        pipeline.run(parameters=parameters)
+        if expected:
+            assert expected in caplog.text
+        else:
+            assert caplog.text == expected
+
     def test_cache_dir_env_variable(self) -> None:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["DISTILABEL_CACHE_DIR"] = "/tmp/unit-test"

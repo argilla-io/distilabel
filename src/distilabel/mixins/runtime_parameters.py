@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import difflib
 import inspect
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, TypeVar, Union
 
@@ -105,8 +106,22 @@ class RuntimeParametersMixin(BaseModel):
             runtime_parameters: A dictionary containing the values of the runtime parameters
                 to set.
         """
+        runtime_parameters_names = list(self.runtime_parameters_names.keys())
         for name, value in runtime_parameters.items():
             if name not in self.runtime_parameters_names:
+                # Check done just to ensure the unit tests for the mixin run
+                if getattr(self, "pipeline", None):
+                    closest = difflib.get_close_matches(
+                        name, runtime_parameters_names, cutoff=0.5
+                    )
+                    msg = (
+                        f"⚠️  Runtime parameter '{name}' unknown in step '{self.name}'."
+                    )
+                    if closest:
+                        msg += f" Did you mean any of: {closest}"
+                    else:
+                        msg += f" Available runtime parameters for the step: {runtime_parameters_names}."
+                    self.pipeline._logger.warning(msg)
                 continue
 
             attr = getattr(self, name)
