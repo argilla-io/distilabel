@@ -13,6 +13,13 @@
 # limitations under the License.
 
 import re
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
 from typing import Any, Dict, List, Union
 
 from jinja2 import Template
@@ -20,19 +27,6 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-
-_QUALITY_SCORER_TEMPLATE = """
-Rank the following pair of instructions and responses according to their quality. Your evaluation should consider factors such as helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Score 1-{{ responses|length }}.
-Score each response from 1 to {{ responses|length }}, with {{ (responses|length) + 1}} reserved for responses that are already very well written and cannot be improved further. You should respond with the format:
-[1] Score: 1
-[2] Score: 2
-...
-#Question#: {{ instruction }}
-#Response List#:
-{% for response in responses %}
-[{{ loop.index }}] {{ response }}
-{%- endfor %}
-""".lstrip()
 
 _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
@@ -63,7 +57,16 @@ class QualityScorer(Task):
 
     def load(self) -> None:
         super().load()
-        self._template = Template(_QUALITY_SCORER_TEMPLATE)
+
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "quality-scorer.jinja2"
+        )
+
+        self._template = Template(open(_path).read())
 
     @property
     def inputs(self) -> List[str]:
