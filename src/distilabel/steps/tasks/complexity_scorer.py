@@ -13,6 +13,13 @@
 # limitations under the License.
 
 import re
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
@@ -23,17 +30,6 @@ from distilabel.steps.tasks.base import Task
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
 
-_COMPLEXITY_SCORER_TEMPLATE = """
-Ranking the following questions according to the difficulty and complexity. Score 1-{{ instructions|length }}.
-You can give a score of {{ (instructions|length) + 1 }} if the question is too complex for you to answer it. You should
-respond with the format:
-[1] Score: 1
-[2] Score: 2
-...
-{% for instruction in instructions %}
-[{{ loop.index }}] {{ instruction }}
-{%- endfor %}
-""".lstrip()
 
 _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
@@ -59,8 +55,18 @@ class ComplexityScorer(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
+        """Loads the Jinja2 template."""
         super().load()
-        self._template = Template(_COMPLEXITY_SCORER_TEMPLATE)
+
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "complexity-scorer.jinja2"
+        )
+
+        self._template = Template(open(_path).read())
 
     @property
     def inputs(self) -> List[str]:
