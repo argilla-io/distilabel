@@ -17,8 +17,9 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import requests
-from datasets import IterableDataset, load_dataset
+from datasets import DatasetInfo, IterableDataset, load_dataset
 from pydantic import Field, PrivateAttr
+from requests.exceptions import ConnectionError
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GeneratorStep
@@ -101,6 +102,10 @@ class LoadHubDataset(GeneratorStep):
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
+    streaming: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to load the dataset in streaming mode or not. Defaults to True.",
+    )
 
     _dataset: Union[IterableDataset, None] = PrivateAttr(...)
 
@@ -112,7 +117,7 @@ class LoadHubDataset(GeneratorStep):
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
-            streaming=True,
+            streaming=self.streaming,
         )
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
@@ -183,6 +188,12 @@ class LoadHubDataset(GeneratorStep):
             The columns of the dataset.
         """
         dataset_info = self._get_dataset_info()
+
+        if isinstance(dataset_info, DatasetInfo):
+            if self.config:
+                return list(self._dataset[self.config].info.features.keys())
+            return list(self._dataset.info.features.keys())
+
         if self.config:
             return list(dataset_info["features"].keys())
         return list(dataset_info["default"]["features"].keys())
@@ -195,4 +206,13 @@ class LoadHubDataset(GeneratorStep):
         """
         repo_id = self.repo_id
         config = self.config
-        return _get_hf_dataset_info(repo_id, config)
+
+        try:
+            return _get_hf_dataset_info(repo_id, config)
+        except ConnectionError:
+            # The previous could fail in case of a internet connection issues.
+            # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
+            self.load()
+            if config:
+                return self._dataset[config].info
+            return self._dataset.info
