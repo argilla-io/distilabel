@@ -55,9 +55,9 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(queue: "Queue[Any]") -> None:
+def _init_worker(queue: "Queue[Any]", log_filename: str = "pipeline.log") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    setup_logging(queue)
+    setup_logging(queue, filename=log_filename)
 
 
 class Pipeline(BasePipeline):
@@ -87,7 +87,7 @@ class Pipeline(BasePipeline):
         except RuntimeError:
             pass
         log_queue = mp.Queue()
-        setup_logging(log_queue)  # type: ignore
+        setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
         super().run(parameters, use_cache)
@@ -116,7 +116,9 @@ class Pipeline(BasePipeline):
         num_processes = len(self.dag)
         ctx = mp.get_context("forkserver")  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
-            num_processes, initializer=_init_worker, initargs=(log_queue,)
+            num_processes,
+            initializer=_init_worker,
+            initargs=(log_queue, str(self._cache_location["log_file"])),
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)

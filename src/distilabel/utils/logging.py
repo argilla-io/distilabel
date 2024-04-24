@@ -16,7 +16,9 @@ import logging
 import multiprocessing as mp
 import os
 import warnings
+from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Union
 
 from rich.logging import RichHandler
@@ -40,7 +42,7 @@ _SILENT_LOGGERS = [
 queue_listener: Union[QueueListener, None] = None
 
 
-def setup_logging(log_queue: "Queue[Any]") -> None:
+def setup_logging(log_queue: "Queue[Any]", filename: str = "pipeline.log") -> None:
     """Sets up logging to use a queue across all processes."""
     global queue_listener
 
@@ -57,6 +59,11 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
         handler.setFormatter(formatter)
         queue_listener = QueueListener(log_queue, handler, respect_handler_level=True)
         queue_listener.start()
+        # Given that we always append to the log file, remove it from the main process,
+        # this way we ensure every pipeline starts with a fresh log file.
+        log_filename = Path(filename)
+        if log_filename.exists():
+            log_filename.unlink()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -70,6 +77,7 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
     root_logger.handlers.clear()
     root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
+    root_logger.addHandler(FileHandler(filename))
 
 
 def stop_logging() -> None:
