@@ -104,7 +104,7 @@ class LoadHubDataset(GeneratorStep):
     )
     streaming: RuntimeParameter[bool] = Field(
         default=False,
-        description="Whether to load the dataset in streaming mode or not. Defaults to True.",
+        description="Whether to load the dataset in streaming mode or not. Defaults to False.",
     )
 
     _dataset: Union[IterableDataset, None] = PrivateAttr(...)
