@@ -395,7 +395,10 @@ class DAG(_Serializable):
                         param_name=subparam,
                         composed_param_name=f"{composed_param_name}.{subparam}",
                         is_optional_or_nested=value,
-                        runtime_parameters=runtime_parameters.get(subparam, {}),
+                        # NOTE: `runtime_parameters` get is for the specific case of `LLM` in `Task`
+                        runtime_parameters=runtime_parameters.get(
+                            param_name, runtime_parameters
+                        ),
                         runtime_parameters_names=runtime_parameters_names,
                     )
                 return
