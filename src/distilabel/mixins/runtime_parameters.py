@@ -127,6 +127,7 @@ class RuntimeParametersMixin(BaseModel):
             attr = getattr(self, name)
             if isinstance(attr, RuntimeParametersMixin):
                 attr.set_runtime_parameters(value)
+                self._runtime_parameters[name] = value
                 continue
 
             # Handle settings values for `_SecretField`
