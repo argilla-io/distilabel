@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from dataclasses import field
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import pytest
+from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
 from pydantic import ValidationError
@@ -38,6 +40,11 @@ class DummyTask(Task):
 
     def format_output(self, output: Union[str, None], input: Dict[str, Any]) -> dict:
         return {"output": output}
+
+
+class DummyRuntimeLLM(DummyLLM):
+    runtime_parameter: RuntimeParameter[int]
+    runtime_parameter_optional: Optional[RuntimeParameter[int]] = field(default=None)
 
 
 class TestTask:
@@ -111,6 +118,54 @@ class TestTask:
         )
         result = next(task.process([{"instruction": "test"}]))
         assert result == expected
+
+    def test_process_with_runtime_parameters(self) -> None:
+        # 1. Runtime parameters provided
+        llm = DummyRuntimeLLM()  # type: ignore
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.set_runtime_parameters({"llm": {"runtime_parameter": 1}})
+        assert task.load() is None
+        assert task.llm.runtime_parameter == 1  # type: ignore
+        assert task.llm.runtime_parameters_names == {
+            "runtime_parameter": False,
+            "runtime_parameter_optional": True,
+            "generation_kwargs": {"kwargs": False},
+        }
+
+        # 2. Runtime parameters in init
+        llm = DummyRuntimeLLM(runtime_parameter=1)
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        assert task.load() is None
+        assert task.llm.runtime_parameter == 1  # type: ignore
+        assert task.llm.runtime_parameters_names == {
+            "runtime_parameter": False,
+            "runtime_parameter_optional": True,
+            "generation_kwargs": {"kwargs": False},
+        }
+
+        # 3. Runtime parameters in init superseded by runtime parameters
+        llm = DummyRuntimeLLM(runtime_parameter=1)
+        task = DummyTask(
+            name="task",
+            llm=llm,
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.set_runtime_parameters({"llm": {"runtime_parameter": 2}})
+        assert task.load() is None
+        assert task.llm.runtime_parameter == 2  # type: ignore
+        assert task.llm.runtime_parameters_names == {
+            "runtime_parameter": False,
+            "runtime_parameter_optional": True,
+            "generation_kwargs": {"kwargs": False},
+        }
 
     def test_serialization(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
