@@ -14,10 +14,11 @@
 
 import inspect
 import logging
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
@@ -32,7 +33,9 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 if TYPE_CHECKING:
     from logging import Logger
 
+    from distilabel.pipeline.local import Pipeline
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
@@ -42,6 +45,18 @@ StepInput = Annotated[List[Dict[str, Any]], _STEP_INPUT_ANNOTATION]
 """StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
 extra metadata that allows `distilabel` to perform validations over the `process` step
 method defined in each `Step`"""
+
+# Pattern to convert PascalCase to snake_case
+PATTERN_PASCAL_NAME = re.compile(r"(?<!^)(?=[A-Z])")
+
+
+def infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"]) -> str:
+    name = re.sub(PATTERN_PASCAL_NAME, "_", step_cls_name).lower() + "_0"
+    if pipeline:
+        # Check the name doesn't already exist in the pipeline
+        if name in set(pipeline.dag.G):
+            name = f"{name[:-1]}{int(name[-1])+1}"
+    return name
 
 
 class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -96,7 +111,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         arbitrary_types_allowed=True, validate_default=True, validate_assignment=True
     )
 
-    name: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
+    name: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9_-]+$")
     pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
@@ -108,6 +123,9 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         from distilabel.pipeline.base import _GlobalPipelineManager
 
         super().model_post_init(__context)
+
+        if not self.name:
+            self.name = infer_step_name(type(self).__name__, self.pipeline)
 
         if self.pipeline is None:
             self.pipeline = _GlobalPipelineManager.get_pipeline()
