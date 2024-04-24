@@ -1686,7 +1686,7 @@ assign CUDA devices to the <code>LLM</code>s, trying to avoid using the same dev
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1696,7 +1696,7 @@ assign CUDA devices to the <code>LLM</code>s, trying to avoid using the same dev
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mixins.CudaDevicePlacementMixin.cuda_devices">cuda_devices</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[int], <span title="typing.Literal">Literal</span>[&#39;auto&#39;]]</code>
@@ -1711,7 +1711,7 @@ of devices, it will be checked if the devices are available to be used by the
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mixins.CudaDevicePlacementMixin._llm_identifier">_llm_identifier</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[str, None]</code>
@@ -1722,7 +1722,7 @@ of devices, it will be checked if the devices are available to be used by the
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mixins.CudaDevicePlacementMixin._device_llm_placement_map">_device_llm_placement_map</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="multiprocessing.managers.DictProxy">DictProxy</span>[str, <span title="typing.Any">Any</span>], None]</code>
@@ -2176,7 +2176,7 @@ to the LLM.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2187,7 +2187,7 @@ to the LLM.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>llm_identifier</code></td>
           <td>
                 <code>str</code>
@@ -2202,7 +2202,7 @@ placement information.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>device_llm_placement_map</code></td>
           <td>
                 <code><span title="multiprocessing.managers.DictProxy">DictProxy</span>[str, <span title="typing.Any">Any</span>]</code>
@@ -2220,7 +2220,7 @@ device placement information for each LLM.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>device_llm_placement_lock</code></td>
           <td>
                 <code><span title="multiprocessing.synchronize.Lock">Lock</span></code>

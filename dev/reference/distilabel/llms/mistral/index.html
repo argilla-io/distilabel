@@ -1700,7 +1700,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1710,7 +1710,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -1721,7 +1721,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.endpoint">endpoint</span></code></td>
           <td>
                 <code>str</code>
@@ -1732,7 +1732,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -1745,7 +1745,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1756,7 +1756,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1767,7 +1767,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM.max_concurrent_requests">max_concurrent_requests</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1779,7 +1779,7 @@ to <code>64</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -1791,7 +1791,7 @@ be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.mistral.MistralLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="mistralai.async_client.MistralAsyncClient">MistralAsyncClient</span>]</code>
@@ -2164,7 +2164,7 @@ client.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2175,7 +2175,7 @@ client.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -2189,7 +2189,7 @@ client.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -2204,7 +2204,7 @@ Defaults to <code>128</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2218,7 +2218,7 @@ Defaults to <code>128</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2237,7 +2237,7 @@ Defaults to <code>128</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2246,7 +2246,7 @@ Defaults to <code>128</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>

@@ -1825,7 +1825,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1835,7 +1835,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -1848,7 +1848,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -1860,7 +1860,7 @@ it will be read from <code>ANTHROPIC_API_KEY</code> environment variable.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -1872,7 +1872,7 @@ that <code>https://api.anthropic.com</code> will be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[float]</code>
@@ -1883,7 +1883,7 @@ that <code>https://api.anthropic.com</code> will be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1895,7 +1895,7 @@ to <code>6</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM.http_client">http_client</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="httpx.AsyncClient">AsyncClient</span>]</code>
@@ -1907,7 +1907,7 @@ API. Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -1919,7 +1919,7 @@ is meant to be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.anthropic.AnthropicLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="anthropic.AsyncAnthropic">AsyncAnthropic</span>]</code>
@@ -2363,7 +2363,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2374,7 +2374,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -2388,7 +2388,7 @@ to be used internally. Set in the <code>load</code> method.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_tokens</code></td>
           <td>
                 <code>int</code>
@@ -2402,7 +2402,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop_sequences</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[str], None]</code>
@@ -2416,7 +2416,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -2430,7 +2430,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[float, None]</code>
@@ -2444,7 +2444,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[int, None]</code>
@@ -2463,7 +2463,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2472,7 +2472,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>

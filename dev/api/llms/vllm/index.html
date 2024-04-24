@@ -1811,7 +1811,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1821,7 +1821,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vllm.vLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -1833,7 +1833,7 @@ model weights and configuration files.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vllm.vLLM.model_kwargs">model_kwargs</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
@@ -1845,7 +1845,7 @@ the <code>LLM</code> class of <code>vllm</code> library.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vllm.vLLM.chat_template">chat_template</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -1859,7 +1859,7 @@ a chat template, then ChatML template will be used. Defaults to <code>None</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vllm.vLLM._model">_model</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="vllm.LLM">LLM</span>]</code>
@@ -1871,7 +1871,7 @@ and should not be accessed directly. It will be set in the <code>load</code> met
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vllm.vLLM._tokenizer">_tokenizer</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="transformers.PreTrainedTokenizer">PreTrainedTokenizer</span>]</code>
@@ -2225,7 +2225,7 @@ pipeline.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2236,7 +2236,7 @@ pipeline.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -2250,7 +2250,7 @@ pipeline.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -2265,7 +2265,7 @@ pipeline.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -2280,7 +2280,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2295,7 +2295,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2310,7 +2310,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -2324,7 +2324,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -2338,7 +2338,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code>int</code>
@@ -2352,7 +2352,7 @@ to <code>0.0</code>.</p>
                 <code>-1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>extra_sampling_params</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
@@ -2372,7 +2372,7 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2381,7 +2381,7 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
           </td>

@@ -1693,7 +1693,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1703,7 +1703,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.distiset.Distiset.pipeline_path">pipeline_path</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
@@ -2065,7 +2065,7 @@ corresponding to the leaf step that generated it.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2076,7 +2076,7 @@ corresponding to the leaf step that generated it.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>repo_id</code></td>
           <td>
                 <code>str</code>
@@ -2092,7 +2092,7 @@ of the logged-in user.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>private</code></td>
           <td>
                 <code>bool</code>
@@ -2107,7 +2107,7 @@ a repository that already exists will not be affected by that parameter.</p>
                 <code>False</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>token</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -2123,7 +2123,7 @@ if no token is passed and the user is not logged-in.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>generate_card</code></td>
           <td>
                 <code>bool</code>
@@ -2137,7 +2137,7 @@ if no token is passed and the user is not logged-in.</p>
                 <code>True</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>**kwargs</code></td>
           <td>
                 <code><span title="typing.Any">Any</span></code>
@@ -2257,7 +2257,7 @@ Splits are created from the dataset according to <code>train_size</code> and <co
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2268,7 +2268,7 @@ Splits are created from the dataset according to <code>train_size</code> and <co
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>train_size</code></td>
           <td>
                 <code>float</code>
@@ -2283,7 +2283,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>shuffle</code></td>
           <td>
                 <code>bool</code>
@@ -2297,7 +2297,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
                 <code>True</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>seed</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -2316,7 +2316,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2325,7 +2325,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="#distilabel.distiset.Distiset">Distiset</a></code>
           </td>
@@ -2428,7 +2428,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2439,7 +2439,7 @@ It will be applied to all the datasets in the <code>Distiset</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>data_dir</code></td>
           <td>
                 <code><span title="pathlib.Path">Path</span></code>
@@ -2454,7 +2454,7 @@ It should correspond to <code>CacheLocation.data</code>.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>pipeline_path</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
@@ -2475,7 +2475,7 @@ uploading the <code>pipeline.yaml</code> file to the repo upon <code>Distiset.pu
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2484,7 +2484,7 @@ uploading the <code>pipeline.yaml</code> file to the repo upon <code>Distiset.pu
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="#distilabel.distiset.Distiset">Distiset</a></code>
           </td>
@@ -2494,7 +2494,7 @@ uploading the <code>pipeline.yaml</code> file to the repo upon <code>Distiset.pu
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.distiset.Distiset" href="#distilabel.distiset.Distiset">Distiset</a></code>
           </td>

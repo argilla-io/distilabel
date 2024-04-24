@@ -1691,7 +1691,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1701,7 +1701,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.openai.OpenAILLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -1713,7 +1713,7 @@ Supported models can be found <a href="https://platform.openai.com/docs/guides/t
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.openai.OpenAILLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -1726,7 +1726,7 @@ be used, or "https://api.openai.com/v1" if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.openai.OpenAILLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -1739,7 +1739,7 @@ will be used, or <code>None</code> if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.openai.OpenAILLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1751,7 +1751,7 @@ failing. Defaults to <code>6</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.openai.OpenAILLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -2099,7 +2099,7 @@ client.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2110,7 +2110,7 @@ client.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -2124,7 +2124,7 @@ client.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -2139,7 +2139,7 @@ client.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -2154,7 +2154,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2169,7 +2169,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2184,7 +2184,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -2198,7 +2198,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -2217,7 +2217,7 @@ to <code>0.0</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2226,7 +2226,7 @@ to <code>0.0</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>

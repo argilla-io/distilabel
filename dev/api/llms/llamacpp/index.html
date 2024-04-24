@@ -1807,7 +1807,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1817,7 +1817,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.llamacpp.LlamaCppLLM.chat_format">chat_format</span></code></td>
           <td>
                 <code>str</code>
@@ -1828,7 +1828,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.llamacpp.LlamaCppLLM.model_path">model_path</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.FilePath">FilePath</span>]</code>
@@ -1840,7 +1840,7 @@ installed version of the <code>llama.cpp</code> Python bindings.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.llamacpp.LlamaCppLLM.n_gpu_layers">n_gpu_layers</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1852,7 +1852,7 @@ the available GPU device will be used.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.llamacpp.LlamaCppLLM.verbose">verbose</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[bool]</code>
@@ -1863,7 +1863,7 @@ the available GPU device will be used.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.llamacpp.LlamaCppLLM._model">_model</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="llama_cpp.Llama">Llama</span>]</code>
@@ -2148,7 +2148,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2159,7 +2159,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -2173,7 +2173,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -2188,7 +2188,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -2203,7 +2203,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2218,7 +2218,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -2233,7 +2233,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -2247,7 +2247,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -2266,7 +2266,7 @@ to <code>0.0</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2275,7 +2275,7 @@ to <code>0.0</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
           </td>

@@ -2405,7 +2405,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -2415,7 +2415,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -2428,7 +2428,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -2440,7 +2440,7 @@ it will be read from <code>ANTHROPIC_API_KEY</code> environment variable.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -2452,7 +2452,7 @@ that <code>https://api.anthropic.com</code> will be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[float]</code>
@@ -2463,7 +2463,7 @@ that <code>https://api.anthropic.com</code> will be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -2475,7 +2475,7 @@ to <code>6</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM.http_client">http_client</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="httpx.AsyncClient">AsyncClient</span>]</code>
@@ -2487,7 +2487,7 @@ API. Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -2499,7 +2499,7 @@ is meant to be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnthropicLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="anthropic.AsyncAnthropic">AsyncAnthropic</span>]</code>
@@ -2943,7 +2943,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2954,7 +2954,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -2968,7 +2968,7 @@ to be used internally. Set in the <code>load</code> method.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_tokens</code></td>
           <td>
                 <code>int</code>
@@ -2982,7 +2982,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop_sequences</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[str], None]</code>
@@ -2996,7 +2996,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -3010,7 +3010,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[float, None]</code>
@@ -3024,7 +3024,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[int, None]</code>
@@ -3043,7 +3043,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -3052,7 +3052,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -3345,7 +3345,7 @@ duplicate API behavior.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -3355,7 +3355,7 @@ duplicate API behavior.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnyscaleLLM.model">model</span></code></td>
           <td>
           </td>
@@ -3367,7 +3367,7 @@ supported models under the "Text Generation -&gt; Supported Models" section
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnyscaleLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -3380,7 +3380,7 @@ means that the value set for the environment variable <code>ANYSCALE_BASE_URL</c
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnyscaleLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -3393,7 +3393,7 @@ means that the value set for the environment variable <code>ANYSCALE_API_KEY</co
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AnyscaleLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -3516,7 +3516,7 @@ responses.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -3526,7 +3526,7 @@ responses.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AsyncLLM._event_loop">_event_loop</span></code></td>
           <td>
                 <code><span title="asyncio.AbstractEventLoop">AbstractEventLoop</span></code>
@@ -3740,7 +3740,7 @@ responses.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -3749,7 +3749,7 @@ responses.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="inspect.Parameter">Parameter</span>]</code>
           </td>
@@ -3786,7 +3786,7 @@ responses.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -3795,7 +3795,7 @@ responses.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.utils.docstring.Docstring">Docstring</span></code>
           </td>
@@ -3994,7 +3994,7 @@ duplicate API behavior, but with Azure-specific parameters.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -4004,7 +4004,7 @@ duplicate API behavior, but with Azure-specific parameters.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AzureOpenAILLM.model">model</span></code></td>
           <td>
           </td>
@@ -4014,7 +4014,7 @@ duplicate API behavior, but with Azure-specific parameters.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AzureOpenAILLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -4027,7 +4027,7 @@ Defaults to <code>None</code> which means that the value set for the environment
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AzureOpenAILLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -4040,7 +4040,7 @@ used, or <code>None</code> if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.AzureOpenAILLM.api_version">api_version</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -4305,7 +4305,7 @@ that the value set for the environment variable <code>OPENAI_API_VERSION</code> 
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -4315,7 +4315,7 @@ that the value set for the environment variable <code>OPENAI_API_VERSION</code> 
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -4326,7 +4326,7 @@ that the value set for the environment variable <code>OPENAI_API_VERSION</code> 
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -4338,7 +4338,7 @@ that the value set for the environment variable <code>OPENAI_API_VERSION</code> 
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -4350,7 +4350,7 @@ the value of the <code>COHERE_API_KEY</code> environment variable.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -4362,7 +4362,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM.client_name">client_name</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]</code>
@@ -4374,7 +4374,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM._ChatMessage">_ChatMessage</span></code></td>
           <td>
                 <code><span title="typing.Type">Type</span>[<span title="cohere.ChatMessage">ChatMessage</span>]</code>
@@ -4385,7 +4385,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CohereLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="cohere.AsyncClient">AsyncClient</span></code>
@@ -4870,7 +4870,7 @@ to <code>120</code>.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -4881,7 +4881,7 @@ to <code>120</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -4895,7 +4895,7 @@ to <code>120</code>.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -4909,7 +4909,7 @@ to <code>120</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -4924,7 +4924,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>k</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -4939,7 +4939,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -4954,7 +4954,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>seed</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -4968,7 +4968,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop_sequences</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Sequence">Sequence</span>[str]]</code>
@@ -4983,7 +4983,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -4998,7 +4998,7 @@ to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -5013,7 +5013,7 @@ to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>raw_prompting</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[bool]</code>
@@ -5033,7 +5033,7 @@ to <code>None</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -5042,7 +5042,7 @@ to <code>None</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.Union">Union</span>[str, None]</code>
           </td>
@@ -5354,7 +5354,7 @@ assign CUDA devices to the <code>LLM</code>s, trying to avoid using the same dev
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -5364,7 +5364,7 @@ assign CUDA devices to the <code>LLM</code>s, trying to avoid using the same dev
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CudaDevicePlacementMixin.cuda_devices">cuda_devices</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[int], <span title="typing.Literal">Literal</span>[&#39;auto&#39;]]</code>
@@ -5379,7 +5379,7 @@ of devices, it will be checked if the devices are available to be used by the
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CudaDevicePlacementMixin._llm_identifier">_llm_identifier</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[str, None]</code>
@@ -5390,7 +5390,7 @@ of devices, it will be checked if the devices are available to be used by the
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.CudaDevicePlacementMixin._device_llm_placement_map">_device_llm_placement_map</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="multiprocessing.managers.DictProxy">DictProxy</span>[str, <span title="typing.Any">Any</span>], None]</code>
@@ -5844,7 +5844,7 @@ to the LLM.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -5855,7 +5855,7 @@ to the LLM.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>llm_identifier</code></td>
           <td>
                 <code>str</code>
@@ -5870,7 +5870,7 @@ placement information.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>device_llm_placement_map</code></td>
           <td>
                 <code><span title="multiprocessing.managers.DictProxy">DictProxy</span>[str, <span title="typing.Any">Any</span>]</code>
@@ -5888,7 +5888,7 @@ device placement information for each LLM.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>device_llm_placement_lock</code></td>
           <td>
                 <code><span title="multiprocessing.synchronize.Lock">Lock</span></code>
@@ -5989,7 +5989,7 @@ the <code>huggingface_hub.AsyncInferenceClient</code> or via <code>openai.AsyncO
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -5999,7 +5999,7 @@ the <code>huggingface_hub.AsyncInferenceClient</code> or via <code>openai.AsyncO
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.model_id">model_id</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -6012,7 +6012,7 @@ Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.endpoint_name">endpoint_name</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -6023,7 +6023,7 @@ Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.endpoint_namespace">endpoint_namespace</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -6034,7 +6034,7 @@ Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -6045,7 +6045,7 @@ Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -6056,7 +6056,7 @@ Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.tokenizer_id">tokenizer_id</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -6068,7 +6068,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.model_display_name">model_display_name</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -6079,7 +6079,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.InferenceEndpointsLLM.use_openai_client">use_openai_client</span></code></td>
           <td>
                 <code>bool</code>
@@ -6095,7 +6095,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
 
 
 
-<p><strong>Examples:</strong></p>
+<p><span class="doc-section-title">Examples:</span></p>
     <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Free serverless Inference API</span>
@@ -6867,7 +6867,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -6878,7 +6878,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -6892,7 +6892,7 @@ Defaults to <code>None</code>, but defining one is recommended to properly forma
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -6907,7 +6907,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -6922,7 +6922,7 @@ to <code>0.0</code>. Only applies if <code>use_openai_client=True</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -6937,7 +6937,7 @@ to <code>0.0</code>. Only applies if <code>use_openai_client=True</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>repetition_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -6952,7 +6952,7 @@ to <code>None</code>. Only applies if <code>use_openai_client=False</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -6966,7 +6966,7 @@ to <code>None</code>. Only applies if <code>use_openai_client=False</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>do_sample</code></td>
           <td>
                 <code>bool</code>
@@ -6981,7 +6981,7 @@ Only applies if <code>use_openai_client=False</code>.</p>
                 <code>False</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -6996,7 +6996,7 @@ Only applies if <code>use_openai_client=False</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -7010,7 +7010,7 @@ Only applies if <code>use_openai_client=False</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>typical_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -7029,7 +7029,7 @@ Only applies if <code>use_openai_client=False</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -7038,7 +7038,7 @@ Only applies if <code>use_openai_client=False</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -7299,7 +7299,7 @@ from async requests, running the Hugging Face Inference Endpoint underneath via 
 
 
 
-  <p><strong>Raises:</strong></p>
+  <p><span class="doc-section-title">Raises:</span></p>
   <table>
     <thead>
       <tr>
@@ -7308,7 +7308,7 @@ from async requests, running the Hugging Face Inference Endpoint underneath via 
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code>ImportError</code>
           </td>
@@ -7318,7 +7318,7 @@ from async requests, running the Hugging Face Inference Endpoint underneath via 
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code>ImportError</code>
           </td>
@@ -7328,7 +7328,7 @@ from async requests, running the Hugging Face Inference Endpoint underneath via 
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code>ValueError</code>
           </td>
@@ -7338,7 +7338,7 @@ from async requests, running the Hugging Face Inference Endpoint underneath via 
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code>ImportError</code>
           </td>
@@ -7658,7 +7658,7 @@ favour of the dynamically calculated one..</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -7668,7 +7668,7 @@ favour of the dynamically calculated one..</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LLM.generation_kwargs">generation_kwargs</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
@@ -7680,7 +7680,7 @@ methods within each <code>LLM</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LLM._logger">_logger</span></code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="logging.Logger">Logger</span>, None]</code>
@@ -8029,7 +8029,7 @@ method is called.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -8038,7 +8038,7 @@ method is called.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="inspect.Parameter">Parameter</span>]</code>
           </td>
@@ -8075,7 +8075,7 @@ method is called.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -8084,7 +8084,7 @@ method is called.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.utils.docstring.Docstring">Docstring</span></code>
           </td>
@@ -8144,7 +8144,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -8153,7 +8153,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.mixins.runtime_parameters.RuntimeParametersNames">RuntimeParametersNames</span></code>
           </td>
@@ -8163,7 +8163,7 @@ of the <code>generate</code> method that are not <code>input</code> and <code>nu
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.mixins.runtime_parameters.RuntimeParametersNames">RuntimeParametersNames</span></code>
           </td>
@@ -8203,7 +8203,7 @@ per input in <code>inputs</code>.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -8214,7 +8214,7 @@ per input in <code>inputs</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -8236,7 +8236,7 @@ API format:</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -8250,7 +8250,7 @@ API format:</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>**kwargs</code></td>
           <td>
                 <code><span title="typing.Any">Any</span></code>
@@ -8343,7 +8343,7 @@ API format:</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -8354,7 +8354,7 @@ API format:</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -8373,7 +8373,7 @@ API format:</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -8382,7 +8382,7 @@ API format:</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.HiddenState">HiddenState</span>]</code>
           </td>
@@ -8448,7 +8448,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -8457,7 +8457,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
           </td>
@@ -8590,7 +8590,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -8600,7 +8600,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LiteLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -8611,7 +8611,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LiteLLM.verbose">verbose</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[bool]</code>
@@ -9017,7 +9017,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -9028,7 +9028,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -9042,7 +9042,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -9057,7 +9057,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>functions</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>]</code>
@@ -9072,7 +9072,7 @@ parameters in the serialized data of the <code>LLM</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>function_call</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9087,7 +9087,7 @@ to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -9101,7 +9101,7 @@ to <code>None</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -9115,7 +9115,7 @@ to <code>None</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, list]]</code>
@@ -9130,7 +9130,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -9145,7 +9145,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -9160,7 +9160,7 @@ text so far. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -9175,7 +9175,7 @@ text so far. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>logit_bias</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[dict]</code>
@@ -9190,7 +9190,7 @@ completion. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>user</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9205,7 +9205,7 @@ to monitor and detect abuse. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>metadata</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[dict]</code>
@@ -9220,7 +9220,7 @@ version, details, etc. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>api_base</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9234,7 +9234,7 @@ version, details, etc. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>api_version</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9248,7 +9248,7 @@ version, details, etc. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>api_key</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9262,7 +9262,7 @@ version, details, etc. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>model_list</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[list]</code>
@@ -9276,7 +9276,7 @@ version, details, etc. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>mock_response</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9291,7 +9291,7 @@ purposes. Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>force_timeout</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -9306,7 +9306,7 @@ Defaults to <code>600</code>.</p>
                 <code>600</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>custom_llm_provider</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -9327,7 +9327,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -9336,7 +9336,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -9687,7 +9687,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -9697,7 +9697,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LlamaCppLLM.chat_format">chat_format</span></code></td>
           <td>
                 <code>str</code>
@@ -9708,7 +9708,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LlamaCppLLM.model_path">model_path</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.FilePath">FilePath</span>]</code>
@@ -9720,7 +9720,7 @@ installed version of the <code>llama.cpp</code> Python bindings.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LlamaCppLLM.n_gpu_layers">n_gpu_layers</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -9732,7 +9732,7 @@ the available GPU device will be used.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LlamaCppLLM.verbose">verbose</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[bool]</code>
@@ -9743,7 +9743,7 @@ the available GPU device will be used.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.LlamaCppLLM._model">_model</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="llama_cpp.Llama">Llama</span>]</code>
@@ -10028,7 +10028,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -10039,7 +10039,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -10053,7 +10053,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -10068,7 +10068,7 @@ should not be accessed directly. It will be set in the <code>load</code> method.
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -10083,7 +10083,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -10098,7 +10098,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -10113,7 +10113,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -10127,7 +10127,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -10146,7 +10146,7 @@ to <code>0.0</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -10155,7 +10155,7 @@ to <code>0.0</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
           </td>
@@ -10354,7 +10354,7 @@ to <code>0.0</code>.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -10364,7 +10364,7 @@ to <code>0.0</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -10375,7 +10375,7 @@ to <code>0.0</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.endpoint">endpoint</span></code></td>
           <td>
                 <code>str</code>
@@ -10386,7 +10386,7 @@ to <code>0.0</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -10399,7 +10399,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -10410,7 +10410,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -10421,7 +10421,7 @@ means that the value set for the environment variable <code>OPENAI_API_KEY</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM.max_concurrent_requests">max_concurrent_requests</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -10433,7 +10433,7 @@ to <code>64</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -10445,7 +10445,7 @@ be used internally.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.MistralLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="mistralai.async_client.MistralAsyncClient">MistralAsyncClient</span>]</code>
@@ -10818,7 +10818,7 @@ client.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -10829,7 +10829,7 @@ client.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -10843,7 +10843,7 @@ client.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -10858,7 +10858,7 @@ Defaults to <code>128</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -10872,7 +10872,7 @@ Defaults to <code>128</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -10891,7 +10891,7 @@ Defaults to <code>128</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -10900,7 +10900,7 @@ Defaults to <code>128</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -11166,7 +11166,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -11176,7 +11176,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OllamaLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -11187,7 +11187,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OllamaLLM.host">host</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -11198,7 +11198,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OllamaLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -11209,7 +11209,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OllamaLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="ollama.AsyncClient">AsyncClient</span>]</code>
@@ -11463,7 +11463,7 @@ Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -11474,7 +11474,7 @@ Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -11488,7 +11488,7 @@ Set in the <code>load</code> method.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -11502,7 +11502,7 @@ Set in the <code>load</code> method.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>format</code></td>
           <td>
                 <code><span title="typing.Literal">Literal</span>[&#39;&#39;, &#39;json&#39;]</code>
@@ -11516,7 +11516,7 @@ Set in the <code>load</code> method.</p>
                 <code>&#39;&#39;</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>options</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[<span title="distilabel.llms.ollama.Options">Options</span>, None]</code>
@@ -11530,7 +11530,7 @@ Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>keep_alive</code></td>
           <td>
                 <code><span title="typing.Union">Union</span>[bool, None]</code>
@@ -11549,7 +11549,7 @@ Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -11558,7 +11558,7 @@ Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[str]</code>
           </td>
@@ -11739,7 +11739,7 @@ Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -11749,7 +11749,7 @@ Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OpenAILLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -11761,7 +11761,7 @@ Supported models can be found <a href="https://platform.openai.com/docs/guides/t
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OpenAILLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -11774,7 +11774,7 @@ be used, or "https://api.openai.com/v1" if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OpenAILLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -11787,7 +11787,7 @@ will be used, or <code>None</code> if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OpenAILLM.max_retries">max_retries</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -11799,7 +11799,7 @@ failing. Defaults to <code>6</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.OpenAILLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -12147,7 +12147,7 @@ client.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -12158,7 +12158,7 @@ client.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -12172,7 +12172,7 @@ client.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -12187,7 +12187,7 @@ client.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -12202,7 +12202,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -12217,7 +12217,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -12232,7 +12232,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -12246,7 +12246,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -12265,7 +12265,7 @@ to <code>0.0</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -12274,7 +12274,7 @@ to <code>0.0</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -12494,7 +12494,7 @@ duplicate API behavior.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -12504,7 +12504,7 @@ duplicate API behavior.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TogetherLLM.model">model</span></code></td>
           <td>
           </td>
@@ -12515,7 +12515,7 @@ Supported models can be found <a href="https://api.together.xyz/models">here</a>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TogetherLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -12528,7 +12528,7 @@ Defaults to <code>None</code> which means that the value set for the environment
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TogetherLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -12541,7 +12541,7 @@ used, or <code>None</code> if not set.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TogetherLLM._api_key_env_var">_api_key_env_var</span></code></td>
           <td>
                 <code>str</code>
@@ -12660,7 +12660,7 @@ pipeline.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -12670,7 +12670,7 @@ pipeline.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -12682,7 +12682,7 @@ model weights and configuration files.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.revision">revision</span></code></td>
           <td>
                 <code>str</code>
@@ -12694,7 +12694,7 @@ model weights and configuration files.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.torch_dtype">torch_dtype</span></code></td>
           <td>
                 <code>str</code>
@@ -12706,7 +12706,7 @@ Defaults to <code>"auto"</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.trust_remote_code">trust_remote_code</span></code></td>
           <td>
                 <code>bool</code>
@@ -12718,7 +12718,7 @@ repository) code to load the model. Defaults to <code>False</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.model_kwargs">model_kwargs</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
@@ -12730,7 +12730,7 @@ the <code>from_pretrained</code> method of the model.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.tokenizer">tokenizer</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -12743,7 +12743,7 @@ will be used. Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.use_fast">use_fast</span></code></td>
           <td>
                 <code>bool</code>
@@ -12754,7 +12754,7 @@ will be used. Defaults to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.chat_template">chat_template</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -12768,7 +12768,7 @@ a chat template, then ChatML template will be used. Defaults to <code>None</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.device">device</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, int]]</code>
@@ -12780,7 +12780,7 @@ to <code>None</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.device_map">device_map</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
@@ -12792,7 +12792,7 @@ like <code>"sequential"</code> or <code>"auto"</code>. Defaults to <code>None</c
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.TransformersLLM.token">token</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -13215,7 +13215,7 @@ pipeline.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -13226,7 +13226,7 @@ pipeline.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -13240,7 +13240,7 @@ pipeline.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -13255,7 +13255,7 @@ pipeline.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -13270,7 +13270,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -13284,7 +13284,7 @@ Defaults to <code>128</code>.</p>
                 <code>0.1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>repetition_penalty</code></td>
           <td>
                 <code>float</code>
@@ -13299,7 +13299,7 @@ to <code>1.1</code>.</p>
                 <code>1.1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -13313,7 +13313,7 @@ to <code>1.1</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code>int</code>
@@ -13327,7 +13327,7 @@ to <code>1.1</code>.</p>
                 <code>0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>do_sample</code></td>
           <td>
                 <code>bool</code>
@@ -13346,7 +13346,7 @@ to <code>1.1</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -13355,7 +13355,7 @@ to <code>1.1</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
           </td>
@@ -13483,7 +13483,7 @@ execute the task head.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -13494,7 +13494,7 @@ execute the task head.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -13513,7 +13513,7 @@ execute the task head.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -13522,7 +13522,7 @@ execute the task head.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.HiddenState">HiddenState</span>]</code>
           </td>
@@ -13532,7 +13532,7 @@ execute the task head.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.HiddenState">HiddenState</span>]</code>
           </td>
@@ -13791,7 +13791,7 @@ using one of these methods:</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -13801,7 +13801,7 @@ using one of these methods:</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.VertexAILLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -13812,7 +13812,7 @@ using one of these methods:</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.VertexAILLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="vertexai.generative_models.GenerativeModel">GenerativeModel</span>]</code>
@@ -14151,7 +14151,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -14162,7 +14162,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -14176,7 +14176,7 @@ to be used internally. Set in the <code>load</code> method.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -14191,7 +14191,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -14205,7 +14205,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -14219,7 +14219,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -14233,7 +14233,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_output_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -14247,7 +14247,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop_sequences</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
@@ -14261,7 +14261,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>safety_settings</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
@@ -14275,7 +14275,7 @@ to be used internally. Set in the <code>load</code> method.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>tools</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
@@ -14294,7 +14294,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -14303,7 +14303,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span></code>
           </td>
@@ -14538,7 +14538,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -14548,7 +14548,7 @@ to be used internally. Set in the <code>load</code> method.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -14560,7 +14560,7 @@ model weights and configuration files.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vLLM.model_kwargs">model_kwargs</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]]</code>
@@ -14572,7 +14572,7 @@ the <code>LLM</code> class of <code>vllm</code> library.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vLLM.chat_template">chat_template</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
@@ -14586,7 +14586,7 @@ a chat template, then ChatML template will be used. Defaults to <code>None</code
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vLLM._model">_model</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="vllm.LLM">LLM</span>]</code>
@@ -14598,7 +14598,7 @@ and should not be accessed directly. It will be set in the <code>load</code> met
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.vLLM._tokenizer">_tokenizer</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="transformers.PreTrainedTokenizer">PreTrainedTokenizer</span>]</code>
@@ -14952,7 +14952,7 @@ pipeline.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -14963,7 +14963,7 @@ pipeline.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>inputs</code></td>
           <td>
                 <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
@@ -14977,7 +14977,7 @@ pipeline.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>num_generations</code></td>
           <td>
                 <code>int</code>
@@ -14992,7 +14992,7 @@ pipeline.</p>
                 <code>1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_new_tokens</code></td>
           <td>
                 <code>int</code>
@@ -15007,7 +15007,7 @@ Defaults to <code>128</code>.</p>
                 <code>128</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code>float</code>
@@ -15022,7 +15022,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code>float</code>
@@ -15037,7 +15037,7 @@ to <code>0.0</code>.</p>
                 <code>0.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code>float</code>
@@ -15051,7 +15051,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_p</code></td>
           <td>
                 <code>float</code>
@@ -15065,7 +15065,7 @@ to <code>0.0</code>.</p>
                 <code>1.0</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>top_k</code></td>
           <td>
                 <code>int</code>
@@ -15079,7 +15079,7 @@ to <code>0.0</code>.</p>
                 <code>-1</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>extra_sampling_params</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
@@ -15099,7 +15099,7 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -15108,7 +15108,7 @@ the <code>SamplingParams</code> class from <code>vllm</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.List">List</span>[<span title="distilabel.llms.typing.GenerateOutput">GenerateOutput</span>]</code>
           </td>

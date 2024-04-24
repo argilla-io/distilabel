@@ -1700,7 +1700,7 @@
 
 
 
-  <p><strong>Attributes:</strong></p>
+  <p><span class="doc-section-title">Attributes:</span></p>
   <table>
     <thead>
       <tr>
@@ -1710,7 +1710,7 @@
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM.model">model</span></code></td>
           <td>
                 <code>str</code>
@@ -1721,7 +1721,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM.base_url">base_url</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]]</code>
@@ -1733,7 +1733,7 @@
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM.api_key">api_key</span></code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[<span title="pydantic.SecretStr">SecretStr</span>]]</code>
@@ -1745,7 +1745,7 @@ the value of the <code>COHERE_API_KEY</code> environment variable.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM.timeout">timeout</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
@@ -1757,7 +1757,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM.client_name">client_name</span></code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[str]</code>
@@ -1769,7 +1769,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM._ChatMessage">_ChatMessage</span></code></td>
           <td>
                 <code><span title="typing.Type">Type</span>[<span title="cohere.ChatMessage">ChatMessage</span>]</code>
@@ -1780,7 +1780,7 @@ to <code>120</code>.</p>
             </div>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code><span title="distilabel.llms.cohere.CohereLLM._aclient">_aclient</span></code></td>
           <td>
                 <code><span title="cohere.AsyncClient">AsyncClient</span></code>
@@ -2265,7 +2265,7 @@ to <code>120</code>.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
+  <p><span class="doc-section-title">Parameters:</span></p>
   <table>
     <thead>
       <tr>
@@ -2276,7 +2276,7 @@ to <code>120</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>input</code></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
@@ -2290,7 +2290,7 @@ to <code>120</code>.</p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>temperature</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2304,7 +2304,7 @@ to <code>120</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>max_tokens</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -2319,7 +2319,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>k</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[int]</code>
@@ -2334,7 +2334,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>p</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2349,7 +2349,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>seed</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2363,7 +2363,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>stop_sequences</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.Sequence">Sequence</span>[str]]</code>
@@ -2378,7 +2378,7 @@ Defaults to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>frequency_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2393,7 +2393,7 @@ to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>presence_penalty</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[float]</code>
@@ -2408,7 +2408,7 @@ to <code>None</code>.</p>
                 <code>None</code>
           </td>
         </tr>
-        <tr>
+        <tr class="doc-section-item">
           <td><code>raw_prompting</code></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[bool]</code>
@@ -2428,7 +2428,7 @@ to <code>None</code>.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
+  <p><span class="doc-section-title">Returns:</span></p>
   <table>
     <thead>
       <tr>
@@ -2437,7 +2437,7 @@ to <code>None</code>.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
+        <tr class="doc-section-item">
           <td>
                 <code><span title="typing.Union">Union</span>[str, None]</code>
           </td>
