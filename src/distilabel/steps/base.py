@@ -93,7 +93,10 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     """
 
     model_config = ConfigDict(
-        arbitrary_types_allowed=True, validate_default=True, validate_assignment=True
+        arbitrary_types_allowed=True,
+        validate_default=True,
+        validate_assignment=True,
+        extra="forbid",
     )
 
     name: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
