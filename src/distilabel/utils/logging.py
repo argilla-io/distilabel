@@ -77,6 +77,11 @@ def setup_logging(log_queue: "Queue[Any]", filename: str = "pipeline.log") -> No
     root_logger.handlers.clear()
     root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
+
+    # Check done to ensure the pipeline.log file can be created because
+    # when setup_logging is called, the current working directory might not exist.
+    if not Path(filename).parent.exists():
+        Path(filename).parent.mkdir(parents=True)
     root_logger.addHandler(FileHandler(filename))
 
 
