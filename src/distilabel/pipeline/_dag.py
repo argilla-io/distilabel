@@ -403,9 +403,10 @@ class DAG(_Serializable):
             if (
                 not is_optional_or_nested
                 and param_name not in runtime_parameters
-                and not _get_attribute_default(
+                and _get_attribute_default(
                     step=step, composed_param_name=composed_param_name
                 )
+                is not None
             ):
                 aux_code = _get_pipeline_aux_code(step.name, composed_param_name)
                 raise ValueError(
