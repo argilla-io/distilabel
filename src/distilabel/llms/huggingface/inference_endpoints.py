@@ -14,6 +14,7 @@
 
 import asyncio
 import os
+import random
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
@@ -349,6 +350,9 @@ class InferenceEndpointsLLM(AsyncLLM):
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
+                # NOTE: here to ensure that the cache is not used and a different response is
+                # generated every time
+                seed=random.randint(0, 2147483647),
             )
             return [completion]
         except Exception as e:
