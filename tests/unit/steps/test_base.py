@@ -77,6 +77,10 @@ class TestStep:
         with pytest.raises(ValidationError):
             DummyStep(name="this is not valid because spaces", pipeline=pipeline)
 
+    def test_create_step_and_infer_name(self) -> None:
+        dummy_step = DummyStep(pipeline=Pipeline(name="unit-test-pipeline"))
+        assert dummy_step.name == "dummy_step_0"
+
     def test_create_step_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         step = DummyStep(name="dummy", pipeline=pipeline)

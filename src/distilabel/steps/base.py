@@ -143,9 +143,6 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         super().model_post_init(__context)
 
-        if not self.name:
-            self.name = _infer_step_name(type(self).__name__, self.pipeline)
-
         if self.pipeline is None:
             self.pipeline = _GlobalPipelineManager.get_pipeline()
 
@@ -155,6 +152,12 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                 " created within a `Pipeline` context. Please, use"
                 " `with Pipeline() as pipeline:` and create the step within the context."
             )
+
+        if not self.name:
+            # This must be done before the check for repeated names, but assuming
+            # we are passing the pipeline from the _GlobalPipelineManager, should
+            # be done after that.
+            self.name = _infer_step_name(type(self).__name__, self.pipeline)
 
         self.pipeline._add_step(self)
 

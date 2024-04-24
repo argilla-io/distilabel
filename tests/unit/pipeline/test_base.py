@@ -212,6 +212,43 @@ class TestBasePipeline:
             pipeline = BasePipeline(name="unit-test-pipeline")
             assert pipeline._cache_dir == Path("/tmp/unit-test")
 
+    @pytest.mark.parametrize(
+        "in_pipeline, names",
+        (
+            (
+                True,
+                [
+                    "dummy_generator_step_0",
+                    "dummy_step1_0",
+                    "dummy_step2_0",
+                    "dummy_step1_1",
+                ],
+            ),
+            # TODO: Activate this test once we merge the option of not passing a Pipeline
+            # (
+            #     False, ["dummy_generator_step", "dummy_step1", "dummy_step2"]
+            # )
+        ),
+    )
+    def test_step_names_inferred(self, in_pipeline: bool, names: List[str]) -> None:
+        if in_pipeline:
+            with BasePipeline(name="unit-test-pipeline"):
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                step2 = DummyStep2()
+                step1_1 = DummyStep1()
+                gen_step.connect(step1_0).connect(step2).connect(step1_1)
+        else:
+            gen_step = DummyGeneratorStep()
+            step1_0 = DummyStep1()
+            step2 = DummyStep2()
+            step1_1 = DummyStep1()
+
+        assert gen_step.name == names[0]
+        assert step1_0.name == names[1]
+        assert step2.name == names[2]
+        assert step1_1.name == names[3]
+
 
 class TestBatch:
     def test_next_batch(self) -> None:
