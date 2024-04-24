@@ -50,7 +50,26 @@ method defined in each `Step`"""
 PATTERN_PASCAL_NAME = re.compile(r"(?<!^)(?=[A-Z])")
 
 
-def infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"]) -> str:
+def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"]) -> str:
+    """Infer the name of the step based on the class name and the pipeline.
+
+    If a `Pipeline` is given (the general case), it will check if the name already exists
+    in the steps of the `DAG`, to add a number at the end of the name.
+
+    Args:
+        step_cls_name: The step class name, as obtained by `type(cls).__name__`.
+        pipeline: The `Pipeline` the step belongs to, can be `None` if the step is created
+            outside of a `Pipeline`.
+
+    Returns:
+        A name for the step.
+
+    Example:
+        ```python
+        >>> _infer_step_name("StepWithOnePreviousStep", None)
+        'step_with_one_previous_step'
+        ```
+    """
     name = re.sub(PATTERN_PASCAL_NAME, "_", step_cls_name).lower() + "_0"
     if pipeline:
         # Check the name doesn't already exist in the pipeline
@@ -125,7 +144,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         super().model_post_init(__context)
 
         if not self.name:
-            self.name = infer_step_name(type(self).__name__, self.pipeline)
+            self.name = _infer_step_name(type(self).__name__, self.pipeline)
 
         if self.pipeline is None:
             self.pipeline = _GlobalPipelineManager.get_pipeline()
