@@ -319,7 +319,7 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self) -> "GeneratorStepOutput":
+            def process(self, offset: int = 0) -> "GeneratorStepOutput":
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)  # type: ignore
@@ -333,6 +333,34 @@ class TestDAG:
             match="Step 'dummy_generator_step' is missing required runtime parameter 'runtime_param1'",
         ):
             dag.validate()
+
+    def test_validate_step_process_runtime_parameters(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        class DummyGeneratorStep(GeneratorStep):
+            runtime_param1: RuntimeParameter[int]
+            runtime_param2: RuntimeParameter[int] = 5
+
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
+                yield [{"response": "response1"}], False
+
+        step = DummyGeneratorStep(
+            name="dummy_generator_step", runtime_param1=2, pipeline=pipeline
+        )
+        step.set_runtime_parameters({})
+
+        dag = DAG()
+        dag.add_step(step)
+
+        dag.validate()
 
     def test_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
@@ -402,7 +430,9 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self, *inputs: StepInput) -> "GeneratorStepOutput":  # type: ignore
+            def process(
+                self, *inputs: StepInput, offset: int = 0
+            ) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
@@ -428,7 +458,7 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self) -> "GeneratorStepOutput":  # type: ignore
+            def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
