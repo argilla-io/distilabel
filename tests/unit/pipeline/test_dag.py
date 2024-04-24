@@ -458,7 +458,7 @@ class TestDAG:
             def outputs(self) -> List[str]:
                 return ["response"]
 
-            def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
+            def process(self) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
 
         step = DummyGeneratorStep(name="dummy_generator_step", pipeline=pipeline)
