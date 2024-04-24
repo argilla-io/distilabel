@@ -409,7 +409,7 @@ class DAG(_Serializable):
                 and _get_attribute_default(
                     step=step, composed_param_name=composed_param_name
                 )
-                is not None
+                is None
             ):
                 aux_code = _get_pipeline_aux_code(step.name, composed_param_name)
                 raise ValueError(
