@@ -345,7 +345,9 @@ class DAG(_Serializable):
                 f" to receive outputs from previous steps."
             )
 
-    def _validate_step_process_runtime_parameters(self, step: "_Step") -> None:
+    def _validate_step_process_runtime_parameters(  # noqa: C901
+        self, step: "_Step"
+    ) -> None:
         """Validates that the required runtime parameters of the step are provided. A
         runtime parameter is considered required if it doesn't have a default value. The
         name of the runtime parameters are separated by dots to represent nested parameters.
@@ -367,6 +369,18 @@ class DAG(_Serializable):
             result += nested_dict + "})"
             return result
 
+        def _get_attribute_default(
+            step: "_Step", composed_param_name: str
+        ) -> Union[Any, None]:
+            parts = composed_param_name.split(".")
+            attr = step
+            for part in parts:
+                if isinstance(attr, dict):
+                    attr = attr.get(part, None)
+                elif isinstance(attr, object):
+                    attr = getattr(attr, part)
+            return attr
+
         def _check_required_parameter(
             param_name: str,
             composed_param_name: str,
@@ -386,7 +400,13 @@ class DAG(_Serializable):
                     )
                 return
 
-            if not is_optional_or_nested and param_name not in runtime_parameters:
+            if (
+                not is_optional_or_nested
+                and param_name not in runtime_parameters
+                and not _get_attribute_default(
+                    step=step, composed_param_name=composed_param_name
+                )
+            ):
                 aux_code = _get_pipeline_aux_code(step.name, composed_param_name)
                 raise ValueError(
                     f"Step '{step.name}' is missing required runtime parameter '{param_name}'."
