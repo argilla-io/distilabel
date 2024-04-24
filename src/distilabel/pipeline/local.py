@@ -107,6 +107,7 @@ class Pipeline(BasePipeline):
             return create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
+                log_filename_path=self._cache_location["log_file"],
             )
 
         buffer_data_path = self._cache_location["data"]
@@ -151,7 +152,9 @@ class Pipeline(BasePipeline):
 
         write_buffer.close()
         distiset = create_distiset(
-            self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
+            self._cache_location["data"],
+            pipeline_path=self._cache_location["pipeline"],
+            log_filename_path=self._cache_location["log_file"],
         )
         stop_logging()
         return distiset
