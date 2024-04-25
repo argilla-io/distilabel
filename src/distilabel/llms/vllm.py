@@ -149,6 +149,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """
         if extra_sampling_params is None:
             extra_sampling_params = {}
+
         sampling_params = SamplingParams(  # type: ignore
             n=num_generations,
             presence_penalty=presence_penalty,
