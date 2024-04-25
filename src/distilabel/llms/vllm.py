@@ -149,6 +149,10 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """
         if extra_sampling_params is None:
             extra_sampling_params = {}
+
+        if "stop_token_ids" not in extra_sampling_params:
+            extra_sampling_params["stop_token_ids"] = [self._tokenizer.eos_token_id]
+
         sampling_params = SamplingParams(  # type: ignore
             n=num_generations,
             presence_penalty=presence_penalty,
