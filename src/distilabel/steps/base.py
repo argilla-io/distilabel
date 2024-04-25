@@ -73,8 +73,12 @@ def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"] = None) 
     name = re.sub(PATTERN_PASCAL_NAME, "_", step_cls_name).lower() + "_0"
     if pipeline:
         # Check the name doesn't already exist in the pipeline
-        if name in set(pipeline.dag.G):
-            name = f"{name[:-1]}{int(name[-1])+1}"
+        step_names = set(pipeline.dag.G)
+        parts = name.split("_")
+        base_name = "_".join(parts[:-1])
+        while name in step_names:
+            idx = int(name.split("_")[-1])
+            name = f"{base_name}_{idx+1}"
     return name
 
 

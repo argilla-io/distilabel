@@ -249,6 +249,14 @@ class TestBasePipeline:
         assert step2.name == names[2]
         assert step1_1.name == names[3]
 
+    def test_infer_step_names_big_pipeline(self) -> None:
+        # Tests that the name of the steps are inferred correctly when the pipeline is big (say 50 steps).
+        with BasePipeline(name="unit-test-pipeline") as pipe:
+            gen_step = DummyGeneratorStep()
+            for _ in range(50):
+                gen_step.connect(DummyStep1())
+        assert list(pipe.dag.G)[-1] == "dummy_step1_49"
+
 
 class TestBatch:
     def test_next_batch(self) -> None:
