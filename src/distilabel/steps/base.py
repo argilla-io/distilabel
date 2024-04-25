@@ -14,10 +14,11 @@
 
 import inspect
 import logging
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated
@@ -32,7 +33,9 @@ from distilabel.utils.typing_ import is_parameter_annotated_with
 if TYPE_CHECKING:
     from logging import Logger
 
+    from distilabel.pipeline.local import Pipeline
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+
 
 DEFAULT_INPUT_BATCH_SIZE = 50
 
@@ -42,6 +45,41 @@ StepInput = Annotated[List[Dict[str, Any]], _STEP_INPUT_ANNOTATION]
 """StepInput is just an `Annotated` alias of the typing `List[Dict[str, Any]]` with
 extra metadata that allows `distilabel` to perform validations over the `process` step
 method defined in each `Step`"""
+
+# Pattern to convert PascalCase to snake_case
+PATTERN_PASCAL_NAME = re.compile(r"(?<!^)(?=[A-Z])")
+
+
+def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"] = None) -> str:
+    """Infer the name of the step based on the class name and the pipeline.
+
+    If a `Pipeline` is given (the general case), it will check if the name already exists
+    in the steps of the `DAG`, to add a number at the end of the name.
+
+    Args:
+        step_cls_name: The step class name, as obtained by `type(cls).__name__`.
+        pipeline: The `Pipeline` the step belongs to, can be `None` if the step is created
+            outside of a `Pipeline`.
+
+    Returns:
+        A name for the step.
+
+    Example:
+        ```python
+        >>> _infer_step_name("StepWithOnePreviousStep", None)
+        'step_with_one_previous_step'
+        ```
+    """
+    name = re.sub(PATTERN_PASCAL_NAME, "_", step_cls_name).lower() + "_0"
+    if pipeline:
+        # Check the name doesn't already exist in the pipeline
+        step_names = set(pipeline.dag.G)
+        parts = name.split("_")
+        base_name = "_".join(parts[:-1])
+        while name in step_names:
+            idx = int(name.split("_")[-1])
+            name = f"{base_name}_{idx+1}"
+    return name
 
 
 class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -99,7 +137,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         extra="forbid",
     )
 
-    name: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
+    name: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9_-]+$")
     pipeline: Annotated[Any, Field(exclude=True, repr=False)] = None
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
@@ -121,6 +159,12 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                 " created within a `Pipeline` context. Please, use"
                 " `with Pipeline() as pipeline:` and create the step within the context."
             )
+
+        if not self.name:
+            # This must be done before the check for repeated names, but assuming
+            # we are passing the pipeline from the _GlobalPipelineManager, should
+            # be done after that.
+            self.name = _infer_step_name(type(self).__name__, self.pipeline)
 
         self.pipeline._add_step(self)
 
