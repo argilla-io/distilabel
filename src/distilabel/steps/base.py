@@ -50,7 +50,7 @@ method defined in each `Step`"""
 PATTERN_PASCAL_NAME = re.compile(r"(?<!^)(?=[A-Z])")
 
 
-def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"]) -> str:
+def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"] = None) -> str:
     """Infer the name of the step based on the class name and the pipeline.
 
     If a `Pipeline` is given (the general case), it will check if the name already exists
