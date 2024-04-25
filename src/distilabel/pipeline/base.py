@@ -251,8 +251,8 @@ class BasePipeline(_Serializable):
         for step_name, step_parameters in parameters.items():
             if step_name not in step_names:
                 self._logger.warning(
-                    f"❓ Step '{step_name}' not found in the pipeline, the runtime parameters will be ignored."
-                    f" Available steps are: {set(step_names)}."
+                    f"❓ Step '{step_name}' provided in `Pipeline.run(parameters={{...}})` not found in the pipeline."
+                    f" Available steps are: {step_names}."
                 )
             else:
                 step: "_Step" = self.dag.get_step(step_name)["step"]
