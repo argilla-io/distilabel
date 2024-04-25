@@ -55,6 +55,7 @@ class VertexAILLM(AsyncLLM):
     """
 
     model: str
+
     _aclient: Optional["GenerativeModel"] = PrivateAttr(...)
 
     def load(self) -> None:
