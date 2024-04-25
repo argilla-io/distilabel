@@ -42,12 +42,14 @@ class TestPairRM:
                 "candidates": ["fine", "good", "bad"],
                 "ranks": [2, 1, 3],
                 "ranked_candidates": ["good", "fine", "bad"],
+                "model_name": "llm-blender/PairRM",
             },
             {
                 "input": "Anybody there?",
                 "candidates": ["get out", "yep", "nope"],
                 "ranks": [2, 1, 3],
                 "ranked_candidates": ["yep", "get out", "nope"],
+                "model_name": "llm-blender/PairRM",
             },
         ]
 
@@ -62,6 +64,12 @@ class TestPairRM:
             "input_batch_size": ranker.input_batch_size,
             "model": ranker.model,
             "instructions": None,
-            "runtime_parameters_info": [],
+            "runtime_parameters_info": [
+                {
+                    "description": "The number of rows that will contain the batches processed by the step.",
+                    "name": "input_batch_size",
+                    "optional": True,
+                },
+            ],
             "type_info": {"module": "distilabel.steps.tasks.pair_rm", "name": "PairRM"},
         }

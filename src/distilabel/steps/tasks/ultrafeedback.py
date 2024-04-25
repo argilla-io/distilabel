@@ -150,8 +150,7 @@ class UltraFeedback(Task):
             "overall-rating",
         ]:
             return self._format_ratings_rationales_output(output, input)
-        else:
-            return self._format_types_ratings_rationales_output(output, input)
+        return self._format_types_ratings_rationales_output(output, input)
 
     def _format_ratings_rationales_output(
         self, output: Union[str, None], input: Dict[str, Any]

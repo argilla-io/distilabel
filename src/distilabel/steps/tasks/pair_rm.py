@@ -28,7 +28,6 @@ class PairRM(Step):
 
     Attributes:
         model: The model to use for the ranking. Defaults to `"llm-blender/PairRM"`.
-        input_batch_size: The batch size to use when processing the input. Defaults to `8`.
         instructions: The instructions to use for the model. Defaults to `None`.
 
     Input columns:
@@ -38,6 +37,7 @@ class PairRM(Step):
     Output columns:
         - ranks (`List[int]`): The ranks of the candidates based on the input.
         - ranked_candidates (`List[Dict[str, Any]]`): The candidates ranked based on the input.
+        - model_name (`str`): The model name used to rank the candidate responses. Defaults to `"llm-blender/PairRM"`.
 
     References:
         - [LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion](https://arxiv.org/abs/2306.02561).
@@ -49,10 +49,11 @@ class PairRM(Step):
     """
 
     model: str = "llm-blender/PairRM"
-    input_batch_size: int = 8
     instructions: Optional[str] = None
 
     def load(self) -> None:
+        """Loads the PairRM model provided via `model` with `llm_blender.Blender`, which is the
+        custom library for running the inference for the PairRM models."""
         try:
             import llm_blender
         except ImportError as e:
@@ -60,6 +61,7 @@ class PairRM(Step):
                 "The `llm_blender` package is required to use the `PairRM` class."
                 "Please install it with `pip install git+https://github.com/yuchenlin/LLM-Blender.git`."
             ) from e
+
         self._blender = llm_blender.Blender()
         self._blender.loadranker(self.model)
 
@@ -72,14 +74,14 @@ class PairRM(Step):
     @property
     def outputs(self) -> List[str]:
         """The outputs will include the `ranks` and the `ranked_candidates`."""
-        return ["ranks", "ranked_candidates"]
+        return ["ranks", "ranked_candidates", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """The input is expected to be a dictionary with the keys `input` and `candidates`,
         where the `input` corresponds to the instruction of a model and `candidates` are a
         list of responses to be ranked.
         """
-        return input
+        return {"input": input["input"], "candidates": input["candidates"]}
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Generates the ranks for the candidates based on the input.
@@ -92,7 +94,7 @@ class PairRM(Step):
             inputs: A list of Python dictionaries with the inputs of the task.
 
         Yields:
-            An iterator with the inputs containing the `ranks` and the `ranked_candidates`.
+            An iterator with the inputs containing the `ranks`, `ranked_candidates`, and `model_name`.
         """
         input_texts = []
         candidates = []
@@ -120,5 +122,6 @@ class PairRM(Step):
         for input, rank, ranked_candidate in zip(inputs, ranks, ranked_candidates):
             input["ranks"] = rank
             input["ranked_candidates"] = ranked_candidate
+            input["model_name"] = self.model
 
         yield inputs

@@ -4,17 +4,21 @@ This section contains the API reference for the distilabel tasks. For an example
 
 ::: distilabel.steps.tasks.base
 
-## General Text Generation
+## Text Generation
 
-::: distilabel.steps.tasks.text_generation
+::: distilabel.steps.tasks.text_generation.TextGeneration
 
-## Evol Instruct
+## Chat Generation
+
+::: distilabel.steps.tasks.text_generation.ChatGeneration
+
+## Evol Instruct
 
 ::: distilabel.steps.tasks.evol_instruct.base
 ::: distilabel.steps.tasks.evol_instruct.generator
 ::: distilabel.steps.tasks.evol_instruct.utils
 
-### Evol Complexity
+### Evol Complexity
 
 ::: distilabel.steps.tasks.evol_instruct.evol_complexity.base
 ::: distilabel.steps.tasks.evol_instruct.evol_complexity.generator

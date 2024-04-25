@@ -37,6 +37,7 @@ class GenerateEmbeddings(Step):
 
     Output columns:
         - embedding (`List[float]`): The embedding of the input text or conversation.
+        - model_name (`str`): The model name used to generate the embeddings.
 
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
@@ -47,6 +48,7 @@ class GenerateEmbeddings(Step):
     def load(self) -> None:
         """Loads the `LLM` used to generate the embeddings."""
         super().load()
+
         self.llm.load()
 
     @property
@@ -59,7 +61,7 @@ class GenerateEmbeddings(Step):
     def outputs(self) -> List[str]:
         """The outputs for the task is an `embedding` column containing the embedding of
         the `text` input."""
-        return ["embedding"]
+        return ["embedding", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Formats the input to be used by the LLM to generate the embeddings. The input
@@ -99,4 +101,5 @@ class GenerateEmbeddings(Step):
         last_hidden_states = self.llm.get_last_hidden_states(formatted_inputs)
         for input, hidden_state in zip(inputs, last_hidden_states):
             input["embedding"] = hidden_state[-1].tolist()
+            input["model_name"] = self.llm.model_name
         yield inputs

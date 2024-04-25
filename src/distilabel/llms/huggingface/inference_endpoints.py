@@ -14,6 +14,7 @@
 
 import asyncio
 import os
+import random
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
@@ -61,7 +62,6 @@ class InferenceEndpointsLLM(AsyncLLM):
     Examples:
         ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM
-
 
         # Free serverless Inference API
         llm = InferenceEndpointsLLM(
@@ -123,21 +123,30 @@ class InferenceEndpointsLLM(AsyncLLM):
     def only_one_of_model_id_endpoint_name_or_base_url_provided(
         self,
     ) -> "InferenceEndpointsLLM":
-        """Validates that only one of `model_id`, `endpoint_name`, or `base_url` is provided."""
+        """Validates that only one of `model_id` or `endpoint_name` is provided; and if `base_url` is also
+        provided, a warning will be shown informing the user that the provided `base_url` will be ignored in
+        favour of the dynamically calculated one.."""
 
-        if self.model_id and (not self.endpoint_name and not self.base_url):
+        if self.base_url and (self.model_id or self.endpoint_name):
+            self._logger.warning(  # type: ignore
+                f"Since the `base_url={self.base_url}` is available and either one of `model_id` or `endpoint_name`"
+                " is also provided, the `base_url` will either be ignored or overwritten with the one generated"
+                " from either of those args, for serverless or dedicated inference endpoints, respectively."
+            )
+
+        if self.base_url and not (self.model_id or self.endpoint_name):
             return self
 
-        if self.endpoint_name and (not self.model_id and not self.base_url):
+        if self.model_id and not self.endpoint_name:
             return self
 
-        if self.base_url and (not self.model_id and not self.endpoint_name):
+        if self.endpoint_name and not self.model_id:
             return self
 
         raise ValidationError(
-            "Only one of `model_id`, `endpoint_name`, or `base_url` must be provided. Found"
-            f" `model_id`={self.model_id}, `endpoint_name`={self.endpoint_name}, and"
-            f" `base_url`={self.base_url}."
+            "Only one of `model_id` or `endpoint_name` must be provided. If `base_url` is provided too,"
+            " it will be overwritten instead. Found `model_id`={self.model_id}, `endpoint_name`={self.endpoint_name},"
+            f" and `base_url`={self.base_url}."
         )
 
     def load(self) -> None:  # noqa: C901
@@ -341,6 +350,9 @@ class InferenceEndpointsLLM(AsyncLLM):
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
+                # NOTE: here to ensure that the cache is not used and a different response is
+                # generated every time
+                seed=random.randint(0, 2147483647),
             )
             return [completion]
         except Exception as e:

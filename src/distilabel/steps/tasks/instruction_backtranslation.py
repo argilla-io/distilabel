@@ -41,6 +41,8 @@ class InstructionBacktranslation(Task):
 
     Output columns:
         - score (`str`): The score for the generation based on the given instruction.
+        - reason (`str`): The reason for the provided score.
+        - model_name (`str`): The model name used to score the generation.
 
     References:
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
@@ -49,7 +51,7 @@ class InstructionBacktranslation(Task):
     _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template with the Instruction Backtranslation prompt."""
+        """Loads the Jinja2 template."""
         super().load()
 
         _path = str(

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
@@ -24,6 +25,11 @@ class TextGeneration(Task):
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
 
+    Attributes:
+        use_system_prompt: Whether to use the system prompt in the generation. Defaults to `True`,
+            which means that if the column `system_prompt` is defined within the input batch, then
+            the `system_prompt` will be used, otherwise, it will be ignored.
+
     Input columns:
         - instruction (`str`): The instruction to generate text from.
 
@@ -31,6 +37,8 @@ class TextGeneration(Task):
         - generation (`str`): The generated text.
         - model_name (`str`): The model name used to generate the text.
     """
+
+    use_system_prompt: bool = True
 
     @property
     def inputs(self) -> List[str]:
@@ -41,18 +49,84 @@ class TextGeneration(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
-        instruction = input["instruction"]
+        if is_openai_format(input["instruction"]):
+            warnings.warn(
+                "Providing `instruction` formatted as an OpenAI chat / conversation is"
+                " about to be deprecated in `distilabel v1.2.0`, please make sure to use"
+                " `ChatTextGeneration` with `messages` as input instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return input["instruction"]
 
-        if isinstance(instruction, str):
-            return [{"role": "user", "content": input["instruction"]}]
-
-        if not is_openai_format(instruction):
+        if not isinstance(input["instruction"], str):
             raise ValueError(
-                f"Input `instruction` must be a string or an OpenAI chat-like format. "
-                f"Got: {instruction}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+                f"Input `instruction` must be a string. Got: {input['instruction']}."
             )
 
-        return instruction
+        messages = [{"role": "user", "content": input["instruction"]}]
+        if self.use_system_prompt:
+            if "system_prompt" in input:
+                messages.insert(
+                    0, {"role": "system", "content": input["system_prompt"]}
+                )
+            else:
+                warnings.warn(
+                    "`use_system_prompt` is set to `True`, but no `system_prompt` in input batch, so it will be ignored.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        return messages  # type: ignore
+
+    @property
+    def outputs(self) -> List[str]:
+        """The output for the task is the `generation` and the `model_name`."""
+        return ["generation", "model_name"]
+
+    def format_output(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """The output is formatted as a dictionary with the `generation`. The `model_name`
+        will be automatically included within the `process` method of `Task`."""
+        return {"generation": output}
+
+
+class ChatGeneration(Task):
+    """ChatGeneration is a pre-defined task that defines the `messages` as the input
+    and `generation` as the output. This task is used to generate text based on a conversation.
+    The `model_name` is also returned as part of the output in order to enhance it.
+
+    Input columns:
+        - messages (`List[Dict[Literal["role", "content"], str]]`): The messages to generate the
+            follow up completion from.
+
+    Output columns:
+        - generation (`str`): The generated text from the assistant.
+        - model_name (`str`): The model name used to generate the text.
+    """
+
+    @property
+    def inputs(self) -> List[str]:
+        """The input for the task are the `messages`."""
+        return ["messages"]
+
+    def format_input(self, input: Dict[str, Any]) -> ChatType:
+        """The input is formatted as a `ChatType` assuming that the messages provided
+        are already formatted that way i.e. following the OpenAI chat format."""
+
+        if not is_openai_format(input["messages"]):
+            raise ValueError(
+                "Input `instruction` must be a string or an OpenAI chat-like format. "
+                f"Got: {input['messages']}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+            )
+
+        if input["messages"][-1]["role"] != "user":
+            raise ValueError(
+                "The last message must be from the user. Please check: "
+                "'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
+            )
+
+        return input["messages"]
 
     @property
     def outputs(self) -> List[str]:
