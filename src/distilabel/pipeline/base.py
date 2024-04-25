@@ -552,9 +552,9 @@ class _BatchManagerStep(_Serializable):
 
         return [
             previous_step
-            for previous_step, buffer in self.data.items()
+            for previous_step, batches in self.data.items()
             if previous_step not in self.last_batch_received
-            and len(buffer) < self.input_batch_size
+            and sum(len(batch.data[0]) for batch in batches) < self.input_batch_size
         ]
 
     @classmethod

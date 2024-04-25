@@ -262,12 +262,12 @@ class Pipeline(BasePipeline):
             return
 
         # Step has enough data on its buffers to create a new batch
-        if next_batch := self._batch_manager.get_batch(step.name):
+        if next_batch := self._batch_manager.get_batch(step.name):  # type: ignore
             self._send_batch_to_step(next_batch)
             return
 
         # Request more batches to the predecessors generator steps
-        empty_buffers = self._batch_manager.step_empty_buffers(step.name)
+        empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
         for previous_step_name in empty_buffers:
             if previous_step_name not in self.dag.root_steps:
                 continue
