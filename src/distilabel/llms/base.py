@@ -64,6 +64,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         protected_namespaces=(),
         validate_default=True,
         validate_assignment=True,
+        extra="forbid",
     )
 
     generation_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(

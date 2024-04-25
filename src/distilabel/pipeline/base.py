@@ -250,9 +250,16 @@ class BasePipeline(_Serializable):
             parameters: A dictionary with the step name as the key and a dictionary with
             the parameter name as the key and the parameter value as the value.
         """
+        step_names = set(self.dag.G)
         for step_name, step_parameters in parameters.items():
-            step: "_Step" = self.dag.get_step(step_name)["step"]
-            step.set_runtime_parameters(step_parameters)
+            if step_name not in step_names:
+                self._logger.warning(
+                    f"❓ Step '{step_name}' provided in `Pipeline.run(parameters={{...}})` not found in the pipeline."
+                    f" Available steps are: {step_names}."
+                )
+            else:
+                step: "_Step" = self.dag.get_step(step_name)["step"]
+                step.set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the DAG content to a dict.
