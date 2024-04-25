@@ -19,7 +19,7 @@ import warnings
 from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rich.logging import RichHandler
 
@@ -42,7 +42,7 @@ _SILENT_LOGGERS = [
 queue_listener: Union[QueueListener, None] = None
 
 
-def setup_logging(log_queue: "Queue[Any]", filename: str = "pipeline.log") -> None:
+def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> None:
     """Sets up logging to use a queue across all processes."""
     global queue_listener
 
@@ -57,13 +57,19 @@ def setup_logging(log_queue: "Queue[Any]", filename: str = "pipeline.log") -> No
         formatter = logging.Formatter("['%(name)s'] %(message)s")
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
-        queue_listener = QueueListener(log_queue, handler, respect_handler_level=True)
+
+        if not Path(filename).parent.exists():
+            Path(filename).parent.mkdir(parents=True)
+        file_handler = FileHandler(filename)
+        file_formatter = logging.Formatter(
+            "[%(asctime)s] %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        file_handler.setFormatter(file_formatter)
+
+        queue_listener = QueueListener(
+            log_queue, handler, file_handler, respect_handler_level=True
+        )
         queue_listener.start()
-        # Given that we always append to the log file, remove it from the main process,
-        # this way we ensure every pipeline starts with a fresh log file.
-        log_filename = Path(filename)
-        if log_filename.exists():
-            log_filename.unlink()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -77,12 +83,6 @@ def setup_logging(log_queue: "Queue[Any]", filename: str = "pipeline.log") -> No
     root_logger.handlers.clear()
     root_logger.setLevel(log_level)
     root_logger.addHandler(QueueHandler(log_queue))
-
-    # Check done to ensure the pipeline.log file can be created because
-    # when setup_logging is called, the current working directory might not exist.
-    if not Path(filename).parent.exists():
-        Path(filename).parent.mkdir(parents=True)
-    root_logger.addHandler(FileHandler(filename))
 
 
 def stop_logging() -> None:

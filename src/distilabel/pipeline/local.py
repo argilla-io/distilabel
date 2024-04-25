@@ -55,9 +55,9 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(queue: "Queue[Any]", log_filename: str = "pipeline.log") -> None:
+def _init_worker(queue: "Queue[Any]") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    setup_logging(queue, filename=log_filename)
+    setup_logging(queue)
 
 
 class Pipeline(BasePipeline):
@@ -119,7 +119,7 @@ class Pipeline(BasePipeline):
         with ctx.Manager() as manager, ctx.Pool(
             num_processes,
             initializer=_init_worker,
-            initargs=(log_queue, str(self._cache_location["log_file"])),
+            initargs=(log_queue,),
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
