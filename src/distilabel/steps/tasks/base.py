@@ -88,14 +88,21 @@ class _Task(_Step, ABC):
                 formatted_outputs.append(self.format_output(output, input))
             except Exception as e:
                 self._logger.warning(  # type: ignore
-                    f"Task '{self.name}' failed to format output: {e}. Using empty dict."  # type: ignore
+                    f"Task '{self.name}' failed to format output: {e}. Saving raw response."  # type: ignore
                 )
-                formatted_outputs.append(self._outputs_empty_dict())
+                formatted_outputs.append(self._output_on_failure(output, input))
         return formatted_outputs
 
-    def _outputs_empty_dict(self) -> Dict[str, None]:
-        """Returns a dictionary with the outputs of the task set to `None`."""
-        return {output: None for output in self.outputs}  # type: ignore
+    def _output_on_failure(
+        self, output: Union[str, None], input: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """In case of failure to format the output, this method will return a dictionary including
+        a new field `distilabel_meta` with the raw output of the LLM.
+        """
+        # Create a dictionary with the outputs of the task (every output set to None)
+        outputs = {output: None for output in self.outputs}
+        outputs.update({"distilabel_meta": {f"raw_output_{self.name}": output}})
+        return outputs
 
 
 class Task(_Task, Step):
