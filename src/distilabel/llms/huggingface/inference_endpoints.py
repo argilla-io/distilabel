@@ -327,10 +327,6 @@ class InferenceEndpointsLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-
-        if stop_sequences is None and self._tokenizer is not None:
-            stop_sequences = [self._tokenizer.eos_token]
-
         if stop_sequences is not None:
             if isinstance(stop_sequences, str):
                 stop_sequences = [stop_sequences]
