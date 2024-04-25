@@ -101,7 +101,10 @@ class _Task(_Step, ABC):
         """
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
-        outputs.update({"distilabel_meta": {f"raw_output_{self.name}": output}})
+        outputs["model_name"] = self.llm.model_name
+        meta = outputs.get("distilabel_meta", {})
+        meta[f"raw_output_{self.name}"] = output
+        outputs["distilabel_meta"] = meta
         return outputs
 
 

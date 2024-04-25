@@ -83,6 +83,13 @@ def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"] = None) 
     return name
 
 
+def _add_id_to_distilabel_meta(row):
+    distilabel_meta = row.get("distilabel_meta", {})
+    distilabel_meta["distilabel_id"] = str(uuid.uuid4())
+    row["distilabel_meta"] = distilabel_meta
+    return row
+
+
 class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
@@ -479,12 +486,6 @@ class Step(_Step, ABC):
             The output rows.
         """
 
-        def add_id(row):
-            distilabel_meta = row.get("distilabel_meta", {})
-            distilabel_meta["distilabel_id"] = str(uuid.uuid4())
-            row["distilabel_meta"] = distilabel_meta
-            return row
-
         inputs = self._apply_input_mappings(args) if self.input_mappings else args
 
         # If the `Step` was built using the `@step` decorator, then we need to pass
@@ -506,7 +507,7 @@ class Step(_Step, ABC):
                     or k: v
                     for k, v in row.items()
                 }
-                result = add_id(result)
+                result = _add_id_to_distilabel_meta(result)
                 final_rows.append(result)
 
             yield final_rows
