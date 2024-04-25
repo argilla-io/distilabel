@@ -243,6 +243,29 @@ class BasePipeline(_Serializable):
         """
         self.dag.add_edge(from_step, to_step)
 
+        # Check if `from_step` has a `routing_batch_function`. If it does, then mark
+        # `to_step` as a step that will receive a routed batch.
+        node = self.dag.get_step(from_step)  # type: ignore
+        routing_batch_function = node.get("routing_batch_function", None)
+        self.dag.set_step_attr(
+            name=to_step,
+            attr="receives_routed_batch",
+            value=routing_batch_function is not None,
+        )
+
+    def _add_routing_batch_function(
+        self, step_name: str, routing_batch_function: RoutingBatchFunction
+    ) -> None:
+        """Add a routing batch function to a step.
+
+        Args:
+            step_name: The name of the step that will receive the routed batch.
+            routing_batch_function: The function that will route the batch to the step.
+        """
+        self.dag.set_step_attr(
+            name=step_name, attr="routing_batch_function", value=routing_batch_function
+        )
+
     def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
         """Set the runtime parameters for the steps in the pipeline.
 
@@ -462,6 +485,9 @@ class _BatchManagerStep(_Serializable):
             incremented for each batch created.
         last_batch_received: A list with the names of the steps that sent the last
             batch of data.
+        convergence_step: A flag to indicate if the step is a convergence step. An
+            `Step` is a convergence step if all its predecessors are receiving routed
+            batches. Defaults to `False`.
     """
 
     step_name: str
@@ -470,6 +496,7 @@ class _BatchManagerStep(_Serializable):
     data: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
+    convergence_step: bool = False
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -530,19 +557,27 @@ class _BatchManagerStep(_Serializable):
 
     @classmethod
     def from_step(
-        cls, step: "_Step", predecessors: Iterable[str]
+        cls, step: "_Step", predecessors: Iterable[str], convergence_step: bool = False
     ) -> "_BatchManagerStep":
         """Creates a `_BatchManagerStep` instance from a `_Step` instance and its
         predecessors.
+
+        Args:
+            step: The `_Step` instance.
+            predecessors: The names of the predecessors of the step.
+            convergence_step: A flag to indicate if the step is a convergence step. An
+                `Step` is a convergence step if all its predecessors are receiving routed
+                batches. Defaults to `False`.
 
         Returns:
             A `_BatchManagerStep` instance.
         """
         return cls(
-            step_name=step.name,
+            step_name=step.name,  # type: ignore
             accumulate=step.is_global,
             input_batch_size=getattr(step, "input_batch_size", None),
             data={predecessor: [] for predecessor in predecessors},
+            convergence_step=convergence_step,
         )
 
     def _get_seq_no(self) -> int:
@@ -778,8 +813,15 @@ class _BatchManager(_Serializable):
             last_batch_received[step.name] = None
             if step.is_generator:
                 continue
+            predecessors = dag.get_step_predecessors(step_name)
+            convergence_step = all(
+                dag.get_step(predecessor).get("receives_routed_batch", False)
+                for predecessor in predecessors
+            )
             batch_manager_step = _BatchManagerStep.from_step(
-                step, dag.get_step_predecessors(step_name)
+                step=step,
+                predecessors=predecessors,
+                convergence_step=convergence_step,
             )
             steps[step_name] = batch_manager_step
         return cls(steps, last_batch_received)

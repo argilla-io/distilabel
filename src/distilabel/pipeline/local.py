@@ -234,7 +234,7 @@ class Pipeline(BasePipeline):
         node = self.dag.get_step(batch.step_name)
         step: "Step" = node["step"]
 
-        successors = list(self.dag.get_step_successors(step.name))
+        successors = list(self.dag.get_step_successors(step.name))  # type: ignore
         if routing_batch_function := node.get("routing_batch_function"):
             successors = routing_batch_function(successors)
             successors_str = ", ".join(f"'{successor}'" for successor in successors)
