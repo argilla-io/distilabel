@@ -458,11 +458,11 @@ class _Batch(_Serializable):
         """Dumps the content of the `_Batch` to a dictionary, using the `dataclass` helper function.
 
         Args:
-            obj (Any): Unused, just kept to match the signature of the parent method.
-            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+            obj: Unused, just kept to match the signature of the parent method.
+            kwargs: Additional arguments that are kept to match the signature of the parent method.
 
         Returns:
-            Dict[str, Any]: Internal representation of the `_Batch`.
+            A `dict` containing the internal representation of the `_Batch`.
         """
         return asdict(self)
 
@@ -493,7 +493,7 @@ class _BatchManagerStep(_Serializable):
     step_name: str
     accumulate: bool
     input_batch_size: Union[int, None] = None
-    data: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
+    data: Dict[str, List[_Batch]] = field(default_factory=dict)
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
     convergence_step: bool = False
@@ -508,10 +508,12 @@ class _BatchManagerStep(_Serializable):
                 the buffer.
         """
         from_step = batch.step_name
+
         if prepend:
-            self.data[from_step] = batch.data[0] + self.data[from_step]
+            self.data[from_step].insert(0, batch)
         else:
-            self.data[from_step].extend(batch.data[0])
+            self.data[from_step].append(batch)
+
         if batch.last_batch:
             self.last_batch_received.append(from_step)
 
@@ -601,18 +603,46 @@ class _BatchManagerStep(_Serializable):
             The list of data needed to create a batch for the step to process.
         """
         if self.accumulate:
-            data = list(self.data.values())
+            data = []
+            for batches in self.data.values():
+                data.append([row for batch in batches for row in batch.data[0]])
             self.data = {step_name: [] for step_name in self.data}
             return data
 
         data = []
         for step_name in self.data:
-            step_data = self.data[step_name]
-            data_for_batch, self.data[step_name] = (
-                step_data[: self.input_batch_size],
-                step_data[self.input_batch_size :],
-            )
-            data.append(data_for_batch)
+            # For each step batches buffer, we will create a batch with the `input_batch_size`
+            # using the data from the buffer. We will remove the consumed batches (no data
+            # left) and update the batch data with the remaining data.
+            step_data = []
+            idx_drop_batches = []
+            remaining_rows: int = self.input_batch_size  # type: ignore
+            for idx, batch in enumerate(self.data[step_name]):
+                # Get `remaining_rows` or the remaining rows in the batch and add it to
+                # the step data that will be used to create the batch
+                batch_data = batch.data[0]
+                selected_data = batch_data[:remaining_rows]
+                step_data.extend(selected_data)
+
+                # Update the remaining rows
+                num_rows = len(selected_data)
+                remaining_rows -= num_rows
+
+                # If the batch was entirely consumed, then remove it from the buffer
+                if num_rows >= len(batch_data):
+                    idx_drop_batches.append(idx)
+                    continue
+
+                # The batch was not entirely consumed. so we need to update the batch
+                # with the remaining data
+                batch.data[0] = batch_data[len(selected_data) :]
+
+            # Remove the batches that were entirely consumed
+            idx_drop_batches.reverse()
+            for idx in idx_drop_batches:
+                self.data[step_name].pop(idx)
+
+            data.append(step_data)
         return data
 
     def _ready_to_create_batch(self) -> bool:
@@ -627,21 +657,24 @@ class _BatchManagerStep(_Serializable):
         """
         if self.accumulate:
             return all(
-                step in self.last_batch_received and len(rows) >= 0
-                for step, rows in self.data.items()
+                step in self.last_batch_received
+                and sum(len(batch.data[0]) for batch in batches) >= 0
+                for step, batches in self.data.items()
             )
 
-        for step_name, rows in self.data.items():
+        for step_name, batches in self.data.items():
+            num_rows = sum(len(batch.data[0]) for batch in batches)
+
             # If there are now rows but the last batch was already received, then there
             # are no more batch to be created
-            if len(rows) == 0 and step_name in self.last_batch_received:
+            if num_rows == 0 and step_name in self.last_batch_received:
                 return False
 
             # If there are not enough rows and the last batch was not received yet, then
             # there is not enough data yet to creata a batch
             if (
                 self.input_batch_size
-                and len(rows) < self.input_batch_size
+                and num_rows < self.input_batch_size
                 and step_name not in self.last_batch_received
             ):
                 return False
@@ -658,13 +691,15 @@ class _BatchManagerStep(_Serializable):
         if self.accumulate:
             return all(step in self.last_batch_received for step in self.data.keys())
 
-        for step_name, rows in self.data.items():
+        for step_name, batches in self.data.items():
             if step_name not in self.last_batch_received:
                 return False
 
+            num_rows = sum(len(batch.data[0]) for batch in batches)
+
             if (
                 self.input_batch_size
-                and len(rows) > self.input_batch_size
+                and num_rows > self.input_batch_size
                 and step_name in self.last_batch_received
             ):
                 return False
@@ -813,7 +848,7 @@ class _BatchManager(_Serializable):
             last_batch_received[step.name] = None
             if step.is_generator:
                 continue
-            predecessors = dag.get_step_predecessors(step_name)
+            predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
                 dag.get_step(predecessor).get("receives_routed_batch", False)
                 for predecessor in predecessors
