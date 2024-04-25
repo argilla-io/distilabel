@@ -212,7 +212,7 @@ def create_distiset(
         pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
             Internally this will be passed to the `Distiset` object on creation to allow
             uploading the `pipeline.yaml` file to the repo upon `Distiset.push_to_hub`.
-        pipeline_path: Optional path to the pipeline.log file that was generated during the pipeline run.
+        log_filename_path: Optional path to the pipeline.log file that was generated during the pipeline run.
             Internally this will be passed to the `Distiset` object on creation to allow
             uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
 
