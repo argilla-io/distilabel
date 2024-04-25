@@ -380,6 +380,9 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
                 _data[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
 
+        # Skip `runtime_parameters_info` since extras are not allowed
+        _data.pop("runtime_parameters_info", None)
+
         # Every step needs the pipeline, and the remaining arguments are general
         step = cls(**_data)
 
