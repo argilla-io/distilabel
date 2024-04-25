@@ -15,6 +15,7 @@
 import inspect
 import logging
 import re
+import uuid
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
@@ -478,6 +479,12 @@ class Step(_Step, ABC):
             The output rows.
         """
 
+        def add_id(row):
+            distilabel_meta = row.get("distilabel_meta", {})
+            distilabel_meta["distilabel_id"] = str(uuid.uuid4())
+            row["distilabel_meta"] = distilabel_meta
+            return row
+
         inputs = self._apply_input_mappings(args) if self.input_mappings else args
 
         # If the `Step` was built using the `@step` decorator, then we need to pass
@@ -490,16 +497,19 @@ class Step(_Step, ABC):
         )
 
         for output_rows in generator:
-            yield [
-                {
+            final_rows = []
+            for row in output_rows:
+                result = {
                     # Apply output mapping and revert input mapping
                     self.output_mappings.get(k, None)
                     or self.input_mappings.get(k, None)
                     or k: v
                     for k, v in row.items()
                 }
-                for row in output_rows
-            ]
+                result = add_id(result)
+                final_rows.append(result)
+
+            yield final_rows
 
     def _revert_input_mappings(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """Reverts the `input_mappings` of the step to the input row.
