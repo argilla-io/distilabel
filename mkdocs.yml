@@ -149,6 +149,7 @@ nav:
           - "api/llms/index.md"
           - "api/llms/anthropic.md"
           - "api/llms/anyscale.md"
+          - "api/llms/groq.md"
           - "api/llms/huggingface.md"
           - "api/llms/litellm.md"
           - "api/llms/llamacpp.md"
