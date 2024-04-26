@@ -16,8 +16,10 @@ import logging
 import multiprocessing as mp
 import os
 import warnings
+from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
-from typing import TYPE_CHECKING, Any, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rich.logging import RichHandler
 
@@ -40,7 +42,7 @@ _SILENT_LOGGERS = [
 queue_listener: Union[QueueListener, None] = None
 
 
-def setup_logging(log_queue: "Queue[Any]") -> None:
+def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> None:
     """Sets up logging to use a queue across all processes."""
     global queue_listener
 
@@ -55,7 +57,18 @@ def setup_logging(log_queue: "Queue[Any]") -> None:
         formatter = logging.Formatter("['%(name)s'] %(message)s")
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
-        queue_listener = QueueListener(log_queue, handler, respect_handler_level=True)
+
+        if not Path(filename).parent.exists():
+            Path(filename).parent.mkdir(parents=True)
+        file_handler = FileHandler(filename)
+        file_formatter = logging.Formatter(
+            "[%(asctime)s] %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        file_handler.setFormatter(file_formatter)
+
+        queue_listener = QueueListener(
+            log_queue, handler, file_handler, respect_handler_level=True
+        )
         queue_listener.start()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()

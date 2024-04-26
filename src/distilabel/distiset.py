@@ -36,9 +36,12 @@ class Distiset(dict):
 
     Attributes:
         pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
+        log_filename_path: Optional path to the pipeline.log file that generated was written by the
+            pipeline.
     """
 
     pipeline_path: Optional[Path] = None
+    log_filename_path: Optional[Path] = None
 
     def push_to_hub(
         self,
@@ -122,6 +125,15 @@ class Distiset(dict):
                 repo_type="dataset",
                 token=token,
             )
+        if self.log_filename_path:
+            # The same we had with "pipeline.yaml" but with the log file.
+            HfApi().upload_file(
+                path_or_fileobj=self.log_filename_path,
+                path_in_repo="pipeline.log",
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+            )
 
     def _extract_readme_metadata(
         self, repo_id: str, token: Optional[str]
@@ -187,7 +199,11 @@ class Distiset(dict):
         return f"Distiset({{\n{repr}\n}})"
 
 
-def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Distiset:
+def create_distiset(
+    data_dir: Path,
+    pipeline_path: Optional[Path] = None,
+    log_filename_path: Optional[Path] = None,
+) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
     Args:
@@ -196,6 +212,9 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
         pipeline_path: Optional path to the pipeline.yaml file that generated the dataset.
             Internally this will be passed to the `Distiset` object on creation to allow
             uploading the `pipeline.yaml` file to the repo upon `Distiset.push_to_hub`.
+        log_filename_path: Optional path to the pipeline.log file that was generated during the pipeline run.
+            Internally this will be passed to the `Distiset` object on creation to allow
+            uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
@@ -237,5 +256,12 @@ def create_distiset(data_dir: Path, pipeline_path: Optional[Path] = None) -> Dis
         pipeline_path = data_dir.parent / "pipeline.yaml"
         if pipeline_path.exists():
             distiset.pipeline_path = pipeline_path
+
+    if log_filename_path:
+        distiset.log_filename_path = log_filename_path
+    else:
+        log_filename_path = data_dir.parent / "pipeline.log"
+        if log_filename_path.exists():
+            distiset.log_filename_path = log_filename_path
 
     return distiset

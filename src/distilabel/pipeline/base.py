@@ -55,6 +55,7 @@ class CacheLocation(TypedDict):
     pipeline: Path
     batch_manager: Path
     data: Path
+    log_file: Path
 
 
 class _GlobalPipelineManager:
@@ -312,6 +313,7 @@ class BasePipeline(_Serializable):
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
             "data": folder / "data",
+            "log_file": folder / "pipeline.log",
         }
 
     def _cache(self) -> None:
