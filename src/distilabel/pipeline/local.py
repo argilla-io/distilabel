@@ -225,25 +225,14 @@ class Pipeline(BasePipeline):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        self._batch_manager.register_batch(batch)
-        self._logger.debug(
-            f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
-            " manager"
-        )
+        self._register_batch(batch)
+        successors = self._get_successors(batch)
+        step = self._get_step_from_batch(batch)
 
-        node = self.dag.get_step(batch.step_name)
-        step: "Step" = node["step"]
-
-        successors = list(self.dag.get_step_successors(step.name))  # type: ignore
-        if routing_batch_function := node.get("routing_batch_function"):
-            successors = routing_batch_function(successors)
-            successors_str = ", ".join(f"'{successor}'" for successor in successors)
-            self._logger.info(
-                f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
-            )
-
+        # Add the batch to the successors input buffers
         for successor in successors:
-            self._batch_manager.add_batch(successor, batch)
+            batch_to_add = batch.copy() if len(successors) > 1 else batch
+            self._batch_manager.add_batch(successor, batch_to_add)
 
             # Check if the step is a generator and if there are successors that need data
             # from this step. This usually happens when the generator `batch_size` is smaller
@@ -266,20 +255,73 @@ class Pipeline(BasePipeline):
             self._send_batch_to_step(next_batch)
             return
 
-        # Request more batches to the predecessors generator steps
+        self._request_more_batches_if_needed(step)
+
+        self._cache()
+
+    def _register_batch(self, batch: "_Batch") -> None:
+        """Registers a batch in the batch manager.
+
+        Args:
+            batch: The batch to register.
+        """
+        self._batch_manager.register_batch(batch)  # type: ignore
+        self._logger.debug(
+            f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
+            " manager"
+        )
+
+    def _get_successors(self, batch: "_Batch") -> List[str]:
+        """Gets the successors of a step to send the batch to.
+
+        Args:
+            batch: The batch to which the successors will be determined.
+
+        Returns:
+            The list of successors to send the batch to.
+        """
+        node = self.dag.get_step(batch.step_name)
+        step: "Step" = node["step"]
+        successors = list(self.dag.get_step_successors(step.name))  # type: ignore
+
+        # Check if the step has a routing function to send the batch to specific steps
+        if routing_batch_function := node.get("routing_batch_function"):
+            successors = routing_batch_function(successors)
+            successors_str = ", ".join(f"'{successor}'" for successor in successors)
+            self._logger.info(
+                f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
+            )
+
+        return successors
+
+    def _get_step_from_batch(self, batch: "_Batch") -> "Step":
+        """Gets the `Step` instance from a batch.
+
+        Args:
+            batch: The batch to get the step from.
+
+        Returns:
+            The `Step` instance.
+        """
+        return self.dag.get_step(batch.step_name)["step"]
+
+    def _request_more_batches_if_needed(self, step: "Step") -> None:
+        """Request more batches to the predecessors steps of `step` if needed.
+
+        Args:
+            step: The step of which it has to be checked if more batches are needed from
+                its predecessors.
+        """
         empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
         for previous_step_name in empty_buffers:
             if previous_step_name not in self.dag.root_steps:
                 continue
-
-            if last_batch := self._batch_manager.get_last_batch(previous_step_name):
+            if last_batch := self._batch_manager.get_last_batch(previous_step_name):  # type: ignore
                 self._logger.debug(
                     f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
                     " empty. Requesting new batch..."
                 )
                 self._send_batch_to_step(last_batch.next_batch())
-
-        self._cache()
 
     def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
@@ -808,7 +850,7 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
-            # `result` is initially an empty list so f `process` method raises an exception
+            # `result` is initially an empty list so `process` method raises an exception
             # an empty batch will be sent to the `output_queue`
             result = []
             try:

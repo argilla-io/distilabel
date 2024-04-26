@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 import hashlib
 import logging
 import os
@@ -465,6 +466,14 @@ class _Batch(_Serializable):
             A `dict` containing the internal representation of the `_Batch`.
         """
         return asdict(self)
+
+    def copy(self) -> "_Batch":
+        """Creates a copy of the `_Batch` instance.
+
+        Returns:
+            A copy of the `_Batch` instance.
+        """
+        return copy.deepcopy(self)
 
 
 @dataclass
