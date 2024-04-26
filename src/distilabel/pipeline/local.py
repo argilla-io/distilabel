@@ -94,7 +94,7 @@ class Pipeline(BasePipeline):
         except RuntimeError:
             pass
         log_queue = mp.Queue()
-        setup_logging(log_queue)  # type: ignore
+        setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
         super().run(parameters, use_cache)
@@ -114,6 +114,7 @@ class Pipeline(BasePipeline):
             return create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
+                log_filename_path=self._cache_location["log_file"],
             )
 
         buffer_data_path = self._cache_location["data"]
@@ -123,7 +124,9 @@ class Pipeline(BasePipeline):
         num_processes = len(self.dag)
         ctx = mp.get_context(_MULTIPROCESSING_CONTEXT)  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
-            num_processes, initializer=_init_worker, initargs=(log_queue,)
+            num_processes,
+            initializer=_init_worker,
+            initargs=(log_queue,),
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
@@ -156,7 +159,9 @@ class Pipeline(BasePipeline):
 
         write_buffer.close()
         distiset = create_distiset(
-            self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
+            self._cache_location["data"],
+            pipeline_path=self._cache_location["pipeline"],
+            log_filename_path=self._cache_location["log_file"],
         )
         stop_logging()
         return distiset
