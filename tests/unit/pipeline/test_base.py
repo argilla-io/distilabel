@@ -317,10 +317,6 @@ class TestBatch:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
 
-    def test_empty(self) -> None:
-        batch = _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
-        assert batch.empty
-
     def test_dump(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
         assert batch.dump() == {
@@ -1062,6 +1058,29 @@ class TestBatchManager:
                 data={"dummy_step_1": []},
             ),
         }
+
+    def test_can_generate(self) -> None:
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=False),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=False),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=False),
+            },
+        )
+
+        assert batch_manager.can_generate()
+
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=True),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=True),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=True),
+            },
+        )
+
+        assert not batch_manager.can_generate()
 
     def test_dump(self) -> None:
         batch_manager = _BatchManager(
