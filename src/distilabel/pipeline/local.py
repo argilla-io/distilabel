@@ -816,11 +816,18 @@ class _ProcessWrapper:
                 if self.step.is_global:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
+                # Impute step outputs columns with `None`
+                for row in batch.data[0]:
+                    data = row.copy()
+                    for output in self.step.outputs:
+                        data[output] = None
+                    result.append(data)
+
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
                 self.step._logger.warning(
                     f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
-                    " Sending empty batch..."
+                    " Sending empty batch filled with `None`s..."
                 )
                 self.step._logger.warning(
                     f"Subprocess traceback:\n\n{traceback.format_exc()}"
