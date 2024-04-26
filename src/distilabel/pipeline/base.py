@@ -674,24 +674,14 @@ class _BatchManager(_Serializable):
             `True` if there are still batches to be processed by the steps. Otherwise,
             `False`.
         """
+        for batch in self._last_batch_received.values():
+            if not batch:
+                return True
 
-        # Check if any step that hasn't finished producing data (we haven't received its
-        # last batch) still needs data from its predecessors, and those predecessors have
-        # already sent their last batch and it's empty. In this case, we cannot continue
-        # the pipeline.
-        for batch_manager_step in self._steps.values():
-            for predecessor in batch_manager_step.data.keys():
-                batch = self._last_batch_received.get(predecessor)
-                if (
-                    batch
-                    and batch.last_batch
-                    and batch_manager_step.data[predecessor] == []
-                ):
-                    return False
+            if not batch.last_batch:
+                return True
 
-        return not all(
-            batch and batch.last_batch for batch in self._last_batch_received.values()
-        )
+        return False
 
     def register_batch(self, batch: _Batch) -> None:
         """Method to register a batch received from a step. It will keep track of the

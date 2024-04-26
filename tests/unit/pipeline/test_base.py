@@ -1059,6 +1059,29 @@ class TestBatchManager:
             ),
         }
 
+    def test_can_generate(self) -> None:
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=False),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=False),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=False),
+            },
+        )
+
+        assert batch_manager.can_generate()
+
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=True),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=True),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=True),
+            },
+        )
+
+        assert not batch_manager.can_generate()
+
     def test_dump(self) -> None:
         batch_manager = _BatchManager(
             steps={
