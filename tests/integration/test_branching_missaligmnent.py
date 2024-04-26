@@ -41,11 +41,7 @@ def test_branching_missalignment_because_step_fails_processing_batch() -> None:
         succeed = SucceedAlways()
         combine = CombineColumns(columns=["response"])
 
-        load_data.connect(fail)
-        load_data.connect(succeed)
-
-        fail.connect(combine)
-        succeed.connect(combine)
+        load_data >> [fail, succeed] >> combine
 
     distiset = pipeline.run(use_cache=False)
 
