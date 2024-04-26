@@ -377,15 +377,6 @@ class _Batch(_Serializable):
             seq_no=self.seq_no + 1, step_name=self.step_name, last_batch=self.last_batch
         )
 
-    @property
-    def empty(self) -> bool:
-        """Checks if the batch is empty.
-
-        Returns:
-            `True` if the batch is empty. Otherwise, `False`.
-        """
-        return all(len(rows) == 0 for rows in self.data)
-
     @classmethod
     def from_batches(cls, step_name: str, batches: List["_Batch"]) -> "_Batch":
         """Create a `_Batch` instance with the outputs from the list of batches that
@@ -694,7 +685,6 @@ class _BatchManager(_Serializable):
                 if (
                     batch
                     and batch.last_batch
-                    and batch.empty
                     and batch_manager_step.data[predecessor] == []
                 ):
                     return False
