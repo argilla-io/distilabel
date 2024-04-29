@@ -19,7 +19,7 @@ import signal
 import threading
 import time
 import traceback
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
 
 import tblib
 
@@ -231,12 +231,15 @@ class Pipeline(BasePipeline):
         assert self._batch_manager, "Batch manager is not set"
 
         self._register_batch(batch)
-        successors = self._get_successors(batch)
+        successors, routed = self._get_successors(batch)
         step = self._get_step_from_batch(batch)
 
         # Add the batch to the successors input buffers
         for successor in successors:
             batch_to_add = batch.copy() if len(successors) > 1 else batch
+            if routed:
+                batch_to_add.batch_routed_to = successors
+
             self._batch_manager.add_batch(successor, batch_to_add)
 
             # Check if the step is a generator and if there are successors that need data
@@ -276,7 +279,7 @@ class Pipeline(BasePipeline):
             " manager"
         )
 
-    def _get_successors(self, batch: "_Batch") -> List[str]:
+    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
         """Gets the successors of a step to send the batch to.
 
         Args:
@@ -290,14 +293,16 @@ class Pipeline(BasePipeline):
         successors = list(self.dag.get_step_successors(step.name))  # type: ignore
 
         # Check if the step has a routing function to send the batch to specific steps
+        routed = False
         if routing_batch_function := node.get("routing_batch_function"):
+            routed = True
             successors = routing_batch_function(successors)
             successors_str = ", ".join(f"'{successor}'" for successor in successors)
             self._logger.info(
                 f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
             )
 
-        return successors
+        return successors, routed
 
     def _get_step_from_batch(self, batch: "_Batch") -> "Step":
         """Gets the `Step` instance from a batch.
@@ -847,12 +852,12 @@ class _ProcessWrapper:
         """
         while True:
             if (batch := self.input_queue.get()) is None:
-                self.step._logger.info(
+                self.step._logger.info(  # type: ignore
                     f"🛑 Stopping processing batches from step '{self.step.name}'"
                 )
                 break
 
-            self.step._logger.info(
+            self.step._logger.info(  # type: ignore
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
             # `result` is initially an empty list so `process` method raises an exception
@@ -876,11 +881,11 @@ class _ProcessWrapper:
 
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
-                self.step._logger.warning(
+                self.step._logger.warning(  # type: ignore
                     f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
                     " Sending empty batch filled with `None`s..."
                 )
-                self.step._logger.warning(
+                self.step._logger.warning(  # type: ignore
                     f"Subprocess traceback:\n\n{traceback.format_exc()}"
                 )
             finally:
@@ -892,7 +897,7 @@ class _ProcessWrapper:
 
     def _send_batch(self, batch: _Batch) -> None:
         """Sends a batch to the `output_queue`."""
-        self.step._logger.info(
+        self.step._logger.info(  # type: ignore
             f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
         )
         self.output_queue.put(batch)
