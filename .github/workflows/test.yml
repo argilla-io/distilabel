@@ -44,11 +44,10 @@ jobs:
         run: |
           python_version=$(python -c "import sys; print(sys.version_info[:2])")
 
+          pip install -e .[dev,tests,anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,vertexai,vllm]
           if [ "${python_version}" != "(3, 8)" ]; then
-            pip install -e .[dev,tests,cohere,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,mistralai,llama-cpp,anthropic,litellm]
-          else
-            pip install -e .[dev,tests,cohere,hf-transformers,hf-inference-endpoints,vertexai,ollama,openai,together,argilla,llama-cpp,anthropic,litellm]
-          fi
+            pip install e .[mistralai]
+          fi;
           pip install git+https://github.com/argilla-io/LLM-Blender.git
 
       - name: Lint
