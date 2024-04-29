@@ -265,16 +265,6 @@ class TestBatch:
 
         assert next_batch == _Batch(seq_no=1, step_name="step1", last_batch=False)
 
-    def test_from_batches(self) -> None:
-        batches = [
-            _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]]),
-            _Batch(seq_no=0, step_name="step2", last_batch=False, data=[[]]),
-        ]
-        batch = _Batch.from_batches(step_name="step3", batches=batches)
-        assert batch == _Batch(
-            seq_no=0, step_name="step3", last_batch=False, data=[[], []]
-        )
-
     def test_accumulate(self) -> None:
         batches = [
             [
