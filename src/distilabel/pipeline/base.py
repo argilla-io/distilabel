@@ -641,7 +641,39 @@ class _BatchManagerStep(_Serializable):
     def _get_data_for_convergence_step(
         self,
     ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[int]]]:
-        return [[]], {}
+        """Gets the data needed to create a batch for the step to process when the step is
+        a convergence step.
+
+        Returns:
+            A tuple containing the list of data needed to create a batch for the step to
+            process and a dictionary with the sequence numbers of the batches that were
+            used to create the batch.
+        """
+        grouped_batches = self._group_batches_by_created_from()
+        _, batches = grouped_batches[0]
+
+        remaining_rows_per_step = {
+            step_name: self.input_batch_size for step_name in self.data
+        }
+        batches_used = defaultdict(list)
+        data = defaultdict(list)
+        for batch in batches:
+            batch_data = batch.data[0]
+            remaining_rows = remaining_rows_per_step[batch.step_name]
+            selected_data = batch_data[:remaining_rows]
+            data[batch.step_name].extend(selected_data)
+
+            # Update the remaining rows
+            num_rows = len(selected_data)
+            remaining_rows_per_step[batch.step_name] -= num_rows  # type: ignore
+
+            # Keep track of the batches used to create the batch
+            batches_used[batch.step_name].append(batch.seq_no)
+
+            # Remove batch from the buffer
+            self.data[batch.step_name].remove(batch)
+
+        return list(data.values()), dict(batches_used)
 
     def _get_data_normal(
         self,
@@ -658,13 +690,12 @@ class _BatchManagerStep(_Serializable):
             the step is a convergence step.
         """
         data = []
-        batches_used = {}
+        batches_used = defaultdict(list)
         batch_routed_to = []
         for step_name in self.data:
             # For each step batches buffer, we will create a batch with the `input_batch_size`
             # using the data from the buffer. We will remove the consumed batches (no data
             # left) and update the batch data with the remaining data.
-            batches_used[step_name] = []
             step_data = []
             idx_drop_batches = []
             remaining_rows: int = self.input_batch_size  # type: ignore
@@ -699,7 +730,7 @@ class _BatchManagerStep(_Serializable):
 
             data.append(step_data)
 
-        return data, batches_used, batch_routed_to
+        return data, dict(batches_used), batch_routed_to
 
     def _ready_to_create_batch(self) -> bool:
         """Checks if there is enough data to create a batch for the step.
@@ -739,15 +770,9 @@ class _BatchManagerStep(_Serializable):
             `True` if ready to create a batch, `False` otherwise.
         """
         grouped_batches = self._group_batches_by_created_from()
-
-        # Sort the grouped batches as we need to created batches for the convergence step
-        # in order
-        sorted_keys = sorted(grouped_batches.keys())
-        if not sorted_keys:
+        if not grouped_batches:
             return False
-
-        first_key = sorted_keys[0]
-        batches = grouped_batches[first_key]
+        _, batches = grouped_batches[0]
 
         # Not all output batches to which the input batch was routed to haven't been
         # received
@@ -763,7 +788,8 @@ class _BatchManagerStep(_Serializable):
             num_rows = len(batch.data[0])
             rows_per_step[batch.step_name] += num_rows
 
-        # If there aren't at least
+        # If there aren't at least `input_batch_size` rows from each step, then there
+        # isn't enough data to create a batch
         if not all(
             num_rows >= self.input_batch_size  # type: ignore
             for num_rows in rows_per_step.values()
@@ -798,21 +824,21 @@ class _BatchManagerStep(_Serializable):
 
         return True
 
-    def _group_batches_by_created_from(self) -> Dict[int, List["_Batch"]]:
+    def _group_batches_by_created_from(self) -> List[Tuple[int, List["_Batch"]]]:
         """Group the batches by the first key of `created_from` field. This method is
         meant to be used only with a `convergence_step`.
 
         Returns:
             A list of the batches grouped by the `seq_no` of the first step name in `created_from`.
+            The list is sorted by the `seq_no`.
         """
-        grouped_batches = {}
+        grouped_batches = defaultdict(list)
         for batches in self.data.values():
             for batch in batches:
-                batch_seq_no = batch.created_from[list(batch.created_from.keys())[0]][0]
-                if batch_seq_no not in grouped_batches:
-                    grouped_batches[batch_seq_no] = []
+                first_key = next(iter(batch.created_from))
+                batch_seq_no = batch.created_from[first_key][0]
                 grouped_batches[batch_seq_no].append(batch)
-        return grouped_batches
+        return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
 
     def _last_batch(self) -> bool:
         """Checks if the batch to be created is the last one i.e. if the last batch was
