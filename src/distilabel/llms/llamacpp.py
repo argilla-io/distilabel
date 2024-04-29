@@ -84,8 +84,6 @@ class LlamaCppLLM(LLM):
 
     def load(self) -> None:
         """Loads the `Llama` model from the `model_path`."""
-        super().load()
-
         try:
             from llama_cpp import Llama
         except ImportError as ie:
@@ -103,6 +101,10 @@ class LlamaCppLLM(LLM):
             verbose=self.verbose,
             **self.extra_kwargs,
         )
+
+        # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
+        # out of the model name, which won't be available until the `Llama` instance is created.
+        super().load()
 
     @property
     def model_name(self) -> str:
