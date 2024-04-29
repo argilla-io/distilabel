@@ -44,7 +44,6 @@ _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
 class CohereLLM(AsyncLLM):
     """Cohere API implementation using the async client for concurrent text generation.
 
-
     Attributes:
         model: the name of the model from the Cohere API to use for the generation.
         base_url: the base URL to use for the Cohere API requests. Defaults to
