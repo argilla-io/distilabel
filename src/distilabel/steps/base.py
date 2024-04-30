@@ -113,10 +113,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             self.pipeline = _GlobalPipelineManager.get_pipeline()
 
         if self.pipeline is None:
-            if not isinstance(self._logger, logging.Logger):
-                _logger = logging.getLogger(f"distilabel.step.{self.name}")
-            else:
-                _logger = self._logger
+            _logger = logging.getLogger(f"distilabel.step.{self.name}")
             _logger.warning(
                 f"Step '{self.name}' hasn't received a pipeline, and it hasn't been"
                 " created within a `Pipeline` context. Please, use"
