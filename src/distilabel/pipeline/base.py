@@ -150,15 +150,11 @@ class BasePipeline(_Serializable):
 
         steps_info = []
         pipeline_dump = self.dump()["pipeline"]
+
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
             for argument, value in sorted(step["step"].items()):
-                if (
-                    (argument == TYPE_INFO_KEY)
-                    or (argument == "llm")
-                    or (value is None)
-                ):
-                    # NOTE: Should we include the LLM info at this stage??
+                if (argument == TYPE_INFO_KEY) or (value is None):
                     continue
 
                 if isinstance(value, dict):
