@@ -85,7 +85,9 @@ class _Task(_Step, ABC):
         formatted_outputs = []
         for output, input in zip(outputs, inputs * len(outputs)):
             try:
-                formatted_outputs.append(self.format_output(output, input))
+                formatted_output = self.format_output(output, input)
+                formatted_output = self._add_raw_output(formatted_output, output)
+                formatted_outputs.append(formatted_output)
             except Exception as e:
                 self._logger.warning(  # type: ignore
                     f"Task '{self.name}' failed to format output: {e}. Saving raw response."  # type: ignore
@@ -102,10 +104,17 @@ class _Task(_Step, ABC):
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name
-        meta = outputs.get("distilabel_meta", {})
-        meta[f"raw_output_{self.name}"] = output
-        outputs["distilabel_meta"] = meta
+        outputs = self._add_raw_output(outputs, output)
         return outputs
+
+    def _add_raw_output(
+        self, output: Dict[str, Any], raw_output: Union[str, None]
+    ) -> Dict[str, Any]:
+        """Adds the raw output of the LLM to the output dictionary."""
+        meta = output.get("distilabel_meta", {})
+        meta[f"raw_output_{self.name}"] = raw_output
+        output["distilabel_meta"] = meta
+        return output
 
 
 class Task(_Task, Step):
