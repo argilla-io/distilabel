@@ -154,7 +154,7 @@ class LoadHubDataset(GeneratorStep):
             transformed_batch = self._transform_batch(batch)
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size
-            yield transformed_batch, num_returned_rows == self.num_examples
+            yield transformed_batch, num_returned_rows >= self.num_examples
 
     @property
     def outputs(self) -> List[str]:
