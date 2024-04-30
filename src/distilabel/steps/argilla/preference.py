@@ -128,7 +128,8 @@ class PreferenceToArgilla(Argilla):
                 questions=self._rating_rationale_pairs(),  # type: ignore
             )
             self._rg_dataset = _rg_dataset.push_to_argilla(
-                name=self.dataset_name, workspace=self.dataset_workspace
+                name=self.dataset_name,  # type: ignore
+                workspace=self.dataset_workspace,
             )
 
     def _generation_fields(self) -> List["TextField"]:
