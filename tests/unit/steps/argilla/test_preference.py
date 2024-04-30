@@ -31,7 +31,7 @@ def mock_feedback_dataset() -> rg.FeedbackDataset:
         questions=[
             rg.RatingQuestion(  # type: ignore
                 name="generations-0-rating",
-                title="Rate generations-0 given instruction based on the annotation guidelines.",
+                title="Rate generations-0 given instruction.",
                 description=None,
                 values=[1, 2, 3, 4, 5],
                 required=True,
@@ -44,7 +44,7 @@ def mock_feedback_dataset() -> rg.FeedbackDataset:
             ),
             rg.RatingQuestion(  # type: ignore
                 name="generations-1-rating",
-                title="Rate generations-1 given instruction based on the annotation guidelines.",
+                title="Rate generations-1 given instruction.",
                 description="Ignore this question if the corresponding `generations-1` field is not available.",
                 values=[1, 2, 3, 4, 5],
                 required=False,
