@@ -256,7 +256,7 @@ class Pipeline(BasePipeline):
                 step.is_generator
                 and step.name in self._batch_manager.step_empty_buffers(successor)
             ):
-                last_batch = self._batch_manager.get_last_batch(step.name)
+                last_batch = self._batch_manager.get_last_batch_sent(step.name)
                 self._send_batch_to_step(last_batch.next_batch())  # type: ignore
 
             # If successor step has enough data in its buffer to create a new batch, then
@@ -345,12 +345,16 @@ class Pipeline(BasePipeline):
         for previous_step_name in empty_buffers:
             if previous_step_name not in self.dag.root_steps:
                 continue
-            if last_batch := self._batch_manager.get_last_batch(previous_step_name):  # type: ignore
-                self._logger.debug(
-                    f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
-                    " empty. Requesting new batch..."
-                )
-                self._send_batch_to_step(last_batch.next_batch())
+
+            last_batch = self._batch_manager.get_last_batch_sent(previous_step_name)  # type: ignore
+            if last_batch is None:
+                continue
+
+            self._logger.debug(
+                f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
+                " empty. Requesting new batch..."
+            )
+            self._send_batch_to_step(last_batch.next_batch())
 
     def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
@@ -508,11 +512,10 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch to send.
         """
-        if batch.last_batch:
-            self._logger.debug(
-                f"Setting 'True' to last batch sent to '{batch.step_name}' step..."
-            )
-            self._batch_manager.set_last_batch_sent(batch.step_name)  # type: ignore
+        self._logger.debug(
+            f"Setting batch {batch.seq_no} as last batch sent to '{batch.step_name}': {batch}"
+        )
+        self._batch_manager.set_last_batch_sent(batch)  # type: ignore
 
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
@@ -521,16 +524,17 @@ class Pipeline(BasePipeline):
         input_queue.put(batch)
 
     def _send_last_batch_flag_to_step(self, step_name: str) -> None:
-        if self._batch_manager.get_last_batch_sent(step_name):  # type: ignore
+        batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
+        if batch and batch.last_batch:
             return
 
         self._logger.debug(
             f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
             " batches..."
         )
-        self._batch_manager.set_last_batch_sent(step_name, mark=LAST_BATCH_SENT_FLAG)  # type: ignore
         input_queue = self.dag.get_step(step_name)["input_queue"]
         input_queue.put(LAST_BATCH_SENT_FLAG)
+        self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
     def _run_steps_in_loop(
         self,
@@ -819,7 +823,7 @@ class _ProcessWrapper:
 
         self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
 
-        return self.step.name
+        return self.step.name  # type: ignore
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
@@ -847,7 +851,7 @@ class _ProcessWrapper:
                 )
                 return
 
-            offset = batch.seq_no * step.batch_size
+            offset = batch.seq_no * step.batch_size  # type: ignore
 
             self.step._logger.info(
                 f"🧬 Starting yielding batches from generator step '{self.step.name}'."

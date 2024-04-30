@@ -248,6 +248,11 @@ class DAG(_Serializable):
                 step.verify_inputs_mappings()
                 step.verify_outputs_mappings()
 
+                # TODO: check if convergence step, that the `input_batch_size` is equal
+                # to the `input_batch_size` or `batch_size` of the previous previous step
+                # TODO: if step receiving routed batches, then `input_batch_size` equal
+                # or lower than the `input_batch_size` or `batch_size` of the previous step
+
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
                     if not step.is_generator:

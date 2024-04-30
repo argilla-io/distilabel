@@ -670,8 +670,16 @@ class _BatchManagerStep(_Serializable):
             # Keep track of the batches used to create the batch
             batches_used[batch.step_name].append(batch.seq_no)
 
-            # Remove batch from the buffer
-            self.data[batch.step_name].remove(batch)
+            # If the batch was entirely consumed, then remove it from the buffer
+            if num_rows >= len(batch_data):
+                self.data[batch.step_name].remove(batch)
+                continue
+
+            # The batch was not entirely consumed. so we need to update the batch
+            # with the remaining data
+            batch_idx = self.data[batch.step_name].index(batch)
+            batch_ref = self.data[batch.step_name][batch_idx]
+            batch_ref.data[0] = batch_data[len(selected_data) :]
 
         return list(data.values()), dict(batches_used)
 
@@ -791,8 +799,8 @@ class _BatchManagerStep(_Serializable):
         # If there aren't at least `input_batch_size` rows from each step, then there
         # isn't enough data to create a batch
         if not all(
-            num_rows >= self.input_batch_size  # type: ignore
-            for num_rows in rows_per_step.values()
+            num_rows >= self.input_batch_size or step_name in self.last_batch_received  # type: ignore
+            for step_name, num_rows in rows_per_step.items()
         ):
             return False
 
@@ -824,6 +832,69 @@ class _BatchManagerStep(_Serializable):
 
         return True
 
+    def _last_batch(self) -> bool:
+        """Checks if the batch to be created is the last one i.e. if the last batch was
+        received from all the predecessors.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        if self.accumulate:
+            return self._last_batch_accumulate()
+
+        if self.convergence_step:
+            return self._last_batch_convergence_step()
+
+        return self._last_batch_normal()
+
+    def _last_batch_accumulate(self) -> bool:
+        """Checks if the batch to be created is the last one for an step accumulating data.
+        `True` if the last batch was received from all the predecessors.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        return all(step in self.last_batch_received for step in self.data.keys())
+
+    def _last_batch_convergence_step(self) -> bool:
+        """Checks if the batch to be created is the last one for a convergence step. `True`
+        if the last batch of all the steps (`batch_routed_to`) in the last routed batch
+        have been received.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        grouped_batches = self._group_batches_by_created_from()
+        if not grouped_batches:
+            return False
+        _, batches = grouped_batches[0]
+        steps_in_batches = {batch.step_name for batch in batches}
+        return all(
+            step_name in self.last_batch_received for step_name in steps_in_batches
+        )
+
+    def _last_batch_normal(self) -> bool:
+        """Checks if the batch to be created is the last one for a normal step. `True` if
+        there is no more data to be received from the predecessors.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        for step_name, batches in self.data.items():
+            if step_name not in self.last_batch_received:
+                return False
+
+            num_rows = sum(len(batch.data[0]) for batch in batches)
+
+            if (
+                self.input_batch_size
+                and num_rows > self.input_batch_size
+                and step_name in self.last_batch_received
+            ):
+                return False
+
+        return True
+
     def _group_batches_by_created_from(self) -> List[Tuple[int, List["_Batch"]]]:
         """Group the batches by the first key of `created_from` field. This method is
         meant to be used only with a `convergence_step`.
@@ -839,31 +910,6 @@ class _BatchManagerStep(_Serializable):
                 batch_seq_no = batch.created_from[first_key][0]
                 grouped_batches[batch_seq_no].append(batch)
         return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
-
-    def _last_batch(self) -> bool:
-        """Checks if the batch to be created is the last one i.e. if the last batch was
-        received from all the predecessors.
-
-        Returns:
-            `True` if the batch to be created is the last one. Otherwise, `False`.
-        """
-        if self.accumulate:
-            return all(step in self.last_batch_received for step in self.data.keys())
-
-        for step_name, batches in self.data.items():
-            if step_name not in self.last_batch_received:
-                return False
-
-            num_rows = sum(len(batch.data[0]) for batch in batches)
-
-            if (
-                self.input_batch_size
-                and num_rows > self.input_batch_size
-                and step_name in self.last_batch_received
-            ):
-                return False
-
-        return True
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManagerStep` to a dictionary, using the `dataclass` helper function.
@@ -897,7 +943,7 @@ class _BatchManager(_Serializable):
         self,
         steps: Dict[str, _BatchManagerStep],
         last_batch_received: Dict[str, Union[_Batch, None]],
-        last_batch_sent_to: Dict[str, Union[bool, str]],
+        last_batch_sent: Dict[str, Union[_Batch, None]],
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -909,7 +955,8 @@ class _BatchManager(_Serializable):
         """
         self._steps = steps
         self._last_batch_received = last_batch_received
-        self._last_batch_sent_to = last_batch_sent_to
+        self._last_batch_sent = last_batch_sent
+        self._last_batch_flag_sent_to = []
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -918,11 +965,15 @@ class _BatchManager(_Serializable):
             `True` if there are still batches to be processed by the steps. Otherwise,
             `False`.
         """
-        for batch in self._last_batch_received.values():
+
+        for step_name, batch in self._last_batch_received.items():
             if not batch:
                 return True
 
-            if not batch.last_batch:
+            if not batch.last_batch and step_name not in self._last_batch_flag_sent_to:
+                return True
+
+            if not self.get_last_batch_sent(step_name):
                 return True
 
         return False
@@ -937,6 +988,14 @@ class _BatchManager(_Serializable):
         self._last_batch_received[batch.step_name] = batch
 
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
+        """Gets the last batch received from a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The last batch received from the step or `None` if no batch was received.
+        """
         return self._last_batch_received.get(step_name)
 
     def add_batch(self, to_step: str, batch: _Batch, prepend: bool = False) -> None:
@@ -984,31 +1043,32 @@ class _BatchManager(_Serializable):
         """
         return self._steps[step_name].empty_buffers()
 
-    def set_last_batch_sent(
-        self, step_name: str, mark: Union[bool, str] = True
-    ) -> None:
-        """Set the value of the last batch sent to a step flag.
+    def set_last_batch_sent(self, batch: "_Batch") -> None:
+        """Set the last batch sent to a step.
 
         Args:
-            step_name: The name of the step that sent the last batch.
-            mark: a mark to indicate the last batch sent. If `False`, then the last batch
-                was not sent to the step yet. If `True`, then the last batch was sent to
-                the step. If `LAST_BATCH_SENT_FLAG`, then the last batch was sent not sent
-                to the step (because routing batch function), but `LAST_BATCH_SENT_FLAG`
-                was sent to indicate the step to stop. Defaults to `True`.
+            batch: The last batch sent to a step.
         """
-        self._last_batch_sent_to[step_name] = mark
+        self._last_batch_sent[batch.step_name] = batch
 
-    def get_last_batch_sent(self, step_name: str) -> Union[bool, str]:
-        """Get the value of the last batch sent to a step.
+    def get_last_batch_sent(self, step_name: str) -> Union["_Batch", None]:
+        """Get the last batch sent to a step.
 
         Args:
             step_name: The name of the step.
 
         Returns:
-            The value of the last batch sent to the step flag.
+            The last batch sent to a step or `None` if no batch was sent.
         """
-        return self._last_batch_sent_to[step_name]
+        return self._last_batch_sent.get(step_name, None)
+
+    def set_last_batch_flag_sent_to(self, step_name: str) -> None:
+        """Set the flag to indicate that the last batch was sent to a step.
+
+        Args:
+            step_name: The name of the step.
+        """
+        self._last_batch_flag_sent_to.append(step_name)
 
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":
@@ -1022,13 +1082,13 @@ class _BatchManager(_Serializable):
         """
         steps = {}
         last_batch_received = {}
-        last_batch_sent_to = {}
+        last_batch_sent = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
             last_batch_received[step.name] = None
+            last_batch_sent[step.name] = None
             if step.is_generator:
                 continue
-            last_batch_sent_to[step.name] = False
             predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
                 dag.get_step(predecessor).get("receives_routed_batch", False)
@@ -1040,7 +1100,7 @@ class _BatchManager(_Serializable):
                 convergence_step=convergence_step,
             )
             steps[step_name] = batch_manager_step
-        return cls(steps, last_batch_received, last_batch_sent_to)
+        return cls(steps, last_batch_received, last_batch_sent)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
