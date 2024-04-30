@@ -300,6 +300,9 @@ class InferenceEndpointsLLM(AsyncLLM):
         top_p: Optional[float] = None,
         typical_p: Optional[float] = None,
         stop_sequences: Optional[Union[str, List[str]]] = None,
+        return_full_text: bool = False,
+        seed: Optional[int] = None,
+        watermark: bool = False,
     ) -> "GenerateOutput":
         """Generates completions for the given input using the OpenAI async client.
 
@@ -323,6 +326,11 @@ class InferenceEndpointsLLM(AsyncLLM):
             stop_sequences: either a single string or a list of strings containing the sequences
                 to stop the generation at. Defaults to `None`, but will be set to the
                 `tokenizer.eos_token` if available.
+            return_full_text: whether to return the full text of the completion or just the
+                generated text. Defaults to `False`, meaning that only the generated text will be
+                returned.
+            seed: the seed to use for the generation. Defaults to `None`.
+            watermark: whether to add the watermark to the generated text. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -356,6 +364,7 @@ class InferenceEndpointsLLM(AsyncLLM):
                 add_generation_prompt=True,
             )
         else:
+            # TODO: should we apply a default chat template here instead? e.g. ChatML
             prompt = "\n".join([message["content"] for message in input])
 
         try:
@@ -368,10 +377,12 @@ class InferenceEndpointsLLM(AsyncLLM):
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
+                stop_sequences=stop_sequences,
+                return_full_text=return_full_text,
+                watermark=watermark,
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
-                seed=random.randint(0, 2147483647),
-                stop_sequences=stop_sequences,
+                seed=seed or random.randint(0, 2147483647),
             )
             return [completion]
         except Exception as e:
