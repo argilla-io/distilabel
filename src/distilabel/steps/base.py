@@ -145,7 +145,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     output_mappings: Dict[str, str] = {}
 
     _built_from_decorator: bool = PrivateAttr(default=False)
-    _logger: Union["Logger", None] = PrivateAttr(...)
+    _logger: "Logger" = PrivateAttr(None)
 
     def model_post_init(self, __context: Any) -> None:
         from distilabel.pipeline.base import _GlobalPipelineManager

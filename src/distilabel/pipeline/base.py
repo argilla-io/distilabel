@@ -878,6 +878,9 @@ class _BatchManagerStep(_Serializable):
         return asdict(self)
 
 
+LAST_BATCH_SENT_FLAG = "last_batch_sent"
+
+
 class _BatchManager(_Serializable):
     """Class to manage the batches received from the steps. It keeps track of the
     received batches and returns new batches for the steps to process based on their
@@ -894,6 +897,7 @@ class _BatchManager(_Serializable):
         self,
         steps: Dict[str, _BatchManagerStep],
         last_batch_received: Dict[str, Union[_Batch, None]],
+        last_batch_sent_to: Dict[str, Union[bool, str]],
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -905,6 +909,7 @@ class _BatchManager(_Serializable):
         """
         self._steps = steps
         self._last_batch_received = last_batch_received
+        self._last_batch_sent_to = last_batch_sent_to
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -979,6 +984,32 @@ class _BatchManager(_Serializable):
         """
         return self._steps[step_name].empty_buffers()
 
+    def set_last_batch_sent(
+        self, step_name: str, mark: Union[bool, str] = True
+    ) -> None:
+        """Set the value of the last batch sent to a step flag.
+
+        Args:
+            step_name: The name of the step that sent the last batch.
+            mark: a mark to indicate the last batch sent. If `False`, then the last batch
+                was not sent to the step yet. If `True`, then the last batch was sent to
+                the step. If `LAST_BATCH_SENT_FLAG`, then the last batch was sent not sent
+                to the step (because routing batch function), but `LAST_BATCH_SENT_FLAG`
+                was sent to indicate the step to stop. Defaults to `True`.
+        """
+        self._last_batch_sent_to[step_name] = mark
+
+    def get_last_batch_sent(self, step_name: str) -> Union[bool, str]:
+        """Get the value of the last batch sent to a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The value of the last batch sent to the step flag.
+        """
+        return self._last_batch_sent_to[step_name]
+
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":
         """Create a `_BatchManager` instance from a `DAG` instance.
@@ -991,11 +1022,13 @@ class _BatchManager(_Serializable):
         """
         steps = {}
         last_batch_received = {}
+        last_batch_sent_to = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)["step"]
             last_batch_received[step.name] = None
             if step.is_generator:
                 continue
+            last_batch_sent_to[step.name] = False
             predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
                 dag.get_step(predecessor).get("receives_routed_batch", False)
@@ -1007,7 +1040,7 @@ class _BatchManager(_Serializable):
                 convergence_step=convergence_step,
             )
             steps[step_name] = batch_manager_step
-        return cls(steps, last_batch_received)
+        return cls(steps, last_batch_received, last_batch_sent_to)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
