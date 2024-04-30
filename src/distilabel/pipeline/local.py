@@ -94,6 +94,9 @@ class Pipeline(BasePipeline):
         except RuntimeError:
             pass
         log_queue = mp.Queue()
+        # We must place the runtime parameters before calling setup_logging to ensure consistency
+        self._set_runtime_parameters(parameters or {})
+        self.dag.validate()
         setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
