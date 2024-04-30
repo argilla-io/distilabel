@@ -41,8 +41,6 @@ def combine_dicts(
                 # If the key is in the merge_keys, append the value to the existing list
                 if key in merge_keys_dict.keys():
                     combined_dict.setdefault(merge_keys_dict[key], []).append(value)
-                elif key == "distilabel_meta":
-                    combined_dict[key] = {**combined_dict.get(key, {}), **value}
                 # If the key is not in the merge_keys, create a new key-value pair
                 else:
                     combined_dict[key] = value

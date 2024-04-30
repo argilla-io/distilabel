@@ -15,7 +15,6 @@
 import inspect
 import logging
 import re
-import uuid
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
@@ -81,13 +80,6 @@ def _infer_step_name(step_cls_name: str, pipeline: Optional["Pipeline"] = None) 
             idx = int(name.split("_")[-1])
             name = f"{base_name}_{idx+1}"
     return name
-
-
-def _add_id_to_distilabel_meta(row):
-    distilabel_meta = row.get("distilabel_meta", {})
-    distilabel_meta["distilabel_id"] = str(uuid.uuid4())
-    row["distilabel_meta"] = distilabel_meta
-    return row
 
 
 class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -498,19 +490,16 @@ class Step(_Step, ABC):
         )
 
         for output_rows in generator:
-            final_rows = []
-            for row in output_rows:
-                result = {
+            yield [
+                {
                     # Apply output mapping and revert input mapping
                     self.output_mappings.get(k, None)
                     or self.input_mappings.get(k, None)
                     or k: v
                     for k, v in row.items()
                 }
-                result = _add_id_to_distilabel_meta(result)
-                final_rows.append(result)
-
-            yield final_rows
+                for row in output_rows
+            ]
 
     def _revert_input_mappings(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """Reverts the `input_mappings` of the step to the input row.
