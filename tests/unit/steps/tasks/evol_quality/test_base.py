@@ -23,7 +23,7 @@ from pydantic import ValidationError
 
 
 class TestEvolQuality:
-    def test_with_errors(self, caplog, dummy_llm: LLM) -> None:
+    def test_with_errors(self, caplog: pytest.LogCaptureFixture, dummy_llm: LLM) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
