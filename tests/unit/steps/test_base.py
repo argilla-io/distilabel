@@ -92,7 +92,7 @@ class TestStep:
 
         assert step.pipeline == pipeline
 
-    def test_creating_step_without_pipeline(self, caplog) -> None:
+    def test_creating_step_without_pipeline(self, caplog: pytest.LogCaptureFixture) -> None:
         # This test is to ensure that the warning is raised when creating a step without a pipeline,
         # vs the error we raised before.
         dummy_step = DummyStep(name="dummy")
