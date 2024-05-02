@@ -290,7 +290,7 @@ class TestStepSerialization:
 
         assert isinstance(step, DummyStep)
 
-    def test_step_from_dict_without_pipeline_context(self, caplog) -> None:
+    def test_step_from_dict_without_pipeline_context(self, caplog: pytest.LogCaptureFixture) -> None:
         dummy_step = DummyStep.from_dict(
             {
                 **{
