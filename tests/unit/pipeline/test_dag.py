@@ -504,15 +504,18 @@ class TestDagSerialization:
         assert "dummy_step_2" in new_dag.G["dummy_step_1"]
 
     def test_dag_from_dict_errored_without_pipeline(
-        self, dummy_step_1: "Step", dummy_step_2: "Step"
+        self,
+        caplog: pytest.LogCaptureFixture,
+        dummy_step_1: "Step",
+        dummy_step_2: "Step",
     ) -> None:
         dag = DAG()
         dag.add_step(dummy_step_1)
         dag.add_step(dummy_step_2)
         dag.add_edge("dummy_step_1", "dummy_step_2")
 
-        with pytest.raises(ValueError):
-            DAG.from_dict(dag.dump())
+        DAG.from_dict(dag.dump())
+        assert "Step 'dummy_step_1' hasn't received a pipeline" in caplog.text
 
     @pytest.mark.parametrize(
         "format, name, loader",

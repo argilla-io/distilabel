@@ -154,7 +154,8 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             self.pipeline = _GlobalPipelineManager.get_pipeline()
 
         if self.pipeline is None:
-            raise ValueError(
+            _logger = logging.getLogger(f"distilabel.step.{self.name}")
+            _logger.warning(
                 f"Step '{self.name}' hasn't received a pipeline, and it hasn't been"
                 " created within a `Pipeline` context. Please, use"
                 " `with Pipeline() as pipeline:` and create the step within the context."
@@ -166,7 +167,9 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             # be done after that.
             self.name = _infer_step_name(type(self).__name__, self.pipeline)
 
-        self.pipeline._add_step(self)
+        if self.pipeline is not None:
+            # If not set an error will be raised in `Pipeline.run` parent
+            self.pipeline._add_step(self)
 
     def connect(
         self, step: "_Step", input_mappings: Union[Dict[str, str], None] = None
