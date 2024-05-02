@@ -45,7 +45,9 @@ class TestEvolInstruct:
             assert task.llm is dummy_llm
         assert task.pipeline == pipeline
 
-    def test_with_errors(self, caplog: pytest.LogCaptureFixture, dummy_llm: LLM) -> None:
+    def test_with_errors(
+        self, caplog: pytest.LogCaptureFixture, dummy_llm: LLM
+    ) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):

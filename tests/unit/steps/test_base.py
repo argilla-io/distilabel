@@ -92,7 +92,9 @@ class TestStep:
 
         assert step.pipeline == pipeline
 
-    def test_creating_step_without_pipeline(self, caplog: pytest.LogCaptureFixture) -> None:
+    def test_creating_step_without_pipeline(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
         # This test is to ensure that the warning is raised when creating a step without a pipeline,
         # vs the error we raised before.
         dummy_step = DummyStep(name="dummy")
@@ -290,7 +292,9 @@ class TestStepSerialization:
 
         assert isinstance(step, DummyStep)
 
-    def test_step_from_dict_without_pipeline_context(self, caplog: pytest.LogCaptureFixture) -> None:
+    def test_step_from_dict_without_pipeline_context(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
         dummy_step = DummyStep.from_dict(
             {
                 **{
