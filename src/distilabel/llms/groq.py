@@ -12,63 +12,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
+from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
-from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.base import RuntimeParameter
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
-    from openai import AsyncOpenAI
+    from groq import AsyncGroq
+
+_GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
+_GROQ_API_KEY_ENV_VAR_NAME = "GROQ_API_KEY"
 
 
-_OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
-
-
-class OpenAILLM(AsyncLLM):
-    """OpenAI LLM implementation running the async API client.
+class GroqLLM(AsyncLLM):
+    """Groq API implementation using the async client for concurrent text generation.
 
     Attributes:
-        model: the model name to use for the LLM e.g. "gpt-3.5-turbo", "gpt-4", etc.
-            Supported models can be found [here](https://platform.openai.com/docs/guides/text-generation).
-        base_url: the base URL to use for the OpenAI API requests. Defaults to `None`, which
-            means that the value set for the environment variable `OPENAI_BASE_URL` will
-            be used, or "https://api.openai.com/v1" if not set.
-        api_key: the API key to authenticate the requests to the OpenAI API. Defaults to
-            `None` which means that the value set for the environment variable `OPENAI_API_KEY`
-            will be used, or `None` if not set.
+        model: the name of the model from the Groq API to use for the generation.
+        base_url: the base URL to use for the Groq API requests. Defaults to
+            `"https://api.groq.com"`.
+        api_key: the API key to authenticate the requests to the Groq API. Defaults to
+            the value of the `GROQ_API_KEY` environment variable.
         max_retries: the maximum number of times to retry the request to the API before
-            failing. Defaults to `6`.
+            failing. Defaults to `2`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+        _api_key_env_var: the name of the environment variable to use for the API key.
+        _aclient: the `AsyncGroq` client from the `groq` package.
 
     Runtime parameters:
-        - `base_url`: the base URL to use for the OpenAI API requests. Defaults to `None`.
-        - `api_key`: the API key to authenticate the requests to the OpenAI API. Defaults
-            to `None`.
+        - `base_url`: the base URL to use for the Groq API requests. Defaults to
+            `"https://api.groq.com"`.
+        - `api_key`: the API key to authenticate the requests to the Groq API. Defaults to
+            the value of the `GROQ_API_KEY` environment variable.
         - `max_retries`: the maximum number of times to retry the request to the API before
-            failing. Defaults to `6`.
+            failing. Defaults to `2`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
     """
 
     model: str
+
     base_url: Optional[RuntimeParameter[str]] = Field(
         default_factory=lambda: os.getenv(
-            "OPENAI_BASE_URL", "https://api.openai.com/v1"
+            _GROQ_API_BASE_URL_ENV_VAR_NAME, "https://api.groq.com"
         ),
-        description="The base URL to use for the OpenAI API requests.",
+        description="The base URL to use for the Groq API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default_factory=lambda: os.getenv(_OPENAI_API_KEY_ENV_VAR_NAME),
-        description="The API key to authenticate the requests to the OpenAI API.",
+        default_factory=lambda: os.getenv(_GROQ_API_KEY_ENV_VAR_NAME),
+        description="The API key to authenticate the requests to the Groq API.",
     )
     max_retries: RuntimeParameter[int] = Field(
-        default=6,
+        default=2,
         description="The maximum number of times to retry the request to the API before"
         " failing.",
     )
@@ -77,19 +81,19 @@ class OpenAILLM(AsyncLLM):
         description="The maximum time in seconds to wait for a response from the API.",
     )
 
-    _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
-    _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
+    _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)
+    _aclient: Optional["AsyncGroq"] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the `AsyncOpenAI` client to benefit from async requests."""
+        """Loads the `AsyncGroq` client to benefit from async requests."""
         super().load()
 
         try:
-            from openai import AsyncOpenAI
+            from groq import AsyncGroq
         except ImportError as ie:
             raise ImportError(
-                "OpenAI Python client is not installed. Please install it using"
-                " `pip install openai`."
+                "Groq Python client is not installed. Please install it using"
+                ' `pip install groq` or from the extras as `pip install "distilabel[groq]"`.'
             ) from ie
 
         if self.api_key is None:
@@ -98,7 +102,7 @@ class OpenAILLM(AsyncLLM):
                 f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
             )
 
-        self._aclient = AsyncOpenAI(
+        self._aclient = AsyncGroq(
             base_url=self.base_url,
             api_key=self.api_key.get_secret_value(),
             max_retries=self.max_retries,  # type: ignore
@@ -114,53 +118,72 @@ class OpenAILLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: ChatType,
-        num_generations: int = 1,
+        seed: Optional[int] = None,
         max_new_tokens: int = 128,
-        frequency_penalty: float = 0.0,
-        presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-        stop: Optional[Union[str, List[str]]] = None,
-    ) -> GenerateOutput:
-        """Generates `num_generations` responses for the given input using the OpenAI async
+        stop: Optional[str] = None,
+    ) -> "GenerateOutput":
+        """Generates `num_generations` responses for the given input using the Groq async
         client.
 
         Args:
             input: a single input in chat format to generate responses for.
-            num_generations: the number of generations to create per input. Defaults to
-                `1`.
+            seed: the seed to use for the generation. Defaults to `None`.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequency_penalty: the repetition penalty to use for the generation. Defaults
-                to `0.0`.
-            presence_penalty: the presence penalty to use for the generation. Defaults to
-                `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            stop: a string or a list of strings to use as a stop sequence for the generation.
-                Defaults to `None`.
+            stop: the stop sequence to use for the generation. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
+
+        References:
+            - https://console.groq.com/docs/text-chat
         """
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
-            max_tokens=max_new_tokens,
-            n=num_generations,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
+            seed=seed,  # type: ignore
             temperature=temperature,
+            max_tokens=max_new_tokens,
             top_p=top_p,
+            stream=False,
             stop=stop,
-            timeout=50,
         )
         generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
-                    f"Received no response using OpenAI client (model: '{self.model}')."
+                    f"Received no response using the Groq client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
         return generations
+
+    # TODO: remove this function once Groq client allows `n` parameter
+    @override
+    def generate(
+        self,
+        inputs: List["ChatType"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+        """
+
+        async def agenerate(
+            inputs: List["ChatType"], **kwargs: Any
+        ) -> "GenerateOutput":
+            """Internal function to parallelize the asynchronous generation of responses."""
+            tasks = [
+                asyncio.create_task(self.agenerate(input=input, **kwargs))
+                for input in inputs
+                for _ in range(num_generations)
+            ]
+            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
+
+        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

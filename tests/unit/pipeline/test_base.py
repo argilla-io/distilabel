@@ -212,6 +212,51 @@ class TestBasePipeline:
             pipeline = BasePipeline(name="unit-test-pipeline")
             assert pipeline._cache_dir == Path("/tmp/unit-test")
 
+    @pytest.mark.parametrize(
+        "in_pipeline, names",
+        (
+            (
+                True,
+                [
+                    "dummy_generator_step_0",
+                    "dummy_step1_0",
+                    "dummy_step2_0",
+                    "dummy_step1_1",
+                ],
+            ),
+            # TODO: Activate this test once we merge the option of not passing a Pipeline
+            # (
+            #     False, ["dummy_generator_step", "dummy_step1", "dummy_step2"]
+            # )
+        ),
+    )
+    def test_step_names_inferred(self, in_pipeline: bool, names: List[str]) -> None:
+        if in_pipeline:
+            with BasePipeline(name="unit-test-pipeline"):
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                step2 = DummyStep2()
+                step1_1 = DummyStep1()
+                gen_step.connect(step1_0).connect(step2).connect(step1_1)
+        else:
+            gen_step = DummyGeneratorStep()
+            step1_0 = DummyStep1()
+            step2 = DummyStep2()
+            step1_1 = DummyStep1()
+
+        assert gen_step.name == names[0]
+        assert step1_0.name == names[1]
+        assert step2.name == names[2]
+        assert step1_1.name == names[3]
+
+    def test_infer_step_names_big_pipeline(self) -> None:
+        # Tests that the name of the steps are inferred correctly when the pipeline is big (say 50 steps).
+        with BasePipeline(name="unit-test-pipeline") as pipe:
+            gen_step = DummyGeneratorStep()
+            for _ in range(50):
+                gen_step.connect(DummyStep1())
+        assert list(pipe.dag.G)[-1] == "dummy_step1_49"
+
 
 class TestBatch:
     def test_next_batch(self) -> None:
@@ -271,10 +316,6 @@ class TestBatch:
             [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
         ]
-
-    def test_empty(self) -> None:
-        batch = _Batch(seq_no=0, step_name="step1", last_batch=False, data=[[]])
-        assert batch.empty
 
     def test_dump(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
@@ -1017,6 +1058,29 @@ class TestBatchManager:
                 data={"dummy_step_1": []},
             ),
         }
+
+    def test_can_generate(self) -> None:
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=False),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=False),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=False),
+            },
+        )
+
+        assert batch_manager.can_generate()
+
+        batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={
+                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=True),
+                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=True),
+                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=True),
+            },
+        )
+
+        assert not batch_manager.can_generate()
 
     def test_dump(self) -> None:
         batch_manager = _BatchManager(

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -28,16 +27,16 @@ from vertexai.generative_models import (
 @patch("vertexai.generative_models.GenerativeModel.generate_content_async")
 class TestVertexAILLM:
     def test_openai_llm(self, _: MagicMock) -> None:
-        llm = VertexAILLM(model="gemini-1.0-pro", api_key="api.key")  # type: ignore
+        llm = VertexAILLM(model="gemini-1.0-pro")
         assert isinstance(llm, VertexAILLM)
         assert llm.model_name == "gemini-1.0-pro"
 
     @pytest.mark.asyncio
     async def test_agenerate(self, mock_generative_model: MagicMock) -> None:
-        llm = VertexAILLM(model="gemini-1.0-pro", api_key="api.key")  # type: ignore
+        llm = VertexAILLM(model="gemini-1.0-pro")
         llm._aclient = mock_generative_model
-        llm._part_class = Part
-        llm._content_class = Content
+        llm._part_class = Part  # type: ignore
+        llm._content_class = Content  # type: ignore
         llm._generation_config_class = GenerationConfig
 
         mocked_completion = Mock(
@@ -70,10 +69,10 @@ class TestVertexAILLM:
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_generative_model: MagicMock) -> None:
-        llm = VertexAILLM(model="gemini-1.0-pro", api_key="api.key")  # type: ignore
+        llm = VertexAILLM(model="gemini-1.0-pro")
         llm._aclient = mock_generative_model
-        llm._part_class = Part
-        llm._content_class = Content
+        llm._part_class = Part  # type: ignore
+        llm._content_class = Content  # type: ignore
         llm._generation_config_class = GenerationConfig
 
         mocked_completion = Mock(
@@ -111,8 +110,7 @@ class TestVertexAILLM:
         )
 
     def test_serialization(self, _: MagicMock) -> None:
-        os.environ["OPENAI_API_KEY"] = "api.key"
-        llm = VertexAILLM(model="gemini-1.0-pro")  # type: ignore
+        llm = VertexAILLM(model="gemini-1.0-pro")
 
         _dump = {
             "model": "gemini-1.0-pro",

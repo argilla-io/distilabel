@@ -12,8 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from rich import traceback as rich_traceback
+from distilabel.steps.formatting.dpo import (
+    FormatChatGenerationDPO,
+    FormatTextGenerationDPO,
+)
+from distilabel.steps.formatting.sft import (
+    FormatChatGenerationSFT,
+    FormatTextGenerationSFT,
+)
 
-__version__ = "1.0.3"
-
-rich_traceback.install(show_locals=True)
+__all__ = [
+    "FormatChatGenerationDPO",
+    "FormatChatGenerationSFT",
+    "FormatTextGenerationDPO",
+    "FormatTextGenerationSFT",
+]

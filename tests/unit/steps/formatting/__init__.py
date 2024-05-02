@@ -11,9 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from rich import traceback as rich_traceback
-
-__version__ = "1.0.3"
-
-rich_traceback.install(show_locals=True)

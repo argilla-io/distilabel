@@ -14,6 +14,7 @@
 
 import logging
 import multiprocessing as mp
+import platform
 import signal
 import threading
 import time
@@ -55,6 +56,12 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
+if platform.system() != "Windows":
+    _MULTIPROCESSING_CONTEXT = "forkserver"
+else:
+    _MULTIPROCESSING_CONTEXT = "spawn"
+
+
 def _init_worker(queue: "Queue[Any]") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(queue)
@@ -83,11 +90,11 @@ class Pipeline(BasePipeline):
             RuntimeError: If the pipeline fails to load all the steps.
         """
         try:
-            mp.set_start_method("forkserver")
+            mp.set_start_method(_MULTIPROCESSING_CONTEXT)
         except RuntimeError:
             pass
         log_queue = mp.Queue()
-        setup_logging(log_queue)  # type: ignore
+        setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
         super().run(parameters, use_cache)
@@ -107,6 +114,7 @@ class Pipeline(BasePipeline):
             return create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
+                log_filename_path=self._cache_location["log_file"],
             )
 
         buffer_data_path = self._cache_location["data"]
@@ -114,9 +122,11 @@ class Pipeline(BasePipeline):
         write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
         num_processes = len(self.dag)
-        ctx = mp.get_context("forkserver")  # type: ignore
+        ctx = mp.get_context(_MULTIPROCESSING_CONTEXT)  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
-            num_processes, initializer=_init_worker, initargs=(log_queue,)
+            num_processes,
+            initializer=_init_worker,
+            initargs=(log_queue,),
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
@@ -149,7 +159,9 @@ class Pipeline(BasePipeline):
 
         write_buffer.close()
         distiset = create_distiset(
-            self._cache_location["data"], pipeline_path=self._cache_location["pipeline"]
+            self._cache_location["data"],
+            pipeline_path=self._cache_location["pipeline"],
+            log_filename_path=self._cache_location["log_file"],
         )
         stop_logging()
         return distiset
@@ -804,11 +816,18 @@ class _ProcessWrapper:
                 if self.step.is_global:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
+                # Impute step outputs columns with `None`
+                for row in batch.data[0]:
+                    data = row.copy()
+                    for output in self.step.outputs:
+                        data[output] = None
+                    result.append(data)
+
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
                 self.step._logger.warning(
                     f"⚠️ Processing batch {batch.seq_no} with step '{self.step.name}' failed."
-                    " Sending empty batch..."
+                    " Sending empty batch filled with `None`s..."
                 )
                 self.step._logger.warning(
                     f"Subprocess traceback:\n\n{traceback.format_exc()}"
