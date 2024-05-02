@@ -45,14 +45,16 @@ class TestEvolInstruct:
             assert task.llm is dummy_llm
         assert task.pipeline == pipeline
 
-    def test_with_errors(self, dummy_llm: LLM) -> None:
+    def test_with_errors(
+        self, caplog: pytest.LogCaptureFixture, dummy_llm: LLM
+    ) -> None:
         with pytest.raises(
             ValidationError, match="num_evolutions\n  Field required \\[type=missing"
         ):
             EvolInstruct(name="task", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
-        with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            EvolInstruct(name="task", llm=dummy_llm, num_evolutions=2)
+        EvolInstruct(name="task", llm=dummy_llm, num_evolutions=2)
+        assert "Step 'task' hasn't received a pipeline" in caplog.text
 
     def test_process(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")

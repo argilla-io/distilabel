@@ -66,9 +66,9 @@ class TestTask:
             assert task.llm is llm
         assert task.pipeline == pipeline
 
-    def test_with_errors(self) -> None:
-        with pytest.raises(ValueError, match="Step 'task' hasn't received a pipeline"):
-            DummyTask(name="task", llm=DummyLLM())
+    def test_with_errors(self, caplog: pytest.LogCaptureFixture) -> None:
+        DummyTask(name="task", llm=DummyLLM())
+        assert "Step 'task' hasn't received a pipeline" in caplog.text
 
         with pytest.raises(
             ValidationError, match="llm\n  Field required \\[type=missing"
