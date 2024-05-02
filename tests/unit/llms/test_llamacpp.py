@@ -21,7 +21,7 @@ from distilabel.llms.llamacpp import LlamaCppLLM
 
 
 @pytest.fixture(scope="module")
-def llamacpp_llm() -> Generator[LlamaCppLLM, None, None]:
+def llm() -> Generator[LlamaCppLLM, None, None]:
     if not os.path.exists("tinyllama.gguf"):
         urllib.request.urlretrieve(
             "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
@@ -35,11 +35,11 @@ def llamacpp_llm() -> Generator[LlamaCppLLM, None, None]:
 
 
 class TestLlamaCppLLM:
-    def test_model_name(self, llamacpp_llm: LlamaCppLLM) -> None:
-        assert llamacpp_llm.model_name == "tinyllama.gguf"
+    def test_model_name(self, llm: LlamaCppLLM) -> None:
+        assert llm.model_name == "tinyllama.gguf"
 
-    def test_generate(self, llamacpp_llm: LlamaCppLLM) -> None:
-        responses = llamacpp_llm.generate(
+    def test_generate(self, llm: LlamaCppLLM) -> None:
+        responses = llm.generate(
             inputs=[
                 [{"role": "user", "content": "Hello, how are you?"}],
                 [
