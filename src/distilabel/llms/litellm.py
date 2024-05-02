@@ -48,8 +48,6 @@ class LiteLLM(AsyncLLM):
         """
         Loads the `acompletion` LiteLLM client to benefit from async requests.
         """
-        super().load()
-
         try:
             import litellm
 
@@ -67,6 +65,7 @@ class LiteLLM(AsyncLLM):
                 if "litellm" not in key.lower():
                     continue
                 logging.getLogger(key).setLevel(logging.CRITICAL)
+        super().load()
 
     @property
     def model_name(self) -> str:

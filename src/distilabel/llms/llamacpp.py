@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import Field, FilePath, PrivateAttr, validate_call
 
@@ -35,6 +35,8 @@ class LlamaCppLLM(LLM):
         n_gpu_layers: the number of layers to use for the GPU. Defaults to `-1`, meaning that
             the available GPU device will be used.
         verbose: whether to print verbose output. Defaults to `False`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         _model: the Llama model instance. This attribute is meant to be used internally and
             should not be accessed directly. It will be set in the `load` method.
 
@@ -93,6 +95,7 @@ class LlamaCppLLM(LLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
+        stop_at: Optional[Union[str, List[str]]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for the given input using the Llama model.
 
@@ -108,10 +111,18 @@ class LlamaCppLLM(LLM):
                 `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            stop_at: A string or list of strings which, such that the generation stops
+                when they are generated.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+
+        if self._structured_generator is not None:
+            return self._structured_generator(  # type: ignore
+                inputs, max_tokens=max_new_tokens, stop_at=stop_at
+            )
+
         batch_outputs = []
         for input in inputs:
             outputs = []

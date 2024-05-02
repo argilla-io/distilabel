@@ -45,6 +45,8 @@ class OpenAILLM(AsyncLLM):
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
 
     Runtime parameters:
         - `base_url`: the base URL to use for the OpenAI API requests. Defaults to `None`.
@@ -82,8 +84,6 @@ class OpenAILLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
-        super().load()
-
         try:
             from openai import AsyncOpenAI
         except ImportError as ie:
@@ -104,6 +104,7 @@ class OpenAILLM(AsyncLLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
+        super().load()
 
     @property
     def model_name(self) -> str:
@@ -121,6 +122,7 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
+        response_format: str = "text",
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -139,10 +141,23 @@ class OpenAILLM(AsyncLLM):
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             stop: a string or a list of strings to use as a stop sequence for the generation.
                 Defaults to `None`.
+            response_format: the format of the response to return. Must be one of
+                "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
+                for more information on how to use the JSON model from OpenAI. Defaults to `text`.
+
+        Note:
+            If response_format
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        if response_format == "json":
+            response_format = "json_object"
+        elif response_format != "text":
+            raise ValueError(
+                f"Invalid response format '{response_format}'. Must be either 'text' or 'json'."
+            )
+
         completion = await self._aclient.chat.completions.create(  # type: ignore
             messages=input,  # type: ignore
             model=self.model,
@@ -154,6 +169,7 @@ class OpenAILLM(AsyncLLM):
             top_p=top_p,
             stop=stop,
             timeout=50,
+            response_format={"type": response_format},
         )
         generations = []
         for choice in completion.choices:

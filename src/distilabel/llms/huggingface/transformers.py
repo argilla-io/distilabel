@@ -61,6 +61,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         token: the Hugging Face Hub token that will be used to authenticate to the Hugging
             Face Hub. If not provided, the `HF_TOKEN` environment or `huggingface_hub` package
             local configuration will be used. Defaults to `None`.
+
     """
 
     model: str
@@ -80,8 +81,6 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
-        super().load()
-
         if self.device == "cuda":
             CudaDevicePlacementMixin.load(self)
 
@@ -115,6 +114,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         ):
             self._pipeline.tokenizer.chat_template = CHATML_TEMPLATE  # type: ignore
 
+        super().load()
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
@@ -141,6 +142,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
+        stop_at: Optional[Union[str, List[str]]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
@@ -157,12 +159,20 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
             do_sample: whether to use sampling or not. Defaults to `True`.
+            stop_at: A string or list of strings which, such that the generation stops
+                when they are generated.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        prepared_inputs = [self.prepare_input(input=input) for input in inputs]
+        if self._structured_generator is not None:
+            return self._structured_generator(  # type: ignore
+                prepared_inputs, max_tokens=max_new_tokens, stop_at=stop_at
+            )
+
         outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
-            [self.prepare_input(input=input) for input in inputs],
+            prepared_inputs,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             repetition_penalty=repetition_penalty,

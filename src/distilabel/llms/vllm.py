@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, validate_call
 
@@ -43,6 +43,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             sending them to the model. If not provided, the chat template defined in the
             tokenizer config will be used. If not provided and the tokenizer doesn't have
             a chat template, then ChatML template will be used. Defaults to `None`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         _model: the `vLLM` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
@@ -71,8 +73,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
         """
-        super().load()
-
         CudaDevicePlacementMixin.load(self)
 
         try:
@@ -96,6 +96,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             and self._tokenizer.default_chat_template is None  # type: ignore
         ):
             self._tokenizer.chat_template = CHATML_TEMPLATE
+
+        super().load()
 
     @property
     def model_name(self) -> str:
@@ -123,6 +125,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
+        stop_at: Optional[Union[str, List[str]]] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
@@ -141,12 +144,21 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
+            stop_at: A string or list of strings which, such that the generation stops
+                when they are generated.
             extra_sampling_params: dictionary with additional arguments to be passed to
                 the `SamplingParams` class from `vllm`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        prepared_inputs = [self.prepare_input(input) for input in inputs]
+
+        if self._structured_generator is not None:
+            return self._structured_generator(  # type: ignore
+                prepared_inputs, max_tokens=max_new_tokens, stop_at=stop_at
+            )
+
         if extra_sampling_params is None:
             extra_sampling_params = {}
 
@@ -161,7 +173,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             **extra_sampling_params,
         )
 
-        prepared_inputs = [self.prepare_input(input) for input in inputs]
         batch_outputs = self._model.generate(  # type: ignore
             prepared_inputs,
             sampling_params,
