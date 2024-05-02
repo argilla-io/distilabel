@@ -168,7 +168,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             self.name = _infer_step_name(type(self).__name__, self.pipeline)
 
         if self.pipeline is not None:
-            # If this is not set, errors will raise, but simplifies testing steps without a Pipeline.
+            # If not set an error will be raised in `Pipeline.run` parent
             self.pipeline._add_step(self)
 
     def connect(
