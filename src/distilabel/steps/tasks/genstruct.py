@@ -31,9 +31,7 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
 
 
-_PARSE_GENSTRUCT_OUTPUT_REGEX = re.compile(
-    r"(.*?)\s*\[\[\[Assistant\]\]\]\s*(.*?)\s*$", re.IGNORECASE
-)
+_PARSE_GENSTRUCT_OUTPUT_REGEX = r"(.+?)\[\[\[Assistant\]\]\](.+)$"
 
 
 class Genstruct(Task):
@@ -118,7 +116,7 @@ class Genstruct(Task):
         if output is None:
             return {"user": None, "assistant": None}
 
-        matches = _PARSE_GENSTRUCT_OUTPUT_REGEX.match(output)
+        matches = re.search(_PARSE_GENSTRUCT_OUTPUT_REGEX, output, re.DOTALL)
         if not matches:
             return {"user": None, "assistant": None}
 
