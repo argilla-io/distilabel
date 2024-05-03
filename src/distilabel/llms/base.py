@@ -242,6 +242,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     import outlines
 
                     output_structure = outlines.grammars.json
+                    output_format = "cfg"
 
                 return OutlinesStructuredOutput.from_llm(
                     self,
