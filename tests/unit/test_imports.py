@@ -67,6 +67,7 @@ def test_imports() -> None:
         EvolComplexityGenerator,
         EvolInstructGenerator,
         GenerateEmbeddings,
+        Genstruct,
         InstructionBacktranslation,
         PairRM,
         QualityScorer,
