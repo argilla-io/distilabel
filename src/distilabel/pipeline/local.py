@@ -62,7 +62,7 @@ if platform.system() != "Windows":
 else:
     _MULTIPROCESSING_CONTEXT = "spawn"
 
-_MULTIPROCESSING_CONTEXT = os.getenv("DISTILABEL_MP_BACKEND", _MULTIPROCESSING_CONTEXT)
+_MULTIPROCESSING_CONTEXT = os.getenv("DISTILABEL_MP_CONTEXT", _MULTIPROCESSING_CONTEXT)
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
