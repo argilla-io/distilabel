@@ -109,7 +109,7 @@ class LoadHubDataset(GeneratorStep):
         default=False,
         description="Whether to load the dataset in streaming mode or not. Defaults to False.",
     )
-    num_examples: RuntimeParameter[int] = Field(
+    num_examples: Optional[RuntimeParameter[int]] = Field(
         default=None,
         description="The number of examples to load from the dataset. By default will load all examples.",
     )
