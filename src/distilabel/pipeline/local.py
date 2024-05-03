@@ -14,6 +14,7 @@
 
 import logging
 import multiprocessing as mp
+import os
 import platform
 import signal
 import threading
@@ -60,6 +61,8 @@ if platform.system() != "Windows":
     _MULTIPROCESSING_CONTEXT = "forkserver"
 else:
     _MULTIPROCESSING_CONTEXT = "spawn"
+
+_MULTIPROCESSING_CONTEXT = os.getenv("DISTILABEL_MP_BACKEND", _MULTIPROCESSING_CONTEXT)
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
