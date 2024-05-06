@@ -252,6 +252,7 @@ class DAG(_Serializable):
                 # to the `input_batch_size` or `batch_size` of the previous previous step
                 # TODO: if step receiving routed batches, then `input_batch_size` equal
                 # or lower than the `input_batch_size` or `batch_size` of the previous step
+                # TODO: check `routing_batch_function` returns valid steps
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:

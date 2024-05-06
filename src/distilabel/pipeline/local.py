@@ -315,7 +315,7 @@ class Pipeline(BasePipeline):
 
         # Check if the step has a routing function to send the batch to specific steps
         if routing_batch_function := node.get("routing_batch_function"):
-            route_to = routing_batch_function(successors)
+            route_to = routing_batch_function(batch, successors)
             successors_str = ", ".join(f"'{successor}'" for successor in route_to)
             self._logger.info(
                 f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"

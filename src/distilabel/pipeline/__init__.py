@@ -13,5 +13,6 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.routing_batch_function import routing_batch_function
 
-__all__ = ["Pipeline"]
+__all__ = ["Pipeline", "routing_batch_function"]
