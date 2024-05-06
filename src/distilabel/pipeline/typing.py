@@ -15,10 +15,9 @@
 from typing import TYPE_CHECKING, TypeVar, Union
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import GeneratorStep, GlobalStep, Step
 
-DownstreamConnectable = Union["Step", "GlobalStep", "RoutingBatchFunction"]
+DownstreamConnectable = Union["Step", "GlobalStep"]
 
 UpstreamConnectableSteps = TypeVar(
     "UpstreamConnectableSteps",
@@ -27,6 +26,6 @@ UpstreamConnectableSteps = TypeVar(
 
 DownstreamConnectableSteps = TypeVar(
     "DownstreamConnectableSteps",
-    bound=Union["Step", "GlobalStep"],
+    bound=DownstreamConnectable,
     covariant=True,
 )

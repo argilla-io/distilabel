@@ -220,6 +220,10 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         routing_batch_function._step = self
 
     @overload
+    def __rshift__(self, other: "RoutingBatchFunction") -> "RoutingBatchFunction":
+        ...
+
+    @overload
     def __rshift__(
         self, other: List["DownstreamConnectableSteps"]
     ) -> List["DownstreamConnectableSteps"]:
@@ -230,8 +234,17 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         ...
 
     def __rshift__(
-        self, other: Union["DownstreamConnectable", List["DownstreamConnectableSteps"]]
-    ) -> Union["DownstreamConnectable", List["DownstreamConnectableSteps"]]:
+        self,
+        other: Union[
+            "DownstreamConnectable",
+            "RoutingBatchFunction",
+            List["DownstreamConnectableSteps"],
+        ],
+    ) -> Union[
+        "DownstreamConnectable",
+        "RoutingBatchFunction",
+        List["DownstreamConnectableSteps"],
+    ]:
         """Allows using the `>>` operator to connect steps in the pipeline.
 
         Args:
