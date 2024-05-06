@@ -18,7 +18,7 @@ import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, overload
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
@@ -35,6 +35,11 @@ if TYPE_CHECKING:
 
     from distilabel.pipeline.base import BasePipeline
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
+    from distilabel.pipeline.typing import (
+        DownstreamConnectable,
+        DownstreamConnectableSteps,
+        UpstreamConnectableSteps,
+    )
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
@@ -83,22 +88,6 @@ def _infer_step_name(
             idx = int(name.split("_")[-1])
             name = f"{base_name}_{idx+1}"
     return name
-
-
-# We don't really need this level of granularity for the `__rshift__` and `__rrshift__`
-# methods as the result of these methods (in distilabel) aren't meant to be assigned to
-# a variable from which having the IDE assisting us with the types would be useful, but
-# static type checkers (pyright, mypy, etc) will complain if we don't add them.
-UpstreamConnectable = TypeVar(
-    "UpstreamConnectable",
-    bound=Union["Step", "GlobalStep", "GeneratorStep"],
-)
-DownstreamConnectable = TypeVar(
-    "DownstreamConnectable",
-    bound=Union[
-        "Step", "GlobalStep", List[Union["Step", "GlobalStep"]], "RoutingBatchFunction"
-    ],
-)
 
 
 class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -230,7 +219,19 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
         routing_batch_function._step = self
 
-    def __rshift__(self, other: DownstreamConnectable) -> DownstreamConnectable:
+    @overload
+    def __rshift__(
+        self, other: List["DownstreamConnectableSteps"]
+    ) -> List["DownstreamConnectableSteps"]:
+        ...
+
+    @overload
+    def __rshift__(self, other: "DownstreamConnectable") -> "DownstreamConnectable":
+        ...
+
+    def __rshift__(
+        self, other: Union["DownstreamConnectable", List["DownstreamConnectableSteps"]]
+    ) -> Union["DownstreamConnectable", List["DownstreamConnectableSteps"]]:
         """Allows using the `>>` operator to connect steps in the pipeline.
 
         Args:
@@ -265,7 +266,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         self.connect(other)
         return other
 
-    def __rrshift__(self, other: List[UpstreamConnectable]) -> Self:
+    def __rrshift__(self, other: List["UpstreamConnectableSteps"]) -> Self:
         """Allows using the [step1, step2] >> step3 operator to connect a list of steps in the pipeline
         to a single step, as the list doesn't have the __rshift__ operator.
 

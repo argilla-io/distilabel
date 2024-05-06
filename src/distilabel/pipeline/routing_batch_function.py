@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Callable, Dict, List, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Union
 
 from pydantic import BaseModel, PrivateAttr
 
@@ -20,15 +20,12 @@ from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.pipeline.base import _Batch
-    from distilabel.steps.base import GlobalStep, Step, _Step
+    from distilabel.pipeline.typing import DownstreamConnectableSteps
+    from distilabel.steps.base import _Step
 
 RoutingBatchFunc = Callable[[List[str]], List[str]]
 """Type alias for a routing batch function. It takes a list of all the downstream steps and
 returns a list with the names of the steps that should receive the batch."""
-
-DownstreamConnectable = TypeVar(
-    "DownstreamConnectable", bound=Union["Step", "GlobalStep"], covariant=True
-)
 
 
 class RoutingBatchFunction(BaseModel, _Serializable):
@@ -90,8 +87,8 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         )
 
     def __rshift__(
-        self, other: List[DownstreamConnectable]
-    ) -> List[DownstreamConnectable]:
+        self, other: List["DownstreamConnectableSteps"]
+    ) -> List["DownstreamConnectableSteps"]:
         """Connects a list of dowstream steps to the upstream step of the routing batch
         function.
 
