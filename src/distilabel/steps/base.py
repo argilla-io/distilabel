@@ -27,7 +27,6 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
-from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
     from logging import Logger
 
     from distilabel.pipeline.base import BasePipeline
+    from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 
@@ -251,6 +251,8 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             step1 >> [step2, step3]
             ```
         """
+        # Here to avoid circular imports
+        from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 
         if isinstance(other, list):
             for step in other:
