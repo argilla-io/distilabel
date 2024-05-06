@@ -17,8 +17,9 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import requests
-from datasets import IterableDataset, load_dataset
+from datasets import DatasetInfo, IterableDataset, load_dataset
 from pydantic import Field, PrivateAttr
+from requests.exceptions import ConnectionError
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import GeneratorStep
@@ -83,6 +84,9 @@ class LoadHubDataset(GeneratorStep):
         - `split`: The split of the dataset to load. Defaults to 'train'.
         - `config`: The configuration of the dataset to load. This is optional and only
             needed if the dataset has multiple configurations.
+        - `streaming`: Whether to load the dataset in streaming mode or not. Defaults to False.
+        - `num_examples`: The number of examples to load from the dataset.
+            By default will load all examples.
 
     Output columns
         - dynamic, based on the dataset being loaded
@@ -101,6 +105,14 @@ class LoadHubDataset(GeneratorStep):
         description="The configuration of the dataset to load. This is optional and only"
         " needed if the dataset has multiple configurations.",
     )
+    streaming: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to load the dataset in streaming mode or not. Defaults to False.",
+    )
+    num_examples: Optional[RuntimeParameter[int]] = Field(
+        default=None,
+        description="The number of examples to load from the dataset. By default will load all examples.",
+    )
 
     _dataset: Union[IterableDataset, None] = PrivateAttr(...)
 
@@ -112,8 +124,15 @@ class LoadHubDataset(GeneratorStep):
             self.repo_id,  # type: ignore
             self.config,
             split=self.split,
-            streaming=True,
+            streaming=self.streaming,
         )
+        num_examples = self._get_dataset_num_examples()
+        self.num_examples = (
+            min(self.num_examples, num_examples) if self.num_examples else num_examples
+        )
+
+        if not self.streaming:
+            self._dataset = self._dataset.select(range(self.num_examples))
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
@@ -126,7 +145,6 @@ class LoadHubDataset(GeneratorStep):
             A tuple containing a batch of rows and a boolean indicating if the batch is
             the last one.
         """
-        num_examples = self._get_dataset_num_examples()
         num_returned_rows = 0
         for batch_num, batch in enumerate(
             self._dataset.iter(batch_size=self.batch_size)  # type: ignore
@@ -136,7 +154,7 @@ class LoadHubDataset(GeneratorStep):
             transformed_batch = self._transform_batch(batch)
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size
-            yield transformed_batch, num_returned_rows == num_examples
+            yield transformed_batch, num_returned_rows >= self.num_examples
 
     @property
     def outputs(self) -> List[str]:
@@ -183,6 +201,12 @@ class LoadHubDataset(GeneratorStep):
             The columns of the dataset.
         """
         dataset_info = self._get_dataset_info()
+
+        if isinstance(dataset_info, DatasetInfo):
+            if self.config:
+                return list(self._dataset[self.config].info.features.keys())
+            return list(self._dataset.info.features.keys())
+
         if self.config:
             return list(dataset_info["features"].keys())
         return list(dataset_info["default"]["features"].keys())
@@ -195,4 +219,13 @@ class LoadHubDataset(GeneratorStep):
         """
         repo_id = self.repo_id
         config = self.config
-        return _get_hf_dataset_info(repo_id, config)
+
+        try:
+            return _get_hf_dataset_info(repo_id, config)
+        except ConnectionError:
+            # The previous could fail in case of a internet connection issues.
+            # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
+            self.load()
+            if config:
+                return self._dataset[config].info
+            return self._dataset.info

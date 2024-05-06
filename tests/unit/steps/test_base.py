@@ -88,9 +88,13 @@ class TestStep:
 
         assert step.pipeline == pipeline
 
-    def test_creating_step_without_pipeline(self) -> None:
-        with pytest.raises(ValueError, match="Step 'dummy' hasn't received a pipeline"):
-            DummyStep(name="dummy")
+    def test_creating_step_without_pipeline(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        # This test is to ensure that the warning is raised when creating a step without a pipeline,
+        # vs the error we raised before.
+        dummy_step = DummyStep(name="dummy")
+        assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
 
     def test_is_generator(self) -> None:
         step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
@@ -314,16 +318,18 @@ class TestStepSerialization:
 
         assert isinstance(step, DummyStep)
 
-    def test_step_from_dict_without_pipeline_context(self) -> None:
-        with pytest.raises(ValueError):
-            DummyStep.from_dict(
-                {
-                    **{
-                        "name": "dummy",
-                        TYPE_INFO_KEY: {
-                            "module": "tests.pipeline.step.test_base",
-                            "name": "DummyStep",
-                        },
-                    }
+    def test_step_from_dict_without_pipeline_context(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        dummy_step = DummyStep.from_dict(
+            {
+                **{
+                    "name": "dummy",
+                    TYPE_INFO_KEY: {
+                        "module": "tests.pipeline.step.test_base",
+                        "name": "DummyStep",
+                    },
                 }
-            )
+            }
+        )
+        assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
