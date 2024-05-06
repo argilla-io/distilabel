@@ -92,7 +92,6 @@ def _infer_step_name(
 UpstreamConnectable = TypeVar(
     "UpstreamConnectable",
     bound=Union["Step", "GlobalStep", "GeneratorStep"],
-    covariant=True,
 )
 DownstreamConnectable = TypeVar(
     "DownstreamConnectable",

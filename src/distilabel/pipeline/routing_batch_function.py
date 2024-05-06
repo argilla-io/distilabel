@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, TypeVar, Union
 
 from pydantic import BaseModel, PrivateAttr
 
@@ -25,6 +25,10 @@ if TYPE_CHECKING:
 RoutingBatchFunc = Callable[[List[str]], List[str]]
 """Type alias for a routing batch function. It takes a list of all the downstream steps and
 returns a list with the names of the steps that should receive the batch."""
+
+DownstreamConnectable = TypeVar(
+    "DownstreamConnectable", bound=Union["Step", "GlobalStep"], covariant=True
+)
 
 
 class RoutingBatchFunction(BaseModel, _Serializable):
@@ -86,8 +90,8 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         )
 
     def __rshift__(
-        self, other: List[Union["Step", "GlobalStep"]]
-    ) -> List[Union["Step", "GlobalStep"]]:
+        self, other: List[DownstreamConnectable]
+    ) -> List[DownstreamConnectable]:
         """Connects a list of dowstream steps to the upstream step of the routing batch
         function.
 
