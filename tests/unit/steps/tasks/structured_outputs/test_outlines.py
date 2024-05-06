@@ -283,8 +283,12 @@ class TestOutlinesFromLLM:
     def test_serialization(self, tiny_mistral_llm_structured: TransformersLLM) -> None:
         assert tiny_mistral_llm_structured.dump() == self.DUMP
 
-    # def test_load_from_dict(self) -> None:
-    #     llm = TransformersLLM.from_dict(self.DUMP)
+    def test_load_from_dict(self) -> None:
+        llm = TransformersLLM.from_dict(self.DUMP)
+        assert isinstance(llm, TransformersLLM)
+        llm.load()
+        assert llm._structured_generator is not None
+
     #     llm.load()
     #     dump = llm.dump()
     #     import json

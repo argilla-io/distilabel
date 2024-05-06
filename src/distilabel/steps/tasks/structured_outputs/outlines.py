@@ -484,8 +484,3 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         # Just don't include the llm in the dump as it needs special treatment.
         return self.model_dump(exclude="llm", **kwargs)
-
-    # @classmethod
-    # def from_dict(self, data: Dict[str, Any]) -> Self:
-    #     # This class must be instantiated when deserializing using the `from_dict` method of the LLM.
-    #     raise NotImplementedError("This method must be called from within an `LLM`.")

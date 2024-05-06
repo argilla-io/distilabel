@@ -39,6 +39,11 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.utils.docstring import Docstring
 
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
+
 
 if in_notebook():
     import nest_asyncio
@@ -265,11 +270,17 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         return dump
 
     @classmethod
-    def from_dict(self, data: Dict[str, Any]) -> None:
-        # TODO: Overwrite this to work with the structured output extra,
-        # it will be different if we are generating structured output.
+    def from_dict(self, data: Dict[str, Any]) -> Self:
+        """Loads the LLM from a dictionary and injects the structured output if found.
+
+        Args:
+            data: Serialized data of the LLM.
+
+        Returns:
+            The loaded LLM instance.
+        """
         structured_output = data.pop("structured_output", None)
-        # Initial load to get the LLM, it's cheap as we won't at this stage
+        # Load the LLM as usual and inject the structured output if found.
         llm = super().from_dict(data)
         if structured_output:
             from distilabel.steps.tasks.structured_outputs.outlines import (
@@ -277,10 +288,10 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             )
 
             structured_output["llm"] = llm
-            data["structured_output"] = OutlinesStructuredOutput.from_dict(
-                structured_output
-            )
-        return super().from_dict(data)
+            structured_output = OutlinesStructuredOutput.from_dict(structured_output)
+            llm.structured_output = structured_output
+
+        return llm
 
 
 class AsyncLLM(LLM):
