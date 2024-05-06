@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Literal,
     Optional,
@@ -23,7 +25,7 @@ from typing import (
     get_args,
 )
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from distilabel.utils.serialization import _Serializable
 
@@ -71,23 +73,30 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         temperature: the temperature to use for sampling. Defaults to `None`.
     """
 
-    def __init__(
-        self,
-        # Required args
-        llm: AllowedLLMs,
-        sampler: SamplerType = "multinomial",
-        output_format: OutputType = "text",
-        output_structure: Optional[StructureType] = None,
-        whitespace_pattern: Optional[str] = None,
-        # generation_kwargs
-        num_generations: int = 1,
-        # Specific for the multiomial sampler
-        top_k: Optional[int] = None,
-        top_p: Optional[float] = None,
-        temperature: Optional[float] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
+    llm: Any = Field(
+        default=None,
+        description="The LLM model from `outlines` to use for the generation.",
+    )
+    sampler: SamplerType = "multinomial"
+    output_format: OutputType = "text"
+    output_structure: Optional[StructureType] = None
+    whitespace_pattern: Optional[str] = None
+    num_generations: int = 1
+    top_k: Optional[int] = None
+    top_p: Optional[float] = None
+    temperature: Optional[float] = None
+
+    def model_post_init(self, __context) -> None:
+        super().model_post_init(__context)
+        if type(self.output_structure) == type(BaseModel):
+            # Force passing the schema as a string to simplify the transformation to a dataset afterwards.
+            output_structure = self.output_structure.model_json_schema()
+            output_structure.pop("required")
+            output_structure = json.dumps(output_structure)
+            # update the type in case it is a BaseModel to generate json.
+            self.output_structure = output_structure
+
+    def load(self):
         try:
             import outlines.generate as outlines_generate
         except ImportError as ie:
@@ -95,38 +104,59 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
                 "`outlines` is not installed. Please install it using `pip install outlines` to use this class."
             ) from ie
 
-        sampler = self._prepare_sampler(
-            sampler,
-            num_generations=num_generations,
-            top_k=top_k,
-            top_p=top_p,
-            temperature=temperature,
+        sampler_func = self._prepare_sampler(
+            self.sampler,
+            num_generations=self.num_generations,
+            top_k=self.top_k,
+            top_p=self.top_p,
+            temperature=self.temperature,
         )
 
-        if output_format == "text":
-            self._structured_generator = outlines_generate.text(llm, sampler=sampler)
-
-        elif output_format == "json":
-            self._structured_generator = outlines_generate.json(
-                llm,
-                output_structure,  # schema object
-                sampler=sampler,
-                whitespace_pattern=whitespace_pattern,
+        if self.output_format == "text":
+            self._structured_generator = outlines_generate.text(
+                self.llm, sampler=sampler_func
             )
 
-        elif output_format == "regex":
+        elif self.output_format == "json":
+            if self.output_structure is None:
+                # This should works like "json mode" in OpenAI.
+                # https://outlines-dev.github.io/outlines/reference/json_mode/
+                raise NotImplementedError(
+                    "JSON Mode is not working currently on outlines."
+                )
+                import outlines
+
+                self._structured_generator = outlines_generate.cfg(
+                    self.llm, outlines.grammars.json, sampler=sampler_func
+                )
+            else:
+                self._structured_generator = outlines_generate.json(
+                    self.llm,
+                    self.output_structure,  # schema object
+                    sampler=sampler_func,
+                    whitespace_pattern=self.whitespace_pattern,
+                )
+
+        elif self.output_format == "regex":
+            if not self.output_structure:
+                raise ValueError(
+                    "`output_structure` must be provided for `regex` output_format."
+                )
             self._structured_generator = outlines_generate.regex(
-                llm,
-                output_structure,  # regex string or re.compile?
-                sampler=sampler,
+                self.llm,
+                self.output_structure,  # regex string or re.compile?
+                sampler=sampler_func,
             )
-        elif output_format == "cfg":
+        elif self.output_format == "cfg":
+            raise NotImplementedError(
+                "There's a bug in `outlines` and we cannot work with `cfg` for the moment."
+            )
             self._structured_generator = outlines_generate.cfg(
-                llm, output_structure, sampler=sampler
+                self.llm, self.output_structure, sampler=sampler_func
             )
         else:
             raise NotImplementedError(
-                f"Only {get_args(output_format)} are supported for `outlines`."
+                f"Only {get_args(OutputType)} are supported for `outlines`."
             )
 
     def _prepare_sampler(
@@ -165,7 +195,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         elif sampler_name == "greedy":
             return greedy()
         elif sampler_name == "beam":
-            return beam_search(beams=self.num_generations)
+            return beam_search(beams=num_generations)
 
         raise ValueError(
             "Only `greedy`, `multinomial` and `beam` samplers are supported."
@@ -178,6 +208,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         sampler: SamplerType = "multinomial",
         output_format: OutputType = "text",
         output_structure: Optional[StructureType] = None,
+        whitespace_pattern: Optional[str] = None,
         num_generations: int = 1,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -190,6 +221,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             sampler: the sampler for the logits. Defaults to "multinomial".
             output_format: Structured output wanted from the `LLM`. Defaults to "text".
             output_structure: the structure of the output. Defaults to `None`.
+            whitespace_pattern: the pattern to use to split the output into structured parts. Defaults to `None`.
             num_generations: the number of generations to produce. Defaults to `1`.
             top_k: the number of top tokens to sample from. Defaults to `None`.
             top_p: the cumulative probability threshold for sampling from the top tokens. Defaults to `None`.
@@ -201,10 +233,11 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         from outlines.models.transformers import Transformers
 
         return cls(
-            Transformers(llm._pipeline.model, llm._pipeline.tokenizer),
+            llm=Transformers(llm._pipeline.model, llm._pipeline.tokenizer),
             sampler=sampler,
             output_format=output_format,
             output_structure=output_structure,
+            whitespace_pattern=whitespace_pattern,
             num_generations=num_generations,
             top_k=top_k,
             top_p=top_p,
@@ -218,6 +251,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         sampler: SamplerType = "multinomial",
         output_format: OutputType = "text",
         output_structure: Optional[StructureType] = None,
+        whitespace_pattern: Optional[str] = None,
         num_generations: int = 1,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -230,6 +264,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             sampler: the sampler for the logits. Defaults to "multinomial".
             output_format: Structured output wanted from the `LLM`. Defaults to "text".
             output_structure: the structure of the output. Defaults to `None`.
+            whitespace_pattern: the pattern to use to split the output into structured parts. Defaults to `None`.
             num_generations: the number of generations to produce. Defaults to `1`.
             top_k: the number of top tokens to sample from. Defaults to `None`.
             top_p: the cumulative probability threshold for sampling from the top tokens. Defaults to `None`.
@@ -241,10 +276,11 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         from outlines.models.llamacpp import LlamaCpp
 
         return cls(
-            LlamaCpp(llm._model),
+            llm=LlamaCpp(llm._model),
             sampler=sampler,
             output_format=output_format,
             output_structure=output_structure,
+            whitespace_pattern=whitespace_pattern,
             num_generations=num_generations,
             top_k=top_k,
             top_p=top_p,
@@ -258,6 +294,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         sampler: SamplerType = "multinomial",
         output_format: OutputType = "text",
         output_structure: Optional[StructureType] = None,
+        whitespace_pattern: Optional[str] = None,
         num_generations: int = 1,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
@@ -270,6 +307,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             sampler: the sampler for the logits. Defaults to "multinomial".
             output_format: Structured output wanted from the `LLM`. Defaults to "text".
             output_structure: the structure of the output. Defaults to `None`.
+            whitespace_pattern: the pattern to use to split the output into structured parts. Defaults to `None`.
             num_generations: the number of generations to produce. Defaults to `1`.
             top_k: the number of top tokens to sample from. Defaults to `None`.
             top_p: the cumulative probability threshold for sampling from the top tokens. Defaults to `None`.
@@ -281,10 +319,11 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         from outlines.models.vllm import VLLM
 
         return cls(
-            VLLM(llm._model),
+            llm=VLLM(llm._model),
             sampler=sampler,
             output_format=output_format,
             output_structure=output_structure,
+            whitespace_pattern=whitespace_pattern,
             num_generations=num_generations,
             top_k=top_k,
             top_p=top_p,
@@ -332,6 +371,10 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         Returns:
             `OutlinesStructuredOutput` instance.
         """
+        if output_format in ("json", "regex", "cfg"):
+            raise NotImplementedError(
+                f"Only 'text' output_format is supported for `{type(llm).__name__}`."
+            )
         import tiktoken
         from outlines.models.openai import OpenAI, OpenAIConfig
 
@@ -354,7 +397,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         )
 
         return cls(
-            llm,
+            llm=llm,
             sampler=sampler,
             output_format=output_format,
             output_structure=output_structure,
@@ -365,7 +408,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         )
 
     @classmethod
-    def from_llm(
+    def _from_llm(
         cls,
         llm: AllowedLLMs,
         **kwargs: Any,
@@ -384,19 +427,18 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         Returns:
             `OutlinesStructuredOutput` instance.
         """
-        from distilabel.llms.huggingface.transformers import TransformersLLM
-        from distilabel.llms.llamacpp import LlamaCppLLM
-        from distilabel.llms.openai import AzureOpenAILLM, OpenAILLM
-        from distilabel.llms.vllm import vLLM
+        # hackish way to check the type of the llm without importing it the modules,
+        # to avoid raising an ImportError just to check the framework used.
+        llm_name = type(llm).__name__.lower()
 
-        if isinstance(llm, TransformersLLM):
-            return cls.from_transformers(llm, **kwargs)
-        elif isinstance(llm, LlamaCppLLM):
-            return cls.from_llamacpp(llm, **kwargs)
-        elif isinstance(llm, vLLM):
-            return cls.from_vllm(llm, **kwargs)
-        elif isinstance(llm, OpenAILLM) or isinstance(llm, AzureOpenAILLM):
-            return cls.from_openai(llm, **kwargs)
+        if "transformers" in llm_name:
+            return cls.from_transformers(llm=llm, **kwargs)
+        elif "llamacpp" in llm_name:
+            return cls.from_llamacpp(llm=llm, **kwargs)
+        elif "vllm" in llm_name:
+            return cls.from_vllm(llm=llm, **kwargs)
+        elif "openai" in llm_name:
+            return cls.from_openai(llm=llm, **kwargs)
         raise NotImplementedError(
             f"Only {get_args(AllowedLLMs)} are supported for {type(cls).__name__}."
         )
@@ -434,4 +476,16 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             # When num_generations==1, batch_size==1
             outputs = [[structured_output]]
 
+        if self.output_format == "json":
+            # If the output is in json format, pass it as a string to not break latter steps in the pipeline.
+            return [[json.dumps(output) for output in batch] for batch in outputs]
         return outputs
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        # Just don't include the llm in the dump as it needs special treatment.
+        return self.model_dump(exclude="llm", **kwargs)
+
+    # @classmethod
+    # def from_dict(self, data: Dict[str, Any]) -> Self:
+    #     # This class must be instantiated when deserializing using the `from_dict` method of the LLM.
+    #     raise NotImplementedError("This method must be called from within an `LLM`.")

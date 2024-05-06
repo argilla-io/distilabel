@@ -244,7 +244,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                     output_structure = outlines.grammars.json
                     output_format = "cfg"
 
-                return OutlinesStructuredOutput.from_llm(
+                return OutlinesStructuredOutput._from_llm(
                     self,
                     output_format=output_format,
                     output_structure=output_structure,
@@ -255,6 +255,32 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
                 " with the keys `format`, `structure` and optionally `whitespace_pattern`. The following won't"
                 f" have any effect: {structured_output}"
             )
+
+    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        # Common dump from the LLM base model
+        dump = super()._model_dump(obj, **kwargs)
+        # Update the structured_output content
+        if "structured_output" in dump.keys():
+            dump["structured_output"] = self._structured_generator.dump()
+        return dump
+
+    @classmethod
+    def from_dict(self, data: Dict[str, Any]) -> None:
+        # TODO: Overwrite this to work with the structured output extra,
+        # it will be different if we are generating structured output.
+        structured_output = data.pop("structured_output", None)
+        # Initial load to get the LLM, it's cheap as we won't at this stage
+        llm = super().from_dict(data)
+        if structured_output:
+            from distilabel.steps.tasks.structured_outputs.outlines import (
+                OutlinesStructuredOutput,
+            )
+
+            structured_output["llm"] = llm
+            data["structured_output"] = OutlinesStructuredOutput.from_dict(
+                structured_output
+            )
+        return super().from_dict(data)
 
 
 class AsyncLLM(LLM):
