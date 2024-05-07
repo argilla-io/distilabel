@@ -70,6 +70,41 @@ Score 5: The model consistently demonstrates advanced reasoning abilities, provi
 
 
 class PrometheusAbsEval(Task):
+    """PrometheusAbsEval is a task created for Prometheus 2.0 absolute evaluation in order to evalute
+    the generation from an LLM for a given instruction with or without using a reference answer.
+    Additionally, the task defines a score rubric to critique the generation based on the following
+    aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, and `reasoning`.
+
+    Note:
+        Both `PrometheusAbsEval` and `PrometheusRelEval` tasks are intended to be used with any of the
+        Kaist AI released models for that being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
+        and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
+        and quality is not guaranteed if using another model, even though some other models may be able to
+        correctly follow the formatting and generate insightful critiques too.
+
+    Attributes:
+        rubric: the score rubric to use within the prompt to critique a given generation. Can either be:
+            `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, or `reasoning`.
+        reference: a boolean flag to indicate whether a reference answer / completion will be provided, so
+            that the model critique is based on the comparison with it. It implies that the column `reference`
+            needs to be provided within the input data in addition to the rest of the inputs.
+        _template: a Jinja2 template used to format the input for the LLM.
+
+    Input columns:
+        - instruction (`str`): The instruction to use as reference to understand where the generation comes from.
+        - generation (`str`): The generated text from the given `instruction`.
+        - reference (`str`, optional): The reference / golden answer for the `instruction`, to be used by the LLM
+            for comparison against the `generation`.
+
+    Output columns:
+        - feedback (`str`): The feedback for the `generation` based on the given `instruction` critiqued using the
+            pre-defined score rubric, compared against `reference` if provided.
+        - result (`int`): The score for the `generation` in a liker-scale from 1-5.
+
+    References:
+        - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
+    """
+
     rubric: Literal[
         "helpfulness", "harmlessness", "honesty", "factual-validity", "reasoning"
     ]
@@ -78,7 +113,8 @@ class PrometheusAbsEval(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template."""
+        """Loads the Jinja2 template for Prometheus 2.0 absolute evaluation, either
+        with or without reference, depending on the value of `reference`."""
         super().load()
 
         _path = str(
@@ -105,7 +141,7 @@ class PrometheusAbsEval(Task):
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` where the prompt is formatted according
-        to the selected Jinja2 template for Prometheus, assuming that's the first interaction
+        to the selected Jinja2 template for Prometheus 2.0, assuming that's the first interaction
         from the user, including a pre-defined system prompt."""
         template_kwargs = {
             "instruction": input["instruction"],
@@ -161,6 +197,44 @@ class PrometheusAbsEval(Task):
 
 
 class PrometheusRelEval(Task):
+    """PrometheusRelEval is a task created for Prometheus 2.0 relative evaluation in order to evalute
+    two generations for a given instruction with or without using a reference answer.
+    Additionally, the task defines a score rubric to critique the generations based on the following
+    aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, and `reasoning`; in order to
+    define which of the generations is better than the other one, if any.
+
+    Note:
+        Both `PrometheusAbsEval` and `PrometheusRelEval` tasks are intended to be used with any of the
+        Kaist AI released models for that being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
+        and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
+        and quality is not guaranteed if using another model, even though some other models may be able to
+        correctly follow the formatting and generate insightful critiques too.
+
+    Attributes:
+        rubric: the score rubric to use within the prompt to critique the given generations. Can either be:
+            `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, or `reasoning`.
+        reference: a boolean flag to indicate whether a reference answer / completion will be provided, so
+            that the model critique is based on the comparison with it. It implies that the column `reference`
+            needs to be provided within the input data in addition to the rest of the inputs.
+        _template: a Jinja2 template used to format the input for the LLM.
+
+    Input columns:
+        - instruction (`str`): The instruction to use as reference to understand where the generations come from.
+        - generations (`List[str]`): The generated texts from the given `instruction`. It should contain 2 generations
+            to be internally named A and B.
+        - reference (`str`, optional): The reference / golden answer for the `instruction`, to be used by the LLM
+            for comparison against the `generations`.
+
+    Output columns:
+        - feedback (`str`): The feedback for the `generation` based on the given `instruction` critiqued using the
+            pre-defined score rubric, compared against `reference` if provided.
+        - result (`Literal["A", "B"]`): The result that contains either "A" or "B", the "winning" one being the generation
+            in the index 0 of `generations` if `result='A'`, otherwise, if `result='B'` then the generation with index 1.
+
+    References:
+        - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
+    """
+
     rubric: Literal[
         "helpfulness", "harmlessness", "honesty", "factual-validity", "reasoning"
     ]
@@ -169,7 +243,8 @@ class PrometheusRelEval(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template."""
+        """Loads the Jinja2 template for Prometheus 2.0 relative evaluation, either
+        with or without reference, depending on the value of `reference`."""
         super().load()
 
         _path = str(
@@ -256,7 +331,6 @@ class PrometheusRelEval(Task):
         feedback, result = parts[0].strip(), parts[1].strip()
         if result not in ["A", "B"]:
             return {"feedback": None, "result": None}
-        # result = [1, 0] if result == "A" else [0, 1]
         if feedback.startswith("Feedback:"):
             feedback = feedback[len("Feedback:") :].strip()
         return {"feedback": feedback, "result": result}
