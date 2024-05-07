@@ -96,6 +96,8 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         self._structured_generator = self._prepare_structured_output(
             self.structured_output
         )
+        if self._structured_generator:
+            self._structured_generator.load()
 
     @property
     @abstractmethod
