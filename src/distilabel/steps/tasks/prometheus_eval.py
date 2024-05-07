@@ -100,6 +100,7 @@ class PrometheusAbsEval(Task):
         - feedback (`str`): The feedback for the `generation` based on the given `instruction` critiqued using the
             pre-defined score rubric, compared against `reference` if provided.
         - result (`int`): The score for the `generation` in a liker-scale from 1-5.
+        - model_name (`str`): The model name used to generate the `feedback` and `result`.
 
     References:
         - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
@@ -232,6 +233,7 @@ class PrometheusRelEval(Task):
             pre-defined score rubric, compared against `reference` if provided.
         - result (`Literal["A", "B"]`): The result that contains either "A" or "B", the "winning" one being the generation
             in the index 0 of `generations` if `result='A'`, otherwise, if `result='B'` then the generation with index 1.
+        - model_name (`str`): The model name used to generate the `feedback` and `result`.
 
     References:
         - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
