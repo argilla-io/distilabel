@@ -31,9 +31,12 @@ from pydantic import BaseModel, Field
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
+    from outlines.models import LogitsGenerator
     from outlines.samplers import Sampler
+    from pydantic._internal._model_construction import ModelMetaclass
 
     from distilabel.llms.azure import AzureOpenAILLM
+    from distilabel.llms.base import LLM
     from distilabel.llms.huggingface.transformers import TransformersLLM
     from distilabel.llms.llamacpp import LlamaCppLLM
     from distilabel.llms.openai import OpenAILLM
@@ -450,7 +453,7 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         max_tokens: Optional[int] = None,
         stop_at: Optional[Union[str, List[str]]] = None,
     ) -> List["GenerateOutput"]:
-        """Metho to effectively generate the structured outputs from the `LLM`.
+        """Method to effectively generate the structured outputs from the `LLM`.
 
         Args:
             prompts: the prompts to generate the structured outputs (inputs in the `LLMs`).
@@ -458,7 +461,6 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             stop_at: a string or a list of strings to use as a stop sequence for the generation.
         """
 
-        # NOTE: rng isn't passed for the moment, we need a better way of creating it thinking of possibly serializing the value.
         try:
             structured_output = self._structured_generator(
                 prompts, max_tokens=max_tokens, stop_at=stop_at
@@ -499,5 +501,66 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         return outputs
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
+        """The method to dump the model to a dictionary, we remove the `llm` as that
+        one will be treated by the `LLM` itself.
+        """
         # Just don't include the llm in the dump as it needs special treatment.
         return self.model_dump(exclude="llm", **kwargs)
+
+
+def model_to_schema(model_cls: "ModelMetaclass") -> str:
+    """Helper method to get the json schema expected from outlines.
+
+    Args:
+        model: the model to get the schema from.
+
+    Returns:
+        The json schema as a string to be passed as a structure.
+
+    Example:
+        >>> llm = TransformersLLM(
+        ...    model="argilla/notus-7b-v1",
+        ...    structured_output={"format": format, "structure": model_to_schema(User)},
+        ... )
+    """
+    schema = model_cls.model_json_schema()
+    schema.pop("required")
+    return json.dumps(schema)
+
+
+def _prepare_llm_from_framework(llm: "LLM") -> "LogitsGenerator":
+    """Internal function to prepare the `LLM` to be used with `OutlinesStructuredOutput`.
+
+    Args:
+        llm: llm instance to prepare.
+
+    Raises:
+        NotImplementedError: If the `LLM` is not implemented for `OutlinesStructuredOutput`.
+
+    Returns:
+        The LLM as expected by `outlines`.
+
+    Note:
+        This function is for internal use only. It's a helper function to be used in LLM._prepare_structured_output
+        when the user passes the `OutlinesStructuredOutput` directly.
+    """
+    llm_name = type(llm).__name__.lower()
+
+    if llm_name == "transformersllm":
+        from outlines.models.transformers import Transformers
+
+        return Transformers(llm._pipeline.model, llm._pipeline.tokenizer)
+
+    elif llm_name == "llamacppllm":
+        from outlines.models.llamacpp import LlamaCpp
+
+        return LlamaCpp(llm._model)
+
+    elif llm_name == "vllm":
+        from outlines.models.vllm import VLLM
+
+        return VLLM(llm._model)
+
+    raise NotImplementedError(
+        f"LLM not implemented for outlines integration: `{type(llm).__name__}`"
+    )

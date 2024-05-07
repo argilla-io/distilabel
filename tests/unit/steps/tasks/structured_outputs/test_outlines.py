@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 from typing import Any, List, Union
 
 import pytest
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.llms.openai import OpenAILLM
-from distilabel.steps.tasks.structured_outputs.outlines import OutlinesStructuredOutput
+from distilabel.steps.tasks.structured_outputs.outlines import (
+    OutlinesStructuredOutput,
+    model_to_schema,
+)
 from outlines.models.openai import OpenAI
 from pydantic import BaseModel
 
@@ -29,7 +31,6 @@ DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 @pytest.fixture(scope="module")
 def tiny_mistral_llm() -> TransformersLLM:
     llm = TransformersLLM(model="openaccess-ai-collective/tiny-mistral")
-    # llm = TransformersLLM(model="Locutusque/TinyMistral-248M-v2.5-Instruct")
     llm.load()
     return llm
 
@@ -50,24 +51,7 @@ class DummyUserTest(BaseModel):
     id: int
 
 
-def model_to_schema(model: BaseModel) -> str:
-    schema = model.model_json_schema()
-    schema.pop("required")
-    return json.dumps(schema)
-
-
 class TestOutlinesStructuredOutput:
-    # def test_wrong_output_format(self):
-    #     with pytest.raises(NotImplementedError):
-    #         OutlinesStructuredOutput(llm=DummyLLM())
-
-    # def test_not_loaded_llm(self):
-    #     with pytest.raises(ValueError):
-    #         OutlinesStructuredOutput(llm="not_allowed")
-
-    # Will only test the OpenAI and Transformers for now, as vLLM is not supported in macos, and llamacpp
-    # is implemented really similar to Transformers in outlines.
-
     @pytest.mark.parametrize(
         "output_format, expected",
         [
@@ -236,10 +220,6 @@ class TestOutlinesStructuredOutput:
             },
         }
 
-        # with pytest.raises(NotImplementedError):
-        #     structured_output = OutlinesStructuredOutput.from_dict({})
-        #     structured_output.load()
-
 
 class TestOutlinesFromLLM:
     DUMP = {
@@ -336,4 +316,19 @@ class TestOutlinesFromLLM:
         assert isinstance(result[0][0], str)
 
     def test_structured_generation_from_instance(self):
-        pass
+        # Test that we can instantiate it with the wrapper class directly.
+        llm = TransformersLLM(
+            model="openaccess-ai-collective/tiny-mistral",
+            structured_output=OutlinesStructuredOutput(output_format="text"),
+        )
+        llm.load()
+        prompt = [
+            [
+                {"role": "system", "content": ""},
+                {"role": "user", "content": "What is 2+2?"},
+            ]
+        ]
+        result = llm.generate(prompt, max_new_tokens=30)
+        assert isinstance(result, list)
+        assert isinstance(result[0], list)
+        assert isinstance(result[0][0], str)
