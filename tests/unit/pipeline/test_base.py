@@ -654,6 +654,7 @@ class TestBatchManagerStep:
                         data=[
                             [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]
                         ],
+                        batch_routed_to=["step1", "step2"],
                     )
                 ],
                 "step2": [
@@ -672,6 +673,7 @@ class TestBatchManagerStep:
                                 {"b": 7},
                             ]
                         ],
+                        batch_routed_to=["step1", "step2"],
                     )
                 ],
             },
@@ -683,7 +685,7 @@ class TestBatchManagerStep:
             [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
         ]
         assert created_from == {"step1": [0], "step2": [0]}
-        assert routed_to == []
+        assert routed_to == ["step1", "step2"]
 
         assert batch_manager_step.data == {
             "step1": [
@@ -692,6 +694,7 @@ class TestBatchManagerStep:
                     step_name="step1",
                     last_batch=False,
                     data=[[{"a": 6}]],
+                    batch_routed_to=["step1", "step2"],
                 )
             ],
             "step2": [
@@ -700,6 +703,7 @@ class TestBatchManagerStep:
                     step_name="step2",
                     last_batch=False,
                     data=[[{"b": 6}, {"b": 7}]],
+                    batch_routed_to=["step1", "step2"],
                 )
             ],
         }
@@ -750,6 +754,105 @@ class TestBatchManagerStep:
         assert routed_to == []
 
         assert batch_manager_step.data == {"step1": [], "step2": []}
+
+    def test_get_data_convergence_step(self) -> None:
+        batch_a_0 = _Batch(
+            seq_no=0,
+            step_name="A",
+            last_batch=False,
+            data=[
+                [
+                    {"generation": "Hello, I'm A 0"},
+                    {"generation": "Hello, I'm A 0"},
+                    {"generation": "Hello, I'm A 0"},
+                ]
+            ],
+            created_from={"Z": [0]},
+        )
+
+        batch_a_1 = _Batch(
+            seq_no=1,
+            step_name="A",
+            last_batch=False,
+            data=[
+                [
+                    {"generation": "Hello, I'm A 1"},
+                    {"generation": "Hello, I'm A 1"},
+                    {"generation": "Hello, I'm A 1"},
+                ]
+            ],
+            created_from={"Z": [1]},
+        )
+
+        batch_b_0 = _Batch(
+            seq_no=0,
+            step_name="B",
+            last_batch=False,
+            data=[
+                [
+                    {"generation": "Hello, I'm B 0"},
+                    {"generation": "Hello, I'm B 0"},
+                    {"generation": "Hello, I'm B 0"},
+                ]
+            ],
+            created_from={"Z": [0]},
+        )
+
+        batch_c_0 = _Batch(
+            seq_no=0,
+            step_name="C",
+            last_batch=False,
+            data=[
+                [
+                    {"generation": "Hello, I'm C 0"},
+                    {"generation": "Hello, I'm C 0"},
+                    {"generation": "Hello, I'm C 0"},
+                ]
+            ],
+            created_from={"Z": [1]},
+        )
+
+        bath_manager_step = _BatchManagerStep(
+            step_name="D",
+            input_batch_size=3,
+            convergence_step=True,
+            accumulate=False,
+            data={"A": [batch_a_0, batch_a_1], "B": [batch_b_0], "C": [batch_c_0]},
+        )
+
+        data, created_from, routed_to = bath_manager_step._get_data()
+
+        assert data == [
+            [
+                {"generation": "Hello, I'm A 0"},
+                {"generation": "Hello, I'm A 0"},
+                {"generation": "Hello, I'm A 0"},
+            ],
+            [
+                {"generation": "Hello, I'm B 0"},
+                {"generation": "Hello, I'm B 0"},
+                {"generation": "Hello, I'm B 0"},
+            ],
+        ]
+        assert created_from == {"A": [0], "B": [0]}
+        assert routed_to == []
+
+        data, created_from, routed_to = bath_manager_step._get_data()
+
+        assert data == [
+            [
+                {"generation": "Hello, I'm A 1"},
+                {"generation": "Hello, I'm A 1"},
+                {"generation": "Hello, I'm A 1"},
+            ],
+            [
+                {"generation": "Hello, I'm C 0"},
+                {"generation": "Hello, I'm C 0"},
+                {"generation": "Hello, I'm C 0"},
+            ],
+        ]
+        assert created_from == {"A": [1], "C": [0]}
+        assert routed_to == []
 
     @pytest.mark.parametrize(
         "data, last_batch_received, expected",
@@ -1175,6 +1278,115 @@ class TestBatchManagerStep:
                 "name": "_BatchManagerStep",
             },
         }
+
+    @pytest.mark.parametrize(
+        "data, last_batch_received, expected",
+        [
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                    "step2": [],
+                },
+                [],
+                False,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step2",
+                            last_batch=False,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                },
+                [],
+                True,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step2",
+                            last_batch=False,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                },
+                [],
+                False,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step2",
+                            last_batch=True,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
+                            batch_routed_to=["step1", "step2"],
+                        )
+                    ],
+                },
+                ["step1", "step2"],
+                True,
+            ),
+        ],
+    )
+    def test_ready_to_create_batch_convergence_step(
+        self,
+        data: Dict[str, List[_Batch]],
+        last_batch_received: List[str],
+        expected: bool,
+    ) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step3",
+            accumulate=False,
+            input_batch_size=5,
+            data=data,
+            last_batch_received=last_batch_received,
+        )
+
+        assert batch_manager_step._ready_to_create_batch() is expected
 
     def test_from_dict(self) -> None:
         batch_manager_step = _BatchManagerStep.from_dict(

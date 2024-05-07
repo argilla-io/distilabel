@@ -600,7 +600,7 @@ class _BatchManagerStep(_Serializable):
             A tuple containing the list of data needed to create a batch for the step to
             process, a dictionary with the sequence numbers of the batches that were used
             to create the batch and the list of steps to which the batch was routed to if
-            the step is a convergence step.
+            the step is a normal step.
         """
         if self.accumulate:
             # Steps accumulating cannot receive routed batches
