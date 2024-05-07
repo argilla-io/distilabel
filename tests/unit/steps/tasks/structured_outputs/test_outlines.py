@@ -334,3 +334,6 @@ class TestOutlinesFromLLM:
         assert isinstance(result, list)
         assert isinstance(result[0], list)
         assert isinstance(result[0][0], str)
+
+    def test_structured_generation_from_instance(self):
+        pass

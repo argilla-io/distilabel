@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import logging
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -465,12 +466,18 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
         except json.decoder.JSONDecodeError:
             # If the model is not strong enough, or the max_tokens
             # is too low, the output can be a string that is not a valid JSON.
-            self.llm.logger.warning(
+            logger = logging.getLogger(
+                "distilabel.steps.tasks.structured_outputs.outlines"
+            )
+            logger.warning(
                 "Error decoding the JSON structured output. Returning empty dict."
             )
             structured_output = "{}"
         except Exception as e:
-            self.llm.logger.warning(
+            logger = logging.getLogger(
+                "distilabel.steps.tasks.structured_outputs.outlines"
+            )
+            logger.warning(
                 f"Error decoding the structured output. Returning empty str. Error: {e}"
             )
             structured_output = ""

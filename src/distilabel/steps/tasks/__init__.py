@@ -28,6 +28,7 @@ from distilabel.steps.tasks.instruction_backtranslation import (
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.quality_scorer import QualityScorer
 from distilabel.steps.tasks.self_instruct import SelfInstruct
+from distilabel.steps.tasks.structured_outputs.outlines import OutlinesStructuredOutput
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
@@ -51,4 +52,5 @@ __all__ = [
     "SelfInstruct",
     "TextGeneration",
     "UltraFeedback",
+    "OutlinesStructuredOutput",
 ]

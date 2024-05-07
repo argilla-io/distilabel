@@ -18,7 +18,7 @@ import logging
 import sys
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -33,10 +33,7 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.tasks.structured_outputs.outlines import (
-        OutlinesStructuredOutput,
-    )
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.tasks.typing import ChatType, OutlinesStructuredOutputDict
     from distilabel.utils.docstring import Docstring
 
 try:
@@ -44,11 +41,16 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-
 if in_notebook():
     import nest_asyncio
 
     nest_asyncio.apply()
+
+
+# NOTE(plaguss): This Alias type is here just to inform the user that the type `OutlinesStructuredOutput`,
+# ideally it should be imported, but there are problems with the import cycle or with classes
+# not fully defined: https://docs.pydantic.dev/latest/errors/usage_errors/#class-not-fully-defined.
+StructuredOutputType = Annotated[dict, "OutlinesStructuredOutput"]
 
 
 class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -82,11 +84,8 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         description="The kwargs to be propagated to either `generate` or `agenerate`"
         " methods within each `LLM`.",
     )
-    # TODO: how to properly annotate OutlinesStructuredOutput? it raises a pydantic error,
-    # structured_output: Optional[Union[Dict[str, Any], "OutlinesStructuredOutput"]] = None
-    structured_output: Optional[Union[Dict[str, Any], Any]] = None
-    # _structured_generator: Optional["OutlinesStructuredOutput"] = PrivateAttr(None)
-    _structured_generator: Optional[Any] = PrivateAttr(...)
+    structured_output: Union[Union[Dict[str, Any]], "StructuredOutputType", None] = None
+    _structured_generator: Union["StructuredOutputType", None] = PrivateAttr(None)
 
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
@@ -216,8 +215,11 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
 
     def _prepare_structured_output(
-        self, structured_output: Optional[Union[Dict[str, Any], Any]] = None
-    ) -> Union["OutlinesStructuredOutput", None]:
+        self,
+        structured_output: Optional[
+            Union["OutlinesStructuredOutputDict", StructuredOutputType]
+        ] = None,
+    ) -> Union[StructuredOutputType, None]:
         """Method to prepare the structured output generator from the given structured output variable.
 
         Args:
@@ -237,9 +239,6 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             if isinstance(structured_output, OutlinesStructuredOutput):
                 return structured_output
             elif isinstance(structured_output, dict):
-                # TODO: Document this argument could be a dictionary like:
-                # {"format": "text" | "json" | "regex" | "cfg", "structure": Any}
-                # Also "method": "outlines", could be included once we integrate other frameworks like `instructor`.
                 output_format = structured_output.get("format", "text")
                 output_structure = structured_output.get("structure")
                 if (output_format == "json") and (not output_structure):
