@@ -35,6 +35,9 @@ class RoutingBatchFunction(BaseModel, _Serializable):
     Attributes:
         routing_function: The routing function that takes a list of all the downstream steps
             and returns a list with the names of the steps that should receive the batch.
+        _step: The upstream step that is connected to the routing batch function.
+        _routed_batch_registry: A dictionary that keeps track of the batches that have been
+            routed to specific downstream steps.
     """
 
     routing_function: RoutingBatchFunc
