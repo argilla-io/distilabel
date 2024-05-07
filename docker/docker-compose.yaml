@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  distilabel:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    image: distilabel
+    environment:
+      - ENV_VARIABLE=some_value
+    volumes:
+      - .:/app
