@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import random
+import time
 from typing import TYPE_CHECKING, List
 
 from distilabel.pipeline import Pipeline, routing_batch_function
@@ -34,7 +35,7 @@ def random_routing_batch(steps: List[str]) -> List[str]:
 def Generate(inputs: StepInput) -> "StepOutput":
     # random sleep to simulate processing time
     sleep_time = random.uniform(1.0, 2.0)
-    # time.sleep(sleep_time)
+    time.sleep(sleep_time)
     for input in inputs:
         input["generation"] = "I slept for {} seconds".format(sleep_time)
     yield inputs
