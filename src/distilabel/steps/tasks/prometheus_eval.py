@@ -123,9 +123,11 @@ class PrometheusAbsEval(Task):
             / "tasks"
             / "templates"
             / "prometheus"
-            / "absolute_without_reference.jinja2"
-            if self.reference is False
-            else "absolute_with_reference.jinja2"
+            / (
+                "absolute_without_reference.jinja2"
+                if self.reference is False
+                else "absolute_with_reference.jinja2"
+            )
         )
 
         self._template = Template(open(_path).read())
@@ -253,9 +255,11 @@ class PrometheusRelEval(Task):
             / "tasks"
             / "templates"
             / "prometheus"
-            / "relative_without_reference.jinja2"
-            if self.reference is False
-            else "relative_with_reference.jinja2"
+            / (
+                "relative_without_reference.jinja2"
+                if self.reference is False
+                else "relative_with_reference.jinja2"
+            )
         )
 
         self._template = Template(open(_path).read())
