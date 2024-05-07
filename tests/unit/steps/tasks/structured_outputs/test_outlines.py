@@ -278,21 +278,59 @@ class TestOutlinesFromLLM:
 
     # Test that we can instantiate it with multiple formats
     # Test generation
-    # test ser/deserialization
 
+    @pytest.mark.skipif(
+        not DISTILABEL_RUN_SLOW_TESTS,
+        reason="Slow tests, run locally when needed.",
+    )
     def test_serialization(self, tiny_mistral_llm_structured: TransformersLLM) -> None:
         assert tiny_mistral_llm_structured.dump() == self.DUMP
 
+    @pytest.mark.skipif(
+        not DISTILABEL_RUN_SLOW_TESTS,
+        reason="Slow tests, run locally when needed.",
+    )
     def test_load_from_dict(self) -> None:
         llm = TransformersLLM.from_dict(self.DUMP)
         assert isinstance(llm, TransformersLLM)
         llm.load()
         assert llm._structured_generator is not None
 
-    #     llm.load()
-    #     dump = llm.dump()
-    #     import json
-    #     print("DUMP")
-    #     print(json.dumps(dump, indent=2))
-    #     assert isinstance(llm, TransformersLLM)
-    #     assert llm.dump() == self.DUMP
+    @pytest.mark.parametrize(
+        "format, structure, prompt",
+        [
+            ("text", None, "What is 2+2?"),
+            # ("json", None, "prompt"),  # JSON Mode (not working due to errors on cfg)
+            (
+                "json",
+                DummyUserTest,
+                "Create a user profile with the fields name, last_name and id",
+            ),  #
+            (
+                "json",
+                model_to_schema(DummyUserTest),
+                "Create a user profile with the fields name, last_name and id",
+            ),
+            (
+                "regex",
+                r"((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)",
+                "What is the IP address of the Google DNS servers?",
+            ),
+            # ("cfg", None),  # Not working due to errors on cfg
+        ],
+    )
+    def test_structured_generation_from_dict(
+        self, format: str, structure: Union[str, BaseModel, None], prompt: str
+    ) -> None:
+        llm = TransformersLLM(
+            model="openaccess-ai-collective/tiny-mistral",
+            structured_output={"format": format, "structure": structure},
+        )
+        llm.load()
+        prompt = [
+            [{"role": "system", "content": ""}, {"role": "user", "content": prompt}]
+        ]
+        result = llm.generate(prompt, max_new_tokens=30)
+        assert isinstance(result, list)
+        assert isinstance(result[0], list)
+        assert isinstance(result[0][0], str)
