@@ -136,6 +136,31 @@ def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
     Example:
 
     ```python
+    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.pipeline import Pipeline, routing_batch_function
+    from distilabel.steps import LoadHubDataset, CombineColumns
+
+
+    @routing_batch_function
+    def random_routing_batch(steps: List[str]) -> List[str]:
+        return random.sample(steps, 2)
+
+
+    with Pipeline(name="routing-batch-function") as pipeline:
+        load_data = LoadHubDataset()
+
+        generations = []
+        for llm in (
+            OpenAILLM(model="gpt-4-0125-preview"),
+            MistralLLM(model="mistral-large-2402"),
+            VertexAILLM(model="gemini-1.5-pro"),
+        ):
+            task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+            generations.append(task)
+
+        combine_columns = CombineColumns(columns=["generation", "model_name"])
+
+        load_data >> random_routing_batch >> generations >> combine_columns
     ```
     """
     return RoutingBatchFunction(routing_function=func)
