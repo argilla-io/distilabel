@@ -70,6 +70,8 @@ def test_imports() -> None:
         Genstruct,
         InstructionBacktranslation,
         PairRM,
+        PrometheusAbsEval,
+        PrometheusRelEval,
         QualityScorer,
         SelfInstruct,
         TextGeneration,

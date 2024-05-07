@@ -27,6 +27,7 @@ from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
 from distilabel.steps.tasks.pair_rm import PairRM
+from distilabel.steps.tasks.prometheus_eval import PrometheusAbsEval, PrometheusRelEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
 from distilabel.steps.tasks.self_instruct import SelfInstruct
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
@@ -49,6 +50,8 @@ __all__ = [
     "Genstruct",
     "InstructionBacktranslation",
     "PairRM",
+    "PrometheusAbsEval",
+    "PrometheusRelEval",
     "QualityScorer",
     "SelfInstruct",
     "TextGeneration",
