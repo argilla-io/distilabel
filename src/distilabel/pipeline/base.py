@@ -631,7 +631,6 @@ class _BatchManagerStep(_Serializable):
         for step_name, batches in self.data.items():
             batches_used[step_name] = []
             for batch in batches:
-                data.extend(batch.data[0])
                 batches_used[step_name].append(batch.seq_no)
             data.append([row for batch in batches for row in batch.data[0]])
         # Reset the data buffer
@@ -944,6 +943,7 @@ class _BatchManager(_Serializable):
         steps: Dict[str, _BatchManagerStep],
         last_batch_received: Dict[str, Union[_Batch, None]],
         last_batch_sent: Dict[str, Union[_Batch, None]],
+        last_batch_flag_sent_to: Optional[List[str]] = None,
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -952,11 +952,19 @@ class _BatchManager(_Serializable):
                 predecessor step name as the key and a list of batches as the value.
             last_batch_received: A dictionary with the step name as the key and a the last
                 `_Batch` received from the step.
+            last_batch_sent: A dictionary with the step name as the key and a the last
+                `_Batch` sent to the step.
+            last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
+                was sent. Defaults to `None`.
         """
+
+        if last_batch_flag_sent_to is None:
+            last_batch_flag_sent_to = []
+
         self._steps = steps
         self._last_batch_received = last_batch_received
         self._last_batch_sent = last_batch_sent
-        self._last_batch_flag_sent_to = []
+        self._last_batch_flag_sent_to = last_batch_flag_sent_to
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -1118,6 +1126,11 @@ class _BatchManager(_Serializable):
                 step_name: batch.dump() if batch is not None else None
                 for step_name, batch in self._last_batch_received.items()
             },
+            "last_batch_sent": {
+                step_name: batch.dump() if batch is not None else None
+                for step_name, batch in self._last_batch_sent.items()
+            },
+            "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
     @classmethod
@@ -1143,6 +1156,11 @@ class _BatchManager(_Serializable):
                 step_name: _Batch.from_dict(batch) if batch is not None else None
                 for step_name, batch in data["last_batch_received"].items()
             },
+            {
+                step_name: _Batch.from_dict(batch) if batch is not None else None
+                for step_name, batch in data["last_batch_sent"].items()
+            },
+            data["last_batch_flag_sent_to"],
         )
 
     def save(

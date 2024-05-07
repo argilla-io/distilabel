@@ -268,8 +268,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 
         if isinstance(other, list):
-            for step in other:
-                self.connect(step)
+            self.connect(*other)
             return other
 
         if isinstance(other, RoutingBatchFunction):
