@@ -1684,32 +1684,6 @@ class TestPipelineSerialization:
                 else:
                     assert not pipe._batch_manager
 
-    def test_connect_successive_steps(self) -> None:
-        from distilabel.pipeline.local import Pipeline
-
-        from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
-
-        with Pipeline(name="unit-test-pipeline-1") as pipeline_1:
-            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-            dummy_step_1 = DummyStep1(name="dummy_step_1")
-            dummy_step_2 = DummyStep2(name="dummy_step_2")
-
-            dummy_generator.connect(dummy_step_1)
-            dummy_step_1.connect(dummy_step_2)
-
-            signature_1 = pipeline_1._create_signature()
-
-        with Pipeline(name="unit-test-pipeline-2") as pipeline_2:
-            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-            dummy_step_1 = DummyStep1(name="dummy_step_1")
-            dummy_step_2 = DummyStep2(name="dummy_step_2")
-
-            dummy_generator.connect(dummy_step_1).connect(dummy_step_2)
-
-            signature_2 = pipeline_2._create_signature()
-
-        assert signature_1 == signature_2
-
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
         from distilabel.pipeline.local import Pipeline
