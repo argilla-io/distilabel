@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 from typing import TYPE_CHECKING, Callable, Dict, List, Union
 
 from pydantic import BaseModel, PrivateAttr
@@ -167,3 +168,49 @@ def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
     ```
     """
     return RoutingBatchFunction(routing_function=func)
+
+
+def sample_n_steps(n: int) -> RoutingBatchFunction:
+    """A simple function that creates a routing batch function that samples `n` steps from
+    the list of all the downstream steps.
+
+    Args:
+        n: The number of steps to sample from the list of all the downstream steps.
+
+    Returns:
+        A `RoutingBatchFunction` instance that can be used with the `>>` operators and with
+        the `Pipeline.connect` method when defining the pipeline.
+
+    Example:
+
+    from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+    from distilabel.pipeline import Pipeline, sample_n_steps
+    from distilabel.steps import LoadHubDataset, CombineColumns
+
+
+    random_routing_batch = sample_n_steps(2)
+
+
+    with Pipeline(name="routing-batch-function") as pipeline:
+        load_data = LoadHubDataset()
+
+        generations = []
+        for llm in (
+            OpenAILLM(model="gpt-4-0125-preview"),
+            MistralLLM(model="mistral-large-2402"),
+            VertexAILLM(model="gemini-1.5-pro"),
+        ):
+            task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+            generations.append(task)
+
+        combine_columns = CombineColumns(columns=["generation", "model_name"])
+
+        load_data >> random_routing_batch >> generations >> combine_columns
+    ```
+    """
+
+    @routing_batch_function
+    def sample_n(steps: List[str]) -> List[str]:
+        return random.sample(steps, n)
+
+    return sample_n

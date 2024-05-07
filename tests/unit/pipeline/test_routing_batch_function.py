@@ -19,6 +19,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.routing_batch_function import (
     RoutingBatchFunction,
     routing_batch_function,
+    sample_n_steps,
 )
 
 from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
@@ -97,3 +98,18 @@ class TestRoutingBatchFunctionDecorator:
             steps=["step_1", "step_2", "step_3"],
         )
         assert routed_to == ["step_1", "step_2"]
+
+
+def test_sample_n_steps() -> None:
+    steps = ["step_a", "step_b", "step_c", "step_d"]
+
+    routing_batch_function = sample_n_steps(n=2)
+
+    selected_steps = routing_batch_function(
+        batch=_Batch(seq_no=0, step_name="step_z", last_batch=False, data=[[]]),
+        steps=steps,
+    )
+
+    assert len(selected_steps) == 2
+    for step in selected_steps:
+        assert step in steps
