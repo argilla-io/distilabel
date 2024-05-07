@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
 from pathlib import Path
-from typing import List
+
+from distilabel.utils.files import list_files_in_dir
 
 
-def list_files_in_dir(dir_path: Path) -> List[Path]:
-    """List all files in a directory.
+def test_list_files_in_dir() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir = Path(temp_dir)
 
-    Args:
-        dir_path: Path to the directory.
+        created_files = []
+        for i in range(10):
+            file_path = temp_dir / f"{i}.txt"
+            created_files.append(file_path)
+            with open(file_path, "w") as f:
+                f.write("hello")
 
-    Returns:
-        A list of file names in the directory.
-    """
-    return [f for f in sorted(dir_path.iterdir()) if f.is_file()]
+        assert list_files_in_dir(Path(temp_dir)) == created_files
