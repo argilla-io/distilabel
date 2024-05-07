@@ -456,14 +456,24 @@ class OutlinesStructuredOutput(BaseModel, _Serializable):
             max_tokens: the maximum number of tokens to generate. Defaults to None.
             stop_at: a string or a list of strings to use as a stop sequence for the generation.
         """
-        # NOTE:
-        # - prompt must be passed as prompt=llm.prepare_input(input)
-        # This method mimics the internal from outlines' SequenceGenerator
 
         # NOTE: rng isn't passed for the moment, we need a better way of creating it thinking of possibly serializing the value.
-        structured_output = self._structured_generator(
-            prompts, max_tokens=max_tokens, stop_at=stop_at
-        )
+        try:
+            structured_output = self._structured_generator(
+                prompts, max_tokens=max_tokens, stop_at=stop_at
+            )
+        except json.decoder.JSONDecodeError:
+            # If the model is not strong enough, or the max_tokens
+            # is too low, the output can be a string that is not a valid JSON.
+            self.llm.logger.warning(
+                "Error decoding the JSON structured output. Returning empty dict."
+            )
+            structured_output = "{}"
+        except Exception as e:
+            self.llm.logger.warning(
+                f"Error decoding the structured output. Returning empty str. Error: {e}"
+            )
+            structured_output = ""
 
         if isinstance(structured_output, list):
             if isinstance(structured_output[0], list):
