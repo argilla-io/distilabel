@@ -15,8 +15,6 @@
 import re
 import sys
 
-from distilabel.utils.dicts import combine_dicts
-
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
@@ -29,6 +27,7 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.utils.dicts import combine_dicts
 
 
 class UltraFeedback(Task):
