@@ -29,6 +29,10 @@ from typing import (
 
 import networkx as nx
 
+from distilabel.pipeline.constants import (
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
 from distilabel.steps.base import GeneratorStep
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
@@ -246,7 +250,7 @@ class DAG(_Serializable):
         ):
             for step_name in steps:
                 node = self.get_step(step_name)
-                step: "_Step" = node["step"]
+                step: "_Step" = node[STEP_ATTR_NAME]
 
                 # Check if the step `process` function has `StepInput` argument
                 self._validate_step_process_arguments(step)
@@ -293,7 +297,7 @@ class DAG(_Serializable):
         inputs_available_for_step = [
             output
             for step_name in nx.ancestors(self.G, step.name)
-            for output in self.get_step(step_name)["step"].get_outputs()  # type: ignore
+            for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
         if not all(input in inputs_available_for_step for input in step_inputs):
@@ -359,7 +363,7 @@ class DAG(_Serializable):
 
         # Check if the `input_batch_size` of the step is equal or lower than the
         for predecessor in predecessors:
-            prev_step: "Step" = self.get_step(predecessor)["step"]
+            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]
             if step.input_batch_size > prev_step.input_batch_size:  # type: ignore
                 raise ValueError(
                     "A convergence step should have an `input_batch_size` equal or lower"
@@ -393,7 +397,7 @@ class DAG(_Serializable):
         routing_batch_function = None
         for predecessor in predecessors:
             node = self.get_step(predecessor)
-            routing_batch_function = node.get("routing_batch_function")
+            routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME)
             if routing_batch_function is not None and len(predecessors) > 1:
                 raise ValueError(
                     f"Step '{step.name}' cannot have multiple predecessors when the batches"
@@ -406,7 +410,7 @@ class DAG(_Serializable):
         # If the step receives routed batches, then check its `input_batch_size` is lower
         # or equal to the `input_batch_size` or `batch_size` of the previous step from which
         # the batches are being routed.
-        predecessor_step: "_Step" = self.get_step(predecessors[0])["step"]  # type: ignore
+        predecessor_step: "_Step" = self.get_step(predecessors[0])[STEP_ATTR_NAME]  # type: ignore
         batch_size = (
             predecessor_step.batch_size  # type: ignore
             if predecessor_step.is_generator
@@ -439,7 +443,7 @@ class DAG(_Serializable):
         """
 
         predecessors = {
-            step_name: self.get_step(step_name)["step"]
+            step_name: self.get_step(step_name)[STEP_ATTR_NAME]
             for step_name in self.G.predecessors(step_name)
         }
         num_predecessors = len(predecessors)
@@ -596,7 +600,7 @@ class DAG(_Serializable):
         data = {"steps": [], "connections": []}
         for i, node in enumerate(adjacency_data["nodes"]):
             name = node["id"]
-            data["steps"].append({"step": node["step"].dump(), "name": name})
+            data["steps"].append({"step": node[STEP_ATTR_NAME].dump(), "name": name})
             data["connections"].append(
                 {
                     "from": name,
@@ -620,8 +624,8 @@ class DAG(_Serializable):
         dag = cls()
 
         for step in data["steps"]:
-            cls_step: Type["_Step"] = _get_class(**step["step"][TYPE_INFO_KEY])
-            dag.add_step(cls_step.from_dict(step["step"]))
+            cls_step: Type["_Step"] = _get_class(**step[STEP_ATTR_NAME][TYPE_INFO_KEY])
+            dag.add_step(cls_step.from_dict(step[STEP_ATTR_NAME]))
 
         for connection in data["connections"]:
             from_step = connection["from"]

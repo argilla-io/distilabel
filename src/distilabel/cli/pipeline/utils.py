@@ -21,6 +21,7 @@ import yaml
 from pydantic import HttpUrl, ValidationError
 from pydantic.type_adapter import TypeAdapter
 
+from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:
@@ -214,7 +215,7 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
 
     steps = []
     for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():
-        step = pipeline.dag.get_step(step_name)["step"]
+        step = pipeline.dag.get_step(step_name)[STEP_ATTR_NAME]
         class_name = step.__class__.__name__
 
         table = Table(

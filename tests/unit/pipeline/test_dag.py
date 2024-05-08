@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.routing_batch_function import routing_batch_function
 from distilabel.steps.base import GeneratorStep, Step, StepInput
@@ -52,7 +53,7 @@ class TestDAG:
         dag = DAG()
         dag.add_step(dummy_step_1)
 
-        assert dag.get_step("dummy_step_1")["step"] == dummy_step_1
+        assert dag.get_step("dummy_step_1")[STEP_ATTR_NAME] == dummy_step_1
 
     def test_get_step_nonexistent(self) -> None:
         dag = DAG()

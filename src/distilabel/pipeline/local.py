@@ -32,6 +32,10 @@ from distilabel.pipeline.base import (
     _BatchManager,
     _WriteBuffer,
 )
+from distilabel.pipeline.constants import (
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
 from distilabel.steps.base import Step
 from distilabel.utils.logging import setup_logging, stop_logging
 
@@ -309,12 +313,12 @@ class Pipeline(BasePipeline):
             routed using a routing function.
         """
         node = self.dag.get_step(batch.step_name)
-        step: "Step" = node["step"]
+        step: "Step" = node[STEP_ATTR_NAME]
         successors = list(self.dag.get_step_successors(step.name))  # type: ignore
         route_to = successors
 
         # Check if the step has a routing function to send the batch to specific steps
-        if routing_batch_function := node.get("routing_batch_function"):
+        if routing_batch_function := node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME):
             route_to = routing_batch_function(batch, successors)
             successors_str = ", ".join(f"'{successor}'" for successor in route_to)
             self._logger.info(
@@ -332,7 +336,7 @@ class Pipeline(BasePipeline):
         Returns:
             The `Step` instance.
         """
-        return self.dag.get_step(batch.step_name)["step"]
+        return self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
 
     def _request_more_batches_if_needed(self, step: "Step") -> None:
         """Request more batches to the predecessors steps of `step` if needed.
@@ -403,7 +407,7 @@ class Pipeline(BasePipeline):
             batch: The batch to handle.
         """
         self._batch_manager.register_batch(batch)  # type: ignore
-        step: "Step" = self.dag.get_step(batch.step_name)["step"]
+        step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)  # type: ignore
 
@@ -557,7 +561,7 @@ class Pipeline(BasePipeline):
             shared_info: The shared information between the processes.
         """
         for step_name in self.dag:
-            step: "Step" = self.dag.get_step(step_name)["step"]
+            step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = manager.Queue()
             self.dag.set_step_attr(step.name, "input_queue", input_queue)
 

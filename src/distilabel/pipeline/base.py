@@ -39,6 +39,11 @@ from typing_extensions import Self
 
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.constants import (
+    RECEIVES_ROUTED_BATCHES_ATTR_NAME,
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
@@ -165,7 +170,7 @@ class BasePipeline(_Serializable):
         pipeline_dump = self.dump()["pipeline"]
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
-            for argument, value in sorted(step["step"].items()):
+            for argument, value in sorted(step[STEP_ATTR_NAME].items()):
                 if (
                     (argument == TYPE_INFO_KEY)
                     or (argument == "llm")
@@ -233,7 +238,7 @@ class BasePipeline(_Serializable):
         """
         runtime_parameters = {}
         for step_name in self.dag:
-            step: "_Step" = self.dag.get_step(step_name)["step"]
+            step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
 
@@ -257,10 +262,10 @@ class BasePipeline(_Serializable):
         # Check if `from_step` has a `routing_batch_function`. If it does, then mark
         # `to_step` as a step that will receive a routed batch.
         node = self.dag.get_step(from_step)  # type: ignore
-        routing_batch_function = node.get("routing_batch_function", None)
+        routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME, None)
         self.dag.set_step_attr(
             name=to_step,
-            attr="receives_routed_batch",
+            attr=RECEIVES_ROUTED_BATCHES_ATTR_NAME,
             value=routing_batch_function is not None,
         )
 
@@ -274,7 +279,9 @@ class BasePipeline(_Serializable):
             routing_batch_function: The function that will route the batch to the step.
         """
         self.dag.set_step_attr(
-            name=step_name, attr="routing_batch_function", value=routing_batch_function
+            name=step_name,
+            attr=ROUTING_BATCH_FUNCTION_ATTR_NAME,
+            value=routing_batch_function,
         )
 
     def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
@@ -292,7 +299,7 @@ class BasePipeline(_Serializable):
                     f" Available steps are: {step_names}."
                 )
             else:
-                step: "_Step" = self.dag.get_step(step_name)["step"]
+                step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
                 step.set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
@@ -1099,14 +1106,14 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         last_batch_sent = {}
         for step_name in dag:
-            step: "_Step" = dag.get_step(step_name)["step"]
+            step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
             last_batch_sent[step.name] = None
             if step.is_generator:
                 continue
             predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
-                dag.get_step(predecessor).get("receives_routed_batch", False)
+                dag.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
                 for predecessor in predecessors
             )
             batch_manager_step = _BatchManagerStep.from_step(
