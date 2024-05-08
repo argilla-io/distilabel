@@ -18,14 +18,17 @@ if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep, GlobalStep, Step
 
 DownstreamConnectable = Union["Step", "GlobalStep"]
+"""Alias for the `Step` types that can be connected as downstream steps."""
 
 UpstreamConnectableSteps = TypeVar(
     "UpstreamConnectableSteps",
     bound=Union["Step", "GlobalStep", "GeneratorStep"],
 )
+"""Type for the `Step` types that can be connected as upstream steps."""
 
 DownstreamConnectableSteps = TypeVar(
     "DownstreamConnectableSteps",
     bound=DownstreamConnectable,
     covariant=True,
 )
+"""Type for the `Step` types that can be connected as downstream steps."""

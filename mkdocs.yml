@@ -139,6 +139,7 @@ nav:
           - "api/pipeline/pipeline.md"
           - "api/pipeline/routing_batch_function.md"
           - "api/pipeline/utils.md"
+          - "api/pipeline/typing.md"
       - Steps:
           - "api/steps/index.md"
           - Generator Steps: "api/steps/generator_steps/generator_steps.md"
