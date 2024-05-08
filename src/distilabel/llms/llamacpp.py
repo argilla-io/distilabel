@@ -76,7 +76,7 @@ class LlamaCppLLM(LLM):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `Llama` class of `llama_cpp` library. See all the suported arguments at: "
+        " `Llama` class of `llama_cpp` library. See all the supported arguments at: "
         "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
     )
 
