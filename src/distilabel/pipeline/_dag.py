@@ -29,11 +29,16 @@ from typing import (
 
 import networkx as nx
 
+from distilabel.pipeline.constants import (
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
+from distilabel.steps.base import GeneratorStep
 from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.base import GeneratorStep, _Step
+    from distilabel.steps.base import Step, _Step
 
 
 class DAG(_Serializable):
@@ -238,19 +243,28 @@ class DAG(_Serializable):
             ValueError: If the pipeline is not valid.
         """
 
+        steps_receiving_routed_batches = []
+
         for trophic_level, steps in enumerate(
             self.iter_based_on_trophic_levels(), start=1
         ):
             for step_name in steps:
-                step: "_Step" = self.get_step(step_name)["step"]
+                node = self.get_step(step_name)
+                step: "_Step" = node[STEP_ATTR_NAME]
 
+                # Check if the step `process` function has `StepInput` argument
                 self._validate_step_process_arguments(step)
+
+                # Check if the required runtime parameters are provided
+                self._validate_step_process_runtime_parameters(step)
+
+                # Validate step mappings
                 step.verify_inputs_mappings()
                 step.verify_outputs_mappings()
 
                 # Validate that the steps in the first trophic level are `GeneratorStep`s
                 if trophic_level == 1:
-                    if not step.is_generator:
+                    if not isinstance(step, GeneratorStep):
                         raise ValueError(
                             f"Step '{step_name}' cannot be a root step because it is not"
                             " a `GeneratorStep`. It should have a previous step in the pipeline."
@@ -258,6 +272,19 @@ class DAG(_Serializable):
                     self._validate_generator_step_process_signature(step)
                 else:
                     self._step_inputs_are_available(step)
+
+                    # Validate routing batch function (if any)
+                    predecessors = list(self.get_step_predecessors(step.name))  # type: ignore
+                    self._validate_convergence_step(
+                        step,
+                        predecessors,
+                        steps_receiving_routed_batches,  # type: ignore
+                    )
+                    receives_routed_batches = self._validate_routing_batch_function(
+                        step, predecessors
+                    )
+                    if receives_routed_batches:
+                        steps_receiving_routed_batches.append(step.name)
 
     def _step_inputs_are_available(self, step: "_Step") -> None:
         """Validates that the `Step.inputs` will be available when the step gets to be
@@ -270,7 +297,7 @@ class DAG(_Serializable):
         inputs_available_for_step = [
             output
             for step_name in nx.ancestors(self.G, step.name)
-            for output in self.get_step(step_name)["step"].get_outputs()
+            for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
         if not all(input in inputs_available_for_step for input in step_inputs):
@@ -296,8 +323,110 @@ class DAG(_Serializable):
         """
 
         step_input_parameter = step.get_process_step_input()
-        self._validate_process_step_input_parameter(step.name, step_input_parameter)
-        self._validate_step_process_runtime_parameters(step)
+        self._validate_process_step_input_parameter(step.name, step_input_parameter)  # type: ignore
+
+    def _validate_convergence_step(
+        self,
+        step: "Step",
+        predecessors: List[str],
+        steps_receiving_routed_batches: List[str],
+    ) -> None:
+        """Checks if the `step` is a convergence step (receiving batches from steps to
+        which the batches were routed). If so, it validates that all the predecessors of
+        the steps receives routed batches from the same step, and that the `input_batch_size`
+        of the `step` is equal or lower to the `input_batch_size` of the previous steps.
+
+        Args:
+            step: The step to validate.
+            predecessors: The predecessors of the step.
+            steps_receiving_routed_batches: The steps that are receiving routed batches
+                from other steps in the pipeline.
+        """
+        if not any(
+            predecessor in steps_receiving_routed_batches
+            for predecessor in predecessors
+        ):
+            return
+
+        # Check if all the predecessors of the step are receiving routed batches from the
+        # same step
+        previous_steps_predecessors = [
+            list(self.get_step_predecessors(predecessor))
+            for predecessor in predecessors
+        ]
+        if not all(
+            prev_step_predecessors == previous_steps_predecessors[0]
+            for prev_step_predecessors in previous_steps_predecessors
+        ):
+            raise ValueError(
+                f"Convergence step '{step.name}' should receive batches from steps receiving"
+                " routed batches from the same previous step and `routing_batch_function`."
+            )
+
+        # Check if the `input_batch_size` of the step is equal or lower than the
+        for predecessor in predecessors:
+            prev_step: "Step" = self.get_step(predecessor)[STEP_ATTR_NAME]
+            if step.input_batch_size > prev_step.input_batch_size:  # type: ignore
+                raise ValueError(
+                    "A convergence step should have an `input_batch_size` equal or lower"
+                    " than the `input_batch_size` of the connected previous steps."
+                    f" Convergence step '{step.name}' has an `input_batch_size` of {step.input_batch_size}"
+                    f" and the previous step '{prev_step.name}' has an `input_batch_size`"
+                    f" of {prev_step.input_batch_size}."
+                )
+
+    def _validate_routing_batch_function(
+        self, step: "_Step", predecessors: List[str]
+    ) -> bool:
+        """Checks if the `step` is going to receive routed batches (i.e. `routing_batch_function`
+        chooses which batches from upstream step goes to the downstream step). If so, then it
+        validates that the step has only one predecessor and that its `input_batch_size` is
+        equal or lower than the `input_batch_size` or `batch_size` of the previous step.
+        These are requirements to keep batches synchronized when executing the pipeline.
+
+        Args:
+            step: The step to validate.
+            predecessors: The predecessors of the step.
+
+        Returns:
+            `True` if the `step` is going to receive routed batches, `False` otherwise.
+
+        Raises:
+            ValueError: If the `step` is going to receive routed batches and it has multiple
+                predecessors or its `input_batch_size` is higher than the previous step
+                `input_batch_size` or `batch_size`.
+        """
+        routing_batch_function = None
+        for predecessor in predecessors:
+            node = self.get_step(predecessor)
+            routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME)
+            if routing_batch_function is not None and len(predecessors) > 1:
+                raise ValueError(
+                    f"Step '{step.name}' cannot have multiple predecessors when the batches"
+                    " of one are being routed with a `routing_batch_function`."
+                )
+
+        if routing_batch_function is None:
+            return False
+
+        # If the step receives routed batches, then check its `input_batch_size` is lower
+        # or equal to the `input_batch_size` or `batch_size` of the previous step from which
+        # the batches are being routed.
+        predecessor_step: "_Step" = self.get_step(predecessors[0])[STEP_ATTR_NAME]  # type: ignore
+        batch_size = (
+            predecessor_step.batch_size  # type: ignore
+            if predecessor_step.is_generator
+            else predecessor_step.input_batch_size  # type: ignore
+        )
+        if step.input_batch_size > batch_size:  # type: ignore
+            raise ValueError(
+                f"Step '{step.name}' should have an `input_batch_size` equal or lower"
+                f" than the `input_batch_size` or `batch_size` of the previous step."
+                f" This is because the batches are being routed with a `routing_batch_function`"
+                f" from step '{predecessor_step.name}' to step '{step.name}'."
+            )
+
+        return True
 
     def _validate_process_step_input_parameter(
         self,
@@ -316,7 +445,7 @@ class DAG(_Serializable):
         """
 
         predecessors = {
-            step_name: self.get_step(step_name)["step"]
+            step_name: self.get_step(step_name)[STEP_ATTR_NAME]
             for step_name in self.G.predecessors(step_name)
         }
         num_predecessors = len(predecessors)
@@ -473,7 +602,7 @@ class DAG(_Serializable):
         data = {"steps": [], "connections": []}
         for i, node in enumerate(adjacency_data["nodes"]):
             name = node["id"]
-            data["steps"].append({"step": node["step"].dump(), "name": name})
+            data["steps"].append({"step": node[STEP_ATTR_NAME].dump(), "name": name})
             data["connections"].append(
                 {
                     "from": name,
@@ -497,8 +626,8 @@ class DAG(_Serializable):
         dag = cls()
 
         for step in data["steps"]:
-            cls_step: Type["_Step"] = _get_class(**step["step"][TYPE_INFO_KEY])
-            dag.add_step(cls_step.from_dict(step["step"]))
+            cls_step: Type["_Step"] = _get_class(**step[STEP_ATTR_NAME][TYPE_INFO_KEY])
+            dag.add_step(cls_step.from_dict(step[STEP_ATTR_NAME]))
 
         for connection in data["connections"]:
             from_step = connection["from"]
