@@ -12,3 +12,7 @@ services:
       - ENV_VARIABLE=some_value
     volumes:
       - .:/app
+  
+  cuda:
+    image: nvidia/cuda:latest  # Choose the appropriate CUDA version
+    runtime: nvidia  # This ensures that the service can access the NVIDIA GPU
