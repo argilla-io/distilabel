@@ -206,7 +206,7 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
     load_dataset >> sample_two_steps >> tasks >> combine_generations
 ```
 
-As it can be seen, the `routing_batch_function` can be used with the `>>` operator to route the batches to specific downstream steps. In this case, each batch yield by the `load_dataset` step will be routed to just 2 of the `TextGeneration` tasks, and then all the outputs of the tasks will be combined in the `CombineColumns` step so each row of the final dataset will contain generations of 2 `LLM`s at most. The `routing_batch_function` that we just built is a common one, so `distilabel` comes with an auxiliary function that can be used to achieve the same behavior:
+As it can be seen, the `routing_batch_function` can be used with the `>>` operator to route the batches to specific downstream steps. In this case, each batch yielded by the `load_dataset` step will be routed to just 2 of the `TextGeneration` tasks, and then all the outputs of the tasks will be combined in the `CombineColumns` step so each row of the final dataset will contain generations of 2 `LLM`s at most. The `routing_batch_function` that we just built is a common one, so `distilabel` comes with an auxiliary function that can be used to achieve the same behavior:
 
 ```python
 from distilable.pipeline import sample_n_steps
