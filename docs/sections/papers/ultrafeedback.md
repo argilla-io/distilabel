@@ -47,7 +47,7 @@ from distilabel.steps import (
 )
 from distilabel.steps.tasks import TextGeneration, UltraFeedback
 
-sample_three_llms = sample_n_steps(3)
+sample_three_llms = sample_n_steps(n=3)
 
 
 with Pipeline(name="ultrafeedback-pipeline") as pipeline:
