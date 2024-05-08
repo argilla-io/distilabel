@@ -84,6 +84,8 @@ class OpenAILLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncOpenAI` client to benefit from async requests."""
+        super().load()
+
         try:
             from openai import AsyncOpenAI
         except ImportError as ie:
@@ -104,7 +106,6 @@ class OpenAILLM(AsyncLLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
-        super().load()
 
     @property
     def model_name(self) -> str:

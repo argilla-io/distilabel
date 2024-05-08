@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Literal, Optional, Union
+from typing import List
 
-from pydantic import BaseModel
 from typing_extensions import TypedDict
 
 
@@ -25,11 +24,3 @@ class ChatItem(TypedDict):
 
 ChatType = List[ChatItem]
 """ChatType is a type alias for a `list` of `dict`s following the OpenAI conversational format."""
-
-
-class OutlinesStructuredOutputDict(TypedDict):
-    """Type alias for the arguments that can be passed to generate structured outputs using `outlines`."""
-
-    format: Literal["text", "json", "regex", "cfg"]
-    structure: Union[str, BaseModel]
-    whitespace_pattern: Optional[str] = None

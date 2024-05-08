@@ -33,16 +33,9 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.tasks.structured_outputs.outlines import (
-        OutlinesStructuredOutput,
-    )
-    from distilabel.steps.tasks.typing import ChatType, OutlinesStructuredOutputDict
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.utils.docstring import Docstring
-
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
 
 if in_notebook():
     import nest_asyncio
@@ -81,19 +74,13 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         description="The kwargs to be propagated to either `generate` or `agenerate`"
         " methods within each `LLM`.",
     )
-    structured_output: Union[Dict[str, Any], Any, None] = None
-    _structured_generator: Union[Any, None] = PrivateAttr(None)
+    structured_output: Optional[Any] = None
 
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
     def load(self) -> None:
         """Method to be called to initialize the `LLM`, its logger and optionally the structured output generator."""
         self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
-        self._structured_generator = self._prepare_structured_output(
-            self.structured_output
-        )
-        if self._structured_generator:
-            self._structured_generator.load()
 
     @property
     @abstractmethod
@@ -212,91 +199,22 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         )
 
     def _prepare_structured_output(
-        self,
-        structured_output: Optional[
-            Union["OutlinesStructuredOutputDict", "OutlinesStructuredOutput"]
-        ] = None,
-    ) -> Union["OutlinesStructuredOutput", None]:
-        """Method to prepare the structured output generator from the given structured output variable.
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union[Any, None]:
+        """Method in charge of preparing the structured output generator.
+
+        By default will raise a `NotImplementedError`, subclasses that allow it must override this
+        method with the implementation.
 
         Args:
-            structured_output: If given, it must be an instance of `OutlinesStructuredOutput`
-                or a dictionary containing the "format", "structure" and optionally
-                "whitespace_pattern" for "json" format. If `None` is given, it won't do anything.
-                Defaults to `None`.
+            structured_output: the config to prepare the guided generation.
 
         Returns:
-            `OutlinesStructuredOutput` instance to generate structured outputs via `LLM.generate` or `None`.
+            The structure to be used for the guided generation.
         """
-        if structured_output:
-            from distilabel.steps.tasks.structured_outputs.outlines import (
-                OutlinesStructuredOutput,
-            )
-
-            if isinstance(structured_output, OutlinesStructuredOutput):
-                from distilabel.steps.tasks.structured_outputs.outlines import (
-                    _prepare_llm_from_framework,
-                )
-
-                # In case OutlinesStructuredOutput is used, set the LLM instance to the structured generator.
-                structured_output.llm = _prepare_llm_from_framework(self)
-                return structured_output
-
-            elif isinstance(structured_output, dict):
-                output_format = structured_output.get("format", "text")
-                output_structure = structured_output.get("structure")
-                if (output_format == "json") and (not output_structure):
-                    # If the dict contains json in the format but no output_structure, use this
-                    # case: https://outlines-dev.github.io/outlines/reference/json_mode/
-                    # which is equivalent to the JSON mode from OpenAI.
-                    import outlines
-
-                    output_structure = outlines.grammars.json
-                    output_format = "cfg"
-
-                return OutlinesStructuredOutput._from_llm(
-                    self,
-                    output_format=output_format,
-                    output_structure=output_structure,
-                    whitespace_pattern=structured_output.get("whitespace_pattern"),
-                )
-            self._logger.warning(
-                "The structured output must be an instance of `OutlinesStructuredOutput` or a dictionary."
-                " with the keys `format`, `structure` and optionally `whitespace_pattern`. The following won't"
-                f" have any effect: {structured_output}"
-            )
-
-    def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
-        # Common dump from the LLM base model
-        dump = super()._model_dump(obj, **kwargs)
-        # Update the structured_output content
-        if "structured_output" in dump.keys():
-            dump["structured_output"] = self._structured_generator.dump()
-        return dump
-
-    @classmethod
-    def from_dict(self, data: Dict[str, Any]) -> Self:
-        """Loads the LLM from a dictionary and injects the structured output if found.
-
-        Args:
-            data: Serialized data of the LLM.
-
-        Returns:
-            The loaded LLM instance.
-        """
-        structured_output = data.pop("structured_output", None)
-        # Load the LLM as usual and inject the structured output if found.
-        llm = super().from_dict(data)
-        if structured_output:
-            from distilabel.steps.tasks.structured_outputs.outlines import (
-                OutlinesStructuredOutput,
-            )
-
-            structured_output["llm"] = llm
-            structured_output = OutlinesStructuredOutput.from_dict(structured_output)
-            llm.structured_output = structured_output
-
-        return llm
+        raise NotImplementedError(
+            f"Guided generation is not implemented for `{type(self).__name__}`"
+        )
 
 
 class AsyncLLM(LLM):
@@ -359,12 +277,6 @@ class AsyncLLM(LLM):
         """Method to generate a list of responses asynchronously, returning the output
         synchronously awaiting for the response of each input sent to `agenerate`.
         """
-        if self._structured_generator is not None:
-            return self._structured_generator(  # type: ignore
-                inputs,
-                max_tokens=kwargs.get("max_new_tokens", None),
-                stop_at=kwargs.get("stop", None),
-            )
 
         async def agenerate(
             inputs: List["ChatType"], **kwargs: Any

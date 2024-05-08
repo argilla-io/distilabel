@@ -22,7 +22,9 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from llama_cpp import CreateChatCompletionResponse, Llama
+    from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
+
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 class LlamaCppLLM(LLM):
@@ -82,6 +84,7 @@ class LlamaCppLLM(LLM):
         "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
     )
 
+    _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
     _model: Optional["Llama"] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -104,6 +107,11 @@ class LlamaCppLLM(LLM):
             **self.extra_kwargs,
         )
 
+        if self.structured_output:
+            self._logits_processor = self._prepare_structured_output(
+                self.structured_output
+            )
+
         # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
         # out of the model name, which won't be available until the `Llama` instance is created.
         super().load()
@@ -123,7 +131,6 @@ class LlamaCppLLM(LLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-        stop_at: Optional[Union[str, List[str]]] = None,
         extra_generation_kwargs: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for the given input using the Llama model.
@@ -140,8 +147,6 @@ class LlamaCppLLM(LLM):
                 `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            stop_at: A string or list of strings which, such that the generation stops
-                when they are generated.
             extra_generation_kwargs: dictionary with additional arguments to be passed to
                 the `create_chat_completion` method. Reference at
                 https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.create_chat_completion
@@ -149,11 +154,6 @@ class LlamaCppLLM(LLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-
-        if self._structured_generator is not None:
-            return self._structured_generator(  # type: ignore
-                inputs, max_tokens=max_new_tokens, stop_at=stop_at
-            )
 
         batch_outputs = []
         for input in inputs:
@@ -167,9 +167,30 @@ class LlamaCppLLM(LLM):
                         presence_penalty=presence_penalty,
                         temperature=temperature,
                         top_p=top_p,
+                        logits_processor=self._logits_processor,
                         **(extra_generation_kwargs or {}),
                     )
                 )
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
             batch_outputs.append(outputs)
         return batch_outputs
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union["LogitsProcessorList", None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "llamacpp", self._model)
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]

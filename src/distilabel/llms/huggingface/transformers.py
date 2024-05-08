@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from pydantic import PrivateAttr, validate_call
 
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from transformers.tokenization_utils import PreTrainedTokenizer
 
     from distilabel.llms.typing import HiddenState
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 class TransformersLLM(LLM, CudaDevicePlacementMixin):
@@ -77,6 +78,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     token: Optional[str] = None
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
+    _prefix_allowed_tokens_fn: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
@@ -114,6 +116,11 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         ):
             self._pipeline.tokenizer.chat_template = CHATML_TEMPLATE  # type: ignore
 
+        if self.structured_output:
+            self._prefix_allowed_tokens_fn = self._prepare_structured_output(
+                self.structured_output
+            )
+
         super().load()
 
     @property
@@ -142,7 +149,6 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         top_p: float = 1.0,
         top_k: int = 0,
         do_sample: bool = True,
-        stop_at: Optional[Union[str, List[str]]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
         pipeline.
@@ -159,17 +165,11 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
             do_sample: whether to use sampling or not. Defaults to `True`.
-            stop_at: A string or list of strings which, such that the generation stops
-                when they are generated.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
         prepared_inputs = [self.prepare_input(input=input) for input in inputs]
-        if self._structured_generator is not None:
-            return self._structured_generator(  # type: ignore
-                prepared_inputs, max_tokens=max_new_tokens, stop_at=stop_at
-            )
 
         outputs: List[List[Dict[str, str]]] = self._pipeline(  # type: ignore
             prepared_inputs,
@@ -180,6 +180,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             top_k=top_k,
             do_sample=do_sample,
             num_return_sequences=num_generations,
+            prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
         )
         return [
             [generation["generated_text"] for generation in output]
@@ -217,3 +218,25 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
                 input_ids["attention_mask"],  # type: ignore
             )
         ]
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union[Callable, None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(
+            structured_output, "transformers", self._pipeline
+        )
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]

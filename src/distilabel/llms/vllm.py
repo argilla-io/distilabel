@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import Field, PrivateAttr, validate_call
 
@@ -26,6 +26,8 @@ from distilabel.steps.tasks.typing import ChatType
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
+
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 SamplingParams = None
@@ -95,6 +97,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
     _model: Optional["_vLLM"] = PrivateAttr(...)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
@@ -138,6 +141,11 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         ):
             self._tokenizer.chat_template = CHATML_TEMPLATE
 
+        if self.structured_output:
+            self._logits_processor = self._prepare_structured_output(
+                self.structured_output
+            )
+
         super().load()
 
     @property
@@ -166,7 +174,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         temperature: float = 1.0,
         top_p: float = 1.0,
         top_k: int = -1,
-        stop_at: Optional[Union[str, List[str]]] = None,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
@@ -185,8 +192,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             top_k: the top-k value to use for the generation. Defaults to `0`.
-            stop_at: A string or list of strings which, such that the generation stops
-                when they are generated.
             extra_sampling_params: dictionary with additional arguments to be passed to
                 the `SamplingParams` class from `vllm`.
 
@@ -194,11 +199,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             A list of lists of strings containing the generated responses for each input.
         """
         prepared_inputs = [self.prepare_input(input) for input in inputs]
-
-        if self._structured_generator is not None:
-            return self._structured_generator(  # type: ignore
-                prepared_inputs, max_tokens=max_new_tokens, stop_at=stop_at
-            )
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
@@ -211,6 +211,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             top_p=top_p,
             top_k=top_k,
             max_tokens=max_new_tokens,
+            logits_processor=[self._logits_processor],
             **extra_sampling_params,
         )
 
@@ -222,3 +223,23 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         return [
             [output.text for output in outputs.outputs] for outputs in batch_outputs
         ]
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union[Callable, None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "vllm", self._model)
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]

@@ -99,6 +99,8 @@ class CohereLLM(AsyncLLM):
     def load(self) -> None:
         """Loads the `AsyncClient` client from the `cohere` package."""
 
+        super().load()
+
         try:
             from cohere import AsyncClient, ChatMessage
         except ImportError as ie:
@@ -114,7 +116,6 @@ class CohereLLM(AsyncLLM):
             base_url=self.base_url,
             timeout=self.timeout,
         )
-        super().load()
 
     def _format_chat_to_cohere(
         self, input: "ChatType"

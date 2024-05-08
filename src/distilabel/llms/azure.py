@@ -66,6 +66,8 @@ class AzureOpenAILLM(OpenAILLM):
     @override
     def load(self) -> None:
         """Loads the `AsyncAzureOpenAI` client to benefit from async requests."""
+        super().load()
+
         try:
             from openai import AsyncAzureOpenAI
         except ImportError as ie:
@@ -89,4 +91,3 @@ class AzureOpenAILLM(OpenAILLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
-        super().load()

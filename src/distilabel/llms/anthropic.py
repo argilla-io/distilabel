@@ -118,6 +118,8 @@ class AnthropicLLM(AsyncLLM):
 
     def load(self) -> None:
         """Loads the `AsyncAnthropic` client to use the Anthropic async API."""
+        super().load()
+
         try:
             from anthropic import AsyncAnthropic
         except ImportError as ie:
@@ -141,7 +143,6 @@ class AnthropicLLM(AsyncLLM):
             http_client=self.http_client,
             max_retries=self.max_retries,
         )
-        super().load()
 
     @property
     def model_name(self) -> str:
