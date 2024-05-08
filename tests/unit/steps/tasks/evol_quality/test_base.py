@@ -85,6 +85,7 @@ class TestEvolQuality:
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,

@@ -68,6 +68,7 @@ ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = ["vllm >= 0.2.1", "filelock >= 3.13.4"]
+outlines = ["outlines >= 0.0.40"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"

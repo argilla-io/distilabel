@@ -81,6 +81,7 @@ class TestAnthropicLLM:
             "max_retries": 6,
             "model": "claude-3-opus-20240229",
             "timeout": 600.0,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.anthropic",
                 "name": "AnthropicLLM",

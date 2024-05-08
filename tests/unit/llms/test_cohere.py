@@ -101,6 +101,7 @@ class TestCohereLLM:
             "base_url": "https://api.cohere.ai/v1",
             "timeout": 120,
             "client_name": "distilabel",
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.cohere",
                 "name": "CohereLLM",

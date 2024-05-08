@@ -96,6 +96,7 @@ class TestOpenAILLM:
             "max_retries": 6,
             "base_url": "https://api.openai.com/v1",
             "timeout": 120,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.openai",
                 "name": "OpenAILLM",

@@ -178,6 +178,7 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": "tests.unit.steps.tasks.utils",
                     "name": "DummyLLM",

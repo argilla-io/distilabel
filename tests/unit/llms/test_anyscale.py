@@ -48,6 +48,7 @@ class TestAnyscaleLLM:
             "max_retries": 6,
             "base_url": "https://api.endpoints.anyscale.com/v1",
             "timeout": 120,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.anyscale",
                 "name": "AnyscaleLLM",

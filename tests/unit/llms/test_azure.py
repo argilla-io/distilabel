@@ -68,6 +68,7 @@ class TestAzureOpenAILLM:
             "max_retries": 6,
             "timeout": 120,
             "api_version": "preview",
+            "structured_output": None,
             "type_info": {"module": "distilabel.llms.azure", "name": "AzureOpenAILLM"},
         }
         assert llm.dump() == _dump
