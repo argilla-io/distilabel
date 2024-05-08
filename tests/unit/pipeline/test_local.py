@@ -50,11 +50,15 @@ class TestLocalPipeline:
         get_step_mock = mock.MagicMock(return_value=step)
         pipeline.dag.get_step = get_step_mock  # type: ignore
 
+        batch_manager_mock = mock.MagicMock()
+        pipeline._batch_manager = batch_manager_mock  # type: ignore
+
         batch = _Batch(
             seq_no=0, step_name=dummy_generator_step.name, last_batch=False, data=[[]]
         )
         pipeline._send_batch_to_step(batch=batch)  # type: ignore
 
+        batch_manager_mock.set_last_batch_sent.assert_called_once_with(batch)
         get_step_mock.assert_called_once_with(dummy_generator_step.name)
         input_queue.put.assert_called_once_with(batch)
 

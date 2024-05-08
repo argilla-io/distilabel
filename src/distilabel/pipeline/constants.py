@@ -11,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+from typing import Final
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
-
-__all__ = ["Pipeline", "routing_batch_function", "sample_n_steps"]
+STEP_ATTR_NAME: Final[str] = "step"
+RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"
+ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
