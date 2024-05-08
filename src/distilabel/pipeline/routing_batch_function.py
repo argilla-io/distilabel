@@ -183,6 +183,7 @@ def sample_n_steps(n: int) -> RoutingBatchFunction:
 
     Example:
 
+    ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline, sample_n_steps
     from distilabel.steps import LoadHubDataset, CombineColumns

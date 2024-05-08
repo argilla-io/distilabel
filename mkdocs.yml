@@ -135,7 +135,10 @@ nav:
           - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
   - API Reference:
       - Pipeline:
+          - "api/pipeline/index.md"
           - "api/pipeline/pipeline.md"
+          - "api/pipeline/routing_batch_function.md"
+          - "api/pipeline/utils.md"
       - Steps:
           - "api/steps/index.md"
           - Generator Steps: "api/steps/generator_steps/generator_steps.md"

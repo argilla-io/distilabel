@@ -55,8 +55,15 @@ RoutingBatchFunction = Callable[[List[str]], List[str]]
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 
-class CacheLocation(TypedDict):
-    """Dictionary to store the filenames and directories of a cached pipeline."""
+class _CacheLocation(TypedDict):
+    """Dictionary to store the filenames and directories of a cached pipeline.
+
+    Attributes:
+        pipeline: The filename where the pipeline content will be serialized.
+        batch_manager: The filename where the batch manager content will be serialized.
+        data: The directory where the output data of each leaf step will be stored.
+        log_file: The filename where the logs will be stored.
+    """
 
     pipeline: Path
     batch_manager: Path
@@ -330,7 +337,7 @@ class BasePipeline(_Serializable):
         return pipe
 
     @property
-    def _cache_location(self) -> CacheLocation:
+    def _cache_location(self) -> _CacheLocation:
         """Dictionary containing the the object that will stored and the location,
         whether it is a filename or a folder.
 

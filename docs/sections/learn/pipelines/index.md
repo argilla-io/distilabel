@@ -166,6 +166,54 @@ In the previous example we saw how to create a `Pipeline` and connect different 
     1. Notice how `tasks` is a list of different `Tasks`. In a single call to the operator we are connecting `load_dataset` with all the `tasks`, and all of those again to `combine_generations`.
 
 
+### Routing batches to specific downstream steps
+
+In some pipelines, it's likely that you will need to have a list of downstream steps receiving batches from the same upstream step, but you would like to route the batches to specific downstream steps based on some condition. To do so, you can use a `routing_batch_function`, which is a simple function that receives a list of the downstream steps to which a batch can be routed, and returns a list containing the names of steps to which the batch should be routed. Let's update the example above to route the batches loaded by the `LoadHubDataset` step to just 2 of the `TextGeneration` tasks. First, we will create our custom [`routing_batch_function`][distilabel.pipeline.routing_batch_function.routing_batch_function], and then we will update the pipeline to use it:
+
+```python
+import random
+from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.pipeline import Pipeline, routing_batch_function
+from distilabel.steps import CombineColumns, LoadHubDataset
+from distilabel.steps.tasks import TextGeneration
+
+@routing_batch_function
+def sample_two_steps(steps: list[str]) -> list[str]:
+    return random.sample(steps, 2)
+
+with Pipeline("pipe-name", description="My first pipe") as pipeline:
+    load_dataset = LoadHubDataset(
+        name="load_dataset",
+        output_mappings={"prompt": "instruction"},
+    )
+
+    tasks = []
+    for llm in (
+        OpenAILLM(model="gpt-4-0125-preview"),
+        MistralLLM(model="mistral-large-2402"),
+        VertexAILLM(model="gemini-1.0-pro"),
+    ):
+        tasks.append(
+            TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+        )
+
+    combine_generations = CombineColumns(
+        name="combine_generations",
+        columns=["generation", "model_name"],
+        output_columns=["generations", "model_names"],
+    )
+
+    load_dataset >> sample_two_steps >> tasks >> combine_generations
+```
+
+As it can be seen, the `routing_batch_function` can be used with the `>>` operator to route the batches to specific downstream steps. In this case, each batch yield by the `load_dataset` step will be routed to just 2 of the `TextGeneration` tasks, and then all the outputs of the tasks will be combined in the `CombineColumns` step so each row of the final dataset will contain generations of 2 `LLM`s at most. The `routing_batch_function` that we just built is a common one, so `distilabel` comes with an auxiliary function that can be used to achieve the same behavior:
+
+```python
+from distilable.pipeline import sample_n_steps
+
+sample_two_steps = sample_n_steps(2)
+```
+
 ## Running the pipeline
 
 Once we have created the pipeline, we can run it. To do so, we need to call the `run` method of the `Pipeline`, and specify the runtime parameters for each step:
