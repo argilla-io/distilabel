@@ -69,21 +69,31 @@ Score 5: The model consistently demonstrates advanced reasoning abilities, provi
 }
 
 
-class PrometheusAbsEval(Task):
-    """PrometheusAbsEval is a task created for Prometheus 2.0 absolute evaluation in order to evalute
-    the generation from an LLM for a given instruction with or without using a reference answer.
-    Additionally, the task defines a score rubric to critique the generation based on the following
-    aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, and `reasoning`.
+class PrometheusEval(Task):
+    """PrometheusEval is a task created for Prometheus 2.0, covering both the absolute and relative
+    evaluations.
+
+    - The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
+        an LLM for a given instruction.
+    - The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
+        for a given instruction.
+
+    Both evaluations provide the possibility whether to use a reference answer to compare with or not
+    via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
+    based on the following aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, and
+    `reasoning`, set via the attribute `rubric`.
 
     Note:
-        Both `PrometheusAbsEval` and `PrometheusRelEval` tasks are intended to be used with any of the
-        Kaist AI released models for that being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
+        The `PrometheusEval` task is better suited and intended to be used with any of the Prometheus 2.0
+        models released by Kaist AI, being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
         and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
         and quality is not guaranteed if using another model, even though some other models may be able to
         correctly follow the formatting and generate insightful critiques too.
 
     Attributes:
-        rubric: the score rubric to use within the prompt to critique a given generation. Can either be:
+        mode: the evaluation mode to use, either `absolute` or `relative`. It defines whether the task
+            will evaluate one or two generations.
+        rubric: the score rubric to use within the prompt to run the critique based on differnt aspects. Can be:
             `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, or `reasoning`.
         reference: a boolean flag to indicate whether a reference answer / completion will be provided, so
             that the model critique is based on the comparison with it. It implies that the column `reference`
@@ -91,21 +101,29 @@ class PrometheusAbsEval(Task):
         _template: a Jinja2 template used to format the input for the LLM.
 
     Input columns:
-        - instruction (`str`): The instruction to use as reference to understand where the generation comes from.
-        - generation (`str`): The generated text from the given `instruction`.
+        - instruction (`str`): The instruction to use as reference.
+        - generation (`str`, optional): The generated text from the given `instruction`. This column is required
+            if `mode=absolute`.
+        - generations (`List[str]`, optional): The generated texts from the given `instruction`. It should
+            contain 2 generations only. This column is required if `mode=relative`.
         - reference (`str`, optional): The reference / golden answer for the `instruction`, to be used by the LLM
-            for comparison against the `generation`.
+            for comparison against.
 
     Output columns:
-        - feedback (`str`): The feedback for the `generation` based on the given `instruction` critiqued using the
+        - feedback (`str`): The feedback explaining the result below, as critiqued by the LLM using the
             pre-defined score rubric, compared against `reference` if provided.
-        - result (`int`): The score for the `generation` in a liker-scale from 1-5.
+        - result (`Union[int, Literal["A", "B"]]`): If `mode=absolute`, then the result contains the score for the
+            `generation` in a likert-scale from 1-5, otherwise, if `mode=relative`, then the result contains either
+            "A" or "B", the "winning" one being the generation in the index 0 of `generations` if `result='A'` or the
+            index 1 if `result='B'`.
         - model_name (`str`): The model name used to generate the `feedback` and `result`.
 
     References:
         - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
+        - [prometheus-eval: Evaluate your LLM's response with Prometheus 💯](https://github.com/prometheus-eval/prometheus-eval)
     """
 
+    mode: Literal["absolute", "relative"]
     rubric: Literal[
         "helpfulness", "harmlessness", "honesty", "factual-validity", "reasoning"
     ]
@@ -114,8 +132,9 @@ class PrometheusAbsEval(Task):
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Loads the Jinja2 template for Prometheus 2.0 absolute evaluation, either
-        with or without reference, depending on the value of `reference`."""
+        """Loads the Jinja2 template for Prometheus 2.0 either absolute or relative evaluation
+        depending on the `mode` value, and either with or without reference, depending on the
+        value of `reference`."""
         super().load()
 
         _path = str(
@@ -125,9 +144,9 @@ class PrometheusAbsEval(Task):
             / "templates"
             / "prometheus"
             / (
-                "absolute_without_reference.jinja2"
+                f"{self.mode}_without_reference.jinja2"
                 if self.reference is False
-                else "absolute_with_reference.jinja2"
+                else f"{self.mode}_with_reference.jinja2"
             )
         )
 
@@ -138,9 +157,14 @@ class PrometheusAbsEval(Task):
         """The default inputs for the task are the `instruction` and the `generation`
         if `reference=False`, otherwise, the inputs are `instruction`, `generation`, and
         `reference`."""
-        if not self.reference:
+        if self.mode == "absolute":
+            if self.reference:
+                return ["instruction", "generation", "reference"]
             return ["instruction", "generation"]
-        return ["instruction", "generation", "reference"]
+        else:  # self.mode == "relative"
+            if self.reference:
+                return ["instruction", "generations", "reference"]
+            return ["instruction", "generations"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` where the prompt is formatted according
@@ -148,15 +172,47 @@ class PrometheusAbsEval(Task):
         from the user, including a pre-defined system prompt."""
         template_kwargs = {
             "instruction": input["instruction"],
-            "generation": input["generation"],
             "rubric": _RUBRICS[self.rubric],
         }
         if self.reference:
             template_kwargs["reference"] = input["reference"]
+
+        if self.mode == "absolute":
+            if not isinstance(input["generation"], str):
+                raise ValueError(
+                    f"Provided `generation` is of type {type(input['generation'])} but a string"
+                    " should be provided instead.",
+                )
+
+            template_kwargs["generation"] = input["generation"]
+            system_message = (
+                "You are a fair judge assistant tasked with providing clear, objective feedback based"
+                " on specific criteria, ensuring each assessment reflects the absolute standards set"
+                " for performance."
+            )
+        else:  # self.mode == "relative"
+            if (
+                not isinstance(input["generations"], list)
+                or not all(
+                    isinstance(generation, str) for generation in input["generations"]
+                )
+                or len(input["generations"]) != 2
+            ):
+                raise ValueError(
+                    f"Provided `generations` is of type {type(input['generations'])} but a list of strings with length 2 should be provided instead."
+                )
+
+            template_kwargs["generations"] = input["generations"]
+            system_message = (
+                "You are a fair judge assistant assigned to deliver insightful feedback that compares"
+                " individual performances, highlighting how each stands relative to others within the"
+                " same cohort."
+            )
+
         return [
             {
                 "role": "system",
-                "content": "You are a fair judge assistant tasked with providing clear, objective feedback based on specific criteria, ensuring each assessment reflects the absolute standards set for performance.",
+                "content": system_message,
             },
             {
                 "role": "user",
@@ -192,151 +248,13 @@ class PrometheusAbsEval(Task):
             return {"feedback": None, "result": None}
 
         feedback, result = parts[0].strip(), parts[1].strip()
-        if not result.isdigit() or result not in ["1", "2", "3", "4", "5"]:
-            return {"feedback": None, "result": None}
         if feedback.startswith("Feedback:"):
             feedback = feedback[len("Feedback:") :].strip()
-        return {"feedback": feedback, "result": int(result)}
-
-
-class PrometheusRelEval(Task):
-    """PrometheusRelEval is a task created for Prometheus 2.0 relative evaluation in order to evalute
-    two generations for a given instruction with or without using a reference answer.
-    Additionally, the task defines a score rubric to critique the generations based on the following
-    aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, and `reasoning`; in order to
-    define which of the generations is better than the other one, if any.
-
-    Note:
-        Both `PrometheusAbsEval` and `PrometheusRelEval` tasks are intended to be used with any of the
-        Kaist AI released models for that being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
-        and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
-        and quality is not guaranteed if using another model, even though some other models may be able to
-        correctly follow the formatting and generate insightful critiques too.
-
-    Attributes:
-        rubric: the score rubric to use within the prompt to critique the given generations. Can either be:
-            `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, or `reasoning`.
-        reference: a boolean flag to indicate whether a reference answer / completion will be provided, so
-            that the model critique is based on the comparison with it. It implies that the column `reference`
-            needs to be provided within the input data in addition to the rest of the inputs.
-        _template: a Jinja2 template used to format the input for the LLM.
-
-    Input columns:
-        - instruction (`str`): The instruction to use as reference to understand where the generations come from.
-        - generations (`List[str]`): The generated texts from the given `instruction`. It should contain 2 generations
-            to be internally named A and B.
-        - reference (`str`, optional): The reference / golden answer for the `instruction`, to be used by the LLM
-            for comparison against the `generations`.
-
-    Output columns:
-        - feedback (`str`): The feedback for the `generation` based on the given `instruction` critiqued using the
-            pre-defined score rubric, compared against `reference` if provided.
-        - result (`Literal["A", "B"]`): The result that contains either "A" or "B", the "winning" one being the generation
-            in the index 0 of `generations` if `result='A'`, otherwise, if `result='B'` then the generation with index 1.
-        - model_name (`str`): The model name used to generate the `feedback` and `result`.
-
-    References:
-        - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
-    """
-
-    rubric: Literal[
-        "helpfulness", "harmlessness", "honesty", "factual-validity", "reasoning"
-    ]
-    reference: bool = False
-
-    _template: Union[Template, None] = PrivateAttr(...)
-
-    def load(self) -> None:
-        """Loads the Jinja2 template for Prometheus 2.0 relative evaluation, either
-        with or without reference, depending on the value of `reference`."""
-        super().load()
-
-        _path = str(
-            importlib_resources.files("distilabel")
-            / "steps"
-            / "tasks"
-            / "templates"
-            / "prometheus"
-            / (
-                "relative_without_reference.jinja2"
-                if self.reference is False
-                else "relative_with_reference.jinja2"
-            )
-        )
-
-        self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The default inputs for the task are the `instruction` and the `generations`
-        if `reference=False`, otherwise, the inputs are `instruction`, `generations`, and
-        `reference`."""
-        if not self.reference:
-            return ["instruction", "generations"]
-        return ["instruction", "generations", "reference"]
-
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
-        """The input is formatted as a `ChatType` where the prompt is formatted according
-        to the selected Jinja2 template for Prometheus, assuming that's the first interaction
-        from the user, including a pre-defined system prompt."""
-        if (
-            not isinstance(input["generations"], list)
-            or not all(
-                isinstance(generation, str) for generation in input["generations"]
-            )
-            or len(input["generations"]) != 2
-        ):
-            raise ValueError(
-                f"Provided `generations` is of type {type(input['generations'])} but a list of strings with length 2 should be provided instead."
-            )
-        template_kwargs = {
-            "instruction": input["instruction"],
-            "generations": input["generations"],
-            "rubric": _RUBRICS[self.rubric],
-        }
-        if self.reference:
-            template_kwargs["reference"] = input["reference"]
-        return [
-            {
-                "role": "system",
-                "content": "You are a fair judge assistant assigned to deliver insightful feedback that compares individual performances, highlighting how each stands relative to others within the same cohort.",
-            },
-            {
-                "role": "user",
-                "content": self._template.render(**template_kwargs),  # type: ignore
-            },
-        ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `feedback` and the `result` generated by Prometheus,
-        as well as the `model_name` which is automatically included based on the `LLM` used.
-        """
-        return ["feedback", "result", "model_name"]
-
-    def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """The output is formatted as a dict with the keys `feedback` and `result` captured
-        using a regex from the Prometheus output.
-
-        Args:
-            output: the raw output of the LLM.
-            input: the input to the task. Optionally provided in case it's useful to build the output.
-
-        Returns:
-            A dict with the keys `feedback` and `result` generated by the LLM.
-        """
-        if output is None:
-            return {"feedback": None, "result": None}
-
-        parts = output.split("[RESULT]")
-        if len(parts) != 2:
-            return {"feedback": None, "result": None}
-
-        feedback, result = parts[0].strip(), parts[1].strip()
-        if result not in ["A", "B"]:
-            return {"feedback": None, "result": None}
-        if feedback.startswith("Feedback:"):
-            feedback = feedback[len("Feedback:") :].strip()
-        return {"feedback": feedback, "result": result}
+        if self.mode == "absolute":
+            if not result.isdigit() or result not in ["1", "2", "3", "4", "5"]:
+                return {"feedback": None, "result": None}
+            return {"feedback": feedback, "result": int(result)}
+        else:  # self.mode == "relative"
+            if result not in ["A", "B"]:
+                return {"feedback": None, "result": None}
+            return {"feedback": feedback, "result": result}
