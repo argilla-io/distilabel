@@ -148,6 +148,10 @@ with Pipeline(name="ultrafeedback-pipeline") as pipeline:
     # keep_columns >> push_to_argilla
 ```
 
+!!! NOTE
+
+    As we're using a relative small dataset, we're setting a low `batch_size` and `input_batch_size` so we have more batches for the `routing_batch_function` i.e. we will have more variety on the LLMs used to generate the responses. When using a large dataset, it's recommended to use a larger `batch_size` and `input_batch_size` to benefit from the `vLLM` optimizations for larger batch sizes, which makes the pipeline execution faster.
+
 Then we need to call `pipeline.run` with the runtime parameters so that the pipeline can be launched.
 
 ```python
