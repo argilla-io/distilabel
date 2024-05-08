@@ -55,6 +55,7 @@ class Genstruct(Task):
     Output columns:
         - user (`str`): The user's instruction based on the document.
         - assistant (`str`): The assistant's response based on the user's instruction.
+        - model_name (`str`): The model name used to generate the `feedback` and `result`.
 
     References:
         - [Genstruct 7B by Nous Research](https://huggingface.co/NousResearch/Genstruct-7B)
