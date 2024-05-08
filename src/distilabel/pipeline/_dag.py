@@ -275,10 +275,12 @@ class DAG(_Serializable):
         step_inputs = step.get_inputs()
         if not all(input in inputs_available_for_step for input in step_inputs):
             raise ValueError(
-                f"Step '{step.name}' requires inputs {step_inputs} which are not"
-                f" available when the step gets to be executed in the pipeline."
+                f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
+                f"={inputs_available_for_step} are available, which means that the inputs"
+                f"={list(set(step_inputs) - set(inputs_available_for_step))} are missing or not"
+                " available when the step gets to be executed in the pipeline."
                 f" Please make sure previous steps to '{step.name}' are generating"
-                f" the required inputs. Available inputs are: {inputs_available_for_step}"
+                " the required inputs."
             )
 
     def _validate_step_process_arguments(self, step: "_Step") -> None:

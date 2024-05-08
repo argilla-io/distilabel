@@ -91,7 +91,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `vLLM` class of `vllm` library. See all the suported arguments at: "
+        " `vLLM` class of `vllm` library. See all the supported arguments at: "
         "https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py",
     )
 

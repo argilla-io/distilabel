@@ -212,8 +212,8 @@ if __name__ == "__main__":
 But if we run it, we will see that the `run` method will fail:
 
 ```
-ValueError: Step 'text_generation_with_gpt-4-0125-preview' requires inputs ['instruction'] which are not available when the step gets to be executed in the pipeline. Please make sure previous steps to 'text_generation_with_gpt-4-0125-preview' are 
-generating the required inputs. Available inputs are: ['prompt', 'completion', 'meta']
+ValueError: Step 'text_generation_with_gpt-4-0125-preview' requires inputs ['instruction'], but only the inputs=['prompt', 'completion', 'meta'] are available, which means that the inputs=['instruction'] are missing or not available
+when the step gets to be executed in the pipeline. Please make sure previous steps to 'text_generation_with_gpt-4-0125-preview' are generating the required inputs.
 ```
 
 This is because, before actually running the pipeline, the pipeline is validated to verify that everything is correct and all the steps in the pipeline are chainable i.e. each step has the necessary inputs to be executed. In this case, the `TextGeneration` task requires the `instruction` column, but the `LoadHubDataset` step generates the `prompt` column. To solve this, we can use the `output_mappings` argument that every `Step` has, to map or rename the output columns of a step to the required input columns of another step:
