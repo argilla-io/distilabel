@@ -23,7 +23,7 @@ from typing import Any, Dict, Union
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.tasks.prometheus_eval import _RUBRICS, PrometheusEval
+from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusEval
 from jinja2 import Template
 
 from tests.unit.steps.tasks.utils import DummyLLM
@@ -136,7 +136,7 @@ class TestPrometheusAbsEval:
         task.load()
 
         template_kwargs = input
-        template_kwargs["rubric"] = _RUBRICS[rubric]
+        template_kwargs["rubric"] = _DEFAULT_RUBRICS[rubric]
 
         assert task.format_input(input=input)[-1]["content"] == load_template(
             template=template
