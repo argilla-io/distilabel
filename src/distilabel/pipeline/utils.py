@@ -22,6 +22,19 @@ def combine_dicts(
     merge_keys: List[str],
     output_merge_keys: Optional[List[str]] = None,
 ) -> StepInput:
+    """Combines multiple list of dictionaries into a single list of dictionaries on the
+    specified `merge_keys`. If `output_merge_keys` are provided, then it will also rename
+    `merge_keys`.
+
+    Args:
+        inputs: list of dictionaries to combine.
+        merge_keys: list of keys to merge on.
+        output_merge_keys: list of keys to rename the merge keys to. Defaults to `None`.
+
+    Returns:
+        A list of dictionaries where the values of the `merge_keys` are combined into a
+        list and renamed to `output_merge_keys`.
+    """
     if output_merge_keys is not None and len(output_merge_keys) != len(merge_keys):
         raise ValueError(
             "The length of output_merge_keys must be the same as the length of merge_keys"

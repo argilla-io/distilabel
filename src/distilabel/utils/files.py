@@ -25,4 +25,4 @@ def list_files_in_dir(dir_path: Path) -> List[Path]:
     Returns:
         A list of file names in the directory.
     """
-    return [f for f in dir_path.iterdir() if f.is_file()]
+    return [f for f in sorted(dir_path.iterdir()) if f.is_file()]
