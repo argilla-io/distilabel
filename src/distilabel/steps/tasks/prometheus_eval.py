@@ -20,10 +20,11 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Self, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from jinja2 import Template
 from pydantic import Field, PrivateAttr, model_validator
+from typing_extensions import Self
 
 from distilabel.steps.tasks.base import Task
 
