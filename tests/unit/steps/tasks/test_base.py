@@ -87,9 +87,24 @@ class TestTask:
             (
                 False,
                 [
-                    {"instruction": "test", "output": "output", "model_name": "test"},
-                    {"instruction": "test", "output": "output", "model_name": "test"},
-                    {"instruction": "test", "output": "output", "model_name": "test"},
+                    {
+                        "instruction": "test",
+                        "output": "output",
+                        "model_name": "test",
+                        "distilabel_meta": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test",
+                        "output": "output",
+                        "model_name": "test",
+                        "distilabel_meta": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test",
+                        "output": "output",
+                        "model_name": "test",
+                        "distilabel_meta": {"raw_output_task": "output"},
+                    },
                 ],
             ),
             (
@@ -99,6 +114,11 @@ class TestTask:
                         "instruction": "test",
                         "output": ["output", "output", "output"],
                         "model_name": "test",
+                        "distilabel_meta": [
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                        ],
                     },
                 ],
             ),
