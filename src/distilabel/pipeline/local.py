@@ -14,7 +14,6 @@
 
 import logging
 import multiprocessing as mp
-import os
 import platform
 import signal
 import threading
@@ -71,8 +70,6 @@ if platform.system() != "Windows":
     _MULTIPROCESSING_CONTEXT = "forkserver"
 else:
     _MULTIPROCESSING_CONTEXT = "spawn"
-
-_MULTIPROCESSING_CONTEXT = os.getenv("DISTILABEL_MP_CONTEXT", _MULTIPROCESSING_CONTEXT)
 
 
 def _init_worker(queue: "Queue[Any]") -> None:
@@ -135,7 +132,7 @@ class Pipeline(BasePipeline):
         write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
         num_processes = len(self.dag)
-        ctx = mp.get_context(_MULTIPROCESSING_CONTEXT)  # type: ignore
+        ctx = mp.get_context()  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
             num_processes,
             initializer=_init_worker,
