@@ -17,6 +17,7 @@ from distilabel.llms.anyscale import AnyscaleLLM
 from distilabel.llms.azure import AzureOpenAILLM
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.cohere import CohereLLM
+from distilabel.llms.groq import GroqLLM
 from distilabel.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
 from distilabel.llms.litellm import LiteLLM
 from distilabel.llms.llamacpp import LlamaCppLLM
@@ -36,6 +37,7 @@ __all__ = [
     "LLM",
     "AsyncLLM",
     "CohereLLM",
+    "GroqLLM",
     "InferenceEndpointsLLM",
     "LiteLLM",
     "LlamaCppLLM",

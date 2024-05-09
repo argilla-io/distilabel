@@ -73,7 +73,7 @@ class TextGenerationToArgilla(Argilla):
         self._generation = self.input_mappings.get("generation", "generation")
 
         if self._rg_dataset_exists():
-            _rg_dataset = rg.FeedbackDataset.from_argilla(
+            _rg_dataset = rg.FeedbackDataset.from_argilla(  # type: ignore
                 name=self.dataset_name,
                 workspace=self.dataset_workspace,
             )
@@ -91,7 +91,7 @@ class TextGenerationToArgilla(Argilla):
 
             self._rg_dataset = _rg_dataset
         else:
-            _rg_dataset = rg.FeedbackDataset(
+            _rg_dataset = rg.FeedbackDataset(  # type: ignore
                 fields=[
                     rg.TextField(name=self._id, title=self._id),  # type: ignore
                     rg.TextField(name=self._instruction, title=self._instruction),  # type: ignore
@@ -106,7 +106,8 @@ class TextGenerationToArgilla(Argilla):
                 ],
             )
             self._rg_dataset = _rg_dataset.push_to_argilla(
-                name=self.dataset_name, workspace=self.dataset_workspace
+                name=self.dataset_name,  # type: ignore
+                workspace=self.dataset_workspace,
             )
 
     @property
@@ -148,7 +149,7 @@ class TextGenerationToArgilla(Argilla):
                 generations_set.add(generation)
 
                 records.append(
-                    rg.FeedbackRecord(
+                    rg.FeedbackRecord(  # type: ignore
                         fields={
                             self._id: instruction_id,
                             self._instruction: input["instruction"],

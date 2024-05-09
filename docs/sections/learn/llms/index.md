@@ -145,6 +145,7 @@ Here's a list with the available LLMs that can be used within the `distilabel` l
 * [AnyscaleLLM][distilabel.llms.anyscale]
 * [AzureOpenAILLM][distilabel.llms.azure]
 * [CohereLLM][distilabel.llms.cohere]
+* [GroqLLM][distilabel.llms.groq]
 * [InferenceEndpointsLLM][distilabel.llms.huggingface.inference_endpoints]
 * [LiteLLM][distilabel.llms.litellm]
 * [LlamaCppLLM][distilabel.llms.llamacpp]

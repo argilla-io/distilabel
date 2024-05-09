@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
@@ -101,7 +101,7 @@ class OpenAILLM(AsyncLLM):
         self._aclient = AsyncOpenAI(
             base_url=self.base_url,
             api_key=self.api_key.get_secret_value(),
-            max_retries=self.max_retries,
+            max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
 
@@ -120,6 +120,7 @@ class OpenAILLM(AsyncLLM):
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
+        stop: Optional[Union[str, List[str]]] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -136,6 +137,8 @@ class OpenAILLM(AsyncLLM):
                 `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            stop: a string or a list of strings to use as a stop sequence for the generation.
+                Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -149,12 +152,13 @@ class OpenAILLM(AsyncLLM):
             presence_penalty=presence_penalty,
             temperature=temperature,
             top_p=top_p,
+            stop=stop,
             timeout=50,
         )
         generations = []
         for choice in completion.choices:
             if (content := choice.message.content) is None:
-                self._logger.warning(
+                self._logger.warning(  # type: ignore
                     f"Received no response using OpenAI client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )

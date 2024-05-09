@@ -16,13 +16,10 @@ from typing import List, Optional
 
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import (
-    GeneratorStep,
-    GlobalStep,
-    Step,
-    StepInput,
-)
+from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.steps.decorator import step
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from pydantic import ValidationError
@@ -92,9 +89,13 @@ class TestStep:
 
         assert step.pipeline == pipeline
 
-    def test_creating_step_without_pipeline(self) -> None:
-        with pytest.raises(ValueError, match="Step 'dummy' hasn't received a pipeline"):
-            DummyStep(name="dummy")
+    def test_creating_step_without_pipeline(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        # This test is to ensure that the warning is raised when creating a step without a pipeline,
+        # vs the error we raised before.
+        dummy_step = DummyStep(name="dummy")
+        assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
 
     def test_is_generator(self) -> None:
         step = DummyStep(name="dummy", pipeline=Pipeline(name="unit-test-pipeline"))
@@ -221,6 +222,36 @@ class TestStep:
             {"prompt": "hello 3", "generation": "unit test"},
         ]
 
+    def test_connect(self) -> None:
+        @step(inputs=["instruction"], outputs=["generation"])
+        def GenerationStep(input: StepInput):
+            pass
+
+        def routing_batch_function(downstream_step_names: List[str]) -> List[str]:
+            return downstream_step_names
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            generator_step = DummyGeneratorStep(name="dummy_generator")
+
+            generate_1 = GenerationStep(name="generate_1")
+            generate_2 = GenerationStep(name="generate_2")
+            generate_3 = GenerationStep(name="generate_3")
+
+            generator_step.connect(
+                generate_1,
+                generate_2,
+                generate_3,
+                routing_batch_function=routing_batch_function,
+            )
+
+        assert "generate_1" in pipeline.dag.G["dummy_generator"]
+        assert "generate_2" in pipeline.dag.G["dummy_generator"]
+        assert "generate_3" in pipeline.dag.G["dummy_generator"]
+        assert (
+            pipeline.dag.get_step("dummy_generator")[ROUTING_BATCH_FUNCTION_ATTR_NAME]
+            == routing_batch_function
+        )
+
 
 class TestGeneratorStep:
     def test_is_generator(self) -> None:
@@ -288,16 +319,18 @@ class TestStepSerialization:
 
         assert isinstance(step, DummyStep)
 
-    def test_step_from_dict_without_pipeline_context(self) -> None:
-        with pytest.raises(ValueError):
-            DummyStep.from_dict(
-                {
-                    **{
-                        "name": "dummy",
-                        TYPE_INFO_KEY: {
-                            "module": "tests.pipeline.step.test_base",
-                            "name": "DummyStep",
-                        },
-                    }
+    def test_step_from_dict_without_pipeline_context(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        dummy_step = DummyStep.from_dict(
+            {
+                **{
+                    "name": "dummy",
+                    TYPE_INFO_KEY: {
+                        "module": "tests.pipeline.step.test_base",
+                        "name": "DummyStep",
+                    },
                 }
-            )
+            }
+        )
+        assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
