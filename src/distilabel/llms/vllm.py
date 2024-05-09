@@ -105,6 +105,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         parse the list of OpenAI formatted inputs using the expected format by the model, otherwise, the
         default value is ChatML format, unless explicitly provided.
         """
+        super().load()
+
         CudaDevicePlacementMixin.load(self)
 
         try:
@@ -145,8 +147,6 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             self._logits_processor = self._prepare_structured_output(
                 self.structured_output
             )
-
-        super().load()
 
     @property
     def model_name(self) -> str:
@@ -211,7 +211,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             top_p=top_p,
             top_k=top_k,
             max_tokens=max_new_tokens,
-            logits_processor=[self._logits_processor],
+            logits_processors=[self._logits_processor],
             **extra_sampling_params,
         )
 
