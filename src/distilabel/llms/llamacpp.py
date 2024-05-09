@@ -159,6 +159,14 @@ class LlamaCppLLM(LLM):
         for input in inputs:
             outputs = []
             for _ in range(num_generations):
+                # NOTE(plaguss): There seems to be a bug in how the logits processor
+                # is used. Basically it consumes the FSM internally, and it isn't reinitialized
+                # after each generation, so subsequent calls yield nothing. This is a workaround
+                # until is fixed in the `llama_cpp` or `outlines` libraries.
+                if self.structured_output:
+                    self._logits_processor = self._prepare_structured_output(
+                        self.structured_output
+                    )
                 chat_completions: "CreateChatCompletionResponse" = (
                     self._model.create_chat_completion(  # type: ignore
                         messages=input,  # type: ignore
