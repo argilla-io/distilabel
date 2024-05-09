@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import sys
 
 if sys.version_info < (3, 9):
@@ -19,10 +20,10 @@ if sys.version_info < (3, 9):
 else:
     import importlib.resources as importlib_resources
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Self, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr, model_validator
 
 from distilabel.steps.tasks.base import Task
 
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
 
 
-_RUBRICS = {
+_DEFAULT_RUBRICS = {
     "helpfulness": """[Does the model provide relevant and useful responses to the user's needs or questions?]
 Score 1: The model’s responses are irrelevant or unhelpful to the user's needs or queries.
 Score 2: The model sometimes provides helpful information, but often fails to address the user's actual needs or questions.
@@ -124,12 +125,46 @@ class PrometheusEval(Task):
     """
 
     mode: Literal["absolute", "relative"]
-    rubric: Literal[
-        "helpfulness", "harmlessness", "honesty", "factual-validity", "reasoning"
-    ]
+    rubric: str
+    rubrics: Optional[Dict[str, str]] = Field(default=_DEFAULT_RUBRICS)
     reference: bool = False
 
     _template: Union[Template, None] = PrivateAttr(...)
+
+    @model_validator(mode="after")
+    def validate_rubric_and_rubrics(self) -> Self:
+        if (
+            not isinstance(self.rubrics, dict)
+            or len(self.rubrics) < 1
+            or not all(
+                isinstance(key, str) and isinstance(value, str)
+                for key, value in self.rubrics.items()
+            )
+        ):
+            raise ValueError(
+                "Provided `rubrics` must be a Python dictionary with string keys and string values."
+            )
+
+        def rubric_matches_pattern(rubric: str) -> bool:
+            """Checks if the provided rubric matches the pattern of the default rubrics."""
+            pattern = r"^\[.*?\]\n(?:Score [1-4]: .*?\n){4}(?:Score 5: .*?)"
+            return bool(re.match(pattern, rubric, re.MULTILINE))
+
+        if not all(rubric_matches_pattern(value) for value in self.rubrics.values()):
+            raise ValueError(
+                "Provided rubrics should match the format of the default rubrics, which"
+                " is as follows: `[<scoring criteria>]\nScore 1: <description>\nScore 2: <description>\n"
+                "Score 3: <description>\nScore 4: <description>\nScore 5: <description>`; replacing"
+                " `<scoring criteria>` and `<description>` with the actual criteria and description"
+                " for each or the scores, respectively."
+            )
+
+        if self.rubric not in self.rubrics:
+            raise ValueError(
+                f"Provided rubric '{self.rubric}' is not among the available rubrics: {', '.join(self.rubrics.keys())}."
+            )
+
+        return self
 
     def load(self) -> None:
         """Loads the Jinja2 template for Prometheus 2.0 either absolute or relative evaluation
@@ -172,7 +207,7 @@ class PrometheusEval(Task):
         from the user, including a pre-defined system prompt."""
         template_kwargs = {
             "instruction": input["instruction"],
-            "rubric": _RUBRICS[self.rubric],
+            "rubric": self.rubrics[self.rubric],
         }
         if self.reference:
             template_kwargs["reference"] = input["reference"]
