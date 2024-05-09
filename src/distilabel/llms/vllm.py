@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
 
 from pydantic import Field, PrivateAttr, validate_call
 
@@ -37,30 +37,59 @@ class vLLM(LLM, CudaDevicePlacementMixin):
     Attributes:
         model: the model Hugging Face Hub repo id or a path to a directory containing the
             model weights and configuration files.
-        model_kwargs: additional dictionary of keyword arguments that will be passed to
-            the `LLM` class of `vllm` library.
+        dtype: the data type to use for the model. Defaults to `auto`.
+        trust_remote_code: whether to trust the remote code when loading the model. Defaults
+            to `False`.
+        quantization: the quantization mode to use for the model. Defaults to `None`.
+        revision: the revision of the model to load. Defaults to `None`.
+        tokenizer: the tokenizer Hugging Face Hub repo id or a path to a directory containing
+            the tokenizer files. If not provided, the tokenizer will be loaded from the
+            model directory. Defaults to `None`.
+        tokenizer_mode: the mode to use for the tokenizer. Defaults to `auto`.
+        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
+        skip_tokenizer_init: whether to skip the initialization of the tokenizer. Defaults
+            to `False`.
         chat_template: a chat template that will be used to build the prompts before
             sending them to the model. If not provided, the chat template defined in the
             tokenizer config will be used. If not provided and the tokenizer doesn't have
             a chat template, then ChatML template will be used. Defaults to `None`.
+        seed: the seed to use for the random number generator. Defaults to `0`.
+        extra_kwargs: additional dictionary of keyword arguments that will be passed to the
+            `LLM` class of `vllm` library. Defaults to `{}`.
         _model: the `vLLM` model instance. This attribute is meant to be used internally
             and should not be accessed directly. It will be set in the `load` method.
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
             the `LLM`. This attribute is meant to be used internally and should not be
             accessed directly. It will be set in the `load` method.
 
+    References:
+        - https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py
+
     Runtime parameters:
-        - `model_kwargs`: additional dictionary of keyword arguments that will be passed to
+        - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to
             the `LLM` class of `vllm` library.
     """
 
     model: str
-    model_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+    dtype: str = "auto"
+    trust_remote_code: bool = False
+    quantization: Optional[str] = None
+    revision: Optional[str] = None
+
+    tokenizer: Optional[str] = None
+    tokenizer_mode: Literal["auto", "slow"] = "auto"
+    tokenizer_revision: Optional[str] = None
+    skip_tokenizer_init: bool = False
+    chat_template: Optional[str] = None
+
+    seed: int = 0
+
+    extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `LLM` class of `vllm` library.",
+        " `vLLM` class of `vllm` library. See all the supported arguments at: "
+        "https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py",
     )
-    chat_template: Optional[str] = None
 
     _model: Optional["_vLLM"] = PrivateAttr(...)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
@@ -86,9 +115,21 @@ class vLLM(LLM, CudaDevicePlacementMixin):
                 "vLLM is not installed. Please install it using `pip install vllm`."
             ) from ie
 
-        self._model = _vLLM(self.model, **self.model_kwargs)  # type: ignore
-        self._tokenizer = self._model.get_tokenizer()  # type: ignore
+        self._model = _vLLM(
+            self.model,
+            dtype=self.dtype,
+            trust_remote_code=self.trust_remote_code,
+            quantization=self.quantization,
+            revision=self.revision,
+            tokenizer=self.tokenizer,
+            tokenizer_mode=self.tokenizer_mode,
+            tokenizer_revision=self.tokenizer_revision,
+            skip_tokenizer_init=self.skip_tokenizer_init,
+            seed=self.seed,
+            **self.extra_kwargs,
+        )
 
+        self._tokenizer = self._model.get_tokenizer()  # type: ignore
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
         elif (

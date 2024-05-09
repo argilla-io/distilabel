@@ -12,10 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
+import tempfile
+from pathlib import Path
 
-__all__ = ["Pipeline", "routing_batch_function", "sample_n_steps"]
+from distilabel.utils.files import list_files_in_dir
+
+
+def test_list_files_in_dir() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir = Path(temp_dir)
+
+        created_files = []
+        for i in range(10):
+            file_path = temp_dir / f"{i}.txt"
+            created_files.append(file_path)
+            with open(file_path, "w") as f:
+                f.write("hello")
+
+        assert list_files_in_dir(Path(temp_dir)) == created_files

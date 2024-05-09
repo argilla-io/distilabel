@@ -71,15 +71,15 @@ class TestArgilla:
             assert step.dataset_workspace == "argilla"
         assert step.pipeline is pipeline
 
-    def test_with_errors(self) -> None:
-        with pytest.raises(ValueError, match="Step 'step' hasn't received a pipeline"):
-            CustomArgilla(
-                name="step",
-                api_url="https://example.com",
-                api_key="api.key",  # type: ignore
-                dataset_name="argilla",
-                dataset_workspace="argilla",
-            )
+    def test_with_errors(self, caplog) -> None:
+        CustomArgilla(
+            name="step",
+            api_url="https://example.com",
+            api_key="api.key",  # type: ignore
+            dataset_name="argilla",
+            dataset_workspace="argilla",
+        )
+        assert "Step 'step' hasn't received a pipeline" in caplog.text
 
         with pytest.raises(
             TypeError,
