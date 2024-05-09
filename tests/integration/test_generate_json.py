@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from enum import Enum
+from pathlib import Path
 
-from distilabel.llms import vLLM
+from distilabel.llms import LlamaCppLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
@@ -67,17 +68,17 @@ with Pipeline("RPG-characters") as pipeline:
             for char in ["dwarf", "elf", "human", "ork"]
         ],
     )
-    # llm=LlamaCppLLM(
-    #     model_path=str(Path.home() / model_path),  # type: ignore
-    #     n_gpu_layers=-1,
-    #     n_ctx=1024,
-    #     # structured_output={"format": "json", "schema": Character},
-    # )
-    llm = vLLM(
-        model="teknium/OpenHermes-2.5-Mistral-7B",
-        extra_kwargs={"tensor_parallel_size": 1},
+    llm = LlamaCppLLM(
+        model_path=str(Path.home() / model_path),  # type: ignore
+        n_gpu_layers=-1,
+        n_ctx=1024,
         structured_output={"format": "json", "schema": Character},
     )
+    # llm = vLLM(
+    #     model="teknium/OpenHermes-2.5-Mistral-7B",
+    #     extra_kwargs={"tensor_parallel_size": 1},
+    #     structured_output={"format": "json", "schema": Character},
+    # )
 
     text_generation = TextGeneration(
         name="text_generation_rpg",
