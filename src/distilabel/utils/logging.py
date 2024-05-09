@@ -18,7 +18,6 @@ import os
 import warnings
 from logging import FileHandler
 from logging.handlers import QueueHandler, QueueListener
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rich.logging import RichHandler
@@ -58,9 +57,7 @@ def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> No
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
 
-        if not Path(filename).parent.exists():
-            Path(filename).parent.mkdir(parents=True)
-        file_handler = FileHandler(filename)
+        file_handler = FileHandler(filename, delay=True)
         file_formatter = logging.Formatter(
             "[%(asctime)s] %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
