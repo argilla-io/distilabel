@@ -13,13 +13,12 @@
 # limitations under the License.
 
 from enum import Enum
-from pathlib import Path
 
-from distilabel.llms import LlamaCppLLM
+from distilabel.llms import vLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, StringConstraints, conint
 from typing_extensions import Annotated
 
 
@@ -40,17 +39,17 @@ class Armor(str, Enum):
 
 
 class Character(BaseModel):
-    name: Annotated[str, StringConstraints(max_length=20)]
-    age: int
+    name: Annotated[str, StringConstraints(max_length=30)]
+    age: conint(gt=1, lt=3000)
     armor: Armor
     weapon: Weapon
-    strength: int
 
 
 # Download the model with
 # curl -L -o ~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
 
 model_path = "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
+
 
 with Pipeline("RPG-characters") as pipeline:
     system_prompt = (
@@ -63,36 +62,45 @@ with Pipeline("RPG-characters") as pipeline:
         data=[
             {
                 "system_prompt": system_prompt,
-                "instruction": "Give me a character description for a dwarf",
-            },
-            {
-                "system_prompt": system_prompt,
-                "instruction": "Give me a character description for an elf",
-            },
-            {
-                "system_prompt": system_prompt,
-                "instruction": "Give me a character description for a human",
-            },
+                "instruction": f"Give me a character description for a {char}",
+            }
+            for char in ["dwarf", "elf", "human", "ork"]
         ],
+    )
+    # llm=LlamaCppLLM(
+    #     model_path=str(Path.home() / model_path),  # type: ignore
+    #     n_gpu_layers=-1,
+    #     n_ctx=1024,
+    #     # structured_output={"format": "json", "schema": Character},
+    # )
+    llm = vLLM(
+        model="teknium/OpenHermes-2.5-Mistral-7B",
+        extra_kwargs={"tensor_parallel_size": 1},
+        structured_output={"format": "json", "schema": Character},
     )
 
     text_generation = TextGeneration(
         name="text_generation_rpg",
-        llm=LlamaCppLLM(
-            model_path=str(Path.home() / model_path),  # type: ignore
-            n_gpu_layers=-1,
-            n_ctx=1024,
-            structured_output={"format": "json", "schema": Character},
-        ),
-        input_batch_size=10,
+        llm=llm,
+        input_batch_size=8,
         output_mappings={"model_name": "generation_model"},
     )
     load_dataset >> text_generation
 
 
 if __name__ == "__main__":
-    distiset = pipeline.run(use_cache=False)
+    distiset = pipeline.run(
+        parameters={
+            text_generation.name: {
+                "llm": {"generation_kwargs": {"max_new_tokens": 256}}
+            }
+        },
+        use_cache=False,
+    )
     print(distiset)
     df = distiset["default"]["train"].to_pandas()
     df.to_csv("rpg_characters.csv", index=False)
-    print()
+
+    for num, character in enumerate(distiset["default"]["train"]["generation"]):
+        print(f"Character: {num}")
+        print(character)
