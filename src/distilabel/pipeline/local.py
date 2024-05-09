@@ -14,7 +14,6 @@
 
 import logging
 import multiprocessing as mp
-import platform
 import signal
 import threading
 import time
@@ -66,12 +65,6 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-if platform.system() != "Windows":
-    _MULTIPROCESSING_CONTEXT = "forkserver"
-else:
-    _MULTIPROCESSING_CONTEXT = "spawn"
-
-
 def _init_worker(queue: "Queue[Any]") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(queue)
@@ -99,10 +92,6 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        try:
-            mp.set_start_method(_MULTIPROCESSING_CONTEXT)
-        except RuntimeError:
-            pass
         log_queue = mp.Queue()
         setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
