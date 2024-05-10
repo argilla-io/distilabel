@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 import random
-from typing import TYPE_CHECKING, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 from pydantic import BaseModel, PrivateAttr
+from typing_extensions import Self
 
-from distilabel.utils.serialization import _Serializable
+from distilabel.utils.serialization import (
+    TYPE_INFO_KEY,
+    _get_module_attr,
+    _Serializable,
+)
 
 if TYPE_CHECKING:
     from distilabel.pipeline.base import _Batch
@@ -47,6 +53,9 @@ class RoutingBatchFunction(BaseModel, _Serializable):
     _routed_batch_registry: Dict[str, Dict[int, List[str]]] = PrivateAttr(
         default_factory=dict
     )
+    _factory_function_module: Union[str, None] = PrivateAttr(default=None)
+    _factory_function_name: Union[str, None] = PrivateAttr(default=None)
+    _factory_function_kwargs: Union[Dict[str, Any], None] = PrivateAttr(default=None)
 
     def route_batch(self, batch: "_Batch", steps: List[str]) -> List[str]:
         """Returns a list of selected downstream steps from `steps` to which the `batch`
@@ -62,6 +71,25 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         routed_steps = self.routing_function(steps)
         self._register_routed_batch(batch, routed_steps)
         return routed_steps
+
+    def set_factory_function(
+        self,
+        factory_function_module: str,
+        factory_function_name: str,
+        factory_function_kwargs: Dict[str, Any],
+    ) -> None:
+        """Sets the factory function that was used to create the `routing_batch_function`.
+
+        Args:
+            factory_function_module: The module name where the factory function is defined.
+            factory_function_name: The name of the factory function that was used to create
+                the `routing_batch_function`.
+            factory_function_kwargs: The keyword arguments that were used when calling the
+                factory function.
+        """
+        self._factory_function_module = factory_function_module
+        self._factory_function_name = factory_function_name
+        self._factory_function_kwargs = factory_function_kwargs
 
     def __call__(self, batch: "_Batch", steps: List[str]) -> List[str]:
         """Returns a list of selected downstream steps from `steps` to which the `batch`
@@ -124,6 +152,68 @@ class RoutingBatchFunction(BaseModel, _Serializable):
             self._step.connect(step)
         return other
 
+    def dump(self, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the routing batch function to a dictionary, and the information of the
+        factory function used to create this routing batch function.
+
+        Args:
+            **kwargs: Additional keyword arguments that should be included in the dump.
+
+        Returns:
+            A dictionary with the routing batch function information and the factory function
+            information.
+        """
+        dump_info: Dict[str, Any] = {"step": self._step.name}  # type: ignore
+
+        if (
+            self._factory_function_module
+            and self._factory_function_name
+            and self._factory_function_kwargs
+        ):
+            dump_info[TYPE_INFO_KEY] = {
+                "module": self._factory_function_module,
+                "name": self._factory_function_name,
+                "kwargs": self._factory_function_kwargs,
+            }
+
+        return dump_info
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> Self:
+        """Loads a routing batch function from a dictionary. It must contain the information
+        of the factory function used to create the routing batch function.
+
+        Args:
+            data: A dictionary with the routing batch function information and the factory
+                function information.
+        """
+        type_info = data.get(TYPE_INFO_KEY)
+        if not type_info:
+            step = data.get("step")
+            raise ValueError(
+                f"The routing batch function for step '{step}' was created without a factory"
+                " function, and it cannot be reconstructed."
+            )
+
+        module = type_info.get("module")
+        name = type_info.get("name")
+        kwargs = type_info.get("kwargs")
+
+        if not module or not name or not kwargs:
+            raise ValueError(
+                "The routing batch function was created with a factory function, but the"
+                " information is incomplete. Cannot reconstruct the routing batch function."
+            )
+
+        routing_batch_function = _get_module_attr(module=module, name=name)(**kwargs)
+        routing_batch_function.set_factory_function(
+            factory_function_module=module,
+            factory_function_name=name,
+            factory_function_kwargs=kwargs,
+        )
+
+        return routing_batch_function
+
 
 def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
     """Creates a routing batch function that can be used to route batches from one upstream
@@ -167,7 +257,37 @@ def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
         load_data >> random_routing_batch >> generations >> combine_columns
     ```
     """
-    return RoutingBatchFunction(routing_function=func)
+
+    factory_function_name, factory_function_module, factory_function_kwargs = (
+        None,
+        None,
+        None,
+    )
+
+    # Check if `routing_batch_function` was created using a factory function from an installed package
+    stack = inspect.stack()
+    if len(stack) > 2:
+        factory_function_frame_info = stack[1]
+
+        # Function factory path
+        factory_function_name = factory_function_frame_info.function
+        factory_function_module = inspect.getmodule(
+            factory_function_frame_info.frame
+        ).__name__  # type: ignore
+
+        # Function factory kwargs
+        factory_function_kwargs = factory_function_frame_info.frame.f_locals
+
+    routing_batch_function = RoutingBatchFunction(routing_function=func)
+
+    if factory_function_module and factory_function_name and factory_function_kwargs:
+        routing_batch_function.set_factory_function(
+            factory_function_module=factory_function_module,
+            factory_function_name=factory_function_name,
+            factory_function_kwargs=factory_function_kwargs,
+        )
+
+    return routing_batch_function
 
 
 def sample_n_steps(n: int) -> RoutingBatchFunction:

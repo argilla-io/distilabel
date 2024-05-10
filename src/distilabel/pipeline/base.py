@@ -1159,10 +1159,10 @@ class _BatchManager(_Serializable):
         Returns:
             A `_BatchManager` instance.
         """
-        # Remove the type info, we already know its a _BatchManager, and there aren't subclasses of it
+        # Remove the type info, we already know its a `_BatchManager`, and there aren't subclasses of it
         data.pop(TYPE_INFO_KEY)
-        # Also there is only one type of _BatchManagerStep, so we can call it directly instead of generically
-        # via _get_class
+        # Also there is only one type of `_BatchManagerStep`, so we can call it directly instead of generically
+        # via `_get_module_attr`
         return cls(
             {
                 name: _BatchManagerStep.from_file(step_path)
