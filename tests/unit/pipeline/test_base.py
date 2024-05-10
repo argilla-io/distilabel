@@ -1841,37 +1841,55 @@ class TestPipelineSerialization:
 
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.local import Pipeline
+        from distilabel.pipeline.routing_batch_function import sample_n_steps
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
-        with Pipeline(name="unit-test-pipeline") as pipeline:
-            dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-            dummy_step_1 = DummyStep1(name="dummy_step_1")
-            dummy_step_2 = DummyStep2(name="dummy_step_2")
+        sample_two_steps = sample_n_steps(2)
 
-            dummy_generator.connect(dummy_step_1)
-            dummy_step_1.connect(dummy_step_2)
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            dummy_generator = DummyGeneratorStep()
+            dummy_step_1_0 = DummyStep1()
+            dummy_step_1_1 = DummyStep1()
+            dummy_step_1_2 = DummyStep1()
+            dummy_step_2 = DummyStep2()
+
+            (
+                dummy_generator
+                >> sample_two_steps
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
 
         signature = pipeline._create_signature()
-        assert signature == "81ed33f28947896a2601a0eea1b3637712f33e36"
+        assert signature == "a11ac46253598e6fe126420b23b9ad31c6422c92"
 
     @pytest.mark.parametrize("use_cache", [True, False])
     def test_run_pipe_and_load_from_cache(self, use_cache: bool):
         # Maybe not the best place for this test, but does the work for now
         from distilabel.pipeline.base import BasePipeline
+        from distilabel.pipeline.routing_batch_function import sample_n_steps
 
         from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
+
+        sample_two_steps = sample_n_steps(2)
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             with BasePipeline(
                 name="unit-test-pipeline", cache_dir=tmpdirname
             ) as pipeline:
-                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
+                dummy_generator = DummyGeneratorStep()
+                dummy_step_1_0 = DummyStep1()
+                dummy_step_1_1 = DummyStep1()
+                dummy_step_1_2 = DummyStep1()
+                dummy_step_2 = DummyStep2()
 
-                dummy_generator.connect(dummy_step_1)
-                dummy_step_1.connect(dummy_step_2)
+                (
+                    dummy_generator
+                    >> sample_two_steps
+                    >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                    >> dummy_step_2
+                )
 
                 pipeline.run({}, use_cache=use_cache)
 
@@ -1883,12 +1901,18 @@ class TestPipelineSerialization:
                 assert pipeline._cache_location["pipeline"].exists()
 
             with BasePipeline(name="unit-test-pipeline", cache_dir=tmpdirname) as pipe:
-                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
+                dummy_generator = DummyGeneratorStep()
+                dummy_step_1_0 = DummyStep1()
+                dummy_step_1_1 = DummyStep1()
+                dummy_step_1_2 = DummyStep1()
+                dummy_step_2 = DummyStep2()
 
-                dummy_generator.connect(dummy_step_1)
-                dummy_step_1.connect(dummy_step_2)
+                (
+                    dummy_generator
+                    >> sample_two_steps
+                    >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                    >> dummy_step_2
+                )
 
                 pipe.run({}, use_cache=use_cache)
                 if use_cache:

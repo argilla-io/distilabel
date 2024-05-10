@@ -165,18 +165,31 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         """
         dump_info: Dict[str, Any] = {"step": self._step.name}  # type: ignore
 
-        if (
-            self._factory_function_module
-            and self._factory_function_name
-            and self._factory_function_kwargs
-        ):
-            dump_info[TYPE_INFO_KEY] = {
-                "module": self._factory_function_module,
-                "name": self._factory_function_name,
-                "kwargs": self._factory_function_kwargs,
-            }
+        if type_info := self._get_type_info():
+            dump_info[TYPE_INFO_KEY] = type_info
 
         return dump_info
+
+    def _get_type_info(self) -> Dict[str, Any]:
+        """Returns the information of the factory function used to create the routing batch
+        function.
+
+        Returns:
+            A dictionary with the factory function information.
+        """
+
+        type_info = {}
+
+        if self._factory_function_module:
+            type_info["module"] = self._factory_function_module
+
+        if self._factory_function_name:
+            type_info["name"] = self._factory_function_name
+
+        if self._factory_function_kwargs:
+            type_info["kwargs"] = self._factory_function_kwargs
+
+        return type_info
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> Self:

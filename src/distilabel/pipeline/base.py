@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     List,
@@ -51,11 +50,10 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from distilabel.distiset import Distiset
+    from distilabel.ipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
-
-RoutingBatchFunction = Callable[[List[str]], List[str]]
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
@@ -202,7 +200,21 @@ class BasePipeline(_Serializable):
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
         ]
-        hasher.update(",".join(steps_info + connections_info).encode())
+
+        routing_batch_functions_info = []
+        for function in pipeline_dump["routing_batch_functions"]:
+            step = function["step"]
+            routing_batch_function: "RoutingBatchFunction" = self.dag.get_step(step)[
+                ROUTING_BATCH_FUNCTION_ATTR_NAME
+            ]
+            if type_info := routing_batch_function._get_type_info():
+                step += f"-{type_info}"
+
+        hasher.update(
+            ",".join(
+                steps_info + connections_info + routing_batch_functions_info
+            ).encode()
+        )
 
         return hasher.hexdigest()
 
@@ -272,7 +284,7 @@ class BasePipeline(_Serializable):
         )
 
     def _add_routing_batch_function(
-        self, step_name: str, routing_batch_function: RoutingBatchFunction
+        self, step_name: str, routing_batch_function: "RoutingBatchFunction"
     ) -> None:
         """Add a routing batch function to a step.
 

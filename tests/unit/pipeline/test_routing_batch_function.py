@@ -21,6 +21,7 @@ from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
 )
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
 from tests.unit.pipeline.utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
@@ -83,6 +84,46 @@ class TestRoutingBatchFunction:
             dummy_step_1.name,
             dummy_step_2.name,
         ]
+
+    def test_dump(self) -> None:
+        routing_batch_function = sample_n_steps(n=2)
+
+        with Pipeline(name="test"):
+            upstream_step = DummyGeneratorStep()
+            dummy_step_1 = DummyStep1()
+            dummy_step_2 = DummyStep2()
+
+            upstream_step >> routing_batch_function >> [dummy_step_1, dummy_step_2]
+
+        assert routing_batch_function.dump() == {
+            "step": upstream_step.name,
+            TYPE_INFO_KEY: {
+                "module": "distilabel.pipeline.routing_batch_function",
+                "name": "sample_n_steps",
+                "kwargs": {"n": 2},
+            },
+        }
+
+    def test_from_dict(self) -> None:
+        routing_batch_function_dict = {
+            "step": "upstream_step",
+            TYPE_INFO_KEY: {
+                "module": "distilabel.pipeline.routing_batch_function",
+                "name": "sample_n_steps",
+                "kwargs": {"n": 2},
+            },
+        }
+
+        dummy_step_1 = DummyStep1(name="upstream_step")
+        routing_batch_function = sample_n_steps(n=2)
+        routing_batch_function._step = dummy_step_1
+
+        routing_batch_function_from_dict = RoutingBatchFunction.from_dict(
+            routing_batch_function_dict
+        )
+        routing_batch_function_from_dict._step = dummy_step_1
+
+        assert routing_batch_function_from_dict.dump() == routing_batch_function.dump()
 
 
 class TestRoutingBatchFunctionDecorator:
