@@ -297,6 +297,19 @@ class TestPrometheusAbsEval:
                 llm=DummyLLM(),
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
+        with pytest.raises(
+            ValidationError,
+            match=r"rubrics.custom\n  Input should be a valid string",
+        ):
+            PrometheusEval(
+                name="task",
+                mode="absolute",
+                rubric="custom",
+                rubrics={"custom": 1},
+                reference=False,
+                llm=DummyLLM(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
         # 2. `rubrics` is not compliant with the pre-defined schema
         with pytest.raises(
             ValidationError,

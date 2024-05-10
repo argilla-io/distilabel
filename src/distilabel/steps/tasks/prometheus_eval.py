@@ -140,14 +140,7 @@ class PrometheusEval(Task):
 
     @model_validator(mode="after")
     def validate_rubric_and_rubrics(self) -> Self:
-        if (
-            not isinstance(self.rubrics, dict)
-            or len(self.rubrics) < 1
-            or not all(
-                isinstance(key, str) and isinstance(value, str)
-                for key, value in self.rubrics.items()
-            )
-        ):
+        if not isinstance(self.rubrics, dict) or len(self.rubrics) < 1:
             raise ValueError(
                 "Provided `rubrics` must be a Python dictionary with string keys and string values."
             )
