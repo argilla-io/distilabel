@@ -239,7 +239,7 @@ def create_distiset(  # noqa: C901
                 ds = load_dataset(
                     "parquet", name=file.stem, data_files={"train": files}
                 )
-                if not enable_metadata:
+                if not enable_metadata and DISTILABEL_METADATA_KEY in ds.column_names:
                     ds = ds.remove_columns(DISTILABEL_METADATA_KEY)
                 distiset[file.stem] = ds
             else:
