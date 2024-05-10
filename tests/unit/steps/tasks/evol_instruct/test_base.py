@@ -121,6 +121,7 @@ class TestEvolInstruct:
         task.load()
         assert task.dump() == {
             "name": "task",
+            "add_raw_output": False,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
