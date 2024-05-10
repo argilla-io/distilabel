@@ -47,14 +47,14 @@ class _Task(_Step, ABC):
             a list or create a row per generation. Defaults to `False`.
         add_raw_output: whether to include a field with the raw output of the LLM in the
             `distilabel_metadata` field of the output. Can be helpful to not loose data
-            with `Tasks` that need to format the output of the `LLM`. Defaults to `True`.
+            with `Tasks` that need to format the output of the `LLM`. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
     """
 
     llm: LLM
 
     group_generations: bool = False
-    add_raw_output: bool = True
+    add_raw_output: bool = False
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )

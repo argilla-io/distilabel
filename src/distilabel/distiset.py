@@ -204,7 +204,7 @@ def create_distiset(  # noqa: C901
     data_dir: Path,
     pipeline_path: Optional[Path] = None,
     log_filename_path: Optional[Path] = None,
-    enable_metadata: bool = True,
+    enable_metadata: bool = False,
 ) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
@@ -218,7 +218,7 @@ def create_distiset(  # noqa: C901
             Internally this will be passed to the `Distiset` object on creation to allow
             uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
         enable_metadata: Whether to include the distilabel metadata column in the dataset or not.
-            Defaults to `True`.
+            Defaults to `False`.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
