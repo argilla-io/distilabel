@@ -21,6 +21,7 @@ from datasets import load_dataset
 from huggingface_hub import DatasetCardData, HfApi
 from pyarrow.lib import ArrowInvalid
 
+from distilabel.steps.tasks.base import DISTILABEL_METADATA_KEY
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
@@ -199,10 +200,11 @@ class Distiset(dict):
         return f"Distiset({{\n{repr}\n}})"
 
 
-def create_distiset(
+def create_distiset(  # noqa: C901
     data_dir: Path,
     pipeline_path: Optional[Path] = None,
     log_filename_path: Optional[Path] = None,
+    enable_metadata: bool = True,
 ) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
@@ -215,6 +217,8 @@ def create_distiset(
         log_filename_path: Optional path to the pipeline.log file that was generated during the pipeline run.
             Internally this will be passed to the `Distiset` object on creation to allow
             uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
+        enable_metadata: Whether to include the distilabel metadata column in the dataset or not.
+            Defaults to `True`.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
@@ -229,12 +233,15 @@ def create_distiset(
         if file.is_file():
             continue
 
+        files = [str(file) for file in list_files_in_dir(file)]
         try:
-            files = [str(file) for file in list_files_in_dir(file)]
             if files:
-                distiset[file.stem] = load_dataset(
+                ds = load_dataset(
                     "parquet", name=file.stem, data_files={"train": files}
                 )
+                if not enable_metadata:
+                    ds = ds.remove_columns(DISTILABEL_METADATA_KEY)
+                distiset[file.stem] = ds
             else:
                 logger.warning(
                     f"No output files for step '{file.stem}', can't create a dataset."

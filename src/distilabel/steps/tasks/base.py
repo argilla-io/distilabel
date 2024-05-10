@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
+DISTILABEL_METADATA_KEY = "distilabel_metadata"
+
+
 class _Task(_Step, ABC):
     """_Task is an abstract class that implements the `_Step` interface and adds the
     `format_input` and `format_output` methods to format the inputs and outputs of the
@@ -42,12 +45,16 @@ class _Task(_Step, ABC):
         llm: the `LLM` to be used to generate the outputs of the task.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
+        add_raw_output: whether to include a field with the raw output of the LLM in the
+            `distilabel_metadata` field of the output. Can be helpful to not loose data
+            with `Tasks` that need to format the output of the `LLM`. Defaults to `True`.
         num_generations: The number of generations to be produced per input.
     """
 
     llm: LLM
 
     group_generations: bool = False
+    add_raw_output: bool = True
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
@@ -86,7 +93,9 @@ class _Task(_Step, ABC):
         for output, input in zip(outputs, inputs * len(outputs)):
             try:
                 formatted_output = self.format_output(output, input)
-                formatted_output = self._add_raw_output(formatted_output, output)
+                formatted_output = self._maybe_add_raw_output(
+                    formatted_output, output, add_raw_output=self.add_raw_output
+                )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
                 self._logger.warning(  # type: ignore
@@ -104,16 +113,22 @@ class _Task(_Step, ABC):
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name
-        outputs = self._add_raw_output(outputs, output)
+        outputs = self._maybe_add_raw_output(
+            outputs, output, add_raw_output=self.add_raw_output
+        )
         return outputs
 
-    def _add_raw_output(
-        self, output: Dict[str, Any], raw_output: Union[str, None]
+    def _maybe_add_raw_output(
+        self,
+        output: Dict[str, Any],
+        raw_output: Union[str, None],
+        add_raw_output: bool = True,
     ) -> Dict[str, Any]:
-        """Adds the raw output of the LLM to the output dictionary."""
-        meta = output.get("distilabel_meta", {})
-        meta[f"raw_output_{self.name}"] = raw_output
-        output["distilabel_meta"] = meta
+        """Adds the raw output of the LLM to the output dictionary if `add_raw_output` is True."""
+        if add_raw_output:
+            meta = output.get(DISTILABEL_METADATA_KEY, {})
+            meta[f"raw_output_{self.name}"] = raw_output
+            output[DISTILABEL_METADATA_KEY] = meta
         return output
 
 
