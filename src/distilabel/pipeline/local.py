@@ -125,6 +125,7 @@ class Pipeline(BasePipeline):
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
                 log_filename_path=self._cache_location["log_file"],
+                enable_metadata=self._enable_metadata,
             )
 
         buffer_data_path = self._cache_location["data"]
@@ -172,6 +173,7 @@ class Pipeline(BasePipeline):
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
+            enable_metadata=self._enable_metadata,
         )
         stop_logging()
         return distiset

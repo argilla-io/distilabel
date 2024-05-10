@@ -123,6 +123,7 @@ class BasePipeline(_Serializable):
         name: str,
         description: Optional[str] = None,
         cache_dir: Optional["PathLike"] = None,
+        enable_metadata: bool = False,
     ) -> None:
         """Initialize the `BasePipeline` instance.
 
@@ -130,9 +131,14 @@ class BasePipeline(_Serializable):
             name: The name of the pipeline.
             description: A description of the pipeline. Defaults to `None`.
             cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
+            enable_metadata: Whether to include the distilabel metadata column for the pipeline
+                in the final `Distiset`. It contains metadata used by distilabel, for example
+                the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
+                field. Defaults to `False`.
         """
         self.name = name
         self.description = description
+        self._enable_metadata = enable_metadata
         self.dag = DAG()
 
         if cache_dir:
