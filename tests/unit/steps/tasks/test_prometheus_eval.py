@@ -25,6 +25,7 @@ import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusEval
 from jinja2 import Template
+from pydantic import ValidationError
 
 from tests.unit.steps.tasks.utils import DummyLLM
 
@@ -263,3 +264,66 @@ class TestPrometheusAbsEval:
         task.load()
 
         assert task.format_output(output=output, input={}) == expected
+
+    def test_custom_rubrics(self) -> None:
+        # As we're using a `pydantic.BaseModel` underneath, we are using a custom
+        # `model_validator` after the attributes are set, so if either the `rubric`
+        # or the provided `rubrics` are wrong, the `model_validator` will raise an
+        # error.
+        PrometheusEval(
+            name="task",
+            mode="absolute",
+            rubric="custom",
+            rubrics={
+                "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
+            },
+            reference=False,
+            llm=DummyLLM(),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+
+    def test_custom_rubrics_errors(self) -> None:
+        # 1. `rubrics` is not a valid dict
+        with pytest.raises(
+            ValidationError,
+            match=r"Provided \`rubrics\` must be a Python dictionary with string keys and string values.",
+        ):
+            PrometheusEval(
+                name="task",
+                mode="absolute",
+                rubric="custom",
+                rubrics={},
+                reference=False,
+                llm=DummyLLM(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
+        # 2. `rubrics` is not compliant with the pre-defined schema
+        with pytest.raises(
+            ValidationError,
+            match=r"Provided rubrics should match the format of the default rubrics,",
+        ):
+            PrometheusEval(
+                name="task",
+                mode="absolute",
+                rubric="custom",
+                rubrics={"custom": "wrong schema"},
+                reference=False,
+                llm=DummyLLM(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
+        # 3. `rubric` is not available in `rubrics`
+        with pytest.raises(
+            ValidationError,
+            match=r"Provided rubric 'wrong' is not among the available rubrics: custom.",
+        ):
+            PrometheusEval(
+                name="task",
+                mode="absolute",
+                rubric="wrong",
+                rubrics={
+                    "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
+                },
+                reference=False,
+                llm=DummyLLM(),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
