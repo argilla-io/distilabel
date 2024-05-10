@@ -132,7 +132,9 @@ class BasePipeline(_Serializable):
             description: A description of the pipeline. Defaults to `None`.
             cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
             enable_metadata: Whether to include the distilabel metadata column for the pipeline
-                in the final `Distiset`. Defaults to `False`.
+                in the final `Distiset`. It contains metadata used by distilabel, for example
+                the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
+                field. Defaults to `False`.
         """
         self.name = name
         self.description = description
