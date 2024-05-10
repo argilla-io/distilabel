@@ -91,19 +91,16 @@ class TestTask:
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
-                        "distilabel_meta": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
-                        "distilabel_meta": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
-                        "distilabel_meta": {"raw_output_task": "output"},
                     },
                 ],
             ),
@@ -114,11 +111,6 @@ class TestTask:
                         "instruction": "test",
                         "output": ["output", "output", "output"],
                         "model_name": "test",
-                        "distilabel_meta": [
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                            {"raw_output_task": "output"},
-                        ],
                     },
                 ],
             ),
@@ -193,6 +185,7 @@ class TestTask:
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
+            "add_raw_output": False,
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
