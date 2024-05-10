@@ -14,7 +14,7 @@
 
 import inspect
 import random
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel, PrivateAttr
 from typing_extensions import Self
@@ -48,6 +48,7 @@ class RoutingBatchFunction(BaseModel, _Serializable):
     """
 
     routing_function: RoutingBatchFunc
+    description: Optional[str] = None
 
     _step: Union["_Step", None] = PrivateAttr(default=None)
     _routed_batch_registry: Dict[str, Dict[int, List[str]]] = PrivateAttr(
@@ -165,6 +166,9 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         """
         dump_info: Dict[str, Any] = {"step": self._step.name}  # type: ignore
 
+        if self.description:
+            dump_info["description"] = self.description
+
         if type_info := self._get_type_info():
             dump_info[TYPE_INFO_KEY] = type_info
 
@@ -219,6 +223,7 @@ class RoutingBatchFunction(BaseModel, _Serializable):
             )
 
         routing_batch_function = _get_module_attr(module=module, name=name)(**kwargs)
+        routing_batch_function.description = data.get("description")
         routing_batch_function.set_factory_function(
             factory_function_module=module,
             factory_function_name=name,
@@ -228,13 +233,14 @@ class RoutingBatchFunction(BaseModel, _Serializable):
         return routing_batch_function
 
 
-def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
+def routing_batch_function(
+    description: Optional[str] = None,
+) -> Callable[[RoutingBatchFunc], RoutingBatchFunction]:
     """Creates a routing batch function that can be used to route batches from one upstream
     step to specific downstream steps.
 
     Args:
-        func: The routing function that takes a list of all the downstream steps and returns
-            a list with the names of the steps that should receive the batch.
+        description: An optional description for the routing batch function.
 
     Returns:
         A `RoutingBatchFunction` instance that can be used with the `>>` operators and with
@@ -271,36 +277,46 @@ def routing_batch_function(func: RoutingBatchFunc) -> RoutingBatchFunction:
     ```
     """
 
-    factory_function_name, factory_function_module, factory_function_kwargs = (
-        None,
-        None,
-        None,
-    )
-
-    # Check if `routing_batch_function` was created using a factory function from an installed package
-    stack = inspect.stack()
-    if len(stack) > 2:
-        factory_function_frame_info = stack[1]
-
-        # Function factory path
-        factory_function_name = factory_function_frame_info.function
-        factory_function_module = inspect.getmodule(
-            factory_function_frame_info.frame
-        ).__name__  # type: ignore
-
-        # Function factory kwargs
-        factory_function_kwargs = factory_function_frame_info.frame.f_locals
-
-    routing_batch_function = RoutingBatchFunction(routing_function=func)
-
-    if factory_function_module and factory_function_name and factory_function_kwargs:
-        routing_batch_function.set_factory_function(
-            factory_function_module=factory_function_module,
-            factory_function_name=factory_function_name,
-            factory_function_kwargs=factory_function_kwargs,
+    def decorator(func: RoutingBatchFunc) -> RoutingBatchFunction:
+        factory_function_name, factory_function_module, factory_function_kwargs = (
+            None,
+            None,
+            None,
         )
 
-    return routing_batch_function
+        # Check if `routing_batch_function` was created using a factory function from an installed package
+        stack = inspect.stack()
+        if len(stack) > 2:
+            factory_function_frame_info = stack[1]
+
+            # Function factory path
+            factory_function_name = factory_function_frame_info.function
+            factory_function_module = inspect.getmodule(
+                factory_function_frame_info.frame
+            ).__name__  # type: ignore
+
+            # Function factory kwargs
+            factory_function_kwargs = factory_function_frame_info.frame.f_locals
+
+        routing_batch_function = RoutingBatchFunction(
+            routing_function=func,
+            description=description,
+        )
+
+        if (
+            factory_function_module
+            and factory_function_name
+            and factory_function_kwargs
+        ):
+            routing_batch_function.set_factory_function(
+                factory_function_module=factory_function_module,
+                factory_function_name=factory_function_name,
+                factory_function_kwargs=factory_function_kwargs,
+            )
+
+        return routing_batch_function
+
+    return decorator
 
 
 def sample_n_steps(n: int) -> RoutingBatchFunction:
@@ -343,7 +359,9 @@ def sample_n_steps(n: int) -> RoutingBatchFunction:
     ```
     """
 
-    @routing_batch_function
+    @routing_batch_function(
+        description=f"Sample {n} steps from the list of downstream steps."
+    )
     def sample_n(steps: List[str]) -> List[str]:
         return random.sample(steps, n)
 

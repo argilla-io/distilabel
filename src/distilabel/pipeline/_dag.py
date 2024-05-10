@@ -643,7 +643,7 @@ class DAG(_Serializable):
             for to_step in connection["to"]:
                 dag.add_edge(from_step, to_step)
 
-        for routing_batch_function in data["routing_batch_functions"]:
+        for routing_batch_function in data.get("routing_batch_functions", []):
             step_name = routing_batch_function["step"]
             routing_batch_function = RoutingBatchFunction.from_dict(
                 routing_batch_function
