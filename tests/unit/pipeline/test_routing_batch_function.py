@@ -97,6 +97,7 @@ class TestRoutingBatchFunction:
 
         assert routing_batch_function.dump() == {
             "step": upstream_step.name,
+            "description": routing_batch_function.description,
             TYPE_INFO_KEY: {
                 "module": "distilabel.pipeline.routing_batch_function",
                 "name": "sample_n_steps",
@@ -107,6 +108,7 @@ class TestRoutingBatchFunction:
     def test_from_dict(self) -> None:
         routing_batch_function_dict = {
             "step": "upstream_step",
+            "description": "Sample 2 steps from the list of downstream steps.",
             TYPE_INFO_KEY: {
                 "module": "distilabel.pipeline.routing_batch_function",
                 "name": "sample_n_steps",
@@ -128,7 +130,7 @@ class TestRoutingBatchFunction:
 
 class TestRoutingBatchFunctionDecorator:
     def test_decorator(self) -> None:
-        @routing_batch_function
+        @routing_batch_function()
         def random_routing_batch(steps: List[str]) -> List[str]:
             return steps[:2]
 
