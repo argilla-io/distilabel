@@ -55,6 +55,7 @@ _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+_STOP_CALLS = 0
 
 _STEPS_LOADED = set()
 _STEPS_LOADED_LOCK = threading.Lock()
@@ -662,6 +663,17 @@ class Pipeline(BasePipeline):
                     "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
                     " for the pipeline to finish..."
                 )
+                global _STOP_CALLS
+                _STOP_CALLS += 1
+                if _STOP_CALLS == 2:
+                    self._logger.warning(
+                        "🛑 Press again to force interruption of the pipeline."
+                    )
+                elif _STOP_CALLS > 2:
+                    self._logger.warning("🛑 Forcing pipeline interruption.")
+                    import sys
+
+                    sys.exit(1)
                 return
             _STOP_CALLED = True
 
