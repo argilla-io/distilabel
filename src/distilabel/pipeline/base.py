@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from distilabel.distiset import Distiset
-    from distilabel.ipeline.routing_batch_function import RoutingBatchFunction
+    from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
@@ -150,6 +150,7 @@ class BasePipeline(_Serializable):
 
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
+        self._dry_run: bool = False
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -242,6 +243,40 @@ class BasePipeline(_Serializable):
             self._load_from_cache()
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
+
+    def dry_run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        batch_size: int = 1,
+    ) -> "Distiset":
+        """Do a dry run to test the pipeline runs as expected.
+
+        Running a `Pipeline` in dry run mode will set all the `batch_size` of generator steps
+        to one, and run just with a single batch, effectively running the whole pipeline with
+        a single example. The cache will be set to False.
+
+        Args:
+            parameters: The same parameters variable from `BasePipeline.run`. Defaults to None.
+                Will be passed to the parent method, but with the batch_size of the generator steps
+                fixed to 1.
+            batch_size: The batch size to test the pipeline. Defaults to 1.
+
+        Returns:
+            Will return the `Distiset` as the main run method would do.
+        """
+        self._dry_run = True
+
+        for step_name in self.dag:
+            step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if step.is_generator:
+                self.dag.set_step_attr(step_name, "batch_size", batch_size)
+                # Just in case update the parameters argument
+                if parameters.get(step_name) and parameters[step_name].get(
+                    "batch_size"
+                ):
+                    parameters[step_name]["batch_size"] = batch_size
+
+        return self.run(parameters, use_cache=False)
 
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.
