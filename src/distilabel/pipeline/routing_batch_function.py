@@ -290,13 +290,14 @@ def routing_batch_function(
             factory_function_frame_info = stack[1]
 
             # Function factory path
-            factory_function_name = factory_function_frame_info.function
-            factory_function_module = inspect.getmodule(
-                factory_function_frame_info.frame
-            ).__name__  # type: ignore
+            if factory_function_frame_info.function != "<module>":
+                factory_function_name = factory_function_frame_info.function
+                factory_function_module = inspect.getmodule(
+                    factory_function_frame_info.frame
+                ).__name__  # type: ignore
 
-            # Function factory kwargs
-            factory_function_kwargs = factory_function_frame_info.frame.f_locals
+                # Function factory kwargs
+                factory_function_kwargs = factory_function_frame_info.frame.f_locals
 
         routing_batch_function = RoutingBatchFunction(
             routing_function=func,
