@@ -27,7 +27,7 @@ llm.generate(
 
 ### Within a Task
 
-Now, in order to use the LLM within a [Task][distilabel.steps.tasks.Task], we need to pass it as an argument to the task, and the task will take care of the rest.
+Now, in order to use the LLM within a [`Task`][distilabel.steps.tasks.Task], we need to pass it as an argument to the task, and the task will take care of the rest.
 
 ```python
 from distilabel.llms import OpenAILLM
@@ -45,7 +45,7 @@ next(task.process(inputs=[{"instruction": "What's the capital of Spain?"}]))
 
 ### Runtime Parameters
 
-Additionally, besides the runtime parameters that can / need to be provided to the [Task][distilabel.steps.tasks], the LLMs can also define their own runtime parameters such as the `generation_kwargs`, and those need to be provided within the `Pipeline.run` method via the variable `params`.
+Additionally, besides the runtime parameters that can / need to be provided to the [`Task`][distilabel.steps.tasks], the LLMs can also define their own runtime parameters such as the `generation_kwargs`, and those need to be provided within the `Pipeline.run` method via the argument `params`.
 
 !!! NOTE
     Each LLM subclass may have its own runtime parameters and those can differ between the different implementations, as those are not aligned, since the LLM engines offer different functionalities.
@@ -71,10 +71,11 @@ with Pipeline(name="text-generation-pipeline") as pipeline:
         name="text_generation",
         llm=OpenAILLM(model="gpt-4"),
     )
-    load_dataset.connect(text_generation)
+
+    load_dataset >> text_generation
 
 if __name__ == "__main__":
-    pipeline.run(params={"text_generation": {"llm": {"generation_kwargs": {"temperature": 0.3}}}})
+    pipeline.run(params={text_generation.name: {"llm": {"generation_kwargs": {"temperature": 0.3}}}})
 ```
 
 ## Defining custom LLMs
@@ -85,13 +86,13 @@ One can either extend any of the existing LLMs to override the default behaviour
 
 In order to define a new LLM, one must define the following methods:
 
-* `model_name`: is a property that contains the name of the model to be used, which means that it needs to be retrieved from the LLM using the LLM-specific approach i.e. for `TransformersLLM` the `model_name` will be the `model_name_or_path` provided as an argument, or in `OpenAILLM` the `model_name` will be the `model` provided as an argument.
+* `model_name`: is a property that contains the name of the model to be used, which means that it needs to be retrieved from the LLM using the LLM-specific approach i.e. for [`TransformersLLM`][distilabel.llms.TransformersLLM] the `model_name` will be the `model_name_or_path` provided as an argument, or in [`OpenAILLM`][distilabel.llms.OpenAILLM] the `model_name` will be the `model` provided as an argument.
 
-* `generate`: is a method that will take a list of prompts and return a list of generated texts. This method will be called by the `Task` to generate the texts, so it's the most important method to define. This method will be implemented in the subclass of the [LLM][distilabel.llms.LLM] i.e. the synchronous LLM.
+* `generate`: is a method that will take a list of prompts and return a list of generated texts. This method will be called by the [`Task`][distilabel.steps.tasks.Task] to generate the texts, so it's the most important method to define. This method will be implemented in the subclass of the [`LLM`][distilabel.llms.LLM] i.e. the synchronous LLM.
 
-* `agenerate`: is a method that will take a single prompt and return a list of generated texts, since the rest of the behaviour will be controlled by the `generate` method that cannot be overwritten when subclassing [AsyncLLM][distilabel.llms.AsyncLLM]. This method will be called by the `Task` to generate the texts, so it's the most important method to define. This method will be implemented in the subclass of the [AsyncLLM][distilabel.llms.AsyncLLM] i.e. the asynchronous LLM.
+* `agenerate`: is a method that will take a single prompt and return a list of generated texts, since the rest of the behaviour will be controlled by the `generate` method that cannot be overwritten when subclassing [`AsyncLLM`][distilabel.llms.AsyncLLM]. This method will be called by the [`Task`][distilabel.steps.tasks.Task] to generate the texts, so it's the most important method to define. This method will be implemented in the subclass of the [`AsyncLLM`][distilabel.llms.AsyncLLM] i.e. the asynchronous LLM.
 
-* (optional) `get_last_hidden_state`: is a method that will take a list of prompts and return a list of hidden states. This method is optional and will be used by some tasks such as the [GenerateEmbeddings][distilabel.steps.tasks] task.
+* (optional) `get_last_hidden_state`: is a method that will take a list of prompts and return a list of hidden states. This method is optional and will be used by some tasks such as the [`GenerateEmbeddings`][distilabel.steps.tasks.GenerateEmbeddings] task.
 
 Once those methods have been implemented, then the custom LLM will be ready to be integrated within either any of the existing or a new task.
 
@@ -103,6 +104,7 @@ from pydantic import validate_call
 from distilabel.llms import AsyncLLM, LLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
 from distilabel.steps.tasks.typing import ChatType
+
 
 class CustomLLM(LLM):
     @property
@@ -141,18 +143,18 @@ class CustomAsyncLLM(AsyncLLM):
 
 Here's a list with the available LLMs that can be used within the `distilabel` library:
 
-* [AnthropicLLM][distilabel.llms.anthropic]
-* [AnyscaleLLM][distilabel.llms.anyscale]
-* [AzureOpenAILLM][distilabel.llms.azure]
-* [CohereLLM][distilabel.llms.cohere]
-* [GroqLLM][distilabel.llms.groq]
-* [InferenceEndpointsLLM][distilabel.llms.huggingface.inference_endpoints]
-* [LiteLLM][distilabel.llms.litellm]
-* [LlamaCppLLM][distilabel.llms.llamacpp]
-* [MistralLLM][distilabel.llms.mistral]
-* [OllamaLLM][distilabel.llms.ollama]
-* [OpenAILLM][distilabel.llms.openai]
-* [TogetherLLM][distilabel.llms.together]
-* [TransformersLLM][distilabel.llms.huggingface.transformers]
-* [VertexAILLM][distilabel.llms.vertexai]
-* [vLLM][distilabel.llms.vllm]
+* [AnthropicLLM][distilabel.llms.AnthropicLLM]
+* [AnyscaleLLM][distilabel.llms.AnyscaleLLM]
+* [AzureOpenAILLM][distilabel.llms.AzureOpenAILLM]
+* [CohereLLM][distilabel.llms.CohereLLM]
+* [GroqLLM][distilabel.llms.GroqLLM]
+* [InferenceEndpointsLLM][distilabel.llms.huggingface.InferenceEndpointsLLM]
+* [LiteLLM][distilabel.llms.LiteLLM]
+* [LlamaCppLLM][distilabel.llms.LlamaCppLLM]
+* [MistralLLM][distilabel.llms.MistralLLM]
+* [OllamaLLM][distilabel.llms.OllamaLLM]
+* [OpenAILLM][distilabel.llms.OpenAILLM]
+* [TogetherLLM][distilabel.llms.TogetherLLM]
+* [TransformersLLM][distilabel.llms.huggingface.TransformersLLM]
+* [VertexAILLM][distilabel.llms.VertexAILLM]
+* [vLLM][distilabel.llms.vLLM]

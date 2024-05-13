@@ -115,7 +115,7 @@ nav:
         - "sections/components/tasks/text_generation.md"
         - "sections/components/tasks/feedback_tasks.md"
         - "sections/components/tasks/special_tasks.md"
-    - LLMs: "sections/components/llms/index.md"
+    - LLM: "sections/components/llms/index.md"
     - Pipeline: "sections/components/pipelines/index.md"
     - CLI: "sections/components/advanced/cli.md"
     - Advanced:
@@ -140,11 +140,11 @@ nav:
           - "api/steps/index.md"
           - Generator Steps: "api/steps/generator_steps/generator_steps.md"
           - Global Steps: "api/steps/global_steps/global_steps.md"
-          - Task:
-              - "api/steps/tasks/text_generation.md"
-              - "api/steps/tasks/preference_tasks.md"
-              - "api/steps/tasks/embeddings.md"
-          - "api/steps/decorator.md"
+      - Task:
+          - TODO TextGeneration: "api/steps/tasks/text_generation.md"
+          - TODO Preference Tasks: "api/steps/tasks/preference_tasks.md"
+          - TODO GenerateEmbeddings: "api/steps/tasks/embeddings.md"
+      - \@step: "api/steps/decorator.md"
       - LLM:
           - "api/llms/index.md"
           - Anthropic: "api/llms/anthropic.md"
