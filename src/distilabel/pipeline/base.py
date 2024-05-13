@@ -252,8 +252,8 @@ class BasePipeline(_Serializable):
         """Do a dry run to test the pipeline runs as expected.
 
         Running a `Pipeline` in dry run mode will set all the `batch_size` of generator steps
-        to one, and run just with a single batch, effectively running the whole pipeline with
-        a single example. The cache will be set to False.
+        to the specified batch_size, and run just with a single batch, effectively
+        running the whole pipeline with a single example. The cache will be set to False.
 
         Args:
             parameters: The same parameters variable from `BasePipeline.run`. Defaults to None.
@@ -269,14 +269,15 @@ class BasePipeline(_Serializable):
         for step_name in self.dag:
             step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             if step.is_generator:
-                self.dag.set_step_attr(step_name, "batch_size", batch_size)
-                # Just in case update the parameters argument
                 if parameters.get(step_name) and parameters[step_name].get(
                     "batch_size"
                 ):
                     parameters[step_name]["batch_size"] = batch_size
 
-        return self.run(parameters, use_cache=False)
+        distiset = self.run(parameters, use_cache=False)
+
+        self._dry_run = False
+        return distiset
 
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.
