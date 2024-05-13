@@ -78,7 +78,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     token: Optional[str] = None
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
-    _prefix_allowed_tokens_fn: Optional[Callable] = PrivateAttr(default=None)
+    _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
