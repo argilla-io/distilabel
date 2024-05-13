@@ -1,3 +1,3 @@
-## LlamacppLLM
+## LlamaCppLLM
 
 ::: distilabel.llms.llamacpp

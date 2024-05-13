@@ -1,10 +1,10 @@
-# Command Line Interface
+# Command Line Interface (CLI)
 
-`Distilabel` offers a [`CLI`][distilabel.cli.pipeline.utils] to initially *explore* and *rerun* `Pipelines`, let's take a look.
+`Distilabel` offers a [`CLI`][distilabel.cli.pipeline.utils] to _explore_ and _re-run_ existing [`Pipeline`][distilabel.pipeline.Pipeline] dumps, meaning that an existing dump can be explored to see the steps, how those are connected, the runtime parameters used, and also re-run it with the same or different runtime parameters, respectively.
 
 ## Available commands
 
-We have two commands under the `CLI` app, `distilabel pipeline`:
+The only available command as of the current version of `distilabel` is `distilabel pipeline`.
 
 ```bash
 $ distilabel pipeline --help
@@ -22,11 +22,9 @@ $ distilabel pipeline --help
 ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-Will run them using as an example the following [dataset](https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini) for testing purposes:
+So on, `distilabel pipeline` has two subcommands: `info` and `run`, as described below. Note that for testing purposes we will be using the following [dataset](https://huggingface.co/datasets/distilabel-internal-testing/ultrafeedback-mini).
 
-### Pipeline info
-
-The first command is `distilabel pipeline info`:
+### `distilabel pipeline info`
 
 ```bash
 $ distilabel pipeline info --help
@@ -55,7 +53,7 @@ If we take a look:
 
 The pipeline information includes the steps used in the `Pipeline` along with the `Runtime Parameter` that was used, as well as a description of each of them, and also the connections between these steps. These can be helpful to explore the Pipeline locally.
 
-### Running a Pipeline
+### `distilabel pipeline run`
 
 We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling `distilabel pipeline run`:
 

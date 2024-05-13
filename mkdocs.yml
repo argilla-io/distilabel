@@ -101,32 +101,28 @@ plugins:
   - social
 
 nav:
-  - Getting started: index.md
-  - Learn:
-      - "sections/learn/index.md"
-      - Tutorial:
-          - Steps:
-              - "sections/learn/steps/index.md"
-              - "sections/learn/steps/generator_steps.md"
-              - "sections/learn/steps/global_steps.md"
-              - "sections/learn/steps/general_steps.md"
-              - "sections/learn/steps/argilla.md"
-          - Tasks:
-              - "sections/learn/tasks/index.md"
-              - "sections/learn/tasks/text_generation.md"
-              - "sections/learn/tasks/feedback_tasks.md"
-              - "sections/learn/tasks/special_tasks.md"
-          - LLMs:
-              - "sections/learn/llms/index.md"
-          - Pipeline:
-              - "sections/learn/pipelines/index.md"
-          - Command Line Interface:
-              - "sections/learn/cli.md"
-      - Advanced:
-          - Distiset:
-              - "sections/learn/distiset.md"
-          - Caching:
-              - "sections/learn/caching.md"
+  - Getting started: "index.md"
+  - Components:
+    - "sections/components/index.md"
+    - Step:
+        - "sections/learn/steps/index.md"
+        - GeneratorStep: "sections/learn/steps/generator_steps.md"
+        - GlobalStep: "sections/learn/steps/global_steps.md"
+        - TODO Step: "sections/learn/steps/general_steps.md"
+        - Argilla: "sections/learn/steps/argilla.md"
+    - Task:
+        - "sections/learn/tasks/index.md"
+        - "sections/learn/tasks/text_generation.md"
+        - "sections/learn/tasks/feedback_tasks.md"
+        - "sections/learn/tasks/special_tasks.md"
+    - LLMs: "sections/learn/llms/index.md"
+    - Pipeline: "sections/learn/pipelines/index.md"
+    - Command Line Interface (CLI): "sections/components/advanced/cli.md"
+    - Advanced:
+        - "sections/components/advanced/index.md"
+        - Distiset: "sections/components/advanced/distiset.md"
+        - Caching: "sections/components/advanced/caching.md"
+        - Routing: "sections/components/advanced/routing.md"
   - Paper reproductions:
       - "sections/papers/index.md"
       - Papers:
@@ -140,28 +136,27 @@ nav:
           - "api/pipeline/routing_batch_function.md"
           - "api/pipeline/utils.md"
           - "api/pipeline/typing.md"
-      - Steps:
+      - Step:
           - "api/steps/index.md"
           - Generator Steps: "api/steps/generator_steps/generator_steps.md"
           - Global Steps: "api/steps/global_steps/global_steps.md"
-          - Tasks:
+          - Task:
               - "api/steps/tasks/text_generation.md"
               - "api/steps/tasks/preference_tasks.md"
               - "api/steps/tasks/embeddings.md"
           - "api/steps/decorator.md"
-      - LLMs:
+      - LLM:
           - "api/llms/index.md"
-          - "api/llms/anthropic.md"
-          - "api/llms/anyscale.md"
-          - "api/llms/groq.md"
-          - "api/llms/huggingface.md"
-          - "api/llms/litellm.md"
-          - "api/llms/llamacpp.md"
-          - "api/llms/mistral.md"
-          - "api/llms/ollama.md"
-          - "api/llms/openai.md"
-          - "api/llms/together.md"
-          - "api/llms/vertexai.md"
-          - "api/llms/vllm.md"
-      - Command Line Interface:
-          - "api/cli.md"
+          - Anthropic: "api/llms/anthropic.md"
+          - Anyscale: "api/llms/anyscale.md"
+          - Groq: "api/llms/groq.md"
+          - Hugging Face: "api/llms/huggingface.md"
+          - LiteLLM: "api/llms/litellm.md"
+          - llama.cpp: "api/llms/llamacpp.md"
+          - Mistral: "api/llms/mistral.md"
+          - Ollama: "api/llms/ollama.md"
+          - OpenAI: "api/llms/openai.md"
+          - Together AI: "api/llms/together.md"
+          - Google Vertex AI: "api/llms/vertexai.md"
+          - vLLM: "api/llms/vllm.md"
+      - Command Line Interface (CLI): "api/cli.md"
