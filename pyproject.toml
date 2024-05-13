@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "distilabel"
-description = "AI Feedback (AIF) framework"
+description = "Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs."
 readme = "README.md"
 requires-python = ">=3.8"
 license = "Apache-2.0"
