@@ -36,5 +36,23 @@ def test_dry_run():
 
         load_dataset >> text_generation
 
-    distiset = pipeline.dry_run(parameters={load_dataset.name: {"batch_size": 5}})
+    distiset = pipeline.dry_run(parameters={load_dataset.name: {"batch_size": 8}})
     assert len(distiset["default"]["train"]) == 1
+    assert pipeline._dry_run is False
+
+    with Pipeline(name="other-pipe") as pipeline:
+        load_dataset = LoadDataFromDicts(
+            data=[
+                {"instruction": "Tell me a joke."},
+            ]
+            * 50,
+            batch_size=20,
+        )
+        text_generation = SucceedAlways()
+
+        load_dataset >> text_generation
+
+    distiset = pipeline.run(
+        parameters={load_dataset.name: {"batch_size": 10}}, use_cache=False
+    )
+    assert len(distiset["default"]["train"]) == 50
