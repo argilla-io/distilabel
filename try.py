@@ -13,53 +13,41 @@
 # limitations under the License.
 
 import time
+from pathlib import Path
 
 from distilabel.llms import LlamaCppLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps.generators.data import LoadDataFromDicts
+from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration
 
 if __name__ == "__main__":
     start_time = time.time()
 
-    with Pipeline(name="ultrafeedback-dpo") as pipeline:
-        # load_dataset = LoadHubDataset(
-        #     name="load_dataset",
-        #     output_mappings={"prompt": "instruction"},
-        # )
+    with Pipeline(name="test-pipe") as pipeline:
         load_dataset = LoadDataFromDicts(
-            name="load_dataset",
             data=[
                 {"instruction": "Tell me a joke."},
             ],
+            name="load_dataset",
         )
-        from pathlib import Path
-
-        # model_path = str(Path.home() / "Downloads/zephyr-7b-beta.Q4_K_M.gguf")
         model_path = str(
             Path.home() / "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
         )
-
-        text_generation_zephyr = TextGeneration(
-            name="text_generation_zephyr",
+        text_generation = TextGeneration(
             llm=LlamaCppLLM(
                 model_path=model_path,  # type: ignore
                 n_gpu_layers=-1,
+                n_ctx=1024,
             ),
-            # llm=MistralLLM(model="mistral-tiny", api_key=os.getenv("MISTRAL_API_KEY")),
             input_batch_size=10,
             output_mappings={"model_name": "generation_model"},
+            name="text_generation",
         )
-        load_dataset.connect(text_generation_zephyr)
+        load_dataset.connect(text_generation)
 
     distiset = pipeline.run(
         parameters={
-            # "load_dataset": {
-            #     "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
-            #     "split": "test",
-            # },
-            "wrong_step": {"runtime": "value"},
-            "text_generation_gemma": {
+            text_generation.name: {
                 "llm": {
                     "generation_kwargs": {
                         "max_new_tokens": 1024,
@@ -71,8 +59,4 @@ if __name__ == "__main__":
         use_cache=False,
     )
     print("--- %s seconds ---" % (time.time() - start_time))
-    print(distiset)
-    distiset.push_to_hub(
-        "distilabel-internal-testing/test-dockerfile",
-        token="hf",
-    )
+    distiset.push_to_hub("distilabel-internal-testing/test-dockerfile")
