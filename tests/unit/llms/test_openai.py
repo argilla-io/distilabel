@@ -87,6 +87,20 @@ class TestOpenAILLM:
             ]
         )
 
+        with pytest.raises(ValueError):
+            llm.generate(
+                inputs=[
+                    [
+                        {"role": "system", "content": ""},
+                        {
+                            "role": "user",
+                            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        },
+                    ]
+                ],
+                response_format="unkown_format",
+            )
+
     def test_serialization(self, _: MagicMock) -> None:
         llm = OpenAILLM(model=self.model_id)
 
