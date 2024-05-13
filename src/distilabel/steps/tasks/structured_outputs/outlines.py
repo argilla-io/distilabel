@@ -141,7 +141,7 @@ def prepare_guided_output(
             "schema": _schema_as_dict(schema),
         }
 
-    elif format == "regex":
+    if format == "regex":
         return {"processor": regex_processor(schema, llm)}
 
     raise ValueError(f"Invalid format '{format}'. Must be either 'json' or 'regex'.")
