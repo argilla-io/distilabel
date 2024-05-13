@@ -7,7 +7,7 @@ name = "distilabel"
 description = "AI Feedback (AIF) framework"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = "Apache-2.0"
 keywords = ["llm", "annotation", "alignment", "synthetic", "data", "rlaif"]
 authors = [{ name = "Argilla", email = "admin@argilla.io" }]
 classifiers = [
