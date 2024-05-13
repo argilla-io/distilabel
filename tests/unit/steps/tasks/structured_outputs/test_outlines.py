@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from typing import Any, Dict, Type, Union
 
 import pytest
@@ -22,8 +21,6 @@ from distilabel.steps.tasks.structured_outputs.outlines import (
     model_to_schema,
 )
 from pydantic import BaseModel
-
-DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
 
 class DummyUserTest(BaseModel):
