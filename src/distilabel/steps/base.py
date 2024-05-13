@@ -475,9 +475,9 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         # some of the internal objects. For the moment we only take into account the LLM,
         # we should take care if we update any of the objects.
         if llm := _data.get("llm"):
-            from distilabel.utils.serialization import _get_class
+            from distilabel.utils.serialization import _get_module_attr
 
-            nested_cls = _get_class(**llm.pop(TYPE_INFO_KEY))
+            nested_cls = _get_module_attr(**llm.pop(TYPE_INFO_KEY))
             # Load the LLM and update the _data inplace
             nested_cls = nested_cls(**llm)
             _data.update({"llm": nested_cls})

@@ -487,11 +487,11 @@ class TestDAG:
 
         convergence_step = DummyStep2(name="convergence_step", pipeline=pipeline)
 
-        @routing_batch_function
+        @routing_batch_function()
         def routing_batch_function_1(steps: List[str]) -> List[str]:
             return steps
 
-        @routing_batch_function
+        @routing_batch_function()
         def routing_batch_function_2(steps: List[str]) -> List[str]:
             return steps
 
@@ -520,7 +520,7 @@ class TestDAG:
             input_batch_size=666,
         )
 
-        @routing_batch_function
+        @routing_batch_function()
         def routing_batch_function_1(steps: List[str]) -> List[str]:
             return steps
 
@@ -549,7 +549,7 @@ class TestDAG:
         dummy_step_3 = DummyStep2(name="doomed", pipeline=pipeline)
         dummy_step_4 = DummyStep2(pipeline=pipeline)
 
-        @routing_batch_function
+        @routing_batch_function()
         def routing_batch_function_1(steps: List[str]) -> List[str]:
             return steps
 
@@ -576,7 +576,7 @@ class TestDAG:
         dummy_step_1 = DummyStep1(pipeline=pipeline)
         dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=666)
 
-        @routing_batch_function
+        @routing_batch_function()
         def routing_batch_function_1(steps: List[str]) -> List[str]:
             return steps
 
