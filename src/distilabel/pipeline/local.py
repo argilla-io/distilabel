@@ -98,6 +98,10 @@ class Pipeline(BasePipeline):
         setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
+        if self._dry_run:
+            # This message is placed here to ensure we are using the already setup logger.
+            self._logger.info("⚙️  Dry run mode")
+
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
 
@@ -486,6 +490,8 @@ class Pipeline(BasePipeline):
 
         for step in self._batch_manager._steps.values():
             if batch := step.get_batch():
+                if self._dry_run:
+                    batch.last_batch = True
                 self._logger.debug(
                     f"Sending initial batch to '{step.step_name}' step: {batch}"
                 )
@@ -495,7 +501,7 @@ class Pipeline(BasePipeline):
             seq_no = 0
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
-            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
+            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=self._dry_run)
             self._logger.debug(
                 f"Requesting initial batch to '{step_name}' generator step: {batch}"
             )
@@ -566,6 +572,7 @@ class Pipeline(BasePipeline):
                 input_queue=input_queue,
                 output_queue=output_queue,
                 shared_info=shared_info,
+                dry_run=self._dry_run,
             )
 
             pool.apply_async(
@@ -756,6 +763,7 @@ class _ProcessWrapper:
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
         shared_info: "DictProxy[str, Any]",
+        dry_run: bool = False,
     ) -> None:
         """Initializes the `_ProcessWrapper`.
 
@@ -764,11 +772,13 @@ class _ProcessWrapper:
             input_queue: The queue to receive the input data.
             output_queue: The queue to send the output data.
             shared_info: The shared information between the processes.
+            dry_run: Flag to ensure we are forcing to run the last batch.
         """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.shared_info = shared_info
+        self._dry_run = dry_run
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
@@ -838,7 +848,6 @@ class _ProcessWrapper:
                 `process` method.
         """
         step = cast("GeneratorStep", self.step)
-
         try:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
@@ -855,7 +864,7 @@ class _ProcessWrapper:
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.data = [data]
-                batch.last_batch = last_batch
+                batch.last_batch = self._dry_run or last_batch
                 self._send_batch(batch)
 
                 if batch.last_batch:
