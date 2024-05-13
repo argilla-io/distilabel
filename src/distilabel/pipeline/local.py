@@ -100,7 +100,7 @@ class Pipeline(BasePipeline):
 
         if self._dry_run:
             # This message is placed here to ensure we are using the already setup logger.
-            self._logger.info("⚙️  Dry run mode")
+            self._logger.info("🌵 Dry run mode")
 
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
@@ -490,8 +490,6 @@ class Pipeline(BasePipeline):
 
         for step in self._batch_manager._steps.values():
             if batch := step.get_batch():
-                if self._dry_run:
-                    batch.last_batch = True
                 self._logger.debug(
                     f"Sending initial batch to '{step.step_name}' step: {batch}"
                 )
