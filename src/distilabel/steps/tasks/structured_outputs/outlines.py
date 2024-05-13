@@ -48,11 +48,14 @@ class StructuredOutputType(TypedDict):
             strings with a pattern (doesn't impact string literals).
             For example, to allow only a single space or newline with
             `whitespace_pattern=r"[\n ]?"`
+        schema_from_column: if given, this column will be used to extract
+            the model schema from the dataset.
     """
 
     format: Literal["json", "regex"]
     schema: Union[str, Type[BaseModel]]
     whitespace_pattern: Optional[Union[str, List[str]]]
+    schema_from_column: str
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
