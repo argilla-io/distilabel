@@ -87,7 +87,7 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
         return JSONLogitsProcessor, RegexLogitsProcessor
 
-    elif framework == "vllm":
+    if framework == "vllm":
         from outlines.integrations.vllm import JSONLogitsProcessor, RegexLogitsProcessor
 
         return JSONLogitsProcessor, RegexLogitsProcessor
