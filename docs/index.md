@@ -15,6 +15,7 @@ AI Feedback (AIF) framework to build datasets with and for LLMs:
 ```sh
 pip install distilabel
 ```
+
 Requires Python 3.8+
 
 In addition, the following extras are available:
@@ -27,7 +28,7 @@ In addition, the following extras are available:
 - `hf-transformers`: for using models available in [transformers](https://github.com/huggingface/transformers) package via the `TransformersLLM` integration.
 - `litellm`: for using [`LiteLLM`](https://github.com/BerriAI/litellm) to call any LLM using OpenAI format via the `LiteLLM` integration.
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) Python bindings for `llama.cpp` via the `LlamaCppLLM` integration.
-- `mistralai`: for using models available in [Mistral AI API](https://mistral.ai/news/la-plateforme/) via the `MistralAILLM` integration.
+- `mistralai`: for using models available in [Mistral AI API](https://mistral.ai/news/la-plateforme/) via the `MistralAILLM` integration. Note that the [`mistralai` Python client](https://github.com/mistralai/client-python) can only be installed from Python 3.9 onwards, so this is the only `distilabel` dependency that's not supported in Python 3.8.
 - `ollama`: for using [Ollama](https://ollama.com/) and their available models via `OllamaLLM` integration.
 - `openai`: for using [OpenAI API](https://openai.com/blog/openai-api) models via the `OpenAILLM` integration, or the rest of the integrations based on OpenAI and relying on its client as `AnyscaleLLM`, `AzureOpenAILLM`, and `TogetherLLM`.
 - `vertexai`: for using [Google Vertex AI](https://cloud.google.com/vertex-ai) proprietary models via the `VertexAILLM` integration.
@@ -58,20 +59,21 @@ with Pipeline(
         output_mappings={"prompt": "instruction"},
     )
 
-    generate_with_openai = TextGeneration(
-        name="generate_with_gpt35", llm=OpenAILLM(model="gpt-3.5-turbo")
+    text_generation = TextGeneration(
+        name="text_generation",
+        llm=OpenAILLM(model="gpt-3.5-turbo"),
     )
 
-    load_dataset.connect(generate_with_openai)
+    load_dataset >> text_generation
 
 if __name__ == "__main__":
     distiset = pipeline.run(
         parameters={
-            "load_dataset": {
+            load_dataset.name: {
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            "generate_with_gpt35": {
+            text_generation.name: {
                 "llm": {
                     "generation_kwargs": {
                         "temperature": 0.7,
