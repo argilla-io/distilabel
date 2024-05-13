@@ -353,7 +353,7 @@ class BasePipeline(_Serializable):
         Returns:
             Path: Filenames where the pipeline content will be serialized.
         """
-        folder = self._cache_dir / self._create_signature()
+        folder = self._cache_dir / self.name / self._create_signature()
         return {
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
