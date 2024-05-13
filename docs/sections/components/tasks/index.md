@@ -22,7 +22,7 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
 ```
 
 !!! NOTE
-The `load` method needs to be called ALWAYS if using the tasks as standalone, otherwise, if the `Pipeline` context manager is used, there's no need to call that method, since it will be automatically called on `Pipeline.run`; but in any other case the method `load` needs to be called from the parent class e.g. a `Task` with an `LLM` will need to call `Task.load` to load both the task and the LLM.
+    The `load` method needs to be called ALWAYS if using the tasks as standalone, otherwise, if the `Pipeline` context manager is used, there's no need to call that method, since it will be automatically called on `Pipeline.run`; but in any other case the method `load` needs to be called from the parent class e.g. a `Task` with an `LLM` will need to call `Task.load` to load both the task and the LLM.
 
 ## Defining custom Tasks
 

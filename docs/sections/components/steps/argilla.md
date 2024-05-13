@@ -23,7 +23,7 @@ The dataset will be pushed with the following configuration:
 - Questions: `quality` will be the only question for the annotators to answer i.e. to annotate, and it will be an `argilla.LabelQuestion` referring to the quality of the provided generation for the given instruction, and can be annotated with either 👎 (bad) or 👍 (good).
 
 !!! NOTE
-The [`TextGenerationToArgilla`][distilabel.steps.argilla.text_generation] step will only work as is if the [`Pipeline`][distilabel.pipeline.Pipeline] contains one or multiple [`TextGeneration`][distilabel.steps.tasks.text_generation] steps, or if the columns `instruction` and `generation` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generation` are mapped to one of the existing columns in the batch data.
+    The [`TextGenerationToArgilla`][distilabel.steps.argilla.text_generation] step will only work as is if the [`Pipeline`][distilabel.pipeline.Pipeline] contains one or multiple [`TextGeneration`][distilabel.steps.tasks.text_generation] steps, or if the columns `instruction` and `generation` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generation` are mapped to one of the existing columns in the batch data.
 
 ```python
 from distilabel.llms import OpenAILLM
@@ -71,10 +71,10 @@ The dataset will be pushed with the following configuration:
 - Questions: `rating` and `rationale` will be the pairs of questions to be defined per each generation i.e. per each value within the range from 0 to `num_generations`, and those will be of types `argilla.RatingQuestion` and `argilla.TextQuestion`, respectively. Also note that only the first pair of questions will be mandatory, since only one generation is ensured to be within the batch data. Additionally, note that the provided ratings will range from 1 to 5, and to mention that Argilla only supports values above 0.
 
 !!! NOTE
-The [`PreferenceToArgilla`][distilabel.steps.argilla.preference] step will only work as is if the [`Pipeline`][distilabel.pipeline.Pipeline] contains multiple [`TextGeneration`][distilabel.steps.tasks.text_generation] steps, or if the columns `instruction` and `generations` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generations` are mapped to one of the existing columns in the batch data.
+    The [`PreferenceToArgilla`][distilabel.steps.argilla.preference] step will only work as is if the [`Pipeline`][distilabel.pipeline.Pipeline] contains multiple [`TextGeneration`][distilabel.steps.tasks.text_generation] steps, or if the columns `instruction` and `generations` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generations` are mapped to one of the existing columns in the batch data.
 
 !!! NOTE
-Additionally, if the [`Pipeline`][distilabel.pipeline.Pipeline] contains an [`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] step, the `ratings` and `rationales` will also be available, so if that's the case, those will be automatically injected as suggestions to the existing dataset so that the annotator only needs to review those, instead of fulfilling those by themselves.
+    Additionally, if the [`Pipeline`][distilabel.pipeline.Pipeline] contains an [`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] step, the `ratings` and `rationales` will also be available, so if that's the case, those will be automatically injected as suggestions to the existing dataset so that the annotator only needs to review those, instead of fulfilling those by themselves.
 
 ```python
 from distilabel.llms import OpenAILLM
@@ -115,4 +115,4 @@ pipeline.run()
 ![Preference to Argilla](../../../assets/images/sections/learn/steps/argilla/preference.png)
 
 !!! NOTE
-If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.
+    If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.ultrafeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.

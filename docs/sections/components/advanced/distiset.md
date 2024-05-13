@@ -21,7 +21,7 @@ distiset = Distiset(
 ```
 
 !!! NOTE
-If there's only one leaf node i.e. only one step at the end of the [`Pipeline`][distilabel.pipeline.Pipeline], then the configuration name won't be the name of the last step, but it will be set to "default" instead, as that's more aligned with standard datasets within the Hugging Face Hub.
+    If there's only one leaf node i.e. only one step at the end of the [`Pipeline`][distilabel.pipeline.Pipeline], then the configuration name won't be the name of the last step, but it will be set to "default" instead, as that's more aligned with standard datasets within the Hugging Face Hub.
 
 ## Distiset methods
 
