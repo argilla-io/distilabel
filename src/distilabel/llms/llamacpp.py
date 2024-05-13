@@ -54,7 +54,7 @@ class LlamaCppLLM(LLM):
     """
 
     model_path: RuntimeParameter[FilePath] = Field(
-        default=None, description="The path to the GGUF quantized model."
+        default=None, description="The path to the GGUF quantized model.", exclude=True
     )
     n_gpu_layers: RuntimeParameter[int] = Field(
         default=-1,
