@@ -79,7 +79,7 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
         return JSONPrefixAllowedTokens, RegexPrefixAllowedTokens
 
-    elif framework == "llamacpp":
+    if framework == "llamacpp":
         from outlines.integrations.llamacpp import (
             JSONLogitsProcessor,
             RegexLogitsProcessor,
