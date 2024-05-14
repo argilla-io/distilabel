@@ -112,7 +112,7 @@ nav:
         - "sections/components/task/index.md"
         - GeneratorTask: "sections/components/task/generator_task.md"
     - LLM: "sections/components/llm/index.md"
-    - Pipeline: "sections/components/pipeline/index.md"
+    - Pipeline: "sections/components/pipelines/index.md"
     - CLI: "sections/components/cli/index.md"
     - Advanced:
         - "sections/components/advanced/index.md"
