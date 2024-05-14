@@ -191,10 +191,39 @@ These were some simple examples, but one can see the options this opens.
 
 #### OpenAI JSON 
 
-OPENAI REF:
+OpenAI offers a [JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode) to deal with structured output via their API, let's see how to make use of them. The JSON mode instructs the model to always return a JSON object following the instruction required.
 
-- [JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode).
-- [Function Calling](https://platform.openai.com/docs/guides/function-calling)
+!!! Warning
+
+    Keep in mind, that in order for this to work, you must instruct the model in some way to generate JSON, either in the `system message` or in the instruction, as can be seen in the [API reference](https://platform.openai.com/docs/guides/text-generation/json-mode). 
+
+Contrary to what we have via `outlines`, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found the OpenAI documentation.
+
+Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument `response_format="json"`[^3]:
+
+```python
+from distilabel.llms import OpenAILLM
+llm = OpenAILLM(model="gpt4-turbo", api_key="api.key")
+llm.generate(..., response_format="json")
+```
+
+[^3]:
+    Keep in mind that to interact with this `response_format` argument in a pipeline, you will have to pass it via the `generation_kwargs`:
+
+    ```python
+    # Assuming a pipeline is already defined, and we have a task using OpenAILLM called `task_with_openai`:
+    pipeline.run(
+        parameters={
+            "task_with_openai": {
+                "llm": {
+                    "generation_kwargs": {
+                        "response_format": "json"
+                    }
+                }
+            }
+        }
+    )
+    ```
 
 ## Defining custom LLMs
 
