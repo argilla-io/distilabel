@@ -54,7 +54,7 @@ class LlamaCppLLM(LLM):
     """
 
     model_path: RuntimeParameter[FilePath] = Field(
-        default=None, description="The path to the GGUF quantized model."
+        default=None, description="The path to the GGUF quantized model.", exclude=True
     )
     n_gpu_layers: RuntimeParameter[int] = Field(
         default=-1,
@@ -76,7 +76,7 @@ class LlamaCppLLM(LLM):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `Llama` class of `llama_cpp` library. See all the suported arguments at: "
+        " `Llama` class of `llama_cpp` library. See all the supported arguments at: "
         "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
     )
 

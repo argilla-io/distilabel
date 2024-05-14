@@ -16,13 +16,10 @@ from typing import List, Optional
 
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import (
-    GeneratorStep,
-    GlobalStep,
-    Step,
-    StepInput,
-)
+from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.steps.decorator import step
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from pydantic import ValidationError
@@ -224,6 +221,36 @@ class TestStep:
             {"prompt": "hello 2", "generation": "unit test"},
             {"prompt": "hello 3", "generation": "unit test"},
         ]
+
+    def test_connect(self) -> None:
+        @step(inputs=["instruction"], outputs=["generation"])
+        def GenerationStep(input: StepInput):
+            pass
+
+        def routing_batch_function(downstream_step_names: List[str]) -> List[str]:
+            return downstream_step_names
+
+        with Pipeline(name="unit-test-pipeline") as pipeline:
+            generator_step = DummyGeneratorStep(name="dummy_generator")
+
+            generate_1 = GenerationStep(name="generate_1")
+            generate_2 = GenerationStep(name="generate_2")
+            generate_3 = GenerationStep(name="generate_3")
+
+            generator_step.connect(
+                generate_1,
+                generate_2,
+                generate_3,
+                routing_batch_function=routing_batch_function,
+            )
+
+        assert "generate_1" in pipeline.dag.G["dummy_generator"]
+        assert "generate_2" in pipeline.dag.G["dummy_generator"]
+        assert "generate_3" in pipeline.dag.G["dummy_generator"]
+        assert (
+            pipeline.dag.get_step("dummy_generator")[ROUTING_BATCH_FUNCTION_ATTR_NAME]
+            == routing_batch_function
+        )
 
 
 class TestGeneratorStep:

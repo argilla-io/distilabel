@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     types:
       - opened
@@ -22,10 +23,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           # Looks like it's not working very well for other people:
@@ -33,11 +34,11 @@ jobs:
           # cache: "pip"
           # cache-dependency-path: pyproject.toml
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v00
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -46,7 +47,7 @@ jobs:
 
           pip install -e .[dev,tests,anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,vertexai,vllm]
           if [ "${python_version}" != "(3, 8)" ]; then
-            pip install e .[mistralai]
+            pip install -e .[mistralai]
           fi;
           pip install git+https://github.com/argilla-io/LLM-Blender.git
 
