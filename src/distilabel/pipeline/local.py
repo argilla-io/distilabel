@@ -663,16 +663,16 @@ class Pipeline(BasePipeline):
             if _STOP_CALLED:
                 global _STOP_CALLS
                 _STOP_CALLS += 1
+                # if _STOP_CALLS == 1:
+                #     self._logger.warning(
+                #         "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
+                #         " for the pipeline to finish..."
+                #     )
                 if _STOP_CALLS == 1:
                     self._logger.warning(
-                        "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
-                        " for the pipeline to finish..."
+                        "🛑 Press again to force the pipeline to stop."
                     )
-                elif _STOP_CALLS == 2:
-                    self._logger.warning(
-                        "🛑 Press again to force interruption of the pipeline."
-                    )
-                else:
+                elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
                     import gc
                     import sys
