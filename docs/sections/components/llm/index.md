@@ -82,6 +82,120 @@ if __name__ == "__main__":
     )
 ```
 
+### Structured text generation
+
+Distilabel integrates with famous libraries to generate structured text, let's see how this can be done (expect more integrations in coming releases).
+
+#### Outlines
+
+Distilabel integrates [`outlines`](https://outlines-dev.github.io/outlines/welcome/) for structured text generation. Relying on [`TransformersLLM`][distilabel.llms.huggingface.TransformersLLM], [`vLLM`][distilabel.llms.vLLM] or [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM] we can generate structured text in the form of *JSON* or parseable *regex*.
+
+The [`LLM`][distilabel.llms.base.LLM] has a parameter `structured_output`[^1] that determines how we can generate structured output with our LLM, let's see an example using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM]:
+
+```python
+from pathlib import Path
+from pydantic import BaseModel
+from distilabel.llms import LlamaCppLLM
+
+model_path = str(
+    Path.home() / "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"  # (1)
+)
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+
+llm=LlamaCppLLM(
+    model_path=model_path,
+    n_gpu_layers=-1,
+    n_ctx=1024,
+    structured_output={"format": "json", "schema": User},
+)
+llm.load()
+```
+
+1. We have downloaded the following model using curl[^2], but you can use the model you want just updating the `model_path` accordingly.
+
+The `format` argument can be one of *json* or *regex*, and the schema represents the schema in case of JSON, which can be informed as a `str` with the `json_schema` (ADD EXAMPLES HERE), or a `pydantic.BaseModel` class with the structure, while if we work with *regex* it represents the pattern we want our text to adhere to. Let's call the LLM with a example to see it in action.
+
+```python
+import json
+
+result = llm.generate(
+    [[{"role": "user", "content": "Create a user profile for the following marathon"}]],
+    max_new_tokens=50
+)
+
+json.loads(result[0][0])
+# {'name': 'Kathy', 'last_name': 'Smith', 'id': 4539210}
+```
+
+We get back a python dictionary (formatted as a string) that we can parse using `json.loads`.
+
+And the following example shows regex case. WHAT ARE WE DOING HERE?
+
+```python
+pattern = r"<name>(.*?)</name>.*?<grade>(.*?)</grade>"
+
+llm=LlamaCppLLM(
+    model_path=model_path,
+    n_gpu_layers=-1,
+    n_ctx=1024,
+    structured_output={"format": "regex", "schema": pattern},
+)
+llm.load()
+
+result = llm.generate(
+    [[
+        {"role": "system", "content": "You are Simpsons' fans who loves assigning grades from A to E, where A is the best and E is the worst."},
+        {"role": "user", "content": "What's up with Homer Simpson?"}
+    ]],
+    max_new_tokens=200
+)
+```
+
+We can check the output by parsing the content using the same pattern we required from the LLM.
+
+```python
+import re
+match = re.search(pattern, result[0][0])
+
+if match:
+    name = match.group(1)
+    grade = match.group(2)
+    print(f"Name: {name}, Grade: {grade}")
+# Name: Homer Simpson, Grade: C+
+```
+
+These were some simple examples, but one can see the options this opens.
+
+!!! NOTE
+
+    A complete pipeline can using `LlamaCppLLM` and *JSON* be seen in the [`examples/rpg_characters_llamacpp.py`](https://github.com/argilla-io/distilabel/tree/main/examples/rpg_characters_llamacpp.py) script.
+
+
+[^1]:
+    You can check the variable type by importing it from:
+
+    ```python
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
+    ```
+
+[^2]:
+    Download the model with curl:
+
+    ```bash
+    curl -L -o ~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
+    ```
+
+#### OpenAI JSON 
+
+OPENAI REF:
+
+- [JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode).
+- [Function Calling](https://platform.openai.com/docs/guides/function-calling)
+
 ## Defining custom LLMs
 
 In order to define custom LLMs, one must subclass either [`LLM`][distilabel.llms.LLM] or [`AsyncLLM`][distilabel.llms.AsyncLLM], to define a synchronous or asynchronous LLM, respectively.
