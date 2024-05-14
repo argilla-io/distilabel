@@ -4,21 +4,49 @@ Distilabel `Pipelines` automatically save all the intermediate steps to to avoid
 
 ## Cache directory
 
-Out of the box, the `Pipeline` will use the `~/.cache/distilabel/pipelines` directory to store the different pipelines:
+Out of the box, the `Pipeline` will use the `~/.cache/distilabel/pipelines` directory to store the different pipelines[^1]:
 
 ```python
 from distilabel.pipeline.local import Pipeline
 
-with Pipeline("cache_testing") as pipeline:
+with Pipeline(name="cache_testing") as pipeline:
     ...
 ```
 
 This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitly passing the `cache_dir` variable to the `Pipeline` constructor like so:
 
 ```python
-with Pipeline("cache_testing", cache_dir="~/my_cache_dir") as pipeline:
+with Pipeline(name="cache_testing", cache_dir="~/my_cache_dir") as pipeline:
     ...
 ```
+
+[^1]:
+
+    The pipelines will be organized according to the pipeline's name attribute, and then by the hash, in case you want to look for something manually, like the folloiwng example:
+
+    ```bash
+    ~/.cache/distilabel/pipelines/
+    ├── cache_testing
+    │   └── 13da04d2cc255b2180d6bebb50fb5be91124f70d
+    │       ├── batch_manager.json
+    │       ├── batch_manager_steps
+    │       │   └── succeed_always_0.json
+    │       ├── data
+    │       │   └── succeed_always_0
+    │       │       └── 00001.parquet
+    │       ├── pipeline.log
+    │       └── pipeline.yaml
+    └── test-pipe
+        └── f23b95d7ad4e9301a70b2a54c953f8375ebfcd5c
+            ├── batch_manager.json
+            ├── batch_manager_steps
+            │   └── text_generation_0.json
+            ├── data
+            │   └── text_generation_0
+            │       └── 00001.parquet
+            ├── pipeline.log
+            └── pipeline.yaml
+    ```
 
 ## How does it work?
 

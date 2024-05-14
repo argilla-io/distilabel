@@ -374,7 +374,7 @@ To load the pipeline, we can use the `from_yaml` or `from_json` methods:
 pipeline = Pipeline.from_yaml("pipeline.yaml")
 ```
 
-Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the [CLI](/distilabel/sections/learn/cli) knowing the URL of the pipeline.
+Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the [CLI](../cli/index.md) knowing the URL of the pipeline.
 
 ## Fully working example
 
@@ -446,4 +446,4 @@ To sump up, here is the full code of the pipeline we have created in this sectio
         )
     ```
 
-[^1]: We also have the *cache_dir* argument to pass, for more information on this parameter, we refer the reader to the [caching](../caching.md) section.
+[^1]: We also have the *cache_dir* argument to pass, for more information on this parameter, we refer the reader to the [caching](../advanced/caching.md) section.
