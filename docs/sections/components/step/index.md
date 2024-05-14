@@ -56,7 +56,48 @@ More information about it at [Components -> Task](/components/task).
 
 ## Defining custom Steps
 
-...
+In order to define custom steps, we need to create a new subclass of the [`Step`][distilabel.steps.Step] class, and set both the `inputs` and `outputs` property, as well as the `process` method.
+
+So on, the following will need to be defined:
+
+- `inputs`: is a property that returns a list of strings with the names of the required input fields.
+
+- `outputs`: is a property that returns a list of strings with the names of the output fields.
+
+- `process`: is a method that receives the input data and returns the output data, and it should be a generator, meaning that it should `yield` the output data. It's important to preserve the default signature within the method `def process(self, *inputs: StepInput) -> StepOutput`, since that's the one that will be used by the [`Pipeline`][distilabel.pipeline.Pipeline] to orchestrate the steps, meaning that the argument `inputs` should be respected, no more arguments can be provided, and the type-hints and return type-hints should be respected too.
+
+!!! NOTE
+    The default signature for the `process` method is `process(self, *inputs: StepInput) -> StepOutput`, meaning that it should be able to receive any number of inputs by default i.e. more than one [`Step`][distilabel.steps.Step] at a time could be connected to the current one. Anyway, when defining custom steps, that can be overriden with `process(self, inputs: StepInput) -> StepOutput`, so that the `process` method only receives the outputs from one previous [`Step`][distilabel.steps.Step] connected to it.
+
+!!! WARNING
+    For the custom [`Step`][distilabel.steps.Step] subclasses to work properly with `distilabel` and with the validation and serialization performed by default over each [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline], the type-hint for both [`StepInput`][distilabel.steps.StepInput] and [`StepOutput`][distilabel.steps.typing.StepOutput] should be used and not surrounded with double-quotes or imported under `typing.TYPE_CHECKING`, otherwise, the validation and/or serialization will fail.
+
+```python
+from distilabel.steps import Step, StepInput
+from distilabel.steps.typing import StepOutput
+
+class CustomStep(Step):
+    @property
+    def inputs(self) -> List[str]:
+        return ["input_field"]
+
+    @property
+    def outputs(self) -> List[str]:
+        return ["output_field"]
+
+    def process(self, *inputs: StepInput) -> StepOutput:
+        for input in inputs:
+            for item in input:
+                item["output_field"] = item["input_field"]
+            yield item
+
+    # When overriden (ideally under the `typing_extensions.override` decorator)
+    # @typing_extensions.override
+    # def process(self, inputs: StepInput) -> StepOutput:
+    #     for input in inputs:
+    #         input["output_field"] = input["input_field"]
+    #     yield inputs
+```
 
 Alternatively, a simpler and more suitable way of defining custom [`Step`][distilabel.steps.Step] subclasses is via the `@step` decorator, which will take care of the boilerplate code, and will allow to define the `inputs`, `outputs`, and `process` methods in a more straightforward way.
 
@@ -73,5 +114,12 @@ step = CustomStep(name="my-step")
 ```
 
 ## Available Steps
+
+### Columns
+
+...
+
+
+### Miscellaneous
 
 ...
