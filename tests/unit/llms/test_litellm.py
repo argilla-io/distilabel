@@ -81,6 +81,7 @@ class TestLiteLLM:
         _dump = {
             "model": model,
             "verbose": False,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.litellm",
                 "name": "LiteLLM",

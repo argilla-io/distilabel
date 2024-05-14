@@ -175,6 +175,7 @@ class TestInferenceEndpointsLLM:
             "generation_kwargs": {},
             "model_display_name": None,
             "use_openai_client": False,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

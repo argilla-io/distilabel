@@ -81,6 +81,7 @@ class TestGroqLLM:
             "generation_kwargs": {},
             "max_retries": 2,
             "timeout": 120,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.groq",
                 "name": "GroqLLM",

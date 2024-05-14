@@ -80,6 +80,7 @@ class TestOllamaLLM:
             "timeout": 120,
             "follow_redirects": True,
             "generation_kwargs": {},
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.ollama",
                 "name": "OllamaLLM",

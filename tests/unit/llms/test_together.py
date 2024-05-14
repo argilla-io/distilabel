@@ -48,6 +48,7 @@ class TestTogetherLLM:
             "max_retries": 6,
             "base_url": "https://api.together.xyz/v1",
             "timeout": 120,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.together",
                 "name": "TogetherLLM",
