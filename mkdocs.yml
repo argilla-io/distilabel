@@ -112,7 +112,7 @@ nav:
         - "sections/components/task/index.md"
         - GeneratorTask: "sections/components/task/generator_task.md"
     - LLM: "sections/components/llm/index.md"
-    - Pipeline: "sections/components/pipelines/index.md"
+    - Pipeline: "sections/components/pipeline/index.md"
     - CLI: "sections/components/cli/index.md"
     - Advanced:
         - "sections/components/advanced/index.md"
@@ -120,12 +120,13 @@ nav:
         - Caching: "sections/components/advanced/caching.md"
         - Distiset: "sections/components/advanced/distiset.md"
         - Routing: "sections/components/advanced/routing.md"
-  - Paper reproductions:
+  - Examples:
       - "sections/papers/index.md"
       - Papers:
           - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/papers/deita.md"
           - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
           - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
+  - FAQ: "sections/faq.md"
   - API Reference:
       - Pipeline:
           - "api/pipeline/index.md"

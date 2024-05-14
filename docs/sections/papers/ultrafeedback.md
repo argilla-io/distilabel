@@ -224,7 +224,7 @@ Finally, we can optionally push the generated dataset, named [`Distiset`][distil
 
 ```python
 dataset.push_to_hub(
-    "xultrafeedback-instruction-dataset",
+    "ultrafeedback-instruction-dataset",
     private=True,
 )
 ```
