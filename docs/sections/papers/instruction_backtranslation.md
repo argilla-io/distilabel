@@ -24,15 +24,15 @@ To replicate Self Alignment with Instruction Backtranslation one will need to in
 pip install "distilabel[hf-inference-endpoints,openai]>=1.0.0"
 ```
 
-And since we will be using `hf-inference-endpoints` we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the `HF_TOKEN` (to use the `InferenceEndpointsLLM`) and the `OPENAI_API_KEY` environment variable value (to use the `OpenAILLM`).
+And since we will be using [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM] (installed via the extra `hf-inference-endpoints`) we will need deploy those in advance either locally or in the Hugging Face Hub (alternatively also the serverless endpoints can be used, but most of the times the inference times are slower, and there's a limited quota to use those as those are free) and set both the `HF_TOKEN` (to use the [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM]) and the `OPENAI_API_KEY` environment variable value (to use the [`OpenAILLM`][distilabel.llms.OpenAILLM]).
 
 #### Building blocks
 
-- `LoadHubDataset`: Generator Step to load a dataset from the Hugging Face Hub.
-- `TextGeneration`: Task to generate responses for a given instruction using an LLM.
-  - `InferenceEndpointsLLM`: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.
-- `InstructionBacktranslation`: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.
-  - `OpenAILLM`: LLM that loads a model from OpenAI using `OpenAILLM`.
+- [`LoadHubDataset`][distilabel.steps.LoadHubDataset]: Generator Step to load a dataset from the Hugging Face Hub.
+- [`TextGeneration`][distilabel.steps.tasks.TextGeneration]: Task to generate responses for a given instruction using an LLM.
+    - [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM]: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.
+- [`InstructionBacktranslation`][distilabel.steps.tasks.InstructionBacktranslation]: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.
+    - [`OpenAILLM`][distilabel.llms.OpenAILLM]: LLM that loads a model from OpenAI.
 
 #### Code
 
@@ -61,7 +61,6 @@ with Pipeline(name="self-alignment-with-instruction-backtranslation") as pipelin
         input_batch_size=10,
         output_mappings={"model_name": "generation_model"},
     )
-    load_hub_dataset.connect(text_generation)
 
     instruction_backtranslation = InstructionBacktranslation(
         name="instruction_backtranslation",
@@ -69,7 +68,6 @@ with Pipeline(name="self-alignment-with-instruction-backtranslation") as pipelin
         input_batch_size=10,
         output_mappings={"model_name": "scoring_model"},
     )
-    text_generation.connect(instruction_backtranslation)
 
     keep_columns = KeepColumns(
         name="keep_columns",
@@ -82,36 +80,44 @@ with Pipeline(name="self-alignment-with-instruction-backtranslation") as pipelin
             "scoring_model",
         ],
     )
-    instruction_backtranslation.connect(keep_columns)
+
+    load_hub_dataset >> text_generation >> instruction_backtranslation >> keep_columns
 ```
 
 Then we need to call `pipeline.run` with the runtime parameters so that the pipeline can be launched.
 
 ```python
-dataset = pipeline.run(
+distiset = pipeline.run(
     parameters={
-        "load_dataset": {
+        load_hub_dataset.name: {
             "repo_id": "HuggingFaceH4/instruction-dataset",
             "split": "test",
         },
-        "text_generation": {
-            "generation_kwargs": {
-                "max_new_tokens": 1024,
-                "temperature": 0.7,
+        text_generation.name: {
+            "llm": {
+                "generation_kwargs": {
+                    "max_new_tokens": 1024,
+                    "temperature": 0.7,
+                },
             },
         },
-        "instruction_backtranslation": {
-            "generation_kwargs": {
-                "max_new_tokens": 1024,
-                "temperature": 0.7,
+        instruction_backtranslation.name: {
+            "llm": {
+                "generation_kwargs": {
+                    "max_new_tokens": 1024,
+                    "temperature": 0.7,
+                },
             },
         },
-    }
+    },
 )
 ```
 
-Finally, we can optionally push the generated dataset, named `Distiset`, to the Hugging Face Hub via the `push_to_hub` method, so that each subset generated in the leaf steps is pushed to the Hub.
+Finally, we can optionally push the generated dataset, named [`Distiset`][distilabel.distiset.Distiset], to the Hugging Face Hub via the `push_to_hub` method, so that each subset generated in the leaf steps is pushed to the Hub.
 
 ```python
-dataset.push_to_hub("distilabel-internal-testing/instruction-backtranslation-instruction-dataset", private=True)
+distiset.push_to_hub(
+    "instruction-backtranslation-instruction-dataset",
+    private=True,
+)
 ```
