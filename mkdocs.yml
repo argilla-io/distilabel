@@ -105,17 +105,14 @@ nav:
   - Components:
     - "sections/components/index.md"
     - Step:
-        - "sections/components/steps/index.md"
-        - GeneratorStep: "sections/components/steps/generator_steps.md"
-        - GlobalStep: "sections/components/steps/global_steps.md"
-        # - TODO Step: "sections/components/steps/general_steps.md"
+        - "sections/components/step/index.md"
+        - GeneratorStep: "sections/components/step/generator_step.md"
+        - GlobalStep: "sections/components/step/global_step.md"
     - Task:
-        - "sections/components/tasks/index.md"
-        # - "sections/components/tasks/text_generation.md"
-        # - "sections/components/tasks/feedback_tasks.md"
-        # - "sections/components/tasks/special_tasks.md"
-    - LLM: "sections/components/llms/index.md"
-    - Pipeline: "sections/components/pipelines/index.md"
+        - "sections/components/task/index.md"
+        - GeneratorTask: "sections/components/task/generator_task.md"
+    - LLM: "sections/components/llm/index.md"
+    - Pipeline: "sections/components/pipeline/index.md"
     - CLI: "sections/components/cli/index.md"
     - Advanced:
         - "sections/components/advanced/index.md"

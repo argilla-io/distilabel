@@ -1,4 +1,4 @@
-# Tasks
+# Task
 
 The [`Task`][distilabel.steps.tasks.Task] is an implementation on top of [`Step`][distilabel.steps.Step] that includes the [`LLM`][distilabel.llms.LLM] as a mandatory argument, so that the [`Task`][distilabel.steps.tasks.Task] defines both the input and output format via the `format_input` and `format_output` abstract methods, respectively; and calls the [`LLM`][distilabel.llms.LLM] to generate the text. We can see the [`Task`][distilabel.steps.tasks.Task] as an [`LLM`][distilabel.llms.LLM] powered [`Step`][distilabel.steps.Step].
 
@@ -18,7 +18,7 @@ task = TextGeneration(
 task.load()
 
 next(task.process([{"instruction": "What's the capital of Spain?"}]))
-# [{'instruction': "What's the capital of Spain?", "generation": "The capital of Spain is Madrid."}]
+# [{'instruction': "What's the capital of Spain?", "generation": "The capital of Spain is Madrid.", "model_name": "gpt-4"}]
 ```
 
 !!! NOTE
@@ -90,14 +90,6 @@ Here's a list with the available tasks that can be used within the `distilabel` 
 
     Evolves the provided `instruction` to make it more complex, according to a set of pre-defined mutation templates (based on [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
 
-- [**`EvolComplexityGenerator`**][distilabel.steps.tasks.EvolComplexityGenerator]
-
-    Is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask] that doesn't expect any input since it's a subclass of [`GeneratorStep`][distilabel.steps.GeneratorStep], and generates an `instruction` from scratch based of some seed data.
-
-- [**`EvolInstructGenerator`**][distilabel.steps.tasks.EvolInstructGenerator]
-
-    Is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask] that doesn't expect any input since it's a subclass of [`GeneratorStep`][distilabel.steps.GeneratorStep], and generates an `instruction` from scratch based of some seed data.
-
 - [**`EvolQuality`**][distilabel.steps.tasks.EvolQuality]
 
     Evolves the provided `response` based on the `instruction` to make it of higher quality, ensuring that the evolved `response` is still compliant with the provided `instruction` (based on the same approach as [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
@@ -137,3 +129,5 @@ Here's a list with the available tasks that can be used within the `distilabel` 
 - [**`UltraFeedback`**][distilabel.steps.tasks.UltraFeedback]
 
     Generates a `rating` and a `rationale` for each of the `generations` based on the provided `instruction`, based on the paper "UltraFeedback: Boosting Language Models with High-quality Feedback".
+
+Additionally, there is another subclass of [`Task`][distilabel.steps.tasks.Task] that is based on the [`GeneratorStep`][distilabel.steps.GeneratorStep] instead of the standard [`Step`][distilabel.steps.Step] as in this case; which is the [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. More information about it at [Components -> Task -> GeneratorTask](/components/task/generator_task).

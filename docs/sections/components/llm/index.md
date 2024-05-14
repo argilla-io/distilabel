@@ -1,4 +1,4 @@
-# LLMs
+# LLM
 
 The LLMs are implemented as subclasses of either [`LLM`][distilabel.llms.LLM] or [`AsyncLLM`][distilabel.llms.AsyncLLM], and are only in charge of running the text generation for a given prompt or conversation. The LLMs are intended to be used together with the [`Task`][distilabel.steps.tasks.Task] and any of its subclasses, via the `llm` argument, this means that any of the implemented LLMs can be easily plugged seamlessly into any task.
 
