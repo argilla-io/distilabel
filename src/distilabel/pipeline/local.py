@@ -55,6 +55,7 @@ _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+_STOP_CALLS = 0
 
 _STEPS_LOADED = set()
 _STEPS_LOADED_LOCK = threading.Lock()
@@ -134,7 +135,7 @@ class Pipeline(BasePipeline):
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
-            self._handle_keyboard_interrupt()
+            self._handle_keyboard_interrupt(manager=manager, pool=pool)
 
             # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
@@ -653,7 +654,9 @@ class Pipeline(BasePipeline):
 
         return False
 
-    def _stop(self) -> None:
+    def _stop(
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
+    ) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
@@ -663,10 +666,33 @@ class Pipeline(BasePipeline):
 
         with _STOP_CALLED_LOCK:
             if _STOP_CALLED:
-                self._logger.warning(
-                    "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
-                    " for the pipeline to finish..."
-                )
+                global _STOP_CALLS
+                _STOP_CALLS += 1
+                # if _STOP_CALLS == 1:
+                #     self._logger.warning(
+                #         "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
+                #         " for the pipeline to finish..."
+                #     )
+                if _STOP_CALLS == 1:
+                    self._logger.warning(
+                        "🛑 Press again to force the pipeline to stop."
+                    )
+                elif _STOP_CALLS > 1:
+                    self._logger.warning("🛑 Forcing pipeline interruption.")
+                    import gc
+                    import sys
+
+                    if manager:
+                        manager.shutdown()
+
+                    if pool:
+                        pool.close()
+                        pool.terminate()
+
+                    gc.collect()
+
+                    sys.exit(1)
+
                 return
             _STOP_CALLED = True
 
@@ -677,7 +703,9 @@ class Pipeline(BasePipeline):
         self._logger.debug("Sending `None` to the output queue to notify stop...")
         self.output_queue.put(None)
 
-    def _handle_keyboard_interrupt(self) -> None:
+    def _handle_keyboard_interrupt(
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
+    ) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
 
         It will try to call self._stop (if the pipeline didn't started yet, it won't
@@ -686,7 +714,7 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._stop()
+            self._stop(manager=manager, pool=pool)
 
         signal.signal(signal.SIGINT, signal_handler)
 
