@@ -228,7 +228,7 @@ if __name__ == "__main__":
     distiset = pipeline.dry_run(parameters=..., batch_size=1)
 ```
 
-It takes the same parameters as the `run` method we will see in the following section, plus the `batch_size` we want the dry run to use (by default set to 1). In this case, the `Pipeline` would select a single example from our generator steps and pass through all the steps. Assuming the `dry_run` runs succesfully, we are ready to run our pipeline.
+It takes the same parameters as the `run` method we will see in the following section, plus the `batch_size` we want the dry run to use (by default set to 1). In this case, the `Pipeline` would select a single example from our generator steps and pass through all the steps. Assuming the `dry_run` runs successfully, we are ready to run our pipeline.
 
 ### Pipeline.run
 
