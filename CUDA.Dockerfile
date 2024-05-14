@@ -13,7 +13,11 @@ WORKDIR /app
 
 FROM runpod/pytorch:2.1.1-py3.10-cuda12.1.1-devel-ubuntu22.04
 
-RUN pip install "distilabel[argilla,hf-transformers,hf-inference-endpoints,llama-cpp,vllm]" openai
+# RUN pip install "distilabel[argilla,hf-transformers,hf-inference-endpoints,llama-cpp,vllm]" openai
+
+COPY . .
+
+RUN pip install -e .
 
 EXPOSE 80
 
