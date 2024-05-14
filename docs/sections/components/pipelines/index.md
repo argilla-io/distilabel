@@ -216,6 +216,22 @@ sample_two_steps = sample_n_steps(2)
 
 ## Running the pipeline
 
+### dry-run method
+
+Before running the `Pipeline` we may want to check all the components behave as expected. We can do a `dry_run` for this case:
+
+```python
+with Pipeline("pipe-name", description="My first pipe") as pipeline:
+    ...
+
+if __name__ == "__main__":
+    distiset = pipeline.dry_run(parameters=..., batch_size=1)
+```
+
+It takes the same parameters as the `run` method we will see in the following section, plus the `batch_size` we want the dry run to use (by default set to 1). In this case, the `Pipeline` would select a single example from our generator steps and pass through all the steps. Assuming the `dry_run` runs succesfully, we are ready to run our pipeline.
+
+### pipeline.run
+
 Once we have created the pipeline, we can run it. To do so, we need to call the `run` method of the `Pipeline`, and specify the runtime parameters for each step:
 
 ```python
