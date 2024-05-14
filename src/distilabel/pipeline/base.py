@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     List,
@@ -51,11 +50,10 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
-
-RoutingBatchFunction = Callable[[List[str]], List[str]]
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
@@ -152,6 +150,7 @@ class BasePipeline(_Serializable):
 
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
+        self._dry_run: bool = False
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -202,7 +201,21 @@ class BasePipeline(_Serializable):
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
         ]
-        hasher.update(",".join(steps_info + connections_info).encode())
+
+        routing_batch_functions_info = []
+        for function in pipeline_dump["routing_batch_functions"]:
+            step = function["step"]
+            routing_batch_function: "RoutingBatchFunction" = self.dag.get_step(step)[
+                ROUTING_BATCH_FUNCTION_ATTR_NAME
+            ]
+            if type_info := routing_batch_function._get_type_info():
+                step += f"-{type_info}"
+
+        hasher.update(
+            ",".join(
+                steps_info + connections_info + routing_batch_functions_info
+            ).encode()
+        )
 
         return hasher.hexdigest()
 
@@ -230,6 +243,41 @@ class BasePipeline(_Serializable):
             self._load_from_cache()
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
+
+    def dry_run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        batch_size: int = 1,
+    ) -> "Distiset":
+        """Do a dry run to test the pipeline runs as expected.
+
+        Running a `Pipeline` in dry run mode will set all the `batch_size` of generator steps
+        to the specified batch_size, and run just with a single batch, effectively
+        running the whole pipeline with a single example. The cache will be set to False.
+
+        Args:
+            parameters: The same parameters variable from `BasePipeline.run`. Defaults to None.
+                Will be passed to the parent method, but with the batch_size of the generator steps
+                fixed to 1.
+            batch_size: The batch size to test the pipeline. Defaults to 1.
+
+        Returns:
+            Will return the `Distiset` as the main run method would do.
+        """
+        self._dry_run = True
+
+        for step_name in self.dag:
+            step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if step.is_generator:
+                if parameters.get(step_name) and parameters[step_name].get(
+                    "batch_size"
+                ):
+                    parameters[step_name]["batch_size"] = batch_size
+
+        distiset = self.run(parameters, use_cache=False)
+
+        self._dry_run = False
+        return distiset
 
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.
@@ -272,7 +320,7 @@ class BasePipeline(_Serializable):
         )
 
     def _add_routing_batch_function(
-        self, step_name: str, routing_batch_function: RoutingBatchFunction
+        self, step_name: str, routing_batch_function: "RoutingBatchFunction"
     ) -> None:
         """Add a routing batch function to a step.
 
@@ -1159,10 +1207,10 @@ class _BatchManager(_Serializable):
         Returns:
             A `_BatchManager` instance.
         """
-        # Remove the type info, we already know its a _BatchManager, and there aren't subclasses of it
+        # Remove the type info, we already know its a `_BatchManager`, and there aren't subclasses of it
         data.pop(TYPE_INFO_KEY)
-        # Also there is only one type of _BatchManagerStep, so we can call it directly instead of generically
-        # via _get_class
+        # Also there is only one type of `_BatchManagerStep`, so we can call it directly instead of generically
+        # via `_get_module_attr`
         return cls(
             {
                 name: _BatchManagerStep.from_file(step_path)

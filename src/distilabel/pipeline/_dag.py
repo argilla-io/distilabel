@@ -33,8 +33,13 @@ from distilabel.pipeline.constants import (
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
 from distilabel.steps.base import GeneratorStep
-from distilabel.utils.serialization import TYPE_INFO_KEY, _get_class, _Serializable
+from distilabel.utils.serialization import (
+    TYPE_INFO_KEY,
+    _get_module_attr,
+    _Serializable,
+)
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
@@ -599,7 +604,7 @@ class DAG(_Serializable):
 
         adjacency_data = json_graph.adjacency_data(self.G, **kwargs)
 
-        data = {"steps": [], "connections": []}
+        data = {"steps": [], "connections": [], "routing_batch_functions": []}
         for i, node in enumerate(adjacency_data["nodes"]):
             name = node["id"]
             data["steps"].append({"step": node[STEP_ATTR_NAME].dump(), "name": name})
@@ -609,6 +614,8 @@ class DAG(_Serializable):
                     "to": [node["id"] for node in adjacency_data["adjacency"][i]],
                 }
             )
+            if routing_batch_function := node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME):
+                data["routing_batch_functions"].append(routing_batch_function.dump())
 
         return data
 
@@ -626,12 +633,25 @@ class DAG(_Serializable):
         dag = cls()
 
         for step in data["steps"]:
-            cls_step: Type["_Step"] = _get_class(**step[STEP_ATTR_NAME][TYPE_INFO_KEY])
+            cls_step: Type["_Step"] = _get_module_attr(
+                **step[STEP_ATTR_NAME][TYPE_INFO_KEY]
+            )
             dag.add_step(cls_step.from_dict(step[STEP_ATTR_NAME]))
 
         for connection in data["connections"]:
             from_step = connection["from"]
             for to_step in connection["to"]:
                 dag.add_edge(from_step, to_step)
+
+        for routing_batch_function in data.get("routing_batch_functions", []):
+            step_name = routing_batch_function["step"]
+            routing_batch_function = RoutingBatchFunction.from_dict(
+                routing_batch_function
+            )
+            dag.set_step_attr(
+                name=step_name,
+                attr=ROUTING_BATCH_FUNCTION_ATTR_NAME,
+                value=routing_batch_function,
+            )
 
         return dag

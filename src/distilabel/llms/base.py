@@ -33,9 +33,9 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.utils.docstring import Docstring
-
 
 if in_notebook():
     import nest_asyncio
@@ -55,6 +55,8 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     Attributes:
         generation_kwargs: the kwargs to be propagated to either `generate` or `agenerate`
             methods within each `LLM`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         _logger: the logger to be used for the `LLM`. It will be initialized when the `load`
             method is called.
     """
@@ -72,11 +74,12 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         description="The kwargs to be propagated to either `generate` or `agenerate`"
         " methods within each `LLM`.",
     )
+    structured_output: Optional[Any] = None
 
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Method to be called to initialize the `LLM` and its logger."""
+        """Method to be called to initialize the `LLM`, its logger and optionally the structured output generator."""
         self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
 
     @property
@@ -193,6 +196,24 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """
         raise NotImplementedError(
             f"Method `get_last_hidden_states` is not implemented for `{self.__class__.__name__}`"
+        )
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union[Any, None]:
+        """Method in charge of preparing the structured output generator.
+
+        By default will raise a `NotImplementedError`, subclasses that allow it must override this
+        method with the implementation.
+
+        Args:
+            structured_output: the config to prepare the guided generation.
+
+        Returns:
+            The structure to be used for the guided generation.
+        """
+        raise NotImplementedError(
+            f"Guided generation is not implemented for `{type(self).__name__}`"
         )
 
 

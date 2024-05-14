@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 random.seed(42)
 
 
-@routing_batch_function
+@routing_batch_function()
 def random_routing_batch(steps: List[str]) -> List[str]:
     return random.sample(steps, 2)
 

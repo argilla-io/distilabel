@@ -88,18 +88,21 @@ class TestLocalPipeline:
                     input_queue=mock.ANY,
                     output_queue=queue,
                     shared_info=shared_info,
+                    dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
                     input_queue=mock.ANY,
                     output_queue=queue,
                     shared_info=shared_info,
+                    dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_2,
                     input_queue=mock.ANY,
                     output_queue=queue,
                     shared_info=shared_info,
+                    dry_run=False,
                 ),
             ],
         )
