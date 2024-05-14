@@ -131,7 +131,7 @@ class Pipeline(BasePipeline):
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
-            self._handle_keyboard_interrupt(manager=manager)
+            self._handle_keyboard_interrupt(manager=manager, pool=pool)
 
             # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
@@ -649,7 +649,9 @@ class Pipeline(BasePipeline):
 
         return False
 
-    def _stop(self, manager: Optional["SyncManager"] = None) -> None:
+    def _stop(
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
+    ) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
@@ -677,6 +679,11 @@ class Pipeline(BasePipeline):
 
                     if manager:
                         manager.shutdown()
+
+                    if pool:
+                        pool.close()
+                        pool.terminate()
+
                     gc.collect()
 
                     sys.exit(1)
@@ -692,7 +699,7 @@ class Pipeline(BasePipeline):
         self.output_queue.put(None)
 
     def _handle_keyboard_interrupt(
-        self, manager: Optional["SyncManager"] = None
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
     ) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
 
@@ -702,7 +709,7 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._stop(manager=manager)
+            self._stop(manager=manager, pool=pool)
 
         signal.signal(signal.SIGINT, signal_handler)
 
