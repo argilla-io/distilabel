@@ -4,7 +4,7 @@ The [`GlobalStep`][distilabel.steps.GlobalStep] is a subclass of [`Step`][distil
 
 ## Working with GlobalSteps
 
-The [`GlobalStep`][distilabel.steps.GlobalStep] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline] and after some previous steps have been defined. But it can also be used as a standalone [`Step`][distilabel.steps.Step] if needed, but if that's the case, then using [`Step`][distilabel.steps.Step] would be more appropriate.
+The [`GlobalStep`][distilabel.steps.GlobalStep] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline] and after some previous steps have been defined. Alternatively, it can also be used as a standalone [`Step`][distilabel.steps.Step] if needed, but then using [`Step`][distilabel.steps.Step] instead would be more appropriate.
 
 ## Defining custom GlobalSteps
 
