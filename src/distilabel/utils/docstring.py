@@ -65,15 +65,6 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
 
     docstring = func.__doc__.strip()
 
-    # Extract the short description (first line)
-    first_line_end = docstring.find("\n")
-    if first_line_end == -1:
-        sections["short_description"] = docstring
-        return sections
-
-    sections["short_description"] = docstring[:first_line_end].strip()
-    remaining_docstring = docstring[first_line_end:].strip()
-
     # Define the section headers to recognize
     section_headers = [
         "Args",
@@ -89,10 +80,28 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         "Examples",
     ]
 
-    # Split the docstring into sections
-    parts = re.split(rf"\n\s*({'|'.join(section_headers)}):\s*\n", remaining_docstring)
+    # Match section headers
+    section_pattern = rf"(\s*{'|'.join(section_headers)}):\s*\n"
 
-    sections["description"] = parts[0].strip()
+    # Extract the short description (first line) or identify if it starts with a section header
+    first_line_end = docstring.find("\n")
+    if first_line_end == -1 or re.match(section_pattern, docstring[first_line_end:]):
+        sections["short_description"] = docstring.split("\n", 1)[0].strip()
+        remaining_docstring = (
+            docstring.split("\n", 1)[1].strip() if "\n" in docstring else ""
+        )
+    else:
+        sections["short_description"] = docstring[:first_line_end].strip()
+        remaining_docstring = docstring[first_line_end:].strip()
+
+    # Split the docstring into sections
+    parts = re.split(section_pattern, remaining_docstring)
+
+    if parts[0].strip() and not re.match(section_pattern, f"\n{parts[0].strip()}\n"):
+        sections["description"] = parts[0].strip()
+    else:
+        sections["description"] = sections["short_description"]
+
     for i in range(1, len(parts), 2):
         section_name = parts[i].lower().replace(" ", "_")
         section_content = parts[i + 1].strip()
