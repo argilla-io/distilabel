@@ -147,7 +147,7 @@ nav:
           # - TODO TextGeneration: "api/steps/tasks/text_generation.md"
           # - TODO Preference Tasks: "api/steps/tasks/preference_tasks.md"
           # - TODO GenerateEmbeddings: "api/steps/tasks/embeddings.md"
-      - \\@step: "api/steps/decorator.md"
+      - "@step": "api/steps/decorator.md"
       - LLM:
           - "api/llms/index.md"
           - Anthropic: "api/llms/anthropic.md"
