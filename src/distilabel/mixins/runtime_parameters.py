@@ -44,8 +44,8 @@ class RuntimeParametersMixin(BaseModel):
 
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
-    @classmethod
-    def runtime_parameters_names(cls) -> RuntimeParametersNames:
+    @property
+    def runtime_parameters_names(self) -> RuntimeParametersNames:
         """Returns a dictionary containing the name of the runtime parameters of the class
         as keys and whether the parameter is required or not as values.
 
@@ -56,24 +56,19 @@ class RuntimeParametersMixin(BaseModel):
 
         runtime_parameters = {}
 
-        for name, field_info in cls.model_fields.items():  # type: ignore
+        for name, field_info in self.model_fields.items():  # type: ignore
             is_runtime_param, is_optional = _is_runtime_parameter(field_info)
             if is_runtime_param:
                 runtime_parameters[name] = is_optional
                 continue
 
-            klass = field_info.annotation
-            if (
-                klass
-                and inspect.isclass(klass)
-                and issubclass(RuntimeParametersMixin, klass)
-            ):
-                runtime_parameters[name] = klass.runtime_parameters_names()
+            attr = getattr(self, name)
+            if isinstance(attr, RuntimeParametersMixin):
+                runtime_parameters[name] = attr.runtime_parameters_names
 
         return runtime_parameters
 
-    @classmethod
-    def get_runtime_parameters_info(cls) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
         """Gets the information of the runtime parameters of the class such as the name and
         the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the class.
@@ -82,25 +77,21 @@ class RuntimeParametersMixin(BaseModel):
             A list containing the information for each runtime parameter of the class.
         """
         runtime_parameters_info = []
-        for name, field_info in cls.model_fields.items():  # type: ignore
-            if name not in cls.runtime_parameters_names():
+        for name, field_info in self.model_fields.items():  # type: ignore
+            if name not in self.runtime_parameters_names:
                 continue
 
-            klass = field_info.annotation
-            if (
-                klass
-                and inspect.isclass(klass)
-                and issubclass(RuntimeParametersMixin, klass)
-            ):
+            attr = getattr(self, name)
+            if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters_info.append(
                     {
                         "name": name,
-                        "runtime_parameters_info": klass.get_runtime_parameters_info(),
+                        "runtime_parameters_info": attr.get_runtime_parameters_info(),
                     }
                 )
                 continue
 
-            info = {"name": name, "optional": cls.runtime_parameters_names()[name]}
+            info = {"name": name, "optional": self.runtime_parameters_names[name]}
             if field_info.description is not None:
                 info["description"] = field_info.description
             runtime_parameters_info.append(info)
@@ -115,9 +106,9 @@ class RuntimeParametersMixin(BaseModel):
             runtime_parameters: A dictionary containing the values of the runtime parameters
                 to set.
         """
-        runtime_parameters_names = list(self.runtime_parameters_names().keys())
+        runtime_parameters_names = list(self.runtime_parameters_names.keys())
         for name, value in runtime_parameters.items():
-            if name not in self.runtime_parameters_names():
+            if name not in self.runtime_parameters_names:
                 # Check done just to ensure the unit tests for the mixin run
                 if getattr(self, "pipeline", None):
                     closest = difflib.get_close_matches(

@@ -17,6 +17,7 @@ import inspect
 import logging
 import sys
 from abc import ABC, abstractmethod
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -114,17 +115,17 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """
         pass
 
-    @classmethod
-    def generate_parameters(cls) -> List["inspect.Parameter"]:
+    @property
+    def generate_parameters(self) -> List["inspect.Parameter"]:
         """Returns the parameters of the `generate` method.
 
         Returns:
             A list containing the parameters of the `generate` method.
         """
-        return list(inspect.signature(cls.generate).parameters.values())
+        return list(inspect.signature(self.generate).parameters.values())
 
-    @classmethod
-    def runtime_parameters_names(cls) -> "RuntimeParametersNames":
+    @property
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
         """Returns the runtime parameters of the `LLM`, which are combination of the
         attributes of the `LLM` type hinted with `RuntimeParameter` and the parameters
         of the `generate` method that are not `input` and `num_generations`.
@@ -133,11 +134,11 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             A dictionary with the name of the runtime parameters as keys and a boolean
             indicating if the parameter is optional or not.
         """
-        runtime_parameters = super().runtime_parameters_names()
+        runtime_parameters = super().runtime_parameters_names
         runtime_parameters["generation_kwargs"] = {}
 
         # runtime parameters from the `generate` method
-        for param in cls.generate_parameters():
+        for param in self.generate_parameters:
             if param.name in ["input", "inputs", "num_generations"]:
                 continue
             is_optional = param.default != inspect.Parameter.empty
@@ -145,8 +146,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         return runtime_parameters
 
-    @classmethod
-    def get_runtime_parameters_info(cls) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
         """Gets the information of the runtime parameters of the `LLM` such as the name
         and the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the `LLM`.
@@ -162,7 +162,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             if runtime_parameter_info["name"] == "generation_kwargs"
         )
 
-        generate_docstring_args = cls.generate_parsed_docstring()["args"]
+        generate_docstring_args = self.generate_parsed_docstring["args"]
 
         generation_kwargs_info["keys"] = []
         for key, value in generation_kwargs_info["optional"].items():
@@ -175,14 +175,14 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         return runtime_parameters_info
 
-    @classmethod
-    def generate_parsed_docstring(cls) -> "Docstring":
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
         """Returns the parsed docstring of the `generate` method.
 
         Returns:
             The parsed docstring of the `generate` method.
         """
-        return parse_google_docstring(cls.generate)
+        return parse_google_docstring(self.generate)
 
     def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
@@ -229,23 +229,23 @@ class AsyncLLM(LLM):
 
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
 
-    @classmethod
-    def generate_parameters(cls) -> List[inspect.Parameter]:
+    @property
+    def generate_parameters(self) -> List[inspect.Parameter]:
         """Returns the parameters of the `agenerate` method.
 
         Returns:
             A list containing the parameters of the `agenerate` method.
         """
-        return list(inspect.signature(cls.agenerate).parameters.values())
+        return list(inspect.signature(self.agenerate).parameters.values())
 
-    @classmethod
-    def generate_parsed_docstring(cls) -> "Docstring":
+    @cached_property
+    def generate_parsed_docstring(self) -> "Docstring":
         """Returns the parsed docstring of the `agenerate` method.
 
         Returns:
             The parsed docstring of the `agenerate` method.
         """
-        return parse_google_docstring(cls.agenerate)
+        return parse_google_docstring(self.agenerate)
 
     @property
     def event_loop(self) -> "asyncio.AbstractEventLoop":
