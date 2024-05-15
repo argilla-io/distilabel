@@ -79,39 +79,42 @@ from distilabel.steps.typing import StepOutput
 class CustomStep(Step):
     @property
     def inputs(self) -> List[str]:
-        return ["input_field"]
+        ...
 
     @property
     def outputs(self) -> List[str]:
-        return ["output_field"]
+        ...
 
     def process(self, *inputs: StepInput) -> StepOutput:
         for input in inputs:
-            for item in input:
-                item["output_field"] = item["input_field"]
+            ...
             yield item
 
     # When overridden (ideally under the `typing_extensions.override` decorator)
     # @typing_extensions.override
     # def process(self, inputs: StepInput) -> StepOutput:
     #     for input in inputs:
-    #         input["output_field"] = input["input_field"]
+    #         ...
     #     yield inputs
 ```
 
 Alternatively, a simpler and more suitable way of defining custom [`Step`][distilabel.steps.Step] subclasses is via the `@step` decorator, which will take care of the boilerplate code, and will allow to define the `inputs`, `outputs`, and `process` methods in a more straightforward way.
 
 ```python
-from distilabel.steps import step
+from distilabel.steps import StepInput, step
+from distilabel.steps.typing import StepOutput
 
-@step(inputs=["input_field"], outputs=["output_field"])
+@step(inputs=[...], outputs=[...])
 def CustomStep(inputs: StepInput) -> StepOutput:
     for input in inputs:
-        input["output_field"] = input["input_field"]
+        ...
     yield inputs
 
 step = CustomStep(name="my-step")
 ```
+
+!!! WARNING
+    One downside of the `@step` decorator is that it won't let you access the `self` attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom [`Step`][distilabel.steps.Step] subclass.
 
 ## Available Steps
 
@@ -119,131 +122,143 @@ step = CustomStep(name="my-step")
 
 For loading data as a first step of the [`Pipeline`][distilabel.pipeline.Pipeline] i.e. as a [`GeneratorStep`][distilabel.steps.GeneratorStep], the following steps are available:
 
-- [**`LoadDataFromDicts`**][distilabel.steps.LoadDataFromHub]: loads data from a list of dictionaries, where each dictionary represents a row in the dataset.
+#### [`LoadDataFromDicts`][distilabel.steps.LoadDataFromDicts]
 
-    ```python
-    from distilabel.steps import LoadDataFromDicts
-    from distilabel.pipeline import Pipeline
+Loads data from a list of dictionaries, where each dictionary represents a row in the dataset.
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data = LoadDataFromDicts(
-            name="load_data",
-            data=[
-                {"instruction": "Tell me a joke."},
-                ...,
-            ],
-        )
+```python
+from distilabel.steps import LoadDataFromDicts
+from distilabel.pipeline import Pipeline
 
-        ...
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data = LoadDataFromDicts(
+        name="load_data",
+        data=[
+            {"instruction": "Tell me a joke."},
+            ...,
+        ],
+    )
 
-        load_data >> ...
-    ```
+    ...
 
-- [**`LoadDataFromHub`**][distilabel.steps.LoadDataFromHub]: loads data from a Hugging Face Hub dataset, and then streams the batches to the follow up steps.
+    load_data >> ...
+```
 
-    ```python
-    from distilabel.steps import LoadHubDataset
-    from distilabel.pipeline import Pipeline
+#### [`LoadHubDataset`][distilabel.steps.LoadHubDataset]
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data = LoadHubDataset(
-            name="load_data",
-            repo_id="distilabel-internal-testing/instruction-dataset-mini",
-            split="train",
-        )
+Loads data from a Hugging Face Hub dataset, and then streams the batches to the follow up steps.
 
-        ...
+```python
+from distilabel.steps import LoadHubDataset
+from distilabel.pipeline import Pipeline
 
-        load_data >> ...
-    ```
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data = LoadHubDataset(
+        name="load_data",
+        repo_id="distilabel-internal-testing/instruction-dataset-mini",
+        split="train",
+    )
+
+    ...
+
+    load_data >> ...
+```
 
 ### Columns
 
 Also, `distilabel` provides a collection of light steps that can be used to manipulate the columns in the batches in an easy way, since the following operations may be common, so we remove the hussle of defining new steps for that:
 
-- [**`KeepColumns`**][distilabel.steps.KeepColumns]: keeps only the columns specified in the `columns` attribute.
+#### [`KeepColumns`][distilabel.steps.KeepColumns]
 
-    For example, the example below will receive a batch with the columns `instruction` and `generation`, and will only keep the `instruction` column, which means the `generation` column will be dumped.
+Keeps only the columns specified in the `columns` attribute.
 
-    ```python
-    from distilabel.steps import KeepColumns, LoadDataFromDicts
-    from distilabel.pipeline import Pipeline
+For example, the example below will receive a batch with the columns `instruction` and `generation`, and will only keep the `instruction` column, which means the `generation` column will be dumped.
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data = LoadDataFromDicts(
-            name="load_data",
-            data=[
-                {"instruction": "Tell me a joke.", "generation": "Why did the chicken cross the road?"},
-                ...,
-            ],
-        )
-        keep_columns = KeepColumns(
-            name="keep_columns",
-            columns=["instruction"],
-        )
-        load_data >> keep_columns
-    ```
+```python
+from distilabel.steps import KeepColumns, LoadDataFromDicts
+from distilabel.pipeline import Pipeline
 
-    This [`Step`][distilabel.steps.Step] is really useful whenever either the dataset loaded contains columns we want to discard or whenever we generate intermediate columns that are not useful neither for the next steps nor for the final output.
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data = LoadDataFromDicts(
+        name="load_data",
+        data=[
+            {"instruction": "Tell me a joke.", "generation": "Why did the chicken cross the road?"},
+            ...,
+        ],
+    )
+    keep_columns = KeepColumns(
+        name="keep_columns",
+        columns=["instruction"],
+    )
+    load_data >> keep_columns
+```
 
-- [**`CombineColumns`**]: combines the columns specified in the `columns` attribute into a new column specified in the `output_columns` attribute. But note that this step will only work when multiple steps are connected to it, since it will need the outputs from the previous steps to combine the columns.
+This [`Step`][distilabel.steps.Step] is really useful whenever either the dataset loaded contains columns we want to discard or whenever we generate intermediate columns that are not useful neither for the next steps nor for the final output.
 
-    For example, the example below will receive a batch with data from two previous steps, both containing the column `instruction`, and this step will combine both into a column named `instructions`, so that the content of that column is not a string, but a list of strings.
+#### [`CombineColumns`][distilabel.steps.CombineColumns]
 
-    ```python
-    from distilabel.steps import CombineColumns, LoadDataFromDicts
-    from distilabel.pipeline import Pipeline
+Combines the columns specified in the `columns` attribute into a new column specified in the `output_columns` attribute. But note that this step will only work when multiple steps are connected to it, since it will need the outputs from the previous steps to combine the columns.
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data_a = LoadDataFromDicts(
-            name="load_data_a",
-            data=[
-                {"instruction": "Tell me a joke."},
-                ...,
-            ],
-        )
-        load_data_b = LoadDataFromDicts(
-            name="load_data_b",
-            data=[
-                {"instruction": "Tell me another joke."},
-                ...,
-            ],
-        )
-        combine_columns = CombineColumns(
-            name="combine_columns",
-            columns=["instruction"],
-            new_column=["instructions"],
-        )
-        [load_data_a, load_data_b] >> combine_columns
-    ```
+For example, the example below will receive a batch with data from two previous steps, both containing the column `instruction`, and this step will combine both into a column named `instructions`, so that the content of that column is not a string, but a list of strings.
 
-    This [`Step`][distilabel.steps.Step] always needs to be connected to multiple previous steps, since it will need the outputs from the previous steps to combine the columns.
+```python
+from distilabel.steps import CombineColumns, LoadDataFromDicts
+from distilabel.pipeline import Pipeline
 
-- [**`ExpandColumns`**][distilabel.steps.ExpandColumns]: expands the columns that contain a list within a batch into multiple rows, so that if the batch contains a column with 10 items, then 10 new rows will be returned as output, assuming a batch size of 1.
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data_a = LoadDataFromDicts(
+        name="load_data_a",
+        data=[
+            {"instruction": "Tell me a joke."},
+            ...,
+        ],
+    )
+    load_data_b = LoadDataFromDicts(
+        name="load_data_b",
+        data=[
+            {"instruction": "Tell me another joke."},
+            ...,
+        ],
+    )
+    combine_columns = CombineColumns(
+        name="combine_columns",
+        columns=["instruction"],
+        new_column=["instructions"],
+    )
+    [load_data_a, load_data_b] >> combine_columns
+```
 
-    For example, the example below will receive a batch with the column `instructions` containing a list of strings, and will return a batch with multiple rows, one for each item in the list.
+This [`Step`][distilabel.steps.Step] always needs to be connected to multiple previous steps, since it will need the outputs from the previous steps to combine the columns.
 
-    ```python
-    from distilabel.steps import ExpandColumns, LoadDataFromDicts
-    from distilabel.pipeline import Pipeline
+#### [`ExpandColumns`][distilabel.steps.ExpandColumns]
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data = LoadDataFromDicts(
-            name="load_data",
-            data=[
-                {"instructions": ["Tell me a joke.", "Tell me another joke."]},
-                ...,
-            ],
-        )
-        expand_columns = ExpandColumns(
-            name="expand_columns",
-            columns={"instructions": "instruction"},
-        )
-        load_data >> expand_columns
-    ```
+Expands the columns that contain a list within a batch into multiple rows, so that if the batch contains a column with 10 items, then 10 new rows will be returned as output, assuming a batch size of 1.
 
-    !!! WARNING
-        This [`Step`][distilabel.steps.Step] will only work when the column to be expanded contains a list, otherwise, it will raise an error. And if multiple columns are provided but the length of those columns differs, then the length of the longest column will be used as the length of the batch.
+For example, the example below will receive a batch with the column `instructions` containing a list of strings, and will return a batch with multiple rows, one for each item in the list.
+
+```python
+from distilabel.steps import ExpandColumns, LoadDataFromDicts
+from distilabel.pipeline import Pipeline
+
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data = LoadDataFromDicts(
+        name="load_data",
+        data=[
+            {"instructions": ["Tell me a joke.", "Tell me another joke."]},
+            ...,
+        ],
+    )
+    expand_columns = ExpandColumns(
+        name="expand_columns",
+        columns={"instructions": "instruction"},
+    )
+    load_data >> expand_columns
+```
+
+!!! WARNING
+    This [`Step`][distilabel.steps.Step] will only work when the column to be expanded contains a list, otherwise, it will raise an error. And if multiple columns are provided but the length of those columns differs, then the length of the longest column will be used as the length of the batch.
+
+---
 
 !!! NOTE
     Also bear in mind that for column renaming, which may also be a common operation, every [`Step`][distilabel.steps.Step] (and so on, every subclass i.e. [`GeneratorStep`][distilabel.steps.GeneratorStep], [`GlobalStep`][distilabel.steps.GlobalStep], and [`Task`][distilabel.steps.tasks.Task]) has both `input_mappings` and `output_mappings` attributes, that can be used to rename the columns in each batch.
@@ -256,33 +271,39 @@ Anyway, the `Pipeline.run` method will return a [`Distiset`][distilabel.distiset
 
 Alternatively, we offer the following step to push the data to the Hugging Face Hub which can be used to store intermediate datasets without having to wait for the `Pipeline.run` to finish:
 
-- [**`PushToHub`**][distilabel.steps.PushToHub]: is a [`GlobalStep`][distilabel.steps.GlobalStep] (i.e. needs to wait for all the incoming steps to finish before running) that will push all the data generated from the previous steps to the Hugging Face Hub.
+#### [`PushToHub`][distilabel.steps.PushToHub]
 
-    ```python
-    from distilabel.steps import PushToHub, LoadDataFromDicts
-    from distilabel.pipeline import Pipeline
+This is a [`GlobalStep`][distilabel.steps.GlobalStep] (i.e. needs to wait for all the incoming steps to finish before running) that will push all the data generated from the previous steps to the Hugging Face Hub.
 
-    with Pipeline(name="my-pipeline") as pipeline:
-        load_data = LoadDataFromDicts(
-            name="load_data",
-            data=[
-                {"instruction": "Tell me a joke."},
-                ...,
-            ],
-        )
-        push_to_hub = PushToHub(
-            name="push_to_hub",
-            repo_id="my-distilabel-dataset",
-            split="train",
-        )
-        load_data >> push_to_hub
-    ```
+```python
+from distilabel.steps import PushToHub, LoadDataFromDicts
+from distilabel.pipeline import Pipeline
 
-    !!! WARNING
-        The `PushToHub` step will only work when the `Pipeline.run` method is called, since it will need the data generated from the previous steps to push it to the Hugging Face Hub.
+with Pipeline(name="my-pipeline") as pipeline:
+    load_data = LoadDataFromDicts(
+        name="load_data",
+        data=[
+            {"instruction": "Tell me a joke."},
+            ...,
+        ],
+    )
+    push_to_hub = PushToHub(
+        name="push_to_hub",
+        repo_id="my-distilabel-dataset",
+        split="train",
+    )
+    load_data >> push_to_hub
+```
+
+!!! WARNING
+    The `PushToHub` step will only work when the `Pipeline.run` method is called, since it will need the data generated from the previous steps to push it to the Hugging Face Hub.
 
 ### Miscellaneous
 
-- [**`DeitaFiltering`**][distilabel.steps.DeitaFiltering]: is a step created for the [`DEITA`](/sections/papers/deita) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
+These steps are intended to be used in specific scenarios, and they are not intended to be used in general cases, but they are provided as examples of how to create custom steps.
+
+#### [`DeitaFiltering`][distilabel.steps.DeitaFiltering]
+
+This is a step created for the [`DEITA`](/sections/papers/deita) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
 
 To see a fully working example, please check the [Examples -> Papers -> DEITA](/sections/papers/deita).

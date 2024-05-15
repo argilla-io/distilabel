@@ -74,60 +74,62 @@ class MyCustomTask(Task):
 
 Here's a list with the available tasks that can be used within the `distilabel` library:
 
-- [**`ChatGeneration`**][distilabel.steps.tasks.ChatGeneration]
+### [`ChatGeneration`][distilabel.steps.tasks.ChatGeneration]
 
-    Generates the follow up assistant message in the `generation` column based on the provided `messages`.
+Generates the follow up assistant message in the `generation` column based on the provided `messages`.
 
-- [**`ComplexityScorer`**][distilabel.steps.tasks.ComplexityScorer]
+### [`ComplexityScorer`][distilabel.steps.tasks.ComplexityScorer]
 
-    Ranks the provided `instructions` based on their complexity generating the `scores` column with each instruction score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".
+Ranks the provided `instructions` based on their complexity generating the `scores` column with each instruction score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".
 
-- [**`EvolInstruct`**][distilabel.steps.tasks.EvolInstruct]
+### [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]
 
-    Evolves the provided `instruction` to make it more complex, according to a set of pre-defined mutation templates following an evolutionary approach, based on the paper "WizardLM: Empowering Large Language Models to Follow Complex Instructions".
+Evolves the provided `instruction` to make it more complex, according to a set of pre-defined mutation templates following an evolutionary approach, based on the paper "WizardLM: Empowering Large Language Models to Follow Complex Instructions".
 
-- [**`EvolComplexity`**][distilabel.steps.tasks.EvolComplexity]
+### [`EvolComplexity`][distilabel.steps.tasks.EvolComplexity]
 
-    Evolves the provided `instruction` to make it more complex, according to a set of pre-defined mutation templates (based on [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
+Evolves the provided `instruction` to make it more complex, according to a set of pre-defined mutation templates (based on [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
 
-- [**`EvolQuality`**][distilabel.steps.tasks.EvolQuality]
+### [`EvolQuality`][distilabel.steps.tasks.EvolQuality]
 
-    Evolves the provided `response` based on the `instruction` to make it of higher quality, ensuring that the evolved `response` is still compliant with the provided `instruction` (based on the same approach as [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
+Evolves the provided `response` based on the `instruction` to make it of higher quality, ensuring that the evolved `response` is still compliant with the provided `instruction` (based on the same approach as [`EvolInstruct`][distilabel.steps.tasks.EvolInstruct]).
 
-- [**`GenerateEmbeddings`**][distilabel.steps.tasks.GenerateEmbeddings]
+### [`GenerateEmbeddings`][distilabel.steps.tasks.GenerateEmbeddings]
 
-    Generates embeddings for the provided `text` using the [`LLM`][distilabel.llms.LLM] provided (which should have the `get_last_hidden_state` method implemented) in the `embedding` column.
+Generates embeddings for the provided `text` using the [`LLM`][distilabel.llms.LLM] provided (which should have the `get_last_hidden_state` method implemented) in the `embedding` column.
 
-- [**`Genstruct`**][distilabel.steps.tasks.Genstruct]
+### [`Genstruct`][distilabel.steps.tasks.Genstruct]
 
-    Generates a `user` and `assistant` single-turn conversation based on the provided `title` and `content`, so as to synthetically generate a conversation between an user and the assistant; based on the model "Genstruct 7B" by Nous Research, which at the same time is based on the paper "Ada-Instruct: Adapting Instruction Generators for Complex Reasoning".
+Generates a `user` and `assistant` single-turn conversation based on the provided `title` and `content`, so as to synthetically generate a conversation between an user and the assistant; based on the model "Genstruct 7B" by Nous Research, which at the same time is based on the paper "Ada-Instruct: Adapting Instruction Generators for Complex Reasoning".
 
-- [**`InstructionBacktranslation`**][distilabel.steps.tasks.InstructionBacktranslation]
+### [`InstructionBacktranslation`][distilabel.steps.tasks.InstructionBacktranslation]
 
-    Generates a `score` and a `reason` backing the generated `score`, for a given `generation` based on an `instruction`, based on the paper "Self Alignment with Instruction Backtranslation", specifically in the self-curation stage.
+Generates a `score` and a `reason` backing the generated `score`, for a given `generation` based on an `instruction`, based on the paper "Self Alignment with Instruction Backtranslation", specifically in the self-curation stage.
 
-- [**`PairRM`**][distilabel.steps.tasks.PairRM]
+### [`PairRM`][distilabel.steps.tasks.PairRM]
 
-    Rewards a set of `candidates` i.e. generations, for a given `input` i.e. instruction, and then ranks those (assuming the greater the better) generating the `ranks`, based on the paper "LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion", and powered by their custom [PairRM](https://huggingface.co/llm-blender/PairRM) model and framework: [LLM-Blender](https://github.com/yuchenlin/LLM-Blender).
+Rewards a set of `candidates` i.e. generations, for a given `input` i.e. instruction, and then ranks those (assuming the greater the better) generating the `ranks`, based on the paper "LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion", and powered by their custom [PairRM](https://huggingface.co/llm-blender/PairRM) model and framework: [LLM-Blender](https://github.com/yuchenlin/LLM-Blender).
 
-- [**`PrometheusEval`**][distilabel.steps.tasks.PrometheusEval]
+### [`PrometheusEval`][distilabel.steps.tasks.PrometheusEval]
 
-    Evaluates either the provided `generation` if `mode=absolute` or the `generations` if `mode=relative` based on an `instruction` and optionally also based on a `reference` i.e. golden answer, using the Prometheus 2.0 prompts and pre-defined rubrics, based on the paper "Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models".
+Evaluates either the provided `generation` if `mode=absolute` or the `generations` if `mode=relative` based on an `instruction` and optionally also based on a `reference` i.e. golden answer, using the Prometheus 2.0 prompts and pre-defined rubrics, based on the paper "Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models".
 
-- [**`QualityScorer`**][distilabel.steps.tasks.QualityScorer]
+### [`QualityScorer`][distilabel.steps.tasks.QualityScorer]
 
-    Scores the provided `generations` based on the provided `instruction` generating the `scores` column with each generation score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".
+Scores the provided `generations` based on the provided `instruction` generating the `scores` column with each generation score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".
 
-- [**`SelfInstruct`**][distilabel.steps.tasks.SelfInstruct]
+### [`SelfInstruct`][distilabel.steps.tasks.SelfInstruct]
 
-    Generates `instructions` based on a seed `input`, which is conditioned by the `criteria_for_query_generation` and `application_description` args provided, based on the paper "Self-Instruct: Aligning Language Models with Self-Generated Instructions".
+Generates `instructions` based on a seed `input`, which is conditioned by the `criteria_for_query_generation` and `application_description` args provided, based on the paper "Self-Instruct: Aligning Language Models with Self-Generated Instructions".
 
-- [**`TextGeneration`**][distilabel.steps.tasks.TextGeneration]
+### [`TextGeneration`][distilabel.steps.tasks.TextGeneration]
 
-    Generates a `generation` based on the provided `instruction`, alternatively, also the `system_prompt` may be used to generate the `generation` if `use_system_prompt=True`.
+Generates a `generation` based on the provided `instruction`, alternatively, also the `system_prompt` may be used to generate the `generation` if `use_system_prompt=True`.
 
-- [**`UltraFeedback`**][distilabel.steps.tasks.UltraFeedback]
+### [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback]
 
-    Generates a `rating` and a `rationale` for each of the `generations` based on the provided `instruction`, based on the paper "UltraFeedback: Boosting Language Models with High-quality Feedback".
+Generates a `rating` and a `rationale` for each of the `generations` based on the provided `instruction`, based on the paper "UltraFeedback: Boosting Language Models with High-quality Feedback".
 
-Additionally, there is another subclass of [`Task`][distilabel.steps.tasks.Task] that is based on the [`GeneratorStep`][distilabel.steps.GeneratorStep] instead of the standard [`Step`][distilabel.steps.Step] as in this case; which is the [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. More information about it at [Components -> Task -> GeneratorTask](/components/task/generator_task).
+---
+
+Additionally, there is another subclass of [`Task`][distilabel.steps.tasks.Task] that is based on the [`GeneratorStep`][distilabel.steps.GeneratorStep] instead of the standard [`Step`][distilabel.steps.Step] as in this case; which is the [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. More information about it at [Components -> Task -> GeneratorTask](/components/task/generator-task).
