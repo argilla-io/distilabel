@@ -1,6 +1,6 @@
 # Frequent Asked Questions (FAQ)
 
-??? faw "How can I rename the columns in a batch?"
+??? faq "How can I rename the columns in a batch?"
     Every [`Step`][distilabel.steps.base.Step] has both `input_mappings` and `output_mappings` attributes, that can be used to rename the columns in each batch.
 
     But `input_mappings` will only map, meaning that if you have a batch with the column `A` and you want to rename to `B`, you should use `input_mappings={"A": "B"}`, but that will only be applied to that specific [`Step`][distilabel.steps.base.Step] meaning that the next step in the pipeline will still have the column `A` instead of `B`.
