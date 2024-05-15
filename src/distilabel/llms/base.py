@@ -135,7 +135,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         # runtime parameters from the `generate` method
         for param in cls.generate_parameters():
-            if param.name in ["input", "inputs", "num_generations"]:
+            if param.name in ["self", "input", "inputs", "num_generations"]:
                 continue
             is_optional = param.default != inspect.Parameter.empty
             runtime_parameters["generation_kwargs"][param.name] = is_optional
