@@ -106,7 +106,7 @@ These were some simple examples, but one can see the options this opens.
 !!! NOTE
 
     A full pipeline example can be seen in the following script:
-    [`examples/rpg_characters_llamacpp.py`](../../examples/index.md/#rpg-characters-with-llamacpp)
+    [`examples/structured_generation_with_outlines.py`](../../examples/index.md/#structured_generation_with_outlines)
 
 [^1]:
     You can check the variable type by importing it from:
