@@ -302,6 +302,16 @@ if __name__ == "__main__":
     distiset.push_to_hub("distilabel-internal-testing/instruction-dataset-mini-with-generations")
 ```
 
+### Stopping the pipeline
+
+In case you want to stop the pipeline while it's running using the `Ctrl+c` (`Cmd+c` in macos), we automatically catch the signal and try to finish whathever steps are currently running. If it got hang by some reason, repeating the command 2 times it will force the pipeline close.
+
+!!! Note
+
+    When pushing sending the signal to kill the process, you can expect to see the following log messages:
+
+    ![Pipeline ctrl+c](../../assets/images/sections/pipeline/pipeline-ctrlc.png)
+
 ## Cache
 
 If we try to execute the pipeline again, the pipeline won't execute as it will load the dataset from the cache, and the outputs of the pipeline will be the same as the previous run. If for some reason, we decide to stop the pipeline execution in the middle of the process pressing CTRL + C, the pipeline will stop and the state of the pipeline and the outputs will be stored in the cache, so we can resume the pipeline execution from the point where it was stopped.
