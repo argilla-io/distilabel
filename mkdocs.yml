@@ -67,7 +67,9 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: [examples/, docs/, "."]
   - pymdownx.superfences
   - pymdownx.details
   - pymdownx.tabbed:
@@ -121,11 +123,12 @@ nav:
         - Distiset: "sections/components/advanced/distiset.md"
         - Routing: "sections/components/advanced/routing.md"
   - Examples:
-      - "sections/papers/index.md"
+      - "sections/examples/index.md"
       - Papers:
-          - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/papers/deita.md"
-          - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
-          - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
+          - "sections/examples/papers/index.md"
+          - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/examples/papers/deita.md"
+          - "Self-Alignment with Instruction Backtranslation": "sections/examples/papers/instruction_backtranslation.md"
+          - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/examples/papers/ultrafeedback.md"
   - FAQ: "sections/faq.md"
   - API Reference:
       - Pipeline:
