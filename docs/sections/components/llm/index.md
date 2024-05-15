@@ -82,7 +82,7 @@ if __name__ == "__main__":
     )
 ```
 
-### Structured Generation
+### Structured Generation
 
 `Distilabel` is integrated with some libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
 
