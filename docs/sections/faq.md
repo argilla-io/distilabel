@@ -13,7 +13,7 @@
 
     This also means that if you want to re-run your own pipeline and the API keys have not been provided via environment variable but either via attribute or runtime parameter, you will need to provide them again.
 
-    - Does it work for Windows?
+??? faq "Does it work for Windows?"
 
     Yes, but you may need to set the `multiprocessing` context in advance, to ensure that the `spawn` method is used, since the default method `fork` is not available on Windows.
 
