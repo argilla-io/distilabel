@@ -43,6 +43,9 @@ class AzureOpenAILLM(OpenAILLM):
         api_version: the API version to use for the Azure OpenAI API. Defaults to `None` which means
             that the value set for the environment variable `OPENAI_API_VERSION` will be used, or
             `None` if not set.
+
+    Icon:
+        `:simple-microsoftazure:`
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(

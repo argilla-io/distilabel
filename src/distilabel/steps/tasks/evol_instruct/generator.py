@@ -37,7 +37,9 @@ if TYPE_CHECKING:
 
 
 class EvolInstructGenerator(GeneratorTask):
-    """WizardLM: Empowering Large Language Models to Follow Complex Instructions
+    """Generate evolved instructions using an `LLM`.
+
+    WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
     Attributes:
         num_instructions: The number of instructions to be generated.
@@ -64,6 +66,11 @@ class EvolInstructGenerator(GeneratorTask):
         - answer (`str`): The generated answer if `generate_answers=True`.
         - instructions (`List[str]`): The generated instructions if `generate_answers=True`.
         - model_name (`str`): The name of the LLM used to generate and evolve the instructions.
+
+    Categories:
+        - evol
+        - instruction
+        - generation
 
     References:
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)

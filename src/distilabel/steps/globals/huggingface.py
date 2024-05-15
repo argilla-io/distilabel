@@ -27,7 +27,9 @@ if TYPE_CHECKING:
 
 
 class PushToHub(GlobalStep):
-    """A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
+    """Push data to a Hugging Face Hub dataset.
+
+    A `GlobalStep` which creates a `datasets.Dataset` with the input data and pushes
     it to the Hugging Face Hub.
 
     Attributes:
@@ -49,6 +51,11 @@ class PushToHub(GlobalStep):
 
     Input columns:
         - dynamic, based on the existing data within inputs
+
+    Categories:
+        - save
+        - dataset
+        - huggingface
     """
 
     repo_id: RuntimeParameter[str] = Field(

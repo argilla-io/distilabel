@@ -60,6 +60,9 @@ class InferenceEndpointsLLM(AsyncLLM):
         model_display_name: the model display name to use for the LLM. Defaults to `None`.
         use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
+    Icon:
+        `:hugging:`
+
     Examples:
         ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM

@@ -61,6 +61,9 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         token: the Hugging Face Hub token that will be used to authenticate to the Hugging
             Face Hub. If not provided, the `HF_TOKEN` environment or `huggingface_hub` package
             local configuration will be used. Defaults to `None`.
+
+    Icon:
+        `:hugging:`
     """
 
     model: str

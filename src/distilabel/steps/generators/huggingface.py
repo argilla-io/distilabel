@@ -28,44 +28,10 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-@lru_cache
-def _get_hf_dataset_info(
-    repo_id: str, config: Union[str, None] = None
-) -> Dict[str, Any]:
-    """Calls the Datasets Server API from Hugging Face to obtain the dataset information.
-    The results are cached to avoid making multiple requests to the server.
-
-    Args:
-        repo_id: The Hugging Face Hub repository ID of the dataset.
-        config: The configuration of the dataset. This is optional and only needed if the
-            dataset has multiple configurations.
-
-    Returns:
-        The dataset information.
-    """
-
-    params = {"dataset": repo_id}
-    if config is not None:
-        params["config"] = config
-
-    if "HF_TOKEN" in os.environ:
-        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-    else:
-        headers = None
-
-    response = requests.get(
-        "https://datasets-server.huggingface.co/info", params=params, headers=headers
-    )
-
-    assert (
-        response.status_code == 200
-    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
-
-    return response.json()["dataset_info"]
-
-
 class LoadHubDataset(GeneratorStep):
-    """A generator step that loads a dataset from the Hugging Face Hub using the `datasets`
+    """Loads a dataset from the Hugging Face Hub.
+
+    A generator step that loads a dataset from the Hugging Face Hub using the `datasets`
     library.
 
     This step will load the dataset in streaming mode, which means that it will not load the
@@ -90,6 +56,9 @@ class LoadHubDataset(GeneratorStep):
 
     Output columns
         - dynamic, based on the dataset being loaded
+
+    Categories:
+        - load
     """
 
     repo_id: RuntimeParameter[str] = Field(
@@ -229,3 +198,39 @@ class LoadHubDataset(GeneratorStep):
             if config:
                 return self._dataset[config].info
             return self._dataset.info
+
+
+@lru_cache
+def _get_hf_dataset_info(
+    repo_id: str, config: Union[str, None] = None
+) -> Dict[str, Any]:
+    """Calls the Datasets Server API from Hugging Face to obtain the dataset information.
+    The results are cached to avoid making multiple requests to the server.
+
+    Args:
+        repo_id: The Hugging Face Hub repository ID of the dataset.
+        config: The configuration of the dataset. This is optional and only needed if the
+            dataset has multiple configurations.
+
+    Returns:
+        The dataset information.
+    """
+
+    params = {"dataset": repo_id}
+    if config is not None:
+        params["config"] = config
+
+    if "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+
+    response = requests.get(
+        "https://datasets-server.huggingface.co/info", params=params, headers=headers
+    )
+
+    assert (
+        response.status_code == 200
+    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
+
+    return response.json()["dataset_info"]

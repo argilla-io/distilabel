@@ -21,9 +21,11 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 
 
 class EvolComplexityGenerator(EvolInstructGenerator):
-    """EvolComplexity is a task that evolves instructions to make them more complex,
-    and it is based in the EvolInstruct task, but using slight different prompts, but the
-    exact same evolutionary approach.
+    """Generate evolved instructions with increased complexity using an `LLM`.
+
+    `EvolComplexityGenerator` is a generation task that evolves instructions to make
+    them more complex, and it is based in the EvolInstruct task, but using slight different
+    prompts, but the exact same evolutionary approach.
 
     Attributes:
         num_instructions: The number of instructions to be generated.
@@ -50,6 +52,12 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - instruction (`str`): The evolved instruction.
         - answer (`str`, optional): The answer to the instruction if `generate_answers=True`.
         - model_name (`str`): The name of the LLM used to evolve the instructions.
+
+    Categories:
+        - evol
+        - instruction
+        - generation
+        - deita
 
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)

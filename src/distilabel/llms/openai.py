@@ -54,6 +54,9 @@ class OpenAILLM(AsyncLLM):
             failing. Defaults to `6`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+
+    Icon:
+        `:simple-openai:`
     """
 
     model: str

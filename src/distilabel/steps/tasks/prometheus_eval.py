@@ -72,7 +72,9 @@ Score 5: The model consistently demonstrates advanced reasoning abilities, provi
 
 
 class PrometheusEval(Task):
-    """PrometheusEval is a task created for Prometheus 2.0, covering both the absolute and relative
+    """Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
+
+    `PrometheusEval` is a task created for Prometheus 2.0, covering both the absolute and relative
     evaluations.
 
     - The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
@@ -125,6 +127,10 @@ class PrometheusEval(Task):
             "A" or "B", the "winning" one being the generation in the index 0 of `generations` if `result='A'` or the
             index 1 if `result='B'`.
         - model_name (`str`): The model name used to generate the `feedback` and `result`.
+
+    Categories:
+        - critique
+        - preference
 
     References:
         - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)

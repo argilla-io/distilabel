@@ -35,6 +35,9 @@ class LoadDataFromDicts(GeneratorStep):
 
     Output columns:
         Dynamic, based on the keys found on the first dictionary of the list
+
+    Categories:
+        - load
     """
 
     data: List[Dict[str, Any]]

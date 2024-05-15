@@ -23,7 +23,9 @@ if TYPE_CHECKING:
 
 
 class KeepColumns(Step):
-    """KeepColumns is a Step that implements the `process` method that keeps only the columns
+    """Keeps selected columns in the dataset.
+
+    `KeepColumns` is a `Step` that implements the `process` method that keeps only the columns
     specified in the `columns` attribute. Also `KeepColumns` provides an attribute `columns` to
     specify the columns to keep which will override the default value for the properties `inputs`
     and `outputs`.

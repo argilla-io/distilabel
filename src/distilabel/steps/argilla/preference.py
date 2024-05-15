@@ -38,7 +38,9 @@ if TYPE_CHECKING:
 
 
 class PreferenceToArgilla(Argilla):
-    """Step that creates a dataset in Argilla during the load phase, and then pushes the input
+    """Creates a preference dataset in Argilla.
+
+    Step that creates a dataset in Argilla during the load phase, and then pushes the input
     batches into it as records. This dataset is a preference dataset, where there's one field
     for the instruction and one extra field per each generation within the same record, and then
     a rating question per each of the generation fields. The rating question asks the annotator to

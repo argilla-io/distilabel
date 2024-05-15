@@ -29,6 +29,13 @@ class ConversationTemplate(Step):
 
     Output columns:
         - conversation (`ChatType`): The conversation template.
+
+    Categories:
+        - chat
+        - template
+
+    Icon:
+        `:material-chat:`
     """
 
     @property
