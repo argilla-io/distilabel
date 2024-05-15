@@ -82,32 +82,32 @@ if __name__ == "__main__":
     )
 ```
 
-### Structured text generation
+### Structured Generation
 
-Distilabel integrates with famous libraries to generate structured text, let's see how this can be done (expect more integrations in coming releases).
+`Distilabel` is integrated with some libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
 
 #### Outlines
 
-Distilabel integrates [`outlines`](https://outlines-dev.github.io/outlines/welcome/) for structured text generation. Relying on [`TransformersLLM`][distilabel.llms.huggingface.TransformersLLM], [`vLLM`][distilabel.llms.vLLM] or [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM] we can generate structured text in the form of *JSON* or parseable *regex*.
+`Distilabel` integrates [`outlines`](https://outlines-dev.github.io/outlines/welcome/) within some [`LLM`][distilabel.llms.LLM] subclasses. At the moment, the following LLMs integrated with `outlines` are supported in `distilabel`: [`TransformersLLM`][distilabel.llms.TransformersLLM], [`vLLM`][distilabel.llms.vLLM] or [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM], so that anyone can generate structured outputs in the form of *JSON* or a parseable *regex*.
 
-The [`LLM`][distilabel.llms.base.LLM] has a parameter `structured_output`[^1] that determines how we can generate structured output with our LLM, let's see an example using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM]:
+The [`LLM`][distilabel.llms.LLM] has an argument named `structured_output`[^1] that determines how we can generate structured outputs with it, let's see an example using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM], where we initially define a `pydantic.BaseModel` schema to guide the generation of the structured output.
 
 ```python
-from pathlib import Path
 from pydantic import BaseModel
-from distilabel.llms import LlamaCppLLM
-
-model_path = str(
-    Path.home() / "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"  # (1)
-)
 
 class User(BaseModel):
     name: str
     last_name: str
     id: int
+```
 
-llm=LlamaCppLLM(
-    model_path=model_path,
+And then we provide that schema to the `structured_output` argument of the LLM.
+
+```python
+from distilabel.llms import LlamaCppLLM
+
+llm = LlamaCppLLM(
+    model_path="./openhermes-2.5-mistral-7b.Q4_K_M.gguf"  # (1),
     n_gpu_layers=-1,
     n_ctx=1024,
     structured_output={"format": "json", "schema": User},
@@ -115,7 +115,7 @@ llm=LlamaCppLLM(
 llm.load()
 ```
 
-1. We have downloaded the following model using curl[^2], but you can use the model you want just updating the `model_path` accordingly.
+1. We have previously downloaded a GGUF model i.e. `llama.cpp` compatible, from the Hugging Face Hub using curl[^2], but any model can be used as replacement, as long as the `model_path` argument is updated.
 
 The `format` argument can be one of *json* or *regex*, and the schema represents the schema in case of JSON, which can be informed as a `str` with the `json_schema` (ADD EXAMPLES HERE), or a `pydantic.BaseModel` class with the structure, while if we work with *regex* it represents the pattern we want our text to adhere to. Let's call the LLM with a example to see it in action.
 
@@ -171,8 +171,7 @@ if match:
 These were some simple examples, but one can see the options this opens.
 
 !!! NOTE
-
-    A complete pipeline can using `LlamaCppLLM` and *JSON* be seen in the [`examples/rpg_characters_llamacpp.py`](https://github.com/argilla-io/distilabel/tree/main/examples/rpg_characters_llamacpp.py) script.
+    A complete pipeline can using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM] and *JSON* be seen in the [`examples/rpg_characters_llamacpp.py`](https://github.com/argilla-io/distilabel/tree/main/examples/rpg_characters_llamacpp.py) script.
 
 
 [^1]:
@@ -189,13 +188,12 @@ These were some simple examples, but one can see the options this opens.
     curl -L -o ~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
     ```
 
-#### OpenAI JSON 
+#### OpenAI JSON
 
 OpenAI offers a [JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode) to deal with structured output via their API, let's see how to make use of them. The JSON mode instructs the model to always return a JSON object following the instruction required.
 
-!!! Warning
-
-    Keep in mind, that in order for this to work, you must instruct the model in some way to generate JSON, either in the `system message` or in the instruction, as can be seen in the [API reference](https://platform.openai.com/docs/guides/text-generation/json-mode). 
+!!! WARNING
+    Bear in mind, that in order for this to work, you must instruct the model in some way to generate JSON, either in the `system message` or in the instruction, as can be seen in the [API reference](https://platform.openai.com/docs/guides/text-generation/json-mode).
 
 Contrary to what we have via `outlines`, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found the OpenAI documentation.
 
