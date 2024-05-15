@@ -122,6 +122,7 @@ nav:
         - Caching: "sections/components/advanced/caching.md"
         - Distiset: "sections/components/advanced/distiset.md"
         - Routing: "sections/components/advanced/routing.md"
+        - Structured Generation: "sections/components/advanced/structured_generation.md"
   - Examples:
       - "sections/examples/index.md"
       - Papers:

@@ -36,23 +36,22 @@ Frameworks = Literal["transformers", "llamacpp", "vllm"]
 
 
 class StructuredOutputType(TypedDict):
-    """TypedDict to represent the structured output configuration from outlines.
-
-    Attributes:
-        format: one of "json" or "regex".
-        schema: the schema to use for the structured output. If "json", it
-            can be a pydantic.BaseModel class, or the schema as a string,
-            as obtained from `model_to_schema(BaseModel)`, if "regex", it
-            should be a regex pattern as a string.
-        whitespace_patterm: if "json" corresponds to a string or a list of
-            strings with a pattern (doesn't impact string literals).
-            For example, to allow only a single space or newline with
-            `whitespace_pattern=r"[\n ]?"`
-    """
+    """TypedDict to represent the structured output configuration from outlines."""
 
     format: Literal["json", "regex"]
+    """One of "json" or "regex"."""
     schema: Union[str, Type[BaseModel]]
+    """The schema to use for the structured output. If "json", it
+    can be a pydantic.BaseModel class, or the schema as a string,
+    as obtained from `model_to_schema(BaseModel)`, if "regex", it
+    should be a regex pattern as a string.
+    """
     whitespace_pattern: Optional[Union[str, List[str]]]
+    """If "json" corresponds to a string or a list of
+    strings with a pattern (doesn't impact string literals).
+    For example, to allow only a single space or newline with
+    `whitespace_pattern=r"[\n ]?"`
+    """
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
