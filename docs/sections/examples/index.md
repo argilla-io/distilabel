@@ -1,0 +1,18 @@
+
+This section contains different example pipelines.
+
+### RPG Characters with LlamaCpp
+
+This script makes use of [`LlamaCppLLM`][distilabel.llms.llamacpp.LlamaCppLLM] and the structured output capabilities thanks to [`outlines`](https://outlines-dev.github.io/outlines/welcome/) to generate RPG characters that adhere to a JSON schema.
+
+It makes use of a local model which can be downlaoded using curl (explained in the script itself), and can be exchanged with other `LLMs` like [`vLLM`][distilabel.llms.vllm.vLLM].
+
+!!! Run
+
+    ```python
+    python examples/rpg_characters_llamacpp.py
+    ```
+
+```python title="rpg_characters_llamacpp.py"
+--8<-- "examples/rpg_characters_llamacpp.py"
+```

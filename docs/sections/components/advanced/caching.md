@@ -4,21 +4,49 @@ Distilabel `Pipelines` automatically save all the intermediate steps to to avoid
 
 ## Cache directory
 
-Out of the box, the `Pipeline` will use the `~/.cache/distilabel/pipelines` directory to store the different pipelines:
+Out of the box, the `Pipeline` will use the `~/.cache/distilabel/pipelines` directory to store the different pipelines[^1]:
 
 ```python
 from distilabel.pipeline.local import Pipeline
 
-with Pipeline("cache_testing") as pipeline:
+with Pipeline(name="cache_testing") as pipeline:
     ...
 ```
 
 This directory can be modified by setting the `DISTILABEL_CACHE_DIR` environment variable (`export DISTILABEL_CACHE_DIR=my_cache_dir`) or by explicitly passing the `cache_dir` variable to the `Pipeline` constructor like so:
 
 ```python
-with Pipeline("cache_testing", cache_dir="~/my_cache_dir") as pipeline:
+with Pipeline(name="cache_testing", cache_dir="~/my_cache_dir") as pipeline:
     ...
 ```
+
+[^1]:
+
+    The pipelines will be organized according to the pipeline's name attribute, and then by the hash, in case you want to look for something manually, like the following example:
+
+    ```bash
+    $ tree ~/.cache/distilabel/pipelines/
+    ├── cache_testing
+    │   └── 13da04d2cc255b2180d6bebb50fb5be91124f70d
+    │       ├── batch_manager.json
+    │       ├── batch_manager_steps
+    │       │   └── succeed_always_0.json
+    │       ├── data
+    │       │   └── succeed_always_0
+    │       │       └── 00001.parquet
+    │       ├── pipeline.log
+    │       └── pipeline.yaml
+    └── test-pipe
+        └── f23b95d7ad4e9301a70b2a54c953f8375ebfcd5c
+            ├── batch_manager.json
+            ├── batch_manager_steps
+            │   └── text_generation_0.json
+            ├── data
+            │   └── text_generation_0
+            │       └── 00001.parquet
+            ├── pipeline.log
+            └── pipeline.yaml
+    ```
 
 ## How does it work?
 
@@ -75,9 +103,13 @@ The `Pipeline` will have a signature created from the arguments that define it s
 
     Folder that stores the data generated, with a special folder to keep track of each `leaf_step` separately. We can recreate a `Distiset` from the contents of this folder (*Parquet* files), as we will see next.
 
+- `pipeline.log`
+
+    This file stores the logs that the `Pipeline` generated while processing. Just as with the `pipeline.yaml` file, it will be pushed to the Hugging Face Hub datasets` repository to keep track of the information.
+
 ## create_distiset
 
-In case we wanted to regenerate the dataset from the `cache`, we can do it using the [`create_distiset`][distilabel.distiset.create_distiset] and passing the path to the `/data` folder inside our `Pipeline`:
+In case we wanted to regenerate the dataset from the `cache`, we can do it using the [`create_distiset`][distilabel.distiset.create_distiset] function and passing the path to the `/data` folder inside our `Pipeline`:
 
 ```python
 from pathlib import Path
@@ -98,7 +130,6 @@ ds
 
 !!! Note
 
-    Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming
-    it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't
-    raise any error, but take into account that if the `Distiset` is pushed to the Hugging Face Hub, the `pipeline.yaml` won't be
-    generated.
+    Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't raise any error, but take into account that if the `Distiset` is pushed to the Hugging Face Hub, the `pipeline.yaml` won't be generated. The same happens with the `pipeline.log` file, it can be passed via `log_filename_path`, but it will try to locate it automatically.
+    
+    Lastly, there is the option of including the `distilabel_metadata` column in the final dataset. This column can contain custom metadata generated automatically by the pipeline, like the raw output from an `LLM` without formatting in case of failure, and we can decide whether to include it using the `enable_metadata` argument.

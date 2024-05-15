@@ -79,3 +79,8 @@ distiset.push_to_hub("my-org/my-dataset", generate_card=True)
 ```
 
 We will have an automatic dataset card (an example can be seen [here](https://huggingface.co/datasets/distilabel-internal-testing/deita)) with some handy information like reproducing the [`Pipeline`][distilabel.pipeline.Pipeline] with the `CLI`, or examples of the records from the different subsets.
+
+
+## create_distiset helper
+
+Lastly, we presented in the [caching](./caching.md) section the [`create_distiset`][distilabel.distiset.create_distiset] function, you can take a look at the section to see how to create a [`Distiset`][distilabel.distiset.Distiset] from the cache folder, using the helper function to automatically include all the relevant data.
