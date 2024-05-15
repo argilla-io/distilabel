@@ -46,7 +46,6 @@ def export_components_info() -> ComponentsInfo:
             {
                 "name": step_type.__name__,
                 "docstring": parse_google_docstring(step_type),
-                "runtime_parameters_info": step_type.get_runtime_parameters_info(),
             }
         )
 
@@ -56,7 +55,6 @@ def export_components_info() -> ComponentsInfo:
             {
                 "name": task_type.__name__,
                 "docstring": parse_google_docstring(task_type),
-                "runtime_parameters_info": task_type.get_runtime_parameters_info(),
             }
         )
 
@@ -66,7 +64,6 @@ def export_components_info() -> ComponentsInfo:
             {
                 "name": llm_type.__name__,
                 "docstring": parse_google_docstring(llm_type),
-                "runtime_parameters_info": llm_type.get_runtime_parameters_info(),
             }
         )
 

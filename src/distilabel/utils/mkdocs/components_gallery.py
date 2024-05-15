@@ -304,23 +304,6 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
 
         paths = ["components-gallery/llms/index.md"]
 
-        # Create detail page for each `LLM`
-        for llm_type in llms:
-            llm_name = llm_type["name"].lower()
-            llm_path = f"components-gallery/llms/{llm_name}.md"
-            paths.append(llm_path)
-            llm_page_path = src_dir / llm_path
-            llm_page_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(llm_page_path, "w") as f:
-                f.write(
-                    f"# {llm_name}\n\n"
-                    f"{llm_type['docstring']['description']}\n\n"
-                    f"## Runtime Parameters\n\n"
-                    f"```yaml\n"
-                    f"{llm_type['runtime_parameters_info']}\n"
-                    f"```\n"
-                )
-
         # Create the `components-gallery/llms/index.md` file
         steps_gallery_page_path = src_dir / paths[0]
         steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
