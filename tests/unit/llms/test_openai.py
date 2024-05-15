@@ -87,6 +87,20 @@ class TestOpenAILLM:
             ]
         )
 
+        with pytest.raises(ValueError):
+            llm.generate(
+                inputs=[
+                    [
+                        {"role": "system", "content": ""},
+                        {
+                            "role": "user",
+                            "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        },
+                    ]
+                ],
+                response_format="unkown_format",
+            )
+
     def test_serialization(self, _: MagicMock) -> None:
         llm = OpenAILLM(model=self.model_id)
 
@@ -96,6 +110,7 @@ class TestOpenAILLM:
             "max_retries": 6,
             "base_url": "https://api.openai.com/v1",
             "timeout": 120,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.openai",
                 "name": "OpenAILLM",

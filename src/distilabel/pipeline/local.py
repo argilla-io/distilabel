@@ -55,6 +55,7 @@ _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 _STOP_CALLED = False
 _STOP_CALLED_LOCK = threading.Lock()
+_STOP_CALLS = 0
 
 _STEPS_LOADED = set()
 _STEPS_LOADED_LOCK = threading.Lock()
@@ -98,6 +99,10 @@ class Pipeline(BasePipeline):
         setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
+        if self._dry_run:
+            # This message is placed here to ensure we are using the already setup logger.
+            self._logger.info("🌵 Dry run mode")
+
         if self._batch_manager is None:
             self._batch_manager = _BatchManager.from_dag(self.dag)
 
@@ -130,7 +135,7 @@ class Pipeline(BasePipeline):
         ) as pool:
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
-            self._handle_keyboard_interrupt()
+            self._handle_keyboard_interrupt(manager=manager, pool=pool)
 
             # Run the steps using the pool of processes
             self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
@@ -495,7 +500,7 @@ class Pipeline(BasePipeline):
             seq_no = 0
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
-            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=False)
+            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=self._dry_run)
             self._logger.debug(
                 f"Requesting initial batch to '{step_name}' generator step: {batch}"
             )
@@ -566,6 +571,7 @@ class Pipeline(BasePipeline):
                 input_queue=input_queue,
                 output_queue=output_queue,
                 shared_info=shared_info,
+                dry_run=self._dry_run,
             )
 
             pool.apply_async(
@@ -648,7 +654,9 @@ class Pipeline(BasePipeline):
 
         return False
 
-    def _stop(self) -> None:
+    def _stop(
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
+    ) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
@@ -658,10 +666,33 @@ class Pipeline(BasePipeline):
 
         with _STOP_CALLED_LOCK:
             if _STOP_CALLED:
-                self._logger.warning(
-                    "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
-                    " for the pipeline to finish..."
-                )
+                global _STOP_CALLS
+                _STOP_CALLS += 1
+                # if _STOP_CALLS == 1:
+                #     self._logger.warning(
+                #         "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
+                #         " for the pipeline to finish..."
+                #     )
+                if _STOP_CALLS == 1:
+                    self._logger.warning(
+                        "🛑 Press again to force the pipeline to stop."
+                    )
+                elif _STOP_CALLS > 1:
+                    self._logger.warning("🛑 Forcing pipeline interruption.")
+                    import gc
+                    import sys
+
+                    if manager:
+                        manager.shutdown()
+
+                    if pool:
+                        pool.close()
+                        pool.terminate()
+
+                    gc.collect()
+
+                    sys.exit(1)
+
                 return
             _STOP_CALLED = True
 
@@ -672,7 +703,9 @@ class Pipeline(BasePipeline):
         self._logger.debug("Sending `None` to the output queue to notify stop...")
         self.output_queue.put(None)
 
-    def _handle_keyboard_interrupt(self) -> None:
+    def _handle_keyboard_interrupt(
+        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
+    ) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
 
         It will try to call self._stop (if the pipeline didn't started yet, it won't
@@ -681,7 +714,7 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._stop()
+            self._stop(manager=manager, pool=pool)
 
         signal.signal(signal.SIGINT, signal_handler)
 
@@ -756,6 +789,7 @@ class _ProcessWrapper:
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
         shared_info: "DictProxy[str, Any]",
+        dry_run: bool = False,
     ) -> None:
         """Initializes the `_ProcessWrapper`.
 
@@ -764,11 +798,13 @@ class _ProcessWrapper:
             input_queue: The queue to receive the input data.
             output_queue: The queue to send the output data.
             shared_info: The shared information between the processes.
+            dry_run: Flag to ensure we are forcing to run the last batch.
         """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.shared_info = shared_info
+        self._dry_run = dry_run
 
         # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
         # and the lock for that map.
@@ -838,7 +874,6 @@ class _ProcessWrapper:
                 `process` method.
         """
         step = cast("GeneratorStep", self.step)
-
         try:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
@@ -855,7 +890,7 @@ class _ProcessWrapper:
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.data = [data]
-                batch.last_batch = last_batch
+                batch.last_batch = self._dry_run or last_batch
                 self._send_batch(batch)
 
                 if batch.last_batch:

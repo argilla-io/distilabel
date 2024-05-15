@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import Field, PrivateAttr, validate_call
 
@@ -26,6 +26,8 @@ from distilabel.steps.tasks.typing import ChatType
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
+
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 SamplingParams = None
@@ -53,6 +55,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             sending them to the model. If not provided, the chat template defined in the
             tokenizer config will be used. If not provided and the tokenizer doesn't have
             a chat template, then ChatML template will be used. Defaults to `None`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         seed: the seed to use for the random number generator. Defaults to `0`.
         extra_kwargs: additional dictionary of keyword arguments that will be passed to the
             `LLM` class of `vllm` library. Defaults to `{}`.
@@ -93,6 +97,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
     _model: Optional["_vLLM"] = PrivateAttr(...)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
         """Loads the `vLLM` model using either the path or the Hugging Face Hub repository id.
@@ -137,6 +142,11 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             and self._tokenizer.default_chat_template is None  # type: ignore
         ):
             self._tokenizer.chat_template = CHATML_TEMPLATE
+
+        if self.structured_output:
+            self._logits_processor = self._prepare_structured_output(
+                self.structured_output
+            )
 
     @property
     def model_name(self) -> str:
@@ -188,6 +198,8 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        prepared_inputs = [self.prepare_input(input) for input in inputs]
+
         if extra_sampling_params is None:
             extra_sampling_params = {}
 
@@ -199,10 +211,10 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             top_p=top_p,
             top_k=top_k,
             max_tokens=max_new_tokens,
+            logits_processors=[self._logits_processor],
             **extra_sampling_params,
         )
 
-        prepared_inputs = [self.prepare_input(input) for input in inputs]
         batch_outputs = self._model.generate(  # type: ignore
             prepared_inputs,
             sampling_params,
@@ -211,3 +223,23 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         return [
             [output.text for output in outputs.outputs] for outputs in batch_outputs
         ]
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union[Callable, None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "vllm", self._model)
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]
