@@ -1,0 +1,425 @@
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import sys
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Union
+
+from jinja2 import Template
+from mkdocs.config.base import Config
+from mkdocs.config.config_options import Type
+from mkdocs.plugins import BasePlugin
+from mkdocs.structure.files import File
+from mkdocs.structure.pages import Page
+from mkdocs_section_index import SectionPage
+
+from distilabel.utils.export_components_info import export_components_info
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
+if TYPE_CHECKING:
+    from mkdocs.config.defaults import MkDocsConfig
+    from mkdocs.structure.files import Files
+    from mkdocs.structure.nav import Navigation
+
+_COMPONENTS_LIST_TEMPLATE = Template(
+    open(
+        str(
+            importlib_resources.files("distilabel")
+            / "utils"
+            / "mkdocs"
+            / "templates"
+            / "components-gallery"
+            / "components-list.jinja2"
+        )
+    ).read(),
+)
+
+_STEP_DETAIL_TEMPLATE = Template(
+    open(
+        str(
+            importlib_resources.files("distilabel")
+            / "utils"
+            / "mkdocs"
+            / "templates"
+            / "components-gallery"
+            / "step-detail.jinja2"
+        )
+    ).read(),
+)
+
+_TASKS_CATEGORY_TO_ICON = {
+    "text-generation": ":material-text-box-edit:",
+    "evol": ":material-dna:",
+    "preference": ":material-poll:",
+    "critique": ":material-comment-edit:",
+    "scorer": ":octicons-number-16:",
+    "embedding": ":material-vector-line:",
+}
+
+_STEPS_CATEGORY_TO_ICON = {
+    "filtering": ":material-filter:",
+    "save": ":material-content-save:",
+    "load": ":material-file-download:",
+}
+
+
+class ComponentsGalleryConfig(Config):
+    enabled = Type(bool, default=True)
+    page_title = Type(str, default="Components Gallery")
+    add_after_page = Type(str, default=None)
+
+
+class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
+    """A MkDocs plugin to generate a components gallery page for `distilabel` components.
+
+    Attributes:
+        file_paths: A dictionary to store the paths of the generated files. The keys are
+            the subsections of the gallery and the values are the paths of the files.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.file_paths = {}
+
+    def on_config(self, config: "MkDocsConfig") -> Union["MkDocsConfig", None]:
+        if not self.config.enabled:
+            return
+
+    def on_files(
+        self, files: "Files", *, config: "MkDocsConfig"
+    ) -> Union["Files", None]:
+        """Generates the files for the components gallery automatically from the docstrings.
+
+        Args:
+            files: The files collection.
+            config: The MkDocs configuration.
+
+        Returns:
+            The files collection with the new files added.
+        """
+        src_dir = Path(config["site_dir"])
+
+        components_info = export_components_info()
+
+        # Generate the `components-gallery/index.md`
+        self.file_paths["components_gallery"] = self._generate_component_gallery_index(
+            src_dir=src_dir
+        )
+
+        # Create and write content to subsections
+        self.file_paths["steps"] = self._generate_steps_pages(
+            src_dir=src_dir, steps=components_info["steps"]
+        )
+        self.file_paths["tasks"] = self._generate_tasks_pages(
+            src_dir=src_dir, tasks=components_info["tasks"]
+        )
+        self.file_paths["llms"] = self._generate_llms_pages(
+            src_dir=src_dir, llms=components_info["llms"]
+        )
+
+        # Add the new files to the files collections
+        for relative_file_path in [
+            self.file_paths["components_gallery"],
+            *self.file_paths["steps"],
+            *self.file_paths["tasks"],
+            *self.file_paths["llms"],
+        ]:
+            file = File(
+                path=relative_file_path,
+                src_dir=str(src_dir),
+                dest_dir=config.site_dir,
+                use_directory_urls=config.use_directory_urls,
+            )
+            file.generated_by = "distilabel/components-gallery"  # type: ignore
+            files.append(file)
+
+        return files
+
+    def _generate_component_gallery_index(self, src_dir: Path) -> str:
+        """Generates the `components-gallery/index.md` file.
+
+        Args:
+            src_dir: The path to the source directory.
+
+        Returns:
+            The relative path to the generated file.
+        """
+        index_template_path = str(
+            importlib_resources.files("distilabel")
+            / "utils"
+            / "mkdocs"
+            / "templates"
+            / "components-gallery"
+            / "index.md"
+        )
+
+        with open(index_template_path) as f:
+            index_template = f.read()
+
+        components_gallery_path_relative = "components-gallery/index.md"
+        components_gallery_path = src_dir / components_gallery_path_relative
+        components_gallery_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(components_gallery_path, "w") as f:
+            f.write(index_template)
+
+        return components_gallery_path_relative
+
+    def _generate_steps_pages(self, src_dir: Path, steps: list) -> List[str]:
+        """Generates the files for the `Steps` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            steps: The list of `Step` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Steps Gallery",
+            description="",
+            components=steps,
+            default_icon=":material-step-forward:",
+        )
+
+        paths = ["components-gallery/steps/index.md"]
+
+        # Create the `components-gallery/steps.md` file
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        # Create detail page for each `Step`
+        for step in steps:
+            docstring = step["docstring"]
+            if docstring["icon"] == "" and docstring["categories"]:
+                first_category = docstring["categories"][0]
+                docstring["icon"] = _STEPS_CATEGORY_TO_ICON.get(first_category, "")
+
+            name = step["name"]
+            task_path = f"components-gallery/steps/{name.lower()}.md"
+            path = src_dir / task_path
+
+            content = _STEP_DETAIL_TEMPLATE.render(
+                name=name,
+                step=step,
+                mermaid_diagram=_generate_mermaid_diagram_for_io(
+                    step_name=step["name"],
+                    inputs=list(docstring["input_columns"].keys()),
+                    outputs=list(docstring["output_columns"].keys()),
+                ),
+            )
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(task_path)
+
+        return paths
+
+    def _generate_tasks_pages(self, src_dir: Path, tasks: list) -> List[str]:
+        """Generates the files for the `Tasks` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            tasks: The list of `Task` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Tasks Gallery",
+            description="",
+            components=tasks,
+            default_icon=":material-check-outline:",
+        )
+
+        paths = ["components-gallery/tasks/index.md"]
+
+        # Create the `components-gallery/steps/index.md` file
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        # Create detail page for each `Task`
+        for task in tasks:
+            docstring = task["docstring"]
+            if docstring["icon"] == "" and docstring["categories"]:
+                first_category = docstring["categories"][0]
+                docstring["icon"] = _TASKS_CATEGORY_TO_ICON.get(first_category, "")
+
+            name = task["name"]
+            task_path = f"components-gallery/tasks/{name.lower()}.md"
+            path = src_dir / task_path
+
+            content = _STEP_DETAIL_TEMPLATE.render(
+                name=name,
+                step=task,
+                mermaid_diagram=_generate_mermaid_diagram_for_io(
+                    step_name=task["name"],
+                    inputs=list(docstring["input_columns"].keys()),
+                    outputs=list(docstring["output_columns"].keys()),
+                ),
+            )
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(task_path)
+
+        return paths
+
+    def _generate_llms_pages(self, src_dir: Path, llms: list) -> List[str]:
+        """Generates the files for the `LLMs` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            llms: The list of `LLM` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="LLMs Gallery",
+            description="",
+            components=llms,
+            component_group="llms",
+            default_icon=":material-brain:",
+        )
+
+        paths = ["components-gallery/llms/index.md"]
+
+        # Create detail page for each `LLM`
+        for llm_type in llms:
+            llm_name = llm_type["name"].lower()
+            llm_path = f"components-gallery/llms/{llm_name}.md"
+            paths.append(llm_path)
+            llm_page_path = src_dir / llm_path
+            llm_page_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(llm_page_path, "w") as f:
+                f.write(
+                    f"# {llm_name}\n\n"
+                    f"{llm_type['docstring']['description']}\n\n"
+                    f"## Runtime Parameters\n\n"
+                    f"```yaml\n"
+                    f"{llm_type['runtime_parameters_info']}\n"
+                    f"```\n"
+                )
+
+        # Create the `components-gallery/llms/index.md` file
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        return paths
+
+    def on_nav(
+        self, nav: "Navigation", *, config: "MkDocsConfig", files: "Files"
+    ) -> Union["Navigation", None]:
+        """Adds the components gallery to the navigation bar.
+
+        Args:
+            nav: The navigation bar.
+            config: The MkDocs configuration.
+            files: The files collection.
+
+        Returns:
+            The navigation bar with the components gallery added.
+        """
+        # Find the files in the files collection
+        components_gallery_file = files.get_file_from_path(
+            self.file_paths["components_gallery"]
+        )
+        steps_file = files.get_file_from_path(self.file_paths["steps"][0])
+        tasks_file = files.get_file_from_path(self.file_paths["tasks"][0])
+        llms_file = files.get_file_from_path(self.file_paths["llms"][0])
+
+        # Create subsections
+        steps_page = Page("Steps", file=steps_file, config=config)  # type: ignore
+        tasks_page = Page("Tasks", file=tasks_file, config=config)  # type: ignore
+        llms_page = Page("LLMs", file=llms_file, config=config)  # type: ignore
+
+        # Create the gallery section
+        page = SectionPage(
+            title=self.config.page_title,
+            file=components_gallery_file,
+            config=config,
+            children=[steps_page, tasks_page, llms_page],
+        )
+
+        # Add the page
+        nav.pages.append(page)
+
+        # Add the page to the navigation bar
+        if self.config.add_after_page:
+            for i, item in enumerate(nav.items):
+                if item.title == self.config.add_after_page:
+                    nav.items.insert(i + 1, page)
+                    break
+        else:
+            nav.items.append(page)
+
+        return nav
+
+
+def _generate_mermaid_diagram_for_io(
+    step_name: str, inputs: List[str], outputs: List[str]
+) -> str:
+    """Generates a mermaid diagram for representing the input and output columns of a `Step`.
+
+    Args:
+        step_name: The name of the `Step`.
+        inputs: The input columns of the `Step`.
+        outputs: The output columns of the `Step`.
+
+    Returns:
+        The mermaid diagram syntax representing the input and output columns of the `Step`.
+    """
+    # Initialize the mermaid diagram syntax
+    mermaid = "graph TD\n"
+
+    # Add dataset columns (inputs and outputs)
+    mermaid += "  subgraph Dataset\n"
+    for i, col in enumerate(inputs + outputs):
+        mermaid += f"    COL{i}[{col}]\n"
+    mermaid += "  end\n\n"
+
+    # Add steps
+    mermaid += f"  subgraph {step_name}\n"
+    if inputs:
+        input_cols = ", ".join(inputs)
+        mermaid += f"    StepInput[Input Columns: {input_cols}]\n"
+
+    if outputs:
+        output_cols = ", ".join(outputs)
+        mermaid += f"    StepOutput[Output Columns: {output_cols}]\n"
+
+    mermaid += "  end\n\n"
+
+    # Add connections
+    if inputs:
+        for i in range(len(inputs)):
+            mermaid += f"  COL{i} --> StepInput\n"
+
+    if outputs:
+        for i in range(len(outputs)):
+            mermaid += f"  StepOutput --> COL{len(inputs) + i}\n"
+        mermaid += "  StepInput --> StepOutput\n"
+
+    return mermaid

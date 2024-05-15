@@ -1,0 +1,55 @@
+# {{ name }}
+
+{{ step.docstring.description }}
+
+{% if step.docstring.attributes %}
+### Attributes
+{% for attribute_name, description in step.docstring.attributes.items() %}
+- **{{ attribute_name }}**: {{ description }}
+{% endfor %}
+{% endif %}
+
+{% if step.docstring.runtime_parameters %}
+### Runtime Parameters
+{% for parameter_name, description in step.docstring.runtime_parameters.items() %}
+- **{{ parameter_name }}**: {{ description }}
+{% endfor %}
+{% endif %}
+
+### Input & Output Columns
+
+``` mermaid
+{{ mermaid_diagram }}
+```
+
+#### Inputs
+
+{% for column_name, value in step.docstring.input_columns.items() %}
+- **{{ column_name }}** (`{{ value[0] }}`): {{ value[1] }}
+{% endfor %}
+
+#### Outputs
+
+{% for column_name, value in step.docstring.output_columns.items() %}
+- **{{ column_name }}** (`{{ value[0] }}`): {{ value[1] }}
+{% endfor %}
+
+
+{% if step.docstring.examples %}
+### Examples
+
+{% for example_title, code in step.docstring.examples.items() %}
+#### {{ example_title }}
+```python
+{{ code }}
+```
+{% endfor %}
+{% endif %}
+
+{% if step.docstring.references %}
+### References
+{% for reference, url in step.docstring.references.items() %}
+- [{{ reference }}]({{ url }})
+{% endfor %}
+{% endif %}
+

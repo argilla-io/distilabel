@@ -13,52 +13,151 @@
 # limitations under the License.
 
 import re
-from typing import Callable, Dict
+from typing import Callable, Dict, List, Tuple
 
 from typing_extensions import TypedDict
 
 
 class Docstring(TypedDict):
+    short_description: str
     description: str
+    attributes: Dict[str, str]
     args: Dict[str, str]
     returns: str
     raises: Dict[str, str]
+    runtime_parameters: Dict[str, str]
+    input_columns: Dict[str, Tuple[str, str]]
+    output_columns: Dict[str, Tuple[str, str]]
+    categories: List[str]
+    icon: str
+    references: Dict[str, str]
+    examples: Dict[str, str]
 
 
-def parse_google_docstring(func: Callable) -> Docstring:
-    """Parses the Google-style docstring of the given function into a more structured format.
+def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
+    """Parses a Google-style docstring and returns a dictionary with its sections. It takes
+    into account the peculiarities of the docstrings used in `distilabel`.
 
-    Parameters:
-        func: The function whose docstring will be parsed.
+    Args:
+        func: The function or class to parse the docstring from.
 
     Returns:
-        A dictionary with keys 'description', 'args', 'returns', and 'raises',
-        with 'args' and 'raises' being dictionaries themselves, mapping parameter
-        and exception names to their descriptions, respectively.
+        A dictionary with the parsed docstring sections.
     """
-    sections: Docstring = {"description": "", "args": {}, "returns": "", "raises": {}}
+    sections: Docstring = {
+        "short_description": "",
+        "description": "",
+        "attributes": {},
+        "args": {},
+        "returns": "",
+        "raises": {},
+        "runtime_parameters": {},
+        "input_columns": {},
+        "output_columns": {},
+        "categories": [],
+        "icon": "",
+        "references": {},
+        "examples": {},
+    }
 
     if not func.__doc__:
         return sections
 
-    docstring = func.__doc__
-    sections = {"description": "", "args": {}, "returns": "", "raises": {}}
+    docstring = func.__doc__.strip()
+
+    # Extract the short description (first line)
+    first_line_end = docstring.find("\n")
+    if first_line_end == -1:
+        sections["short_description"] = docstring
+        return sections
+
+    sections["short_description"] = docstring[:first_line_end].strip()
+    remaining_docstring = docstring[first_line_end:].strip()
+
+    # Define the section headers to recognize
+    section_headers = [
+        "Args",
+        "Returns",
+        "Raises",
+        "Attributes",
+        "Runtime parameters",
+        "Input columns",
+        "Output columns",
+        "Categories",
+        "Icon",
+        "References",
+        "Examples",
+    ]
 
     # Split the docstring into sections
-    parts = re.split(r"\n\s*(Args|Returns|Raises):\s*\n", docstring)
+    parts = re.split(rf"\n\s*({'|'.join(section_headers)}):\s*\n", remaining_docstring)
 
     sections["description"] = parts[0].strip()
     for i in range(1, len(parts), 2):
-        section_name = parts[i].lower()
+        section_name = parts[i].lower().replace(" ", "_")
         section_content = parts[i + 1].strip()
-        if section_name in ("args", "raises"):
-            # Parse arguments or exceptions into a dictionary
+        if section_name in ("args", "raises", "attributes"):
+            # Parse arguments, exceptions, or attributes into a dictionary
             items = re.findall(
-                r"\s*(\w+):\s*(.*?)\s*(?=\n\s*\w+:|$)", section_content, re.DOTALL
+                r"\s*(\w+):\s*(.*?)\s*(?=\n\s*\w+:\s*|\n\s*$)",
+                section_content,
+                re.DOTALL,
             )
             sections[section_name] = {
-                item[0]: re.sub(r"[\t\n]+|[ ]{2,}", " ", item[1]).strip()
+                item[0]: re.sub(r"[\t\n]+| {2,}", " ", item[1]).strip()
                 for item in items
+            }
+        elif section_name == "runtime_parameters":
+            # Parse runtime parameters into a dictionary
+            items = re.findall(
+                r"\s*-\s*`?(\w+)`?:\s*(.*?)\s*(?=\n\s*-\s*`?\w+`?:|\n\s*$)",
+                section_content,
+                re.DOTALL,
+            )
+            sections[section_name] = {
+                item[0]: re.sub(r"[\t\n]+| {2,}", " ", item[1]).strip()
+                for item in items
+            }
+        elif section_name in ("input_columns", "output_columns"):
+            items = re.findall(
+                r"- (?P<name>\w+) \(`(?P<type>[^`]+)`\): (?P<description>.+?)(?=\n\s+-|$)",
+                section_content,
+                re.DOTALL,
+            )
+            sections[section_name] = {
+                item[0]: (
+                    item[1].replace("`", ""),
+                    re.sub(r"[\t\n]+| {2,}", " ", item[2]).strip(),
+                )
+                for item in items
+            }
+        elif section_name == "categories":
+            # Parse categories as a list of strings without the "- " prefix
+            sections[section_name] = [
+                cat.replace("-", "", 1).strip()
+                for cat in section_content.split("\n")
+                if cat.strip()
+            ]
+        elif section_name == "icon":
+            # Parse logo as a single string
+            match = re.match(r"`([^`]+)`", section_content)
+            if match:
+                sections[section_name] = match.group(1)
+        elif section_name == "references":
+            # Parse references into a dictionary with the name and URL
+            items = re.findall(r"\s*-\s*\[([^]]+)\]\(([^)]+)\)", section_content)
+            sections[section_name] = {
+                item[0].replace("`", ""): item[1] for item in items
+            }
+        elif section_name == "examples":
+            # Parse examples into a dictionary
+            example_items = re.findall(
+                r"(\w[\w\s]*?):\s*\n\s*```python\n(.*?)\n\s*```",
+                section_content,
+                re.DOTALL,
+            )
+            sections[section_name] = {
+                item[0].strip(): item[1].strip() for item in example_items
             }
         else:
             sections[section_name] = section_content
