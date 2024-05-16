@@ -1,4 +1,3 @@
-
 # Structured Generation
 
 `Distilabel` has integrations with relevant libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
@@ -13,8 +12,7 @@ The [`LLM`][distilabel.llms.LLM] has an argument named `structured_output`[^1] t
 
 We will start with a JSON example, where we initially define a `pydantic.BaseModel` schema to guide the generation of the structured output.
 
-!!! Note
-
+!!! NOTE
     Take a look at [`StructuredOutputType`][distilabel.steps.tasks.structured_outputs.outlines.StructuredOutputType] to see the expected format
     of the `structured_output` dict variable.
 
@@ -60,7 +58,7 @@ User(**data)
 # User(name='Kathy', last_name='Smith', id=4539210)
 ```
 
-We get back a python dictionary (formatted as a string) that we can parse using `json.loads`, or validate it directly using the `User` `BaseModel`.
+We get back a Python dictionary (formatted as a string) that we can parse using `json.loads`, or validate it directly using the `User`, which si a `pydantic.BaseModel` instance.
 
 ### Regex
 
@@ -104,7 +102,6 @@ if match:
 These were some simple examples, but one can see the options this opens.
 
 !!! NOTE
-
     A full pipeline example can be seen in the following script:
     [`examples/structured_generation_with_outlines.py`](../../examples/index.md/#structured_generation_with_outlines)
 

@@ -103,7 +103,11 @@ plugins:
   - social
 
 nav:
-  - Getting started: "index.md"
+  - Introduction: "index.md"
+  - Getting started:
+    - Features: "sections/features.md"
+    - Installation: "sections/installation.md"
+    - How-to-Guide: "sections/how_to_guide.md"
   - Components:
     - "sections/components/index.md"
     - Step:
