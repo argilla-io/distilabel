@@ -1,14 +1,20 @@
-FROM runpod/pytorch:2.1.1-py3.10-cuda12.1.1-devel-ubuntu22.04 AS base
+FROM nvidia/cuda:12.3.0-base-ubuntu22.04 AS build
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install python3 python3-pip -y
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+ENV PYTHON=/usr/bin/python
+
+
+ARG TORCH="2.2.0"
+
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir torch==${TORCH}
 
 WORKDIR /
-
-FROM runpod/pytorch:2.1.1-py3.10-cuda12.1.1-devel-ubuntu22.04
 
 COPY . .
 
