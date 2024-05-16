@@ -1,3 +1,5 @@
+# UltraFeedback
+
 [UltraFeedback: Boosting Language Models with High-quality Feedback](https://arxiv.org/abs/2310.01377) is a paper published by [OpenBMB](https://www.openbmb.cn/home) which proposes `UltraFeedback`, a large-scale, fine-grained, diverse preference dataset, used for training powerful reward models and critic models.
 
 UltraFeedback collects about 64k prompts from diverse resources (including UltraChat, ShareGPT, Evol-Instruct, TruthfulQA, FalseQA, and FLAN), then they use these prompts to query multiple LLMs (commercial models, Llama models ranging 7B to 70B, and non-Llama models) and generate four different responses for each prompt, resulting in a total of 256k samples i.e. the UltraFeedback will rate four responses on every OpenAI request.

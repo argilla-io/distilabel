@@ -1,3 +1,5 @@
+# DEITA
+
 DEITA (Data-Efficient Instruction Tuning for Alignment) studies an automatic data selection process by first quantifying the data quality based on complexity, quality and diversity. And second, selecting across the best potential combination from an open-source dataset that would fit into the budget you allocate to tune your own LLM.
 
 In most setting we cannot allocate unlimited resources for instruction-tuning LLMs. Therefore, the DEITA authors investigated how to select qualitative data for instruction-tuning based on a principle of fewer high quality samples. Liu et al. tackle the issue of first defining good data and second identifying it to respect an initial budget to instruct-tune your LLM.

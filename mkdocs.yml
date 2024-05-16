@@ -135,9 +135,10 @@ nav:
       - "sections/examples/index.md"
       - Papers:
           - "sections/examples/papers/index.md"
-          - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/examples/papers/deita.md"
-          - "Self-Alignment with Instruction Backtranslation": "sections/examples/papers/instruction_backtranslation.md"
-          - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/examples/papers/ultrafeedback.md"
+          - DEITA: "sections/examples/papers/deita.md"
+          - Instruction Backtranslation: "sections/examples/papers/instruction_backtranslation.md"
+          - Prometheus: "sections/examples/papers/prometheus.md"
+          - UltraFeedback: "sections/examples/papers/ultrafeedback.md"
   - FAQ: "sections/faq.md"
   - API Reference:
       - Pipeline:
