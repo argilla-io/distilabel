@@ -158,8 +158,7 @@ nav:
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
-      - Task Gallery:
-          - Argilla: "api/step_gallery/argilla.md"
+      - Task Gallery: "api/task_gallery/index.md"
       - LLM:
           - "api/llm/index.md"
       - LLM Gallery:
