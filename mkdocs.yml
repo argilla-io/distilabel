@@ -24,6 +24,8 @@ theme:
   name: material
   logo: assets/logo.svg
   favicon: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github-alt
   features:
     - navigation.sections # Sections are included in the navigation on the left.
     # - toc.integrate # # Table of contents is integrated on the left; does not appear separately on the right.
