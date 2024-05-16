@@ -137,7 +137,7 @@ nav:
           - "sections/examples/papers/index.md"
           - DEITA: "sections/examples/papers/deita.md"
           - Instruction Backtranslation: "sections/examples/papers/instruction_backtranslation.md"
-          - Prometheus: "sections/examples/papers/prometheus.md"
+          # - Prometheus: "sections/examples/papers/prometheus.md"
           - UltraFeedback: "sections/examples/papers/ultrafeedback.md"
   - FAQ: "sections/faq.md"
   - API Reference:
