@@ -55,6 +55,10 @@ class LlamaCppLLM(LLM):
         - `verbose`: whether to print verbose output. Defaults to `False`.
         - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to the
             `Llama` class of `llama_cpp` library. Defaults to `{}`.
+
+    References:
+        - [`llama.cpp`](https://github.com/ggerganov/llama.cpp)
+        - [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python)
     """
 
     model_path: RuntimeParameter[FilePath] = Field(

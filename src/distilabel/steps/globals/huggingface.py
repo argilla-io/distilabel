@@ -50,7 +50,7 @@ class PushToHub(GlobalStep):
         - `token`: The token that will be used to authenticate in the Hub.
 
     Input columns:
-        - dynamic, based on the existing data within inputs
+        - dynamic (`all`): all columns from the input will be used to create the dataset.
 
     Categories:
         - save

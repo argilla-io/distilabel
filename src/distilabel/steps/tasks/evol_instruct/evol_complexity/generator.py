@@ -45,9 +45,6 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - `max_length`: Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.
         - `seed`: The number of evolutions to be run.
 
-    Input columns:
-        - instruction (`str`): The instruction to evolve.
-
     Output columns:
         - instruction (`str`): The evolved instruction.
         - answer (`str`, optional): The answer to the instruction if `generate_answers=True`.

@@ -39,10 +39,10 @@ class KeepColumns(Step):
         columns: List of strings with the names of the columns to keep.
 
     Input columns:
-        - dynamic, based on the `columns` value provided.
+        - dynamic (determined by `columns` attribute): The columns to keep.
 
     Output columns:
-        - dynamic, based on the `columns` value provided.
+        - dynamic (determined by `columns` attribute): The columns that were kept.
     """
 
     columns: List[str]

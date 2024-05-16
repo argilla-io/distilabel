@@ -29,8 +29,7 @@ _AZURE_OPENAI_API_KEY_ENV_VAR_NAME = "AZURE_OPENAI_API_KEY"
 
 
 class AzureOpenAILLM(OpenAILLM):
-    """Azure OpenAI LLM implementation running the async API client of OpenAI because of
-    duplicate API behavior, but with Azure-specific parameters.
+    """Azure OpenAI LLM implementation running the async API client.
 
     Attributes:
         model: the model name to use for the LLM i.e. the name of the Azure deployment.

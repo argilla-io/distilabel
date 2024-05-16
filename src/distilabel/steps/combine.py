@@ -36,10 +36,11 @@ class CombineColumns(Step):
         output_columns: Optional list of strings with the names of the output columns.
 
     Input columns:
-        - dynamic, based on the `columns` value provided.
+        - dynamic (determined by `columns` attribute): The columns to merge.
 
     Output columns:
-        - dynamic, based on the `output_columns` value provided or `merged_{column}` for each column in `columns`.
+        - dynamic (determined by `columns` and `output_columns` attributes): The columns
+            that were merged.
     """
 
     columns: List[str]
