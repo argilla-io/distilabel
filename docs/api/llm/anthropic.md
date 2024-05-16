@@ -1,3 +1,3 @@
-## AnthropicLLM
+# AnthropicLLM
 
 ::: distilabel.llms.anthropic

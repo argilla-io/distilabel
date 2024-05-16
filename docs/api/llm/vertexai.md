@@ -1,3 +1,3 @@
-## VertexaiLLM
+# VertexAILLM
 
 ::: distilabel.llms.vertexai

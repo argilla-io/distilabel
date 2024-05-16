@@ -117,7 +117,7 @@ step = CustomGeneratorStep(name="my-step")
 
 ## Available GeneratorSteps
 
-These have already been mentioned in [Components -> Step -> Available Steps](/sections/components/step/step.md) section, but only the following are available:
+These have already been mentioned in [Components - Step (Available Steps)](../step/index.md#available-steps) section, but only the following are available:
 
 #### [`LoadDataFromDicts`][distilabel.steps.LoadDataFromDicts]
 

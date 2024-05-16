@@ -44,15 +44,15 @@ Besides the default [`Step`][distilabel.steps.Step] already described, in `disti
 
 * [`GeneratorStep`][distilabel.steps.GeneratorStep]: is a step that only produces / generates data, and it doesn't need any input data from previous steps, is in most of the cases a parent node of the graph i.e. the first [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline].
 
-    More information about it at [Components -> Step -> GeneratorStep](/components/step/generator-step).
+    More information about it at [Components -> Step - GeneratorStep](./generator_step.md).
 
-* [`GlobalStep`][distilabel.steps.GlobalStep]: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, is in most of the cases a leaf node of the graph i.e. the last [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline]. The fact that a [`GlobalStep`](distilabel.steps.GlobalStep) requires the outputs from the previous steps, means that the previous steps needs to finish for this step to start, and the connected outputs steps, if any, will need to wait until this step is done.
+* [`GlobalStep`][distilabel.steps.GlobalStep]: is a step with the standard interface i.e. receives inputs and generates outputs, but it processes all the data at once, is in most of the cases a leaf node of the graph i.e. the last [`Step`][distilabel.steps.Step] in the [`Pipeline`][distilabel.pipeline.Pipeline]. The fact that a [`GlobalStep`][distilabel.steps.GlobalStep] requires the outputs from the previous steps, means that the previous steps needs to finish for this step to start, and the connected outputs steps, if any, will need to wait until this step is done.
 
-    More information about it at [Components -> Step -> GlobalStep](/components/step/global-step).
+    More information about it at [Components - Step - GlobalStep](global_step.md).
 
 Additionally, `distilabel` also defines another type of [`Step`][distilabel.steps.Step], which is the [`Task`][distilabel.steps.tasks.Task], which is essentially the same, besides the fact that the task will expect an [`LLM`][distilabel.llms.LLM] as an attribute, and the `process` method will be in charge of calling that LLM. So one could say that the [`Task`][distilabel.steps.tasks.Task] is a [`Step`][distilabel.steps.Step] to work with an [`LLM`][distilabel.llms.LLM].
 
-More information about it at [Components -> Task](/components/task).
+More information about it at [Components - Task](../task/index.md).
 
 ## Defining custom Steps
 
@@ -105,7 +105,7 @@ from distilabel.steps import StepInput, step
 from distilabel.steps.typing import StepOutput
 
 @step(inputs=[...], outputs=[...])
-def CustomStep(inputs: StepInput) -> StepOutput:
+def CustomStep(inputs: StepInput) - StepOutput:
     for input in inputs:
         ...
     yield inputs
@@ -304,6 +304,6 @@ These steps are intended to be used in specific scenarios, and they are not inte
 
 #### [`DeitaFiltering`][distilabel.steps.DeitaFiltering]
 
-This is a step created for the [`DEITA`](/sections/papers/deita) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
+This is a step created for the [`DEITA`](../../examples/papers/deita.md) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
 
-To see a fully working example, please check the [Examples -> Papers -> DEITA](/sections/papers/deita).
+To see a fully working example, please check the [Examples - Papers - DEITA](../../examples/papers/deita.md).

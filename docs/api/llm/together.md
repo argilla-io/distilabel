@@ -1,3 +1,3 @@
-## TogetherLLM
+# TogetherLLM
 
 ::: distilabel.llms.together

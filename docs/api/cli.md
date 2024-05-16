@@ -1,6 +1,6 @@
 # Command Line Interface (CLI)
 
-This section contains the API reference for the CLI. For more information on how to use the CLI, see [Components - CLI](../sections/components/cli.md).
+This section contains the API reference for the CLI. For more information on how to use the CLI, see [Components - CLI](../sections/components/cli/index.md).
 
 ## Utility functions for the `distilabel pipeline` sub-commands
 

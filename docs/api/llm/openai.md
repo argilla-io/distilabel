@@ -1,3 +1,3 @@
-## OpenaiLLM
+# OpenAILLM
 
 ::: distilabel.llms.openai

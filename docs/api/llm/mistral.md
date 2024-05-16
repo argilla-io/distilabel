@@ -1,3 +1,3 @@
-## MistralLLM
+# MistralLLM
 
 ::: distilabel.llms.mistral

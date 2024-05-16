@@ -1,3 +1,4 @@
+# Examples
 
 This section contains different example pipelines.
 

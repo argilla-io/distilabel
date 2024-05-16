@@ -132,4 +132,4 @@ Generates a `rating` and a `rationale` for each of the `generations` based on th
 
 ---
 
-Additionally, there is another subclass of [`Task`][distilabel.steps.tasks.Task] that is based on the [`GeneratorStep`][distilabel.steps.GeneratorStep] instead of the standard [`Step`][distilabel.steps.Step] as in this case; which is the [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. More information about it at [Components -> Task -> GeneratorTask](/components/task/generator-task).
+Additionally, there is another subclass of [`Task`][distilabel.steps.tasks.Task] that is based on the [`GeneratorStep`][distilabel.steps.GeneratorStep] instead of the standard [`Step`][distilabel.steps.Step] as in this case; which is the [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. More information about it at [Components - Task - GeneratorTask](generator_task.md).
