@@ -60,6 +60,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
+  - pymdownx.superfences
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight:
@@ -92,6 +93,9 @@ plugins:
         python:
           selection:
             inherited_members: true # Allow looking up inherited methods
+          options:
+            show_protected_members: true
+            show_private_members: true
           rendering:
             show_root_heading: true # actually display anything at all...
             # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
@@ -143,19 +147,22 @@ nav:
           - "api/pipeline/utils.md"
           - "api/pipeline/typing.md"
       - Step:
-          - "api/steps/index.md"
-          - Generator Steps: "api/steps/generator_steps/generator_steps.md"
-          - Global Steps: "api/steps/global_steps/global_steps.md"
+          - "api/step/index.md"
+          - GeneratorStep: "api/step/generator_step.md"
+          - GlobalStep: "api/step/global_step.md"
+          - "@step": "api/step/decorator.md"
+      - Step Gallery:
+          - Argilla: "api/step_gallery/argilla.md"
+          - Columns: "api/step_gallery/columns.md"
+          - Extra: "api/step_gallery/extra.md"
       - Task:
-          - "api/steps/tasks/index.md"
-          # - TODO TextGeneration: "api/steps/tasks/text_generation.md"
-          # - TODO Preference Tasks: "api/steps/tasks/preference_tasks.md"
-          # - TODO GenerateEmbeddings: "api/steps/tasks/embeddings.md"
-      - "@step": "api/steps/decorator.md"
+          - "api/task/index.md"
+          - GeneratorTask: "api/task/generator_task.md"
       - LLM:
           - "api/llms/index.md"
           - Anthropic: "api/llms/anthropic.md"
           - Anyscale: "api/llms/anyscale.md"
+          - Azure (via OpenAI): "api/llms/azure.md"
           - Groq: "api/llms/groq.md"
           - Hugging Face: "api/llms/huggingface.md"
           - LiteLLM: "api/llms/litellm.md"

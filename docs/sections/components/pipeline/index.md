@@ -304,7 +304,7 @@ if __name__ == "__main__":
 
 ### Stopping the pipeline
 
-In case you want to stop the pipeline while it's running using the `Ctrl+c` (`Cmd+c` in macos), we automatically catch the signal and try to finish whathever steps are currently running. If it got hang by some reason, repeating the command 2 times it will force the pipeline close.
+In case you want to stop the pipeline while it's running using the `Ctrl+c` (`Cmd+c` in macos), we automatically catch the signal and try to finish whatever steps are currently running. If it got hang by some reason, repeating the command 2 times it will force the pipeline close.
 
 !!! Note
 
