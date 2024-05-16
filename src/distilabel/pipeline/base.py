@@ -549,6 +549,7 @@ class _BatchManagerStep(_Serializable):
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
     convergence_step: bool = False
+    next_expected_created_from_batch_seq_no: int = 0
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -719,6 +720,7 @@ class _BatchManagerStep(_Serializable):
             step_name: self.input_batch_size for step_name in self.data
         }
         batches_used = defaultdict(list)
+        batches_completely_consumed = 0
         data = defaultdict(list)
         for batch in batches:
             batch_data = batch.data[0]
@@ -736,6 +738,7 @@ class _BatchManagerStep(_Serializable):
             # If the batch was entirely consumed, then remove it from the buffer
             if num_rows >= len(batch_data):
                 self.data[batch.step_name].remove(batch)
+                batches_completely_consumed += 1
                 continue
 
             # The batch was not entirely consumed. so we need to update the batch
@@ -743,6 +746,12 @@ class _BatchManagerStep(_Serializable):
             batch_idx = self.data[batch.step_name].index(batch)
             batch_ref = self.data[batch.step_name][batch_idx]
             batch_ref.data[0] = batch_data[len(selected_data) :]
+
+        # If all the batches grouped by the `seq_no` in `created_from` were consumed, then
+        # we can update the `next_expected_created_from_batch_seq_no` to the next one
+        # to avoid skipping batches
+        if batches_completely_consumed == len(batches):
+            self.next_expected_created_from_batch_seq_no += 1
 
         return list(data.values()), dict(batches_used)
 
@@ -843,7 +852,12 @@ class _BatchManagerStep(_Serializable):
         grouped_batches = self._group_batches_by_created_from()
         if not grouped_batches:
             return False
-        _, batches = grouped_batches[0]
+        seq_no, batches = grouped_batches[0]
+
+        # If the `seq_no` from the `created_from` field is not the expected one, then
+        # we cannot create a batch yet or the order will be messed up
+        if seq_no != self.next_expected_created_from_batch_seq_no:
+            return False
 
         # Not all output batches to which the input batch was routed to haven't been
         # received

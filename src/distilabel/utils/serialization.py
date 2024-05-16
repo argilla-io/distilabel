@@ -277,6 +277,14 @@ class _Serializable:
 
     @classmethod
     def from_file(cls, path: StrOrPath) -> Self:
+        """Loads a class from a file.
+
+        Args:
+            path: the path to the file containing the serialized class.
+
+        Returns:
+            An instance of the class.
+        """
         path = Path(path)
         if path.suffix == ".json":
             return cls.from_json(path)

@@ -80,3 +80,24 @@ def test_routing_batch_function() -> None:
 
     for i, row in enumerate(distiset["default"]["train"]):
         assert row["index"] == i
+
+
+def test_routing_batch_function_irregular_batch_sizes() -> None:
+    with Pipeline(name="test") as pipeline:
+        load_dataset = LoadDataFromDicts(
+            data=[{"index": i, "instruction": f"Instruction {i}"} for i in range(1000)],
+            batch_size=200,
+        )
+
+        generates = [
+            Generate(input_batch_size=batch_size) for batch_size in [25, 50, 100, 200]
+        ]
+
+        combine_generations = CombineGenerations(input_batch_size=25)
+
+        load_dataset >> random_routing_batch >> generates >> combine_generations
+
+    distiset = pipeline.run(use_cache=False)
+
+    for i, row in enumerate(distiset["default"]["train"]):
+        assert row["index"] == i

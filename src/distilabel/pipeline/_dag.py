@@ -431,7 +431,7 @@ class DAG(_Serializable):
                 f" from step '{predecessor_step.name}' to step '{step.name}'."
             )
 
-        if step.input_batch_size % batch_size != 0:  # type: ignore
+        if batch_size % step.input_batch_size != 0:  # type: ignore
             raise ValueError(
                 f"Step '{step.name}' should have an `input_batch_size` that is a multiple"
                 f" of the `input_batch_size` or `batch_size` of the previous step."
