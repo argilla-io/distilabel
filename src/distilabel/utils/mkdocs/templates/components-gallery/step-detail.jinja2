@@ -1,6 +1,12 @@
-# {{ name }}
+# {{ step.name }}
 
+{% if step.docstring.short_description %}
+{{ step.docstring.short_description }}
+{% endif %}
+
+{% if step.docstring.description %}
 {{ step.docstring.description }}
+{% endif %}
 
 {% if step.docstring.attributes %}
 ### Attributes
@@ -22,17 +28,21 @@
 {{ mermaid_diagram }}
 ```
 
+{% if step.docstring.input_columns %}
 #### Inputs
 
 {% for column_name, value in step.docstring.input_columns.items() %}
-- **{{ column_name }}** (`{{ value[0] }}`): {{ value[1] }}
+- **{{ column_name }}** ({{ value[0] }}): {{ value[1] }}
 {% endfor %}
+{% endif %}
 
+{% if step.docstring.output_columns %}
 #### Outputs
 
 {% for column_name, value in step.docstring.output_columns.items() %}
-- **{{ column_name }}** (`{{ value[0] }}`): {{ value[1] }}
+- **{{ column_name }}** ({{ value[0] }}): {{ value[1] }}
 {% endfor %}
+{% endif %}
 
 
 {% if step.docstring.examples %}
@@ -41,7 +51,7 @@
 {% for example_title, code in step.docstring.examples.items() %}
 #### {{ example_title }}
 ```python
-{{ code }}
+{{ code | e }}
 ```
 {% endfor %}
 {% endif %}

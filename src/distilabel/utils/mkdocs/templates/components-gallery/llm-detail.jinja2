@@ -1,0 +1,42 @@
+# {{ llm.name }}
+
+{% if llm.docstring.short_description %}
+{{ llm.docstring.short_description }}
+{% endif %}
+
+{% if llm.docstring.description %}
+{{ llm.docstring.description }}
+{% endif %}
+
+{% if llm.docstring.attributes %}
+### Attributes
+{% for attribute_name, description in llm.docstring.attributes.items() %}
+- **{{ attribute_name }}**: {{ description }}
+{% endfor %}
+{% endif %}
+
+
+{% if llm.docstring.runtime_parameters %}
+### Runtime Parameters
+{% for parameter_name, description in llm.docstring.runtime_parameters.items() %}
+- **{{ parameter_name }}**: {{ description }}
+{% endfor %}
+{% endif %}
+
+{% if llm.docstring.examples %}
+### Examples
+
+{% for example_title, code in llm.docstring.examples.items() %}
+#### {{ example_title }}
+```python
+{{ code | replace("\n", "\n") }}
+```
+{% endfor %}
+{% endif %}
+
+{% if llm.docstring.references %}
+### References
+{% for reference, url in llm.docstring.references.items() %}
+- [{{ reference }}]({{ url }})
+{% endfor %}
+{% endif %}

@@ -99,8 +99,6 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
 
     if parts[0].strip() and not re.match(section_pattern, f"\n{parts[0].strip()}\n"):
         sections["description"] = parts[0].strip()
-    else:
-        sections["description"] = sections["short_description"]
 
     for i in range(1, len(parts), 2):
         section_name = parts[i].lower().replace(" ", "_")
@@ -119,7 +117,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         elif section_name == "runtime_parameters":
             # Parse runtime parameters into a dictionary
             items = re.findall(
-                r"\s*-\s*`?(\w+)`?:\s*(.*?)\s*(?=\n\s*-\s*`?\w+`?:|\n\s*$)",
+                r"\s*-\s*`?(\w+)`?:\s*(.*?)\s*(?=\n\s*-\s*`?\w+`?:|$)",
                 section_content,
                 re.DOTALL,
             )
@@ -129,13 +127,13 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
             }
         elif section_name in ("input_columns", "output_columns"):
             items = re.findall(
-                r"- (?P<name>\w+) \(`(?P<type>[^`]+)`\): (?P<description>.+?)(?=\n\s+-|$)",
+                r"- (?P<name>\w+) \((?P<type>`[^`]+`|[^)]+)\): (?P<description>.+?)(?=\n\s*-\s|\Z)",
                 section_content,
                 re.DOTALL,
             )
             sections[section_name] = {
                 item[0]: (
-                    item[1].replace("`", ""),
+                    item[1],
                     re.sub(r"[\t\n]+| {2,}", " ", item[2]).strip(),
                 )
                 for item in items

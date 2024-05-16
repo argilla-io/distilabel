@@ -62,6 +62,19 @@ _STEP_DETAIL_TEMPLATE = Template(
     ).read(),
 )
 
+_LLM_DETAIL_TEMPLATE = Template(
+    open(
+        str(
+            importlib_resources.files("distilabel")
+            / "utils"
+            / "mkdocs"
+            / "templates"
+            / "components-gallery"
+            / "llm-detail.jinja2"
+        )
+    ).read()
+)
+
 _TASKS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
     "evol": ":material-dna:",
@@ -190,20 +203,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         Returns:
             The relative paths to the generated files.
         """
-        content = _COMPONENTS_LIST_TEMPLATE.render(
-            title="Steps Gallery",
-            description="",
-            components=steps,
-            default_icon=":material-step-forward:",
-        )
 
         paths = ["components-gallery/steps/index.md"]
-
-        # Create the `components-gallery/steps.md` file
         steps_gallery_page_path = src_dir / paths[0]
         steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(steps_gallery_page_path, "w") as f:
-            f.write(content)
 
         # Create detail page for each `Step`
         for step in steps:
@@ -213,11 +216,8 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
                 docstring["icon"] = _STEPS_CATEGORY_TO_ICON.get(first_category, "")
 
             name = step["name"]
-            task_path = f"components-gallery/steps/{name.lower()}.md"
-            path = src_dir / task_path
 
             content = _STEP_DETAIL_TEMPLATE.render(
-                name=name,
                 step=step,
                 mermaid_diagram=_generate_mermaid_diagram_for_io(
                     step_name=step["name"],
@@ -225,10 +225,24 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
                     outputs=list(docstring["output_columns"].keys()),
                 ),
             )
+
+            step_path = f"components-gallery/steps/{name.lower()}.md"
+            path = src_dir / step_path
             with open(path, "w") as f:
                 f.write(content)
 
-            paths.append(task_path)
+            paths.append(step_path)
+
+        # Create the `components-gallery/steps.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Steps Gallery",
+            description="",
+            components=steps,
+            default_icon=":material-step-forward:",
+        )
+
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
 
         return paths
 
@@ -242,20 +256,10 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         Returns:
             The relative paths to the generated files.
         """
-        content = _COMPONENTS_LIST_TEMPLATE.render(
-            title="Tasks Gallery",
-            description="",
-            components=tasks,
-            default_icon=":material-check-outline:",
-        )
 
         paths = ["components-gallery/tasks/index.md"]
-
-        # Create the `components-gallery/steps/index.md` file
-        steps_gallery_page_path = src_dir / paths[0]
-        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(steps_gallery_page_path, "w") as f:
-            f.write(content)
+        tasks_gallery_page_path = src_dir / paths[0]
+        tasks_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Create detail page for each `Task`
         for task in tasks:
@@ -265,11 +269,8 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
                 docstring["icon"] = _TASKS_CATEGORY_TO_ICON.get(first_category, "")
 
             name = task["name"]
-            task_path = f"components-gallery/tasks/{name.lower()}.md"
-            path = src_dir / task_path
 
             content = _STEP_DETAIL_TEMPLATE.render(
-                name=name,
                 step=task,
                 mermaid_diagram=_generate_mermaid_diagram_for_io(
                     step_name=task["name"],
@@ -277,10 +278,24 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
                     outputs=list(docstring["output_columns"].keys()),
                 ),
             )
+
+            task_path = f"components-gallery/tasks/{name.lower()}.md"
+            path = src_dir / task_path
             with open(path, "w") as f:
                 f.write(content)
 
             paths.append(task_path)
+
+        # Create the `components-gallery/steps/index.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Tasks Gallery",
+            description="",
+            components=tasks,
+            default_icon=":material-check-outline:",
+        )
+
+        with open(tasks_gallery_page_path, "w") as f:
+            f.write(content)
 
         return paths
 
@@ -294,6 +309,23 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         Returns:
             The relative paths to the generated files.
         """
+
+        paths = ["components-gallery/llms/index.md"]
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create detail page for each `LLM`
+        for llm in llms:
+            content = _LLM_DETAIL_TEMPLATE.render(llm=llm)
+
+            llm_path = f"components-gallery/llms/{llm['name'].lower()}.md"
+            path = src_dir / llm_path
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(llm_path)
+
+        # Create the `components-gallery/llms/index.md` file
         content = _COMPONENTS_LIST_TEMPLATE.render(
             title="LLMs Gallery",
             description="",
@@ -302,11 +334,6 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             default_icon=":material-brain:",
         )
 
-        paths = ["components-gallery/llms/index.md"]
-
-        # Create the `components-gallery/llms/index.md` file
-        steps_gallery_page_path = src_dir / paths[0]
-        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
         with open(steps_gallery_page_path, "w") as f:
             f.write(content)
 
@@ -361,7 +388,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         return nav
 
 
-def _generate_mermaid_diagram_for_io(
+def _generate_mermaid_diagram_for_io(  # noqa: C901
     step_name: str, inputs: List[str], outputs: List[str]
 ) -> str:
     """Generates a mermaid diagram for representing the input and output columns of a `Step`.
@@ -378,31 +405,42 @@ def _generate_mermaid_diagram_for_io(
     mermaid = "graph TD\n"
 
     # Add dataset columns (inputs and outputs)
-    mermaid += "  subgraph Dataset\n"
-    for i, col in enumerate(inputs + outputs):
-        mermaid += f"    COL{i}[{col}]\n"
-    mermaid += "  end\n\n"
+    mermaid += "\tsubgraph Dataset\n"
+    if inputs:
+        mermaid += "\t\tsubgraph Columns\n"
+        for i, col in enumerate(inputs):
+            mermaid += f"\t\t\tICOL{i}[{col}]\n"
+        mermaid += "\t\tend\n"
+
+    if outputs:
+        mermaid += "\t\tsubgraph New columns\n"
+        for i, col in enumerate(outputs):
+            mermaid += f"\t\t\tOCOL{i}[{col}]\n"
+        mermaid += "\t\tend\n"
+    mermaid += "\tend\n\n"
 
     # Add steps
-    mermaid += f"  subgraph {step_name}\n"
+    mermaid += f"\tsubgraph {step_name}\n"
     if inputs:
         input_cols = ", ".join(inputs)
-        mermaid += f"    StepInput[Input Columns: {input_cols}]\n"
+        mermaid += f"\t\tStepInput[Input Columns: {input_cols}]\n"
 
     if outputs:
         output_cols = ", ".join(outputs)
-        mermaid += f"    StepOutput[Output Columns: {output_cols}]\n"
+        mermaid += f"\t\tStepOutput[Output Columns: {output_cols}]\n"
 
-    mermaid += "  end\n\n"
+    mermaid += "\tend\n\n"
 
     # Add connections
     if inputs:
         for i in range(len(inputs)):
-            mermaid += f"  COL{i} --> StepInput\n"
+            mermaid += f"\tICOL{i} --> StepInput\n"
 
     if outputs:
         for i in range(len(outputs)):
-            mermaid += f"  StepOutput --> COL{len(inputs) + i}\n"
-        mermaid += "  StepInput --> StepOutput\n"
+            mermaid += f"\tStepOutput --> OCOL{i}\n"
+
+    if inputs and outputs:
+        mermaid += "\tStepInput --> StepOutput\n"
 
     return mermaid
