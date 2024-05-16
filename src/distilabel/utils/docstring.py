@@ -166,9 +166,28 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
                 re.DOTALL,
             )
             sections[section_name] = {
-                item[0].strip(): item[1].strip() for item in example_items
+                item[0].strip(): remove_leading_whitespaces(item[1].strip())
+                for item in example_items
             }
         else:
             sections[section_name] = section_content
 
     return sections
+
+
+def remove_leading_whitespaces(text: str, num_spaces: int = 8) -> str:
+    """Removes the specified leading whitespaces from each line of a given string.
+
+    Args:
+        text: the string from which the leading whitespaces has to be removed.
+        num_spaces: the number of leading whitespaces to remove.
+
+    Returns:
+        The string with the leading whitespaces removed.
+    """
+    lines = text.split("\n")
+    trimmed_lines = [
+        line[num_spaces:] if line.startswith(" " * num_spaces) else line
+        for line in lines
+    ]
+    return "\n".join(trimmed_lines)
