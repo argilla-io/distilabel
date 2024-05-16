@@ -106,7 +106,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         if section_name in ("args", "raises", "attributes"):
             # Parse arguments, exceptions, or attributes into a dictionary
             items = re.findall(
-                r"\s*(\w+):\s*(.*?)\s*(?=\n\s*\w+:\s*|\n\s*$)",
+                r"\s*(\w+):\s*(.*?)\s*(?=\n\s*\w+:\s*|\n\s*$|$)",
                 section_content,
                 re.DOTALL,
             )
