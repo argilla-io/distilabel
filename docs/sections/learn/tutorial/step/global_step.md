@@ -102,6 +102,6 @@ with Pipeline(name="my-pipeline") as pipeline:
 
 #### [`DeitaFiltering`][distilabel.steps.DeitaFiltering]
 
-This is a step created for the [`DEITA`](../../examples/papers/deita.md) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
+This is a step created for the [`DEITA`](../../../examples/papers/deita.md) implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.
 
-To see a fully working example, please check the [Examples - Papers - DEITA](../../examples/papers/deita.md).
+To see a fully working example, please check the [Examples - Papers - DEITA](../../../examples/papers/deita.md).

@@ -115,33 +115,32 @@ plugins:
             heading_level: 4
   - social
   - distilabel/components-gallery:
-      add_after_page: Paper reproductions
+      add_after_page: Learn
 
 nav:
   - Introduction: "index.md"
   - Getting started:
-    - Features: "sections/features.md"
-    - Installation: "sections/installation.md"
-    - How-to-Guide: "sections/how_to_guide.md"
-  - Components:
-    - "sections/components/index.md"
-    - Step:
-        - "sections/components/step/index.md"
-        - GeneratorStep: "sections/components/step/generator_step.md"
-        - GlobalStep: "sections/components/step/global_step.md"
-    - Task:
-        - "sections/components/task/index.md"
-        - GeneratorTask: "sections/components/task/generator_task.md"
-    - LLM: "sections/components/llm/index.md"
-    - Pipeline: "sections/components/pipeline/index.md"
-    - CLI: "sections/components/cli/index.md"
-    - Advanced:
-        - "sections/components/advanced/index.md"
-        - Argilla: "sections/components/advanced/argilla.md"
-        - Caching: "sections/components/advanced/caching.md"
-        - Distiset: "sections/components/advanced/distiset.md"
-        - Routing: "sections/components/advanced/routing.md"
-        - Structured Generation: "sections/components/advanced/structured_generation.md"
+      - Installation: "sections/installation.md"
+      - How-to-Guide: "sections/how_to_guide.md"
+  - Learn:
+      - Tutorial:
+          - "sections/learn/tutorial/index.md"
+          - Step:
+              - "sections/learn/tutorial/step/index.md"
+              - GeneratorStep: "sections/learn/tutorial/step/generator_step.md"
+              - GlobalStep: "sections/learn/tutorial/step/global_step.md"
+          - Task:
+              - "sections/learn/tutorial/task/index.md"
+              - GeneratorTask: "sections/learn/tutorial/task/generator_task.md"
+          - LLM: "sections/learn/tutorial/llm/index.md"
+          - Pipeline: "sections/learn/tutorial/pipeline/index.md"
+          - CLI: "sections/learn/tutorial/cli/index.md"
+      - Advanced:
+          - "sections/learn/advanced/index.md"
+          - Argilla: "sections/learn/advanced/argilla.md"
+          - Caching: "sections/learn/advanced/caching.md"
+          - Distiset: "sections/learn/advanced/distiset.md"
+          - Structured Generation: "sections/learn/advanced/structured_generation.md"
   - Examples:
       - "sections/examples/index.md"
       - Papers:
