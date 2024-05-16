@@ -581,7 +581,7 @@ class _BatchManagerStep(_Serializable):
             return None
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
-        # list of data which is used to dermine if the batch to be created is the last one.
+        # list of data which is used to determine if the batch to be created is the last one.
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
 

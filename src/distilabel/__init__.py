@@ -14,6 +14,6 @@
 
 from rich import traceback as rich_traceback
 
-__version__ = "1.0.3"
+__version__ = "1.1.0"
 
 rich_traceback.install(show_locals=True)

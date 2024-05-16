@@ -2,7 +2,7 @@
 site_name: distilabel
 site_url: https://argilla-io.github.io/distilabel
 site_author: Argilla, Inc.
-site_description: AI Feedback framework
+site_description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
 
 # Repository
 repo_name: argilla-io/distilabel
@@ -62,6 +62,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
+  - pymdownx.superfences
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight:
@@ -69,12 +70,14 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: [examples/, docs/, "."]
   - pymdownx.details
   - pymdownx.tabbed:
       alternate_style: true
@@ -99,6 +102,9 @@ plugins:
         python:
           selection:
             inherited_members: true # Allow looking up inherited methods
+          options:
+            show_protected_members: true
+            show_private_members: true
           rendering:
             show_root_heading: true # actually display anything at all...
             # show_root_full_path: true  # display "diffrax.asdf" not just "asdf"
@@ -112,67 +118,72 @@ plugins:
       add_after_page: Paper reproductions
 
 nav:
-  - Getting started: index.md
-  - Learn:
-      - "sections/learn/index.md"
-      - Tutorial:
-          - Steps:
-              - "sections/learn/steps/index.md"
-              - "sections/learn/steps/generator_steps.md"
-              - "sections/learn/steps/global_steps.md"
-              - "sections/learn/steps/general_steps.md"
-              - "sections/learn/steps/argilla.md"
-          - Tasks:
-              - "sections/learn/tasks/index.md"
-              - "sections/learn/tasks/text_generation.md"
-              - "sections/learn/tasks/feedback_tasks.md"
-              - "sections/learn/tasks/special_tasks.md"
-          - LLMs:
-              - "sections/learn/llms/index.md"
-          - Pipeline:
-              - "sections/learn/pipelines/index.md"
-          - Command Line Interface:
-              - "sections/learn/cli.md"
-      - Advanced:
-          - Distiset:
-              - "sections/learn/distiset.md"
-          - Caching:
-              - "sections/learn/caching.md"
-  - Paper reproductions:
-      - "sections/papers/index.md"
+  - Introduction: "index.md"
+  - Getting started:
+    - Features: "sections/features.md"
+    - Installation: "sections/installation.md"
+    - How-to-Guide: "sections/how_to_guide.md"
+  - Components:
+    - "sections/components/index.md"
+    - Step:
+        - "sections/components/step/index.md"
+        - GeneratorStep: "sections/components/step/generator_step.md"
+        - GlobalStep: "sections/components/step/global_step.md"
+    - Task:
+        - "sections/components/task/index.md"
+        - GeneratorTask: "sections/components/task/generator_task.md"
+    - LLM: "sections/components/llm/index.md"
+    - Pipeline: "sections/components/pipeline/index.md"
+    - CLI: "sections/components/cli/index.md"
+    - Advanced:
+        - "sections/components/advanced/index.md"
+        - Argilla: "sections/components/advanced/argilla.md"
+        - Caching: "sections/components/advanced/caching.md"
+        - Distiset: "sections/components/advanced/distiset.md"
+        - Routing: "sections/components/advanced/routing.md"
+        - Structured Generation: "sections/components/advanced/structured_generation.md"
+  - Examples:
+      - "sections/examples/index.md"
       - Papers:
-          - "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning": "sections/papers/deita.md"
-          - "Self-Alignment with Instruction Backtranslation": "sections/papers/instruction_backtranslation.md"
-          - "UltraFeedback: Boosting Language Models with High-quality Feedback": "sections/papers/ultrafeedback.md"
+          - "sections/examples/papers/index.md"
+          - DEITA: "sections/examples/papers/deita.md"
+          - Instruction Backtranslation: "sections/examples/papers/instruction_backtranslation.md"
+          # - Prometheus: "sections/examples/papers/prometheus.md"
+          - UltraFeedback: "sections/examples/papers/ultrafeedback.md"
+  - FAQ: "sections/faq.md"
   - API Reference:
       - Pipeline:
           - "api/pipeline/index.md"
-          - "api/pipeline/pipeline.md"
-          - "api/pipeline/routing_batch_function.md"
-          - "api/pipeline/utils.md"
-          - "api/pipeline/typing.md"
-      - Steps:
-          - "api/steps/index.md"
-          - Generator Steps: "api/steps/generator_steps/generator_steps.md"
-          - Global Steps: "api/steps/global_steps/global_steps.md"
-          - Tasks:
-              - "api/steps/tasks/text_generation.md"
-              - "api/steps/tasks/preference_tasks.md"
-              - "api/steps/tasks/embeddings.md"
-          - "api/steps/decorator.md"
-      - LLMs:
-          - "api/llms/index.md"
-          - "api/llms/anthropic.md"
-          - "api/llms/anyscale.md"
-          - "api/llms/groq.md"
-          - "api/llms/huggingface.md"
-          - "api/llms/litellm.md"
-          - "api/llms/llamacpp.md"
-          - "api/llms/mistral.md"
-          - "api/llms/ollama.md"
-          - "api/llms/openai.md"
-          - "api/llms/together.md"
-          - "api/llms/vertexai.md"
-          - "api/llms/vllm.md"
-      - Command Line Interface:
-          - "api/cli.md"
+          - Routing Batch Function: "api/pipeline/routing_batch_function.md"
+          - Typing: "api/pipeline/typing.md"
+          - Utils: "api/pipeline/utils.md"
+      - Step:
+          - "api/step/index.md"
+          - GeneratorStep: "api/step/generator_step.md"
+          - GlobalStep: "api/step/global_step.md"
+          - "@step": "api/step/decorator.md"
+      - Step Gallery:
+          - Argilla: "api/step_gallery/argilla.md"
+          - Columns: "api/step_gallery/columns.md"
+          - Extra: "api/step_gallery/extra.md"
+      - Task:
+          - "api/task/index.md"
+          - GeneratorTask: "api/task/generator_task.md"
+      - Task Gallery: "api/task_gallery/index.md"
+      - LLM:
+          - "api/llm/index.md"
+      - LLM Gallery:
+          - Anthropic: "api/llm/anthropic.md"
+          - Anyscale: "api/llm/anyscale.md"
+          - Azure (via OpenAI): "api/llm/azure.md"
+          - Groq: "api/llm/groq.md"
+          - Hugging Face: "api/llm/huggingface.md"
+          - LiteLLM: "api/llm/litellm.md"
+          - llama.cpp: "api/llm/llamacpp.md"
+          - Mistral: "api/llm/mistral.md"
+          - Ollama: "api/llm/ollama.md"
+          - OpenAI: "api/llm/openai.md"
+          - Together AI: "api/llm/together.md"
+          - Google Vertex AI: "api/llm/vertexai.md"
+          - vLLM: "api/llm/vllm.md"
+      - CLI: "api/cli.md"

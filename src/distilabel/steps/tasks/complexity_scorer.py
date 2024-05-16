@@ -39,7 +39,7 @@ class ComplexityScorer(Task):
 
     `ComplexityScorer` is a pre-defined task used to rank a list of instructions based in
     their complexity. It's an implementation of the complexity score task from the paper
-    'What MakesGood Data for Alignment? A Comprehensive Study of Automatic Data Selection
+    'What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection
     in Instruction Tuning'.
 
     Attributes:
