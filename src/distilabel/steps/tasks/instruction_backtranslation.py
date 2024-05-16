@@ -44,6 +44,9 @@ class InstructionBacktranslation(Task):
         - reason (`str`): The reason for the provided score.
         - model_name (`str`): The model name used to score the generation.
 
+    Categories:
+        - critique
+
     References:
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
     """

@@ -24,6 +24,8 @@ theme:
   name: material
   logo: assets/logo.svg
   favicon: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github-alt
   features:
     - navigation.sections # Sections are included in the navigation on the left.
     # - toc.integrate # # Table of contents is integrated on the left; does not appear separately on the right.
@@ -68,13 +70,20 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.snippets:
       check_paths: true
       base_path: [examples/, docs/, "."]
-  - pymdownx.superfences
   - pymdownx.details
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - footnotes
   - toc:
       permalink: true
@@ -105,32 +114,33 @@ plugins:
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
             heading_level: 4
   - social
+  - distilabel/components-gallery:
+      add_after_page: Learn
 
 nav:
   - Introduction: "index.md"
   - Getting started:
-    - Features: "sections/features.md"
-    - Installation: "sections/installation.md"
-    - How-to-Guide: "sections/how_to_guide.md"
-  - Components:
-    - "sections/components/index.md"
-    - Step:
-        - "sections/components/step/index.md"
-        - GeneratorStep: "sections/components/step/generator_step.md"
-        - GlobalStep: "sections/components/step/global_step.md"
-    - Task:
-        - "sections/components/task/index.md"
-        - GeneratorTask: "sections/components/task/generator_task.md"
-    - LLM: "sections/components/llm/index.md"
-    - Pipeline: "sections/components/pipeline/index.md"
-    - CLI: "sections/components/cli/index.md"
-    - Advanced:
-        - "sections/components/advanced/index.md"
-        - Argilla: "sections/components/advanced/argilla.md"
-        - Caching: "sections/components/advanced/caching.md"
-        - Distiset: "sections/components/advanced/distiset.md"
-        - Routing: "sections/components/advanced/routing.md"
-        - Structured Generation: "sections/components/advanced/structured_generation.md"
+      - Installation: "sections/installation.md"
+      - How-to-Guide: "sections/how_to_guide.md"
+  - Learn:
+      - Tutorial:
+          - "sections/learn/tutorial/index.md"
+          - Step:
+              - "sections/learn/tutorial/step/index.md"
+              - GeneratorStep: "sections/learn/tutorial/step/generator_step.md"
+              - GlobalStep: "sections/learn/tutorial/step/global_step.md"
+          - Task:
+              - "sections/learn/tutorial/task/index.md"
+              - GeneratorTask: "sections/learn/tutorial/task/generator_task.md"
+          - LLM: "sections/learn/tutorial/llm/index.md"
+          - Pipeline: "sections/learn/tutorial/pipeline/index.md"
+          - CLI: "sections/learn/tutorial/cli/index.md"
+      - Advanced:
+          - "sections/learn/advanced/index.md"
+          - Argilla: "sections/learn/advanced/argilla.md"
+          - Caching: "sections/learn/advanced/caching.md"
+          - Distiset: "sections/learn/advanced/distiset.md"
+          - Structured Generation: "sections/learn/advanced/structured_generation.md"
   - Examples:
       - "sections/examples/index.md"
       - Papers:

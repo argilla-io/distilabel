@@ -39,6 +39,9 @@ dynamic = ["version"]
 [project.scripts]
 distilabel = "distilabel.cli.app:app"
 
+[project.entry-points."mkdocs.plugins"]
+"distilabel/components-gallery" = "distilabel.utils.mkdocs.components_gallery:ComponentsGalleryPlugin"
+
 [project.optional-dependencies]
 dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
 docs = [

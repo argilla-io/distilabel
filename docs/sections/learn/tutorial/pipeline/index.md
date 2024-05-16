@@ -1,6 +1,6 @@
 # Pipeline
 
-The [`Pipeline`][distilabel.pipeline.Pipeline] is the central point in `distilabel`, the way to organize the steps to create your datasets. Up to this point we've seen how we can define different [`Step`][distilabel.steps.Step] and [`Task`][distilabel.steps.tasks.Task] subclasses in [Components - Step](../step/index.md) and [Components - Task](../task/index.md), respectively; which together with an [`LLM`][distilabel.llms.LLM] are the building blocks of our datasets, in this section we will take a look at how all these blocks are organized inside a [`Pipeline`][distilabel.pipeline.Pipeline].
+The [`Pipeline`][distilabel.pipeline.Pipeline] is the central point in `distilabel`, the way to organize the steps to create your datasets. Up to this point we've seen how we can define different [`Step`][distilabel.steps.Step] and [`Task`][distilabel.steps.tasks.Task] subclasses in [Tutorial - Step](../step/index.md) and [Tutorial - Task](../task/index.md), respectively; which together with an [`LLM`][distilabel.llms.LLM] are the building blocks of our datasets, in this section we will take a look at how all these blocks are organized inside a [`Pipeline`][distilabel.pipeline.Pipeline].
 
 !!! Note
     Currently `distilabel` implements a *local* version of a [`Pipeline`][distilabel.pipeline.Pipeline], and will assume that's the only definition, but this can be extended in the future to include remote execution of the [`Pipeline`][distilabel.pipeline.Pipeline].
@@ -91,7 +91,7 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
 1. Create a `CombineColumns` step to combine all the `generation` columns into a single column called `generations` and the `model_name` columns into a single column called `model_names`.
 2. Connect the `TextGeneration` task with the `CombineColumns` step, so the output data from the task is passed to the step that will combine all the `generation` columns.
 
-As the [`CombineColumns`][distilabel.steps.CombineColumns] is the last step or it's a leaf step of the pipeline because it doesn't have any successors, that means that the outputs of this step will be included in the returned [`Distiset`][distilabel.distiset.Distiset] (more information about it in [Components - Advanced - Distiset](../advanced/distiset.md)).
+As the [`CombineColumns`][distilabel.steps.CombineColumns] is the last step or it's a leaf step of the pipeline because it doesn't have any successors, that means that the outputs of this step will be included in the returned [`Distiset`][distilabel.distiset.Distiset] (more information about it in [Advanced - Distiset](../../advanced/distiset.md)).
 
 !!! NOTE
     One pipeline can have several leaf steps, which means that the outputs of all the leaf steps will be included in the returned `Distiset`, which will contain several subsets, one for each leaf step.
@@ -310,7 +310,7 @@ In case you want to stop the pipeline while it's running using the `Ctrl+c` (`Cm
 
     When pushing sending the signal to kill the process, you can expect to see the following log messages:
 
-    ![Pipeline ctrl+c](../../assets/images/sections/pipeline/pipeline-ctrlc.png)
+    ![Pipeline ctrl+c](../../../../assets/images/sections/pipeline/pipeline-ctrlc.png)
 
 ## Cache
 
@@ -456,4 +456,4 @@ To sump up, here is the full code of the pipeline we have created in this sectio
         )
     ```
 
-[^1]: We also have the *cache_dir* argument to pass, for more information on this parameter, we refer the reader to the [caching](../advanced/caching.md) section.
+[^1]: We also have the *cache_dir* argument to pass, for more information on this parameter, we refer the reader to the [caching](../../advanced/caching.md) section.

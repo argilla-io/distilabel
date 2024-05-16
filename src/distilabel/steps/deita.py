@@ -25,7 +25,9 @@ if TYPE_CHECKING:
 
 
 class DeitaFiltering(GlobalStep):
-    """Filter the dataset based on the DEITA score and the cosine distance between the embeddings.
+    """Filter dataset rows using DEITA filtering strategy.
+
+    Filter the dataset based on the DEITA score and the cosine distance between the embeddings.
     It's an implementation of the filtering step from the paper 'What Makes Good Data
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
 
@@ -56,6 +58,9 @@ class DeitaFiltering(GlobalStep):
             score.
         - nearest_neighbor_distance (`float`): The cosine distance between the embeddings
             of the instruction-response pair.
+
+    Categories:
+        - filtering
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

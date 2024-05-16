@@ -23,9 +23,10 @@ if TYPE_CHECKING:
 
 
 class LoadDataFromDicts(GeneratorStep):
-    """A generator step that loads a dataset from a list of dictionaries.
+    """Loads a dataset from a list of dictionaries.
 
-    This step will load the dataset and yield the transformed data as it is loaded from the list of dictionaries.
+    `GeneratorStep` that loads a dataset from a list of dictionaries and yields it in
+    batches.
 
     Attributes:
         data: The list of dictionaries to load the data from.
@@ -34,7 +35,11 @@ class LoadDataFromDicts(GeneratorStep):
         - `batch_size`: The batch size to use when processing the data.
 
     Output columns:
-        Dynamic, based on the keys found on the first dictionary of the list
+        - dynamic (based on the keys found on the first dictionary of the list): The columns
+            of the dataset.
+
+    Categories:
+        - load
     """
 
     data: List[Dict[str, Any]]

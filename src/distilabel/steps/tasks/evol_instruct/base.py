@@ -30,7 +30,9 @@ if TYPE_CHECKING:
 
 
 class EvolInstruct(Task):
-    """WizardLM: Empowering Large Language Models to Follow Complex Instructions
+    """Evolve instructions using an `LLM`.
+
+    WizardLM: Empowering Large Language Models to Follow Complex Instructions
 
     Attributes:
         num_evolutions: The number of evolutions to be performed.
@@ -59,6 +61,10 @@ class EvolInstruct(Task):
             and `store_evolutions=False`.
         - answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
             and `store_evolutions=True`.
+
+    Categories:
+        - evol
+        - instruction
 
     References:
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)

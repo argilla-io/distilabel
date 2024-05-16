@@ -31,7 +31,9 @@ if TYPE_CHECKING:
 
 
 class TextGenerationToArgilla(Argilla):
-    """Step that creates a dataset in Argilla during the load phase, and then pushes the input
+    """Creates a text generation dataset in Argilla.
+
+    `Step` that creates a dataset in Argilla during the load phase, and then pushes the input
     batches into it as records. This dataset is a text-generation dataset, where there's one field
     per each input, and then a label question to rate the quality of the completion in either bad
     (represented with 👎) or good (represented with 👍).

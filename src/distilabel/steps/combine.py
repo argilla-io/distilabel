@@ -24,7 +24,9 @@ if TYPE_CHECKING:
 
 
 class CombineColumns(Step):
-    """CombineColumns is a Step that implements the `process` method that calls the `combine_dicts`
+    """Combines columns from a list of `StepInput`.
+
+    `CombineColumns` is a `Step` that implements the `process` method that calls the `combine_dicts`
     function to handle and combine a list of `StepInput`. Also `CombineColumns` provides two attributes
     `columns` and `output_columns` to specify the columns to merge and the output columns
     which will override the default value for the properties `inputs` and `outputs`, respectively.
@@ -34,10 +36,11 @@ class CombineColumns(Step):
         output_columns: Optional list of strings with the names of the output columns.
 
     Input columns:
-        - dynamic, based on the `columns` value provided.
+        - dynamic (determined by `columns` attribute): The columns to merge.
 
     Output columns:
-        - dynamic, based on the `output_columns` value provided or `merged_{column}` for each column in `columns`.
+        - dynamic (determined by `columns` and `output_columns` attributes): The columns
+            that were merged.
     """
 
     columns: List[str]

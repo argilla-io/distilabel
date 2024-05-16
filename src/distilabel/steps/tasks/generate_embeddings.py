@@ -24,7 +24,9 @@ if TYPE_CHECKING:
 
 
 class GenerateEmbeddings(Step):
-    """Generate embeddings for a text input using the last hidden state of an `LLM`, as
+    """Generate embeddings using the last hidden state of an `LLM`.
+
+    Generate embeddings for a text input using the last hidden state of an `LLM`, as
     described in the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
 
@@ -38,6 +40,10 @@ class GenerateEmbeddings(Step):
     Output columns:
         - embedding (`List[float]`): The embedding of the input text or conversation.
         - model_name (`str`): The model name used to generate the embeddings.
+
+    Categories:
+        - embedding
+        - llm
 
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)

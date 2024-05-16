@@ -113,7 +113,7 @@ def prepare_guided_output(
             be obtained in the `LLM` itself.
 
     Raises:
-        ValueError if the format is not "json" or "regex".
+        ValueError: if the format is not "json" or "regex".
 
     Returns:
         A dictionary containing the processor to use for the guided output, and in

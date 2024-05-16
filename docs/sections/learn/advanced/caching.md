@@ -54,19 +54,19 @@ Let's take a look at the logging messages from a sample pipeline.
 
 When we run a `Pipeline` for the first time
 
-![Pipeline 1](../../assets/images/sections/caching/caching_pipe_1.png)
+![Pipeline 1](../../../assets/images/sections/caching/caching_pipe_1.png)
 
 If we decide to stop the pipeline (say we kill the run altogether via `CTRL + C` or `CMD + C` in *macOS*), we will see the signal sent to the different workers:
 
-![Pipeline 2](../../assets/images/sections/caching/caching_pipe_2.png)
+![Pipeline 2](../../../assets/images/sections/caching/caching_pipe_2.png)
 
 After this step, when we run again the pipeline, the first log message we see corresponds to "Load pipeline from cache", which will restart processing from where it stopped:
 
-![Pipeline 3](../../assets/images/sections/caching/caching_pipe_3.png)
+![Pipeline 3](../../../assets/images/sections/caching/caching_pipe_3.png)
 
 Finally, if we decide to run the same `Pipeline` after it has finished completely, it won't start again but resume the process, as we already have all the data processed:
 
-![Pipeline 4](../../assets/images/sections/caching/caching_pipe_4.png)
+![Pipeline 4](../../../assets/images/sections/caching/caching_pipe_4.png)
 
 ### Serialization
 

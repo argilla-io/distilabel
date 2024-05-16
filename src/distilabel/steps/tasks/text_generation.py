@@ -21,7 +21,9 @@ from distilabel.utils.chat import is_openai_format
 
 
 class TextGeneration(Task):
-    """TextGeneration is a pre-defined task that defines the `instruction` as the input
+    """Simple text generation with an `LLM` given an instruction.
+
+    `TextGeneration` is a pre-defined task that defines the `instruction` as the input
     and `generation` as the output. This task is used to generate text based on the input
     instruction. The model_name is also returned as part of the output in order to enhance it.
 
@@ -36,6 +38,16 @@ class TextGeneration(Task):
     Output columns:
         - generation (`str`): The generated text.
         - model_name (`str`): The model name used to generate the text.
+
+    Categories:
+        - text-generation
+
+    Examples:
+        ```python
+        from distilabel.steps.tasks import TextGeneration
+
+        task = TextGeneration(llm=LLM(...))
+        ```
     """
 
     use_system_prompt: bool = True
@@ -92,7 +104,9 @@ class TextGeneration(Task):
 
 
 class ChatGeneration(Task):
-    """ChatGeneration is a pre-defined task that defines the `messages` as the input
+    """Generates text based on a conversation.
+
+    `ChatGeneration` is a pre-defined task that defines the `messages` as the input
     and `generation` as the output. This task is used to generate text based on a conversation.
     The `model_name` is also returned as part of the output in order to enhance it.
 
@@ -103,6 +117,12 @@ class ChatGeneration(Task):
     Output columns:
         - generation (`str`): The generated text from the assistant.
         - model_name (`str`): The model name used to generate the text.
+
+    Categories:
+        - chat-generation
+
+    Icon:
+        `:material-chat:`
     """
 
     @property

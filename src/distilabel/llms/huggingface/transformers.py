@@ -63,6 +63,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             Face Hub. If not provided, the `HF_TOKEN` environment or `huggingface_hub` package
             local configuration will be used. Defaults to `None`.
 
+    Icon:
+        `:hugging:`
     """
 
     model: str

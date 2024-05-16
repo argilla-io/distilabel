@@ -41,7 +41,7 @@ class _Task(_Step, ABC):
     `format_input` and `format_output` methods to format the inputs and outputs of the
     task. It also adds a `llm` attribute to be used as the LLM to generate the outputs.
 
-    Args:
+    Attributes:
         llm: the `LLM` to be used to generate the outputs of the task.
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
