@@ -1,5 +1,6 @@
 ---
-toc: false
+hide: 
+  - toc
 ---
 
 # Components Gallery
