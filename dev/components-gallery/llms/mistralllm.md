@@ -1,0 +1,45 @@
+# MistralLLM
+
+
+Mistral LLM implementation running the async API client.
+
+
+
+
+
+### Attributes
+
+- **model**: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.
+
+- **endpoint**: the endpoint to use for the Mistral API. Defaults to "https://api.mistral.ai".
+
+- **api_key**: the API key to authenticate the requests to the Mistral API. Defaults to `None` which  means that the value set for the environment variable `OPENAI_API_KEY` will be used, or  `None` if not set.
+
+- **max_retries**: the maximum number of retries to attempt when a request fails. Defaults to `5`.
+
+- **timeout**: the maximum time in seconds to wait for a response. Defaults to `120`.
+
+- **max_concurrent_requests**: the maximum number of concurrent requests to send. Defaults  to `64`.
+
+- **_api_key_env_var**: the name of the environment variable to use for the API key. It is meant to  be used internally.
+
+- **_aclient**: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.  Set in the `load` method.
+
+
+
+
+
+### Runtime Parameters
+
+- **api_key**: the API key to authenticate the requests to the Mistral API.
+
+- **max_retries**: the maximum number of retries to attempt when a request fails.  Defaults to `5`.
+
+- **timeout**: the maximum time in seconds to wait for a response. Defaults to `120`.
+
+- **max_concurrent_requests**: the maximum number of concurrent requests to send.  Defaults to `64`.
+
+
+
+
+
