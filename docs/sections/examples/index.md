@@ -10,9 +10,9 @@ It makes use of a local model which can be downlaoded using curl (explained in t
 !!! Run
 
     ```python
-    python examples/rpg_characters_llamacpp.py
+    python examples/structured_generation_with_outlines.py
     ```
 
-```python title="rpg_characters_llamacpp.py"
---8<-- "examples/rpg_characters_llamacpp.py"
+```python title="structured_generation_with_outlines.py"
+--8<-- "examples/structured_generation_with_outlines.py"
 ```
