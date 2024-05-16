@@ -1053,10 +1053,16 @@ class _BatchManager(_Serializable):
         """
 
         for step_name, batch in self._last_batch_received.items():
-            if not batch:
+            # It can happen that an step hasn't received any batch because of a `routing_batch_function`,
+            # but the `LAST_BATCH_SENT_FLAG` was sent to it.
+            if not batch and step_name not in self._last_batch_flag_sent_to:
                 return True
 
-            if not batch.last_batch and step_name not in self._last_batch_flag_sent_to:
+            if (
+                batch
+                and not batch.last_batch
+                and step_name not in self._last_batch_flag_sent_to
+            ):
                 return True
 
             if not self.get_last_batch_sent(step_name):
