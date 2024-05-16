@@ -595,6 +595,30 @@ class TestDAG:
         ):
             pipeline.dag.validate()
 
+    def test_validate_step_receiving_routed_batches_input_batch_size_multiple(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=7)
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        convergence_step = DummyStep2(name="convergence_step", pipeline=pipeline)
+        (
+            generator_step_1
+            >> routing_batch_function_1
+            >> [dummy_step_1, dummy_step_2]
+            >> convergence_step
+        )
+        with pytest.raises(
+            ValueError,
+            match="Step 'demon' should have an `input_batch_size` that is a multiple of the `input_batch_size` or `batch_size`",
+        ):
+            pipeline.dag.validate()
+
 
 class TestDagSerialization:
     def test_dag_dump(self, dummy_step_1: "Step", dummy_step_2: "Step") -> None:
