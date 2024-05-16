@@ -83,7 +83,7 @@ class PrometheusEval(Task):
     Both evaluations provide the possibility whether to use a reference answer to compare with or not
     via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
     based on the following default aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`,
-    and `reasoning`, that can be overriden via `rubrics`, and the selected rubric is set via the attribute
+    and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
     `rubric`.
 
     Note:
@@ -96,7 +96,7 @@ class PrometheusEval(Task):
     Attributes:
         mode: the evaluation mode to use, either `absolute` or `relative`. It defines whether the task
             will evaluate one or two generations.
-        rubric: the score rubric to use within the prompt to run the critique based on differnt aspects.
+        rubric: the score rubric to use within the prompt to run the critique based on different aspects.
             Can be any existing key in the `rubrics` attribute, which by default means that it can be:
             `helpfulness`, `harmlessness`, `honesty`, `factual-validity`, or `reasoning`. Those will only
             work if using the default `rubrics`, otherwise, the provided `rubrics` should be used.

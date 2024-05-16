@@ -1,4 +1,0 @@
-## AzureOpenAILLM
-
-::: distilabel.llms.azure
-

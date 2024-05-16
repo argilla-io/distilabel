@@ -21,7 +21,7 @@ import mkdocs_gen_files
 nav = mkdocs_gen_files.Nav()
 
 src = Path(__file__).parent.parent.parent / "src"
-excluded = ["distilabel/utils", "distilabel/logger.py", "distilabel/progress_bar.py"]
+excluded = ["distilabel/utils"]
 
 for path in sorted(src.rglob("*.py")):
     if any(path.name.__contains__(exclude) for exclude in excluded):
