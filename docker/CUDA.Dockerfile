@@ -8,7 +8,6 @@ RUN apt-get update && \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 ENV PYTHON=/usr/bin/python
 
-
 ARG TORCH="2.2.0"
 
 RUN python -m pip install --no-cache-dir --upgrade pip && \
@@ -21,7 +20,7 @@ FROM runpod/pytorch:2.1.1-py3.10-cuda12.1.1-devel-ubuntu22.04
 
 COPY . .
 
-RUN pip install -e "[argilla,hf-transformers,hf-inference-endpoints,llama-cpp,openai,vllm]."
+RUN pip install -e ".[argilla,hf-transformers,hf-inference-endpoints,llama-cpp,openai,vllm]"
 
 EXPOSE 80
 
