@@ -1,5 +1,5 @@
 # Extra
 
-::: distilabel.steps.conversation
 ::: distilabel.steps.deita
+::: distilabel.steps.formatting
 ::: distilabel.steps.typing
