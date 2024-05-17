@@ -30,6 +30,7 @@ from typing import (
 import networkx as nx
 
 from distilabel.pipeline.constants import (
+    CONVERGENCE_STEP_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
@@ -352,6 +353,9 @@ class DAG(_Serializable):
             for predecessor in predecessors
         ):
             return
+
+        # Mark the step as a convergence step
+        self.set_step_attr(step.name, CONVERGENCE_STEP_ATTR_NAME, True)  # type: ignore
 
         # Check if all the predecessors of the step are receiving routed batches from the
         # same step

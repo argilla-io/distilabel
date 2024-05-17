@@ -17,3 +17,4 @@ from typing import Final
 STEP_ATTR_NAME: Final[str] = "step"
 RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"
 ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
+CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
