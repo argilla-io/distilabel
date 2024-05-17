@@ -1,11 +1,3 @@
----
-description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
-hide: 
-  - toc
----
-
-<style>.md-typeset h1, .md-content__button { display: none;}</style>
-
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/argilla-io/distilabel/blob/main/docs/assets/distilabel-white.png?raw=true">
