@@ -31,11 +31,9 @@ class ConversationTemplate(Step):
         - conversation (`ChatType`): The conversation template.
 
     Categories:
+        - format
         - chat
         - template
-
-    Icon:
-        `:material-chat:`
     """
 
     @property

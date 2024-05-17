@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.conversation import ConversationTemplate
+from distilabel.steps.formatting.conversation import ConversationTemplate
 
 
 class TestConversationTemplate:

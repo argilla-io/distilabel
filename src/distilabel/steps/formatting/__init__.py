@@ -11,19 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from distilabel.steps.formatting.dpo import (
-    FormatChatGenerationDPO,
-    FormatTextGenerationDPO,
-)
-from distilabel.steps.formatting.sft import (
-    FormatChatGenerationSFT,
-    FormatTextGenerationSFT,
-)
-
-__all__ = [
-    "FormatChatGenerationDPO",
-    "FormatChatGenerationSFT",
-    "FormatTextGenerationDPO",
-    "FormatTextGenerationSFT",
-]

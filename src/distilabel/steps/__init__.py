@@ -16,10 +16,18 @@ from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.combine import CombineColumns
-from distilabel.steps.conversation import ConversationTemplate
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.expand import ExpandColumns
+from distilabel.steps.formatting.conversation import ConversationTemplate
+from distilabel.steps.formatting.dpo import (
+    FormatChatGenerationDPO,
+    FormatTextGenerationDPO,
+)
+from distilabel.steps.formatting.sft import (
+    FormatChatGenerationSFT,
+    FormatTextGenerationSFT,
+)
 from distilabel.steps.generators.data import LoadDataFromDicts
 from distilabel.steps.generators.huggingface import LoadHubDataset
 from distilabel.steps.globals.huggingface import PushToHub
@@ -33,6 +41,10 @@ __all__ = [
     "ConversationTemplate",
     "DeitaFiltering",
     "ExpandColumns",
+    "FormatChatGenerationDPO",
+    "FormatChatGenerationSFT",
+    "FormatTextGenerationDPO",
+    "FormatTextGenerationSFT",
     "GeneratorStep",
     "GlobalStep",
     "KeepColumns",

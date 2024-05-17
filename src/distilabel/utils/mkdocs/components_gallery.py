@@ -82,6 +82,7 @@ _TASKS_CATEGORY_TO_ICON = {
     "critique": ":material-comment-edit:",
     "scorer": ":octicons-number-16:",
     "embedding": ":material-vector-line:",
+    "format": ":material-format-list-bulleted:",
 }
 
 _STEPS_CATEGORY_TO_ICON = {
