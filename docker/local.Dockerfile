@@ -1,4 +1,6 @@
-FROM python:3.11-slim 
+ARG PYTHON_VERSION="3.11-slim"
+
+FROM python:${PYTHON_VERSION}
 
 WORKDIR /app
 
