@@ -8,6 +8,11 @@
 {{ step.docstring.description }}
 {% endif %}
 
+{% if step.docstring.note %}
+### Note
+{{ step.docstring.note }}
+{% endif %}
+
 {% if step.docstring.attributes %}
 ### Attributes
 {% for attribute_name, description in step.docstring.attributes.items() %}
