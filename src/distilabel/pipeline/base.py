@@ -714,13 +714,12 @@ class _BatchManagerStep(_Serializable):
             used to create the batch.
         """
         grouped_batches = self._group_batches_by_created_from()
-        _, batches = grouped_batches[0]
+        seq_no, batches = grouped_batches[0]
 
         remaining_rows_per_step = {
             step_name: self.input_batch_size for step_name in self.data
         }
         batches_used = defaultdict(list)
-        batches_completely_consumed = 0
         data = defaultdict(list)
         for batch in batches:
             batch_data = batch.data[0]
@@ -738,7 +737,6 @@ class _BatchManagerStep(_Serializable):
             # If the batch was entirely consumed, then remove it from the buffer
             if num_rows >= len(batch_data):
                 self.data[batch.step_name].remove(batch)
-                batches_completely_consumed += 1
                 continue
 
             # The batch was not entirely consumed. so we need to update the batch
@@ -750,8 +748,10 @@ class _BatchManagerStep(_Serializable):
         # If all the batches grouped by the `seq_no` in `created_from` were consumed, then
         # we can update the `next_expected_created_from_batch_seq_no` to the next one
         # to avoid skipping batches
-        if batches_completely_consumed == len(batches):
-            self.next_expected_created_from_batch_seq_no += 1
+        if grouped_batches := self._group_batches_by_created_from():
+            next_seq_no, batches = grouped_batches[0]
+            if next_seq_no != seq_no:
+                self.next_expected_created_from_batch_seq_no += 1
 
         return list(data.values()), dict(batches_used)
 
@@ -780,6 +780,9 @@ class _BatchManagerStep(_Serializable):
             idx_drop_batches = []
             remaining_rows: int = self.input_batch_size  # type: ignore
             for idx, batch in enumerate(self.data[step_name]):
+                if remaining_rows == 0:
+                    break
+
                 # Get `remaining_rows` or the remaining rows in the batch and add it to
                 # the step data that will be used to create the batch
                 batch_data = batch.data[0]
@@ -1053,20 +1056,15 @@ class _BatchManager(_Serializable):
         """
 
         for step_name, batch in self._last_batch_received.items():
-            # It can happen that an step hasn't received any batch because of a `routing_batch_function`,
-            # but the `LAST_BATCH_SENT_FLAG` was sent to it.
-            if not batch and step_name not in self._last_batch_flag_sent_to:
-                return True
+            if step_name not in self._last_batch_flag_sent_to:
+                if not batch:
+                    return True
 
-            if (
-                batch
-                and not batch.last_batch
-                and step_name not in self._last_batch_flag_sent_to
-            ):
-                return True
+                if not batch.last_batch:
+                    return True
 
-            if not self.get_last_batch_sent(step_name):
-                return True
+                if not self.get_last_batch_sent(step_name):
+                    return True
 
         return False
 
