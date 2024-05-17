@@ -123,6 +123,7 @@ nav:
       - Installation: "sections/installation.md"
       - How-to-Guide: "sections/how_to_guide.md"
   - Learn:
+      - "sections/learn/index.md"
       - Tutorial:
           - "sections/learn/tutorial/index.md"
           - Step:
@@ -141,14 +142,15 @@ nav:
           - Caching: "sections/learn/advanced/caching.md"
           - Distiset: "sections/learn/advanced/distiset.md"
           - Structured Generation: "sections/learn/advanced/structured_generation.md"
-  - Examples:
-      - "sections/examples/index.md"
+  - Pipeline Samples:
+      - "sections/pipeline_samples/index.md"
+      - Examples: "sections/pipeline_samples/examples/index.md"
       - Papers:
-          - "sections/examples/papers/index.md"
-          - DEITA: "sections/examples/papers/deita.md"
-          - Instruction Backtranslation: "sections/examples/papers/instruction_backtranslation.md"
+          - "sections/pipeline_samples/papers/index.md"
+          - DEITA: "sections/pipeline_samples/papers/deita.md"
+          - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           # - Prometheus: "sections/examples/papers/prometheus.md"
-          - UltraFeedback: "sections/examples/papers/ultrafeedback.md"
+          - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
   - FAQ: "sections/faq.md"
   - API Reference:
       - Pipeline:
