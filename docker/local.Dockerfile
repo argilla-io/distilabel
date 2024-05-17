@@ -1,18 +1,8 @@
-FROM python:3.11-slim AS base
-
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /
-
 FROM python:3.11-slim 
 
-COPY . .
+WORKDIR /app
 
-RUN pip install -e ".[argilla,hf-transformers,hf-inference-endpoints]"
+RUN pip install "distilabel[argilla]"
 
 EXPOSE 80
 
