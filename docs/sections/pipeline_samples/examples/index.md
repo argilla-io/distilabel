@@ -1,6 +1,6 @@
 # Examples
 
-This section contains different example pipelines.
+This section contains different example pipelines that showcase different tasks, maybe you can take inspiration from them.
 
 ### llama.cpp with outlines
 

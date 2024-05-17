@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 
 class FormatTextGenerationSFT(Step):
-    """Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT) following the
-    standard formatting from frameworks such as `axolotl` or `alignment-handbook`.
+    """Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
 
     `FormatTextGenerationSFT` is a `Step` that formats the output of a `TextGeneration` task for
     Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as `axolotl`

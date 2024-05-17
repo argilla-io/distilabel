@@ -22,13 +22,13 @@ if TYPE_CHECKING:
 
 
 class FormatTextGenerationDPO(Step):
-    """Format the output of a combination of a `TextGeneration` + a preference task such as
-    `UltraFeedback`, for Direct Preference Optimization (DPO) following the standard formatting
-    from frameworks such as `axolotl` or `alignment-handbook`.
+    """Format the output of your LLMs for Direct Preference Optimization (DPO).
 
     `FormatTextGenerationDPO` is a `Step` that formats the output of the combination of a `TextGeneration`
     task with a preference `Task` i.e. a task generating `ratings`, so that those are used to rank the
     existing generations and provide the `chosen` and `rejected` generations based on the `ratings`.
+    Use this step to transform the output of a combination of a `TextGeneration` + a preference task such as
+    `UltraFeedback` following the standard formatting from frameworks such as `axolotl` or `alignment-handbook`.
 
     Note:
         The `generations` column should contain at least two generations, the `ratings` column should

@@ -8,6 +8,11 @@
 {{ llm.docstring.description }}
 {% endif %}
 
+{% if llm.docstring.note %}
+### Note
+{{ llm.docstring.note }}
+{% endif %}
+
 {% if llm.docstring.attributes %}
 ### Attributes
 {% for attribute_name, description in llm.docstring.attributes.items() %}

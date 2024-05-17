@@ -24,6 +24,9 @@ def test_parse_google_docstring() -> None:
             dummy_arg2: The second dummy argument.
             dummy_arg3: The third dummy argument.
 
+        Note:
+            Some note.
+
         Returns:
             A dummy return value.
 
@@ -54,6 +57,7 @@ def test_parse_google_docstring() -> None:
             "ValueError": "If something goes wrong.",
             "NotImplementedError": "If something goes wrong.",
         },
+        "note": "Some note.",
     }
 
 
@@ -62,6 +66,9 @@ def test_parse_google_docstring_with_distilabel_peculiarities() -> None:
         """This is a dummy function.
 
         And this is still a dummy function, but with a longer description.
+
+        Note:
+            Some note.
 
         Attributes:
             dummy_attr1: The first dummy attribute.
@@ -140,4 +147,5 @@ def test_parse_google_docstring_with_distilabel_peculiarities() -> None:
             "Example 1": "dummy_function()",
             "Example 2": "dummy_function()",
         },
+        "note": "Some note.",
     }

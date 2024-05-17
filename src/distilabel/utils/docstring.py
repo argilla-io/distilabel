@@ -32,6 +32,7 @@ class Docstring(TypedDict):
     icon: str
     references: Dict[str, str]
     examples: Dict[str, str]
+    note: str
 
 
 def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
@@ -58,6 +59,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         "icon": "",
         "references": {},
         "examples": {},
+        "note": "",
     }
 
     if not func.__doc__:
@@ -78,6 +80,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         "Icon",
         "References",
         "Examples",
+        "Note",
     ]
 
     # Match section headers
@@ -167,6 +170,8 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
                 item[0].strip(): remove_leading_whitespaces(item[1].strip())
                 for item in example_items
             }
+        elif section_name == "note":
+            sections[section_name] = remove_leading_whitespaces(section_content.strip())
         else:
             sections[section_name] = section_content
 
