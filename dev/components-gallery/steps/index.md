@@ -70,7 +70,7 @@ hide:
 
     ---
 
-    Format the output of a combination of a `TextGeneration` + a preference task such as
+    Format the output of your LLMs for Direct Preference Optimization (DPO).
 
     [:octicons-arrow-right-24: FormatTextGenerationDPO](formattextgenerationdpo.md){ .bottom }
 
@@ -86,7 +86,7 @@ hide:
 
     ---
 
-    Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT) following the
+    Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
 
     [:octicons-arrow-right-24: FormatTextGenerationSFT](formattextgenerationsft.md){ .bottom }
 

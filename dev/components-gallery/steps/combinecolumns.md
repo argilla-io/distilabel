@@ -12,6 +12,8 @@ Combines columns from a list of `StepInput`.
 
 
 
+
+
 ### Attributes
 
 - **columns**: List of strings with the names of the columns to merge.

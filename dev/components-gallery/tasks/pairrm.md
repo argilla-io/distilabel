@@ -7,6 +7,12 @@ Rank the candidates based on the input using the `LLM` model.
 
 
 
+### Note
+This step differs to other tasks as there is a single implementation of this model
+currently, and we will use a specific `LLM`.
+
+
+
 ### Attributes
 
 - **model**: The model to use for the ranking. Defaults to `"llm-blender/PairRM"`.

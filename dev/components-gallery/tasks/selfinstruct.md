@@ -14,6 +14,8 @@ Generate instructions based on a given input using an `LLM`.
 
 
 
+
+
 ### Attributes
 
 - **num_instructions**: The number of instructions to be generated. Defaults to 5.

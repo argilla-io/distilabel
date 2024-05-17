@@ -9,6 +9,8 @@ UltraFeedback: Boosting Language Models with High-quality Feedback.
 
 
 
+
+
 ### Attributes
 
 - **aspect**: The aspect to perform with the `UltraFeedback` model. The available aspects are:  - `helpfulness`: Evaluate text outputs based on helpfulness.  - `honesty`: Evaluate text outputs based on honesty.  - `instruction-following`: Evaluate text outputs based on given instructions.  - `truthfulness`: Evaluate text outputs based on truthfulness.  Additionally, a custom aspect has been defined by Argilla, so as to evaluate the overall  assessment of the text outputs within a single prompt. The custom aspect is:  - `overall-rating`: Evaluate text outputs based on an overall assessment.

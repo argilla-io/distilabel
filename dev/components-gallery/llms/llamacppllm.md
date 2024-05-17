@@ -7,6 +7,8 @@ llama.cpp LLM implementation running the Python bindings for the C++ code.
 
 
 
+
+
 ### Attributes
 
 - **model_path**: contains the path to the GGUF quantized model, compatible with the  installed version of the `llama.cpp` Python bindings.

@@ -7,6 +7,8 @@ TogetherLLM LLM implementation running the async API client of OpenAI.
 
 
 
+
+
 ### Attributes
 
 - **model**: the model name to use for the LLM e.g. "mistralai/Mixtral-8x7B-Instruct-v0.1".  Supported models can be found [here](https://api.together.xyz/models).

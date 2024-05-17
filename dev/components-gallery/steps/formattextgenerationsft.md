@@ -1,18 +1,18 @@
 # FormatTextGenerationSFT
 
 
-Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT) following the
+Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
 
 
 
-standard formatting from frameworks such as `axolotl` or `alignment-handbook`.
-
-    `FormatTextGenerationSFT` is a `Step` that formats the output of a `TextGeneration` task for
+`FormatTextGenerationSFT` is a `Step` that formats the output of a `TextGeneration` task for
     Supervised Fine-Tuning (SFT) following the standard formatting from frameworks such as `axolotl`
     or `alignment-handbook`. The output of the `TextGeneration` task is formatted into a chat-like
     conversation with the `instruction` as the user message and the `generation` as the assistant
     message. Optionally, if the `system_prompt` is available, it is included as the first message
     in the conversation.
+
+
 
 
 

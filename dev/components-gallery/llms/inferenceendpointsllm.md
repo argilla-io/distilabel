@@ -10,6 +10,8 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient` or `openai.A
 
 
 
+
+
 ### Attributes
 
 - **model_id**: the model ID to use for the LLM as available in the Hugging Face Hub, which  will be used to resolve the base URL for the serverless Inference Endpoints API requests.  Defaults to `None`.

@@ -10,9 +10,11 @@ Creates a text generation dataset in Argilla.
     per each input, and then a label question to rate the quality of the completion in either bad
     (represented with 👎) or good (represented with 👍).
 
-    Note:
-        This step is meant to be used in conjunction with a `TextGeneration` step and no column mapping
-        is needed, as it will use the default values for the `instruction` and `generation` columns.
+
+
+### Note
+This step is meant to be used in conjunction with a `TextGeneration` step and no column mapping
+is needed, as it will use the default values for the `instruction` and `generation` columns.
 
 
 

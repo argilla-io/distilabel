@@ -7,6 +7,8 @@ Groq API implementation using the async client for concurrent text generation.
 
 
 
+
+
 ### Attributes
 
 - **model**: the name of the model from the Groq API to use for the generation.

@@ -676,27 +676,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/examples/</loc>
-         <lastmod>2024-05-17</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/examples/papers/</loc>
-         <lastmod>2024-05-17</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/examples/papers/deita/</loc>
-         <lastmod>2024-05-17</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/examples/papers/instruction_backtranslation/</loc>
-         <lastmod>2024-05-17</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/examples/papers/ultrafeedback/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/</loc>
          <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -767,6 +747,36 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/task/generator_task/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/deita/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/instruction_backtranslation/</loc>
+         <lastmod>2024-05-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/ultrafeedback/</loc>
          <lastmod>2024-05-17</lastmod>
          <changefreq>daily</changefreq>
     </url>

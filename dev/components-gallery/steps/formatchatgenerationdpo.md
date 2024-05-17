@@ -12,10 +12,12 @@ Format the output of a combination of a `ChatGeneration` + a preference task suc
     task with a preference `Task` i.e. a task generating `ratings`, so that those are used to rank the
     existing generations and provide the `chosen` and `rejected` generations based on the `ratings`.
 
-    Note:
-        The `messages` column should contain at least one message from the user, the `generations`
-        column should contain at least two generations, the `ratings` column should contain the same
-        number of ratings as generations.
+
+
+### Note
+The `messages` column should contain at least one message from the user, the `generations`
+column should contain at least two generations, the `ratings` column should contain the same
+number of ratings as generations.
 
 
 

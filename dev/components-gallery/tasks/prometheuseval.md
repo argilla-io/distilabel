@@ -19,12 +19,14 @@ Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
     and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
     `rubric`.
 
-    Note:
-        The `PrometheusEval` task is better suited and intended to be used with any of the Prometheus 2.0
-        models released by Kaist AI, being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
-        and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
-        and quality is not guaranteed if using another model, even though some other models may be able to
-        correctly follow the formatting and generate insightful critiques too.
+
+
+### Note
+The `PrometheusEval` task is better suited and intended to be used with any of the Prometheus 2.0
+models released by Kaist AI, being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
+and https://huggingface.co/prometheus-eval/prometheus-8x7b-v2.0. The critique assessment formatting
+and quality is not guaranteed if using another model, even though some other models may be able to
+correctly follow the formatting and generate insightful critiques too.
 
 
 

@@ -11,6 +11,8 @@ Generate embeddings for a text input using the last hidden state of an `LLM`, as
 
 
 
+
+
 ### Attributes
 
 - **llm**: The `LLM` to use to generate the embeddings.

@@ -7,6 +7,8 @@
 
 
 
+
+
 ### Attributes
 
 - **model**: the model Hugging Face Hub repo id or a path to a directory containing the  model weights and configuration files.

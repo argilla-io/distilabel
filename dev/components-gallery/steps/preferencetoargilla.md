@@ -11,11 +11,13 @@ Step that creates a dataset in Argilla during the load phase, and then pushes th
     a rating question per each of the generation fields. The rating question asks the annotator to
     set a rating from 1 to 5 for each of the provided generations.
 
-    Note:
-        This step is meant to be used in conjunction with the `UltraFeedback` step, or any other step
-        generating both ratings and responses for a given set of instruction and generations for the
-        given instruction. But alternatively, it can also be used with any other task or step generating
-        only the `instruction` and `generations`, as the `ratings` and `rationales` are optional.
+
+
+### Note
+This step is meant to be used in conjunction with the `UltraFeedback` step, or any other step
+generating both ratings and responses for a given set of instruction and generations for the
+given instruction. But alternatively, it can also be used with any other task or step generating
+only the `instruction` and `generations`, as the `ratings` and `rationales` are optional.
 
 
 

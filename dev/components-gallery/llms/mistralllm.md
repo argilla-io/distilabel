@@ -7,6 +7,8 @@ Mistral LLM implementation running the async API client.
 
 
 
+
+
 ### Attributes
 
 - **model**: the model name to use for the LLM e.g. "mistral-tiny", "mistral-large", etc.

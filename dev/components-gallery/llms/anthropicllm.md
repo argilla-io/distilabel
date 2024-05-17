@@ -7,6 +7,8 @@ Anthropic LLM implementation running the Async API client.
 
 
 
+
+
 ### Attributes
 
 - **model**: the name of the model to use for the LLM e.g. "claude-3-opus-20240229",  "claude-3-sonnet-20240229", etc. Available models can be checked here:  [Anthropic: Models overview](https://docs.anthropic.com/claude/docs/models-overview).

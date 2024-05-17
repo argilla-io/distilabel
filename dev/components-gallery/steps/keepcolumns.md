@@ -10,10 +10,12 @@ Keeps selected columns in the dataset.
     specify the columns to keep which will override the default value for the properties `inputs`
     and `outputs`.
 
-    Note:
-        The order in which the columns are provided is important, as the output will be sorted
-        using the provided order, which is useful before pushing either a `dataset.Dataset` via
-        the `PushToHub` step or a `distilabel.Distiset` via the `Pipeline.run` output variable.
+
+
+### Note
+The order in which the columns are provided is important, as the output will be sorted
+using the provided order, which is useful before pushing either a `dataset.Dataset` via
+the `PushToHub` step or a `distilabel.Distiset` via the `Pipeline.run` output variable.
 
 
 

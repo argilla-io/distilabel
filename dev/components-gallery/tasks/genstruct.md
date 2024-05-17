@@ -10,10 +10,12 @@ Generate a pair of instruction-response from a document using an `LLM`.
     datasets from any raw-text corpus. The task is based on the Genstruct 7B model by Nous Research, which is
     inspired in the Ada-Instruct paper.
 
-    Note:
-        The Genstruct prompt i.e. the task, can be used with any model really, but the safest / recommended
-        option is to use `NousResearch/Genstruct-7B` as the LLM provided to the task, since it was trained
-        for this specific task.
+
+
+### Note
+The Genstruct prompt i.e. the task, can be used with any model really, but the safest / recommended
+option is to use `NousResearch/Genstruct-7B` as the LLM provided to the task, since it was trained
+for this specific task.
 
 
 
