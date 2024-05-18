@@ -583,6 +583,7 @@ class _BatchManagerStep(_Serializable):
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
+        # TODO: remove `_last_batch` method and integrate logic in `_get_data`
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
 
@@ -947,10 +948,15 @@ class _BatchManagerStep(_Serializable):
         if not grouped_batches:
             return False
         _, batches = grouped_batches[0]
-        steps_in_batches = {batch.step_name for batch in batches}
-        return all(
-            step_name in self.last_batch_received for step_name in steps_in_batches
-        )
+
+        for batch in batches:
+            if not batch.last_batch:
+                return False
+
+            if len(batch.data[0]) > self.input_batch_size:  # type: ignore
+                return False
+
+        return True
 
     def _last_batch_normal(self) -> bool:
         """Checks if the batch to be created is the last one for a normal step. `True` if

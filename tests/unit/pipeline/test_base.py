@@ -1041,6 +1041,100 @@ class TestBatchManagerStep:
         [
             (
                 {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=False,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                },
+                [],
+                False,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                },
+                [],
+                False,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
+                            created_from={"step0": [0]},
+                        )
+                    ],
+                },
+                [],
+                True,
+            ),
+        ],
+    )
+    def test_last_batch_convergence_step(
+        self,
+        data: Dict[str, List[_Batch]],
+        last_batch_received: List[str],
+        expected: bool,
+    ) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step3",
+            accumulate=False,
+            data=data,
+            last_batch_received=last_batch_received,
+            input_batch_size=3,
+            convergence_step=True,
+        )
+
+        assert batch_manager_step._last_batch() is expected
+
+    @pytest.mark.parametrize(
+        "data, last_batch_received, expected",
+        [
+            (
+                {
                     "step1": [],
                     "step2": [
                         _Batch(
@@ -1506,6 +1600,7 @@ class TestBatchManager:
             },
             last_batch_received={"step3": None},
             last_batch_sent={"step3": None},
+            last_batch_flag_sent_to=[],
         )
 
         batch_from_step_1 = _Batch(
@@ -1542,6 +1637,7 @@ class TestBatchManager:
             },
             last_batch_received={"step3": None},
             last_batch_sent={"step3": None},
+            last_batch_flag_sent_to=[],
         )
         batch_0 = _Batch(
             seq_no=0,
@@ -1603,6 +1699,7 @@ class TestBatchManager:
                 "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=False),
             },
             last_batch_sent={"step_1": None, "step_2": None, "step_3": None},
+            last_batch_flag_sent_to=[],
         )
 
         assert batch_manager.can_generate()
@@ -1619,6 +1716,7 @@ class TestBatchManager:
                 "step_3": batch_3,
             },
             last_batch_sent={"step_1": batch_1, "step_2": batch_2, "step_3": batch_3},
+            last_batch_flag_sent_to=[],
         )
 
         assert not batch_manager.can_generate()
