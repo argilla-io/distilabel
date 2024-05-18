@@ -1169,12 +1169,10 @@ class _BatchManager(_Serializable):
         steps = {}
         last_batch_received = {}
         last_batch_sent = {}
-        step_seq_nos_received = {}
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
             last_batch_sent[step.name] = None
-            step_seq_nos_received[step.name] = []
             if step.is_generator:
                 continue
             predecessors = list(dag.get_step_predecessors(step_name))
