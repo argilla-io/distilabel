@@ -374,6 +374,8 @@ class Pipeline(BasePipeline):
             if input_queue := self.dag.get_step(step_name).get("input_queue"):
                 while not input_queue.empty():
                     batch = input_queue.get()
+                    if not batch:
+                        continue
                     self._batch_manager.add_batch(  # type: ignore
                         to_step=step_name, batch=batch, prepend=True
                     )
@@ -391,8 +393,12 @@ class Pipeline(BasePipeline):
         # processed by the steps before stop was called.
         while not self.output_queue.empty():
             batch = self.output_queue.get()
+            if batch is None:
+                continue
+
             if batch.step_name in self.dag.leaf_steps:
                 write_buffer.add_batch(batch)
+
             self._handle_batch_on_stop(batch)
 
         self._cache()
