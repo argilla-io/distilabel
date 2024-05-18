@@ -33,6 +33,7 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
+    INPUT_QUEUE_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
@@ -45,7 +46,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.steps.base import GeneratorStep
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 _STEPS_LOADED_KEY = "steps_loaded"
@@ -189,7 +190,7 @@ class Pipeline(BasePipeline):
         """Notifies the steps to stop their infinite running loop by sending `None` to
         their input queues."""
         for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+            if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
                 input_queue.put(None)
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
@@ -368,13 +369,16 @@ class Pipeline(BasePipeline):
         """
         self._logger.debug("Handling stop of the pipeline execution...")
 
-        # Send `None` to the input queues of all the steps to notify them to stop
-        # processing batches.
+        # Add the remaining batches in the input queues back to the batch manager
         for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+            node = self.dag.get_step(step_name)
+            step: "_Step" = node[STEP_ATTR_NAME]
+            if step.is_generator:
+                continue
+            if input_queue := node.get(INPUT_QUEUE_ATTR_NAME):
                 while not input_queue.empty():
                     batch = input_queue.get()
-                    if not batch:
+                    if batch is None:
                         continue
                     self._batch_manager.add_batch(  # type: ignore
                         to_step=step_name, batch=batch, prepend=True
@@ -427,7 +431,7 @@ class Pipeline(BasePipeline):
         if self._check_step_not_loaded_or_finished(step_name):
             return None
 
-        if input_queue := self.dag.get_step(step_name).get("input_queue"):
+        if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
             while input_queue.qsize() != 0:
                 pass
             return input_queue
@@ -528,7 +532,7 @@ class Pipeline(BasePipeline):
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
-        input_queue = self.dag.get_step(batch.step_name)["input_queue"]
+        input_queue = self.dag.get_step(batch.step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(batch)
 
     def _is_convergence_step(self, step_name: str) -> None:
@@ -553,7 +557,7 @@ class Pipeline(BasePipeline):
             f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
             " batches..."
         )
-        input_queue = self.dag.get_step(step_name)["input_queue"]
+        input_queue = self.dag.get_step(step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(LAST_BATCH_SENT_FLAG)
         self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
@@ -580,7 +584,7 @@ class Pipeline(BasePipeline):
         for step_name in self.dag:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = manager.Queue()
-            self.dag.set_step_attr(step.name, "input_queue", input_queue)
+            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.

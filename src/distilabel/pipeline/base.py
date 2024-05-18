@@ -413,12 +413,12 @@ class BasePipeline(_Serializable):
         """Saves the `BasePipeline` using the `_cache_filename`."""
         self.save(
             path=self._cache_location["pipeline"],
-            format=self._cache_location["pipeline"].suffix.replace(".", ""),
+            format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
         )
         if self._batch_manager is not None:
             self._batch_manager.save(
                 self._cache_location["batch_manager"],
-                format=self._cache_location["batch_manager"].suffix.replace(".", ""),
+                format=self._cache_location["batch_manager"].suffix.replace(".", ""),  # type: ignore
             )
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
@@ -428,12 +428,6 @@ class BasePipeline(_Serializable):
         """
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
-            # Refresh the DAG to avoid errors when it's created within a context manager
-            # (it will check the steps aren't already defined for the DAG).
-            self.dag = DAG()
-            new_class = self.from_yaml(cache_loc["pipeline"])
-            # Update the internal dag and batch_manager
-            self.dag.G = new_class.dag.G
             if cache_loc["batch_manager"].exists():
                 self._batch_manager = _BatchManager.from_json(
                     cache_loc["batch_manager"]
@@ -1000,11 +994,11 @@ class _BatchManagerStep(_Serializable):
         """Dumps the content of the `_BatchManagerStep` to a dictionary, using the `dataclass` helper function.
 
         Args:
-            obj (Any): Unused, just kept to match the signature of the parent method.
-            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+            obj: Unused, just kept to match the signature of the parent method.
+            kwargs: Additional arguments that are kept to match the signature of the parent method.
 
         Returns:
-            Dict[str, Any]: Internal representation of the `_BatchManagerStep`.
+            Internal representation of the `_BatchManagerStep`.
         """
         return asdict(self)
 
