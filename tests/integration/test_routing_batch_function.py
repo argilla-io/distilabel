@@ -16,6 +16,7 @@ import random
 import time
 from typing import TYPE_CHECKING, List
 
+import pytest
 from distilabel.pipeline import Pipeline, routing_batch_function
 from distilabel.steps import LoadDataFromDicts, StepInput, step
 
@@ -73,6 +74,7 @@ def CombineGenerations(*inputs: StepInput) -> "StepOutput":
     yield combined_list
 
 
+@pytest.mark.timeout(45)
 def test_routing_batch_function() -> None:
     with Pipeline(name="test") as pipeline:
         load_dataset = LoadDataFromDicts(
@@ -93,6 +95,7 @@ def test_routing_batch_function() -> None:
         assert len(row["generations"]) == 2
 
 
+@pytest.mark.timeout(60)
 def test_routing_batch_function_irregular_batch_sizes() -> None:
     with Pipeline(name="test") as pipeline:
         load_dataset = LoadDataFromDicts(
@@ -117,6 +120,7 @@ def test_routing_batch_function_irregular_batch_sizes() -> None:
         assert len(row["generations"]) == 2
 
 
+@pytest.mark.timeout(120)
 def test_multiple_routing_batch_function() -> None:
     batch_size = 200
 
