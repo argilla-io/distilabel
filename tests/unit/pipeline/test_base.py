@@ -1787,6 +1787,7 @@ class TestBatchManager:
                     "step_name": "step3",
                     "accumulate": False,
                     "convergence_step": False,
+                    "convergence_step_batches_consumed": {},
                     "input_batch_size": 5,
                     "data": {"step1": [], "step2": []},
                     "seq_no": 1,
@@ -1806,6 +1807,7 @@ class TestBatchManager:
                     "created_from": {},
                     "last_batch": False,
                     "data": [],
+                    "size": 0,
                     "accumulated": False,
                     "type_info": {
                         "module": "distilabel.pipeline.base",
@@ -1821,6 +1823,7 @@ class TestBatchManager:
                     "created_from": {},
                     "last_batch": False,
                     "data": [],
+                    "size": 0,
                     "accumulated": False,
                     "type_info": {
                         "module": "distilabel.pipeline.base",
