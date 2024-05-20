@@ -157,10 +157,6 @@ def run_pipeline():
 
     return pipeline.run(
         parameters={
-            "load_dataset": {
-                "repo_id": "plaguss/test",
-                "split": "train",
-            },
             "rename_columns": {
                 "rename_mappings": {
                     "prompt": "instruction",

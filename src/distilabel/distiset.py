@@ -234,22 +234,22 @@ def create_distiset(  # noqa: C901
             continue
 
         files = [str(file) for file in list_files_in_dir(file)]
-        try:
-            if files:
+        if files:
+            try:
                 ds = load_dataset(
                     "parquet", name=file.stem, data_files={"train": files}
                 )
                 if not enable_metadata and DISTILABEL_METADATA_KEY in ds.column_names:
                     ds = ds.remove_columns(DISTILABEL_METADATA_KEY)
                 distiset[file.stem] = ds
-            else:
-                logger.warning(
-                    f"No output files for step '{file.stem}', can't create a dataset."
-                    " Did the step produce any data?"
-                )
-        except ArrowInvalid:
-            logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
-            continue
+            except ArrowInvalid:
+                logger.warning(f"❌ Failed to load the subset from '{file}' directory.")
+                continue
+        else:
+            logger.warning(
+                f"No output files for step '{file.stem}', can't create a dataset."
+                " Did the step produce any data?"
+            )
 
     # If there's only one dataset i.e. one config, then set the config name to `default`
     if len(distiset.keys()) == 1:

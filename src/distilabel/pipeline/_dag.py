@@ -30,6 +30,7 @@ from typing import (
 import networkx as nx
 
 from distilabel.pipeline.constants import (
+    CONVERGENCE_STEP_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
@@ -353,6 +354,9 @@ class DAG(_Serializable):
         ):
             return
 
+        # Mark the step as a convergence step
+        self.set_step_attr(step.name, CONVERGENCE_STEP_ATTR_NAME, True)  # type: ignore
+
         # Check if all the predecessors of the step are receiving routed batches from the
         # same step
         previous_steps_predecessors = [
@@ -427,6 +431,14 @@ class DAG(_Serializable):
             raise ValueError(
                 f"Step '{step.name}' should have an `input_batch_size` equal or lower"
                 f" than the `input_batch_size` or `batch_size` of the previous step."
+                f" This is because the batches are being routed with a `routing_batch_function`"
+                f" from step '{predecessor_step.name}' to step '{step.name}'."
+            )
+
+        if batch_size % step.input_batch_size != 0:  # type: ignore
+            raise ValueError(
+                f"Step '{step.name}' should have an `input_batch_size` that is a multiple"
+                f" of the `input_batch_size` or `batch_size` of the previous step."
                 f" This is because the batches are being routed with a `routing_batch_function`"
                 f" from step '{predecessor_step.name}' to step '{step.name}'."
             )

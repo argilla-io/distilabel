@@ -32,6 +32,8 @@ from distilabel.pipeline.base import (
     _WriteBuffer,
 )
 from distilabel.pipeline.constants import (
+    CONVERGENCE_STEP_ATTR_NAME,
+    INPUT_QUEUE_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
@@ -44,7 +46,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.steps.base import GeneratorStep
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 _STEPS_LOADED_KEY = "steps_loaded"
@@ -188,7 +190,7 @@ class Pipeline(BasePipeline):
         """Notifies the steps to stop their infinite running loop by sending `None` to
         their input queues."""
         for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+            if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
                 input_queue.put(None)
 
     def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
@@ -236,16 +238,27 @@ class Pipeline(BasePipeline):
         """
         assert self._batch_manager, "Batch manager is not set"
 
+        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the convergence
+        # step if the batch is the last one, so they stop their processing loop even if
+        # they haven't received the last batch because of the routing function.
+        if self._is_convergence_step(batch.step_name) and batch.last_batch:
+            for step_name in self.dag.get_step_predecessors(batch.step_name):
+                self._send_last_batch_flag_to_step(step_name)
+
+        route_to, routed = self._get_successors(batch)
+
+        # Keep track of the steps that the batch was routed to
+        if routed:
+            batch.batch_routed_to = route_to
+
         self._register_batch(batch)
-        successors, route_to, routed = self._get_successors(batch)
+
         step = self._get_step_from_batch(batch)
 
         # Add the batch to the successors input buffers
         for successor in route_to:
             # Copy batch to avoid modifying the same reference in the batch manager
             batch_to_add = batch.copy() if len(route_to) > 1 else batch
-            if routed:
-                batch_to_add.batch_routed_to = route_to
 
             self._batch_manager.add_batch(successor, batch_to_add)
 
@@ -256,22 +269,13 @@ class Pipeline(BasePipeline):
                 step.is_generator
                 and step.name in self._batch_manager.step_empty_buffers(successor)
             ):
-                last_batch = self._batch_manager.get_last_batch_sent(step.name)
-                self._send_batch_to_step(last_batch.next_batch())  # type: ignore
+                last_batch_sent = self._batch_manager.get_last_batch_sent(step.name)
+                self._send_batch_to_step(last_batch_sent.next_batch())  # type: ignore
 
             # If successor step has enough data in its buffer to create a new batch, then
             # send the batch to the step.
             if new_batch := self._batch_manager.get_batch(successor):
                 self._send_batch_to_step(new_batch)
-
-                # If `last_batch` was not routed to all the successors of the step, that
-                # means that the batch was routed to specific steps using a routing function.
-                # We have to send the `LAST_BATCH_SENT_FLAG` to the steps that the batch
-                # was not routed to, so they can stop processing batches.
-                not_routed_to = [s for s in successors if s not in route_to]
-                if batch.last_batch and len(not_routed_to):
-                    for step_name in not_routed_to:
-                        self._send_last_batch_flag_to_step(step_name)
 
         if step.is_generator:
             return
@@ -280,9 +284,8 @@ class Pipeline(BasePipeline):
         # buffers to create a new batch
         if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
             self._send_batch_to_step(new_batch)
-            return
-
-        self._request_more_batches_if_needed(step)
+        else:
+            self._request_more_batches_if_needed(step)
 
         self._cache()
 
@@ -298,15 +301,15 @@ class Pipeline(BasePipeline):
             " manager"
         )
 
-    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
+    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
 
         Args:
             batch: The batch to which the successors will be determined.
 
         Returns:
-            The successors, the successors to route the batch to, and whether the batch was
-            routed using a routing function.
+            The successors to route the batch to and whether the batch was routed using
+            a routing function.
         """
         node = self.dag.get_step(batch.step_name)
         step: "Step" = node[STEP_ATTR_NAME]
@@ -321,7 +324,7 @@ class Pipeline(BasePipeline):
                 f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
             )
 
-        return successors, route_to, route_to != successors
+        return route_to, route_to != successors
 
     def _get_step_from_batch(self, batch: "_Batch") -> "Step":
         """Gets the `Step` instance from a batch.
@@ -366,12 +369,17 @@ class Pipeline(BasePipeline):
         """
         self._logger.debug("Handling stop of the pipeline execution...")
 
-        # Send `None` to the input queues of all the steps to notify them to stop
-        # processing batches.
+        # Add the remaining batches in the input queues back to the batch manager
         for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get("input_queue"):
+            node = self.dag.get_step(step_name)
+            step: "_Step" = node[STEP_ATTR_NAME]
+            if step.is_generator:
+                continue
+            if input_queue := node.get(INPUT_QUEUE_ATTR_NAME):
                 while not input_queue.empty():
                     batch = input_queue.get()
+                    if batch is None:
+                        continue
                     self._batch_manager.add_batch(  # type: ignore
                         to_step=step_name, batch=batch, prepend=True
                     )
@@ -389,8 +397,12 @@ class Pipeline(BasePipeline):
         # processed by the steps before stop was called.
         while not self.output_queue.empty():
             batch = self.output_queue.get()
+            if batch is None:
+                continue
+
             if batch.step_name in self.dag.leaf_steps:
                 write_buffer.add_batch(batch)
+
             self._handle_batch_on_stop(batch)
 
         self._cache()
@@ -419,7 +431,7 @@ class Pipeline(BasePipeline):
         if self._check_step_not_loaded_or_finished(step_name):
             return None
 
-        if input_queue := self.dag.get_step(step_name).get("input_queue"):
+        if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
             while input_queue.qsize() != 0:
                 pass
             return input_queue
@@ -520,10 +532,23 @@ class Pipeline(BasePipeline):
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
-        input_queue = self.dag.get_step(batch.step_name)["input_queue"]
+        input_queue = self.dag.get_step(batch.step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(batch)
 
+    def _is_convergence_step(self, step_name: str) -> None:
+        """Checks if a step is a convergence step.
+
+        Args:
+            step_name: The name of the step.
+        """
+        return self.dag.get_step(step_name).get(CONVERGENCE_STEP_ATTR_NAME)
+
     def _send_last_batch_flag_to_step(self, step_name: str) -> None:
+        """Sends the `LAST_BATCH_SENT_FLAG` to a step to stop processing batches.
+
+        Args:
+            step_name: The name of the step.
+        """
         batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
         if batch and batch.last_batch:
             return
@@ -532,7 +557,7 @@ class Pipeline(BasePipeline):
             f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
             " batches..."
         )
-        input_queue = self.dag.get_step(step_name)["input_queue"]
+        input_queue = self.dag.get_step(step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(LAST_BATCH_SENT_FLAG)
         self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
@@ -559,7 +584,7 @@ class Pipeline(BasePipeline):
         for step_name in self.dag:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = manager.Queue()
-            self.dag.set_step_attr(step.name, "input_queue", input_queue)
+            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
@@ -889,7 +914,7 @@ class _ProcessWrapper:
             )
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
-                batch.data = [data]
+                batch.set_data([data])
                 batch.last_batch = self._dry_run or last_batch
                 self._send_batch(batch)
 
@@ -962,7 +987,7 @@ class _ProcessWrapper:
                     f"Subprocess traceback:\n\n{traceback.format_exc()}"
                 )
             finally:
-                batch.data = [result]
+                batch.set_data([result])
                 self._send_batch(batch)
 
             if batch.last_batch:
