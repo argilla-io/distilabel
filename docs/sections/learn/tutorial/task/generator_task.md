@@ -112,15 +112,3 @@ class MyCustomTask(GeneratorTask):
     ) -> Dict[str, Any]:
         return {"output_field": output}
 ```
-
-## Available Tasks
-
-Here's a list with the available generator tasks that can be used within the `distilabel` library:
-
-### [`EvolComplexityGenerator`][distilabel.steps.tasks.EvolComplexityGenerator]
-
-Is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask] that doesn't expect any input since it's a subclass of [`GeneratorStep`][distilabel.steps.GeneratorStep], and generates an `instruction` from scratch based of some seed data provided within the class instance.
-
-### [`EvolInstructGenerator`][distilabel.steps.tasks.EvolInstructGenerator]
-
-Is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask] that doesn't expect any input since it's a subclass of [`GeneratorStep`][distilabel.steps.GeneratorStep], and generates an `instruction` from scratch based of some seed data provided within the class instance.
