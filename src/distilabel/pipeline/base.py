@@ -545,6 +545,16 @@ class _BatchManagerStep(_Serializable):
         convergence_step: A flag to indicate if the step is a convergence step. An
             `Step` is a convergence step if all its predecessors are receiving routed
             batches. Defaults to `False`.
+        convergence_step_batches_consumed: A dictionary in which the key is the `seq_no`
+            of the batch created by step A, that was used by step B and C and obtained from
+            the `created_from` of the batches created by them. It's used to know if all
+            the batches from B and C steps created from batches of A have been consumed
+            by D, in order to not mess up the order of the batches. Only used if `convergence_step=True`.
+            Defaults to an empty dictionary.
+        next_expected_created_from_batch_seq_no: The next expected sequence number of the
+            batch from step A used by steps B and C and obtained from the `created_from`
+            of the batches created by them. It's used to avoid messing up the order of the
+            batches. Only used if `convergence_step=True`. Defaults to `0`.
     """
 
     step_name: str
