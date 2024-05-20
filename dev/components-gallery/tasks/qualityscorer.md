@@ -1,0 +1,83 @@
+# QualityScorer
+
+
+Score responses based on their quality using an `LLM`.
+
+
+
+`QualityScorer` is a pre-defined task that defines the `instruction` as the input
+    and `score` as the output. This task is used to rate the quality of instructions and responses.
+    It's an implementation of the quality score task from the paper 'What Makes Good Data
+    for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
+    The task follows the same scheme as the Complexity Scorer, but the instruction-response pairs
+    are scored in terms of quality, obtaining a quality score for each instruction.
+
+
+
+
+
+### Attributes
+
+- **_template**: a Jinja2 template used to format the input for the LLM.
+
+
+
+
+
+### Input & Output Columns
+
+``` mermaid
+graph TD
+	subgraph Dataset
+		subgraph Columns
+			ICOL0[instruction]
+			ICOL1[responses]
+		end
+		subgraph New columns
+			OCOL0[scores]
+			OCOL1[model_name]
+		end
+	end
+
+	subgraph QualityScorer
+		StepInput[Input Columns: instruction, responses]
+		StepOutput[Output Columns: scores, model_name]
+	end
+
+	ICOL0 --> StepInput
+	ICOL1 --> StepInput
+	StepOutput --> OCOL0
+	StepOutput --> OCOL1
+	StepInput --> StepOutput
+
+```
+
+
+#### Inputs
+
+
+- **instruction** (`str`): The instruction that was used to generate the `responses`.
+
+- **responses** (`List[str]`): The responses to be scored. Each response forms a pair with the instruction.
+
+
+
+
+#### Outputs
+
+
+- **scores** (`List[float]`): The score for each instruction.
+
+- **model_name** (`str`): The model name used to generate the scores.
+
+
+
+
+
+
+
+### References
+
+- [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
+
+
