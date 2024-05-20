@@ -6,147 +6,127 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/overview/</loc>
+         <lastmod>2024-05-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/api/cli/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/anthropic/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/anthropic/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/anyscale/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/anyscale/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/azure/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/azure/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/groq/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/huggingface/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/huggingface/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/litellm/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/litellm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/llamacpp/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/llamacpp/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/mistral/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/mistral/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/ollama/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/ollama/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/openai/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/openai/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/together/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/together/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/vertexai/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/vertexai/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/llms/vllm/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/llm/vllm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/pipeline/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/routing_batch_function/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/argilla/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/typing/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/decorator/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/utils/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/extra/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/generator_steps/generator_steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step/decorator/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/global_steps/global_steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step/generator_step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/tasks/embeddings/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step/global_step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/tasks/preference_tasks/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step_gallery/argilla/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step_gallery/columns/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/step_gallery/extra/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/task/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/task/generator_task/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/api/task_gallery/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/steps/tasks/text_generation/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -222,11 +202,6 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llms/cohere/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/llms/groq/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -321,22 +296,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/constants/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/local/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/routing_batch_function/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/typing/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -357,6 +317,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/combine/</loc>
+         <lastmod>2024-05-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/conversation/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -406,26 +371,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/formatting/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/formatting/conversation/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/formatting/dpo/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/formatting/sft/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/generators/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
@@ -471,22 +416,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/genstruct/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/instruction_backtranslation/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/pair_rm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/prometheus_eval/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -571,16 +506,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/structured_outputs/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/structured_outputs/outlines/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
@@ -597,11 +522,6 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/docstring/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/export_components_info/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -651,377 +571,97 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/mkdocs/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/utils/mkdocs/components_gallery/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/faq/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guide/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/installation/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/caching/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/argilla/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/cli/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/caching/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/distiset/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/distiset/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/llms/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/structured_generation/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/pipelines/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/cli/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/argilla/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/llm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/general_steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/pipeline/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/generator_steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/steps/global_steps/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/step/generator_step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tasks/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/step/global_step/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tasks/feedback_tasks/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/task/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tasks/special_tasks/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tutorial/task/generator_task/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/learn/tasks/text_generation/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/papers/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/papers/deita/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/papers/instruction_backtranslation/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/deita/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/instruction_backtranslation/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/ultrafeedback/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/deitafiltering/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/pushtohub/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/preferencetoargilla/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/textgenerationtoargilla/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/combinecolumns/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/expandcolumns/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/conversationtemplate/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/formattextgenerationdpo/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/formatchatgenerationdpo/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/formattextgenerationsft/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/formatchatgenerationsft/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/keepcolumns/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/loaddatafromdicts/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/loadhubdataset/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/complexityscorer/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/evolinstruct/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/evolcomplexity/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/evolquality/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/genstruct/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/instructionbacktranslation/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/prometheuseval/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/qualityscorer/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/selfinstruct/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/textgeneration/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/chatgeneration/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/ultrafeedback/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/evolinstructgenerator/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/evolcomplexitygenerator/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/pairrm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/generateembeddings/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/anthropicllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/openaillm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/anyscalellm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/azureopenaillm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/togetherllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/coherellm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/groqllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/inferenceendpointsllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/litellm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/mistralllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/ollamallm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vertexaillm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/transformersllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/llamacppllm/</loc>
-         <lastmod>2024-05-20</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/papers/ultrafeedback/</loc>
          <lastmod>2024-05-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
