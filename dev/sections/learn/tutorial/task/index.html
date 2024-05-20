@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
     
     
       
@@ -2132,147 +2132,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#available-tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Available Tasks
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Available Tasks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#chatgeneration" class="md-nav__link">
-    <span class="md-ellipsis">
-      ChatGeneration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complexityscorer" class="md-nav__link">
-    <span class="md-ellipsis">
-      ComplexityScorer
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evolinstruct" class="md-nav__link">
-    <span class="md-ellipsis">
-      EvolInstruct
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evolcomplexity" class="md-nav__link">
-    <span class="md-ellipsis">
-      EvolComplexity
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#evolquality" class="md-nav__link">
-    <span class="md-ellipsis">
-      EvolQuality
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#generateembeddings" class="md-nav__link">
-    <span class="md-ellipsis">
-      GenerateEmbeddings
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#genstruct" class="md-nav__link">
-    <span class="md-ellipsis">
-      Genstruct
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#instructionbacktranslation" class="md-nav__link">
-    <span class="md-ellipsis">
-      InstructionBacktranslation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pairrm" class="md-nav__link">
-    <span class="md-ellipsis">
-      PairRM
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#prometheuseval" class="md-nav__link">
-    <span class="md-ellipsis">
-      PrometheusEval
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#qualityscorer" class="md-nav__link">
-    <span class="md-ellipsis">
-      QualityScorer
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#selfinstruct" class="md-nav__link">
-    <span class="md-ellipsis">
-      SelfInstruct
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#textgeneration" class="md-nav__link">
-    <span class="md-ellipsis">
-      TextGeneration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ultrafeedback" class="md-nav__link">
-    <span class="md-ellipsis">
-      UltraFeedback
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2357,38 +2216,6 @@
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 </span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;output_field&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="available-tasks">Available Tasks<a class="headerlink" href="#available-tasks" title="Permanent link">&para;</a></h2>
-<p>Here's a list with the available tasks that can be used within the <code>distilabel</code> library:</p>
-<h3 id="chatgeneration"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.ChatGeneration"><code>ChatGeneration</code></a><a class="headerlink" href="#chatgeneration" title="Permanent link">&para;</a></h3>
-<p>Generates the follow up assistant message in the <code>generation</code> column based on the provided <code>messages</code>.</p>
-<h3 id="complexityscorer"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.ComplexityScorer"><code>ComplexityScorer</code></a><a class="headerlink" href="#complexityscorer" title="Permanent link">&para;</a></h3>
-<p>Ranks the provided <code>instructions</code> based on their complexity generating the <code>scores</code> column with each instruction score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".</p>
-<h3 id="evolinstruct"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.EvolInstruct"><code>EvolInstruct</code></a><a class="headerlink" href="#evolinstruct" title="Permanent link">&para;</a></h3>
-<p>Evolves the provided <code>instruction</code> to make it more complex, according to a set of pre-defined mutation templates following an evolutionary approach, based on the paper "WizardLM: Empowering Large Language Models to Follow Complex Instructions".</p>
-<h3 id="evolcomplexity"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.EvolComplexity"><code>EvolComplexity</code></a><a class="headerlink" href="#evolcomplexity" title="Permanent link">&para;</a></h3>
-<p>Evolves the provided <code>instruction</code> to make it more complex, according to a set of pre-defined mutation templates (based on <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.EvolInstruct"><code>EvolInstruct</code></a>).</p>
-<h3 id="evolquality"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.EvolQuality"><code>EvolQuality</code></a><a class="headerlink" href="#evolquality" title="Permanent link">&para;</a></h3>
-<p>Evolves the provided <code>response</code> based on the <code>instruction</code> to make it of higher quality, ensuring that the evolved <code>response</code> is still compliant with the provided <code>instruction</code> (based on the same approach as <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.EvolInstruct"><code>EvolInstruct</code></a>).</p>
-<h3 id="generateembeddings"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.GenerateEmbeddings"><code>GenerateEmbeddings</code></a><a class="headerlink" href="#generateembeddings" title="Permanent link">&para;</a></h3>
-<p>Generates embeddings for the provided <code>text</code> using the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/llms/#distilabel.llms.LLM"><code>LLM</code></a> provided (which should have the <code>get_last_hidden_state</code> method implemented) in the <code>embedding</code> column.</p>
-<h3 id="genstruct"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.Genstruct"><code>Genstruct</code></a><a class="headerlink" href="#genstruct" title="Permanent link">&para;</a></h3>
-<p>Generates a <code>user</code> and <code>assistant</code> single-turn conversation based on the provided <code>title</code> and <code>content</code>, so as to synthetically generate a conversation between an user and the assistant; based on the model "Genstruct 7B" by Nous Research, which at the same time is based on the paper "Ada-Instruct: Adapting Instruction Generators for Complex Reasoning".</p>
-<h3 id="instructionbacktranslation"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.InstructionBacktranslation"><code>InstructionBacktranslation</code></a><a class="headerlink" href="#instructionbacktranslation" title="Permanent link">&para;</a></h3>
-<p>Generates a <code>score</code> and a <code>reason</code> backing the generated <code>score</code>, for a given <code>generation</code> based on an <code>instruction</code>, based on the paper "Self Alignment with Instruction Backtranslation", specifically in the self-curation stage.</p>
-<h3 id="pairrm"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.PairRM"><code>PairRM</code></a><a class="headerlink" href="#pairrm" title="Permanent link">&para;</a></h3>
-<p>Rewards a set of <code>candidates</code> i.e. generations, for a given <code>input</code> i.e. instruction, and then ranks those (assuming the greater the better) generating the <code>ranks</code>, based on the paper "LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion", and powered by their custom <a href="https://huggingface.co/llm-blender/PairRM">PairRM</a> model and framework: <a href="https://github.com/yuchenlin/LLM-Blender">LLM-Blender</a>.</p>
-<h3 id="prometheuseval"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a><a class="headerlink" href="#prometheuseval" title="Permanent link">&para;</a></h3>
-<p>Evaluates either the provided <code>generation</code> if <code>mode=absolute</code> or the <code>generations</code> if <code>mode=relative</code> based on an <code>instruction</code> and optionally also based on a <code>reference</code> i.e. golden answer, using the Prometheus 2.0 prompts and pre-defined rubrics, based on the paper "Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models".</p>
-<h3 id="qualityscorer"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.QualityScorer"><code>QualityScorer</code></a><a class="headerlink" href="#qualityscorer" title="Permanent link">&para;</a></h3>
-<p>Scores the provided <code>generations</code> based on the provided <code>instruction</code> generating the <code>scores</code> column with each generation score, based on the paper "What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning".</p>
-<h3 id="selfinstruct"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.SelfInstruct"><code>SelfInstruct</code></a><a class="headerlink" href="#selfinstruct" title="Permanent link">&para;</a></h3>
-<p>Generates <code>instructions</code> based on a seed <code>input</code>, which is conditioned by the <code>criteria_for_query_generation</code> and <code>application_description</code> args provided, based on the paper "Self-Instruct: Aligning Language Models with Self-Generated Instructions".</p>
-<h3 id="textgeneration"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a><a class="headerlink" href="#textgeneration" title="Permanent link">&para;</a></h3>
-<p>Generates a <code>generation</code> based on the provided <code>instruction</code>, alternatively, also the <code>system_prompt</code> may be used to generate the <code>generation</code> if <code>use_system_prompt=True</code>.</p>
-<h3 id="ultrafeedback"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a><a class="headerlink" href="#ultrafeedback" title="Permanent link">&para;</a></h3>
-<p>Generates a <code>rating</code> and a <code>rationale</code> for each of the <code>generations</code> based on the provided <code>instruction</code>, based on the paper "UltraFeedback: Boosting Language Models with High-quality Feedback".</p>
-<hr />
-<p>Additionally, there is another subclass of <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.Task"><code>Task</code></a> that is based on the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.GeneratorStep"><code>GeneratorStep</code></a> instead of the standard <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> as in this case; which is the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.GeneratorTask"><code>GeneratorTask</code></a>. More information about it at <a href="generator_task/">Components - Task - GeneratorTask</a>.</p>
 
 
 
@@ -2443,7 +2270,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.ebd0bdb7.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

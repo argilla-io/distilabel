@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
     
     
       
@@ -2121,6 +2121,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Working with Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2138,144 +2153,6 @@
       Defining custom Steps
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#available-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      Available Steps
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Available Steps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-loading" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Loading
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Loading">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#loaddatafromdicts" class="md-nav__link">
-    <span class="md-ellipsis">
-      LoadDataFromDicts
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#loadhubdataset" class="md-nav__link">
-    <span class="md-ellipsis">
-      LoadHubDataset
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#columns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Columns
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Columns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#keepcolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      KeepColumns
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#combinecolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      CombineColumns
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#expandcolumns" class="md-nav__link">
-    <span class="md-ellipsis">
-      ExpandColumns
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pushing-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Pushing Data
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Pushing Data">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#pushtohub" class="md-nav__link">
-    <span class="md-ellipsis">
-      PushToHub
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#miscellaneous" class="md-nav__link">
-    <span class="md-ellipsis">
-      Miscellaneous
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Miscellaneous">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#deitafiltering" class="md-nav__link">
-    <span class="md-ellipsis">
-      DeitaFiltering
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2328,6 +2205,30 @@
 <p>The <code>load</code> method needs to be called ALWAYS if using the steps and any <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> subclass as standalone, unless the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> context manager is used, meaning that there will be no need to call the <code>load</code> method, since it will be automatically called on <code>Pipeline.run</code>; but in any other case the method <code>load</code> needs to be called from the parent class.</p>
 </div>
 <p>Anyway, most of the times we'll end up using pre-defined steps in <code>distilabel</code>, so that there's no need to create custom steps, but anyway, we'll cover that later in this page.</p>
+<p>Let's see now a set of arguments that can be used to map fields across steps, or to set the batch size specific for the step:</p>
+<ul>
+<li>
+<p><code>input_mappings</code>, which is a dictionary that can be useful to map keys from the input dictionaries to the keys expected by the step. For example, if <code>input_mappings={"instruction": "prompt"}</code>, that means that the key prompt from the input dictionaries will be used as the key instruction for the step.</p>
+</li>
+<li>
+<p><code>output_mappings</code>, which is a dictionary that can be used to map the outputs of the step to other names. For example, if <code>output_mappings={"conversation": "prompt"}</code>, that means that the key conversation generated by the step will be renamed to prompt and the output dictionaries of this step will contain a key called prompt instead of conversation.</p>
+</li>
+<li>
+<p><code>input_batch_size</code> (by default set to 50), which is independent for every step and will determine how many input dictionaries will process at once. If won't matter that much in this step, but as we will see later, other types of steps will come with an LLM, so having this flexibility will be really useful.</p>
+</li>
+</ul>
+<h3 id="runtime-parameters">Runtime parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
+<p>Finally, let's introduce at a special type of argument that we will find when dealing with the <code>Steps</code>, the <code>Runtime parameters</code>. For example, the <code>input_batch_size</code> is of type <code>RuntimeParameter</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.mixins.runtime_parameters</span> <span class="kn">import</span> <span class="n">RuntimeParameter</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">class</span> <span class="nc">Step</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">input_batch_size</span><span class="p">:</span> <span class="n">RuntimeParameter</span><span class="p">[</span><span class="n">PositiveInt</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_INPUT_BATCH_SIZE</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of rows that will contain the batches processed by the&quot;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot; step.&quot;</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<p>We can interact with these types of arguments when we call the <code>Pipeline.run</code> method as we will see in the <code>Pipeline</code> section. These types of arguments can be really useful to insert info to the steps after the pipeline has been defined.</p>
 <h2 id="types-of-steps">Types of Steps<a class="headerlink" href="#types-of-steps" title="Permanent link">&para;</a></h2>
 <p>Besides the default <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> already described, in <code>distilabel</code> we find the following abstract subclasses on top of the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a>.</p>
 <ul>
@@ -2364,197 +2265,46 @@
 <p class="admonition-title">Warning</p>
 <p>For the custom <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> subclasses to work properly with <code>distilabel</code> and with the validation and serialization performed by default over each <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> in the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a>, the type-hint for both <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.StepInput"><code>StepInput</code></a> and <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput"><code>StepOutput</code></a> should be used and not surrounded with double-quotes or imported under <code>typing.TYPE_CHECKING</code>, otherwise, the validation and/or serialization will fail.</p>
 </div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepOutput</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">class</span> <span class="nc">CustomStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nd">@property</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="o">...</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="nd">@property</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="o">...</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepOutput</span><span class="p">:</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            <span class="o">...</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>            <span class="k">yield</span> <span class="n">item</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="c1"># When overridden (ideally under the `typing_extensions.override` decorator)</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    <span class="c1"># @typing_extensions.override</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    <span class="c1"># def process(self, inputs: StepInput) -&gt; StepOutput:</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    <span class="c1">#     for input in inputs:</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    <span class="c1">#         ...</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>    <span class="c1">#     yield inputs</span>
-</span></code></pre></div>
-<p>Alternatively, a simpler and more suitable way of defining custom <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> subclasses is via the <code>@step</code> decorator, which will take care of the boilerplate code, and will allow to define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods in a more straightforward way.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">step</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">Step</span><span class="p">,</span> <span class="n">StepInput</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepOutput</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nd">@step</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">def</span> <span class="nf">CustomStep</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-</span> <span class="n">StepOutput</span><span class="p">:</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">class</span> <span class="nc">CustomStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="nd">@property</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="o">...</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="k">yield</span> <span class="n">inputs</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">step</span> <span class="o">=</span> <span class="n">CustomStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-step&quot;</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="nd">@property</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="o">...</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepOutput</span><span class="p">:</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>            <span class="o">...</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>            <span class="k">yield</span> <span class="n">item</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="c1"># When overridden (ideally under the `typing_extensions.override` decorator)</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    <span class="c1"># @typing_extensions.override</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="c1"># def process(self, inputs: StepInput) -&gt; StepOutput:</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>    <span class="c1">#     for input in inputs:</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>    <span class="c1">#         ...</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>    <span class="c1">#     yield inputs</span>
+</span></code></pre></div>
+<p>Alternatively, a simpler and more suitable way of defining custom <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> subclasses is via the <code>@step</code> decorator, which will take care of the boilerplate code, and will allow to define the <code>inputs</code>, <code>outputs</code>, and <code>process</code> methods in a more straightforward way.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">step</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.typing</span> <span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nd">@step</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">def</span> <span class="nf">CustomStep</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-</span> <span class="n">StepOutput</span><span class="p">:</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="o">...</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="k">yield</span> <span class="n">inputs</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">step</span> <span class="o">=</span> <span class="n">CustomStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-step&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>One downside of the <code>@step</code> decorator is that it won't let you access the <code>self</code> attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> subclass.</p>
 </div>
-<h2 id="available-steps">Available Steps<a class="headerlink" href="#available-steps" title="Permanent link">&para;</a></h2>
-<h3 id="data-loading">Data Loading<a class="headerlink" href="#data-loading" title="Permanent link">&para;</a></h3>
-<p>For loading data as a first step of the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> i.e. as a <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.GeneratorStep"><code>GeneratorStep</code></a>, the following steps are available:</p>
-<h4 id="loaddatafromdicts"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.LoadDataFromDicts"><code>LoadDataFromDicts</code></a><a class="headerlink" href="#loaddatafromdicts" title="Permanent link">&para;</a></h4>
-<p>Loads data from a list of dictionaries, where each dictionary represents a row in the dataset.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">},</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="p">],</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="p">)</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="o">...</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="o">...</span>
-</span></code></pre></div>
-<h4 id="loadhubdataset"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.LoadHubDataset"><code>LoadHubDataset</code></a><a class="headerlink" href="#loadhubdataset" title="Permanent link">&para;</a></h4>
-<p>Loads data from a Hugging Face Hub dataset, and then streams the batches to the follow up steps.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadHubDataset</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadHubDataset</span><span class="p">(</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="p">)</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="o">...</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="o">...</span>
-</span></code></pre></div>
-<h3 id="columns">Columns<a class="headerlink" href="#columns" title="Permanent link">&para;</a></h3>
-<p>Also, <code>distilabel</code> provides a collection of light steps that can be used to manipulate the columns in the batches in an easy way, since the following operations may be common, so we remove the hussle of defining new steps for that:</p>
-<h4 id="keepcolumns"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.KeepColumns"><code>KeepColumns</code></a><a class="headerlink" href="#keepcolumns" title="Permanent link">&para;</a></h4>
-<p>Keeps only the columns specified in the <code>columns</code> attribute.</p>
-<p>For example, the example below will receive a batch with the columns <code>instruction</code> and <code>generation</code>, and will only keep the <code>instruction</code> column, which means the <code>generation</code> column will be dumped.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">KeepColumns</span><span class="p">,</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">,</span> <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;Why did the chicken cross the road?&quot;</span><span class="p">},</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="p">],</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">)</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">keep_columns</span> <span class="o">=</span> <span class="n">KeepColumns</span><span class="p">(</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;keep_columns&quot;</span><span class="p">,</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="p">)</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">keep_columns</span>
-</span></code></pre></div>
-<p>This <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> is really useful whenever either the dataset loaded contains columns we want to discard or whenever we generate intermediate columns that are not useful neither for the next steps nor for the final output.</p>
-<h4 id="combinecolumns"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.CombineColumns"><code>CombineColumns</code></a><a class="headerlink" href="#combinecolumns" title="Permanent link">&para;</a></h4>
-<p>Combines the columns specified in the <code>columns</code> attribute into a new column specified in the <code>output_columns</code> attribute. But note that this step will only work when multiple steps are connected to it, since it will need the outputs from the previous steps to combine the columns.</p>
-<p>For example, the example below will receive a batch with data from two previous steps, both containing the column <code>instruction</code>, and this step will combine both into a column named <code>instructions</code>, so that the content of that column is not a string, but a list of strings.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">load_data_a</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data_a&quot;</span><span class="p">,</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">},</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="p">],</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="p">)</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">load_data_b</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data_b&quot;</span><span class="p">,</span>
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me another joke.&quot;</span><span class="p">},</span>
-</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>        <span class="p">],</span>
-</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="p">)</span>
-</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="n">combine_columns</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
-</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_columns&quot;</span><span class="p">,</span>
-</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span>
-</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>        <span class="n">new_column</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;instructions&quot;</span><span class="p">],</span>
-</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>    <span class="p">)</span>
-</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>    <span class="p">[</span><span class="n">load_data_a</span><span class="p">,</span> <span class="n">load_data_b</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">combine_columns</span>
-</span></code></pre></div>
-<p>This <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> always needs to be connected to multiple previous steps, since it will need the outputs from the previous steps to combine the columns.</p>
-<h4 id="expandcolumns"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.ExpandColumns"><code>ExpandColumns</code></a><a class="headerlink" href="#expandcolumns" title="Permanent link">&para;</a></h4>
-<p>Expands the columns that contain a list within a batch into multiple rows, so that if the batch contains a column with 10 items, then 10 new rows will be returned as output, assuming a batch size of 1.</p>
-<p>For example, the example below will receive a batch with the column <code>instructions</code> containing a list of strings, and will return a batch with multiple rows, one for each item in the list.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">ExpandColumns</span><span class="p">,</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="p">{</span><span class="s2">&quot;instructions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">,</span> <span class="s2">&quot;Tell me another joke.&quot;</span><span class="p">]},</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="p">],</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="p">)</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="n">expand_columns</span> <span class="o">=</span> <span class="n">ExpandColumns</span><span class="p">(</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;expand_columns&quot;</span><span class="p">,</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;instructions&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">},</span>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="p">)</span>
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">expand_columns</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> will only work when the column to be expanded contains a list, otherwise, it will raise an error. And if multiple columns are provided but the length of those columns differs, then the length of the longest column will be used as the length of the batch.</p>
-</div>
-<hr />
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Also bear in mind that for column renaming, which may also be a common operation, every <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.Step"><code>Step</code></a> (and so on, every subclass i.e. <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.GeneratorStep"><code>GeneratorStep</code></a>, <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.GlobalStep"><code>GlobalStep</code></a>, and <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.Task"><code>Task</code></a>) has both <code>input_mappings</code> and <code>output_mappings</code> attributes, that can be used to rename the columns in each batch.</p>
-</div>
-<h3 id="pushing-data">Pushing Data<a class="headerlink" href="#pushing-data" title="Permanent link">&para;</a></h3>
-<p>At the moment, the intermediate data and the final data is stored in disk under the <code>.cache/distilabel/pipeline/&lt;UUID&gt;</code> directory generated at the beginning of each <code>Pipeline.run</code> call, and the data is stored in the form of <code>.parquet</code> files, which are the most suitable format for storing tabular data.</p>
-<p>Anyway, the <code>Pipeline.run</code> method will return a <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> which is a custom <code>datasets.DatasetDict</code> from Hugging Face, that can be pushed to the Hugging Face Hub via the <code>push_to_hub</code> method.</p>
-<p>Alternatively, we offer the following step to push the data to the Hugging Face Hub which can be used to store intermediate datasets without having to wait for the <code>Pipeline.run</code> to finish:</p>
-<h4 id="pushtohub"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.PushToHub"><code>PushToHub</code></a><a class="headerlink" href="#pushtohub" title="Permanent link">&para;</a></h4>
-<p>This is a <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.GlobalStep"><code>GlobalStep</code></a> (i.e. needs to wait for all the incoming steps to finish before running) that will push all the data generated from the previous steps to the Hugging Face Hub.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">PushToHub</span><span class="p">,</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">},</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="p">],</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="p">)</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">push_to_hub</span> <span class="o">=</span> <span class="n">PushToHub</span><span class="p">(</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;push_to_hub&quot;</span><span class="p">,</span>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;my-distilabel-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="p">)</span>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">push_to_hub</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The <code>PushToHub</code> step will only work when the <code>Pipeline.run</code> method is called, since it will need the data generated from the previous steps to push it to the Hugging Face Hub.</p>
-</div>
-<h3 id="miscellaneous">Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permanent link">&para;</a></h3>
-<p>These steps are intended to be used in specific scenarios, and they are not intended to be used in general cases, but they are provided as examples of how to create custom steps.</p>
-<h4 id="deitafiltering"><a class="autorefs autorefs-internal" href="../../../../reference/distilabel/steps/#distilabel.steps.DeitaFiltering"><code>DeitaFiltering</code></a><a class="headerlink" href="#deitafiltering" title="Permanent link">&para;</a></h4>
-<p>This is a step created for the <a href="../../../examples/papers/deita.md"><code>DEITA</code></a> implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.</p>
-<p>To see a fully working example, please check the <a href="../../../examples/papers/deita.md">Examples - Papers - DEITA</a>.</p>
 
 
 
@@ -2609,7 +2359,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.ebd0bdb7.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

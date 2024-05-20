@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
     
     
       
@@ -633,39 +633,6 @@
       Defining custom GlobalSteps
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#available-globalsteps" class="md-nav__link">
-    <span class="md-ellipsis">
-      Available GlobalSteps
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Available GlobalSteps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#pushtohub" class="md-nav__link">
-    <span class="md-ellipsis">
-      PushToHub
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#deitafiltering" class="md-nav__link">
-    <span class="md-ellipsis">
-      DeitaFiltering
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2223,39 +2190,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#available-globalsteps" class="md-nav__link">
-    <span class="md-ellipsis">
-      Available GlobalSteps
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Available GlobalSteps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#pushtohub" class="md-nav__link">
-    <span class="md-ellipsis">
-      PushToHub
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#deitafiltering" class="md-nav__link">
-    <span class="md-ellipsis">
-      DeitaFiltering
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2341,35 +2275,6 @@
 <p class="admonition-title">Warning</p>
 <p>One downside of the <code>@step</code> decorator is that it won't let you access the <code>self</code> attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom <a class="autorefs autorefs-internal" href="../../../../../reference/distilabel/steps/#distilabel.steps.GlobalStep"><code>GlobalStep</code></a> subclass.</p>
 </div>
-<h2 id="available-globalsteps">Available GlobalSteps<a class="headerlink" href="#available-globalsteps" title="Permanent link">&para;</a></h2>
-<p>These have already been mentioned in <a href="../#available-steps">Components - Step (Available Steps)</a> section, but only the following are available:</p>
-<h4 id="pushtohub"><a class="autorefs autorefs-internal" href="../../../../../reference/distilabel/steps/#distilabel.steps.PushToHub"><code>PushToHub</code></a><a class="headerlink" href="#pushtohub" title="Permanent link">&para;</a></h4>
-<p>This is a <a class="autorefs autorefs-internal" href="../../../../../reference/distilabel/steps/#distilabel.steps.GlobalStep"><code>GlobalStep</code></a> (i.e. needs to wait for all the incoming steps to finish before running) that will push all the data generated from the previous steps to the Hugging Face Hub.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">PushToHub</span><span class="p">,</span> <span class="n">LoadDataFromDicts</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">load_data</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_data&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">},</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="p">],</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="p">)</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">push_to_hub</span> <span class="o">=</span> <span class="n">PushToHub</span><span class="p">(</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;push_to_hub&quot;</span><span class="p">,</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;my-distilabel-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="p">)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">push_to_hub</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The <code>PushToHub</code> step will only work when the <code>Pipeline.run</code> method is called, since it will need the data generated from the previous steps to push it to the Hugging Face Hub.</p>
-</div>
-<h4 id="deitafiltering"><a class="autorefs autorefs-internal" href="../../../../../reference/distilabel/steps/#distilabel.steps.DeitaFiltering"><code>DeitaFiltering</code></a><a class="headerlink" href="#deitafiltering" title="Permanent link">&para;</a></h4>
-<p>This is a step created for the <a href="../../../examples/papers/deita.md"><code>DEITA</code></a> implementation, so as to filter a dataset based on the DEITA score and the cosine distance between the generated embeddings.</p>
-<p>To see a fully working example, please check the <a href="../../../examples/papers/deita.md">Examples - Papers - DEITA</a>.</p>
 
 
 
@@ -2424,7 +2329,7 @@
     <script id="__config" type="application/json">{"base": "../../../../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../../assets/javascripts/bundle.ebd0bdb7.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../../../javascripts/mathjax.js"></script>
       
