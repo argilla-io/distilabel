@@ -447,6 +447,7 @@ class _Batch(_Serializable):
         accumulated: A flag to indicate if the batch is accumulated.
         created_from: A dictionary containing the `seq_no` of the batches of the steps that
             were used to create this batch.
+        size: The size of the batch.
     """
 
     seq_no: int
@@ -454,8 +455,9 @@ class _Batch(_Serializable):
     last_batch: bool
     data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
     accumulated: bool = False
-    created_from: Dict[str, List[int]] = field(default_factory=dict)
+    created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
     batch_routed_to: List[str] = field(default_factory=list)
+    size: int = 0
 
     def next_batch(self) -> "_Batch":
         """Create a new `_Batch` instance with the next batch of data.
@@ -469,6 +471,15 @@ class _Batch(_Serializable):
         return _Batch(
             seq_no=self.seq_no + 1, step_name=self.step_name, last_batch=self.last_batch
         )
+
+    def set_data(self, data: List[List[Dict[str, Any]]]) -> None:
+        """Sets the data of the batch and updates the size of the batch.
+
+        Args:
+            data: The data of the batch.
+        """
+        self.data = data
+        self.size = len(data[0])
 
     @classmethod
     def accumulate(cls, step_name: str, batches: List[List["_Batch"]]) -> "_Batch":
@@ -543,6 +554,9 @@ class _BatchManagerStep(_Serializable):
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
     convergence_step: bool = False
+    convergence_step_batches_consumed: Dict[int, Dict[str, int]] = field(
+        default_factory=dict
+    )
     next_expected_created_from_batch_seq_no: int = 0
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
@@ -649,7 +663,7 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[int]], List[str]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
         """Gets the data needed to create a batch for the step to process. If the step is
         accumulating data, then it will return a list with all the data received from the
         predecessors. Otherwise, it will return a list of data with the `input_batch_size`
@@ -675,7 +689,7 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data_for_accumulate(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[int]]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
         """Gets the data needed to create a batch for the step to process when the step
         is accumulating data. It will return a list with all the data received from the
         predecessors. In addition, it will remove the data used to create the batch from
@@ -691,7 +705,7 @@ class _BatchManagerStep(_Serializable):
         for step_name, batches in self.data.items():
             batches_used[step_name] = []
             for batch in batches:
-                batches_used[step_name].append(batch.seq_no)
+                batches_used[step_name].append((batch.seq_no, batch.size))
             data.append([row for batch in batches for row in batch.data[0]])
         # Reset the data buffer
         self.data = {step_name: [] for step_name in self.data}
@@ -699,7 +713,7 @@ class _BatchManagerStep(_Serializable):
 
     def _get_data_for_convergence_step(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[int]]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
         """Gets the data needed to create a batch for the step to process when the step is
         a convergence step.
 
@@ -716,18 +730,28 @@ class _BatchManagerStep(_Serializable):
         }
         batches_used = defaultdict(list)
         data = defaultdict(list)
-        for batch in batches:
+        for batch, batch_size in batches:
             batch_data = batch.data[0]
             remaining_rows = remaining_rows_per_step[batch.step_name]
             selected_data = batch_data[:remaining_rows]
             data[batch.step_name].extend(selected_data)
+
+            # If A -> [B, C] -> D, then in D (this step) we keep track of the remaining
+            # rows from the batches of A that B and C used to create the `batches`.
+            batch_size = self.convergence_step_batches_consumed.setdefault(
+                seq_no, {}
+            ).get(batch.step_name, batch_size)
+            remaining_rows_in_batch = batch_size - len(selected_data)
+            self.convergence_step_batches_consumed[seq_no].update(
+                {batch.step_name: remaining_rows_in_batch}
+            )
 
             # Update the remaining rows
             num_rows = len(selected_data)
             remaining_rows_per_step[batch.step_name] -= num_rows  # type: ignore
 
             # Keep track of the batches used to create the batch
-            batches_used[batch.step_name].append(batch.seq_no)
+            batches_used[batch.step_name].append((batch.seq_no, batch.size))
 
             # If the batch was entirely consumed, then remove it from the buffer
             if num_rows >= len(batch_data):
@@ -743,15 +767,25 @@ class _BatchManagerStep(_Serializable):
         # If all the batches grouped by the `seq_no` in `created_from` were consumed, then
         # we can update the `next_expected_created_from_batch_seq_no` to the next one
         # to avoid skipping batches.
-        grouped_batches = self._group_batches_by_created_from()
-        if not grouped_batches or grouped_batches[0][0] != seq_no:
-            self.next_expected_created_from_batch_seq_no += 1
+        no_remaining_rows = all(
+            count == 0
+            for count in self.convergence_step_batches_consumed[seq_no].values()
+        )
+
+        if no_remaining_rows:
+            grouped_batches = self._group_batches_by_created_from()
+            if grouped_batches:
+                next_seq_no, _ = grouped_batches[0]
+                if next_seq_no != seq_no:
+                    self.next_expected_created_from_batch_seq_no = next_seq_no
+            else:
+                self.next_expected_created_from_batch_seq_no += 1
 
         return list(data.values()), dict(batches_used)
 
     def _get_data_normal(
         self,
-    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[int]], List[str]]:
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
         """Gets the data needed to create a batch for the step to process when the step is
         not accumulating data. It will return a list of data with the `input_batch_size`
         for each predecessor. In addition, it will remove the data used to create the batch
@@ -789,7 +823,7 @@ class _BatchManagerStep(_Serializable):
                 remaining_rows -= num_rows
 
                 # Keep track of the batches used to create the batch
-                batches_used[step_name].append(batch.seq_no)
+                batches_used[step_name].append((batch.seq_no, batch.size))
 
                 # If the batch was entirely consumed, then remove it from the buffer
                 if num_rows >= len(batch_data):
@@ -858,15 +892,15 @@ class _BatchManagerStep(_Serializable):
 
         # Not all output batches to which the input batch was routed to haven't been
         # received
-        batch_routed_to = batches[0].batch_routed_to
-        batches_received_from = {batch.step_name for batch in batches}
+        batch_routed_to = batches[0][0].batch_routed_to
+        batches_received_from = {batch.step_name for batch, _ in batches}
         if any(step_name not in batches_received_from for step_name in batch_routed_to):
             return False
 
         # There are output batches to which the input batch was routed to from all
         # the steps. Check if there is enough data for creating a batch with `input_batch_size`
         rows_per_step = defaultdict(lambda: 0)
-        for batch in batches:
+        for batch, _ in batches:
             num_rows = len(batch.data[0])
             rows_per_step[batch.step_name] += num_rows
 
@@ -943,7 +977,7 @@ class _BatchManagerStep(_Serializable):
             return False
         _, batches = grouped_batches[0]
 
-        for batch in batches:
+        for batch, _ in batches:
             if not batch.last_batch:
                 return False
 
@@ -974,7 +1008,9 @@ class _BatchManagerStep(_Serializable):
 
         return True
 
-    def _group_batches_by_created_from(self) -> List[Tuple[int, List["_Batch"]]]:
+    def _group_batches_by_created_from(
+        self,
+    ) -> List[Tuple[int, List[Tuple["_Batch", int]]]]:
         """Group the batches by the first key of `created_from` field. This method is
         meant to be used only with a `convergence_step`.
 
@@ -982,12 +1018,12 @@ class _BatchManagerStep(_Serializable):
             A list of the batches grouped by the `seq_no` of the first step name in `created_from`.
             The list is sorted by the `seq_no`.
         """
-        grouped_batches = defaultdict(list)
+        grouped_batches: Dict[int, List[Tuple["_Batch", int]]] = defaultdict(list)
         for batches in self.data.values():
             for batch in batches:
                 first_key = next(iter(batch.created_from))
-                batch_seq_no = batch.created_from[first_key][0]
-                grouped_batches[batch_seq_no].append(batch)
+                batch_seq_no, batch_size = batch.created_from[first_key][0]
+                grouped_batches[batch_seq_no].append((batch, batch_size))
         return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:

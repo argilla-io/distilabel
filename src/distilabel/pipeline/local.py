@@ -914,7 +914,7 @@ class _ProcessWrapper:
             )
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
-                batch.data = [data]
+                batch.set_data([data])
                 batch.last_batch = self._dry_run or last_batch
                 self._send_batch(batch)
 
@@ -987,7 +987,7 @@ class _ProcessWrapper:
                     f"Subprocess traceback:\n\n{traceback.format_exc()}"
                 )
             finally:
-                batch.data = [result]
+                batch.set_data([result])
                 self._send_batch(batch)
 
             if batch.last_batch:
