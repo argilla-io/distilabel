@@ -781,15 +781,8 @@ class _BatchManagerStep(_Serializable):
             count == 0
             for count in self.convergence_step_batches_consumed[seq_no].values()
         )
-
         if no_remaining_rows:
-            grouped_batches = self._group_batches_by_created_from()
-            if grouped_batches:
-                next_seq_no, _ = grouped_batches[0]
-                if next_seq_no != seq_no:
-                    self.next_expected_created_from_batch_seq_no = next_seq_no
-            else:
-                self.next_expected_created_from_batch_seq_no += 1
+            self.next_expected_created_from_batch_seq_no += 1
 
         return list(data.values()), dict(batches_used)
 
