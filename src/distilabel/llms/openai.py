@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, SecretStr, validate_call
+from pydantic import BaseModel, Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
@@ -81,6 +81,7 @@ class OpenAILLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
+    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
@@ -109,6 +110,21 @@ class OpenAILLM(AsyncLLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
+
+        if self.structured_output is not None:
+            from distilabel.steps.tasks.structured_outputs.instructor import (
+                prepare_instructor,
+            )
+
+            self._aclient = prepare_instructor(
+                self._aclient,
+                mode=self.structured_output.get("mode"),
+                framework="openai",
+            )
+            schema = self.structured_output.get("schema")
+            if type(schema) == type(BaseModel):
+                # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
+                self.structured_output["schema"] = schema.model_json_schema()
 
     @property
     def model_name(self) -> str:
@@ -162,20 +178,43 @@ class OpenAILLM(AsyncLLM):
                 f"Invalid response format '{response_format}'. Must be either 'text' or 'json'."
             )
 
-        completion = await self._aclient.chat.completions.create(  # type: ignore
-            messages=input,  # type: ignore
-            model=self.model,
-            max_tokens=max_new_tokens,
-            n=num_generations,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            temperature=temperature,
-            top_p=top_p,
-            stop=stop,
-            timeout=50,
-            response_format={"type": response_format},
-        )
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "max_tokens": max_new_tokens,
+            "n": num_generations,
+            "frequency_penalty": frequency_penalty,
+            "presence_penalty": presence_penalty,
+            "temperature": temperature,
+            "top_p": top_p,
+            "stop": stop,
+            "timeout": 50,
+            "response_format": {"type": response_format},
+        }
+        if self.structured_output:
+            schema = self.structured_output.get("schema")
+            if type(schema) != type(BaseModel):
+                # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
+                from distilabel.steps.tasks.structured_outputs.utils import (
+                    json_schema_to_model,
+                )
+
+                schema = json_schema_to_model(schema)
+
+            kwargs.update(
+                **{
+                    "response_model": schema,
+                    "max_retries": self.structured_output.get("max_retries", 1),
+                },
+            )
+
         generations = []
+        completion = await self._aclient.chat.completions.create(**kwargs)
+
+        if self.structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
