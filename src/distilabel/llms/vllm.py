@@ -211,7 +211,9 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             top_p=top_p,
             top_k=top_k,
             max_tokens=max_new_tokens,
-            logits_processors=[self._logits_processor],
+            logits_processors=(
+                [self._logits_processor] if self._logits_processor else None
+            ),
             **extra_sampling_params,
         )
 
