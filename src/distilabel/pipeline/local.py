@@ -95,9 +95,11 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        log_queue = mp.Queue()
-        # We must place the runtime parameters before calling setup_logging to ensure consistency
+        # We must place the runtime parameters before calling `setup_logging` to ensure
+        # that the generated signature is consistent
         super().run(parameters, use_cache)
+
+        log_queue = mp.Queue()
         setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
         self._logger = logging.getLogger("distilabel.pipeline.local")
 
@@ -908,10 +910,11 @@ class _ProcessWrapper:
 
             offset = batch.seq_no * step.batch_size  # type: ignore
 
-            self.step._logger.info(
-                f"🧬 Starting yielding batches from generator step '{self.step.name}'."
-                f" Offset: {offset}"
-            )
+            if self.step.verbose:
+                self.step._logger.info(
+                    f"🧬 Starting yielding batches from generator step '{self.step.name}'."
+                    f" Offset: {offset}"
+                )
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.set_data([data])
@@ -921,9 +924,10 @@ class _ProcessWrapper:
                 if batch.last_batch:
                     return
 
-                self.step._logger.debug(
-                    f"Step '{self.step.name}' waiting for next batch request..."
-                )
+                if self.step.verbose:
+                    self.step._logger.debug(
+                        f"Step '{self.step.name}' waiting for next batch request..."
+                    )
                 if (batch := self.input_queue.get()) is None:
                     self.step._logger.info(
                         f"🛑 Stopping yielding batches from step '{self.step.name}'"
@@ -932,7 +936,7 @@ class _ProcessWrapper:
         except Exception as e:
             raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
-    def _non_generator_process_loop(self) -> None:
+    def _non_generator_process_loop(self) -> None:  # noqa: C901
         """Runs the process loop for a non-generator step. It will call the `process`
         method of the step and send the output data to the `output_queue` and block until
         the next batch is received from the `input_queue`. If the `last_batch` attribute
@@ -957,9 +961,11 @@ class _ProcessWrapper:
                 self.step._logger.debug("Received `LAST_BATCH_SENT_FLAG`. Stopping...")
                 break
 
-            self.step._logger.info(
-                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
-            )
+            if self.step.verbose:
+                self.step._logger.info(
+                    f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
+                )
+
             result = []
             try:
                 if self.step.has_multiple_inputs:
@@ -995,7 +1001,8 @@ class _ProcessWrapper:
 
     def _send_batch(self, batch: _Batch) -> None:
         """Sends a batch to the `output_queue`."""
-        self.step._logger.info(
-            f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
-        )
+        if self.step.verbose:
+            self.step._logger.info(
+                f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
+            )
         self.output_queue.put(batch)

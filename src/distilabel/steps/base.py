@@ -149,6 +149,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
+    verbose: Optional[bool] = Field(default=None)
 
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: "Logger" = PrivateAttr(None)
