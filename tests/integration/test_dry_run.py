@@ -36,6 +36,11 @@ def test_dry_run():
 
         load_dataset >> text_generation
 
+    # Test with and without parameters
+    distiset = pipeline.dry_run(batch_size=2)
+    assert len(distiset["default"]["train"]) == 2
+    assert pipeline._dry_run is False
+
     distiset = pipeline.dry_run(parameters={load_dataset.name: {"batch_size": 8}})
     assert len(distiset["default"]["train"]) == 1
     assert pipeline._dry_run is False
