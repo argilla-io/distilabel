@@ -115,4 +115,4 @@ pipeline.run()
 ![Preference to Argilla](../../../assets/images/sections/learn/steps/argilla/preference.png)
 
 !!! NOTE
-    If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../examples/papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.
+    If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../pipeline_samples/papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.

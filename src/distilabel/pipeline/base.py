@@ -268,13 +268,13 @@ class BasePipeline(_Serializable):
 
         for step_name in self.dag:
             step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
-            if step.is_generator:
-                if parameters.get(step_name) and parameters[step_name].get(
-                    "batch_size"
-                ):
-                    parameters[step_name]["batch_size"] = batch_size
 
-        distiset = self.run(parameters, use_cache=False)
+            if step.is_generator:
+                if not parameters:
+                    parameters = {}
+                parameters[step_name] = {"batch_size": batch_size}
+
+        distiset = self.run(parameters=parameters, use_cache=False)
 
         self._dry_run = False
         return distiset

@@ -149,7 +149,7 @@ nav:
           - "sections/pipeline_samples/papers/index.md"
           - DEITA: "sections/pipeline_samples/papers/deita.md"
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
-          # - Prometheus: "sections/examples/papers/prometheus.md"
+          - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
   - FAQ: "sections/faq.md"
   - API Reference:
