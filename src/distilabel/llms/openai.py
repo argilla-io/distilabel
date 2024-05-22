@@ -15,7 +15,7 @@
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from pydantic import BaseModel, Field, PrivateAttr, SecretStr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
@@ -111,20 +111,15 @@ class OpenAILLM(AsyncLLM):
             timeout=self.timeout,
         )
 
-        if self.structured_output is not None:
-            from distilabel.steps.tasks.structured_outputs.instructor import (
-                prepare_instructor,
-            )
-
-            self._aclient = prepare_instructor(
-                self._aclient,
-                mode=self.structured_output.get("mode"),
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
                 framework="openai",
             )
-            schema = self.structured_output.get("schema")
-            if type(schema) == type(BaseModel):
-                # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-                self.structured_output["schema"] = schema.model_json_schema()
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
 
     @property
     def model_name(self) -> str:
@@ -192,21 +187,7 @@ class OpenAILLM(AsyncLLM):
             "response_format": {"type": response_format},
         }
         if self.structured_output:
-            schema = self.structured_output.get("schema")
-            if type(schema) != type(BaseModel):
-                # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-                from distilabel.steps.tasks.structured_outputs.utils import (
-                    json_schema_to_model,
-                )
-
-                schema = json_schema_to_model(schema)
-
-            kwargs.update(
-                **{
-                    "response_model": schema,
-                    "max_retries": self.structured_output.get("max_retries", 1),
-                },
-            )
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
 
         generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)

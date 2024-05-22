@@ -45,6 +45,8 @@ class MistralLLM(AsyncLLM):
         timeout: the maximum time in seconds to wait for a response. Defaults to `120`.
         max_concurrent_requests: the maximum number of concurrent requests to send. Defaults
             to `64`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. Defaults to None.
         _api_key_env_var: the name of the environment variable to use for the API key. It is meant to
             be used internally.
         _aclient: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.
@@ -77,6 +79,7 @@ class MistralLLM(AsyncLLM):
     max_concurrent_requests: RuntimeParameter[int] = Field(
         default=64, description="The maximum number of concurrent requests to send."
     )
+    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
@@ -107,6 +110,16 @@ class MistralLLM(AsyncLLM):
             max_concurrent_requests=self.max_concurrent_requests,
         )
 
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="mistral",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
@@ -134,14 +147,23 @@ class MistralLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        completion = await self._aclient.chat(  # type: ignore
-            messages=input,
-            model=self.model,
-            temperature=temperature,
-            max_tokens=max_new_tokens,
-            top_p=top_p,
-        )
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "max_tokens": max_new_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+        }
+        if self.structured_output:
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+
         generations = []
+        completion = await self._aclient.chat(**kwargs)  # type: ignore
+
+        if self.structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(
