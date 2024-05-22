@@ -21,7 +21,6 @@ from datasets import load_dataset
 from huggingface_hub import DatasetCardData, HfApi
 from pyarrow.lib import ArrowInvalid
 
-from distilabel.steps.tasks.base import DISTILABEL_METADATA_KEY
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
@@ -225,6 +224,7 @@ def create_distiset(  # noqa: C901
         correspond to different configurations of the dataset.
     """
     logger = logging.getLogger("distilabel.distiset")
+    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
     data_dir = Path(data_dir)
 
