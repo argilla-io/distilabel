@@ -4,7 +4,7 @@
 
 Existing open evaluator LMs exhibit critical shortcomings:
 
-1. They issue scores that significantly diverge from those assigned by humans
+1. They issue scores that significantly diverge from those assigned by humans.
 2. They lack the flexibility to perform both direct assessment and pairwise ranking, the two most prevalent forms of assessment.
 
 Additionally, they do not possess the ability to evaluate based on custom evaluation criteria, focusing instead on general attributes like helpfulness and harmlessness. Prometheus 2 is capable of processing both direct assessment and pair-wise ranking formats grouped with a user-defined evaluation criteria.
