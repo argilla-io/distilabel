@@ -96,7 +96,6 @@ class AnthropicLLM(AsyncLLM):
         " failing.",
     )
     http_client: Optional[AsyncClient] = Field(default=None, exclude=True)
-    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)

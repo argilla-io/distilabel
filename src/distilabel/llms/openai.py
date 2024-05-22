@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
@@ -81,7 +81,6 @@ class OpenAILLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
-    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)

@@ -91,7 +91,6 @@ class CohereLLM(AsyncLLM):
         default="distilabel",
         description="The name of the client to use for the API requests.",
     )
-    structured_output: Optional[Any] = None
 
     _ChatMessage: Type["ChatMessage"] = PrivateAttr(...)
     _aclient: "AsyncClient" = PrivateAttr(...)

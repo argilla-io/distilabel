@@ -84,7 +84,6 @@ class GroqLLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
-    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncGroq"] = PrivateAttr(...)

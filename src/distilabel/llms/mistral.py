@@ -79,7 +79,6 @@ class MistralLLM(AsyncLLM):
     max_concurrent_requests: RuntimeParameter[int] = Field(
         default=64, description="The maximum number of concurrent requests to send."
     )
-    structured_output: Optional[Any] = None
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, validate_call
 
@@ -45,7 +45,6 @@ class LiteLLM(AsyncLLM):
     verbose: RuntimeParameter[bool] = Field(
         default=False, description="Whether to log the LiteLLM client's logs."
     )
-    structured_output: Optional[Any] = None
 
     _aclient: Optional[Callable] = PrivateAttr(...)
 
