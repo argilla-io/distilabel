@@ -91,7 +91,7 @@ def prepare_instructor(
     builder, default_mode = _client_patcher(framework)
 
     mode = mode or default_mode
-    if mode not in [m.value for m in instructor.mode.Mode]:
+    if mode.value not in [m.value for m in instructor.mode.Mode]:
         raise ValueError(
             f"Invalid mode '{mode}'. Must be one of {[m.value for m in instructor.mode.Mode]}"
         )
