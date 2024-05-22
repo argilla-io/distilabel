@@ -24,35 +24,36 @@ def SucceedAlways(inputs: StepInput) -> "StepOutput":
 
 
 def test_dry_run():
-    with Pipeline(name="other-pipe") as pipeline:
-        load_dataset = LoadDataFromDicts(
-            data=[
-                {"instruction": "Tell me a joke."},
-            ]
-            * 50,
-            batch_size=20,
-        )
-        text_generation = SucceedAlways()
+    load_dataset_name = "load_dataset"
 
-        load_dataset >> text_generation
+    def get_pipeline():
+        with Pipeline(name="other-pipe") as pipeline:
+            load_dataset = LoadDataFromDicts(
+                name=load_dataset_name,
+                data=[
+                    {"instruction": "Tell me a joke."},
+                ]
+                * 50,
+                batch_size=20,
+            )
+            text_generation = SucceedAlways()
 
-    distiset = pipeline.dry_run(parameters={load_dataset.name: {"batch_size": 8}})
+            load_dataset >> text_generation
+        return pipeline
+
+    # Test with and without parameters
+    pipeline = get_pipeline()
+    distiset = pipeline.dry_run(batch_size=2)
+    assert len(distiset["default"]["train"]) == 2
+    assert pipeline._dry_run is False
+
+    pipeline = get_pipeline()
+    distiset = pipeline.dry_run(parameters={load_dataset_name: {"batch_size": 8}})
     assert len(distiset["default"]["train"]) == 1
     assert pipeline._dry_run is False
 
-    with Pipeline(name="other-pipe") as pipeline:
-        load_dataset = LoadDataFromDicts(
-            data=[
-                {"instruction": "Tell me a joke."},
-            ]
-            * 50,
-            batch_size=20,
-        )
-        text_generation = SucceedAlways()
-
-        load_dataset >> text_generation
-
+    pipeline = get_pipeline()
     distiset = pipeline.run(
-        parameters={load_dataset.name: {"batch_size": 10}}, use_cache=False
+        parameters={load_dataset_name: {"batch_size": 10}}, use_cache=False
     )
     assert len(distiset["default"]["train"]) == 50
