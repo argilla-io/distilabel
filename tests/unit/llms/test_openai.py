@@ -20,12 +20,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import nest_asyncio
 import pytest
 from distilabel.llms.openai import OpenAILLM
-from pydantic import BaseModel
 
-
-class DummyUserDetail(BaseModel):
-    name: str
-    age: int
+from .utils import DummyUserDetail
 
 
 @patch("openai.AsyncOpenAI")
