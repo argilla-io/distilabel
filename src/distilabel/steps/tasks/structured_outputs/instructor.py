@@ -63,7 +63,7 @@ def _client_patcher(framework: Frameworks) -> Tuple[Callable, str]:
 
     if framework in {"openai", "azure_openai"}:
         return instructor.from_openai, instructor.Mode.TOOLS
-    elif framework == "azure_openai":
+    elif framework == "anthropic":
         return instructor.from_anthropic, instructor.Mode.ANTHROPIC_JSON
     elif framework == "litellm":
         return instructor.from_litellm, instructor.Mode.TOOLS
