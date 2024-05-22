@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 from typing import Any, Dict
 from unittest import mock
 
@@ -67,6 +68,9 @@ class TestCohereLLM:
             ]
         )
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
     @pytest.mark.asyncio
     async def test_agenerate_structured(
         self, mock_async_client: mock.MagicMock

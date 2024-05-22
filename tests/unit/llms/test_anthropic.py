@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
@@ -78,6 +79,9 @@ class TestAnthropicLLM:
         )
         assert generation[0] == sample_user.model_dump_json()
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
     @pytest.mark.asyncio
     async def test_generate(self, mock_anthropic: MagicMock) -> None:
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore

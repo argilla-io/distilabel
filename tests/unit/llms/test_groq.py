@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
@@ -50,6 +51,9 @@ class TestGroqLLM:
             ]
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
     @pytest.mark.asyncio
     async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
         llm = GroqLLM(
