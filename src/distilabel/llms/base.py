@@ -304,8 +304,8 @@ class AsyncLLM(LLM):
         if self.event_loop is not None:
             self.event_loop.close()
 
+    @staticmethod
     def _prepare_structured_output(
-        self,
         structured_output: Optional["InstructorStructuredOutputType"] = None,
         client: Any = None,
         framework: Optional[str] = None,
@@ -341,7 +341,8 @@ class AsyncLLM(LLM):
             )
         if type(schema) == type(BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-            structured_output["schema"] = schema.json_schema()
+            # structured_output["schema"] = schema.json_schema()
+            structured_output["schema"] = schema.model_json_schema()
             result["structured_output"] = structured_output
 
         return result
