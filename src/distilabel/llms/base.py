@@ -341,7 +341,6 @@ class AsyncLLM(LLM):
             )
         if type(schema) == type(BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-            # structured_output["schema"] = schema.json_schema()
             structured_output["schema"] = schema.model_json_schema()
             result["structured_output"] = structured_output
 
@@ -370,7 +369,12 @@ class AsyncLLM(LLM):
                 json_schema_to_model,
             )
 
-            schema = json_schema_to_model(schema)
+            try:
+                schema = json_schema_to_model(schema)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to convert the schema to a pydantic model, the model is too complex currently: {e}"
+                ) from e
 
         arguments.update(
             **{

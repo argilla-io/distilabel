@@ -153,11 +153,14 @@ class MistralLLM(AsyncLLM):
             "temperature": temperature,
             "top_p": top_p,
         }
+        generations = []
         if self.structured_output:
             kwargs = self._prepare_kwargs(kwargs, self.structured_output)
-
-        generations = []
-        completion = await self._aclient.chat(**kwargs)  # type: ignore
+            # TODO: This should work just with the _aclient.chat method, but it's not working.
+            # We need to check instructor and see if we can create a PR.
+            completion = await self._aclient.chat.completions.create(**kwargs)
+        else:
+            completion = await self._aclient.chat(**kwargs)
 
         if self.structured_output:
             generations.append(completion.model_dump_json())
