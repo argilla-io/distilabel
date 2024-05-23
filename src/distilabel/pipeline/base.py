@@ -1444,5 +1444,8 @@ class _WriteBuffer:
             # is correct. Otherwise, the first parquets won't have the last schema and
             # then we will have issues when reading them.
             for file in list_files_in_dir(self._path / step_name):
-                table = pq.read_table(file, schema=self._buffer_last_schema[step_name])
-                pq.write_table(table, file)
+                if step_name in self._buffer_last_schema:
+                    table = pq.read_table(
+                        file, schema=self._buffer_last_schema[step_name]
+                    )
+                    pq.write_table(table, file)
