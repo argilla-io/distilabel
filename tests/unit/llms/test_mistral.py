@@ -73,7 +73,10 @@ class TestMistralLLM:
 
         sample_user = DummyUserDetail(name="John Doe", age=30)
 
-        llm._aclient.chat = AsyncMock(return_value=sample_user)
+        llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
+        # This should work just with the _aclient.chat method once it's fixed in instructor, and
+        # then in our code.
+        # llm._aclient.chat = AsyncMock(return_value=sample_user)
 
         generation = await llm.agenerate(
             input=[
