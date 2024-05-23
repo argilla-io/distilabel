@@ -1,0 +1,10 @@
+mkdocs
+mkdocs-autorefs
+mkdocs-gen-files
+mkdocs-literate-nav
+mkdocs-material
+mkdocs-material[imaging]
+mkdocs-section-index
+mkdocstrings
+mkdocstrings-python
+pymdown-extensions
