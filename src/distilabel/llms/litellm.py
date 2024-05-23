@@ -34,8 +34,8 @@ class LiteLLM(AsyncLLM):
             etc.
         verbose: whether to log the LiteLLM client's logs. Defaults to `False`.
         structured_output: a dictionary containing the structured output configuration configuration
-            using `instructor`. Defaults to None.
-            TODO: EXPLAIN THIS BETTER
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
 
     Runtime parameters:
         - `verbose`: whether to log the LiteLLM client's logs. Defaults to `False`.
