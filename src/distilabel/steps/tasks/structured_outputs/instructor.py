@@ -58,9 +58,11 @@ class InstructorStructuredOutputType(TypedDict):
 
     schema: Type[BaseModel]
     """The schema to use for the structured output, a pydantic.BaseModel class. """
-    mode: Optional["instructor.Mode"] = None
-    """Number of times to reask the model in case of error, if not set will default to the model's default. """
+    mode: Optional["instructor.Mode"]
+    """Generation mode. Take a look at `instructor.Mode` for more information, if not informed it will
+    be determined automatically. """
     max_retries: int
+    """Number of times to reask the model in case of error, if not set will default to the model's default. """
 
 
 def _client_patcher(framework: Frameworks) -> Tuple[Callable, str]:
