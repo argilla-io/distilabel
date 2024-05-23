@@ -154,7 +154,9 @@ def run_pipeline():
         load_dataset = LoadDataFromDicts(name="load_dataset", data=DATA, batch_size=8)
         rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
         generate_response = AnswerWithBatchAPI(
-            name="generate_response", model_id="gpt-4o", batch_description="Testing OpenAI batch processing"
+            name="generate_response",
+            model_id="gpt-4o",
+            batch_description="Testing OpenAI batch processing",
         )
 
         load_dataset.connect(rename_columns)
