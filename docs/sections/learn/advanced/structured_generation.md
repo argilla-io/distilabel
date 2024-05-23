@@ -8,6 +8,14 @@
 
 The [`LLM`][distilabel.llms.LLM] has an argument named `structured_output`[^1] that determines how we can generate structured outputs with it, let's see an example using [`LlamaCppLLM`][distilabel.llms.LlamaCppLLM].
 
+!!! Note
+
+    For `outlines` integration to work you may need to install the corresponding dependencies:
+
+    ```bash
+    pip install distilabel[outlines]
+    ```
+
 ### JSON
 
 We will start with a JSON example, where we initially define a `pydantic.BaseModel` schema to guide the generation of the structured output.
@@ -125,7 +133,14 @@ When working with model providers behind an API, there's no direct way of accesi
 
 `Instructor` works with `pydantic.BaseModel` objects internally but in `distilabel` the examples generated would result in the string representation of them, from which the `BaseModel` object can be regenerated.
 
-!!! NOTE
+!!! Note
+    For `instructor` integration to work you may need to install the corresponding dependencies:
+
+    ```bash
+    pip install distilabel[instructor]
+    ```
+
+!!! Note
     Take a look at [`InstructorStructuredOutputType`][distilabel.steps.tasks.structured_outputs.instructor.InstructorStructuredOutputType] to see the expected format
     of the `structured_output` dict variable.
 
