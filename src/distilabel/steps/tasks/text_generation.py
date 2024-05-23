@@ -136,7 +136,7 @@ class ChatGeneration(Task):
 
         if not is_openai_format(input["messages"]):
             raise ValueError(
-                "Input `instruction` must be a string or an OpenAI chat-like format. "
+                "Input `messages` must be an OpenAI chat-like format conversation. "
                 f"Got: {input['messages']}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
             )
 
