@@ -101,7 +101,7 @@ if match:
 
 These were some simple examples, but one can see the options this opens.
 
-!!! NOTE
+!!! Tip
     A full pipeline example can be seen in the following script:
     [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/index.md#llama-cpp-with-outlines)
 
@@ -118,6 +118,65 @@ These were some simple examples, but one can see the options this opens.
     ```bash
     curl -L -o ~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
     ```
+
+## Instructor
+
+When working with model providers behind an API, there's no direct way of accesing the internal logit processor as `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM], so you can work with the following LLMs: [`OpenAILLM`][distilabel.llms.OpenAILLM], [`AzureOpenAILLM`][distilabel.llms.AzureOpenAILLM], [`CohereLLM`][distilabel.llms.CohereLLM], [`GroqLLM`][distilabel.llms.GroqLLM], [`LiteLLM`][distilabel.llms.LiteLLM] and [`MistralLLM`][distilabel.llms.MistralLLM].
+
+`Instructor` works with `pydantic.BaseModel` objects internally but in `distilabel` the examples generated would result in the string representation of them, from which the `BaseModel` object can be regenerated.
+
+!!! NOTE
+    Take a look at [`InstructorStructuredOutputType`][distilabel.steps.tasks.structured_outputs.instructor.InstructorStructuredOutputType] to see the expected format
+    of the `structured_output` dict variable.
+
+The following is the same example you can see with `outlines`'s `JSON` section for comparison purposes.
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+```
+
+And then we provide that schema to the `structured_output` argument of the LLM:
+
+!!! Note
+    In this example we are using *open-mixtral-8x22b*, keep in mind not all the models work with the function calling functionality required for this example to work.
+
+```python
+from distilabel.llms import MistralLLM
+
+llm = MistralLLM(
+    model="open-mixtral-8x22b",
+    structured_output={"schema": User}
+)
+llm.load()
+```
+
+And we are ready to pass our instruction as usual:
+
+```python
+import json
+
+result = llm.generate(
+    [[{"role": "user", "content": "Create a user profile for the following marathon"}]],
+    max_new_tokens=256
+)
+
+data = json.loads(result[0][0])
+data
+# {'name': 'John', 'last_name': 'Doe', 'id': 12345}
+User(**data)
+# User(name='John', last_name='Doe', id=12345)
+```
+
+We get back a Python dictionary (formatted as a string) that we can parse using `json.loads`, or validate it directly using the `User`, which si a `pydantic.BaseModel` instance.
+
+!!! Tip
+    A full pipeline example can be seen in the following script:
+    [`examples/structured_generation_with_instructor.py`](../../pipeline_samples/examples/index.md#mistralai-with-instructor)
 
 ## OpenAI JSON
 
