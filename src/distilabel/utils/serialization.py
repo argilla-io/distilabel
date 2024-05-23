@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import importlib
-import json
 import os
 import sys
 from enum import Enum
+
+import orjson
 
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
@@ -83,8 +84,8 @@ def write_json(filename: Path, data: Any) -> None:
         data: the data to write to the file.
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
-    with open(filename, "w") as file:
-        json.dump(data, file, indent=2)
+    with open(filename, "wb") as f:
+        f.write(orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY))
 
 
 def read_json(filename: StrOrPath) -> Any:
@@ -96,8 +97,8 @@ def read_json(filename: StrOrPath) -> Any:
     Returns:
         The data from the file.
     """
-    with open(filename, "r") as file:
-        return json.load(file)
+    with open(filename, "rb") as f:
+        return orjson.loads(f.read())
 
 
 def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
