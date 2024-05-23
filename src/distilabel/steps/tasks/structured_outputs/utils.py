@@ -27,9 +27,11 @@ def schema_as_dict(schema: Union[str, Type[BaseModel]]) -> Dict[str, Any]:
     return schema
 
 
-# NOTE: The following copies are a straight copy from:
+# NOTE: The following functions were copied from:
 # https://github.com/pydantic/pydantic/issues/643#issuecomment-1999755873
+# and slightly modified to work with nested models.
 # It would be nice to find the original source of this code to give credit.
+# Other option would be working with this library: https://github.com/c32168/dyntamic
 
 
 def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
@@ -44,10 +46,16 @@ def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
 
     # Extract the model name from the schema title.
     model_name = json_schema.get("title")
+    if defs := json_schema.get("$defs", None):
+        # This is done to grab the content of nested classes that need to dereference
+        # the objects (those should be in a higher level).
+        pass
 
     # Extract the field definitions from the schema properties.
     field_definitions = {
-        name: json_schema_to_pydantic_field(name, prop, json_schema.get("required", []))
+        name: json_schema_to_pydantic_field(
+            name, prop, json_schema.get("required", []), defs=defs
+        )
         for name, prop in json_schema.get("properties", {}).items()
     }
 
@@ -56,7 +64,10 @@ def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
 
 
 def json_schema_to_pydantic_field(
-    name: str, json_schema: Dict[str, Any], required: List[str]
+    name: str,
+    json_schema: Dict[str, Any],
+    required: List[str],
+    defs: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """Converts a JSON schema property to a Pydantic field definition.
 
@@ -67,6 +78,17 @@ def json_schema_to_pydantic_field(
     Returns:
         A Pydantic field definition.
     """
+
+    # NOTE(plaguss): This needs more testing, nested classes need extra work to be converted
+    # here if we pass a reference to another class it will crash, we have to find the original
+    # definition and insert it here
+    # This takes into account single items referred to other classes
+    if ref := json_schema.get("$ref"):
+        json_schema = defs.get(ref.split("/")[-1])
+
+    # This takes into account lists of items referred to other classes
+    if "items" in json_schema and (ref := json_schema["items"].get("$ref")):
+        json_schema["items"] = defs.get(ref.split("/")[-1])
 
     # Get the field type.
     type_ = json_schema_to_pydantic_type(json_schema)
@@ -89,7 +111,9 @@ def json_schema_to_pydantic_field(
     )
 
 
-def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
+def json_schema_to_pydantic_type(
+    json_schema: Dict[str, Any], defs: Optional[Dict[str, Any]] = None
+) -> Any:
     """Converts a JSON schema type to a Pydantic type.
 
     Args:
@@ -98,7 +122,6 @@ def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
     Returns:
         A Pydantic type.
     """
-
     type_ = json_schema.get("type")
 
     if type_ == "string":
