@@ -20,7 +20,9 @@ from typing import (
     Optional,
     Tuple,
     Type,
+    TypeAlias,
     TypedDict,
+    Union,
     get_args,
 )
 
@@ -28,12 +30,27 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     import instructor
+    from anthropic import AsyncAnthropic
+    from cohere import AsyncClient as AsyncCohere
+    from groq import AsyncGroq
+    from mistralai.async_client import MistralAsyncClient
+    from openai import AsyncAzureOpenAI, AsyncOpenAI
 
 
 Frameworks = Literal[
     "openai", "azure_openai", "anthropic", "cohere", "groq", "litellm", "mistral"
 ]
 """Available frameworks for the structured output configuration with `instructor`. """
+
+AvailableClients: TypeAlias = Union[
+    "AsyncAnthropic",
+    "AsyncAzureOpenAI",
+    "AsyncCohere",
+    "AsyncGroq",
+    "AsyncOpenAI",
+    "MistralAsyncClient",
+]
+"""Available clients that can be wrapped with `instructor`. """
 
 
 class InstructorStructuredOutputType(TypedDict):
@@ -80,8 +97,26 @@ def _client_patcher(framework: Frameworks) -> Tuple[Callable, str]:
 
 
 def prepare_instructor(
-    client, mode: Optional["instructor.Mode"] = None, framework: Frameworks = "openai"
-):
+    client: AvailableClients,
+    mode: Optional["instructor.Mode"] = None,
+    framework: Optional[Frameworks] = None,
+) -> "instructor.AsyncInstructor":
+    """Wraps the given client with the instructor client for the given framework.
+
+    Args:
+        client: The client to wrap with the instructor client, corresponds to the internal
+            client we wrap on `LLM`, and one of the implemented in `instructor`.
+        mode: One of the `instructor.Mode` values. Defaults to None.
+        framework: The framework corresponding to the client. Defaults to None.
+
+    Raises:
+        ImportError: If instructor is not installed.
+        ValueError: If the mode is not one of the available modes.
+
+    Returns:
+        patched_client: The instructor wrapping the original client to be used for
+            structured generation.
+    """
     if not importlib.util.find_spec("instructor"):
         raise ImportError(
             "instructor is not installed. Please install it using `pip install instructor`."
@@ -96,6 +131,6 @@ def prepare_instructor(
             f"Invalid mode '{mode}'. Must be one of {[m.value for m in instructor.mode.Mode]}"
         )
 
-    patched_client: instructor.Instructor = builder(client, mode=mode)
+    patched_client: instructor.AsyncInstructor = builder(client, mode=mode)
 
     return patched_client
