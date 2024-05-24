@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import importlib
-import json
 import os
 import sys
 from enum import Enum
+
+import orjson
 
 if sys.version_info < (3, 11):
     from enum import EnumMeta as EnumType
@@ -50,7 +51,7 @@ def _get_module_attr(module: str, name: str) -> Type:
     return getattr(mod, name)
 
 
-def load_from_dict(class_: Dict[str, Any]) -> Any:
+def load_with_type_info(class_: Any) -> Any:
     """Creates an instance of a class from a dictionary containing the type info and the
     serialized data of the class.
 
@@ -60,16 +61,23 @@ def load_from_dict(class_: Dict[str, Any]) -> Any:
     Returns:
         An instance of the class with the data loaded from the dictionary.
     """
-    type_info = class_.pop(TYPE_INFO_KEY)
-    if TYPE_INFO_KEY in type_info:
-        # There is a nested type_info, load the class recursively
-        type_info = load_from_dict(type_info)
+    if not isinstance(class_, (list, dict)):
+        return class_
 
-    cls = _get_module_attr(type_info["module"], type_info["name"])
+    if isinstance(class_, list):
+        return [load_with_type_info(x) for x in class_]
 
     for k, v in class_.items():
+        class_[k] = load_with_type_info(v) if isinstance(v, (dict, list)) else v
+
         if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
             class_[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
+
+    if TYPE_INFO_KEY not in class_:
+        return class_
+
+    type_info = class_.pop(TYPE_INFO_KEY)
+    cls = _get_module_attr(type_info["module"], type_info["name"])
 
     instance = cls(**class_)
     return instance
@@ -83,8 +91,8 @@ def write_json(filename: Path, data: Any) -> None:
         data: the data to write to the file.
     """
     filename.parent.mkdir(parents=True, exist_ok=True)
-    with open(filename, "w") as file:
-        json.dump(data, file, indent=2)
+    with open(filename, "wb") as f:
+        f.write(orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY))
 
 
 def read_json(filename: StrOrPath) -> Any:
@@ -96,8 +104,8 @@ def read_json(filename: StrOrPath) -> Any:
     Returns:
         The data from the file.
     """
-    with open(filename, "r") as file:
-        return json.load(file)
+    with open(filename, "rb") as f:
+        return orjson.loads(f.read())
 
 
 def write_yaml(filename: Path, data: Dict[str, Any]) -> None:
@@ -237,7 +245,7 @@ class _Serializable:
         Returns:
             An instance of the class with the data loaded from the dictionary.
         """
-        return load_from_dict(data)
+        return load_with_type_info(data)
 
     @classmethod
     def from_json(cls, path: StrOrPath) -> Self:
