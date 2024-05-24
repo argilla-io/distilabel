@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
+import tempfile
+from pathlib import Path
+
 import pytest
 from datasets import Dataset, DatasetDict
 from distilabel.distiset import Distiset
@@ -27,6 +31,24 @@ def distiset():
     )
 
 
+def make_fake_file(filename: Path) -> None:
+    if not filename.parent.exists():
+        filename.parent.mkdir(parents=True)
+    filename.touch()
+
+
+def add_config_to_distiset(distiset: Distiset, folder: Path) -> Distiset:
+    from distilabel.distiset import DISTISET_CONFIG_FOLDER
+
+    pipeline_yaml = folder / DISTISET_CONFIG_FOLDER / "pipeline.yaml"
+    pipeline_log = folder / DISTISET_CONFIG_FOLDER / "pipeline.log"
+    make_fake_file(pipeline_yaml)
+    make_fake_file(pipeline_log)
+    distiset.pipeline_path = pipeline_yaml
+    distiset.pipeline_log_path = pipeline_log
+    return distiset
+
+
 class TestDistiset:
     def test_train_test_split(self, distiset: Distiset) -> None:
         assert isinstance(distiset["leaf_step_1"], Dataset)
@@ -34,3 +56,75 @@ class TestDistiset:
         assert isinstance(ds, Distiset)
         assert len(ds) == 2
         assert isinstance(ds["leaf_step_1"], DatasetDict)
+
+    @pytest.mark.parametrize("with_config, num_files", [(False, 2), (True, 3)])
+    def test_save_to_disk(
+        self, distiset: Distiset, with_config: bool, num_files: int
+    ) -> None:
+        full_distiset = copy.deepcopy(distiset)
+        # Distiset with Distiset
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "distiset_folder"
+            if with_config:
+                full_distiset = add_config_to_distiset(full_distiset, folder)
+
+            full_distiset.save_to_disk(
+                folder,
+                save_card=with_config,
+                save_pipeline_config=with_config,
+                save_pipeline_log=with_config,
+            )
+            assert folder.is_dir()
+            assert len(list(folder.iterdir())) == num_files
+
+        full_distiset = copy.deepcopy(distiset)
+        # Distiset with DatasetDict
+        distiset_with_dict = full_distiset.train_test_split(0.8)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "distiset_folder"
+            if with_config:
+                full_distiset = add_config_to_distiset(full_distiset, folder)
+
+            distiset_with_dict.save_to_disk(
+                folder,
+                save_card=with_config,
+                save_pipeline_config=with_config,
+                save_pipeline_log=with_config,
+            )
+
+            assert folder.is_dir()
+            assert len(list(folder.iterdir())) == num_files
+
+    @pytest.mark.parametrize("with_config", [False, True])
+    def test_load_from_disk(self, distiset: Distiset, with_config: bool) -> None:
+        full_distiset = copy.deepcopy(distiset)
+        # Distiset with Distiset
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "distiset_folder"
+            if with_config:
+                full_distiset = add_config_to_distiset(full_distiset, folder)
+            full_distiset.save_to_disk(folder)
+            ds = Distiset.load_from_disk(folder)
+            assert isinstance(ds, Distiset)
+            assert isinstance(ds["leaf_step_1"], Dataset)
+
+            if with_config:
+                assert ds.pipeline_path.exists()
+                assert ds.log_filename_path.exists()
+
+        full_distiset = copy.deepcopy(distiset)
+        # Distiset with DatasetDict
+        distiset_with_dict = full_distiset.train_test_split(0.8)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            folder = Path(tmpdirname) / "distiset_folder"
+            if with_config:
+                distiset_with_dict = add_config_to_distiset(distiset_with_dict, folder)
+
+            distiset_with_dict.save_to_disk(folder)
+            ds = Distiset.load_from_disk(folder)
+            assert folder.is_dir()
+            assert isinstance(ds["leaf_step_1"], DatasetDict)
+
+            if with_config:
+                assert ds.pipeline_path.exists()
+                assert ds.log_filename_path.exists()

@@ -14,19 +14,25 @@
 
 import logging
 import re
+import shutil
+from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from huggingface_hub import DatasetCardData, HfApi
 from pyarrow.lib import ArrowInvalid
+from typing_extensions import Self
 
-from distilabel.steps.tasks.base import DISTILABEL_METADATA_KEY
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
 )
 from distilabel.utils.files import list_files_in_dir
+
+DISTISET_CONFIG_FOLDER: str = "distiset_configs"
+PIPELINE_CONFIG_FILENAME: str = "pipeline.yaml"
+PIPELINE_LOG_FILENAME: str = "pipeline.log"
 
 
 class Distiset(dict):
@@ -84,14 +90,17 @@ class Distiset(dict):
         if generate_card:
             self._generate_card(repo_id, token)
 
-    def _generate_card(self, repo_id: str, token: Optional[str]) -> None:
-        """Generates a dataset card and pushes it to the Hugging Face Hub, and
-        if the `pipeline.yaml` path is available in the `Distiset`, uploads that
-        to the same repository.
+    def _get_card(
+        self, repo_id: str, token: Optional[str] = None
+    ) -> DistilabelDatasetCard:
+        """_summary_
 
         Args:
-            repo_id: The ID of the repository to push to, from the `push_to_hub` method.
-            token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+            repo_id (str): _description_
+            token (Optional[str]): _description_
+
+        Returns:
+            DistilabelDatasetCard: _description_
         """
         sample_records = {}
         for name, dataset in self.items():
@@ -99,8 +108,13 @@ class Distiset(dict):
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
 
+        # TODO: Refactor this to avoid downloading the README.md file when we are saving to disk
+        readme_metadata = {}
+        if repo_id and token:
+            readme_metadata = self._extract_readme_metadata(repo_id, token)
+
         metadata = {
-            **self._extract_readme_metadata(repo_id, token),
+            **readme_metadata,
             "size_categories": size_categories_parser(
                 max(len(dataset) for dataset in self.values())
             ),
@@ -112,29 +126,8 @@ class Distiset(dict):
             repo_id=repo_id,
             sample_records=sample_records,
         )
-        card.push_to_hub(
-            repo_id,
-            repo_type="dataset",
-            token=token,
-        )
-        if self.pipeline_path:
-            # If the pipeline.yaml is available, upload it to the Hugging Face Hub as well.
-            HfApi().upload_file(
-                path_or_fileobj=self.pipeline_path,
-                path_in_repo="pipeline.yaml",
-                repo_id=repo_id,
-                repo_type="dataset",
-                token=token,
-            )
-        if self.log_filename_path:
-            # The same we had with "pipeline.yaml" but with the log file.
-            HfApi().upload_file(
-                path_or_fileobj=self.log_filename_path,
-                path_in_repo="pipeline.log",
-                repo_id=repo_id,
-                repo_type="dataset",
-                token=token,
-            )
+
+        return card
 
     def _extract_readme_metadata(
         self, repo_id: str, token: Optional[str]
@@ -164,12 +157,47 @@ class Distiset(dict):
         metadata = yaml.safe_load(metadata)
         return metadata
 
+    def _generate_card(self, repo_id: str, token: Optional[str]) -> None:
+        """Generates a dataset card and pushes it to the Hugging Face Hub, and
+        if the `pipeline.yaml` path is available in the `Distiset`, uploads that
+        to the same repository.
+
+        Args:
+            repo_id: The ID of the repository to push to, from the `push_to_hub` method.
+            token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+        """
+        card = self._get_card(repo_id=repo_id, token=token)
+
+        card.push_to_hub(
+            repo_id,
+            repo_type="dataset",
+            token=token,
+        )
+        if self.pipeline_path:
+            # If the pipeline.yaml is available, upload it to the Hugging Face Hub as well.
+            HfApi().upload_file(
+                path_or_fileobj=self.pipeline_path,
+                path_in_repo=PIPELINE_CONFIG_FILENAME,
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+            )
+        if self.log_filename_path:
+            # The same we had with "pipeline.yaml" but with the log file.
+            HfApi().upload_file(
+                path_or_fileobj=self.log_filename_path,
+                path_in_repo=PIPELINE_LOG_FILENAME,
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+            )
+
     def train_test_split(
         self,
         train_size: float,
         shuffle: bool = True,
         seed: Optional[int] = None,
-    ) -> "Distiset":
+    ) -> Self:
         """Return a `Distiset` whose values will be a `datasets.DatasetDict` with two random train and test subsets.
         Splits are created from the dataset according to `train_size` and `shuffle`.
 
@@ -192,6 +220,115 @@ class Distiset(dict):
                 seed=seed,
             )
         return self
+
+    def save_to_disk(
+        self,
+        distiset_path: PathLike,
+        max_shard_size: Optional[Union[str, int]] = None,
+        num_shards: Optional[int] = None,
+        num_proc: Optional[int] = None,
+        storage_options: Optional[dict] = None,
+        save_card: bool = True,
+        save_pipeline_config: bool = True,
+        save_pipeline_log: bool = True,
+    ) -> None:
+        """
+        Saves a `Distiset` to a dataset directory, or in a filesystem using any implementation of `fsspec.spec.AbstractFileSystem`.
+
+        Args:
+            dataset_path: _description_
+            max_shards: _description_. Defaults to None.
+            num_shards: _description_. Defaults to None.
+            num_proc: _description_. Defaults to None.
+            storage_options: _description_. Defaults to None.
+
+        Examples:
+
+            ```python
+            >>> distiset.save_to_disk(dataset_path="data/ds", max_shard_size=1_000_000, num_shards=1, num_proc=1, storage_options=None)
+            ```
+        """
+        for name, dataset in self.items():
+            dataset.save_to_disk(
+                f"{distiset_path}/{name}",
+                max_shard_size=max_shard_size,
+                num_shards=num_shards,
+                num_proc=num_proc,
+                storage_options=storage_options,
+            )
+
+        # TODO: Move the following files to use fsspec to ensure we can work with remote filesystems.
+        if save_card:
+            # NOTE: Currently the card is not the same if we write to disk or push to the HF hub,
+            # as we aren't generating the README copying/updating the data from the dataset repo.
+            card = self._get_card(repo_id=str(Path(distiset_path).stem), token=None)
+            card.save(Path(distiset_path) / DISTISET_CONFIG_FOLDER / "README.md")
+
+        # Write our internal files to the distiset folder by copying them to the distiset folder.
+        if save_pipeline_config and self.pipeline_path:
+            new_filename = (
+                Path(distiset_path) / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
+            )
+            if self.pipeline_path.exists() and (not new_filename.exists()):
+                shutil.copyfile(str(self.pipeline_path), str(new_filename))
+
+        if save_pipeline_log and self.log_filename_path:
+            new_filename = (
+                Path(distiset_path) / DISTISET_CONFIG_FOLDER / PIPELINE_LOG_FILENAME
+            )
+            if self.log_filename_path.exists() and (not new_filename.exists()):
+                shutil.copyfile(str(self.log_filename_path), str(new_filename))
+
+    @classmethod
+    def load_from_disk(
+        cls,
+        dataset_path: PathLike,
+        keep_in_memory: Optional[bool] = None,
+        storage_options: Optional[Dict[str, Any]] = None,
+    ) -> Self:
+        """_summary_
+
+        Args:
+            dataset_path (PathLike): _description_
+            keep_in_memory (Optional[bool], optional): _description_. Defaults to None.
+            storage_options (Optional[Dict[str, Any]], optional): _description_. Defaults to None.
+
+        Returns:
+            Self: _description_
+        """
+        dataset_path = Path(dataset_path)
+        assert (
+            dataset_path.is_dir()
+        ), "dataset_path must be a PathLike object pointing to a folder."
+        data = {}
+        for folder in dataset_path.iterdir():
+            if folder.stem == DISTISET_CONFIG_FOLDER:
+                # From the config folder we just need to point to the files:
+                # NOTE: Assuming we are dealing with files in the local filesystem,
+                # otherwise we would need to download them from wherever?).
+                if (
+                    pipeline_path := Path(
+                        dataset_path / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
+                    )
+                ).exists():
+                    cls.pipeline_path = pipeline_path
+                if (
+                    log_filename_path := Path(
+                        dataset_path / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
+                    )
+                ).exists():
+                    cls.log_filename_path = log_filename_path
+
+                continue
+
+            data[folder.stem] = load_from_disk(
+                str(folder),
+                keep_in_memory=keep_in_memory,
+                storage_options=storage_options,
+            )
+
+        distiset = cls(data)
+        return distiset
 
     def __repr__(self):
         # Copy from `datasets.DatasetDict.__repr__`.
@@ -225,6 +362,7 @@ def create_distiset(  # noqa: C901
         correspond to different configurations of the dataset.
     """
     logger = logging.getLogger("distilabel.distiset")
+    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
     data_dir = Path(data_dir)
 
