@@ -611,7 +611,7 @@ class _BatchManagerStep(_Serializable):
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
     convergence_step: bool = False
-    convergence_step_batches_consumed: Dict[int, Dict[str, int]] = field(
+    convergence_step_batches_consumed: Dict[str, Dict[str, int]] = field(
         default_factory=dict
     )
     next_expected_created_from_batch_seq_no: int = 0
@@ -781,6 +781,7 @@ class _BatchManagerStep(_Serializable):
         """
         grouped_batches = self._group_batches_by_created_from()
         seq_no, batches = grouped_batches[0]
+        str_seq_no = str(seq_no)
 
         remaining_rows_per_step: Dict[str, int] = {
             step_name: self.input_batch_size
@@ -796,10 +797,10 @@ class _BatchManagerStep(_Serializable):
             # If A -> [B, C] -> D, then in D (this step) we keep track of the remaining
             # rows from the batches of A that B and C used to create the `batches`.
             batch_size = self.convergence_step_batches_consumed.setdefault(
-                seq_no, {}
+                str_seq_no, {}
             ).get(batch.step_name, batch_size)
             remaining_rows_in_batch = batch_size - len(selected_data)
-            self.convergence_step_batches_consumed[seq_no].update(
+            self.convergence_step_batches_consumed[str_seq_no].update(
                 {batch.step_name: remaining_rows_in_batch}
             )
 
@@ -820,7 +821,7 @@ class _BatchManagerStep(_Serializable):
         # to avoid skipping batches.
         no_remaining_rows = all(
             count == 0
-            for count in self.convergence_step_batches_consumed[seq_no].values()
+            for count in self.convergence_step_batches_consumed[str_seq_no].values()
         )
         if no_remaining_rows:
             self.next_expected_created_from_batch_seq_no += 1
