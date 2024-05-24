@@ -23,7 +23,7 @@ def test_list_files_in_dir() -> None:
         temp_dir = Path(temp_dir)
 
         created_files = []
-        for i in range(10):
+        for i in range(20):
             file_path = temp_dir / f"{i}.txt"
             created_files.append(file_path)
             with open(file_path, "w") as f:

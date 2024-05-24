@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 import hashlib
 import logging
 import os
+from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import (
@@ -25,6 +27,7 @@ from typing import (
     List,
     Optional,
     Set,
+    Tuple,
     TypedDict,
     Union,
 )
@@ -35,6 +38,11 @@ from typing_extensions import Self
 
 from distilabel import __version__
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.constants import (
+    RECEIVES_ROUTED_BATCHES_ATTR_NAME,
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
 
@@ -42,6 +50,7 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import _Step
     from distilabel.utils.serialization import SaveFormats, StrOrPath
 
@@ -49,8 +58,15 @@ if TYPE_CHECKING:
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
 
 
-class CacheLocation(TypedDict):
-    """Dictionary to store the filenames and directories of a cached pipeline."""
+class _CacheLocation(TypedDict):
+    """Dictionary to store the filenames and directories of a cached pipeline.
+
+    Attributes:
+        pipeline: The filename where the pipeline content will be serialized.
+        batch_manager: The filename where the batch manager content will be serialized.
+        data: The directory where the output data of each leaf step will be stored.
+        log_file: The filename where the logs will be stored.
+    """
 
     pipeline: Path
     batch_manager: Path
@@ -105,6 +121,7 @@ class BasePipeline(_Serializable):
         name: str,
         description: Optional[str] = None,
         cache_dir: Optional["PathLike"] = None,
+        enable_metadata: bool = False,
     ) -> None:
         """Initialize the `BasePipeline` instance.
 
@@ -112,9 +129,14 @@ class BasePipeline(_Serializable):
             name: The name of the pipeline.
             description: A description of the pipeline. Defaults to `None`.
             cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
+            enable_metadata: Whether to include the distilabel metadata column for the pipeline
+                in the final `Distiset`. It contains metadata used by distilabel, for example
+                the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
+                field. Defaults to `False`.
         """
         self.name = name
         self.description = description
+        self._enable_metadata = enable_metadata
         self.dag = DAG()
 
         if cache_dir:
@@ -128,6 +150,7 @@ class BasePipeline(_Serializable):
 
         # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
+        self._dry_run: bool = False
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -150,15 +173,11 @@ class BasePipeline(_Serializable):
 
         steps_info = []
         pipeline_dump = self.dump()["pipeline"]
+
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
-            for argument, value in sorted(step["step"].items()):
-                if (
-                    (argument == TYPE_INFO_KEY)
-                    or (argument == "llm")
-                    or (value is None)
-                ):
-                    # NOTE: Should we include the LLM info at this stage??
+            for argument, value in sorted(step[STEP_ATTR_NAME].items()):
+                if (argument == TYPE_INFO_KEY) or (value is None):
                     continue
 
                 if isinstance(value, dict):
@@ -182,7 +201,21 @@ class BasePipeline(_Serializable):
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
         ]
-        hasher.update(",".join(steps_info + connections_info).encode())
+
+        routing_batch_functions_info = []
+        for function in pipeline_dump["routing_batch_functions"]:
+            step = function["step"]
+            routing_batch_function: "RoutingBatchFunction" = self.dag.get_step(step)[
+                ROUTING_BATCH_FUNCTION_ATTR_NAME
+            ]
+            if type_info := routing_batch_function._get_type_info():
+                step += f"-{type_info}"
+
+        hasher.update(
+            ",".join(
+                steps_info + connections_info + routing_batch_functions_info
+            ).encode()
+        )
 
         return hasher.hexdigest()
 
@@ -211,6 +244,41 @@ class BasePipeline(_Serializable):
         self._set_runtime_parameters(parameters or {})
         self.dag.validate()
 
+    def dry_run(
+        self,
+        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        batch_size: int = 1,
+    ) -> "Distiset":
+        """Do a dry run to test the pipeline runs as expected.
+
+        Running a `Pipeline` in dry run mode will set all the `batch_size` of generator steps
+        to the specified batch_size, and run just with a single batch, effectively
+        running the whole pipeline with a single example. The cache will be set to False.
+
+        Args:
+            parameters: The same parameters variable from `BasePipeline.run`. Defaults to None.
+                Will be passed to the parent method, but with the batch_size of the generator steps
+                fixed to 1.
+            batch_size: The batch size to test the pipeline. Defaults to 1.
+
+        Returns:
+            Will return the `Distiset` as the main run method would do.
+        """
+        self._dry_run = True
+
+        for step_name in self.dag:
+            step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+
+            if step.is_generator:
+                if not parameters:
+                    parameters = {}
+                parameters[step_name] = {"batch_size": batch_size}
+
+        distiset = self.run(parameters=parameters, use_cache=False)
+
+        self._dry_run = False
+        return distiset
+
     def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
         """Get the runtime parameters for the steps in the pipeline.
 
@@ -220,7 +288,7 @@ class BasePipeline(_Serializable):
         """
         runtime_parameters = {}
         for step_name in self.dag:
-            step: "_Step" = self.dag.get_step(step_name)["step"]
+            step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
 
@@ -241,6 +309,31 @@ class BasePipeline(_Serializable):
         """
         self.dag.add_edge(from_step, to_step)
 
+        # Check if `from_step` has a `routing_batch_function`. If it does, then mark
+        # `to_step` as a step that will receive a routed batch.
+        node = self.dag.get_step(from_step)  # type: ignore
+        routing_batch_function = node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME, None)
+        self.dag.set_step_attr(
+            name=to_step,
+            attr=RECEIVES_ROUTED_BATCHES_ATTR_NAME,
+            value=routing_batch_function is not None,
+        )
+
+    def _add_routing_batch_function(
+        self, step_name: str, routing_batch_function: "RoutingBatchFunction"
+    ) -> None:
+        """Add a routing batch function to a step.
+
+        Args:
+            step_name: The name of the step that will receive the routed batch.
+            routing_batch_function: The function that will route the batch to the step.
+        """
+        self.dag.set_step_attr(
+            name=step_name,
+            attr=ROUTING_BATCH_FUNCTION_ATTR_NAME,
+            value=routing_batch_function,
+        )
+
     def _set_runtime_parameters(self, parameters: Dict[str, Dict[str, Any]]) -> None:
         """Set the runtime parameters for the steps in the pipeline.
 
@@ -256,7 +349,7 @@ class BasePipeline(_Serializable):
                     f" Available steps are: {step_names}."
                 )
             else:
-                step: "_Step" = self.dag.get_step(step_name)["step"]
+                step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
                 step.set_runtime_parameters(step_parameters)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
@@ -301,14 +394,14 @@ class BasePipeline(_Serializable):
         return pipe
 
     @property
-    def _cache_location(self) -> CacheLocation:
+    def _cache_location(self) -> _CacheLocation:
         """Dictionary containing the the object that will stored and the location,
         whether it is a filename or a folder.
 
         Returns:
             Path: Filenames where the pipeline content will be serialized.
         """
-        folder = self._cache_dir / self._create_signature()
+        folder = self._cache_dir / self.name / self._create_signature()
         return {
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
@@ -320,12 +413,12 @@ class BasePipeline(_Serializable):
         """Saves the `BasePipeline` using the `_cache_filename`."""
         self.save(
             path=self._cache_location["pipeline"],
-            format=self._cache_location["pipeline"].suffix.replace(".", ""),
+            format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
         )
         if self._batch_manager is not None:
             self._batch_manager.save(
                 self._cache_location["batch_manager"],
-                format=self._cache_location["batch_manager"].suffix.replace(".", ""),
+                format=self._cache_location["batch_manager"].suffix.replace(".", ""),  # type: ignore
             )
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
@@ -335,12 +428,6 @@ class BasePipeline(_Serializable):
         """
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
-            # Refresh the DAG to avoid errors when it's created within a context manager
-            # (it will check the steps aren't already defined for the DAG).
-            self.dag = DAG()
-            new_class = self.from_yaml(cache_loc["pipeline"])
-            # Update the internal dag and batch_manager
-            self.dag.G = new_class.dag.G
             if cache_loc["batch_manager"].exists():
                 self._batch_manager = _BatchManager.from_json(
                     cache_loc["batch_manager"]
@@ -358,6 +445,9 @@ class _Batch(_Serializable):
         last_batch: A flag to indicate if the batch is the last one.
         data: The data to be processed.
         accumulated: A flag to indicate if the batch is accumulated.
+        created_from: A dictionary containing the `seq_no` of the batches of the steps that
+            were used to create this batch.
+        size: The size of the batch.
     """
 
     seq_no: int
@@ -365,11 +455,16 @@ class _Batch(_Serializable):
     last_batch: bool
     data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
     accumulated: bool = False
+    created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
+    batch_routed_to: List[str] = field(default_factory=list)
+    size: int = 0
 
     def next_batch(self) -> "_Batch":
         """Create a new `_Batch` instance with the next batch of data.
+
         Args:
             data: The data to be processed.
+
         Returns:
             A `_Batch` instance.
         """
@@ -377,27 +472,14 @@ class _Batch(_Serializable):
             seq_no=self.seq_no + 1, step_name=self.step_name, last_batch=self.last_batch
         )
 
-    @classmethod
-    def from_batches(cls, step_name: str, batches: List["_Batch"]) -> "_Batch":
-        """Create a `_Batch` instance with the outputs from the list of batches that
-        were received from another steps. All the batches must have the same sequence
-        number.
+    def set_data(self, data: List[List[Dict[str, Any]]]) -> None:
+        """Sets the data of the batch and updates the size of the batch.
 
         Args:
-            step_name: The name of the step that will process the batch.
-            batches: A list of `_Batch` instances.
-
-        Returns:
-            A `_Batch` instance.
+            data: The data of the batch.
         """
-
-        seq_no = batches[0].seq_no
-        if not all(batch.seq_no == seq_no for batch in batches):
-            raise ValueError("All batches must have the same sequence number")
-
-        data = [batch.data[0] for batch in batches]
-        last_batch = batches[-1].last_batch
-        return cls(seq_no, step_name, last_batch, data)
+        self.data = data
+        self.size = len(data[0])
 
     @classmethod
     def accumulate(cls, step_name: str, batches: List[List["_Batch"]]) -> "_Batch":
@@ -425,13 +507,21 @@ class _Batch(_Serializable):
         """Dumps the content of the `_Batch` to a dictionary, using the `dataclass` helper function.
 
         Args:
-            obj (Any): Unused, just kept to match the signature of the parent method.
-            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+            obj: Unused, just kept to match the signature of the parent method.
+            kwargs: Additional arguments that are kept to match the signature of the parent method.
 
         Returns:
-            Dict[str, Any]: Internal representation of the `_Batch`.
+            A `dict` containing the internal representation of the `_Batch`.
         """
         return asdict(self)
+
+    def copy(self) -> "_Batch":
+        """Creates a copy of the `_Batch` instance.
+
+        Returns:
+            A copy of the `_Batch` instance.
+        """
+        return copy.deepcopy(self)
 
 
 @dataclass
@@ -452,14 +542,32 @@ class _BatchManagerStep(_Serializable):
             incremented for each batch created.
         last_batch_received: A list with the names of the steps that sent the last
             batch of data.
+        convergence_step: A flag to indicate if the step is a convergence step. An
+            `Step` is a convergence step if all its predecessors are receiving routed
+            batches. Defaults to `False`.
+        convergence_step_batches_consumed: A dictionary in which the key is the `seq_no`
+            of the batch created by step A, that was used by step B and C and obtained from
+            the `created_from` of the batches created by them. It's used to know if all
+            the batches from B and C steps created from batches of A have been consumed
+            by D, in order to not mess up the order of the batches. Only used if `convergence_step=True`.
+            Defaults to an empty dictionary.
+        next_expected_created_from_batch_seq_no: The next expected sequence number of the
+            batch from step A used by steps B and C and obtained from the `created_from`
+            of the batches created by them. It's used to avoid messing up the order of the
+            batches. Only used if `convergence_step=True`. Defaults to `0`.
     """
 
     step_name: str
     accumulate: bool
     input_batch_size: Union[int, None] = None
-    data: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
+    data: Dict[str, List[_Batch]] = field(default_factory=dict)
     seq_no: int = 0
     last_batch_received: List[str] = field(default_factory=list)
+    convergence_step: bool = False
+    convergence_step_batches_consumed: Dict[int, Dict[str, int]] = field(
+        default_factory=dict
+    )
+    next_expected_created_from_batch_seq_no: int = 0
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -471,10 +579,12 @@ class _BatchManagerStep(_Serializable):
                 the buffer.
         """
         from_step = batch.step_name
+
         if prepend:
-            self.data[from_step] = batch.data[0] + self.data[from_step]
+            self.data[from_step].insert(0, batch)
         else:
-            self.data[from_step].extend(batch.data[0])
+            self.data[from_step].append(batch)
+
         if batch.last_batch:
             self.last_batch_received.append(from_step)
 
@@ -489,12 +599,20 @@ class _BatchManagerStep(_Serializable):
         if not self._ready_to_create_batch():
             return None
 
+        # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
+        # list of data which is used to determine if the batch to be created is the last one.
+        # TODO: remove `_last_batch` method and integrate logic in `_get_data`
+        last_batch = self._last_batch()
+        data, created_from, batch_routed_to = self._get_data()
+
         return _Batch(
             seq_no=self._get_seq_no(),
             step_name=self.step_name,
-            last_batch=self._last_batch(),
-            data=self._get_data(),
+            last_batch=last_batch,
+            data=data,
             accumulated=self.accumulate,
+            created_from=created_from,
+            batch_routed_to=batch_routed_to,
         )
 
     def empty_buffers(self) -> List[str]:
@@ -513,26 +631,34 @@ class _BatchManagerStep(_Serializable):
 
         return [
             previous_step
-            for previous_step, buffer in self.data.items()
+            for previous_step, batches in self.data.items()
             if previous_step not in self.last_batch_received
-            and len(buffer) < self.input_batch_size
+            and sum(len(batch.data[0]) for batch in batches) < self.input_batch_size  # type: ignore
         ]
 
     @classmethod
     def from_step(
-        cls, step: "_Step", predecessors: Iterable[str]
+        cls, step: "_Step", predecessors: Iterable[str], convergence_step: bool = False
     ) -> "_BatchManagerStep":
         """Creates a `_BatchManagerStep` instance from a `_Step` instance and its
         predecessors.
+
+        Args:
+            step: The `_Step` instance.
+            predecessors: The names of the predecessors of the step.
+            convergence_step: A flag to indicate if the step is a convergence step. An
+                `Step` is a convergence step if all its predecessors are receiving routed
+                batches. Defaults to `False`.
 
         Returns:
             A `_BatchManagerStep` instance.
         """
         return cls(
-            step_name=step.name,
+            step_name=step.name,  # type: ignore
             accumulate=step.is_global,
             input_batch_size=getattr(step, "input_batch_size", None),
             data={predecessor: [] for predecessor in predecessors},
+            convergence_step=convergence_step,
         )
 
     def _get_seq_no(self) -> int:
@@ -545,7 +671,9 @@ class _BatchManagerStep(_Serializable):
         self.seq_no += 1
         return seq_no
 
-    def _get_data(self) -> List[List[Dict[str, Any]]]:
+    def _get_data(
+        self,
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
         """Gets the data needed to create a batch for the step to process. If the step is
         accumulating data, then it will return a list with all the data received from the
         predecessors. Otherwise, it will return a list of data with the `input_batch_size`
@@ -553,50 +681,262 @@ class _BatchManagerStep(_Serializable):
         batch from the step's data.
 
         Returns:
-            The list of data needed to create a batch for the step to process.
+            A tuple containing the list of data needed to create a batch for the step to
+            process, a dictionary with the sequence numbers of the batches that were used
+            to create the batch and the list of steps to which the batch was routed to if
+            the step is a normal step.
         """
         if self.accumulate:
-            data = list(self.data.values())
-            self.data = {step_name: [] for step_name in self.data}
-            return data
+            # Steps accumulating cannot receive routed batches
+            return self._get_data_for_accumulate() + ([],)
 
+        if self.convergence_step:
+            # Convergence steps will receive routed batches, but we need to clean the
+            # `batch_routed_to` list
+            return self._get_data_for_convergence_step() + ([],)
+
+        return self._get_data_normal()
+
+    def _get_data_for_accumulate(
+        self,
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
+        """Gets the data needed to create a batch for the step to process when the step
+        is accumulating data. It will return a list with all the data received from the
+        predecessors. In addition, it will remove the data used to create the batch from
+        the step's data.
+
+        Returns:
+            A tuple containing the list of data needed to create a batch for the step to
+            process and a dictionary with the sequence numbers of the batches that were
+            used to create the batch.
+        """
         data = []
-        for step_name in self.data:
-            step_data = self.data[step_name]
-            data_for_batch, self.data[step_name] = (
-                step_data[: self.input_batch_size],
-                step_data[self.input_batch_size :],
+        batches_used = {}
+        for step_name, batches in self.data.items():
+            batches_used[step_name] = []
+            for batch in batches:
+                batches_used[step_name].append((batch.seq_no, batch.size))
+            data.append([row for batch in batches for row in batch.data[0]])
+        # Reset the data buffer
+        self.data = {step_name: [] for step_name in self.data}
+        return data, batches_used
+
+    def _get_data_for_convergence_step(
+        self,
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]]]:
+        """Gets the data needed to create a batch for the step to process when the step is
+        a convergence step.
+
+        Returns:
+            A tuple containing the list of data needed to create a batch for the step to
+            process and a dictionary with the sequence numbers of the batches that were
+            used to create the batch.
+        """
+        grouped_batches = self._group_batches_by_created_from()
+        seq_no, batches = grouped_batches[0]
+
+        remaining_rows_per_step = {
+            step_name: self.input_batch_size for step_name in self.data
+        }
+        batches_used = defaultdict(list)
+        data = defaultdict(list)
+        for batch, batch_size in batches:
+            batch_data = batch.data[0]
+            remaining_rows = remaining_rows_per_step[batch.step_name]
+            selected_data = batch_data[:remaining_rows]
+            data[batch.step_name].extend(selected_data)
+
+            # If A -> [B, C] -> D, then in D (this step) we keep track of the remaining
+            # rows from the batches of A that B and C used to create the `batches`.
+            batch_size = self.convergence_step_batches_consumed.setdefault(
+                seq_no, {}
+            ).get(batch.step_name, batch_size)
+            remaining_rows_in_batch = batch_size - len(selected_data)
+            self.convergence_step_batches_consumed[seq_no].update(
+                {batch.step_name: remaining_rows_in_batch}
             )
-            data.append(data_for_batch)
-        return data
+
+            # Update the remaining rows
+            num_rows = len(selected_data)
+            remaining_rows_per_step[batch.step_name] -= num_rows  # type: ignore
+
+            # Keep track of the batches used to create the batch
+            batches_used[batch.step_name].append((batch.seq_no, batch.size))
+
+            # If the batch was entirely consumed, then remove it from the buffer
+            if num_rows >= len(batch_data):
+                self.data[batch.step_name].remove(batch)
+                continue
+
+            # The batch was not entirely consumed. so we need to update the batch
+            # with the remaining data
+            batch_idx = self.data[batch.step_name].index(batch)
+            batch_ref = self.data[batch.step_name][batch_idx]
+            batch_ref.data[0] = batch_data[len(selected_data) :]
+
+        # If all the batches grouped by the `seq_no` in `created_from` were consumed, then
+        # we can update the `next_expected_created_from_batch_seq_no` to the next one
+        # to avoid skipping batches.
+        no_remaining_rows = all(
+            count == 0
+            for count in self.convergence_step_batches_consumed[seq_no].values()
+        )
+        if no_remaining_rows:
+            self.next_expected_created_from_batch_seq_no += 1
+
+        return list(data.values()), dict(batches_used)
+
+    def _get_data_normal(
+        self,
+    ) -> Tuple[List[List[Dict[str, Any]]], Dict[str, List[Tuple[int, int]]], List[str]]:
+        """Gets the data needed to create a batch for the step to process when the step is
+        not accumulating data. It will return a list of data with the `input_batch_size`
+        for each predecessor. In addition, it will remove the data used to create the batch
+        from the step's data.
+
+        Returns:
+            A tuple containing the list of data needed to create a batch for the step to
+            process, a dictionary with the sequence numbers of the batches that were used
+            to create the batch and the list of steps to which the batch was routed to if
+            the step is a convergence step.
+        """
+        data = []
+        batches_used = defaultdict(list)
+        batch_routed_to = []
+        for step_name in self.data:
+            # For each step batches buffer, we will create a batch with the `input_batch_size`
+            # using the data from the buffer. We will remove the consumed batches (no data
+            # left) and update the batch data with the remaining data.
+            step_data = []
+            idx_drop_batches = []
+            remaining_rows: int = self.input_batch_size  # type: ignore
+            for idx, batch in enumerate(self.data[step_name]):
+                if remaining_rows == 0:
+                    break
+
+                # Get `remaining_rows` or the remaining rows in the batch and add it to
+                # the step data that will be used to create the batch
+                batch_data = batch.data[0]
+                selected_data = batch_data[:remaining_rows]
+                step_data.extend(selected_data)
+                batch_routed_to = batch.batch_routed_to
+
+                # Update the remaining rows
+                num_rows = len(selected_data)
+                remaining_rows -= num_rows
+
+                # Keep track of the batches used to create the batch
+                batches_used[step_name].append((batch.seq_no, batch.size))
+
+                # If the batch was entirely consumed, then remove it from the buffer
+                if num_rows >= len(batch_data):
+                    idx_drop_batches.append(idx)
+                    continue
+
+                # The batch was not entirely consumed. so we need to update the batch
+                # with the remaining data
+                batch.data[0] = batch_data[len(selected_data) :]
+
+            # Remove the batches that were entirely consumed
+            idx_drop_batches.reverse()
+            for idx in idx_drop_batches:
+                self.data[step_name].pop(idx)
+
+            data.append(step_data)
+
+        return data, dict(batches_used), batch_routed_to
 
     def _ready_to_create_batch(self) -> bool:
-        """Checks if there is enough data to create a batch for the step. If the step is
-        accumulating data, then it will return `True` if the last batch was received from
-        all the predecessors. Otherwise, it will return `True` if there is enough data to
-        create a batch for the step based on the `input_batch_size`.
+        """Checks if there is enough data to create a batch for the step.
 
         Returns:
             `True` if there is enough data to create a batch for the step. Otherwise,
             `False`.
         """
         if self.accumulate:
-            return all(
-                step in self.last_batch_received and len(rows) >= 0
-                for step, rows in self.data.items()
-            )
+            return self._ready_to_create_batch_accumulate()
 
-        for step_name, rows in self.data.items():
+        if self.convergence_step:
+            return self._ready_to_create_batch_convergence_step()
+
+        return self._ready_to_create_batch_normal()
+
+    def _ready_to_create_batch_accumulate(self) -> bool:
+        """Checks if there is enough data for an step accumulating data. It will return
+        `True` if the last batch was received from all the predecessors.
+
+        Returns:
+            `True` if ready to create a batch, `False` otherwise.
+        """
+        return all(
+            step in self.last_batch_received
+            and sum(len(batch.data[0]) for batch in batches) >= 0
+            for step, batches in self.data.items()
+        )
+
+    def _ready_to_create_batch_convergence_step(self) -> bool:
+        """Checks if there is enough data for creating a batch for an step in which output
+        batches that were generated by steps that received routed batches are received.
+        It will return `True`, if all the output batches that were generated from a routed
+        batch have been received.
+
+        Returns:
+            `True` if ready to create a batch, `False` otherwise.
+        """
+        grouped_batches = self._group_batches_by_created_from()
+        if not grouped_batches:
+            return False
+        seq_no, batches = grouped_batches[0]
+
+        # If the `seq_no` from the `created_from` field is not the expected one, then
+        # we cannot create a batch yet or the order will be messed up
+        if seq_no != self.next_expected_created_from_batch_seq_no:
+            return False
+
+        # Not all output batches to which the input batch was routed to haven't been
+        # received
+        batch_routed_to = batches[0][0].batch_routed_to
+        batches_received_from = {batch.step_name for batch, _ in batches}
+        if any(step_name not in batches_received_from for step_name in batch_routed_to):
+            return False
+
+        # There are output batches to which the input batch was routed to from all
+        # the steps. Check if there is enough data for creating a batch with `input_batch_size`
+        rows_per_step = defaultdict(lambda: 0)
+        for batch, _ in batches:
+            num_rows = len(batch.data[0])
+            rows_per_step[batch.step_name] += num_rows
+
+        # If there aren't at least `input_batch_size` rows from each step, then there
+        # isn't enough data to create a batch
+        if not all(
+            num_rows >= self.input_batch_size or step_name in self.last_batch_received  # type: ignore
+            for step_name, num_rows in rows_per_step.items()
+        ):
+            return False
+
+        return True
+
+    def _ready_to_create_batch_normal(self) -> bool:
+        """Checks if there is enough data for creating a batch for a normal step. It will
+        be `True` it there are at least `input_batch_size` rows from each predecessor step.
+
+        Returns:
+            `True` if ready to create a batch, `False` otherwise.
+        """
+        for step_name, batches in self.data.items():
+            num_rows = sum(len(batch.data[0]) for batch in batches)
+
             # If there are now rows but the last batch was already received, then there
             # are no more batch to be created
-            if len(rows) == 0 and step_name in self.last_batch_received:
+            if num_rows == 0 and step_name in self.last_batch_received:
                 return False
 
             # If there are not enough rows and the last batch was not received yet, then
             # there is not enough data yet to creata a batch
             if (
                 self.input_batch_size
-                and len(rows) < self.input_batch_size
+                and num_rows < self.input_batch_size
                 and step_name not in self.last_batch_received
             ):
                 return False
@@ -611,32 +951,98 @@ class _BatchManagerStep(_Serializable):
             `True` if the batch to be created is the last one. Otherwise, `False`.
         """
         if self.accumulate:
-            return all(step in self.last_batch_received for step in self.data.keys())
+            return self._last_batch_accumulate()
 
-        for step_name, rows in self.data.items():
+        if self.convergence_step:
+            return self._last_batch_convergence_step()
+
+        return self._last_batch_normal()
+
+    def _last_batch_accumulate(self) -> bool:
+        """Checks if the batch to be created is the last one for an step accumulating data.
+        `True` if the last batch was received from all the predecessors.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        return all(step in self.last_batch_received for step in self.data.keys())
+
+    def _last_batch_convergence_step(self) -> bool:
+        """Checks if the batch to be created is the last one for a convergence step. `True`
+        if the last batch of all the steps (`batch_routed_to`) in the last routed batch
+        have been received.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        grouped_batches = self._group_batches_by_created_from()
+        if not grouped_batches:
+            return False
+        _, batches = grouped_batches[0]
+
+        for batch, _ in batches:
+            if not batch.last_batch:
+                return False
+
+            if len(batch.data[0]) > self.input_batch_size:  # type: ignore
+                return False
+
+        return True
+
+    def _last_batch_normal(self) -> bool:
+        """Checks if the batch to be created is the last one for a normal step. `True` if
+        there is no more data to be received from the predecessors.
+
+        Returns:
+            `True` if the batch to be created is the last one. Otherwise, `False`.
+        """
+        for step_name, batches in self.data.items():
             if step_name not in self.last_batch_received:
                 return False
 
+            num_rows = sum(len(batch.data[0]) for batch in batches)
+
             if (
                 self.input_batch_size
-                and len(rows) > self.input_batch_size
+                and num_rows > self.input_batch_size
                 and step_name in self.last_batch_received
             ):
                 return False
 
         return True
 
+    def _group_batches_by_created_from(
+        self,
+    ) -> List[Tuple[int, List[Tuple["_Batch", int]]]]:
+        """Group the batches by the first key of `created_from` field. This method is
+        meant to be used only with a `convergence_step`.
+
+        Returns:
+            A list of the batches grouped by the `seq_no` of the first step name in `created_from`.
+            The list is sorted by the `seq_no`.
+        """
+        grouped_batches: Dict[int, List[Tuple["_Batch", int]]] = defaultdict(list)
+        for batches in self.data.values():
+            for batch in batches:
+                first_key = next(iter(batch.created_from))
+                batch_seq_no, batch_size = batch.created_from[first_key][0]
+                grouped_batches[batch_seq_no].append((batch, batch_size))
+        return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
+
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManagerStep` to a dictionary, using the `dataclass` helper function.
 
         Args:
-            obj (Any): Unused, just kept to match the signature of the parent method.
-            kwargs (Any): Additional arguments that are kept to match the signature of the parent method.
+            obj: Unused, just kept to match the signature of the parent method.
+            kwargs: Additional arguments that are kept to match the signature of the parent method.
 
         Returns:
-            Dict[str, Any]: Internal representation of the `_BatchManagerStep`.
+            Internal representation of the `_BatchManagerStep`.
         """
         return asdict(self)
+
+
+LAST_BATCH_SENT_FLAG = "last_batch_sent"
 
 
 class _BatchManager(_Serializable):
@@ -655,6 +1061,8 @@ class _BatchManager(_Serializable):
         self,
         steps: Dict[str, _BatchManagerStep],
         last_batch_received: Dict[str, Union[_Batch, None]],
+        last_batch_sent: Dict[str, Union[_Batch, None]],
+        last_batch_flag_sent_to: List[str],
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -663,9 +1071,16 @@ class _BatchManager(_Serializable):
                 predecessor step name as the key and a list of batches as the value.
             last_batch_received: A dictionary with the step name as the key and a the last
                 `_Batch` received from the step.
+            last_batch_sent: A dictionary with the step name as the key and a the last
+                `_Batch` sent to the step.
+            last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
+                was sent.
         """
+
         self._steps = steps
         self._last_batch_received = last_batch_received
+        self._last_batch_sent = last_batch_sent
+        self._last_batch_flag_sent_to = last_batch_flag_sent_to
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -674,12 +1089,17 @@ class _BatchManager(_Serializable):
             `True` if there are still batches to be processed by the steps. Otherwise,
             `False`.
         """
-        for batch in self._last_batch_received.values():
-            if not batch:
-                return True
 
-            if not batch.last_batch:
-                return True
+        for step_name, batch in self._last_batch_received.items():
+            if step_name not in self._last_batch_flag_sent_to:
+                if not batch:
+                    return True
+
+                if not batch.last_batch:
+                    return True
+
+                if not self.get_last_batch_sent(step_name):
+                    return True
 
         return False
 
@@ -693,6 +1113,14 @@ class _BatchManager(_Serializable):
         self._last_batch_received[batch.step_name] = batch
 
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
+        """Gets the last batch received from a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The last batch received from the step or `None` if no batch was received.
+        """
         return self._last_batch_received.get(step_name)
 
     def add_batch(self, to_step: str, batch: _Batch, prepend: bool = False) -> None:
@@ -740,6 +1168,33 @@ class _BatchManager(_Serializable):
         """
         return self._steps[step_name].empty_buffers()
 
+    def set_last_batch_sent(self, batch: "_Batch") -> None:
+        """Set the last batch sent to a step.
+
+        Args:
+            batch: The last batch sent to a step.
+        """
+        self._last_batch_sent[batch.step_name] = batch
+
+    def get_last_batch_sent(self, step_name: str) -> Union["_Batch", None]:
+        """Get the last batch sent to a step.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The last batch sent to a step or `None` if no batch was sent.
+        """
+        return self._last_batch_sent.get(step_name, None)
+
+    def set_last_batch_flag_sent_to(self, step_name: str) -> None:
+        """Set the flag to indicate that the last batch was sent to a step.
+
+        Args:
+            step_name: The name of the step.
+        """
+        self._last_batch_flag_sent_to.append(step_name)
+
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":
         """Create a `_BatchManager` instance from a `DAG` instance.
@@ -752,16 +1207,25 @@ class _BatchManager(_Serializable):
         """
         steps = {}
         last_batch_received = {}
+        last_batch_sent = {}
         for step_name in dag:
-            step: "_Step" = dag.get_step(step_name)["step"]
+            step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
+            last_batch_sent[step.name] = None
             if step.is_generator:
                 continue
+            predecessors = list(dag.get_step_predecessors(step_name))
+            convergence_step = all(
+                dag.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
+                for predecessor in predecessors
+            )
             batch_manager_step = _BatchManagerStep.from_step(
-                step, dag.get_step_predecessors(step_name)
+                step=step,
+                predecessors=predecessors,
+                convergence_step=convergence_step,
             )
             steps[step_name] = batch_manager_step
-        return cls(steps, last_batch_received)
+        return cls(steps, last_batch_received, last_batch_sent, [])
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
@@ -779,6 +1243,11 @@ class _BatchManager(_Serializable):
                 step_name: batch.dump() if batch is not None else None
                 for step_name, batch in self._last_batch_received.items()
             },
+            "last_batch_sent": {
+                step_name: batch.dump() if batch is not None else None
+                for step_name, batch in self._last_batch_sent.items()
+            },
+            "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
     @classmethod
@@ -791,10 +1260,10 @@ class _BatchManager(_Serializable):
         Returns:
             A `_BatchManager` instance.
         """
-        # Remove the type info, we already know its a _BatchManager, and there aren't subclasses of it
+        # Remove the type info, we already know its a `_BatchManager`, and there aren't subclasses of it
         data.pop(TYPE_INFO_KEY)
-        # Also there is only one type of _BatchManagerStep, so we can call it directly instead of generically
-        # via _get_class
+        # Also there is only one type of `_BatchManagerStep`, so we can call it directly instead of generically
+        # via `_get_module_attr`
         return cls(
             {
                 name: _BatchManagerStep.from_file(step_path)
@@ -804,6 +1273,11 @@ class _BatchManager(_Serializable):
                 step_name: _Batch.from_dict(batch) if batch is not None else None
                 for step_name, batch in data["last_batch_received"].items()
             },
+            {
+                step_name: _Batch.from_dict(batch) if batch is not None else None
+                for step_name, batch in data["last_batch_sent"].items()
+            },
+            data["last_batch_flag_sent_to"],
         )
 
     def save(

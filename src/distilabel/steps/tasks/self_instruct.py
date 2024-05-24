@@ -31,7 +31,9 @@ if TYPE_CHECKING:
 
 
 class SelfInstruct(Task):
-    """SelfInstruct is a pre-defined task that, given a number of instructions, a
+    """Generate instructions based on a given input using an `LLM`.
+
+    `SelfInstruct` is a pre-defined task that, given a number of instructions, a
     certain criteria for query generations, an application description, and an input,
     generates a number of instruction related to the given input and following what
     is stated in the criteria for query generation and the application description.
@@ -46,11 +48,15 @@ class SelfInstruct(Task):
             to build with these instructions. Defaults to `AI assistant`.
 
     Input columns:
-        - input (`str`): The input to generate the instructions. It's also called seed in the paper.
+        - input (`str`): The input to generate the instructions. It's also called seed in
+            the paper.
 
     Output columns:
         - instructions (`List[str]`): The generated instructions.
         - model_name (`str`): The model name used to generate the instructions.
+
+    Categories:
+        - text-generation
 
     Reference:
         - [`Self-Instruct: Aligning Language Models with Self-Generated Instructions`](https://arxiv.org/abs/2212.10560)

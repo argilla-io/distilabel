@@ -43,6 +43,9 @@ class PairRM(Step):
         - [LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion](https://arxiv.org/abs/2306.02561).
         - [Pair Ranking Model](https://huggingface.co/llm-blender/PairRM).
 
+    Categories:
+        - preference
+
     Note:
         This step differs to other tasks as there is a single implementation of this model
         currently, and we will use a specific `LLM`.

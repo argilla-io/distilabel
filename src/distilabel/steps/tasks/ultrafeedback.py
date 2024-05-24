@@ -15,8 +15,6 @@
 import re
 import sys
 
-from distilabel.utils.dicts import combine_dicts
-
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
@@ -29,10 +27,13 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from distilabel.utils.dicts import combine_dicts
 
 
 class UltraFeedback(Task):
-    """UltraFeedback: Boosting Language Models with High-quality Feedback.
+    """Rank generations focusing on different aspects using an `LLM`.
+
+    UltraFeedback: Boosting Language Models with High-quality Feedback.
 
     Attributes:
         aspect: The aspect to perform with the `UltraFeedback` model. The available aspects are:
@@ -52,6 +53,9 @@ class UltraFeedback(Task):
         - ratings (`List[float]`): The ratings for each of the provided text outputs.
         - rationales (`List[str]`): The rationales for each of the provided text outputs.
         - model_name (`str`): The name of the model used to generate the ratings and rationales.
+
+    Categories:
+        - preference
 
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)

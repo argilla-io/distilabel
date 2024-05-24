@@ -32,7 +32,9 @@ _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class QualityScorer(Task):
-    """QualityScorer is a pre-defined task that defines the `instruction` as the input
+    """Score responses based on their quality using an `LLM`.
+
+    `QualityScorer` is a pre-defined task that defines the `instruction` as the input
     and `score` as the output. This task is used to rate the quality of instructions and responses.
     It's an implementation of the quality score task from the paper 'What Makes Good Data
     for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.
@@ -49,6 +51,11 @@ class QualityScorer(Task):
     Output columns:
         - scores (`List[float]`): The score for each instruction.
         - model_name (`str`): The model name used to generate the scores.
+
+    Categories:
+        - scorer
+        - quality
+        - response
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

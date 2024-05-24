@@ -24,8 +24,7 @@ _TOGETHER_API_KEY_ENV_VAR_NAME = "TOGETHER_API_KEY"
 
 
 class TogetherLLM(OpenAILLM):
-    """TogetherLLM LLM implementation running the async API client of OpenAI because of
-    duplicate API behavior.
+    """TogetherLLM LLM implementation running the async API client of OpenAI.
 
     Attributes:
         model: the model name to use for the LLM e.g. "mistralai/Mixtral-8x7B-Instruct-v0.1".

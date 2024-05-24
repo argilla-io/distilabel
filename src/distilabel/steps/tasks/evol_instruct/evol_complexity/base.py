@@ -21,7 +21,9 @@ from distilabel.steps.tasks.evol_instruct.evol_complexity.utils import (
 
 
 class EvolComplexity(EvolInstruct):
-    """EvolComplexity is a task that evolves instructions to make them more complex,
+    """Evolve instructions to make them more complex using an `LLM`.
+
+    `EvolComplexity` is a task that evolves instructions to make them more complex,
     and it is based in the EvolInstruct task, but using slight different prompts, but the
     exact same evolutionary approach.
 
@@ -50,6 +52,11 @@ class EvolComplexity(EvolInstruct):
         - evolved_instruction (`str`): The evolved instruction.
         - answer (`str`, optional): The answer to the instruction if `generate_answers=True`.
         - model_name (`str`): The name of the LLM used to evolve the instructions.
+
+    Categories:
+        - evol
+        - instruction
+        - deita
 
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)

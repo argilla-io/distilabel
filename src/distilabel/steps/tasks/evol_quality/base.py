@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 
 
 class EvolQuality(Task):
-    """The `EvolQuality` task is used to evolve the quality of the responses given a prompt,
+    """Evolve the quality of the responses using an `LLM`.
+
+    `EvolQuality` task is used to evolve the quality of the responses given a prompt,
     by generating a new response with a language model. This step implements the evolution
     quality task from the paper 'What Makes Good Data for Alignment? A Comprehensive Study of
     Automatic Data Selection in Instruction Tuning'.
@@ -55,6 +57,11 @@ class EvolQuality(Task):
         - evolved_response (`str`): The evolved response if `store_evolutions=False`.
         - evolved_responses (`List[str]`): The evolved responses if `store_evolutions=True`.
         - model_name (`str`): The name of the LLM used to evolve the responses.
+
+    Categories:
+        - evol
+        - response
+        - deita
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

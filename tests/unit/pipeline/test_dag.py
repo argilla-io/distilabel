@@ -19,10 +19,12 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.routing_batch_function import routing_batch_function
 from distilabel.steps.base import GeneratorStep, Step, StepInput
 
-from .utils import DummyGeneratorStep
+from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import (
@@ -51,7 +53,7 @@ class TestDAG:
         dag = DAG()
         dag.add_step(dummy_step_1)
 
-        assert dag.get_step("dummy_step_1")["step"] == dummy_step_1
+        assert dag.get_step("dummy_step_1")[STEP_ATTR_NAME] == dummy_step_1
 
     def test_get_step_nonexistent(self) -> None:
         dag = DAG()
@@ -362,7 +364,7 @@ class TestDAG:
 
         dag.validate()
 
-    def test_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
+    def test_validate_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
             @property
             def inputs(self) -> List[str]:
@@ -390,7 +392,7 @@ class TestDAG:
         ):
             dag.validate()
 
-    def test_step_invalid_output_mappings(self, pipeline: "Pipeline") -> None:
+    def test_validate_step_invalid_output_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
             @property
             def inputs(self) -> List[str]:
@@ -418,7 +420,7 @@ class TestDAG:
         ):
             dag.validate()
 
-    def test_generator_step_process_method_with_step_input(
+    def test_validate_generator_step_process_method_with_step_input(
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyGeneratorStep(GeneratorStep):
@@ -446,7 +448,7 @@ class TestDAG:
         ):
             dag.validate()
 
-    def test_generator_step_process_without_offset_parameter(
+    def test_validate_generator_step_process_without_offset_parameter(
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyGeneratorStep(GeneratorStep):
@@ -471,6 +473,151 @@ class TestDAG:
             match="Generator step 'dummy_generator_step' should have an `offset` parameter",
         ):
             dag.validate()
+
+    def test_validate_convergence_step_receiving_from_same_routed_batch_function(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(pipeline=pipeline)
+
+        generator_step_2 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_3 = DummyStep1(pipeline=pipeline)
+        dummy_step_4 = DummyStep1(pipeline=pipeline)
+
+        convergence_step = DummyStep2(name="convergence_step", pipeline=pipeline)
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        @routing_batch_function()
+        def routing_batch_function_2(steps: List[str]) -> List[str]:
+            return steps
+
+        generator_step_1 >> routing_batch_function_1 >> [dummy_step_1, dummy_step_2]
+
+        generator_step_2 >> routing_batch_function_2 >> [dummy_step_3, dummy_step_4]
+
+        [dummy_step_1, dummy_step_2, dummy_step_3, dummy_step_4] >> convergence_step
+
+        with pytest.raises(
+            ValueError,
+            match=r"Convergence step 'convergence_step' should receive batches from steps receiving"
+            " routed batches from the same previous step and `routing_batch_function`.",
+        ):
+            pipeline.dag.validate()
+
+    def test_validate_convergence_step_input_batch_size(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(pipeline=pipeline)
+        convergence_step = DummyStep2(
+            name="convergence_step",
+            pipeline=pipeline,
+            input_batch_size=666,
+        )
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        (
+            generator_step_1
+            >> routing_batch_function_1
+            >> [dummy_step_1, dummy_step_2]
+            >> convergence_step
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="A convergence step should have an `input_batch_size` equal or lower",
+        ):
+            pipeline.dag.validate()
+
+    def test_validate_step_receiving_routed_batches_multiple_predecessors(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+
+        generator_step_2 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(pipeline=pipeline)
+
+        dummy_step_3 = DummyStep2(name="doomed", pipeline=pipeline)
+        dummy_step_4 = DummyStep2(pipeline=pipeline)
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        (
+            generator_step_1
+            >> dummy_step_1
+            >> routing_batch_function_1
+            >> [dummy_step_3, dummy_step_4]
+        )
+
+        generator_step_2 >> dummy_step_2 >> dummy_step_3
+
+        with pytest.raises(
+            ValueError,
+            match="Step 'doomed' cannot have multiple predecessors when the batches of one"
+            " are being routed with a `routing_batch_function`.",
+        ):
+            pipeline.dag.validate()
+
+    def test_validate_step_receiving_routed_batches_input_batch_size(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=666)
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        convergence_step = DummyStep2(name="convergence_step", pipeline=pipeline)
+
+        (
+            generator_step_1
+            >> routing_batch_function_1
+            >> [dummy_step_1, dummy_step_2]
+            >> convergence_step
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Step 'demon' should have an `input_batch_size` equal or lower",
+        ):
+            pipeline.dag.validate()
+
+    def test_validate_step_receiving_routed_batches_input_batch_size_multiple(
+        self, pipeline: "Pipeline"
+    ) -> None:
+        generator_step_1 = DummyGeneratorStep(pipeline=pipeline)
+        dummy_step_1 = DummyStep1(pipeline=pipeline)
+        dummy_step_2 = DummyStep1(name="demon", pipeline=pipeline, input_batch_size=7)
+
+        @routing_batch_function()
+        def routing_batch_function_1(steps: List[str]) -> List[str]:
+            return steps
+
+        convergence_step = DummyStep2(name="convergence_step", pipeline=pipeline)
+        (
+            generator_step_1
+            >> routing_batch_function_1
+            >> [dummy_step_1, dummy_step_2]
+            >> convergence_step
+        )
+        with pytest.raises(
+            ValueError,
+            match="Step 'demon' should have an `input_batch_size` that is a multiple of the `input_batch_size` or `batch_size`",
+        ):
+            pipeline.dag.validate()
 
 
 class TestDagSerialization:

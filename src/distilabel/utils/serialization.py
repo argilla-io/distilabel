@@ -40,7 +40,7 @@ StrOrPath = Union[str, os.PathLike]
 SaveFormats = Literal["json", "yaml"]
 
 
-def _get_class(module: str, name: str) -> Type:
+def _get_module_attr(module: str, name: str) -> Type:
     """Gets a class given the module and the name of the class.
 
     Returns:
@@ -65,7 +65,7 @@ def load_from_dict(class_: Dict[str, Any]) -> Any:
         # There is a nested type_info, load the class recursively
         type_info = load_from_dict(type_info)
 
-    cls = _get_class(type_info["module"], type_info["name"])
+    cls = _get_module_attr(type_info["module"], type_info["name"])
 
     for k, v in class_.items():
         if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
@@ -277,6 +277,14 @@ class _Serializable:
 
     @classmethod
     def from_file(cls, path: StrOrPath) -> Self:
+        """Loads a class from a file.
+
+        Args:
+            path: the path to the file containing the serialized class.
+
+        Returns:
+            An instance of the class.
+        """
         path = Path(path)
         if path.suffix == ".json":
             return cls.from_json(path)

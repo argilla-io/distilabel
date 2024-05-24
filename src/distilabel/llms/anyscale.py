@@ -24,8 +24,7 @@ _ANYSCALE_API_KEY_ENV_VAR_NAME = "ANYSCALE_API_KEY"
 
 
 class AnyscaleLLM(OpenAILLM):
-    """Anyscale LLM implementation running the async API client of OpenAI because of
-    duplicate API behavior.
+    """Anyscale LLM implementation running the async API client of OpenAI.
 
     Attributes:
         model: the model name to use for the LLM, e.g., `google/gemma-7b-it`. See the

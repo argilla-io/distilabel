@@ -72,7 +72,11 @@ class TestTextGeneration:
         task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
 
         assert next(task.process([{"instruction": "test"}])) == [
-            {"instruction": "test", "generation": "output", "model_name": "test"}
+            {
+                "instruction": "test",
+                "generation": "output",
+                "model_name": "test",
+            }
         ]
 
     def test_deprecation_warning(self) -> None:

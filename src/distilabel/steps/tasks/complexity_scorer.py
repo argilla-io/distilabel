@@ -35,9 +35,11 @@ _PARSE_SCORE_LINE_REGEX = re.compile(r"\[\d+\] score: (\d+)", re.IGNORECASE)
 
 
 class ComplexityScorer(Task):
-    """ComplexityScorer is a pre-defined task used to rank a list of instructions based in
+    """Score instructions based on their complexity using an `LLM`.
+
+    `ComplexityScorer` is a pre-defined task used to rank a list of instructions based in
     their complexity. It's an implementation of the complexity score task from the paper
-    'What MakesGood Data for Alignment? A Comprehensive Study of Automatic Data Selection
+    'What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection
     in Instruction Tuning'.
 
     Attributes:
@@ -49,6 +51,11 @@ class ComplexityScorer(Task):
     Output columns:
         - scores (`List[float]`): The score for each instruction.
         - model_name (`str`): The model name used to generate the scores.
+
+    Categories:
+        - scorer
+        - complexity
+        - instruction
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)

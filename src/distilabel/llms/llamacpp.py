@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import Field, FilePath, PrivateAttr, validate_call
 
@@ -22,7 +22,9 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import ChatType
 
 if TYPE_CHECKING:
-    from llama_cpp import CreateChatCompletionResponse, Llama
+    from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
+
+    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 class LlamaCppLLM(LLM):
@@ -39,6 +41,8 @@ class LlamaCppLLM(LLM):
         n_batch: the prompt processing maximum batch size to use for the model. Defaults to `512`.
         seed: random seed to use for the generation. Defaults to `4294967295`.
         verbose: whether to print verbose output. Defaults to `False`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         extra_kwargs: additional dictionary of keyword arguments that will be passed to the
             `Llama` class of `llama_cpp` library. Defaults to `{}`.
         _model: the Llama model instance. This attribute is meant to be used internally and
@@ -51,10 +55,14 @@ class LlamaCppLLM(LLM):
         - `verbose`: whether to print verbose output. Defaults to `False`.
         - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to the
             `Llama` class of `llama_cpp` library. Defaults to `{}`.
+
+    References:
+        - [`llama.cpp`](https://github.com/ggerganov/llama.cpp)
+        - [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python)
     """
 
     model_path: RuntimeParameter[FilePath] = Field(
-        default=None, description="The path to the GGUF quantized model."
+        default=None, description="The path to the GGUF quantized model.", exclude=True
     )
     n_gpu_layers: RuntimeParameter[int] = Field(
         default=-1,
@@ -76,10 +84,11 @@ class LlamaCppLLM(LLM):
     extra_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
         default_factory=dict,
         description="Additional dictionary of keyword arguments that will be passed to the"
-        " `Llama` class of `llama_cpp` library. See all the suported arguments at: "
+        " `Llama` class of `llama_cpp` library. See all the supported arguments at: "
         "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
     )
 
+    _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
     _model: Optional["Llama"] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -101,6 +110,11 @@ class LlamaCppLLM(LLM):
             verbose=self.verbose,
             **self.extra_kwargs,
         )
+
+        if self.structured_output:
+            self._logits_processor = self._prepare_structured_output(
+                self.structured_output
+            )
 
         # NOTE: Here because of the custom `logging` interface used, since it will create the logging name
         # out of the model name, which won't be available until the `Llama` instance is created.
@@ -144,10 +158,19 @@ class LlamaCppLLM(LLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+
         batch_outputs = []
         for input in inputs:
             outputs = []
             for _ in range(num_generations):
+                # NOTE(plaguss): There seems to be a bug in how the logits processor
+                # is used. Basically it consumes the FSM internally, and it isn't reinitialized
+                # after each generation, so subsequent calls yield nothing. This is a workaround
+                # until is fixed in the `llama_cpp` or `outlines` libraries.
+                if self.structured_output:
+                    self._logits_processor = self._prepare_structured_output(
+                        self.structured_output
+                    )
                 chat_completions: "CreateChatCompletionResponse" = (
                     self._model.create_chat_completion(  # type: ignore
                         messages=input,  # type: ignore
@@ -156,9 +179,30 @@ class LlamaCppLLM(LLM):
                         presence_penalty=presence_penalty,
                         temperature=temperature,
                         top_p=top_p,
+                        logits_processor=self._logits_processor,
                         **(extra_generation_kwargs or {}),
                     )
                 )
                 outputs.append(chat_completions["choices"][0]["message"]["content"])
             batch_outputs.append(outputs)
         return batch_outputs
+
+    def _prepare_structured_output(
+        self, structured_output: Optional["StructuredOutputType"] = None
+    ) -> Union["LogitsProcessorList", None]:
+        """Creates the appropriate function to filter tokens to generate structured outputs.
+
+        Args:
+            structured_output: the configuration dict to prepare the structured output.
+
+        Returns:
+            The callable that will be used to guide the generation of the model.
+        """
+        from distilabel.steps.tasks.structured_outputs.outlines import (
+            prepare_guided_output,
+        )
+
+        result = prepare_guided_output(structured_output, "llamacpp", self._model)
+        if schema := result.get("schema"):
+            self.structured_output["schema"] = schema
+        return result["processor"]

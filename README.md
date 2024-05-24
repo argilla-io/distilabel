@@ -4,28 +4,30 @@
     <img alt="Distilabel Logo" src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-black.png">
   </picture>
 </div>
-<h3 align="center">Synthesize data for AI and add feedback on the fly!</h2>
+
+<h3 align="center">Synthesize data for AI and add feedback on the fly!</h3>
 
 <p align="center">
-<a  href="https://pypi.org/project/distilabel/">
-<img alt="CI" src="https://img.shields.io/pypi/v/distilabel.svg?style=flat-round&logo=pypi&logoColor=white">
-</a>
-<a href="https://pepy.tech/project/distilabel">
-<img alt="CI" src="https://static.pepy.tech/personalized-badge/distilabel?period=month&units=international_system&left_color=grey&right_color=blue&left_text=pypi%20downloads/month">
-</a>
+  <a  href="https://pypi.org/project/distilabel/">
+    <img alt="CI" src="https://img.shields.io/pypi/v/distilabel.svg?style=flat-round&logo=pypi&logoColor=white">
+  </a>
+  <a href="https://pepy.tech/project/distilabel">
+    <img alt="CI" src="https://static.pepy.tech/personalized-badge/distilabel?period=month&units=international_system&left_color=grey&right_color=blue&left_text=pypi%20downloads/month">
+  </a>
 </p>
 
 <p align="center">
-<a href="https://twitter.com/argilla_io">
-<img src="https://img.shields.io/badge/twitter-black?logo=x"/>
-</a>
-<a href="https://www.linkedin.com/company/argilla-io">
-<img src="https://img.shields.io/badge/linkedin-blue?logo=linkedin"/>
-</a>
-<a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g">
-<img src="https://img.shields.io/badge/slack-purple?logo=slack"/>
-</a>
+  <a href="https://twitter.com/argilla_io">
+    <img src="https://img.shields.io/badge/twitter-black?logo=x"/>
+  </a>
+  <a href="https://www.linkedin.com/company/argilla-io">
+    <img src="https://img.shields.io/badge/linkedin-blue?logo=linkedin"/>
+  </a>
+  <a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g">
+    <img src="https://img.shields.io/badge/slack-purple?logo=slack"/>
+  </a>
 </p>
+
 
 Distilabel is the **framework for synthetic data and AI feedback for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
 
@@ -110,25 +112,20 @@ with Pipeline(
     name="simple-text-generation-pipeline",
     description="A simple text generation pipeline",
 ) as pipeline:
-    load_dataset = LoadHubDataset(
-        name="load_dataset",
-        output_mappings={"prompt": "instruction"},
-    )
+    load_dataset = LoadHubDataset(output_mappings={"prompt": "instruction"})
 
-    generate_with_openai = TextGeneration(
-        name="generate_with_gpt35", llm=OpenAILLM(model="gpt-3.5-turbo")
-    )
+    generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
 
     load_dataset.connect(generate_with_openai)
 
 if __name__ == "__main__":
     distiset = pipeline.run(
         parameters={
-            "load_dataset": {
+            load_dataset.name: {
                 "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
                 "split": "test",
             },
-            "generate_with_gpt35": {
+            generate_with_openai.name: {
                 "llm": {
                     "generation_kwargs": {
                         "temperature": 0.7,

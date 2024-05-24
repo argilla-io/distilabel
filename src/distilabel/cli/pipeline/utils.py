@@ -21,6 +21,10 @@ import yaml
 from pydantic import HttpUrl, ValidationError
 from pydantic.type_adapter import TypeAdapter
 
+from distilabel.pipeline.constants import (
+    ROUTING_BATCH_FUNCTION_ATTR_NAME,
+    STEP_ATTR_NAME,
+)
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:
@@ -163,6 +167,17 @@ def _build_pipeline_panel(pipeline: "BasePipeline") -> "Panel":
         ]
     )
 
+    if any(
+        pipeline.dag.get_step(step).get(ROUTING_BATCH_FUNCTION_ATTR_NAME) is not None
+        for step in pipeline.dag.G.nodes
+    ):
+        information.extend(
+            [
+                "\n",
+                _build_routing_batch_function_panel(pipeline),
+            ]
+        )
+
     return Panel(
         Group(*information),
         title="[magenta]Pipeline Information[/magenta]",
@@ -214,7 +229,7 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
 
     steps = []
     for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():
-        step = pipeline.dag.get_step(step_name)["step"]
+        step = pipeline.dag.get_step(step_name)[STEP_ATTR_NAME]
         class_name = step.__class__.__name__
 
         table = Table(
@@ -271,6 +286,43 @@ def _build_steps_connection_panel(pipeline: "BasePipeline") -> "Panel":
     return Panel(
         table,
         title="[magenta]Steps connections[/magenta]",
+        style="light_cyan3",
+        expand=True,
+    )
+
+
+def _build_routing_batch_function_panel(pipeline: "BasePipeline") -> "Panel":
+    """Builds a panel to display the routing batch function of the pipeline.
+
+    Args:
+        pipeline: The pipeline
+
+    Returns:
+        A `rich.panel.Panel` containing the routing batch function of the pipeline.
+    """
+    from rich.panel import Panel
+    from rich.table import Table
+
+    table = Table(show_header=True, header_style="bold magenta", expand=True)
+    table.add_column("Step", style="dim", width=18)
+    table.add_column("Function", style="dim")
+    table.add_column("Description", width=90)
+
+    G = pipeline.dag.G
+
+    for step_name in G.nodes:
+        node = pipeline.dag.get_step(step_name)
+        if routing_batch_function := node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME):
+            table.add_row(
+                step_name,
+                routing_batch_function.routing_function.__name__,
+                routing_batch_function.description,
+            )
+            continue
+
+    return Panel(
+        table,
+        title="[magenta]Routing Batch Function[/magenta]",
         style="light_cyan3",
         expand=True,
     )

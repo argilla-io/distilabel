@@ -26,16 +26,21 @@ if TYPE_CHECKING:
 class ExpandColumns(Step):
     """Expand columns that contain lists into multiple rows.
 
+    `ExpandColumns` is a `Step` that takes a list of columns and expands them into multiple
+    rows. The new rows will have the same data as the original row, except for the expanded
+    column, which will contain a single item from the original list.
+
     Attributes:
         columns: A dictionary that maps the column to be expanded to the new column name
             or a list of columns to be expanded. If a list is provided, the new column name
             will be the same as the column name.
 
     Input columns:
-        - The columns to be expanded.
+        - dynamic (determined by `columns` attribute): The columns to be expanded into
+            multiple rows.
 
     Output columns:
-        - The expanded columns.
+        - dynamic (determined by `columns` attribute):  The expanded columns.
     """
 
     columns: Union[Dict[str, str], List[str]]

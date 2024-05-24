@@ -52,6 +52,9 @@ class VertexAILLM(AsyncLLM):
         model: the model name to use for the LLM e.g. "gemini-1.0-pro". [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).
         _aclient: the `GenerativeModel` to use for the Vertex AI Gemini API. It is meant
             to be used internally. Set in the `load` method.
+
+    Icon:
+        `:simple-googlecloud:`
     """
 
     model: str

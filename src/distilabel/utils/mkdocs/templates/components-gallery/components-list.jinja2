@@ -1,0 +1,22 @@
+---
+hide: 
+  - toc
+---
+
+# {{ title }}
+
+{{ description }}
+
+<div class="grid cards" markdown>
+
+{% for component in components %}
+-   {% if component.docstring.icon %}{{ component.docstring.icon }}{% else %}{{ default_icon }}{% endif %}{ .lg .middle } __{{ component.name }}__
+
+    ---
+
+    {{ component.docstring.short_description }}
+
+    [:octicons-arrow-right-24: {{ component.name }}]({{ component.name | lower }}.md){ .bottom }
+{% endfor %}
+
+</div>

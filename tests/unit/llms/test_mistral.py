@@ -90,6 +90,7 @@ class TestMistralLLM:
             "max_retries": 6,
             "timeout": 120,
             "max_concurrent_requests": 64,
+            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.mistral",
                 "name": "MistralLLM",

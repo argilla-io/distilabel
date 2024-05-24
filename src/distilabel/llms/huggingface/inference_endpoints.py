@@ -44,8 +44,10 @@ _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
 
 class InferenceEndpointsLLM(AsyncLLM):
-    """InferenceEndpoints LLM implementation running the async API client via either
-    the `huggingface_hub.AsyncInferenceClient` or via `openai.AsyncOpenAI`.
+    """InferenceEndpoints LLM implementation running the async API client.
+
+    This LLM will internally use `huggingface_hub.AsyncInferenceClient` or `openai.AsyncOpenAI`
+    depending on the `use_openai_client` attribute.
 
     Attributes:
         model_id: the model ID to use for the LLM as available in the Hugging Face Hub, which
@@ -60,23 +62,54 @@ class InferenceEndpointsLLM(AsyncLLM):
         model_display_name: the model display name to use for the LLM. Defaults to `None`.
         use_openai_client: whether to use the OpenAI client instead of the Hugging Face client.
 
+    Icon:
+        `:hugging:`
+
     Examples:
+
+        Free serverless Inference API:
+
         ```python
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
-        # Free serverless Inference API
         llm = InferenceEndpointsLLM(
             model_id="mistralai/Mistral-7B-Instruct-v0.2",
         )
 
-        # Dedicated Inference Endpoints
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Dedicated Inference Endpoints:
+
+        ```python
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
         llm = InferenceEndpointsLLM(
             endpoint_name="<ENDPOINT_NAME>",
             api_key="<HF_API_KEY>",
             endpoint_namespace="<USER|ORG>",
         )
 
-        # Dedicated Inference Endpoints or TGI
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Dedicated Inference Endpoints or TGI:
+
+        ```python
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
         llm = InferenceEndpointsLLM(
             api_key="<HF_API_KEY>",
             base_url="<BASE_URL>",
