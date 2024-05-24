@@ -44,7 +44,12 @@ from distilabel.pipeline.constants import (
     STEP_ATTR_NAME,
 )
 from distilabel.utils.files import list_files_in_dir
-from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable, read_json
+from distilabel.utils.serialization import (
+    TYPE_INFO_KEY,
+    _check_is_dir,
+    _Serializable,
+    read_json,
+)
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -52,7 +57,7 @@ if TYPE_CHECKING:
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
     from distilabel.steps.base import _Step
-    from distilabel.utils.serialization import SaveFormats, StrOrPath
+    from distilabel.utils.serialization import StrOrPath
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
@@ -416,10 +421,7 @@ class BasePipeline(_Serializable):
             format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
         )
         if self._batch_manager is not None:
-            self._batch_manager.save(
-                self._cache_location["batch_manager"],
-                format=self._cache_location["batch_manager"].suffix.replace(".", ""),  # type: ignore
-            )
+            self._batch_manager.cache(self._cache_location["batch_manager"])
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
     def _load_from_cache(self) -> None:
@@ -429,7 +431,7 @@ class BasePipeline(_Serializable):
         cache_loc = self._cache_location
         if cache_loc["pipeline"].exists():
             if cache_loc["batch_manager"].exists():
-                self._batch_manager = _BatchManager.from_json(
+                self._batch_manager = _BatchManager.load_from_cache(
                     cache_loc["batch_manager"]
                 )
             self._logger.info("💾 Load pipeline from cache")
@@ -1088,28 +1090,6 @@ class _BatchManagerStep(_Serializable):
             "next_expected_created_from_batch_seq_no": self.next_expected_created_from_batch_seq_no,
         }
 
-    @classmethod
-    def from_json(cls, path: "StrOrPath") -> "_BatchManagerStep":
-        """Loads a `_BatchManagerStep` from a JSON file. This method is only meant to be
-        used internally.
-
-        Args:
-            path: The path to the JSON file.
-
-        Returns:
-            A `_BatchManager` instance.
-        """
-        content = read_json(path)
-
-        # Read `_Batch`es from files
-        for step_name, batches in content["data"].items():
-            content["data"][step_name] = sorted(
-                [_Batch.from_json(batch_file) for batch_file in batches],
-                key=lambda x: x.seq_no,
-            )
-
-        return cls.from_dict(content)
-
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"
 
@@ -1319,61 +1299,12 @@ class _BatchManager(_Serializable):
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
         }
 
-    @classmethod
-    def from_json(cls, path: "StrOrPath") -> "_BatchManager":
-        """Loads a `_BatchManager` from a JSON file. This method is only meant to be used
-        internally.
+    def cache(self, path: "StrOrPath") -> None:
+        """Cache the `_BatchManager` to a file.
 
         Args:
-            path: The path to the JSON file.
-
-        Returns:
-            A `_BatchManager` instance.
-        """
-        content = read_json(path)
-
-        # Read `_BatchManagerStep`s from files
-        content["steps"] = {
-            name: _BatchManagerStep.from_json(step_path)
-            for name, step_path in content["steps"].items()
-        }
-
-        # Transform last batches received from JSON to `_Batch` instances
-        content["last_batch_received"] = {
-            step_name: _Batch.from_dict(batch) if batch else None
-            for step_name, batch in content["last_batch_received"].items()
-        }
-
-        # Transform last batches sent from JSON to `_Batch` instances
-        content["last_batch_sent"] = {
-            step_name: _Batch.from_dict(batch) if batch else None
-            for step_name, batch in content["last_batch_sent"].items()
-        }
-
-        return _BatchManager.from_dict(content)
-
-    def save(
-        self,
-        path: Union["StrOrPath", None] = None,
-        format: "SaveFormats" = "json",
-        dump: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Overrides the parent method to save the each `_BatchManagerStep` to a file, and the contents
-        keep in the `_BatchManager` dump the paths to those files.
-
-        Note:
-            Not expected to be used directly, but through the `Pipeline._cache` class.
-
-        Args:
-            path: filename of the object to save. If a folder is given, will create the object
-                inside. If None is given, the file will be created at the current
-                working directory. Defaults to `None`.
-            format: the format to use when saving the file. Valid options are 'json' and
-                'yaml'. Defaults to `"json"`.
-            dump: the serialized object to save. If None, the object will be serialized using
-                the default self.dump. This variable is here to allow extra customization, in
-                general should be set as None.
+            path: The path to the file where the `_BatchManager` will be cached. If `None`,
+                then the `_BatchManager` will be cached in the default cache folder.
         """
         path = Path(path)
 
@@ -1412,7 +1343,7 @@ class _BatchManager(_Serializable):
                             if batch.seq_no == seq_no
                         )
                         batch_dump["data"] = batch.data
-                        super().save(path=batch_file, format=format, dump=batch_dump)
+                        self.save(path=batch_file, format="json", dump=batch_dump)
 
                     keep_batches.append(batch_file)
 
@@ -1430,13 +1361,37 @@ class _BatchManager(_Serializable):
             batch_manager_step_file = str(
                 path.parent / f"batch_manager_steps/{step_name}/batch_manager_step.json"
             )
-            super().save(path=batch_manager_step_file, format=format, dump=step_dump)
+            self.save(path=batch_manager_step_file, format="json", dump=step_dump)
 
             # Store the path to the `_BatchManagerStep` file
             batch_manager_step_files[step_name] = batch_manager_step_file
 
         dump["steps"] = batch_manager_step_files
-        super().save(path=path, format=format, dump=dump)
+        self.save(path=path, format="json", dump=dump)
+
+    @classmethod
+    def load_from_cache(cls, path: "StrOrPath") -> "_BatchManager":
+        """Loads the `_BatchManager` from a cache file.
+
+        Args:
+            path: The path to the cache file.
+        """
+        _check_is_dir(path)
+        content = read_json(path)
+
+        # Read each `_BatchManagerStep` from file
+        steps = {}
+        for step_name, step_file in content["steps"].items():
+            steps[step_name] = read_json(step_file)
+
+            # Read each `_Batch` from file
+            for buffered_step_name, batch_files in steps[step_name]["data"].items():
+                steps[step_name]["data"][buffered_step_name] = [
+                    read_json(batch_file) for batch_file in batch_files
+                ]
+
+        content["steps"] = steps
+        return cls.from_dict(content)
 
 
 class _WriteBuffer:
