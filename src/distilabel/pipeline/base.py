@@ -44,7 +44,7 @@ from distilabel.pipeline.constants import (
     STEP_ATTR_NAME,
 )
 from distilabel.utils.files import list_files_in_dir
-from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
+from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable, read_json
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -542,7 +542,7 @@ class _Batch(_Serializable):
             A `dict` containing the internal representation of the `_Batch`.
         """
 
-        include_batch_data = kwargs.get("include_batch_data", False)
+        include_batch_data = kwargs.get("include_batch_data", True)
 
         dump = {
             "seq_no": self.seq_no,
@@ -1089,34 +1089,26 @@ class _BatchManagerStep(_Serializable):
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
-        """Create a `_BatchManagerStep` from a dict containing the serialized data.
-
-        Note:
-            It's intended for internal use.
+    def from_json(cls, path: "StrOrPath") -> "_BatchManagerStep":
+        """Loads a `_BatchManagerStep` from a JSON file. This method is only meant to be
+        used internally.
 
         Args:
-            data: dictionary containing the serialized data from a `_BatchManagerStep`.
+            path: The path to the JSON file.
 
         Returns:
-            A `_BatchManagerStep` instance.
+            A `_BatchManager` instance.
         """
-        return cls(
-            step_name=data["step_name"],
-            accumulate=data["accumulate"],
-            input_batch_size=data["input_batch_size"],
-            data={
-                step_name: [_Batch.from_file(batch_file) for batch_file in batches]
-                for step_name, batches in data["data"].items()
-            },
-            seq_no=data["seq_no"],
-            last_batch_received=data["last_batch_received"],
-            convergence_step=data["convergence_step"],
-            convergence_step_batches_consumed=data["convergence_step_batches_consumed"],
-            next_expected_created_from_batch_seq_no=data[
-                "next_expected_created_from_batch_seq_no"
-            ],
-        )
+        content = read_json(path)
+
+        # Read `_Batch`es from files
+        for step_name, batches in content["data"].items():
+            content["data"][step_name] = sorted(
+                [_Batch.from_json(batch_file) for batch_file in batches],
+                key=lambda x: x.seq_no,
+            )
+
+        return cls.from_dict(content)
 
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"
@@ -1328,34 +1320,37 @@ class _BatchManager(_Serializable):
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "_BatchManager":
-        """Loads a `_BatchManager` from its serialized content in a dictionary.
+    def from_json(cls, path: "StrOrPath") -> "_BatchManager":
+        """Loads a `_BatchManager` from a JSON file. This method is only meant to be used
+        internally.
 
         Args:
-            data: The serialized batch manager.
+            path: The path to the JSON file.
 
         Returns:
             A `_BatchManager` instance.
         """
-        # Remove the type info, we already know its a `_BatchManager`, and there aren't subclasses of it
-        data.pop(TYPE_INFO_KEY)
-        # Also there is only one type of `_BatchManagerStep`, so we can call it directly instead of generically
-        # via `_get_module_attr`
-        return cls(
-            {
-                name: _BatchManagerStep.from_file(step_path)
-                for name, step_path in data["steps"].items()
-            },
-            {
-                step_name: _Batch.from_dict(batch) if batch is not None else None
-                for step_name, batch in data["last_batch_received"].items()
-            },
-            {
-                step_name: _Batch.from_dict(batch) if batch is not None else None
-                for step_name, batch in data["last_batch_sent"].items()
-            },
-            data["last_batch_flag_sent_to"],
-        )
+        content = read_json(path)
+
+        # Read `_BatchManagerStep`s from files
+        content["steps"] = {
+            name: _BatchManagerStep.from_json(step_path)
+            for name, step_path in content["steps"].items()
+        }
+
+        # Transform last batches received from JSON to `_Batch` instances
+        content["last_batch_received"] = {
+            step_name: _Batch.from_dict(batch) if batch else None
+            for step_name, batch in content["last_batch_received"].items()
+        }
+
+        # Transform last batches sent from JSON to `_Batch` instances
+        content["last_batch_sent"] = {
+            step_name: _Batch.from_dict(batch) if batch else None
+            for step_name, batch in content["last_batch_sent"].items()
+        }
+
+        return _BatchManager.from_dict(content)
 
     def save(
         self,
