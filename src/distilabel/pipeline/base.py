@@ -1318,7 +1318,7 @@ class _BatchManager(_Serializable):
             step_dump = dump["steps"].pop(step_name)
 
             # Create a directory for each batch manager step to store their batches
-            batch_manager_step_dir = path.parent / f"batch_manager_steps/{step_name}"
+            batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
 
             # Store each `_BatchManagerStep` `_Batch`es in a separete file

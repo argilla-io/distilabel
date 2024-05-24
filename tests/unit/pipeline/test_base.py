@@ -1946,7 +1946,7 @@ class TestBatchManager:
                         "accumulate": False,
                         "convergence_step": False,
                         "convergence_step_batches_consumed": {0: {"Z": 1234}},
-                        "input_batch_size": None,
+                        "input_batch_size": 50,
                         "data": {
                             "step2": [
                                 {
@@ -2066,6 +2066,360 @@ class TestBatchManager:
             assert isinstance(step, _Batch)
 
         assert batch_manager._last_batch_flag_sent_to == ["step3"]
+
+    def test_cache(self) -> None:
+        batch_manager = _BatchManager.from_dict(
+            {
+                "steps": {
+                    "step1": {
+                        "step_name": "step1",
+                        "accumulate": True,
+                        "convergence_step": False,
+                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
+                        "input_batch_size": None,
+                        "data": {
+                            "step2": [
+                                {
+                                    "seq_no": 0,
+                                    "step_name": "step2",
+                                    "last_batch": True,
+                                    "data": [
+                                        [
+                                            {"b": 1},
+                                            {"b": 2},
+                                            {"b": 3},
+                                            {"b": 4},
+                                            {"b": 5},
+                                            {"b": 6},
+                                            {"b": 7},
+                                        ]
+                                    ],
+                                    "data_hash": "1234",
+                                    "size": 7,
+                                    "accumulated": False,
+                                    "created_from": {},
+                                    "batch_routed_to": [],
+                                    "type_info": {
+                                        "module": "distilabel.pipeline.base",
+                                        "name": "_Batch",
+                                    },
+                                }
+                            ],
+                        },
+                        "seq_no": 0,
+                        "last_batch_received": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_BatchManagerStep",
+                        },
+                    },
+                    "step2": {
+                        "step_name": "step2",
+                        "accumulate": False,
+                        "convergence_step": False,
+                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
+                        "input_batch_size": 50,
+                        "data": {
+                            "step2": [
+                                {
+                                    "seq_no": 0,
+                                    "step_name": "step2",
+                                    "last_batch": True,
+                                    "data": [
+                                        [
+                                            {"b": 1},
+                                            {"b": 2},
+                                            {"b": 3},
+                                            {"b": 4},
+                                            {"b": 5},
+                                            {"b": 6},
+                                            {"b": 7},
+                                        ]
+                                    ],
+                                    "data_hash": "1234",
+                                    "size": 7,
+                                    "accumulated": False,
+                                    "created_from": {},
+                                    "batch_routed_to": [],
+                                    "type_info": {
+                                        "module": "distilabel.pipeline.base",
+                                        "name": "_Batch",
+                                    },
+                                }
+                            ],
+                        },
+                        "seq_no": 0,
+                        "last_batch_received": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_BatchManagerStep",
+                        },
+                    },
+                },
+                "last_batch_received": {
+                    "step1": {
+                        "seq_no": 0,
+                        "step_name": "step1",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                    "step2": {
+                        "seq_no": 0,
+                        "step_name": "step2",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                },
+                "last_batch_sent": {
+                    "step1": {
+                        "seq_no": 0,
+                        "step_name": "step1",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                    "step2": {
+                        "seq_no": 0,
+                        "step_name": "step2",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                },
+                "last_batch_flag_sent_to": ["step3"],
+                "type_info": {
+                    "module": "distilabel.pipeline.base",
+                    "name": "_BatchManager",
+                },
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            batch_manager_path = Path(tmp_dir) / "batch_manager.json"
+            batch_manager.cache(batch_manager_path)
+
+            assert batch_manager_path.exists() and batch_manager_path.is_file()
+
+            for step_name, step in batch_manager._steps.items():
+                batch_manager_step_dir = (
+                    Path(tmp_dir) / "batch_manager_steps" / step_name
+                )
+                assert (
+                    batch_manager_step_dir.exists() and batch_manager_step_dir.is_dir()
+                )
+
+                batch_manager_step_path = (
+                    batch_manager_step_dir / "batch_manager_step.json"
+                )
+                assert (
+                    batch_manager_step_path.exists()
+                    and batch_manager_step_path.is_file()
+                )
+
+                for buffered_step_name in step.data:
+                    buffered_step_dir = batch_manager_step_dir / buffered_step_name
+                    assert buffered_step_dir.exists() and buffered_step_dir.is_dir()
+
+                    for batch in step.data[buffered_step_name]:
+                        batch_path = (
+                            buffered_step_dir
+                            / f"batch_{batch.seq_no}_{batch.data_hash}.json"
+                        )
+                        assert batch_path.exists() and batch_path.is_file()
+
+    def test_load_from_cache(self) -> None:
+        batch_manager = _BatchManager.from_dict(
+            {
+                "steps": {
+                    "step1": {
+                        "step_name": "step1",
+                        "accumulate": True,
+                        "convergence_step": False,
+                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
+                        "input_batch_size": None,
+                        "data": {
+                            "step2": [
+                                {
+                                    "seq_no": 0,
+                                    "step_name": "step2",
+                                    "last_batch": True,
+                                    "data": [
+                                        [
+                                            {"b": 1},
+                                            {"b": 2},
+                                            {"b": 3},
+                                            {"b": 4},
+                                            {"b": 5},
+                                            {"b": 6},
+                                            {"b": 7},
+                                        ]
+                                    ],
+                                    "data_hash": "1234",
+                                    "size": 7,
+                                    "accumulated": False,
+                                    "created_from": {},
+                                    "batch_routed_to": [],
+                                    "type_info": {
+                                        "module": "distilabel.pipeline.base",
+                                        "name": "_Batch",
+                                    },
+                                }
+                            ],
+                        },
+                        "seq_no": 0,
+                        "last_batch_received": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_BatchManagerStep",
+                        },
+                    },
+                    "step2": {
+                        "step_name": "step2",
+                        "accumulate": False,
+                        "convergence_step": False,
+                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
+                        "input_batch_size": 50,
+                        "data": {
+                            "step2": [
+                                {
+                                    "seq_no": 0,
+                                    "step_name": "step2",
+                                    "last_batch": True,
+                                    "data": [
+                                        [
+                                            {"b": 1},
+                                            {"b": 2},
+                                            {"b": 3},
+                                            {"b": 4},
+                                            {"b": 5},
+                                            {"b": 6},
+                                            {"b": 7},
+                                        ]
+                                    ],
+                                    "data_hash": "1234",
+                                    "size": 7,
+                                    "accumulated": False,
+                                    "created_from": {},
+                                    "batch_routed_to": [],
+                                    "type_info": {
+                                        "module": "distilabel.pipeline.base",
+                                        "name": "_Batch",
+                                    },
+                                }
+                            ],
+                        },
+                        "seq_no": 0,
+                        "last_batch_received": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_BatchManagerStep",
+                        },
+                    },
+                },
+                "last_batch_received": {
+                    "step1": {
+                        "seq_no": 0,
+                        "step_name": "step1",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                    "step2": {
+                        "seq_no": 0,
+                        "step_name": "step2",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                },
+                "last_batch_sent": {
+                    "step1": {
+                        "seq_no": 0,
+                        "step_name": "step1",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                    "step2": {
+                        "seq_no": 0,
+                        "step_name": "step2",
+                        "last_batch": False,
+                        "data": [],
+                        "size": 0,
+                        "accumulated": False,
+                        "created_from": {},
+                        "batch_routed_to": [],
+                        "type_info": {
+                            "module": "distilabel.pipeline.base",
+                            "name": "_Batch",
+                        },
+                    },
+                },
+                "last_batch_flag_sent_to": ["step3"],
+                "type_info": {
+                    "module": "distilabel.pipeline.base",
+                    "name": "_BatchManager",
+                },
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            batch_manager_path = Path(tmp_dir) / "batch_manager.json"
+            batch_manager.cache(batch_manager_path)
+            loaded_batch_manager = _BatchManager.load_from_cache(batch_manager_path)
+
+        assert batch_manager.dump() == loaded_batch_manager.dump()
 
 
 class TestPipelineSerialization:
