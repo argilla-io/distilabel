@@ -261,6 +261,45 @@ class TestBasePipeline:
 
 
 class TestBatch:
+    def test_get_data(self) -> None:
+        batch = _Batch(
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[
+                [
+                    {"a": 0},
+                    {"a": 1},
+                    {"a": 2},
+                    {"a": 3},
+                    {"a": 4},
+                    {"a": 5},
+                    {"a": 6},
+                ]
+            ],
+        )
+
+        batch.set_data(
+            [
+                [
+                    {"a": 0},
+                    {"a": 1},
+                    {"a": 2},
+                    {"a": 3},
+                    {"a": 4},
+                    {"a": 5},
+                    {"a": 6},
+                ]
+            ]
+        )
+
+        old_hash = batch.data_hash
+
+        data = batch.get_data(5)
+        assert data == [{"a": 0}, {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]
+        assert batch.data == [[{"a": 5}, {"a": 6}]]
+        assert batch.data_hash != old_hash
+
     def test_set_data(self) -> None:
         batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
         data = [[{"i": i} for i in range(5000)]]
@@ -325,6 +364,7 @@ class TestBatch:
             "step_name": "step1",
             "last_batch": False,
             "data": [],
+            "data_hash": None,
             "accumulated": False,
             "created_from": {},
             "batch_routed_to": [],
@@ -336,8 +376,9 @@ class TestBatch:
             step_name="step1",
             last_batch=False,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
+            data_hash="hash",
             accumulated=False,
-            created_from={"step0": [0, 1]},
+            created_from={"step0": [(0, 5), (1, 5)]},
             batch_routed_to=["step2", "step3"],
         )
         assert batch.dump() == {
@@ -346,8 +387,9 @@ class TestBatch:
             "step_name": "step1",
             "last_batch": False,
             "data": [[{"a": 1}, {"a": 2}, {"a": 3}]],
+            "data_hash": "hash",
             "accumulated": False,
-            "created_from": {"step0": [0, 1]},
+            "created_from": {"step0": [(0, 5), (1, 5)]},
             "batch_routed_to": ["step2", "step3"],
             "type_info": {"module": "distilabel.pipeline.base", "name": "_Batch"},
         }
@@ -655,43 +697,39 @@ class TestBatchManagerStep:
         assert batch_manager_step.seq_no == 1
 
     def test_get_data(self) -> None:
+        batch_step_1 = _Batch(
+            seq_no=0,
+            step_name="step1",
+            last_batch=False,
+            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]],
+            size=6,
+            batch_routed_to=["step1", "step2"],
+        )
+        batch_step_2 = _Batch(
+            seq_no=0,
+            step_name="step2",
+            last_batch=False,
+            data=[
+                [
+                    {"b": 1},
+                    {"b": 2},
+                    {"b": 3},
+                    {"b": 4},
+                    {"b": 5},
+                    {"b": 6},
+                    {"b": 7},
+                ]
+            ],
+            size=7,
+            batch_routed_to=["step1", "step2"],
+        )
         batch_manager_step = _BatchManagerStep(
             step_name="step3",
             accumulate=False,
             input_batch_size=5,
             data={
-                "step1": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step1",
-                        last_batch=False,
-                        data=[
-                            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]
-                        ],
-                        size=6,
-                        batch_routed_to=["step1", "step2"],
-                    )
-                ],
-                "step2": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step2",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                                {"b": 3},
-                                {"b": 4},
-                                {"b": 5},
-                                {"b": 6},
-                                {"b": 7},
-                            ]
-                        ],
-                        size=7,
-                        batch_routed_to=["step1", "step2"],
-                    )
-                ],
+                "step1": [batch_step_1],
+                "step2": [batch_step_2],
             },
         )
 
@@ -710,6 +748,7 @@ class TestBatchManagerStep:
                     step_name="step1",
                     last_batch=False,
                     data=[[{"a": 6}]],
+                    data_hash=batch_step_1.data_hash,
                     size=6,
                     batch_routed_to=["step1", "step2"],
                 )
@@ -720,6 +759,7 @@ class TestBatchManagerStep:
                     step_name="step2",
                     last_batch=False,
                     data=[[{"b": 6}, {"b": 7}]],
+                    data_hash=batch_step_2.data_hash,
                     size=7,
                     batch_routed_to=["step1", "step2"],
                 )
@@ -1326,6 +1366,7 @@ class TestBatchManagerStep:
             step_name="step1",
             last_batch=True,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]],
+            data_hash="hash0",
             size=6,
         )
         batch_step_2 = _Batch(
@@ -1335,6 +1376,7 @@ class TestBatchManagerStep:
             data=[
                 [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}, {"b": 7}]
             ],
+            data_hash="hash1",
             size=7,
         )
         batch_manager_step = _BatchManagerStep(
@@ -1367,6 +1409,7 @@ class TestBatchManagerStep:
                                 {"a": 6},
                             ]
                         ],
+                        "data_hash": "hash0",
                         "size": 6,
                         "accumulated": False,
                         "created_from": {},
@@ -1389,6 +1432,7 @@ class TestBatchManagerStep:
                                 {"b": 7},
                             ]
                         ],
+                        "data_hash": "hash1",
                         "size": 7,
                         "accumulated": False,
                         "created_from": {},

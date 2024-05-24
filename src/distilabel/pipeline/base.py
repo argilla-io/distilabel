@@ -454,6 +454,7 @@ class _Batch(_Serializable):
     step_name: str
     last_batch: bool
     data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
+    data_hash: Optional[str] = None
     accumulated: bool = False
     created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
     batch_routed_to: List[str] = field(default_factory=list)
@@ -480,6 +481,33 @@ class _Batch(_Serializable):
         """
         self.data = data
         self.size = len(data[0])
+        self._update_data_hash()
+
+    def get_data(self, num_rows: Union[int, None] = None) -> List[Dict[str, Any]]:
+        """Takes `num_rows` from the data of the batch and returns it. This method will
+        also remove the data from the batch and update the hash of the data.
+
+        Args:
+            num_rows: The number of rows to take from the data. If `None`, then all the
+                data will be taken. Defaults to `None`.
+
+        Returns:
+            A list with the data taken from the batch.
+        """
+
+        if num_rows is None:
+            data = self.data[0]
+            self.data = []
+        else:
+            data = self.data[0][:num_rows]
+            self.data[0] = self.data[0][num_rows:]
+
+        self._update_data_hash()
+        return data
+
+    def _update_data_hash(self) -> None:
+        """Updates the hash of the data of the batch."""
+        self.data_hash = hashlib.sha1(str(self.data).encode()).hexdigest()
 
     @classmethod
     def accumulate(cls, step_name: str, batches: List[List["_Batch"]]) -> "_Batch":
@@ -716,7 +744,7 @@ class _BatchManagerStep(_Serializable):
             batches_used[step_name] = []
             for batch in batches:
                 batches_used[step_name].append((batch.seq_no, batch.size))
-            data.append([row for batch in batches for row in batch.data[0]])
+            data.append([row for batch in batches for row in batch.get_data()])
         # Reset the data buffer
         self.data = {step_name: [] for step_name in self.data}
         return data, batches_used
@@ -735,15 +763,15 @@ class _BatchManagerStep(_Serializable):
         grouped_batches = self._group_batches_by_created_from()
         seq_no, batches = grouped_batches[0]
 
-        remaining_rows_per_step = {
-            step_name: self.input_batch_size for step_name in self.data
+        remaining_rows_per_step: Dict[str, int] = {
+            step_name: self.input_batch_size
+            for step_name in self.data  # type: ignore
         }
         batches_used = defaultdict(list)
         data = defaultdict(list)
         for batch, batch_size in batches:
-            batch_data = batch.data[0]
             remaining_rows = remaining_rows_per_step[batch.step_name]
-            selected_data = batch_data[:remaining_rows]
+            selected_data = batch.get_data(remaining_rows)
             data[batch.step_name].extend(selected_data)
 
             # If A -> [B, C] -> D, then in D (this step) we keep track of the remaining
@@ -764,15 +792,9 @@ class _BatchManagerStep(_Serializable):
             batches_used[batch.step_name].append((batch.seq_no, batch.size))
 
             # If the batch was entirely consumed, then remove it from the buffer
-            if num_rows >= len(batch_data):
+            if len(batch.data[0]) == 0:
                 self.data[batch.step_name].remove(batch)
                 continue
-
-            # The batch was not entirely consumed. so we need to update the batch
-            # with the remaining data
-            batch_idx = self.data[batch.step_name].index(batch)
-            batch_ref = self.data[batch.step_name][batch_idx]
-            batch_ref.data[0] = batch_data[len(selected_data) :]
 
         # If all the batches grouped by the `seq_no` in `created_from` were consumed, then
         # we can update the `next_expected_created_from_batch_seq_no` to the next one
@@ -816,8 +838,7 @@ class _BatchManagerStep(_Serializable):
 
                 # Get `remaining_rows` or the remaining rows in the batch and add it to
                 # the step data that will be used to create the batch
-                batch_data = batch.data[0]
-                selected_data = batch_data[:remaining_rows]
+                selected_data = batch.get_data(remaining_rows)
                 step_data.extend(selected_data)
                 batch_routed_to = batch.batch_routed_to
 
@@ -829,13 +850,9 @@ class _BatchManagerStep(_Serializable):
                 batches_used[step_name].append((batch.seq_no, batch.size))
 
                 # If the batch was entirely consumed, then remove it from the buffer
-                if num_rows >= len(batch_data):
+                if len(batch.data[0]) == 0:
                     idx_drop_batches.append(idx)
                     continue
-
-                # The batch was not entirely consumed. so we need to update the batch
-                # with the remaining data
-                batch.data[0] = batch_data[len(selected_data) :]
 
             # Remove the batches that were entirely consumed
             idx_drop_batches.reverse()
@@ -1308,11 +1325,57 @@ class _BatchManager(_Serializable):
         batch_manager_step_files = {}
         # Do this to avoid modifying the dictionary while iterating over it
         batch_manager_steps = set(dump["steps"].keys())
+        import time
+
         for step_name in batch_manager_steps:
             step_dump = dump["steps"].pop(step_name)
+
+            # Create a directory for each batch manager step to store their batches
+            batch_manager_step_dir = path.parent / f"batch_manager_steps/{step_name}"
+            batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
+
+            # Store each `_BatchManagerStep` `_Batch`es in a separete file
+            for step_name in step_dump["data"]:
+                step_batches_dir = batch_manager_step_dir / step_name
+                step_batches_dir.mkdir(parents=True, exist_ok=True)
+
+                # Store each `_Batch` in a separate file
+                keep_batches = []
+                for batch in step_dump["data"][step_name]:
+                    # Generate a hash for the data of the batch
+                    start = time.time()
+                    b_hash = hashlib.sha1(
+                        string=repr(batch["data"]).encode(),
+                        usedforsecurity=False,
+                    ).hexdigest()
+                    end = time.time()
+                    print("Took", end - start)
+                    import pdb
+
+                    pdb.set_trace()
+                    seq_no = batch["seq_no"]
+                    batch_file = step_batches_dir / f"batch_{seq_no}_{b_hash}.json"
+
+                    # Save the batch if it doesn't exist
+                    if not batch_file.exists():
+                        print("Writing batch", batch_file)
+                        super().save(path=batch_file, format=format, dump=batch)
+
+                    keep_batches.append(batch_file)
+
+                # Remove `Batch`es that were consumed from cache
+                files = list_files_in_dir(step_batches_dir, key=None)
+                remove = set(files) - set(keep_batches)
+                for file in remove:
+                    file.unlink()
+
+            # Store the `_BatchManagerStep` info
+            step_dump.pop("data")
+
             filename = str(path.parent / f"batch_manager_steps/{step_name}.json")
+
             batch_manager_step_files[step_name] = filename
-            super().save(path=filename, format=format, dump=step_dump)
+            # super().save(path=filename, format=format, dump=step_dump)
         dump["steps"] = batch_manager_step_files
         super().save(path=path, format=format, dump=dump)
 
