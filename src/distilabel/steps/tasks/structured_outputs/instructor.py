@@ -57,7 +57,7 @@ class InstructorStructuredOutputType(TypedDict):
     """TypedDict to represent the structured output configuration from `instructor`."""
 
     schema: Type[BaseModel]
-    """The schema to use for the structured output, a pydantic.BaseModel class. """
+    """The schema to use for the structured output, a `pydantic.BaseModel` class. """
     mode: Optional["instructor.Mode"]
     """Generation mode. Take a look at `instructor.Mode` for more information, if not informed it will
     be determined automatically. """
@@ -112,7 +112,7 @@ def prepare_instructor(
         framework: The framework corresponding to the client. Defaults to None.
 
     Raises:
-        ImportError: If instructor is not installed.
+        ImportError: If `instructor` is not installed.
         ValueError: If the mode is not one of the available modes.
 
     Returns:
@@ -121,7 +121,7 @@ def prepare_instructor(
     """
     if not importlib.util.find_spec("instructor"):
         raise ImportError(
-            "instructor is not installed. Please install it using `pip install instructor`."
+            "`instructor` is not installed. Please install it using `pip install instructor`."
         )
     import instructor
 

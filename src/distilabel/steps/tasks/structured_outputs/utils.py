@@ -35,13 +35,13 @@ def schema_as_dict(schema: Union[str, Type[BaseModel]]) -> Dict[str, Any]:
 
 
 def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
-    """Converts a JSON schema to a Pydantic BaseModel class.
+    """Converts a JSON schema to a `pydantic.BaseModel` class.
 
     Args:
         json_schema: The JSON schema to convert.
 
     Returns:
-        A Pydantic BaseModel class.
+        A `pydantic.BaseModel` class.
     """
 
     # Extract the model name from the schema title.
@@ -69,14 +69,14 @@ def json_schema_to_pydantic_field(
     required: List[str],
     defs: Optional[Dict[str, Any]] = None,
 ) -> Any:
-    """Converts a JSON schema property to a Pydantic field definition.
+    """Converts a JSON schema property to a `pydantic.Field`.
 
     Args:
         name: The field name.
         json_schema: The JSON schema property.
 
     Returns:
-        A Pydantic field definition.
+        A `pydantic.Field`.
     """
 
     # NOTE(plaguss): This needs more testing, nested classes need extra work to be converted
