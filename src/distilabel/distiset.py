@@ -13,14 +13,18 @@
 # limitations under the License.
 
 import logging
+import os.path as posixpath
 import re
-import shutil
 from os import PathLike
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from datasets import load_dataset, load_from_disk
+import fsspec
+import yaml
+from datasets import Dataset, load_dataset, load_from_disk
+from datasets.filesystems import is_remote_filesystem
 from huggingface_hub import DatasetCardData, HfApi
+from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
@@ -47,8 +51,8 @@ class Distiset(dict):
             pipeline.
     """
 
-    pipeline_path: Optional[Path] = None
-    log_filename_path: Optional[Path] = None
+    _pipeline_path: Optional[Path] = None
+    _log_filename_path: Optional[Path] = None
 
     def push_to_hub(
         self,
@@ -144,11 +148,6 @@ class Distiset(dict):
         Returns:
             The metadata extracted from the README.md file of the dataset repository as a dict.
         """
-        import re
-
-        import yaml
-        from huggingface_hub.file_download import hf_hub_download
-
         readme_path = Path(
             hf_hub_download(repo_id, "README.md", repo_type="dataset", token=token)
         )
@@ -235,19 +234,46 @@ class Distiset(dict):
         """
         Saves a `Distiset` to a dataset directory, or in a filesystem using any implementation of `fsspec.spec.AbstractFileSystem`.
 
+        In case you want to save the `Distiset` in a remote filesystem, you can pass the `storage_options` parameter
+        as you would do with `datasets`'s `Dataset.save_to_disk` method: [see example](https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets)
+
         Args:
-            dataset_path: _description_
-            max_shards: _description_. Defaults to None.
-            num_shards: _description_. Defaults to None.
-            num_proc: _description_. Defaults to None.
-            storage_options: _description_. Defaults to None.
+            distiset_path: Path where you want to save the `Distiset`. It can be a local path
+                (e.g. `dataset/train`) or remote URI (e.g. `s3://my-bucket/dataset/train`)
+            max_shard_size: The maximum size of the dataset shards to be uploaded to the hub.
+                If expressed as a string, needs to be digits followed by a unit (like `"50MB"`).
+                Defaults to None.
+            num_shards: Number of shards to write. By default the number of shards depends on
+                `max_shard_size` and `num_proc`. Defaults to None.
+            num_proc: Number of processes when downloading and generating the dataset locally.
+                Multiprocessing is disabled by default. Defaults to None.
+            storage_options: Key/value pairs to be passed on to the file-system backend, if any.
+                Defaults to None.
+            save_card: Whether to save the dataset card. Defaults to True.
+            save_pipeline_config: Whether to save the pipeline configuration file (aka the `pipeline.yaml` file).
+                Defaults to True.
+            save_pipeline_log: Whether to save the pipeline log file (aka the `pipeline.log` file).
+                Defaults to True.
 
         Examples:
 
             ```python
-            >>> distiset.save_to_disk(dataset_path="data/ds", max_shard_size=1_000_000, num_shards=1, num_proc=1, storage_options=None)
+            Save your distiset in a local folder:
+            >>> distiset.save_to_disk(dataset_path="my-distiset")
+
+            Save your distiset in a remote storage:
+            >>> storage_options = {
+            ...     "key": os.environ["S3_ACCESS_KEY"],
+            ...     "secret": os.environ["S3_SECRET_KEY"],
+            ...     "client_kwargs": {
+            ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
+            ...         "region_name": os.environ["S3_REGION"],
+            ...     },
+            ... }
+            >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
             ```
         """
+        distiset_path = str(distiset_path)
         for name, dataset in self.items():
             dataset.save_to_disk(
                 f"{distiset_path}/{name}",
@@ -257,78 +283,131 @@ class Distiset(dict):
                 storage_options=storage_options,
             )
 
-        # TODO: Move the following files to use fsspec to ensure we can work with remote filesystems.
+        distiset_config_folder = posixpath.join(distiset_path, DISTISET_CONFIG_FOLDER)
+
+        fs: fsspec.AbstractFileSystem
+        fs, _, _ = fsspec.get_fs_token_paths(
+            distiset_config_folder, storage_options=storage_options
+        )
+        fs.makedirs(distiset_config_folder, exist_ok=True)
+
         if save_card:
             # NOTE: Currently the card is not the same if we write to disk or push to the HF hub,
             # as we aren't generating the README copying/updating the data from the dataset repo.
-            card = self._get_card(repo_id=str(Path(distiset_path).stem), token=None)
-            card.save(Path(distiset_path) / DISTISET_CONFIG_FOLDER / "README.md")
+            card = self._get_card(repo_id=Path(distiset_path).stem, token=None)
+            new_filename = posixpath.join(distiset_config_folder, "README.md")
+            if storage_options:
+                # Write the card the same way as DatasetCard.save does:
+                with fs.open(new_filename, "w", newline="", encoding="utf-8") as f:
+                    f.write(str(card))
+            else:
+                card.save(new_filename)
 
         # Write our internal files to the distiset folder by copying them to the distiset folder.
         if save_pipeline_config and self.pipeline_path:
-            new_filename = (
-                Path(distiset_path) / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
+            new_filename = posixpath.join(
+                distiset_config_folder, PIPELINE_CONFIG_FILENAME
             )
-            if self.pipeline_path.exists() and (not new_filename.exists()):
-                shutil.copyfile(str(self.pipeline_path), str(new_filename))
+            if self.pipeline_path.exists() and (not fs.isfile(new_filename)):
+                data = yaml.safe_load(
+                    self.pipeline_path.read_text(), Loader=yaml.FullLoader
+                )
+                with fs.open(new_filename, "w", encoding="utf-8") as f:
+                    yaml.dump(data, f, default_flow_style=False)
 
         if save_pipeline_log and self.log_filename_path:
-            new_filename = (
-                Path(distiset_path) / DISTISET_CONFIG_FOLDER / PIPELINE_LOG_FILENAME
-            )
-            if self.log_filename_path.exists() and (not new_filename.exists()):
-                shutil.copyfile(str(self.log_filename_path), str(new_filename))
+            new_filename = posixpath.join(distiset_config_folder, PIPELINE_LOG_FILENAME)
+            if self.log_filename_path.exists() and (not fs.isfile(new_filename)):
+                data = self.log_filename_path.read_text()
+                with fs.open(new_filename, "w", encoding="utf-8") as f:
+                    f.write(data)
 
     @classmethod
     def load_from_disk(
         cls,
-        dataset_path: PathLike,
+        distiset_path: PathLike,
         keep_in_memory: Optional[bool] = None,
         storage_options: Optional[Dict[str, Any]] = None,
     ) -> Self:
-        """_summary_
+        """Loads a dataset that was previously saved using `Distiset.save_to_disk` from a dataset
+        directory, or from a filesystem using any implementation of `fsspec.spec.AbstractFileSystem`.
 
         Args:
-            dataset_path (PathLike): _description_
-            keep_in_memory (Optional[bool], optional): _description_. Defaults to None.
-            storage_options (Optional[Dict[str, Any]], optional): _description_. Defaults to None.
+            distiset_path (PathLike): Path ("dataset/train") or remote URI ("s3://bucket/dataset/train").
+            keep_in_memory: Whether to copy the dataset in-memory, see `datasets.Dataset.load_from_disk``
+                for more information. Defaults to None.
+            storage_options: Key/value pairs to be passed on to the file-system backend, if any.
+                Defaults to None.
 
         Returns:
-            Self: _description_
+            Distiset
         """
-        dataset_path = Path(dataset_path)
-        assert (
-            dataset_path.is_dir()
-        ), "dataset_path must be a PathLike object pointing to a folder."
-        data = {}
-        for folder in dataset_path.iterdir():
-            if folder.stem == DISTISET_CONFIG_FOLDER:
-                # From the config folder we just need to point to the files:
-                # NOTE: Assuming we are dealing with files in the local filesystem,
-                # otherwise we would need to download them from wherever?).
-                if (
-                    pipeline_path := Path(
-                        dataset_path / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
-                    )
-                ).exists():
-                    cls.pipeline_path = pipeline_path
-                if (
-                    log_filename_path := Path(
-                        dataset_path / DISTISET_CONFIG_FOLDER / PIPELINE_CONFIG_FILENAME
-                    )
-                ).exists():
-                    cls.log_filename_path = log_filename_path
+        distiset_path = str(distiset_path)
+        fs: fsspec.AbstractFileSystem
+        fs, _, [distiset_path] = fsspec.get_fs_token_paths(
+            distiset_path, storage_options=storage_options
+        )
+        assert fs.isdir(
+            distiset_path
+        ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
 
+        has_config = False
+        distiset = cls()
+        for folder in fs.ls(distiset_path):
+            folder = Path(folder)
+            if folder.stem == DISTISET_CONFIG_FOLDER:
+                has_config = True
                 continue
 
-            data[folder.stem] = load_from_disk(
+            distiset[folder.stem] = load_from_disk(
                 str(folder),
                 keep_in_memory=keep_in_memory,
                 storage_options=storage_options,
             )
 
-        distiset = cls(data)
+        if is_remote_filesystem(fs):
+            # NOTE: Should we recreate the function internally to avoid using a private method?
+            distiset_path = Dataset._build_local_temp_path(distiset_path)
+            fs.download(distiset_path, distiset_path.as_posix(), recursive=True)
+
+        # From the config folder we just need to point to the files. Once downloaded we set the path
+        # to wherever they are.
+        if has_config:
+            distiset_config_folder = posixpath.join(
+                distiset_path, DISTISET_CONFIG_FOLDER
+            )
+
+            pipeline_path = posixpath.join(
+                distiset_config_folder, PIPELINE_CONFIG_FILENAME
+            )
+            if fs.isfile(pipeline_path):
+                distiset.pipeline_path = Path(pipeline_path)
+
+            log_filename_path = posixpath.join(
+                distiset_config_folder, PIPELINE_LOG_FILENAME
+            )
+            if fs.isfile(log_filename_path):
+                distiset.log_filename_path = Path(log_filename_path)
+
         return distiset
+
+    @property
+    def pipeline_path(self) -> Optional[Path]:
+        """Contains the path to the `pipeline.yaml` file that generated the `Pipeline`."""
+        return self._pipeline_path
+
+    @pipeline_path.setter
+    def pipeline_path(self, path: PathLike) -> None:
+        self._pipeline_path = Path(path)
+
+    @property
+    def log_filename_path(self) -> Optional[Path]:
+        """Contains the path to the `pipeline.log` file that generated the `Pipeline`."""
+        return self._log_filename_path
+
+    @log_filename_path.setter
+    def log_filename_path(self, path: PathLike) -> None:
+        self._log_filename_path = Path(path)
 
     def __repr__(self):
         # Copy from `datasets.DatasetDict.__repr__`.
@@ -345,6 +424,9 @@ def create_distiset(  # noqa: C901
 ) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
+    This function is intended to be used as a helper to create a `Distiset` from from the folder
+    where the cached data was written by the `_WriteBuffer`.
+
     Args:
         data_dir: Folder where the data buffers were written by the `_WriteBuffer`.
             It should correspond to `CacheLocation.data`.
@@ -360,6 +442,13 @@ def create_distiset(  # noqa: C901
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
         correspond to different configurations of the dataset.
+
+    Examples:
+
+        ```python
+        >>> from pathlib import Path
+        >>> distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
+        ```
     """
     logger = logging.getLogger("distilabel.distiset")
     from distilabel.steps.constants import DISTILABEL_METADATA_KEY
