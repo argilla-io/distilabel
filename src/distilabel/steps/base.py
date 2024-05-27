@@ -220,18 +220,15 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         routing_batch_function._step = self
 
     @overload
-    def __rshift__(self, other: "RoutingBatchFunction") -> "RoutingBatchFunction":
-        ...
+    def __rshift__(self, other: "RoutingBatchFunction") -> "RoutingBatchFunction": ...
 
     @overload
     def __rshift__(
         self, other: List["DownstreamConnectableSteps"]
-    ) -> List["DownstreamConnectableSteps"]:
-        ...
+    ) -> List["DownstreamConnectableSteps"]: ...
 
     @overload
-    def __rshift__(self, other: "DownstreamConnectable") -> "DownstreamConnectable":
-        ...
+    def __rshift__(self, other: "DownstreamConnectable") -> "DownstreamConnectable": ...
 
     def __rshift__(
         self,
