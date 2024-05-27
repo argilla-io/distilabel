@@ -227,8 +227,10 @@ def _get_hf_dataset_info(
         "https://datasets-server.huggingface.co/info", params=params, headers=headers
     )
 
-    assert (
-        response.status_code == 200
-    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
+    assert response.status_code == 200, (
+        f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN"
+        " environment variable if it is a private dataset, and make sure that you are"
+        " a Pro user in the Hugging Face Hub."
+    )
 
     return response.json()["dataset_info"]
