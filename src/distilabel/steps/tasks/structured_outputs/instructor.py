@@ -37,12 +37,12 @@ if TYPE_CHECKING:
     from openai import AsyncAzureOpenAI, AsyncOpenAI
 
 
-Frameworks = Literal[
+InstructorFrameworks = Literal[
     "openai", "azure_openai", "anthropic", "cohere", "groq", "litellm", "mistral"
 ]
 """Available frameworks for the structured output configuration with `instructor`. """
 
-AvailableClients: TypeAlias = Union[
+InstructorAvailableClients: TypeAlias = Union[
     "AsyncAnthropic",
     "AsyncAzureOpenAI",
     "AsyncCohere",
@@ -65,7 +65,7 @@ class InstructorStructuredOutputType(TypedDict):
     """Number of times to reask the model in case of error, if not set will default to the model's default. """
 
 
-def _client_patcher(framework: Frameworks) -> Tuple[Callable, str]:
+def _client_patcher(framework: InstructorFrameworks) -> Tuple[Callable, str]:
     """Helper function to return the appropriate instructor client for the given framework.
 
     Args:
@@ -81,27 +81,29 @@ def _client_patcher(framework: Frameworks) -> Tuple[Callable, str]:
     import instructor
 
     if framework in {"openai", "azure_openai"}:
-        return instructor.from_openai, instructor.Mode.TOOLS
+        patch = instructor.from_openai, instructor.Mode.TOOLS
     elif framework == "anthropic":
-        return instructor.from_anthropic, instructor.Mode.ANTHROPIC_JSON
+        patch = instructor.from_anthropic, instructor.Mode.ANTHROPIC_JSON
     elif framework == "litellm":
-        return instructor.from_litellm, instructor.Mode.TOOLS
+        patch = instructor.from_litellm, instructor.Mode.TOOLS
     elif framework == "mistral":
-        return instructor.from_mistral, instructor.Mode.MISTRAL_TOOLS
+        patch = instructor.from_mistral, instructor.Mode.MISTRAL_TOOLS
     elif framework == "cohere":
-        return instructor.from_cohere, instructor.Mode.COHERE_TOOLS
+        patch = instructor.from_cohere, instructor.Mode.COHERE_TOOLS
     elif framework == "groq":
-        return instructor.from_groq, instructor.Mode.TOOLS
+        patch = instructor.from_groq, instructor.Mode.TOOLS
+    else:
+        raise ValueError(
+            f"Invalid framework '{framework}'. Must be one of {get_args(InstructorFrameworks)}"
+        )
 
-    raise ValueError(
-        f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}"
-    )
+    return patch
 
 
 def prepare_instructor(
-    client: AvailableClients,
+    client: InstructorAvailableClients,
     mode: Optional["instructor.Mode"] = None,
-    framework: Optional[Frameworks] = None,
+    framework: Optional[InstructorFrameworks] = None,
 ) -> "instructor.AsyncInstructor":
     """Wraps the given client with the instructor client for the given framework.
 

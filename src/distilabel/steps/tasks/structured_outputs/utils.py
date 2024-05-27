@@ -74,6 +74,10 @@ def json_schema_to_pydantic_field(
     Args:
         name: The field name.
         json_schema: The JSON schema property.
+        required: The list of required fields.
+        defs: The definitions of the JSON schema. It's used to dereference nested classes,
+            so we can grab the original definition from the json schema (it won't
+            work out of the box with just the reference).
 
     Returns:
         A `pydantic.Field`.
@@ -111,9 +115,7 @@ def json_schema_to_pydantic_field(
     )
 
 
-def json_schema_to_pydantic_type(
-    json_schema: Dict[str, Any], defs: Optional[Dict[str, Any]] = None
-) -> Any:
+def json_schema_to_pydantic_type(json_schema: Dict[str, Any]) -> Any:
     """Converts a JSON schema type to a Pydantic type.
 
     Args:
@@ -125,29 +127,31 @@ def json_schema_to_pydantic_type(
     type_ = json_schema.get("type")
 
     if type_ == "string":
-        return str
+        type_val = str
     elif type_ == "integer":
-        return int
+        type_val = int
     elif type_ == "number":
-        return float
+        type_val = float
     elif type_ == "boolean":
-        return bool
+        type_val = bool
     elif type_ == "array":
         items_schema = json_schema.get("items")
         if items_schema:
             item_type = json_schema_to_pydantic_type(items_schema)
-            return List[item_type]
+            type_val = List[item_type]
         else:
-            return List
+            type_val = List
     elif type_ == "object":
         # Handle nested models.
         properties = json_schema.get("properties")
         if properties:
             nested_model = json_schema_to_model(json_schema)
-            return nested_model
+            type_val = nested_model
         else:
-            return Dict
+            type_val = Dict
     elif type_ == "null":
-        return Optional[Any]  # Use Optional[Any] for nullable fields
+        type_val = Optional[Any]  # Use Optional[Any] for nullable fields
     else:
         raise ValueError(f"Unsupported JSON schema type: {type_}")
+
+    return type_val
