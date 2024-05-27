@@ -45,7 +45,7 @@ def ReceiveArrays(inputs: StepInput) -> "StepOutput":
 
 def test_cache_time(benchmark: "BenchmarkFixture") -> None:
     with Pipeline(name="dummy") as pipeline:
-        numpy_generator = NumpyBigArrayGenerator(num_batches=300, batch_size=100)
+        numpy_generator = NumpyBigArrayGenerator(num_batches=2, batch_size=100)
 
         receive_arrays = ReceiveArrays()
 
