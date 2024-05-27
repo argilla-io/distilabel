@@ -76,7 +76,7 @@ vertexai = ["google-cloud-aiplatform >= 1.38.0"]
 vllm = ["vllm >= 0.2.1", "filelock >= 3.13.4"]
 
 # Other optional dependencies
-arena-hard = ["scikit-learn>=1.5.0"]
+arena-hard = ["pandas", "numpy", "scikit-learn"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
