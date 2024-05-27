@@ -76,7 +76,7 @@ def json_schema_to_pydantic_field(
         json_schema: The JSON schema property.
 
     Returns:
-        A Pydantic field definition.
+        A `pydantic.Field`.
     """
 
     # NOTE(plaguss): This needs more testing, nested classes need extra work to be converted
