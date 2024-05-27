@@ -341,20 +341,22 @@ class Distiset(dict):
                 Defaults to None.
 
         Returns:
-            Distiset
+            A `Distiset` loaded from disk, it should be a `Distiset` object created using `Distiset.save_to_disk`.
         """
         distiset_path = str(distiset_path)
         fs: fsspec.AbstractFileSystem
         fs, _, [distiset_path] = fsspec.get_fs_token_paths(
             distiset_path, storage_options=storage_options
         )
+        dest_distiset_path = distiset_path
+
         assert fs.isdir(
-            distiset_path
+            dest_distiset_path
         ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
 
         has_config = False
         distiset = cls()
-        for folder in fs.ls(distiset_path):
+        for folder in fs.ls(dest_distiset_path):
             folder = Path(folder)
             if folder.stem == DISTISET_CONFIG_FOLDER:
                 has_config = True
@@ -367,15 +369,16 @@ class Distiset(dict):
             )
 
         if is_remote_filesystem(fs):
+            src_dataset_path = dest_distiset_path
             # NOTE: Should we recreate the function internally to avoid using a private method?
-            distiset_path = Dataset._build_local_temp_path(distiset_path)
-            fs.download(distiset_path, distiset_path.as_posix(), recursive=True)
+            dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)
+            fs.download(src_dataset_path, dest_distiset_path.as_posix(), recursive=True)
 
         # From the config folder we just need to point to the files. Once downloaded we set the path
         # to wherever they are.
         if has_config:
             distiset_config_folder = posixpath.join(
-                distiset_path, DISTISET_CONFIG_FOLDER
+                dest_distiset_path, DISTISET_CONFIG_FOLDER
             )
 
             pipeline_path = posixpath.join(
