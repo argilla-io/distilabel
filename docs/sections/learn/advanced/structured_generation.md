@@ -187,7 +187,7 @@ User(**data)
 # User(name='John', last_name='Doe', id=12345)
 ```
 
-We get back a Python dictionary (formatted as a string) that we can parse using `json.loads`, or validate it directly using the `User`, which si a `pydantic.BaseModel` instance.
+We get back a Python dictionary (formatted as a string) that we can parse using `json.loads`, or validate it directly using the `User`, which is a `pydantic.BaseModel` instance.
 
 !!! Tip
     A full pipeline example can be seen in the following script:
