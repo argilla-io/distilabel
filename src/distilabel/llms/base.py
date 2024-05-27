@@ -306,7 +306,7 @@ class AsyncLLM(LLM):
 
     @staticmethod
     def _prepare_structured_output(
-        structured_output: Optional["InstructorStructuredOutputType"] = None,
+        structured_output: "InstructorStructuredOutputType",
         client: Any = None,
         framework: Optional[str] = None,
     ) -> Dict[str, Union[str, Any]]:
