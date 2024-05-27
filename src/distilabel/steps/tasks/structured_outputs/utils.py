@@ -35,7 +35,7 @@ def schema_as_dict(schema: Union[str, Type[BaseModel]]) -> Dict[str, Any]:
 
 
 def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
-    """Converts a JSON schema to a Pydantic BaseModel class.
+    """Converts a JSON schema to a `pydantic.BaseModel` class.
 
     Args:
         json_schema: The JSON schema to convert.
