@@ -57,7 +57,7 @@ class InstructorStructuredOutputType(TypedDict):
     """TypedDict to represent the structured output configuration from `instructor`."""
 
     schema: Type[BaseModel]
-    """The schema to use for the structured output, a pydantic.BaseModel class. """
+    """The schema to use for the structured output, a `pydantic.BaseModel` class. """
     mode: Optional["instructor.Mode"]
     """Generation mode. Take a look at `instructor.Mode` for more information, if not informed it will
     be determined automatically. """
