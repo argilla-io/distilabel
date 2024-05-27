@@ -97,14 +97,20 @@ class Distiset(dict):
     def _get_card(
         self, repo_id: str, token: Optional[str] = None
     ) -> DistilabelDatasetCard:
-        """_summary_
+        """Generates the dataset card for the `Distiset`.
+
+        Note:
+            If `repo_id` and `token` are provided, it will extract the metadata from the README.md file
+            on the hub.
 
         Args:
-            repo_id (str): _description_
-            token (Optional[str]): _description_
+            repo_id: Name of the repository to push to, or the path for the distiset if saved to disk.
+            token: The token to authenticate with the Hugging Face Hub.
+                We assume that if it's provided, the dataset will be in the Hugging Face Hub,
+                so the README metadata will be extracted from there.
 
         Returns:
-            DistilabelDatasetCard: _description_
+            The dataset card for the `Distiset`.
         """
         sample_records = {}
         for name, dataset in self.items():
@@ -112,7 +118,6 @@ class Distiset(dict):
                 dataset[0] if not isinstance(dataset, dict) else dataset["train"][0]
             )
 
-        # TODO: Refactor this to avoid downloading the README.md file when we are saving to disk
         readme_metadata = {}
         if repo_id and token:
             readme_metadata = self._extract_readme_metadata(repo_id, token)
@@ -156,7 +161,7 @@ class Distiset(dict):
         metadata = yaml.safe_load(metadata)
         return metadata
 
-    def _generate_card(self, repo_id: str, token: Optional[str]) -> None:
+    def _generate_card(self, repo_id: str, token: str) -> None:
         """Generates a dataset card and pushes it to the Hugging Face Hub, and
         if the `pipeline.yaml` path is available in the `Distiset`, uploads that
         to the same repository.
@@ -256,26 +261,20 @@ class Distiset(dict):
                 Defaults to True.
 
         Examples:
-
-        Save your distiset in a local folder:
-
-        ```python
-        >>> distiset.save_to_disk(dataset_path="my-distiset")
-        ```
-
-        Save your distiset in a remote storage:
-
-        ```python
-        >>> storage_options = {
-        ...     "key": os.environ["S3_ACCESS_KEY"],
-        ...     "secret": os.environ["S3_SECRET_KEY"],
-        ...     "client_kwargs": {
-        ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
-        ...         "region_name": os.environ["S3_REGION"],
-        ...     },
-        ... }
-        >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
-        ```
+            ```python
+            # Save your distiset in a local folder:
+            >>> distiset.save_to_disk(dataset_path="my-distiset")
+            # Save your distiset in a remote storage:
+            >>> storage_options = {
+            ...     "key": os.environ["S3_ACCESS_KEY"],
+            ...     "secret": os.environ["S3_SECRET_KEY"],
+            ...     "client_kwargs": {
+            ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
+            ...         "region_name": os.environ["S3_REGION"],
+            ...     },
+            ... }
+            >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
+            ```
         """
         distiset_path = str(distiset_path)
         for name, dataset in self.items():

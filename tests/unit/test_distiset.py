@@ -13,11 +13,13 @@
 # limitations under the License.
 
 import copy
+import re
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import pytest
+import yaml
 from datasets import Dataset, DatasetDict
 from distilabel.distiset import Distiset
 
@@ -146,3 +148,14 @@ class TestDistiset:
             if with_config:
                 assert ds.pipeline_path.exists()
                 assert ds.log_filename_path.exists()
+
+    def test_dataset_card(self, distiset: Distiset) -> None:
+        # Test the the metadata we generate by default without extracting the already generated content from the HF hub.
+        # We parse the content and check it's the same as the one we generate.
+        distiset_card = distiset._get_card("repo_name_or_path")
+        metadata = re.findall(r"---\n(.*?)\n---", str(distiset_card), re.DOTALL)[0]
+        metadata = yaml.safe_load(metadata)
+        assert metadata == {
+            "size_categories": "n<1K",
+            "tags": ["synthetic", "distilabel", "rlaif"],
+        }
