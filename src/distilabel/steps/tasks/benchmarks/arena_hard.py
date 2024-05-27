@@ -15,10 +15,6 @@
 import re
 from typing import Any, Dict, List, Optional, Union
 
-import numpy as np
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-
 from distilabel.steps import GlobalStep, StepInput
 from distilabel.steps.tasks import TextGeneration
 from distilabel.steps.tasks.typing import ChatType
@@ -127,6 +123,21 @@ class ArenaHardResults(GlobalStep):
     custom_model_column: Optional[str] = None
     custom_weights: Dict[str, int] = {"A>B": 1, "A>>B": 3, "B>A": 1, "B>>A": 3}
 
+    def load(self) -> None:
+        """Ensures that the required dependencies are installed."""
+        super().load()
+
+        try:
+            import numpy as np  # noqa: F401
+            import pandas as pd  # noqa: F401
+            from sklearn.linear_model import LogisticRegression  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "In order to run `ArenaHardResults`, the `arena-hard` extra dependencies"
+                " must be installed i.e. `numpy`, `pandas`, and `scikit-learn`.\n"
+                "Please install the dependencies by running `pip install distilabel[arena-hard]`."
+            ) from e
+
     @property
     def inputs(self) -> List[str]:
         """The inputs required by this step are the `evaluation` and the `score` generated
@@ -154,6 +165,10 @@ class ArenaHardResults(GlobalStep):
         References:
             - https://github.com/lm-sys/arena-hard-auto/blob/main/show_result.py
         """
+        import numpy as np
+        import pandas as pd
+        from sklearn.linear_model import LogisticRegression
+
         models = ["A", "B"]
         if self.custom_model_column:
             models = inputs[0][self.custom_model_column]
