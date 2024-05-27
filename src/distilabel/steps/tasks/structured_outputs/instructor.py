@@ -112,7 +112,7 @@ def prepare_instructor(
         framework: The framework corresponding to the client. Defaults to None.
 
     Raises:
-        ImportError: If instructor is not installed.
+        ImportError: If `instructor` is not installed.
         ValueError: If the mode is not one of the available modes.
 
     Returns:
