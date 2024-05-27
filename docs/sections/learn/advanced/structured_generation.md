@@ -131,7 +131,7 @@ These were some simple examples, but one can see the options this opens.
 
 When working with model providers behind an API, there's no direct way of accesing the internal logit processor as `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM], so you can work with the following LLMs: [`OpenAILLM`][distilabel.llms.OpenAILLM], [`AzureOpenAILLM`][distilabel.llms.AzureOpenAILLM], [`CohereLLM`][distilabel.llms.CohereLLM], [`GroqLLM`][distilabel.llms.GroqLLM], [`LiteLLM`][distilabel.llms.LiteLLM] and [`MistralLLM`][distilabel.llms.MistralLLM].
 
-`Instructor` works with `pydantic.BaseModel` objects internally but in `distilabel` the examples generated would result in the string representation of them, from which the `BaseModel` object can be regenerated.
+`instructor` works with `pydantic.BaseModel` objects internally but in `distilabel` the examples generated would result in the string representation of them, from which the `BaseModel` object can be regenerated.
 
 !!! Note
     For `instructor` integration to work you may need to install the corresponding dependencies:
