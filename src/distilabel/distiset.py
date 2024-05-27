@@ -312,9 +312,7 @@ class Distiset(dict):
                 distiset_config_folder, PIPELINE_CONFIG_FILENAME
             )
             if self.pipeline_path.exists() and (not fs.isfile(new_filename)):
-                data = yaml.safe_load(
-                    self.pipeline_path.read_text(), Loader=yaml.FullLoader
-                )
+                data = yaml.safe_load(self.pipeline_path.read_text())
                 with fs.open(new_filename, "w", encoding="utf-8") as f:
                     yaml.dump(data, f, default_flow_style=False)
 
