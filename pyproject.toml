@@ -33,6 +33,7 @@ dependencies = [
     "scipy >= 1.10.0",
     "typer >= 0.9.0",
     "tblib >= 3.0.0",
+    "orjson >= 3.10.0",
 ]
 dynamic = ["version"]
 
