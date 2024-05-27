@@ -231,7 +231,7 @@ class Distiset(dict):
         save_pipeline_config: bool = True,
         save_pipeline_log: bool = True,
     ) -> None:
-        """
+        r"""
         Saves a `Distiset` to a dataset directory, or in a filesystem using any implementation of `fsspec.spec.AbstractFileSystem`.
 
         In case you want to save the `Distiset` in a remote filesystem, you can pass the `storage_options` parameter
@@ -257,21 +257,25 @@ class Distiset(dict):
 
         Examples:
 
-            ```python
-            Save your distiset in a local folder:
-            >>> distiset.save_to_disk(dataset_path="my-distiset")
+        Save your distiset in a local folder:
 
-            Save your distiset in a remote storage:
-            >>> storage_options = {
-            ...     "key": os.environ["S3_ACCESS_KEY"],
-            ...     "secret": os.environ["S3_SECRET_KEY"],
-            ...     "client_kwargs": {
-            ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
-            ...         "region_name": os.environ["S3_REGION"],
-            ...     },
-            ... }
-            >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
-            ```
+        ```python
+        >>> distiset.save_to_disk(dataset_path="my-distiset")
+        ```
+
+        Save your distiset in a remote storage:
+
+        ```python
+        >>> storage_options = {
+        ...     "key": os.environ["S3_ACCESS_KEY"],
+        ...     "secret": os.environ["S3_SECRET_KEY"],
+        ...     "client_kwargs": {
+        ...         "endpoint_url": os.environ["S3_ENDPOINT_URL"],
+        ...         "region_name": os.environ["S3_REGION"],
+        ...     },
+        ... }
+        >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
+        ```
         """
         distiset_path = str(distiset_path)
         for name, dataset in self.items():
