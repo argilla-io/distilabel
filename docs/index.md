@@ -1,6 +1,6 @@
 ---
 description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
-hide: 
+hide:
   - toc
 ---
 
@@ -8,8 +8,8 @@ hide:
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/argilla-io/distilabel/blob/main/docs/assets/distilabel-white.png?raw=true">
-    <img alt="Distilabel Logo" src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-black.png">
+    <img alt="Distilabel Logo" src="./assets/distilabel-white.svg#only-dark" width="400">
+    <img alt="Distilabel Logo" src="./assets/distilabel-black.svg#only-light" width="400">
   </picture>
 </div>
 
@@ -36,10 +36,10 @@ hide:
   </a>
 </p>
 
-
 Distilabel is the **framework for synthetic data and AI feedback for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
 
 If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
+
 <!-- ![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)  -->
 
 ## Why use Distilabel?
@@ -160,4 +160,3 @@ If you build something cool with `distilabel` consider adding one of these badge
 ## Contribute
 
 To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
-
