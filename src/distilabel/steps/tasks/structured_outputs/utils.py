@@ -41,7 +41,7 @@ def json_schema_to_model(json_schema: Dict[str, Any]) -> Type[BaseModel]:
         json_schema: The JSON schema to convert.
 
     Returns:
-        A Pydantic BaseModel class.
+        A `pydantic.BaseModel` class.
     """
 
     # Extract the model name from the schema title.
