@@ -69,7 +69,7 @@ def json_schema_to_pydantic_field(
     required: List[str],
     defs: Optional[Dict[str, Any]] = None,
 ) -> Any:
-    """Converts a JSON schema property to a Pydantic field definition.
+    """Converts a JSON schema property to a `pydantic.Field`.
 
     Args:
         name: The field name.
