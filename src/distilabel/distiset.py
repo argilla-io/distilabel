@@ -337,9 +337,9 @@ class Distiset(dict):
         Args:
             distiset_path: Path ("dataset/train") or remote URI ("s3://bucket/dataset/train").
             keep_in_memory: Whether to copy the dataset in-memory, see `datasets.Dataset.load_from_disk``
-                for more information. Defaults to None.
+                for more information. Defaults to `None`.
             storage_options: Key/value pairs to be passed on to the file-system backend, if any.
-                Defaults to None.
+                Defaults to `None`.
             download_dir: Optional directory to download the dataset to. Defaults to None,
                 in which case it will create a temporary directory.
 
