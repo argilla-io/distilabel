@@ -28,7 +28,6 @@ from distilabel.pipeline.base import (
     LAST_BATCH_SENT_FLAG,
     BasePipeline,
     _Batch,
-    _BatchManager,
     _WriteBuffer,
 )
 from distilabel.pipeline.constants import (
@@ -68,9 +67,14 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(queue: "Queue[Any]") -> None:
+def _init_worker(log_queue: "Queue[Any]") -> None:
+    """Init function for the child processes that will execute the `Step`s of the `Pipeline`.
+
+    Args:
+        log_queue: The queue to send the logs to the main process.
+    """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    setup_logging(queue)
+    setup_logging(log_queue)
 
 
 class Pipeline(BasePipeline):
@@ -80,6 +84,8 @@ class Pipeline(BasePipeline):
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
         use_cache: bool = True,
+        storage_parameters: Optional[Dict[str, Any]] = None,
+        use_fs_to_pass_data: bool = True,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -88,6 +94,17 @@ class Pipeline(BasePipeline):
                 the runtime parameters for the step as the value. Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
+            storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
+                that will be used to store the data of the `_Batch`es passed between the
+                steps if `use_fs_to_pass_data` is `True` (for the batches received by a
+                `GlobalStep` it will be always used). It must have at least the keys "protocol"
+                and "path", and it can contain additional keys depending on the protocol.
+                By default, it will use the local file system and a directory in the cache
+                directory. Defaults to `None`.
+            use_fs_to_pass_data: Whether to use the file system to pass the data of
+                the `_Batch`es between the steps. Even if this parameter is `False`, the
+                `Batch`es received by `GlobalStep`s will always use the file system to
+                pass the data. Defaults to `False`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -96,33 +113,17 @@ class Pipeline(BasePipeline):
             RuntimeError: If the pipeline fails to load all the steps.
         """
         log_queue = mp.Queue()
-        # We must place the runtime parameters before calling setup_logging to ensure consistency
-        super().run(parameters, use_cache)
-        setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
+
+        self._set_logging_parameters(
+            {"log_queue": log_queue, "filename": self._cache_location["log_file"]}
+        )
+
+        if distiset := super().run(
+            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+        ):
+            return distiset
+
         self._logger = logging.getLogger("distilabel.pipeline.local")
-
-        if self._dry_run:
-            # This message is placed here to ensure we are using the already setup logger.
-            self._logger.info("🌵 Dry run mode")
-
-        if self._batch_manager is None:
-            self._batch_manager = _BatchManager.from_dag(self.dag)
-
-        # If the batch manager is not able to generate batches, that means that the loaded
-        # `_BatchManager` from cache didn't have any remaining batches to process i.e.
-        # the previous pipeline execution was completed successfully.
-        if not self._batch_manager.can_generate():
-            self._logger.info(
-                "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
-                " `Distiset` from cache data..."
-            )
-            stop_logging()
-            return create_distiset(
-                self._cache_location["data"],
-                pipeline_path=self._cache_location["pipeline"],
-                log_filename_path=self._cache_location["log_file"],
-                enable_metadata=self._enable_metadata,
-            )
 
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
