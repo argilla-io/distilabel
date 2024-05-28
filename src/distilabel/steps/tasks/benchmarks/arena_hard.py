@@ -16,12 +16,12 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from distilabel.steps import GlobalStep, StepInput
-from distilabel.steps.tasks import TextGeneration
+from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.typing import StepOutput
 
 
-class ArenaHard(TextGeneration):
+class ArenaHard(Task):
     """This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
     Arena-Hard Pipeline" paper, which presents Arena Hard which is a benchmark for
     instruction-tuned LLMs that contains 500 challenging user queries. GPT-4 is used
