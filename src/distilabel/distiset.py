@@ -400,8 +400,8 @@ class Distiset(dict):
         return distiset
 
     @property
-    def pipeline_path(self) -> Optional[Path]:
-        """Contains the path to the `pipeline.yaml` file that generated the `Pipeline`."""
+    def pipeline_path(self) -> Union[Path, None]:
+        """Returns the path to the `pipeline.yaml` file that generated the `Pipeline`."""
         return self._pipeline_path
 
     @pipeline_path.setter
