@@ -375,7 +375,7 @@ class Distiset(dict):
                 has_config = True
                 continue
             distiset[folder.stem] = load_from_disk(
-                folder,
+                str(folder),
                 keep_in_memory=keep_in_memory,
             )
         # From the config folder we just need to point to the files. Once downloaded we set the path
