@@ -409,8 +409,8 @@ class Distiset(dict):
         self._pipeline_path = Path(path)
 
     @property
-    def log_filename_path(self) -> Optional[Path]:
-        """Contains the path to the `pipeline.log` file that generated the `Pipeline`."""
+    def log_filename_path(self) -> Union[Path, None]:
+        """Returns the path to the `pipeline.log` file that generated the `Pipeline`."""
         return self._log_filename_path
 
     @log_filename_path.setter
