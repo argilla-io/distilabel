@@ -458,6 +458,8 @@ def create_distiset(  # noqa: C901
         >>> distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
         ```
     """
+    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
+    
     logger = logging.getLogger("distilabel.distiset")
     from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
