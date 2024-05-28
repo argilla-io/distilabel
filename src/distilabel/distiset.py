@@ -17,7 +17,7 @@ import os.path as posixpath
 import re
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Final, Optional, Union
 
 import fsspec
 import yaml
@@ -34,9 +34,9 @@ from distilabel.utils.card.dataset_card import (
 )
 from distilabel.utils.files import list_files_in_dir
 
-DISTISET_CONFIG_FOLDER: str = "distiset_configs"
-PIPELINE_CONFIG_FILENAME: str = "pipeline.yaml"
-PIPELINE_LOG_FILENAME: str = "pipeline.log"
+DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
+PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
+PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 
 
 class Distiset(dict):
@@ -459,9 +459,8 @@ def create_distiset(  # noqa: C901
         ```
     """
     from distilabel.steps.constants import DISTILABEL_METADATA_KEY
-    
+
     logger = logging.getLogger("distilabel.distiset")
-    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
     data_dir = Path(data_dir)
 
