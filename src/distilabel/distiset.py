@@ -223,6 +223,8 @@ def create_distiset(  # noqa: C901
         The dataset created from the buffer folder, where the different leaf steps will
         correspond to different configurations of the dataset.
     """
+    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
+    
     logger = logging.getLogger("distilabel.distiset")
     from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
