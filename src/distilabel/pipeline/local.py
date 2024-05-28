@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import multiprocessing as mp
 import signal
 import threading
@@ -28,7 +27,6 @@ from distilabel.pipeline.base import (
     LAST_BATCH_SENT_FLAG,
     BasePipeline,
     _Batch,
-    _WriteBuffer,
 )
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
@@ -123,12 +121,6 @@ class Pipeline(BasePipeline):
         ):
             return distiset
 
-        self._logger = logging.getLogger("distilabel.pipeline.local")
-
-        buffer_data_path = self._cache_location["data"]
-        self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
-        write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
-
         num_processes = len(self.dag)
         ctx = mp.get_context()  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
@@ -145,7 +137,7 @@ class Pipeline(BasePipeline):
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
-                write_buffer.close()
+                self._write_buffer.close()  # type: ignore
                 self._batch_manager = None
                 stop_logging()
                 raise RuntimeError(
@@ -157,7 +149,7 @@ class Pipeline(BasePipeline):
             self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
-            self._run_output_queue_loop_in_thread(write_buffer)
+            self._run_output_queue_loop_in_thread()
 
             # Send `None` to steps `input_queue`s just in case some step is still waiting
             self._notify_steps_to_stop()
@@ -165,7 +157,7 @@ class Pipeline(BasePipeline):
             pool.close()
             pool.join()
 
-        write_buffer.close()
+        self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
@@ -175,15 +167,11 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    def _run_output_queue_loop_in_thread(self, write_buffer: "_WriteBuffer") -> None:
+    def _run_output_queue_loop_in_thread(self) -> None:
         """Runs the output queue loop in a separate thread to receive the output batches
         from the steps. This is done to avoid the signal handler to block the loop, which
-        would prevent the pipeline from stopping correctly.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
-        thread = threading.Thread(target=self._output_queue_loop, args=(write_buffer,))
+        would prevent the pipeline from stopping correctly."""
+        thread = threading.Thread(target=self._output_queue_loop)
         thread.start()
         thread.join()
 
@@ -194,13 +182,9 @@ class Pipeline(BasePipeline):
             if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
                 input_queue.put(None)
 
-    def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
+    def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
-        batches through the pipeline.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
+        batches through the pipeline."""
         while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
             if (batch := self.output_queue.get()) is None:
@@ -208,7 +192,7 @@ class Pipeline(BasePipeline):
                 break
 
             if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch)
+                self._write_buffer.add_batch(batch)  # type: ignore
 
             # If `_STOP_CALLED` was set to `True` while waiting for the output queue, then
             # we need to handle the stop of the pipeline and break the loop to avoid
@@ -226,7 +210,7 @@ class Pipeline(BasePipeline):
             self._manage_batch_flow(batch)
 
         if _STOP_CALLED:
-            self._handle_stop(write_buffer)
+            self._handle_stop()
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -358,14 +342,10 @@ class Pipeline(BasePipeline):
             )
             self._send_batch_to_step(last_batch.next_batch())
 
-    def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
+    def _handle_stop(self) -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose
-        any data that was already processed by the steps before the stop was called.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
+        any data that was already processed by the steps before the stop was called."""
         self._logger.debug("Handling stop of the pipeline execution...")
 
         # Add the remaining batches in the input queues back to the batch manager
@@ -400,7 +380,7 @@ class Pipeline(BasePipeline):
                 continue
 
             if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch)
+                self._write_buffer.add_batch(batch)  # type: ignore
 
             self._handle_batch_on_stop(batch)
 

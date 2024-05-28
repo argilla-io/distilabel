@@ -123,6 +123,9 @@ class BasePipeline(_Serializable):
         _batch_manager: The batch manager that will manage the batches received from the
             steps while running the pipeline. It will be created when the pipeline is run,
             from scratch or from cache. Defaults to `None`.
+        _write_buffer: The buffer that will store the data of the leaf steps of the pipeline
+            while running, so the `Distiset` can be created at the end. It will be created
+            when the pipeline is run. Defaults to `None`.
         _logging_parameters: A dictionary containing the parameters that will passed to
             `setup_logging` function to initialize the logging. Defaults to `{}`.
         _fs: The `fsspec` filesystem to be used to store the data of the `_Batch`es passed
@@ -171,6 +174,7 @@ class BasePipeline(_Serializable):
         self._logger = logging.getLogger("distilabel.pipeline")
 
         self._batch_manager: Optional["_BatchManager"] = None
+        self._write_buffer: Optional["_WriteBuffer"] = None
         self._logging_parameters: Dict[str, Any] = {}
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
@@ -323,6 +327,8 @@ class BasePipeline(_Serializable):
                 log_filename_path=self._cache_location["log_file"],
                 enable_metadata=self._enable_metadata,
             )
+
+        self._setup_write_buffer()
 
     def dry_run(
         self,
@@ -529,6 +535,9 @@ class BasePipeline(_Serializable):
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
+        if self._dry_run:
+            return
+
         self.save(
             path=self._cache_location["pipeline"],
             format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
@@ -553,6 +562,14 @@ class BasePipeline(_Serializable):
             return _BatchManager.load_from_cache(batch_manager_cache_loc)
 
         return _BatchManager.from_dag(self.dag)
+
+    def _setup_write_buffer(self) -> None:
+        """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
+        pipeline while running, so the `Distiset` can be created at the end.
+        """
+        buffer_data_path = self._cache_location["data"]
+        self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
+        self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
 
 @dataclass
