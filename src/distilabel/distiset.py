@@ -224,9 +224,8 @@ def create_distiset(  # noqa: C901
         correspond to different configurations of the dataset.
     """
     from distilabel.steps.constants import DISTILABEL_METADATA_KEY
-    
+
     logger = logging.getLogger("distilabel.distiset")
-    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 
     data_dir = Path(data_dir)
 
