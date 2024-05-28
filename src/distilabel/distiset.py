@@ -27,7 +27,6 @@ from huggingface_hub import DatasetCardData, HfApi
 from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
-from upath import UPath
 
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
@@ -330,57 +329,55 @@ class Distiset(dict):
         distiset_path: PathLike,
         keep_in_memory: Optional[bool] = None,
         storage_options: Optional[Dict[str, Any]] = None,
+        download_dir: Optional[PathLike] = None,
     ) -> Self:
         """Loads a dataset that was previously saved using `Distiset.save_to_disk` from a dataset
         directory, or from a filesystem using any implementation of `fsspec.spec.AbstractFileSystem`.
 
         Args:
-            distiset_path (PathLike): Path ("dataset/train") or remote URI ("s3://bucket/dataset/train").
+            distiset_path: Path ("dataset/train") or remote URI ("s3://bucket/dataset/train").
             keep_in_memory: Whether to copy the dataset in-memory, see `datasets.Dataset.load_from_disk``
                 for more information. Defaults to None.
             storage_options: Key/value pairs to be passed on to the file-system backend, if any.
                 Defaults to None.
+            download_dir: Optional directory to download the dataset to. Defaults to None,
+                in which case it will create a temporary directory.
 
         Returns:
             A `Distiset` loaded from disk, it should be a `Distiset` object created using `Distiset.save_to_disk`.
         """
-        original_distiset_path = UPath(distiset_path)
+        original_distiset_path = str(distiset_path)
 
         fs: fsspec.AbstractFileSystem
         fs, _, [distiset_path] = fsspec.get_fs_token_paths(
-            str(original_distiset_path), storage_options=storage_options
+            original_distiset_path, storage_options=storage_options
         )
         dest_distiset_path = distiset_path
 
         assert fs.isdir(
-            str(original_distiset_path)
+            original_distiset_path
         ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
 
         has_config = False
         distiset = cls()
-        for folder in fs.ls(distiset_path):
-            folder = UPath(folder)
-            if folder.stem == DISTISET_CONFIG_FOLDER:
-                has_config = True
-                continue
-            # given that load_from_disk deals with it's own fsspec abstraction,
-            # here we are losing the prefix of the path (s3://, gs://, etc.),
-            # and we need to prepend it if we don't have it.
-            dataset_path = (
-                f"{folder.protocol}://{folder.path}" if folder.protocol else str(folder)
-            )
-            distiset[folder.stem] = load_from_disk(
-                dataset_path,
-                keep_in_memory=keep_in_memory,
-                storage_options=storage_options,
-            )
 
         if is_remote_filesystem(fs):
             src_dataset_path = distiset_path
-            # NOTE: Should we recreate the function internally to avoid using a private method?
-            dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)
+            if download_dir:
+                dest_distiset_path = download_dir
+            else:
+                dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)
             fs.download(src_dataset_path, dest_distiset_path.as_posix(), recursive=True)
 
+        # Now we should have the distiset locally, so we can read those files
+        for folder in Path(dest_distiset_path).iterdir():
+            if folder.stem == DISTISET_CONFIG_FOLDER:
+                has_config = True
+                continue
+            distiset[folder.stem] = load_from_disk(
+                folder,
+                keep_in_memory=keep_in_memory,
+            )
         # From the config folder we just need to point to the files. Once downloaded we set the path
         # to wherever they are.
         if has_config:
@@ -391,13 +388,13 @@ class Distiset(dict):
             pipeline_path = posixpath.join(
                 distiset_config_folder, PIPELINE_CONFIG_FILENAME
             )
-            if fs.isfile(pipeline_path):
+            if Path(pipeline_path).exists():
                 distiset.pipeline_path = Path(pipeline_path)
 
             log_filename_path = posixpath.join(
                 distiset_config_folder, PIPELINE_LOG_FILENAME
             )
-            if fs.isfile(log_filename_path):
+            if Path(log_filename_path).exists():
                 distiset.log_filename_path = Path(log_filename_path)
 
         return distiset
