@@ -27,6 +27,7 @@ from huggingface_hub import DatasetCardData, HfApi
 from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
+from upath import UPath
 
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
@@ -343,33 +344,39 @@ class Distiset(dict):
         Returns:
             A `Distiset` loaded from disk, it should be a `Distiset` object created using `Distiset.save_to_disk`.
         """
-        distiset_path = str(distiset_path)
+        original_distiset_path = UPath(distiset_path)
+
         fs: fsspec.AbstractFileSystem
         fs, _, [distiset_path] = fsspec.get_fs_token_paths(
-            distiset_path, storage_options=storage_options
+            str(original_distiset_path), storage_options=storage_options
         )
         dest_distiset_path = distiset_path
 
         assert fs.isdir(
-            dest_distiset_path
+            str(original_distiset_path)
         ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
 
         has_config = False
         distiset = cls()
-        for folder in fs.ls(dest_distiset_path):
-            folder = Path(folder)
+        for folder in fs.ls(distiset_path):
+            folder = UPath(folder)
             if folder.stem == DISTISET_CONFIG_FOLDER:
                 has_config = True
                 continue
-
+            # given that load_from_disk deals with it's own fsspec abstraction,
+            # here we are losing the prefix of the path (s3://, gs://, etc.),
+            # and we need to prepend it if we don't have it.
+            dataset_path = (
+                f"{folder.protocol}://{folder.path}" if folder.protocol else str(folder)
+            )
             distiset[folder.stem] = load_from_disk(
-                str(folder),
+                dataset_path,
                 keep_in_memory=keep_in_memory,
                 storage_options=storage_options,
             )
 
         if is_remote_filesystem(fs):
-            src_dataset_path = dest_distiset_path
+            src_dataset_path = distiset_path
             # NOTE: Should we recreate the function internally to avoid using a private method?
             dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)
             fs.download(src_dataset_path, dest_distiset_path.as_posix(), recursive=True)

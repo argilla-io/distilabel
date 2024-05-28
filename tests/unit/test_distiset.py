@@ -22,6 +22,7 @@ import pytest
 import yaml
 from datasets import Dataset, DatasetDict
 from distilabel.distiset import Distiset
+from upath import UPath
 
 
 @pytest.fixture(scope="function")
@@ -103,6 +104,7 @@ class TestDistiset:
             assert folder.is_dir()
             assert len(list(folder.iterdir())) == 3
 
+    @pytest.mark.parametrize("pathlib_implementation", [Path, UPath])
     @pytest.mark.parametrize("storage_options", [None, {"test": "option"}])
     @pytest.mark.parametrize("with_config", [False, True])
     def test_load_from_disk(
@@ -110,11 +112,14 @@ class TestDistiset:
         distiset: Distiset,
         with_config: bool,
         storage_options: Optional[Dict[str, Any]],
+        pathlib_implementation: type,
     ) -> None:
         full_distiset = copy.deepcopy(distiset)
         # Distiset with Distiset
         with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "distiset_folder"
+            # This way we can test also we work with UPath, using FilePath protocol, as it should
+            # do the same as S3Path, GCSPath, etc.
+            folder = pathlib_implementation(tmpdirname) / "distiset_folder"
             if with_config:
                 full_distiset = add_config_to_distiset(full_distiset, folder)
             full_distiset.save_to_disk(
@@ -136,7 +141,7 @@ class TestDistiset:
         # Distiset with DatasetDict
         distiset_with_dict = full_distiset.train_test_split(0.8)
         with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "distiset_folder"
+            folder = pathlib_implementation(tmpdirname) / "distiset_folder"
             if with_config:
                 distiset_with_dict = add_config_to_distiset(distiset_with_dict, folder)
 
