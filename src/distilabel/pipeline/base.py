@@ -36,6 +36,7 @@ import fsspec
 import pyarrow as pa
 import pyarrow.parquet as pq
 from typing_extensions import Self
+from upath import UPath
 
 from distilabel import __version__
 from distilabel.distiset import create_distiset
@@ -79,6 +80,7 @@ class _CacheLocation(TypedDict):
     pipeline: Path
     batch_manager: Path
     data: Path
+    batch_input_data: Path
     log_file: Path
 
 
@@ -395,7 +397,9 @@ class BasePipeline(_Serializable):
         """
         if not storage_parameters:
             self._fs = fsspec.filesystem("file")
-            self._storage_base_path = str(self._cache_dir / self.name / "data")
+            self._storage_base_path = (
+                f"file://{self._cache_location['batch_input_data']}"
+            )
             return
 
         if "protocol" not in storage_parameters:
@@ -530,6 +534,7 @@ class BasePipeline(_Serializable):
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
             "data": folder / "data",
+            "batch_input_data": folder / "batch_input_data",
             "log_file": folder / "pipeline.log",
         }
 
@@ -571,6 +576,34 @@ class BasePipeline(_Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
+    def _send_batch_to_step(self, batch: "_Batch") -> None:
+        """Sends a batch to the input queue of a step, writing the data of the batch
+        to the filesystem and setting `batch.data_path` with the path where the data
+        was written (if requiered i.e. the step is a global step or `use_fs_to_pass_data`)
+
+        This method should be extended by the specific pipeline implementation, adding
+        the logic to send the batch to the step.
+
+        Args:
+            batch: The batch to send.
+        """
+        self._logger.debug(
+            f"Setting batch {batch.seq_no} as last batch sent to '{batch.step_name}': {batch}"
+        )
+        self._batch_manager.set_last_batch_sent(batch)  # type: ignore
+
+        step: "_Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+        if step.is_global or self._use_fs_to_pass_data:
+            base_path = UPath(self._storage_base_path) / step.name  # type: ignore
+            self._logger.debug(
+                f"Writing {batch.seq_no} batch for '{batch.step_name}' step to filesystem: {base_path}"
+            )
+            batch.write_batch(self._fs, base_path)  # type: ignore
+
+        self._logger.debug(
+            f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
+        )
+
 
 @dataclass
 class _Batch(_Serializable):
@@ -581,7 +614,8 @@ class _Batch(_Serializable):
         step_name: The name of the step that will process the batch.
         last_batch: A flag to indicate if the batch is the last one.
         data: The data to be processed.
-        data_hash: The hash of the data.
+        data_hash: The hash of the data. Defaults to `None`.
+        data_path: The path where the data of the batch is stored. Defaults to `None`.
         accumulated: A flag to indicate if the batch is accumulated.
         created_from: A dictionary containing the `seq_no` of the batches of the steps that
             were used to create this batch.
@@ -709,6 +743,23 @@ class _Batch(_Serializable):
             A copy of the `_Batch` instance.
         """
         return copy.deepcopy(self)
+
+    def write_batch(self, fs: fsspec.AbstractFileSystem, base_path: UPath) -> None:
+        """Writes the content of the batch to the filesystem.
+
+        Args
+            fs: The `fsspec` filesystem to be used to write the data.
+            base_path: The base path where the data of the batch will be stored.
+        """
+        seq_no_dir = base_path / f"seq_no_{self.seq_no}"
+        seq_no_dir.mkdir(parents=True, exist_ok=True)
+
+        for i, data in enumerate(self.data):
+            table = pa.Table.from_pylist(data)
+            pq.write_table(
+                table,
+                fs.open(seq_no_dir / f"data_index_{i}.parquet", "wb"),
+            )
 
 
 @dataclass

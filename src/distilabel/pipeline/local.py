@@ -83,7 +83,7 @@ class Pipeline(BasePipeline):
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
-        use_fs_to_pass_data: bool = True,
+        use_fs_to_pass_data: bool = False,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -503,14 +503,7 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch to send.
         """
-        self._logger.debug(
-            f"Setting batch {batch.seq_no} as last batch sent to '{batch.step_name}': {batch}"
-        )
-        self._batch_manager.set_last_batch_sent(batch)  # type: ignore
-
-        self._logger.debug(
-            f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
-        )
+        super()._send_batch_to_step(batch)
         input_queue = self.dag.get_step(batch.step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(batch)
 
@@ -563,7 +556,7 @@ class Pipeline(BasePipeline):
         for step_name in self.dag:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = manager.Queue()
-            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)
+            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)  # type: ignore
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
