@@ -247,18 +247,18 @@ class Distiset(dict):
                 (e.g. `dataset/train`) or remote URI (e.g. `s3://my-bucket/dataset/train`)
             max_shard_size: The maximum size of the dataset shards to be uploaded to the hub.
                 If expressed as a string, needs to be digits followed by a unit (like `"50MB"`).
-                Defaults to None.
+                Defaults to `None`.
             num_shards: Number of shards to write. By default the number of shards depends on
-                `max_shard_size` and `num_proc`. Defaults to None.
+                `max_shard_size` and `num_proc`. Defaults to `None`.
             num_proc: Number of processes when downloading and generating the dataset locally.
-                Multiprocessing is disabled by default. Defaults to None.
+                Multiprocessing is disabled by default. Defaults to `None`.
             storage_options: Key/value pairs to be passed on to the file-system backend, if any.
-                Defaults to None.
-            save_card: Whether to save the dataset card. Defaults to True.
+                Defaults to `None`.
+            save_card: Whether to save the dataset card. Defaults to `True`.
             save_pipeline_config: Whether to save the pipeline configuration file (aka the `pipeline.yaml` file).
-                Defaults to True.
+                Defaults to `True`.
             save_pipeline_log: Whether to save the pipeline log file (aka the `pipeline.log` file).
-                Defaults to True.
+                Defaults to `True`.
 
         Examples:
             ```python
