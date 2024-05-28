@@ -107,16 +107,12 @@ class TestDistiset:
     @pytest.mark.parametrize("pathlib_implementation", [Path, UPath])
     @pytest.mark.parametrize("storage_options", [None, {"project": "experiments"}])
     @pytest.mark.parametrize("with_config", [False, True])
-    @pytest.mark.parametrize(
-        "download_dir", [None, Path.home() / "Downloads/test_distiset_download"]
-    )
     def test_load_from_disk(
         self,
         distiset: Distiset,
         with_config: bool,
         storage_options: Optional[Dict[str, Any]],
         pathlib_implementation: type,
-        download_dir: Optional[Path],
     ) -> None:
         full_distiset = copy.deepcopy(distiset)
         # Distiset with Distiset
@@ -136,7 +132,6 @@ class TestDistiset:
             ds = Distiset.load_from_disk(
                 folder,
                 storage_options=storage_options,
-                download_dir=download_dir,
             )
             assert isinstance(ds, Distiset)
             assert isinstance(ds["leaf_step_1"], Dataset)
@@ -154,9 +149,7 @@ class TestDistiset:
                 distiset_with_dict = add_config_to_distiset(distiset_with_dict, folder)
 
             distiset_with_dict.save_to_disk(folder)
-            ds = Distiset.load_from_disk(
-                folder, storage_options=storage_options, download_dir=download_dir
-            )
+            ds = Distiset.load_from_disk(folder, storage_options=storage_options)
 
             assert folder.is_dir()
             assert isinstance(ds["leaf_step_1"], DatasetDict)
