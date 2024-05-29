@@ -16,7 +16,7 @@ import asyncio
 import os
 import random
 import warnings
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from pydantic import (
     Field,
@@ -336,6 +336,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
+        grammar: Optional[Dict[str, Any]] = None,
     ) -> "GenerateOutput":
         """Generates completions for the given input using the OpenAI async client.
 
@@ -364,6 +365,9 @@ class InferenceEndpointsLLM(AsyncLLM):
                 returned.
             seed: the seed to use for the generation. Defaults to `None`.
             watermark: whether to add the watermark to the generated text. Defaults to `None`.
+            grammar: whether to use the grammar model for the generation. Defaults to `None`,
+                if provided, it needs to be a Python dictionary with the keys `type` and `value`;
+                and `type` can either be `regex` or `json`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -413,6 +417,7 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
+                grammar=grammar,
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),
