@@ -62,14 +62,10 @@ class TextGeneration(Task):
         is the first interaction from the user within a conversation."""
 
         if is_openai_format(input["instruction"]):
-            warnings.warn(
+            raise ValueError(
                 "Providing `instruction` formatted as an OpenAI chat / conversation is"
-                " about to be deprecated in `distilabel v1.2.0`, please make sure to use"
-                " `ChatTextGeneration` with `messages` as input instead.",
-                DeprecationWarning,
-                stacklevel=2,
+                " deprecated, you should use `ChatGeneration` with `messages` as input instead.",
             )
-            return input["instruction"]
 
         if not isinstance(input["instruction"], str):
             raise ValueError(
