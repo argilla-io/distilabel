@@ -23,7 +23,7 @@ from distilabel.steps.typing import StepOutput
 
 class ArenaHard(Task):
     """This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
-    Arena-Hard Pipeline" paper, which presents Arena Hard which is a benchmark for
+    Arena-Hard Pipeline" paper that presents Arena Hard, which is a benchmark for
     instruction-tuned LLMs that contains 500 challenging user queries. GPT-4 is used
     as the judge to compare the model responses against a baseline model, which defaults
     to `gpt-4-0314`.
@@ -106,7 +106,7 @@ class ArenaHard(Task):
 
 class ArenaHardResults(GlobalStep):
     """This `Step` is based on the "From Live Data to High-Quality Benchmarks: The
-    Arena-Hard Pipeline" paper, which presents Arena Hard which is a benchmark for
+    Arena-Hard Pipeline" paper that presents Arena Hard, which is a benchmark for
     instruction-tuned LLMs that contains 500 challenging user queries. This step is
     a `GlobalStep` that should run right after the `ArenaHard` task to calculate the
     ELO scores for the evaluated models.
