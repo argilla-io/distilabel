@@ -593,12 +593,12 @@ class BasePipeline(_Serializable):
         self._batch_manager.set_last_batch_sent(batch)  # type: ignore
 
         step: "_Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
-        if step.is_global or self._use_fs_to_pass_data:
+        if not step.is_generator and (step.is_global or self._use_fs_to_pass_data):
             base_path = UPath(self._storage_base_path) / step.name  # type: ignore
             self._logger.debug(
                 f"Writing {batch.seq_no} batch for '{batch.step_name}' step to filesystem: {base_path}"
             )
-            batch.write_batch(self._fs, base_path)  # type: ignore
+            batch.write_batch_data_to_fs(self._fs, base_path)  # type: ignore
 
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
@@ -632,6 +632,7 @@ class _Batch(_Serializable):
     created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
     batch_routed_to: List[str] = field(default_factory=list)
     size: int = 0
+    _fs: Optional[fsspec.AbstractFileSystem] = None
 
     def next_batch(self) -> "_Batch":
         """Create a new `_Batch` instance with the next batch of data.
@@ -744,22 +745,72 @@ class _Batch(_Serializable):
         """
         return copy.deepcopy(self)
 
-    def write_batch(self, fs: fsspec.AbstractFileSystem, base_path: UPath) -> None:
+    def write_batch_data_to_fs(
+        self,
+        fs: Optional[fsspec.AbstractFileSystem] = None,
+        base_path: Optional[UPath] = None,
+    ) -> None:
         """Writes the content of the batch to the filesystem.
 
         Args
-            fs: The `fsspec` filesystem to be used to write the data.
-            base_path: The base path where the data of the batch will be stored.
+            fs: The `fsspec` filesystem to be used to write the data. If not provided, the
+                one set in the `_fs` attribute will be used. Defaults to `None`.
+            base_path: The base path where the data of the batch will be stored. If not
+                provided, the one set in the `data_path` attribute will be used. Defaults
+                to `None`.
+
+        Raises:
+            ValueError: If `fs` is not provided and the `_fs` attribute is not set.
         """
-        seq_no_dir = base_path / f"seq_no_{self.seq_no}"
+
+        if not fs and not self._fs:
+            raise ValueError(
+                "The `fs` parameter must be provided if the `_fs` attribute is not set."
+            )
+
+        if fs:
+            self._fs = fs
+
+        if not base_path and not self.data_path:
+            raise ValueError(
+                "The `base_path` parameter must be provided if the `data_path` attribute"
+                " is not set."
+            )
+
+        seq_no_dir = (
+            base_path / f"seq_no_{self.seq_no}" if base_path else UPath(self.data_path)
+        )
+        seq_no_dir._fs_cached = self._fs  # type: ignore
         seq_no_dir.mkdir(parents=True, exist_ok=True)
 
         for i, data in enumerate(self.data):
             table = pa.Table.from_pylist(data)
-            pq.write_table(
-                table,
-                fs.open(seq_no_dir / f"data_index_{i}.parquet", "wb"),
+            with self._fs.open(seq_no_dir / f"data_index_{i}.parquet", "wb") as f:  # type: ignore
+                pq.write_table(table, f)
+
+        self.data = []
+        self.data_path = str(seq_no_dir)
+
+    def read_batch_data_from_fs(self) -> None:
+        """Reads the content of the batch from the filesystem."""
+        if not self.data_path:
+            raise ValueError(
+                "`data_path` attribute must be set to read the data from the filesystem."
+                " Use `write_batch_data_to_fs` method to set the `data_path` attribute."
             )
+
+        if not self._fs:
+            raise ValueError(
+                "`_fs` attribute must be set to read the data from the filesystem."
+                " Use `write_batch_data_to_fs` method to set the `_fs` attribute."
+            )
+
+        for file in self._fs.ls(self.data_path):
+            with self._fs.open(file, "rb") as f:
+                table = pq.read_table(f)
+                self.data.append(table.to_pylist())
+
+        self._fs.rm(self.data_path, recursive=True)
 
 
 @dataclass

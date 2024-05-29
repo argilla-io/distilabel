@@ -191,6 +191,17 @@ class Pipeline(BasePipeline):
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
+            self._logger.debug(
+                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
+                f" from output queue: {batch}"
+            )
+
+            if batch.data_path:
+                self._logger.debug(
+                    f"Reading {batch.seq_no} batch data from '{batch.step_name}': '{batch.data_path}'"
+                )
+                batch.read_batch_data_from_fs()
+
             if batch.step_name in self.dag.leaf_steps:
                 self._write_buffer.add_batch(batch)  # type: ignore
 
@@ -201,11 +212,6 @@ class Pipeline(BasePipeline):
             if _STOP_CALLED:
                 self._handle_batch_on_stop(batch)
                 break
-
-            self._logger.debug(
-                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
-                f" from output queue: {batch}"
-            )
 
             self._manage_batch_flow(batch)
 
@@ -597,20 +603,21 @@ class Pipeline(BasePipeline):
             with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
             _SUBPROCESS_EXCEPTION = e.subprocess_exception
-            _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(
+            _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(  # type: ignore
                 e.formatted_traceback
             ).as_traceback()
             return
 
         # If the step is global, is not in the last trophic level and has no successors,
         # then we can ignore the error and continue executing the pipeline
+        step_name: str = e.step.name  # type: ignore
         if (
             e.step.is_global
-            and not self.dag.step_in_last_trophic_level(e.step.name)
-            and list(self.dag.get_step_successors(e.step.name)) == []
+            and not self.dag.step_in_last_trophic_level(step_name)
+            and list(self.dag.get_step_successors(step_name)) == []
         ):
             self._logger.error(
-                f"✋ An error occurred when running global step '{e.step.name}' with no"
+                f"✋ An error occurred when running global step '{step_name}' with no"
                 " successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored."
             )
@@ -618,7 +625,7 @@ class Pipeline(BasePipeline):
             return
 
         # Global step with successors failed
-        self._logger.error(f"An error occurred in global step '{e.step.name}'")
+        self._logger.error(f"An error occurred in global step '{step_name}'")
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
         self._cache()
         self._stop()
@@ -932,6 +939,11 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
+
+            if batch.data_path is not None:
+                self.step._logger.debug(f"Reading batch data from '{batch.data_path}'")
+                batch.read_batch_data_from_fs()
+
             result = []
             try:
                 if self.step.has_multiple_inputs:
@@ -943,11 +955,7 @@ class _ProcessWrapper:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
                 # Impute step outputs columns with `None`
-                for row in batch.data[0]:
-                    data = row.copy()
-                    for output in self.step.outputs:
-                        data[output] = None
-                    result.append(data)
+                result = self._impute_step_outputs(batch)
 
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
@@ -965,8 +973,26 @@ class _ProcessWrapper:
             if batch.last_batch:
                 break
 
+    def _impute_step_outputs(self, batch: "_Batch") -> List[Dict[str, Any]]:
+        """Imputes the step outputs columns with `None` in the batch data.
+
+        Args:
+            batch: The batch to impute.
+        """
+        result = []
+        for row in batch.data[0]:
+            data = row.copy()
+            for output in self.step.outputs:
+                data[output] = None
+            result.append(data)
+        return result
+
     def _send_batch(self, batch: _Batch) -> None:
         """Sends a batch to the `output_queue`."""
+        if batch.data_path is not None:
+            self.step._logger.debug(f"Writing batch data to '{batch.data_path}'")
+            batch.write_batch_data_to_fs()
+
         self.step._logger.info(
             f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
         )
