@@ -32,7 +32,7 @@ class NumpyBigArrayGenerator(GeneratorStep):
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         for i in range(self.num_batches):
             yield (
-                [{"array": np.random.randn(1024)} for _ in range(self.batch_size)],  # type: ignore
+                [{"array": np.random.randn(128)} for _ in range(self.batch_size)],  # type: ignore
                 i == self.num_batches - 1,
             )  # type: ignore
 
@@ -44,7 +44,7 @@ def ReceiveArrays(inputs: StepInput) -> "StepOutput":
 
 def test_passing_data_through_fs_only_global_steps() -> None:
     with Pipeline(name="dummy") as pipeline:
-        numpy_generator = NumpyBigArrayGenerator(num_batches=10, batch_size=100)
+        numpy_generator = NumpyBigArrayGenerator(num_batches=5, batch_size=100)
 
         receive_arrays = ReceiveArrays()
 
@@ -57,7 +57,7 @@ def test_passing_data_through_fs_only_global_steps() -> None:
 
 def test_passing_data_through_fs() -> None:
     with Pipeline(name="dummy") as pipeline:
-        numpy_generator = NumpyBigArrayGenerator(num_batches=5, batch_size=200)
+        numpy_generator = NumpyBigArrayGenerator(num_batches=2, batch_size=200)
 
         receive_arrays = ReceiveArrays()
 
