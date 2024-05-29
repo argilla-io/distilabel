@@ -44,13 +44,13 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           pip install uv
-          uv pip install --system --resolution lowest --editable ".[dev,tests,anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,outlines,vertexai,vllm]"
+          uv pip install --system --resolution lowest-direct --editable ".[dev,tests,anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,outlines,vertexai,vllm]"
 
           python_version=$(python -c "import sys; print(sys.version_info[:2])")
           if [ "${python_version}" != "(3, 8)" ]; then
-            uv pip install --system  --resolution lowest --editable ".[mistralai,instructor]"
+            uv pip install --system  --resolution lowest-direct --editable ".[mistralai,instructor]"
           fi;
-          # Here we don't use the `--resolution=lowest` flag because we had issues
+          # Here we don't use the `--resolution=lowest-direct` flag because we had issues
           # in the past with LLM-Blender, that's why we're also using a custom fork
           uv pip install --system git+https://github.com/argilla-io/LLM-Blender.git
 
