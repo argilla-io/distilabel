@@ -83,7 +83,6 @@ def setup_logging(
         log_level = "INFO"
 
     root_logger = logging.getLogger()
-    root_logger.handlers.clear()
     root_logger.setLevel(log_level)
 
     if log_queue is not None:

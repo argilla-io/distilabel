@@ -147,7 +147,7 @@ class BasePipeline(_Serializable):
         self,
         name: str,
         description: Optional[str] = None,
-        cache_dir: Optional["PathLike"] = None,
+        cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
     ) -> None:
         """Initialize the `BasePipeline` instance.
@@ -177,7 +177,9 @@ class BasePipeline(_Serializable):
 
         self._batch_manager: Optional["_BatchManager"] = None
         self._write_buffer: Optional["_WriteBuffer"] = None
-        self._logging_parameters: Dict[str, Any] = {}
+        self._logging_parameters: Dict[str, Any] = {
+            "filename": self._cache_location["log_file"]
+        }
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
@@ -298,7 +300,7 @@ class BasePipeline(_Serializable):
         setup_logging(**self._logging_parameters)
 
         # Load the `_BatchManager` from cache or create one from scratch
-        self._batch_manager = self._load_batch_manager(use_cache)
+        self._load_batch_manager(use_cache)
 
         # Set the runtime parameters that will be used during the pipeline execution
         self._set_runtime_parameters(parameters or {})
@@ -551,22 +553,18 @@ class BasePipeline(_Serializable):
             self._batch_manager.cache(self._cache_location["batch_manager"])
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
-    def _load_batch_manager(self, use_cache: bool = True) -> "_BatchManager":
+    def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
         it will create one from scratch.
-
-        Args:
-            use_cache: Whether to use the cache to load the `_BatchManager`. Defaults to
-                `True`.
         """
         batch_manager_cache_loc = self._cache_location["batch_manager"]
         if use_cache and batch_manager_cache_loc.exists():
             self._logger.info(
                 f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
             )
-            return _BatchManager.load_from_cache(batch_manager_cache_loc)
-
-        return _BatchManager.from_dag(self.dag)
+            self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
+        else:
+            self._batch_manager = _BatchManager.from_dag(self.dag)
 
     def _setup_write_buffer(self) -> None:
         """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
