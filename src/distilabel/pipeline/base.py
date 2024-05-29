@@ -43,6 +43,7 @@ from distilabel.pipeline.constants import (
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.utils.dicts import flatten_dict
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
@@ -1484,7 +1485,8 @@ class _WriteBuffer:
             )
             step_parquet_dir.mkdir()
 
-        table = pa.Table.from_pylist(self._buffers[step_name])
+        flattened_buffers = [flatten_dict(buf) for buf in self._buffers[step_name]]
+        table = pa.Table.from_pylist(flattened_buffers)
 
         last_schema = self._buffer_last_schema.get(step_name)
         if last_schema is None:
