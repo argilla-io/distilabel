@@ -59,6 +59,8 @@ class AnthropicLLM(AsyncLLM):
             to `6`.
         http_client: if provided, an alternative HTTP client to use for calling Anthropic
             API. Defaults to `None`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. Defaults to None.
         _api_key_env_var: the name of the environment variable to use for the API key. It
             is meant to be used internally.
         _aclient: the `AsyncAnthropic` client to use for the Anthropic API. It is meant
@@ -143,6 +145,15 @@ class AnthropicLLM(AsyncLLM):
             http_client=self.http_client,
             max_retries=self.max_retries,
         )
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="anthropic",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
 
     @property
     def model_name(self) -> str:
@@ -174,22 +185,32 @@ class AnthropicLLM(AsyncLLM):
         """
         from anthropic._types import NOT_GIVEN
 
-        completion = await self._aclient.messages.create(  # type: ignore
-            model=self.model,
-            system=(
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "system": (
                 input.pop(0)["content"]
                 if input and input[0]["role"] == "system"
                 else NOT_GIVEN
             ),
-            messages=input,  # type: ignore
-            max_tokens=max_tokens,
-            stream=False,
-            stop_sequences=NOT_GIVEN if stop_sequences is None else stop_sequences,
-            temperature=temperature,
-            top_p=NOT_GIVEN if top_p is None else top_p,
-            top_k=NOT_GIVEN if top_k is None else top_k,
-        )
+            "max_tokens": max_tokens,
+            "stream": False,
+            "stop_sequences": NOT_GIVEN if stop_sequences is None else stop_sequences,
+            "temperature": temperature,
+            "top_p": NOT_GIVEN if top_p is None else top_p,
+            "top_k": NOT_GIVEN if top_k is None else top_k,
+        }
+
+        if self.structured_output:
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+
         generations = []
+
+        completion = await self._aclient.messages.create(**kwargs)  # type: ignore
+        if self.structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         if (content := completion.content[0].text) is None:
             self._logger.warning(
                 f"Received no response using Anthropic client (model: '{self.model}')."

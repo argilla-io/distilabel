@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
     from distilabel.llms.typing import GenerateOutput
 
+
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
 
 
@@ -54,6 +55,9 @@ class CohereLLM(AsyncLLM):
             to `120`.
         client_name: the name of the client to use for the API requests. Defaults to
             `"distilabel"`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _ChatMessage: the `ChatMessage` class from the `cohere` package.
         _aclient: the `AsyncClient` client from the `cohere` package.
 
@@ -116,6 +120,16 @@ class CohereLLM(AsyncLLM):
             base_url=self.base_url,
             timeout=self.timeout,
         )
+
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="cohere",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
 
     def _format_chat_to_cohere(
         self, input: "ChatType"
@@ -192,21 +206,28 @@ class CohereLLM(AsyncLLM):
         """
         system, chat_history, message = self._format_chat_to_cohere(input)
 
-        response = await self._aclient.chat(  # type: ignore
-            message=message,
-            model=self.model,
-            preamble=system,
-            chat_history=chat_history,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            k=k,
-            p=p,
-            seed=seed,
-            stop_sequences=stop_sequences,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            raw_prompting=raw_prompting,
-        )
+        kwargs = {
+            "message": message,
+            "model": self.model,
+            "preamble": system,
+            "chat_history": chat_history,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "k": k,
+            "p": p,
+            "seed": seed,
+            "stop_sequences": stop_sequences,
+            "frequency_penalty": frequency_penalty,
+            "presence_penalty": presence_penalty,
+            "raw_prompting": raw_prompting,
+        }
+        if self.structured_output:
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+
+        response = await self._aclient.chat(**kwargs)  # type: ignore
+
+        if self.structured_output:
+            return response.model_dump_json()
 
         if (text := response.text) == "":
             self._logger.warning(

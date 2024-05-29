@@ -13,9 +13,13 @@
 # limitations under the License.
 
 import os
+from typing import Any, Dict
 from unittest import mock
 
+import pytest
 from distilabel.llms.azure import AzureOpenAILLM
+
+from .utils import DummyUserDetail
 
 
 class TestAzureOpenAILLM:
@@ -56,20 +60,70 @@ class TestAzureOpenAILLM:
             assert llm.api_key.get_secret_value() == "another.api.key"  # type: ignore
             assert llm.api_version == self.api_version
 
-    def test_serialization(self) -> None:
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "model": "gpt-4",
+                    "api_version": "preview",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "base_url": "https://example-resource.azure.openai.com/",
+                    "timeout": 120,
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.azure",
+                        "name": "AzureOpenAILLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "mode": "tool_call",
+                    "max_retries": 1,
+                },
+                {
+                    "model": "gpt-4",
+                    "api_version": "preview",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "base_url": "https://example-resource.azure.openai.com/",
+                    "timeout": 120,
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "mode": "tool_call",
+                        "max_retries": 1,
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.azure",
+                        "name": "AzureOpenAILLM",
+                    },
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
         llm = AzureOpenAILLM(
-            model=self.model_id, base_url=self.base_url, api_version=self.api_version
+            model=self.model_id,
+            base_url=self.base_url,
+            api_version=self.api_version,
+            structured_output=structured_output,
         )
 
-        _dump = {
-            "generation_kwargs": {},
-            "model": "gpt-4",
-            "base_url": "https://example-resource.azure.openai.com/",
-            "max_retries": 6,
-            "timeout": 120,
-            "api_version": "preview",
-            "structured_output": None,
-            "type_info": {"module": "distilabel.llms.azure", "name": "AzureOpenAILLM"},
-        }
-        assert llm.dump() == _dump
-        assert isinstance(AzureOpenAILLM.from_dict(_dump), AzureOpenAILLM)
+        # _dump = {
+        #     "generation_kwargs": {},
+        #     "model": "gpt-4",
+        #     "base_url": "https://example-resource.azure.openai.com/",
+        #     "max_retries": 6,
+        #     "timeout": 120,
+        #     "api_version": "preview",
+        #     "structured_output": None,
+        #     "type_info": {"module": "distilabel.llms.azure", "name": "AzureOpenAILLM"},
+        # }
+        assert llm.dump() == dump
+        assert isinstance(AzureOpenAILLM.from_dict(dump), AzureOpenAILLM)
