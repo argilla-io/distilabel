@@ -905,6 +905,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#save-and-load-from-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Save and load from disk
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2252,6 +2261,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#save-and-load-from-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      Save and load from disk
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2350,9 +2368,25 @@
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">),</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">)</span>
 </span></code></pre></div>
+<h3 id="save-and-load-from-disk">Save and load from disk<a class="headerlink" href="#save-and-load-from-disk" title="Permanent link">&para;</a></h3>
+<p>Saves the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> to disk, and optionally (will be done by default) saves the dataset card, the pipeline config file and logs:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;my-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">save_card</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">save_pipeline_config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">save_pipeline_log</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>And load a <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> that was saved using <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset.save_to_disk"><code>Distiset.save_to_disk</code></a> from disk just the same way:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.distiset</span> <span class="kn">import</span> <span class="n">Distiset</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">Distiset</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s2">&quot;my-dataset&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Take into account that these methods pass work as <code>datasets.load_from_disk</code> and <code>datasets.Dataset.save_to_disk</code> so the arguments are directly passed to those methods. This means you can also make use of <code>storage_options</code> argument to save your <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> in your cloud provider, including the distilabel artifacts (<code>pipeline.yaml</code>, <code>pipeline.log</code> and the <code>README.md</code> with the dataset card), you can read more in <code>datasets</code> documentation <a href="https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets">here</a>.</p>
+<p>Take a look at the remaining arguments at <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset.save_to_disk"><code>Distiset.save_to_disk</code></a>.</p>
 <h2 id="dataset-card">Dataset card<a class="headerlink" href="#dataset-card" title="Permanent link">&para;</a></h2>
 <p>Having this special type of dataset comes with an added advantage when calling <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/distiset/#distilabel.distiset.Distiset"><code>Distiset.push_to_hub</code></a>, which is the automatically generated dataset card in the Hugging Face Hub. Note that it is enabled by default, but can be disabled by setting <code>generate_card=False</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;my-org/my-dataset&quot;</span><span class="p">,</span> <span class="n">generate_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;my-org/my-dataset&quot;</span><span class="p">,</span> <span class="n">generate_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></code></pre></div>
 <p>We will have an automatic dataset card (an example can be seen <a href="https://huggingface.co/datasets/distilabel-internal-testing/deita">here</a>) with some handy information like reproducing the <a class="autorefs autorefs-internal" href="../../../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> with the <code>CLI</code>, or examples of the records from the different subsets.</p>
 <h2 id="create_distiset-helper">create_distiset helper<a class="headerlink" href="#create_distiset-helper" title="Permanent link">&para;</a></h2>
