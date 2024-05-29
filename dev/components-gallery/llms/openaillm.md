@@ -21,7 +21,7 @@ OpenAI LLM implementation running the async API client.
 
 - **timeout**: the maximum time in seconds to wait for a response from the API. Defaults  to `120`.
 
-- **structured_output**: a dictionary containing the structured output configuration or if more  fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
+- **structured_output**: a dictionary containing the structured output configuration configuration  using `instructor`. You can take a look at the dictionary structure in  `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
 
 
 

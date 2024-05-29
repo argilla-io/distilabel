@@ -21,6 +21,8 @@ Groq API implementation using the async client for concurrent text generation.
 
 - **timeout**: the maximum time in seconds to wait for a response from the API. Defaults  to `120`.
 
+- **structured_output**: a dictionary containing the structured output configuration configuration  using `instructor`. You can take a look at the dictionary structure in  `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
+
 - **_api_key_env_var**: the name of the environment variable to use for the API key.
 
 - **_aclient**: the `AsyncGroq` client from the `groq` package.

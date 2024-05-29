@@ -21,6 +21,8 @@ Cohere API implementation using the async client for concurrent text generation.
 
 - **client_name**: the name of the client to use for the API requests. Defaults to  `"distilabel"`.
 
+- **structured_output**: a dictionary containing the structured output configuration configuration  using `instructor`. You can take a look at the dictionary structure in  `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
+
 - **_ChatMessage**: the `ChatMessage` class from the `cohere` package.
 
 - **_aclient**: the `AsyncClient` client from the `cohere` package.
