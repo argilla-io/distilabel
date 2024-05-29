@@ -16,7 +16,7 @@ import asyncio
 import os
 import random
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
     Field,
@@ -31,7 +31,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import DefaultInput, FormattedInput, Grammar
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -147,6 +147,11 @@ class InferenceEndpointsLLM(AsyncLLM):
     tokenizer_id: Optional[str] = None
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
+
+    grammar: Optional[RuntimeParameter[Grammar]] = Field(
+        default=None,
+        description="The grammar to use across all the generations.",
+    )
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
@@ -290,7 +295,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     async def _openai_agenerate(
         self,
-        input: "ChatType",
+        input: "DefaultInput",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -322,7 +327,7 @@ class InferenceEndpointsLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: "FormattedInput",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -336,7 +341,6 @@ class InferenceEndpointsLLM(AsyncLLM):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
-        grammar: Optional[Dict[str, Any]] = None,
     ) -> "GenerateOutput":
         """Generates completions for the given input using the OpenAI async client.
 
@@ -365,9 +369,6 @@ class InferenceEndpointsLLM(AsyncLLM):
                 returned.
             seed: the seed to use for the generation. Defaults to `None`.
             watermark: whether to add the watermark to the generated text. Defaults to `None`.
-            grammar: whether to use the grammar model for the generation. Defaults to `None`,
-                if provided, it needs to be a Python dictionary with the keys `type` and `value`;
-                and `type` can either be `regex` or `json`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -382,6 +383,10 @@ class InferenceEndpointsLLM(AsyncLLM):
                     stacklevel=2,
                 )
                 stop_sequences = stop_sequences[:4]
+
+        grammar = None
+        if isinstance(input, tuple):
+            input, grammar = input
 
         if self.use_openai_client:
             return await self._openai_agenerate(
@@ -417,7 +422,9 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
-                grammar=grammar,
+                # NOTE: `self.grammar` applies to all the generations, while `grammar` is intended
+                # to be different per each input, and those are not intended to be used together
+                grammar=grammar or self.grammar,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),
@@ -434,7 +441,7 @@ class InferenceEndpointsLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -443,7 +450,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["FormattedInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

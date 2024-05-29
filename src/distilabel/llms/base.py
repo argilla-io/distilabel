@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.tasks.typing import DefaultInput, FormattedInput
     from distilabel.utils.docstring import Docstring
 
 if in_notebook():
@@ -91,7 +91,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     @abstractmethod
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -184,7 +184,9 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """
         return parse_google_docstring(self.generate)
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
+    def get_last_hidden_states(
+        self, inputs: List["DefaultInput"]
+    ) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
 
         Args:
@@ -261,7 +263,7 @@ class AsyncLLM(LLM):
 
     @abstractmethod
     async def agenerate(
-        self, input: "ChatType", num_generations: int = 1, **kwargs: Any
+        self, input: "FormattedInput", num_generations: int = 1, **kwargs: Any
     ) -> List[Union[str, None]]:
         """Method to generate a `num_generations` responses for a given input asynchronously,
         and executed concurrently in `generate` method.
@@ -270,7 +272,7 @@ class AsyncLLM(LLM):
 
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -279,7 +281,7 @@ class AsyncLLM(LLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["FormattedInput"], **kwargs: Any
         ) -> List[List[Union[str, None]]]:
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

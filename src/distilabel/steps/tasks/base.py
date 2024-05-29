@@ -29,7 +29,7 @@ from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.tasks.typing import FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -112,7 +112,7 @@ class _Task(_Step, ABC):
         """
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
-        outputs["model_name"] = self.llm.model_name
+        outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._maybe_add_raw_output(
             outputs, output, add_raw_output=self.add_raw_output
         )
@@ -144,12 +144,12 @@ class Task(_Task, Step):
     """
 
     @abstractmethod
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+    def format_input(self, input: Dict[str, Any]) -> "FormattedInput":
         """Abstract method to format the inputs of the task. It needs to receive an input
         as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
         pass
 
-    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
+    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["FormattedInput"]:
         """Formats the inputs of the task using the `format_input` method.
 
         Args:

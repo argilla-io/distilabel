@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import Any, Dict, List, Literal, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -24,3 +24,13 @@ class ChatItem(TypedDict):
 
 ChatType = List[ChatItem]
 """ChatType is a type alias for a `list` of `dict`s following the OpenAI conversational format."""
+
+
+class Grammar(TypedDict):
+    type: Literal["json", "regex"]
+    value: Union[str, Dict[str, Any]]
+
+
+DefaultInput = ChatType
+StructuredInput = Tuple[ChatType, Union[Grammar, None]]
+FormattedInput = Union[DefaultInput, StructuredInput]
