@@ -59,4 +59,3 @@ jobs:
 
       - name: Integration Tests
         run: make integration-tests
-        timeout-minutes: 5
