@@ -13,11 +13,15 @@
 # limitations under the License.
 
 import os
+import sys
+from typing import Any, Dict
 from unittest import mock
 
 import nest_asyncio
 import pytest
 from distilabel.llms.cohere import CohereLLM
+
+from .utils import DummyUserDetail
 
 
 @mock.patch("cohere.AsyncClient")
@@ -64,6 +68,38 @@ class TestCohereLLM:
             ]
         )
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
+    @pytest.mark.asyncio
+    async def test_agenerate_structured(
+        self, mock_async_client: mock.MagicMock
+    ) -> None:
+        llm = CohereLLM(
+            model="command-r",
+            structured_output={
+                "schema": DummyUserDetail,
+                "mode": "tool_call",
+                "max_retries": 1,
+            },
+        )
+        llm._aclient = mock_async_client  # type: ignore
+
+        sample_user = DummyUserDetail(name="John Doe", age=30)
+
+        llm._aclient.chat = mock.AsyncMock(return_value=sample_user)
+
+        generation = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        )
+        assert generation == sample_user.model_dump_json()
+
     @pytest.mark.asyncio
     async def test_generate(self, mock_async_client: mock.MagicMock) -> None:
         llm = CohereLLM(model="command-r")
@@ -92,21 +128,53 @@ class TestCohereLLM:
             ]
         )
 
-    def test_serialization(self, _: mock.MagicMock) -> None:
-        llm = CohereLLM(model="command-r")
-
-        dump = {
-            "model": "command-r",
-            "generation_kwargs": {},
-            "base_url": "https://api.cohere.ai/v1",
-            "timeout": 120,
-            "client_name": "distilabel",
-            "structured_output": None,
-            "type_info": {
-                "module": "distilabel.llms.cohere",
-                "name": "CohereLLM",
-            },
-        }
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "model": "command-r",
+                    "generation_kwargs": {},
+                    "base_url": "https://api.cohere.ai/v1",
+                    "timeout": 120,
+                    "client_name": "distilabel",
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.cohere",
+                        "name": "CohereLLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "mode": "tool_call",
+                    "max_retries": 1,
+                },
+                {
+                    "model": "command-r",
+                    "generation_kwargs": {},
+                    "base_url": "https://api.cohere.ai/v1",
+                    "timeout": 120,
+                    "client_name": "distilabel",
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "mode": "tool_call",
+                        "max_retries": 1,
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.cohere",
+                        "name": "CohereLLM",
+                    },
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, _: mock.MagicMock, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
+        llm = CohereLLM(model="command-r", structured_output=structured_output)
 
         assert llm.dump() == dump
         assert isinstance(CohereLLM.from_dict(dump), CohereLLM)

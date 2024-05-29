@@ -54,6 +54,12 @@ class TestTextGeneration:
         )
 
         with pytest.raises(
+            ValueError,
+            match=r"Providing \`instruction\` formatted as an OpenAI chat / conversation is deprecated",
+        ):
+            task.format_input({"instruction": [{"role": "user", "content": "test"}]})
+
+        with pytest.raises(
             ValueError, match=r"Input \`instruction\` must be a string. Got: 1."
         ):
             task.format_input({"instruction": 1})
@@ -78,23 +84,6 @@ class TestTextGeneration:
                 "model_name": "test",
             }
         ]
-
-    def test_deprecation_warning(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-
-        with pytest.warns(
-            DeprecationWarning,
-            match=r"Providing \`instruction\` formatted as an OpenAI chat \/ conversation is about to be deprecated in \`distilabel v1.2.0\`",
-        ):
-            task.format_input(
-                {
-                    "instruction": [
-                        {"role": "user", "content": "Tell me a joke."},
-                    ]
-                }
-            )
 
 
 class TestChatGeneration:

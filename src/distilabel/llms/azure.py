@@ -14,6 +14,7 @@
 
 import os
 from typing import TYPE_CHECKING, Optional
+from unittest.mock import patch
 
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
@@ -68,7 +69,10 @@ class AzureOpenAILLM(OpenAILLM):
     @override
     def load(self) -> None:
         """Loads the `AsyncAzureOpenAI` client to benefit from async requests."""
-        super().load()
+        # This is a workaround to avoid the `OpenAILLM` calling the _prepare_structured_output
+        # in the load method before we have the proper client.
+        with patch("OpenAILLM._prepare_structured_output", lambda x: x):
+            super().load()
 
         try:
             from openai import AsyncAzureOpenAI
@@ -93,3 +97,6 @@ class AzureOpenAILLM(OpenAILLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
+
+        if self.structured_output:
+            self._prepare_structured_output(self.structured_output)
