@@ -83,17 +83,30 @@ distiset.save_to_disk(
 )
 ```
 
-And load a [`Distiset`][distilabel.distiset.Distiset] that was saved using [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk] from disk just the same way:
+And load a [`Distiset`][distilabel.distiset.Distiset] that was saved using [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk] just the same way:
 
 ```python
 from distilabel.distiset import Distiset
 
-distiset = Distiset.save_to_disk("my-dataset")
+distiset = Distiset.load_from_disk("my-dataset")
 ```
 
-Take into account that these methods pass work as `datasets.load_from_disk` and `datasets.Dataset.save_to_disk` so the arguments are directly passed to those methods. This means you can also make use of `storage_options` argument to save your [`Distiset`][distilabel.distiset.Distiset] in your cloud provider, including the distilabel artifacts (`pipeline.yaml`, `pipeline.log` and the `README.md` with the dataset card), you can read more in `datasets` documentation [here](https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets).
+or from your cloud provider if that's where it was stored:
 
-Take a look at the remaining arguments at [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk].
+```python
+distiset = Distiset.load_from_disk(
+    "s3://path/to/my_dataset",  # gcs:// or any filesystem tolerated by fsspec
+    storage_options={
+        "key": os.environ["S3_ACCESS_KEY"],
+        "secret": os.environ["S3_SECRET_KEY"],
+        ...
+    }
+)
+```
+
+Take into account that these methods work as `datasets.load_from_disk` and `datasets.Dataset.save_to_disk` so the arguments are directly passed to those methods. This means you can also make use of `storage_options` argument to save your [`Distiset`][distilabel.distiset.Distiset] in your cloud provider, including the distilabel artifacts (`pipeline.yaml`, `pipeline.log` and the `README.md` with the dataset card). You can read more in `datasets` documentation [here](https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets).
+
+Take a look at the remaining arguments at [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk] and [`Distiset.load_from_disk`][distilabel.distiset.Distiset.load_from_disk].
 
 ## Dataset card
 
