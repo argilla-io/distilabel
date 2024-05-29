@@ -1322,7 +1322,7 @@ class _BatchManager(_Serializable):
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
 
-            # Store each `_BatchManagerStep` `_Batch`es in a separete file
+            # Store each `_BatchManagerStep` `_Batch`es in a separate file
             for buffered_step_name in step_dump["data"]:
                 step_batches_dir = batch_manager_step_dir / buffered_step_name
                 step_batches_dir.mkdir(parents=True, exist_ok=True)
