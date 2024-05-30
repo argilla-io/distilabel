@@ -14,6 +14,7 @@
 
 import multiprocessing as mp
 import signal
+import sys
 import threading
 import time
 import traceback
@@ -157,6 +158,7 @@ class Pipeline(BasePipeline):
         # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
         # all the processes have finished
         pool.join()
+        manager.join()
 
         self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
@@ -173,7 +175,6 @@ class Pipeline(BasePipeline):
         from the steps. This is done to avoid the signal handler to block the loop, which
         would prevent the pipeline from stopping correctly."""
         thread = threading.Thread(target=self._output_queue_loop)
-        thread.daemon = True
         thread.start()
         thread.join()
 
@@ -680,17 +681,14 @@ class Pipeline(BasePipeline):
                     )
                 elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
-                    import gc
-                    import sys
 
                     if manager:
                         manager.shutdown()
+                        manager.join()
 
                     if pool:
-                        pool.close()
                         pool.terminate()
-
-                    gc.collect()
+                        pool.join()
 
                     sys.exit(1)
 
