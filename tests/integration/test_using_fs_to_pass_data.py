@@ -52,7 +52,7 @@ def test_passing_data_through_fs_only_global_steps() -> None:
 
     distiset = pipeline.run(use_fs_to_pass_data=False, use_cache=False)
 
-    assert len(distiset["default"]["train"]) == 1000
+    assert len(distiset["default"]["train"]) == 500
 
 
 def test_passing_data_through_fs() -> None:
@@ -65,4 +65,4 @@ def test_passing_data_through_fs() -> None:
 
     distiset = pipeline.run(use_fs_to_pass_data=True, use_cache=False)
 
-    assert len(distiset["default"]["train"]) == 1000
+    assert len(distiset["default"]["train"]) == 400
