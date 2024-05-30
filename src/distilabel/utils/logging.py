@@ -83,10 +83,15 @@ def setup_logging(
         log_level = "INFO"
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+
+    running_test = "PYTEST_CURRENT_TEST" in os.environ
+    if not running_test:
+        root_logger.handlers.clear()
 
     if log_queue is not None:
         root_logger.addHandler(QueueHandler(log_queue))
+
+    root_logger.setLevel(log_level)
 
 
 def stop_logging() -> None:
