@@ -99,4 +99,5 @@ def stop_logging() -> None:
     global queue_listener
     if queue_listener is not None:
         queue_listener.stop()
+        queue_listener.queue.close()
         queue_listener = None
