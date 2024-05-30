@@ -173,6 +173,7 @@ class Pipeline(BasePipeline):
         from the steps. This is done to avoid the signal handler to block the loop, which
         would prevent the pipeline from stopping correctly."""
         thread = threading.Thread(target=self._output_queue_loop)
+        thread.daemon = True
         thread.start()
         thread.join()
 
