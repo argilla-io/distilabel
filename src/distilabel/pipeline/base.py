@@ -299,15 +299,15 @@ class BasePipeline(_Serializable):
 
         setup_logging(**self._logging_parameters)
 
-        # Load the `_BatchManager` from cache or create one from scratch
-        self._load_batch_manager(use_cache)
-
         # Set the runtime parameters that will be used during the pipeline execution
         self._set_runtime_parameters(parameters or {})
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
+
+        # Load the `_BatchManager` from cache or create one from scratch
+        self._load_batch_manager(use_cache)
 
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
