@@ -16,4 +16,4 @@ unit-tests:
 
 .PHONY: integration-tests
 integration-tests:
-	pytest tests/integration
+	pytest tests/integration -ss
