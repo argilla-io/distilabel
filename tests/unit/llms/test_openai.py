@@ -13,12 +13,16 @@
 # limitations under the License.
 
 import os
+import sys
+from typing import Any, Dict
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.openai import OpenAILLM
+
+from .utils import DummyUserDetail
 
 
 @patch("openai.AsyncOpenAI")
@@ -64,6 +68,37 @@ class TestOpenAILLM:
         )
 
     @pytest.mark.asyncio
+    async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
+        llm = OpenAILLM(
+            model=self.model_id,
+            api_key="api.key",
+            structured_output={
+                "schema": DummyUserDetail,
+                "mode": "tool_call",
+                "max_retries": 1,
+            },
+        )  # type: ignore
+        llm._aclient = mock_openai
+
+        sample_user = DummyUserDetail(name="John Doe", age=30)
+
+        llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
+
+        generation = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        )
+        assert generation[0] == sample_user.model_dump_json()
+
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
+    @pytest.mark.asyncio
     async def test_generate(self, mock_openai: MagicMock) -> None:
         llm = OpenAILLM(model=self.model_id, api_key="api.key")  # type: ignore
         llm._aclient = mock_openai
@@ -101,21 +136,53 @@ class TestOpenAILLM:
                 response_format="unkown_format",
             )
 
-    def test_serialization(self, _: MagicMock) -> None:
-        llm = OpenAILLM(model=self.model_id)
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "model": "gpt-4",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "base_url": "https://api.openai.com/v1",
+                    "timeout": 120,
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.openai",
+                        "name": "OpenAILLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "mode": "tool_call",
+                    "max_retries": 1,
+                },
+                {
+                    "model": "gpt-4",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "base_url": "https://api.openai.com/v1",
+                    "timeout": 120,
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "mode": "tool_call",
+                        "max_retries": 1,
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.openai",
+                        "name": "OpenAILLM",
+                    },
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, _: MagicMock, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
+        llm = OpenAILLM(model=self.model_id, structured_output=structured_output)
 
-        _dump = {
-            "model": self.model_id,
-            "generation_kwargs": {},
-            "max_retries": 6,
-            "base_url": "https://api.openai.com/v1",
-            "timeout": 120,
-            "structured_output": None,
-            "type_info": {
-                "module": "distilabel.llms.openai",
-                "name": "OpenAILLM",
-            },
-        }
-
-        assert llm.dump() == _dump
-        assert isinstance(OpenAILLM.from_dict(_dump), OpenAILLM)
+        assert llm.dump() == dump
+        assert isinstance(OpenAILLM.from_dict(dump), OpenAILLM)

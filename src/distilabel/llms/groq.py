@@ -28,6 +28,7 @@ from distilabel.utils.itertools import grouper
 if TYPE_CHECKING:
     from groq import AsyncGroq
 
+
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
 _GROQ_API_KEY_ENV_VAR_NAME = "GROQ_API_KEY"
 
@@ -45,6 +46,9 @@ class GroqLLM(AsyncLLM):
             failing. Defaults to `2`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _api_key_env_var: the name of the environment variable to use for the API key.
         _aclient: the `AsyncGroq` client from the `groq` package.
 
@@ -109,6 +113,16 @@ class GroqLLM(AsyncLLM):
             timeout=self.timeout,
         )
 
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="groq",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
@@ -142,17 +156,25 @@ class GroqLLM(AsyncLLM):
         References:
             - https://console.groq.com/docs/text-chat
         """
-        completion = await self._aclient.chat.completions.create(  # type: ignore
-            messages=input,  # type: ignore
-            model=self.model,
-            seed=seed,  # type: ignore
-            temperature=temperature,
-            max_tokens=max_new_tokens,
-            top_p=top_p,
-            stream=False,
-            stop=stop,
-        )
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "seed": seed,
+            "temperature": temperature,
+            "max_tokens": max_new_tokens,
+            "top_p": top_p,
+            "stream": False,
+            "stop": stop,
+        }
+        if self.structured_output:
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+
         generations = []
+        completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
+        if self.structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
