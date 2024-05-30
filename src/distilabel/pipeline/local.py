@@ -154,8 +154,9 @@ class Pipeline(BasePipeline):
             # Send `None` to steps `input_queue`s just in case some step is still waiting
             self._notify_steps_to_stop()
 
-            pool.close()
-            pool.join()
+        # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
+        # all the processes have finished
+        pool.join()
 
         self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
