@@ -42,7 +42,9 @@ _SILENT_LOGGERS = [
 queue_listener: Union[QueueListener, None] = None
 
 
-def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> None:
+def setup_logging(
+    log_queue: Optional["Queue[Any]"] = None, filename: Optional[str] = None
+) -> None:
     """Sets up logging to use a queue across all processes."""
     global queue_listener
 
@@ -53,7 +55,7 @@ def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> No
 
     # If the current process is the main process, set up a `QueueListener`
     # to handle logs from all subprocesses
-    if mp.current_process().name == "MainProcess":
+    if mp.current_process().name == "MainProcess" and filename:
         formatter = logging.Formatter("['%(name)s'] %(message)s")
         handler = RichHandler(rich_tracebacks=True)
         handler.setFormatter(formatter)
@@ -66,10 +68,11 @@ def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> No
         )
         file_handler.setFormatter(file_formatter)
 
-        queue_listener = QueueListener(
-            log_queue, handler, file_handler, respect_handler_level=True
-        )
-        queue_listener.start()
+        if log_queue is not None:
+            queue_listener = QueueListener(
+                log_queue, handler, file_handler, respect_handler_level=True
+            )
+            queue_listener.start()
 
     log_level = os.environ.get("DISTILABEL_LOG_LEVEL", "INFO").upper()
     if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -80,9 +83,15 @@ def setup_logging(log_queue: "Queue[Any]", filename: Optional[str] = None) -> No
         log_level = "INFO"
 
     root_logger = logging.getLogger()
-    root_logger.handlers.clear()
+
+    running_test = "PYTEST_CURRENT_TEST" in os.environ
+    if not running_test:
+        root_logger.handlers.clear()
+
+    if log_queue is not None:
+        root_logger.addHandler(QueueHandler(log_queue))
+
     root_logger.setLevel(log_level)
-    root_logger.addHandler(QueueHandler(log_queue))
 
 
 def stop_logging() -> None:
@@ -90,4 +99,5 @@ def stop_logging() -> None:
     global queue_listener
     if queue_listener is not None:
         queue_listener.stop()
+        queue_listener.queue.close()
         queue_listener = None
