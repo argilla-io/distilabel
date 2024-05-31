@@ -9,6 +9,12 @@ on:
     types:
       - opened
       - synchronize
+  workflow_dispatch:
+    inputs:
+      tmate_session:
+        description: Starts the workflow with tmate enabled.
+        required: false
+        default: "false"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -51,6 +57,10 @@ jobs:
           fi;
           pip install git+https://github.com/argilla-io/LLM-Blender.git
 
+      - name: Setup tmate session
+        if: ${{ github.event_name == 'workflow_dispatch' && matrix.python-version == '3.11' && github.event.inputs.tmate_session == 'true' }}
+        uses: mxschmitt/action-tmate@v3
+
       - name: Lint
         run: make lint
 
@@ -59,4 +69,3 @@ jobs:
 
       - name: Integration Tests
         run: make integration-tests
-        timeout-minutes: 5
