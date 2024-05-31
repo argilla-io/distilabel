@@ -9,6 +9,12 @@ on:
     types:
       - opened
       - synchronize
+  workflow_dispatch:
+    inputs:
+      tmate_session:
+        description: Starts the workflow with tmate enabled.
+        required: false
+        default: "false"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -19,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
     steps:

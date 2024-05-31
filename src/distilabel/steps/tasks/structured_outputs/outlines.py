@@ -31,6 +31,8 @@ from typing import (
 
 from pydantic import BaseModel
 
+from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
+
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 """Available frameworks for the structured output configuration. """
 
@@ -57,15 +59,6 @@ class StructuredOutputType(TypedDict):
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:
     """Helper function to return a string representation of the schema from a `pydantic.BaseModel` class."""
     return json.dumps(schema.model_json_schema())
-
-
-def _schema_as_dict(schema: Union[str, Type[BaseModel]]) -> Dict[str, Any]:
-    """Helper function to obtain the schema and simplify serialization."""
-    if type(schema) == type(BaseModel):
-        return schema.model_json_schema()
-    elif isinstance(schema, str):
-        return json.loads(schema)
-    return schema
 
 
 def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
@@ -137,7 +130,7 @@ def prepare_guided_output(
                 llm,
                 whitespace_pattern=structured_output.get("whitespace_pattern"),
             ),
-            "schema": _schema_as_dict(schema),
+            "schema": schema_as_dict(schema),
         }
 
     if format == "regex":
