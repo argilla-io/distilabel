@@ -13,11 +13,15 @@
 # limitations under the License.
 
 import os
+import sys
+from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.groq import GroqLLM
+
+from .utils import DummyUserDetail
 
 
 @patch("groq._client.AsyncGroq")
@@ -47,6 +51,37 @@ class TestGroqLLM:
             ]
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
+    @pytest.mark.asyncio
+    async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
+        llm = GroqLLM(
+            model="llama3-70b-8192",
+            api_key="api.key",
+            structured_output={
+                "schema": DummyUserDetail,
+                "mode": "tool_call",
+                "max_retries": 1,
+            },
+        )  # type: ignore
+        llm._aclient = mock_openai
+
+        sample_user = DummyUserDetail(name="John Doe", age=30)
+
+        llm._aclient.chat.completions.create = AsyncMock(return_value=sample_user)
+
+        generation = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        )
+        assert generation[0] == sample_user.model_dump_json()
+
     @pytest.mark.asyncio
     async def test_generate(self, mock_groq: MagicMock) -> None:
         llm = GroqLLM(model="llama3-70b-8192", api_key="api.key")  # type: ignore
@@ -71,22 +106,54 @@ class TestGroqLLM:
             ]
         ) == [(" Aenean hendrerit aliquam velit. ...",)]
 
-    def test_serialization(self, mock_groq: MagicMock) -> None:
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "model": "llama3-70b-8192",
+                    "base_url": "https://api.groq.com",
+                    "generation_kwargs": {},
+                    "max_retries": 2,
+                    "timeout": 120,
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.groq",
+                        "name": "GroqLLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "mode": "tool_call",
+                    "max_retries": 1,
+                },
+                {
+                    "model": "llama3-70b-8192",
+                    "base_url": "https://api.groq.com",
+                    "generation_kwargs": {},
+                    "max_retries": 2,
+                    "timeout": 120,
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "mode": "tool_call",
+                        "max_retries": 1,
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.groq",
+                        "name": "GroqLLM",
+                    },
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, _: MagicMock, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
         os.environ["GROQ_API_KEY"] = "api.key"
-        llm = GroqLLM(model="llama3-70b-8192")
+        llm = GroqLLM(model="llama3-70b-8192", structured_output=structured_output)
 
-        _dump = {
-            "model": "llama3-70b-8192",
-            "base_url": "https://api.groq.com",
-            "generation_kwargs": {},
-            "max_retries": 2,
-            "timeout": 120,
-            "structured_output": None,
-            "type_info": {
-                "module": "distilabel.llms.groq",
-                "name": "GroqLLM",
-            },
-        }
-
-        assert llm.dump() == _dump
-        assert isinstance(GroqLLM.from_dict(_dump), GroqLLM)  # type: ignore
+        assert llm.dump() == dump
+        assert isinstance(GroqLLM.from_dict(dump), GroqLLM)  # type: ignore

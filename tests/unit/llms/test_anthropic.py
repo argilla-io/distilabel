@@ -13,11 +13,15 @@
 # limitations under the License.
 
 import os
+import sys
+from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.anthropic import AnthropicLLM
+
+from .utils import DummyUserDetail
 
 
 @patch("anthropic.AsyncAnthropic")
@@ -48,6 +52,37 @@ class TestAnthropicLLM:
         )
 
     @pytest.mark.asyncio
+    async def test_agenerate_structured(self, mock_openai: MagicMock) -> None:
+        llm = AnthropicLLM(
+            model="claude-3-opus-20240229",
+            api_key="api.key",
+            structured_output={
+                "schema": DummyUserDetail,
+                "mode": "tool_call",
+                "max_retries": 1,
+            },
+        )  # type: ignore
+        llm._aclient = mock_openai
+
+        sample_user = DummyUserDetail(name="John Doe", age=30)
+
+        llm._aclient.messages.create = AsyncMock(return_value=sample_user)
+
+        generation = await llm.agenerate(
+            input=[
+                {"role": "system", "content": ""},
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        )
+        assert generation[0] == sample_user.model_dump_json()
+
+    @pytest.mark.skipif(
+        sys.version_info < (3, 9), reason="`mistralai` requires Python 3.9 or higher"
+    )
+    @pytest.mark.asyncio
     async def test_generate(self, mock_anthropic: MagicMock) -> None:
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore
         llm._aclient = mock_anthropic
@@ -71,7 +106,52 @@ class TestAnthropicLLM:
             ]
         )
 
-    def test_serialization(self, _: MagicMock) -> None:
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "base_url": "https://api.anthropic.com",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "model": "claude-3-opus-20240229",
+                    "timeout": 600.0,
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.anthropic",
+                        "name": "AnthropicLLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "mode": "tool_call",
+                    "max_retries": 1,
+                },
+                {
+                    "base_url": "https://api.anthropic.com",
+                    "generation_kwargs": {},
+                    "max_retries": 6,
+                    "model": "claude-3-opus-20240229",
+                    "timeout": 600.0,
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "mode": "tool_call",
+                        "max_retries": 1,
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.anthropic",
+                        "name": "AnthropicLLM",
+                    },
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, _: MagicMock, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
         os.environ["ANTHROPIC_API_KEY"] = "api.key"
         llm = AnthropicLLM(model="claude-3-opus-20240229")  # type: ignore
 

@@ -45,8 +45,9 @@ class OpenAILLM(AsyncLLM):
             failing. Defaults to `6`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
-        structured_output: a dictionary containing the structured output configuration or if more
-            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
 
     Runtime parameters:
         - `base_url`: the base URL to use for the OpenAI API requests. Defaults to `None`.
@@ -110,6 +111,16 @@ class OpenAILLM(AsyncLLM):
             timeout=self.timeout,
         )
 
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="openai",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
@@ -162,20 +173,29 @@ class OpenAILLM(AsyncLLM):
                 f"Invalid response format '{response_format}'. Must be either 'text' or 'json'."
             )
 
-        completion = await self._aclient.chat.completions.create(  # type: ignore
-            messages=input,  # type: ignore
-            model=self.model,
-            max_tokens=max_new_tokens,
-            n=num_generations,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            temperature=temperature,
-            top_p=top_p,
-            stop=stop,
-            timeout=50,
-            response_format={"type": response_format},
-        )
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "max_tokens": max_new_tokens,
+            "n": num_generations,
+            "frequency_penalty": frequency_penalty,
+            "presence_penalty": presence_penalty,
+            "temperature": temperature,
+            "top_p": top_p,
+            "stop": stop,
+            "timeout": 50,
+            "response_format": {"type": response_format},
+        }
+        if self.structured_output:
+            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+
         generations = []
+        completion = await self._aclient.chat.completions.create(**kwargs)
+
+        if self.structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
