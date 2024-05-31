@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 from dataclasses import field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -77,7 +78,9 @@ class TestTask:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class Task with abstract methods format_input, format_output",
+            match="Can't instantiate abstract class Task with abstract methods format_input, format_output"
+            if sys.version_info < (3, 12)
+            else "Can't instantiate abstract class Task without an implementation for abstract methods 'format_input', 'format_output'",
         ):
             Task(name="task", llm=DummyLLM())  # type: ignore
 
