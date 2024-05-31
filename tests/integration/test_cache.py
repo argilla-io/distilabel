@@ -15,12 +15,12 @@
 from typing import TYPE_CHECKING, List
 
 import numpy as np
+import pytest
 from distilabel.pipeline import Pipeline
 from distilabel.steps import GeneratorStep, StepInput, step
 
 if TYPE_CHECKING:
     from distilabel.steps import GeneratorStepOutput, StepOutput
-    from pytest_codspeed import BenchmarkFixture
 
 
 class NumpyBigArrayGenerator(GeneratorStep):
@@ -43,7 +43,8 @@ def ReceiveArrays(inputs: StepInput) -> "StepOutput":
     yield inputs
 
 
-def test_cache_time(benchmark: "BenchmarkFixture") -> None:
+@pytest.mark.benchmark
+def test_cache_time() -> None:
     with Pipeline(name="dummy") as pipeline:
         numpy_generator = NumpyBigArrayGenerator(num_batches=2, batch_size=100)
 
@@ -51,4 +52,4 @@ def test_cache_time(benchmark: "BenchmarkFixture") -> None:
 
         numpy_generator >> receive_arrays
 
-    benchmark(pipeline.run, use_cache=False)
+    pipeline.run(use_cache=False)
