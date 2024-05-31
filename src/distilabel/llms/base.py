@@ -37,7 +37,7 @@ if TYPE_CHECKING:
         InstructorStructuredOutputType,
     )
     from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import DefaultInput, FormattedInput
+    from distilabel.steps.tasks.typing import FormattedInput, StandardInput
     from distilabel.utils.docstring import Docstring
 
 if in_notebook():
@@ -188,7 +188,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         return parse_google_docstring(self.generate)
 
     def get_last_hidden_states(
-        self, inputs: List["DefaultInput"]
+        self, inputs: List["StandardInput"]
     ) -> List["HiddenState"]:
         """Method to get the last hidden states of the model for a list of inputs.
 

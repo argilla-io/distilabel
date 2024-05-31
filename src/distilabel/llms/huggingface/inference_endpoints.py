@@ -31,7 +31,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import DefaultInput, FormattedInput, Grammar
+from distilabel.steps.tasks.typing import FormattedInput, Grammar, StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -295,7 +295,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     async def _openai_agenerate(
         self,
-        input: "DefaultInput",
+        input: "StandardInput",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
