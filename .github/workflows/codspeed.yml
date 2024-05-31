@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           # Looks like it's not working very well for other people:
           # https://github.com/actions/setup-python/issues/436
           # cache: "pip"
