@@ -195,7 +195,11 @@ class _EmbeddingDataGeneration(Task, ABC):
             def replace_backslashes(match):
                 return (
                     match.group(1)
-                    + re.sub(r"(?<!\\)\n", r"\\n", match.group(2))
+                    + re.sub(
+                        r"(?<!\\)(\n|\r|\t)",
+                        r"\\\1",
+                        match.group(2),  # .encode("unicode_escape").decode("utf-8"),
+                    )
                     + match.group(3)
                 )
 
