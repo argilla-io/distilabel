@@ -24,7 +24,7 @@ from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.typing import GeneratorStepOutput
 
 
-class EmbeddingTaskBrainstorming(GeneratorTask):
+class BrainstormEmbeddingTasks(GeneratorTask):
     """Generate text retrieval task descriptions using an `LLM`.
 
     ...
@@ -221,7 +221,7 @@ class _EmbeddingDataGeneration(Task, ABC):
         return {key: output.get(key, None) for key in self.keys}
 
 
-class TextRetrievalGeneration(_EmbeddingDataGeneration):
+class GenerateTextRetrievalData(_EmbeddingDataGeneration):
     query_type: Optional[Literal["extremely long-tail", "long-tail", "common"]] = None
     query_length: Optional[
         Literal["less than 5 words", "5 to 15 words", "at least 10 words"]
@@ -268,7 +268,7 @@ class TextRetrievalGeneration(_EmbeddingDataGeneration):
         ]
 
 
-class TextMatchingGeneration(_EmbeddingDataGeneration):
+class GenerateTextMatchingData(_EmbeddingDataGeneration):
     length: Literal["short", "long"]
     language: str = "English"
     """The languages are retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2020.acl-main.747.pdf"""
@@ -312,8 +312,7 @@ class TextMatchingGeneration(_EmbeddingDataGeneration):
         return ["input", "positive_document"]
 
 
-# text-classification doesn't support neither query_type nor query_length
-class TextClassificationGeneration(_EmbeddingDataGeneration):
+class GenerateTextClassificationData(_EmbeddingDataGeneration):
     difficulty: Optional[Literal["high school", "college", "PhD"]] = None
     clarity: Optional[
         Literal["clear", "understandable with some effort", "ambiguous"]

@@ -23,6 +23,12 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.improving_text_embeddings import (
+    BrainstormEmbeddingTasks,
+    GenerateTextClassificationData,
+    GenerateTextMatchingData,
+    GenerateTextRetrievalData,
+)
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
@@ -37,6 +43,7 @@ from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 __all__ = [
     "Task",
     "GeneratorTask",
+    "BrainstormEmbeddingTasks",
     "ChatGeneration",
     "ChatItem",
     "ChatType",
@@ -47,6 +54,9 @@ __all__ = [
     "EvolInstructGenerator",
     "EvolQuality",
     "GenerateEmbeddings",
+    "GenerateTextClassificationData",
+    "GenerateTextMatchingData",
+    "GenerateTextRetrievalData",
     "Genstruct",
     "InstructionBacktranslation",
     "PairRM",
