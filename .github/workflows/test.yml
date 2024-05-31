@@ -51,7 +51,7 @@ jobs:
         run: ./scripts/install_dependencies.sh
 
       - name: Setup tmate session
-        if: ${{ github.event_name == 'workflow_dispatch' && matrix.python-version == '3.11' && github.event.inputs.tmate_session == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && matrix.python-version == '3.12' && github.event.inputs.tmate_session == 'true' }}
         uses: mxschmitt/action-tmate@v3
 
       - name: Lint
