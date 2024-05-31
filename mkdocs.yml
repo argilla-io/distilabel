@@ -142,6 +142,7 @@ nav:
           - Caching: "sections/learn/advanced/caching.md"
           - Distiset: "sections/learn/advanced/distiset.md"
           - Structured Generation: "sections/learn/advanced/structured_generation.md"
+          - Using the file system to pass batch data: "sections/learn/advanced/fs_to_pass_data.md"
   - Pipeline Samples:
       - "sections/pipeline_samples/index.md"
       - Examples: "sections/pipeline_samples/examples/index.md"
@@ -164,9 +165,9 @@ nav:
           - GlobalStep: "api/step/global_step.md"
           - "@step": "api/step/decorator.md"
           - Step Gallery:
-            - Argilla: "api/step_gallery/argilla.md"
-            - Columns: "api/step_gallery/columns.md"
-            - Extra: "api/step_gallery/extra.md"
+              - Argilla: "api/step_gallery/argilla.md"
+              - Columns: "api/step_gallery/columns.md"
+              - Extra: "api/step_gallery/extra.md"
       - Task:
           - "api/task/index.md"
           - GeneratorTask: "api/task/generator_task.md"
