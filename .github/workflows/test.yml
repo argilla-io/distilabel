@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
     steps:
@@ -48,17 +48,10 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          python_version=$(python -c "import sys; print(sys.version_info[:2])")
-
-          pip install -e .[dev,tests,anthropic,argilla,cohere,groq,hf-inference-endpoints,hf-transformers,litellm,llama-cpp,ollama,openai,outlines,vertexai,vllm]
-          if [ "${python_version}" != "(3, 8)" ]; then
-            pip install -e .[mistralai,instructor]
-          fi;
-          pip install git+https://github.com/argilla-io/LLM-Blender.git
+        run: ./scripts/install_dependencies.sh
 
       - name: Setup tmate session
-        if: ${{ github.event_name == 'workflow_dispatch' && matrix.python-version == '3.11' && github.event.inputs.tmate_session == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && matrix.python-version == '3.12' && github.event.inputs.tmate_session == 'true' }}
         uses: mxschmitt/action-tmate@v3
 
       - name: Lint
