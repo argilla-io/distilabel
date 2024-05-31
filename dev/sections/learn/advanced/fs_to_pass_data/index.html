@@ -12,24 +12,28 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/evol_quality/utils/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/fs_to_pass_data/">
       
       
+        <link rel="prev" href="../structured_generation/">
       
       
-      <link rel="icon" href="../../../../../../assets/logo.svg">
+        <link rel="next" href="../../../pipeline_samples/">
+      
+      
+      <link rel="icon" href="../../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
-        <title>Utils - distilabel</title>
+        <title>Using the file system to pass batch data - distilabel</title>
       
     
     
-      <link rel="stylesheet" href="../../../../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -61,11 +65,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Utils - distilabel" >
+        <meta  property="og:title"  content="Using the file system to pass batch data - distilabel" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/steps/tasks/evol_quality/utils.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/learn/advanced/fs_to_pass_data.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +77,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/evol_quality/utils/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/learn/advanced/fs_to_pass_data/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Utils - distilabel" >
+        <meta  name="twitter:title"  content="Using the file system to pass batch data - distilabel" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/steps/tasks/evol_quality/utils.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/learn/advanced/fs_to_pass_data.png" >
       
     
     
@@ -104,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#distilabel.steps.tasks.evol_quality.utils" class="md-skip">
+        <a href="#using-a-file-system-to-pass-data-of-batches-between-steps" class="md-skip">
           Skip to content
         </a>
       
@@ -124,9 +128,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../../../.." title="distilabel" class="md-header__button md-logo" aria-label="distilabel" data-md-component="logo">
+    <a href="../../../.." title="distilabel" class="md-header__button md-logo" aria-label="distilabel" data-md-component="logo">
       
-  <img src="../../../../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -143,7 +147,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Utils
+              Using the file system to pass batch data
             
           </span>
         </div>
@@ -266,9 +270,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../../../.." title="distilabel" class="md-nav__button md-logo" aria-label="distilabel" data-md-component="logo">
+    <a href="../../../.." title="distilabel" class="md-nav__button md-logo" aria-label="distilabel" data-md-component="logo">
       
-  <img src="../../../../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     distilabel
@@ -295,7 +299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -355,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/installation/" class="md-nav__link">
+      <a href="../../../installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -376,7 +380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/how_to_guide/" class="md-nav__link">
+      <a href="../../../how_to_guide/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -401,8 +405,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -412,16 +418,16 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/learn/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -438,7 +444,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Learn
@@ -466,7 +472,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/learn/tutorial/" class="md-nav__link ">
+            <a href="../../tutorial/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -511,7 +517,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/learn/tutorial/step/" class="md-nav__link ">
+            <a href="../../tutorial/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -542,7 +548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/step/generator_step/" class="md-nav__link">
+      <a href="../../tutorial/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,7 +569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/step/global_step/" class="md-nav__link">
+      <a href="../../tutorial/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -606,7 +612,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/learn/tutorial/task/" class="md-nav__link ">
+            <a href="../../tutorial/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -637,7 +643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/task/generator_task/" class="md-nav__link">
+      <a href="../../tutorial/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -666,7 +672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/llm/" class="md-nav__link">
+      <a href="../../tutorial/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -687,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/pipeline/" class="md-nav__link">
+      <a href="../../tutorial/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -708,7 +714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/tutorial/cli/" class="md-nav__link">
+      <a href="../../tutorial/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -734,6 +740,8 @@
                 
   
   
+    
+  
   
   
     
@@ -742,16 +750,16 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/learn/advanced/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -768,7 +776,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Advanced
@@ -782,7 +790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/advanced/argilla/" class="md-nav__link">
+      <a href="../argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -803,7 +811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/advanced/caching/" class="md-nav__link">
+      <a href="../caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -824,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/advanced/distiset/" class="md-nav__link">
+      <a href="../distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -845,7 +853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/advanced/structured_generation/" class="md-nav__link">
+      <a href="../structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -863,10 +871,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../../../../sections/learn/advanced/fs_to_pass_data/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -875,6 +892,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -919,7 +937,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../components-gallery/" class="md-nav__link ">
+            <a href="../../../../components-gallery/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -950,7 +968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../components-gallery/steps/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -971,7 +989,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../components-gallery/tasks/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -992,7 +1010,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../components-gallery/llms/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1037,7 +1055,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/pipeline_samples/" class="md-nav__link ">
+            <a href="../../../pipeline_samples/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1068,7 +1086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/pipeline_samples/examples/" class="md-nav__link">
+      <a href="../../../pipeline_samples/examples/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1103,7 +1121,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../sections/pipeline_samples/papers/" class="md-nav__link ">
+            <a href="../../../pipeline_samples/papers/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1134,7 +1152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/pipeline_samples/papers/deita/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/deita/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1155,7 +1173,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1176,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/pipeline_samples/papers/prometheus/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/prometheus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1197,7 +1215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1233,7 +1251,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../sections/faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1307,7 +1325,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../api/pipeline/" class="md-nav__link ">
+            <a href="../../../../api/pipeline/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1338,7 +1356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/pipeline/routing_batch_function/" class="md-nav__link">
+      <a href="../../../../api/pipeline/routing_batch_function/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1359,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/pipeline/typing/" class="md-nav__link">
+      <a href="../../../../api/pipeline/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1380,7 +1398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/pipeline/utils/" class="md-nav__link">
+      <a href="../../../../api/pipeline/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1423,7 +1441,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../api/step/" class="md-nav__link ">
+            <a href="../../../../api/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1454,7 +1472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step/generator_step/" class="md-nav__link">
+      <a href="../../../../api/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1475,7 +1493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step/global_step/" class="md-nav__link">
+      <a href="../../../../api/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1496,7 +1514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step/decorator/" class="md-nav__link">
+      <a href="../../../../api/step/decorator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1554,7 +1572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step_gallery/argilla/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1575,7 +1593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step_gallery/columns/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/columns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1596,7 +1614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/step_gallery/extra/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/extra/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1647,7 +1665,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../api/task/" class="md-nav__link ">
+            <a href="../../../../api/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1678,7 +1696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/task/generator_task/" class="md-nav__link">
+      <a href="../../../../api/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1699,7 +1717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/task_gallery/" class="md-nav__link">
+      <a href="../../../../api/task_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1742,7 +1760,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1810,7 +1828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/anthropic/" class="md-nav__link">
+      <a href="../../../../api/llm/anthropic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1831,7 +1849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/anyscale/" class="md-nav__link">
+      <a href="../../../../api/llm/anyscale/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1852,7 +1870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/azure/" class="md-nav__link">
+      <a href="../../../../api/llm/azure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1873,7 +1891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/groq/" class="md-nav__link">
+      <a href="../../../../api/llm/groq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1894,7 +1912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/huggingface/" class="md-nav__link">
+      <a href="../../../../api/llm/huggingface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1915,7 +1933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/litellm/" class="md-nav__link">
+      <a href="../../../../api/llm/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1936,7 +1954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/llamacpp/" class="md-nav__link">
+      <a href="../../../../api/llm/llamacpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1957,7 +1975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/mistral/" class="md-nav__link">
+      <a href="../../../../api/llm/mistral/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1978,7 +1996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/ollama/" class="md-nav__link">
+      <a href="../../../../api/llm/ollama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1999,7 +2017,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/openai/" class="md-nav__link">
+      <a href="../../../../api/llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2020,7 +2038,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/together/" class="md-nav__link">
+      <a href="../../../../api/llm/together/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2041,7 +2059,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/vertexai/" class="md-nav__link">
+      <a href="../../../../api/llm/vertexai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2062,7 +2080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/llm/vllm/" class="md-nav__link">
+      <a href="../../../../api/llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2099,7 +2117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../../api/cli/" class="md-nav__link">
+      <a href="../../../../api/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2137,23 +2155,8 @@
   
   
   
+    
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.steps.tasks.evol_quality.utils" class="md-nav__link">
-    <span class="md-ellipsis">
-      utils
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -2171,33 +2174,24 @@
   
 
 
-  <h1>Utils</h1>
-
-<div class="doc doc-object doc-module">
-
-
-
-<a id="distilabel.steps.tasks.evol_quality.utils"></a>
-    <div class="doc doc-contents first">
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
+<h1 id="using-a-file-system-to-pass-data-of-batches-between-steps">Using a file system to pass data of batches between steps<a class="headerlink" href="#using-a-file-system-to-pass-data-of-batches-between-steps" title="Permanent link">&para;</a></h1>
+<p>In some situations, it can happen that the batches contains so much data that is faster to write it to disk and read it back in the next step, instead of passing it using the queue. To solve this issue, <code>distilabel</code> uses <a href="https://filesystem-spec.readthedocs.io/en/latest/"><code>fsspec</code></a> to allow providing a file system configuration and whether if this file system should be used to pass data between steps in the <code>run</code> method of the <code>distilabel</code> pipelines:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  <span class="o">...</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="o">...</span><span class="p">,</span> 
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">storage_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;gcs&quot;</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;gcs://my-bucket&quot;</span><span class="p">},</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">use_fs_to_pass_data</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<p>The code above setups a file system (in this case Google Cloud Storage) and sets the flag <code>use_fs_to_pass_data</code> to specify that the data of the batches should be passed to the steps using the file system.The <code>storage_parameters</code> argument is optional, and in the case it's not provided but <code>use_fs_to_pass_data==True</code>, <code>distilabel</code> will use the local file system.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As <code>GlobalStep</code>s receives all the data from the previous steps in one single batch accumulating all the data, it's very likely that the data of the batch will be too big to be passed using the queue. In this case and even if <code>use_fs_to_pass_data==False</code>, <code>distilabel</code> will use the file system to pass the data to the <code>GlobalStep</code>. </p>
 </div>
 
 
@@ -2250,12 +2244,12 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../../../../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
-        <script src="../../../../../../javascripts/mathjax.js"></script>
+        <script src="../../../../javascripts/mathjax.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       
