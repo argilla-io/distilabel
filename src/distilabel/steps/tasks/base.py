@@ -190,14 +190,14 @@ class Task(_Task, Step):
             if self.group_generations:
                 combined = combine_dicts(*formatted_outputs)
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **combined}
+                    {**input, **combined, "model_name": self.llm.model_name}
                 )
                 continue
 
             # Create a row per generation
             for formatted_output in formatted_outputs:
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **formatted_output}
+                    {**input, **formatted_output, "model_name": self.llm.model_name}
                 )
 
         yield task_outputs
