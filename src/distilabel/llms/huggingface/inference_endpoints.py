@@ -31,7 +31,11 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import DefaultInput, FormattedInput, Grammar
+from distilabel.steps.tasks.typing import (
+    DefaultInput,
+    FormattedInput,
+    StructuredOutputType,
+)
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -148,7 +152,8 @@ class InferenceEndpointsLLM(AsyncLLM):
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
 
-    grammar: Optional[RuntimeParameter[Grammar]] = Field(
+    # structured_output: Optional[RuntimeParameter[Grammar]] = Field(
+    structured_output: Optional[RuntimeParameter[StructuredOutputType]] = Field(
         default=None,
         description="The grammar to use across all the generations.",
     )
@@ -388,6 +393,14 @@ class InferenceEndpointsLLM(AsyncLLM):
         if isinstance(input, tuple):
             input, grammar = input
 
+        # NOTE: `self.structured_output` applies to all the generations, while `grammar` is intended
+        # to be different per each input, and those are not intended to be used together
+        if grammar is None:
+            grammar = {
+                "type": self.structured_output["format"],
+                "value": self.structured_output["schema"],
+            }
+
         if self.use_openai_client:
             return await self._openai_agenerate(
                 input=input,
@@ -422,9 +435,7 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
-                # NOTE: `self.grammar` applies to all the generations, while `grammar` is intended
-                # to be different per each input, and those are not intended to be used together
-                grammar=grammar or self.grammar,  # type: ignore
+                grammar=grammar,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),

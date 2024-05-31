@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Final, List, Union
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
+
+STRUCTURED_OUTPUT_COLUMN: Final[str] = "structured_output"
 
 
 class StructuredGeneration(Task):
@@ -53,7 +55,7 @@ class StructuredGeneration(Task):
                     stacklevel=2,
                 )
 
-        return (messages, input.get("grammar", None))  # type: ignore
+        return (messages, input.get(STRUCTURED_OUTPUT_COLUMN, None))  # type: ignore
 
     @property
     def outputs(self) -> List[str]:
