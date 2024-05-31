@@ -682,13 +682,15 @@ class Pipeline(BasePipeline):
                 elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
 
+                    if pool:
+                        pool.terminate()
+                        pool.join()
+
                     if manager:
                         manager.shutdown()
                         manager.join()
 
-                    if pool:
-                        pool.terminate()
-                        pool.join()
+                    stop_logging()
 
                     sys.exit(1)
 
