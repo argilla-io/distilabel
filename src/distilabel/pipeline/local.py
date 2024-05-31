@@ -96,10 +96,10 @@ class Pipeline(BasePipeline):
             storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
                 that will be used to store the data of the `_Batch`es passed between the
                 steps if `use_fs_to_pass_data` is `True` (for the batches received by a
-                `GlobalStep` it will be always used). It must have at least the keys "protocol"
-                and "path", and it can contain additional keys depending on the protocol.
-                By default, it will use the local file system and a directory in the cache
-                directory. Defaults to `None`.
+                `GlobalStep` it will be always used). It must have at least the "path" key,
+                and it can contain additional keys depending on the protocol. By default,
+                it will use the local file system and a directory in the cache directory.
+                Defaults to `None`.
             use_fs_to_pass_data: Whether to use the file system to pass the data of
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to

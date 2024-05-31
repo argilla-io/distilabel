@@ -117,9 +117,7 @@ class TestBasePipeline:
         pipeline = BasePipeline(name="unit-test-pipeline")
 
         with mock.patch("fsspec.filesystem") as mock_filesystem:
-            pipeline._setup_fsspec(
-                {"protocol": "gcs", "path": "gcs://my-bucket", "extra": "stuff"}
-            )
+            pipeline._setup_fsspec({"path": "gcs://my-bucket", "extra": "stuff"})
 
         mock_filesystem.assert_called_once_with("gcs", **{"extra": "stuff"})
 
@@ -136,11 +134,8 @@ class TestBasePipeline:
     def test_setup_fsspec_raises_value_error(self) -> None:
         pipeline = BasePipeline(name="unit-test-pipeline")
 
-        with pytest.raises(ValueError, match="The 'protocol' key must be present"):
-            pipeline._setup_fsspec({"key": "value"})
-
         with pytest.raises(ValueError, match="The 'path' key must be present"):
-            pipeline._setup_fsspec({"protocol": "file"})
+            pipeline._setup_fsspec({"key": "random"})
 
     def test_send_batch_to_step(self) -> None:
         with BasePipeline(name="unit-test-pipeline") as pipeline:
