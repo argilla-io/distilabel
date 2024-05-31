@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+
+from ..utils import DummyUserDetail
 
 
 @patch("huggingface_hub.AsyncInferenceClient")
@@ -159,27 +162,64 @@ class TestInferenceEndpointsLLM:
             ]
         ) == [(" Aenean hendrerit aliquam velit. ...",)]
 
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "model_id": "distilabel-internal-testing/tiny-random-mistral",
+                    "endpoint_name": None,
+                    "endpoint_namespace": None,
+                    "base_url": None,
+                    "tokenizer_id": None,
+                    "generation_kwargs": {},
+                    "model_display_name": None,
+                    "use_openai_client": False,
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.huggingface.inference_endpoints",
+                        "name": "InferenceEndpointsLLM",
+                    },
+                },
+            ),
+            (
+                {
+                    "format": "json",
+                    "schema": DummyUserDetail.model_json_schema(),
+                },
+                {
+                    "model_id": "distilabel-internal-testing/tiny-random-mistral",
+                    "endpoint_name": None,
+                    "endpoint_namespace": None,
+                    "base_url": None,
+                    "tokenizer_id": None,
+                    "generation_kwargs": {},
+                    "model_display_name": None,
+                    "use_openai_client": False,
+                    "structured_output": {
+                        "format": "json",
+                        "schema": DummyUserDetail.model_json_schema(),
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.huggingface.inference_endpoints",
+                        "name": "InferenceEndpointsLLM",
+                    },
+                },
+            ),
+        ],
+    )
     def test_serialization(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+        self,
+        mock_inference_client: MagicMock,
+        mock_openai_client: MagicMock,
+        structured_output: Dict[str, Any],
+        dump: Dict[str, Any],
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output=structured_output,
         )
 
-        _dump = {
-            "model_id": "distilabel-internal-testing/tiny-random-mistral",
-            "endpoint_name": None,
-            "endpoint_namespace": None,
-            "base_url": None,
-            "tokenizer_id": None,
-            "generation_kwargs": {},
-            "model_display_name": None,
-            "use_openai_client": False,
-            "structured_output": None,
-            "type_info": {
-                "module": "distilabel.llms.huggingface.inference_endpoints",
-                "name": "InferenceEndpointsLLM",
-            },
-        }
-        assert llm.dump() == _dump
-        assert isinstance(InferenceEndpointsLLM.from_dict(_dump), InferenceEndpointsLLM)
+        assert llm.dump() == dump
+        assert isinstance(InferenceEndpointsLLM.from_dict(dump), InferenceEndpointsLLM)
