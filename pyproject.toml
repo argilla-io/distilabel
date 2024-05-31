@@ -58,7 +58,13 @@ docs = [
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
 ]
-tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio", "pytest-timeout"]
+tests = [
+    "pytest >= 7.4.0",
+    "pytest-asyncio",
+    "nest-asyncio",
+    "pytest-timeout",
+    "pytest-codspeed",
+]
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
