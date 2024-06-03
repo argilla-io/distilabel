@@ -13,32 +13,30 @@
 # limitations under the License.
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.generators.data import LoadDataFromDicts
+from distilabel.steps.generators.data import LoadFromBuffer
 from pydantic import ValidationError
 
 
-class TestLoadDataFromDictsTask:
+class TestLoadFromBuffer:
     data = [{"instruction": "test"}] * 10
 
     def test_init(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
-        task = LoadDataFromDicts(
-            name="task", pipeline=pipeline, data=data, batch_size=10
-        )
+        task = LoadFromBuffer(name="task", pipeline=pipeline, data=data, batch_size=10)
         assert task.data == data
         assert task.batch_size == 10
 
     def test_with_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         with pytest.raises(ValidationError):
-            LoadDataFromDicts(name="task", pipeline=pipeline)
+            LoadFromBuffer(name="task", pipeline=pipeline)
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
         batch_size = 1
-        task = LoadDataFromDicts(
+        task = LoadFromBuffer(
             name="task", pipeline=pipeline, data=data, batch_size=batch_size
         )
 

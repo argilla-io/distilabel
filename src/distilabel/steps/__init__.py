@@ -28,8 +28,8 @@ from distilabel.steps.formatting.sft import (
     FormatChatGenerationSFT,
     FormatTextGenerationSFT,
 )
-from distilabel.steps.generators.data import LoadDataFromDicts
-from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.steps.generators.data import LoadFromBuffer
+from distilabel.steps.generators.huggingface import LoadFromDisk, LoadFromHub
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.keep import KeepColumns
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
@@ -48,8 +48,9 @@ __all__ = [
     "GeneratorStep",
     "GlobalStep",
     "KeepColumns",
-    "LoadDataFromDicts",
-    "LoadHubDataset",
+    "LoadFromBuffer",
+    "LoadFromHub",
+    "LoadFromDisk",
     "PushToHub",
     "Step",
     "StepInput",

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class LoadDataFromDicts(GeneratorStep):
+class LoadFromBuffer(GeneratorStep):
     """Loads a dataset from a list of dictionaries.
 
     `GeneratorStep` that loads a dataset from a list of dictionaries and yields it in
