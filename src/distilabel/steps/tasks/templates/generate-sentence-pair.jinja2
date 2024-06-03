@@ -1,12 +1,4 @@
-# Task Description
-{% if triplet %}
-Your task is to generate a positive and a negative sentence given an anchor sentence. The positive sentence has to {{ action }} the anchor sentence, while the negative sentence is the contrary. You must output only two new sections: `## Positive` and `## Negative`.
-{% else %}
-Your task is to generate a positive sentence given an anchor sentence. The positive sentence has to {{ action }} the anchor sentence. You must output only one new section: `## Positive`.
-{% endif %}
-
 ## Anchor
 
 {{ anchor }}
 
-## Positive

@@ -31,10 +31,9 @@ if TYPE_CHECKING:
 GenerationAction = Literal["paraphrase", "semantically-similar", "query"]
 
 POSITIVE_NEGATIVE_PAIR_REGEX = re.compile(
-    r"## Positive\s+(.*?)\s+(?:## Negative\s+(.*?)\s*)?$",
+    r"## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
     re.DOTALL,
 )
-
 
 GENERATION_ACTION_SENTENCES: Final[Dict[GenerationAction, str]] = {
     "paraphrase": "paraphrase",
@@ -89,14 +88,27 @@ class GenerateSentencePair(Task):
         return ["anchor"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        action_sentence = GENERATION_ACTION_SENTENCES[self.action]
         return [
             {
-                "role": "user",
-                "content": self._template.render(
-                    anchor=input["anchor"],
-                    action=GENERATION_ACTION_SENTENCES[self.action],
+                "role": "system",
+                "content": (
+                    "Your task is to generate a positive and a negative sentence given"
+                    f" an anchor sentence. The positive sentence has to {action_sentence}"
+                    " the anchor sentence, while the negative sentence has to do the opposite."
+                    " You must output only two new sections: `## Positive` and `## Negative`."
+                )
+                if self.triplet
+                else (
+                    "Your task is to generate a positive sentence given an anchor sentence."
+                    f" The positive sentence has to {action_sentence} the anchor sentence."
+                    " You must output only one new section: `## Positive`."
                 ),
-            }
+            },
+            {
+                "role": "user",
+                "content": self._template.render(anchor=input["anchor"]),
+            },
         ]
 
     @property
@@ -120,7 +132,9 @@ class GenerateSentencePair(Task):
         if self.triplet:
             return {
                 "positive": groups[0].strip(),
-                "negative": groups[1].strip() if len(groups) > 1 else None,
+                "negative": groups[1].strip()
+                if len(groups) > 1 and groups[1] is not None
+                else None,
             }
 
         return {"positive": groups[0].strip()}
