@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import random
+from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -23,6 +24,36 @@ from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLL
 @patch("huggingface_hub.AsyncInferenceClient")
 @patch("openai.AsyncOpenAI")
 class TestInferenceEndpointsLLM:
+    def test_load_no_api_key(
+        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral"
+        )
+
+        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to not exist
+        with mock.patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = False
+            with pytest.raises(
+                ValueError,
+                match="To use `InferenceEndpointsLLM` an API key must be provided",
+            ):
+                llm.load()
+
+    def test_load_with_cached_token(
+        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral"
+        )
+
+        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
+        with mock.patch("pathlib.Path.exists", return_value=True), mock.patch(
+            "builtins.open", new_callable=mock.mock_open, read_data="hf_token"
+        ):
+            # Should not raise any errors
+            llm.load()
+
     def test_serverless_inference_endpoints_llm(
         self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
     ) -> None:

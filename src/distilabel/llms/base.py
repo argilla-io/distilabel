@@ -233,6 +233,7 @@ class AsyncLLM(LLM):
     """
 
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
+    _new_event_loop: bool = PrivateAttr(default=False)
 
     @property
     def generate_parameters(self) -> List[inspect.Parameter]:
@@ -259,8 +260,10 @@ class AsyncLLM(LLM):
                 self._event_loop = asyncio.get_running_loop()
                 if self._event_loop.is_closed():
                     self._event_loop = asyncio.new_event_loop()  # type: ignore
+                    self._new_event_loop = True
             except RuntimeError:
                 self._event_loop = asyncio.new_event_loop()
+                self._new_event_loop = True
         asyncio.set_event_loop(self._event_loop)
         return self._event_loop
 
@@ -303,8 +306,11 @@ class AsyncLLM(LLM):
         """Closes the event loop when the object is deleted."""
         if sys.meta_path is None:
             return
-        if self.event_loop is not None:
-            self.event_loop.close()
+
+        if self._new_event_loop:
+            if self._event_loop.is_running():
+                self._event_loop.stop()
+            self._event_loop.close()
 
     @staticmethod
     def _prepare_structured_output(
