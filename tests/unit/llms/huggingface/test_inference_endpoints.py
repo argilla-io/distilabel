@@ -47,7 +47,7 @@ class TestInferenceEndpointsLLM:
         )
 
         # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
-        with mock.patch(
+        with mock.patch("pathlib.Path.exists", return_value=True), mock.patch(
             "builtins.open", new_callable=mock.mock_open, read_data="hf_token"
         ):
             # Should not raise any errors
