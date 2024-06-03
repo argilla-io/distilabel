@@ -2829,7 +2829,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 </span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>    <span class="nd">@validate_call</span>
 </span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>        <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
 </span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>        <span class="n">stop_sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>        <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -2889,7 +2889,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 </span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>    <span class="nd">@override</span>
 </span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span>
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ChatType&quot;</span><span class="p">],</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;StandardInput&quot;</span><span class="p">],</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenerateOutput&quot;</span><span class="p">]:</span>
@@ -2898,7 +2898,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 </span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a>
 </span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>        <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>            <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ChatType&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>            <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;StandardInput&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>        <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GenerateOutput&quot;</span><span class="p">:</span>
 </span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Internal function to parallelize the asynchronous generation of responses.&quot;&quot;&quot;</span>
 </span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
@@ -2978,7 +2978,7 @@ to be used internally. Set in the <code>load</code> method.</p>
           <tr class="doc-section-item">
             <td><code>input</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.StandardInput" href="../../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.StandardInput">StandardInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3147,7 +3147,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 <span class="normal"><a href="#__codelineno-0-220">220</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="nd">@validate_call</span>
 </span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
 </span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>    <span class="n">stop_sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -3250,7 +3250,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
 <span class="normal"><a href="#__codelineno-0-246">246</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="nd">@override</span>
 </span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="k">def</span> <span class="nf">generate</span><span class="p">(</span>
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ChatType&quot;</span><span class="p">],</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;StandardInput&quot;</span><span class="p">],</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenerateOutput&quot;</span><span class="p">]:</span>
@@ -3259,7 +3259,7 @@ synchronously awaiting for the response of each input sent to <code>agenerate</c
 </span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a>
 </span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>        <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ChatType&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>        <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;StandardInput&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GenerateOutput&quot;</span><span class="p">:</span>
 </span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal function to parallelize the asynchronous generation of responses.&quot;&quot;&quot;</span>
 </span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>

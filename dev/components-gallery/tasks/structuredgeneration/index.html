@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/textgeneration/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/structuredgeneration/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>TextGeneration - distilabel</title>
+        <title>StructuredGeneration - distilabel</title>
       
     
     
@@ -61,11 +61,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="TextGeneration - distilabel" >
+        <meta  property="og:title"  content="StructuredGeneration - distilabel" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/tasks/textgeneration.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/tasks/structuredgeneration.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +73,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/textgeneration/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/structuredgeneration/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="TextGeneration - distilabel" >
+        <meta  name="twitter:title"  content="StructuredGeneration - distilabel" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/tasks/textgeneration.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/tasks/structuredgeneration.png" >
       
     
     
@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#textgeneration" class="md-skip">
+        <a href="#structuredgeneration" class="md-skip">
           Skip to content
         </a>
       
@@ -143,7 +143,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TextGeneration
+              StructuredGeneration
             
           </span>
         </div>
@@ -2203,11 +2203,12 @@
                   
 
 
-<h1 id="textgeneration">TextGeneration<a class="headerlink" href="#textgeneration" title="Permanent link">&para;</a></h1>
-<p>Simple text generation with an <code>LLM</code> given an instruction.</p>
-<p><code>TextGeneration</code> is a pre-defined task that defines the <code>instruction</code> as the input
-    and <code>generation</code> as the output. This task is used to generate text based on the input
-    instruction. The model_name is also returned as part of the output in order to enhance it.</p>
+<h1 id="structuredgeneration">StructuredGeneration<a class="headerlink" href="#structuredgeneration" title="Permanent link">&para;</a></h1>
+<p>Generate structured content for a given <code>instruction</code> using an <code>LLM</code>.</p>
+<p><code>StructuredGeneration</code> is a pre-defined task that defines the <code>instruction</code> and the <code>grammar</code>
+    as the inputs, and <code>generation</code> as the output. This task is used to generate structured content based on
+    the input instruction and following the schema provided within the <code>grammar</code> column per each
+    <code>instruction</code>. The <code>model_name</code> also returned as part of the output in order to enhance it.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>use_system_prompt</strong>: Whether to use the system prompt in the generation. Defaults to <code>True</code>,  which means that if the column <code>system_prompt</code> is defined within the input batch, then  the <code>system_prompt</code> will be used, otherwise, it will be ignored.</li>
@@ -2217,6 +2218,7 @@
     subgraph Dataset
         subgraph Columns
             ICOL0[instruction]
+            ICOL1[grammar]
         end
         subgraph New columns
             OCOL0[generation]
@@ -2224,24 +2226,30 @@
         end
     end
 
-    subgraph TextGeneration
-        StepInput[Input Columns: instruction]
+    subgraph StructuredGeneration
+        StepInput[Input Columns: instruction, grammar]
         StepOutput[Output Columns: generation, model_name]
     end
 
     ICOL0 --&gt; StepInput
+    ICOL1 --&gt; StepInput
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>instruction</strong> (<code>str</code>): The instruction to generate text from.</li>
+<li>
+<p><strong>instruction</strong> (<code>str</code>): The instruction to generate structured content from.</p>
+</li>
+<li>
+<p><strong>grammar</strong> (<code>Dict[str, Any]</code>): The grammar to generate structured content from. It should be a  Python dictionary with the keys <code>type</code> and <code>value</code>, where <code>type</code> should be one of <code>json</code> or  <code>regex</code>, and the <code>value</code> should be either the JSON schema or the regex pattern, respectively.</p>
+</li>
 </ul>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
 <li>
-<p><strong>generation</strong> (<code>str</code>): The generated text.</p>
+<p><strong>generation</strong> (<code>str</code>): The generated text matching the provided schema, if possible.</p>
 </li>
 <li>
 <p><strong>model_name</strong> (<code>str</code>): The name of the model used to generate the text.</p>

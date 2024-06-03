@@ -2634,7 +2634,7 @@ using <code>instructor</code>. You can take a look at the dictionary structure i
 </span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a>    <span class="nd">@validate_call</span>
 </span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a>        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-134"><a id="__codelineno-0-134" name="__codelineno-0-134"></a>        <span class="n">max_new_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
 </span><span id="__span-0-135"><a id="__codelineno-0-135" name="__codelineno-0-135"></a>        <span class="n">frequency_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -2778,7 +2778,7 @@ client.</p>
           <tr class="doc-section-item">
             <td><code>input</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.StandardInput" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.StandardInput">StandardInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3021,7 +3021,7 @@ for more information on how to use the JSON model from OpenAI. Defaults to <code
 <span class="normal"><a href="#__codelineno-0-206">206</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="nd">@validate_call</span>
 </span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-134"><a id="__codelineno-0-134" name="__codelineno-0-134"></a>    <span class="n">max_new_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
 </span><span id="__span-0-135"><a id="__codelineno-0-135" name="__codelineno-0-135"></a>    <span class="n">frequency_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>

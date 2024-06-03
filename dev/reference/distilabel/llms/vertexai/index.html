@@ -2492,7 +2492,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 </span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the model name used for the LLM.&quot;&quot;&quot;</span>
 </span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
 </span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>
-</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">def</span> <span class="nf">_chattype_to_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="s2">&quot;ChatType&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;Content&quot;</span><span class="p">]:</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">def</span> <span class="nf">_chattype_to_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="s2">&quot;StandardInput&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;Content&quot;</span><span class="p">]:</span>
 </span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a chat type to a list of content items expected by the API.</span>
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>
 </span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="sd">        Args:</span>
@@ -2519,7 +2519,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 </span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="nd">@validate_call</span>
 </span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a>        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="n">temperature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="n">top_p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2646,7 +2646,7 @@ to be used internally. Set in the <code>load</code> method.</p>
           <tr class="doc-section-item">
             <td><code>input</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.StandardInput" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.StandardInput">StandardInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2862,7 +2862,7 @@ to be used internally. Set in the <code>load</code> method.</p>
 <span class="normal"><a href="#__codelineno-0-175">175</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="nd">@validate_call</span>
 </span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a>    <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a>    <span class="n">temperature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a>    <span class="n">top_p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

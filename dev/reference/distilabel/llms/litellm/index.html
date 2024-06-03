@@ -2562,7 +2562,7 @@ using <code>instructor</code>. You can take a look at the dictionary structure i
 </span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="nd">@validate_call</span>
 </span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="n">functions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="n">function_call</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2755,7 +2755,7 @@ using <code>instructor</code>. You can take a look at the dictionary structure i
           <tr class="doc-section-item">
             <td><code>input</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.StandardInput" href="../../steps/tasks/typing/#distilabel.steps.tasks.typing.StandardInput">StandardInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3204,7 +3204,7 @@ model="amazon.titan-tg1-large" and custom_llm_provider="bedrock". Defaults to
 <span class="normal"><a href="#__codelineno-0-217">217</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="nd">@validate_call</span>
 </span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">agenerate</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">ChatType</span><span class="p">,</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="nb">input</span><span class="p">:</span> <span class="n">StandardInput</span><span class="p">,</span>
 </span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="n">functions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="n">function_call</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

@@ -82,6 +82,14 @@ hide:
 
     [:octicons-arrow-right-24: SelfInstruct](selfinstruct.md){ .bottom }
 
+-   :material-check-outline:{ .lg .middle } __StructuredGeneration__
+
+    ---
+
+    Generate structured content for a given `instruction` using an `LLM`.
+
+    [:octicons-arrow-right-24: StructuredGeneration](structuredgeneration.md){ .bottom }
+
 -   :material-text-box-edit:{ .lg .middle } __TextGeneration__
 
     ---
