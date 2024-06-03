@@ -158,21 +158,7 @@ CLARITY = ["clear", "understandable with some effort", "ambiguous"]
 NUM_WORDS = [50, 100, 200, 300, 400, 500]
 
 
-class _EmbeddingDataGeneration(Task, ABC):
-    seed: int = 42
-
-    def load(self) -> None:
-        super().load()
-        random.seed(self.seed)
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["task"]
-
-    @abstractmethod
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
-        ...
-
+class _JSONFormatter(ABC):
     @property
     @abstractmethod
     def keys(self) -> List[str]:
@@ -223,6 +209,22 @@ class _EmbeddingDataGeneration(Task, ABC):
             return {key: None for key in self.keys}
 
         return {key: output.get(key, None) for key in self.keys}
+
+
+class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
+    seed: int = 42
+
+    def load(self) -> None:
+        super().load()
+        random.seed(self.seed)
+
+    @property
+    def inputs(self) -> List[str]:
+        return ["task"]
+
+    @abstractmethod
+    def format_input(self, input: Dict[str, Any]) -> ChatType:
+        ...
 
 
 class GenerateTextRetrievalData(_EmbeddingDataGeneration):
@@ -349,3 +351,116 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
     @property
     def keys(self) -> List[str]:
         return ["input_text", "label", "misleading_label"]
+
+
+class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
+    seed: int = 42
+
+    def load(self) -> None:
+        super().load()
+        random.seed(self.seed)
+
+    @property
+    @abstractmethod
+    def prompt(self) -> ChatType:
+        ...
+
+    @override
+    def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
+        formatted_inputs = [self.prompt]
+        outputs = self.llm.generate(
+            inputs=formatted_inputs,
+            num_generations=self.num_generations,
+            **self.llm.generation_kwargs,  # type: ignore
+        )
+
+        task_outputs = []
+        for input_outputs in outputs:
+            formatted_outputs = self._format_outputs(input_outputs)  # type: ignore
+            for formatted_output in formatted_outputs:
+                task_outputs.append(
+                    {
+                        **formatted_output,
+                        "model_name": self.llm.model_name,
+                    }
+                )
+        yield task_outputs, True
+
+
+UNITS = ["sentence", "phrase", "passage"]
+DIFFICULTIES = ["elementary school", "high school", "college"]
+HIGH_SCORES = ["4", "4.5", "5"]
+LOW_SCORES = ["2.5", "3", "3.5"]
+
+
+class MonolingualTripletGenerator(_EmbeddingDataGenerator):
+    unit: Optional[Literal["sentence", "phrase", "passage"]] = None
+    difficulty: Optional[Literal["elementary school", "high school", "college"]] = None
+    high_score: Optional[Literal["4", "4.5", "5"]] = None
+    low_score: Optional[Literal["2.5", "3", "3.5"]] = None
+    language: str = "English"
+
+    @property
+    def prompt(self) -> ChatType:
+        return [
+            {
+                "role": "user",
+                "content": (
+                    f"Write a {self.unit or random.choice(UNITS)} triple with varying semantic similarity scores in JSON format. The semantic similarity score ranges from 1 to "
+                    "5, with 1 denotes least similar and 5 denotes most similar.\n"
+                    "Please adhere to the following guidelines:\n"
+                    f"- The keys in JSON are 'S1', 'S2', and 'S3', the values are all strings in {self.language}, do not add any other keys.\n"
+                    f"- There should be some word overlaps between all three {self.unit or random.choice(UNITS)}s.\n"
+                    f"- The similarity score between S1 and S2 should be {self.high_score or random.choice(HIGH_SCORES)}.\n"
+                    f"- The similarity score between S1 and S3 should be {self.low_score or random.choice(LOW_SCORES)}.\n"
+                    f"- The {self.unit or random.choice(UNITS)}s require {self.difficulty or random.choice(DIFFICULTIES)} level education to understand and should be diverse in terms of topic and length.\n"
+                    "Your output must always be a JSON object only with three keys 'S1', 'S2' and 'S3', do not explain yourself or output "
+                    "anything else. Be creative!"
+                ).replace("'", '"'),
+            },
+        ]
+
+    @property
+    def keys(self) -> List[str]:
+        return ["S1", "S2", "S3"]
+
+
+BITEXT_LOW_SCORES = ["1.5", "2", "2.5"]
+BITEXT_HIGH_SCORES = ["4", "4.5", "5"]
+
+
+class BitextRetrievalGenerator(_EmbeddingDataGenerator):
+    unit: Optional[Literal["sentence", "phrase", "passage"]] = None
+    difficulty: Optional[Literal["elementary school", "high school", "college"]] = None
+    high_score: Optional[Literal["4", "4.5", "5"]] = None
+    low_score: Optional[Literal["2.5", "3", "3.5"]] = None
+    source_language: str = "English"
+    target_language: str = "French"
+
+    @property
+    def prompt(self) -> ChatType:
+        return [
+            {
+                "role": "user",
+                "content": (
+                    f"Write a {self.unit or random.choice(UNITS)} triple with one {self.unit or random.choice(UNITS)} "
+                    f"in {self.source_language} and two {self.unit or random.choice(UNITS)}s in {self.target_language} with "
+                    "varying translation qualities in JSON format.\n"
+                    "The triple is denotes as ('S1', 'S2', 'S3'). The translation quality score ranges from 1 to 5, with higher scores are better.\n"
+                    "Please adhere to the following guidelines:\n"
+                    f"- The values of 'S1' is a string in {self.source_language}, the value of 'S2' and 'S3' are strings in {self.target_language}.\n"
+                    "- There should be some word overlaps between 'S2' and 'S3'.\n"
+                    f"- The translation quality score of 'S2' with respect to 'S1' should be {self.high_score or random.choice(BITEXT_HIGH_SCORES)}.\n"
+                    f"- The translation quality score of 'S3' with respect to 'S1' should be {self.low_score or random.choice(BITEXT_LOW_SCORES)}.\n"
+                    "- 'S3' should be grammatical and fluent, but contain some keyword or number translation errors, or miss some information,\n"
+                    "or contain some redundant information.\n"
+                    f"- 'S1' requires {self.difficulty or random.choice(DIFFICULTIES)} level education to understand and should be diverse in terms of topic and length.\n"
+                    "Your output must always be a JSON object only with three keys 'S1', 'S2' and 'S3', do not explain yourself or output "
+                    "anything else. Be creative!"
+                ).replace("'", '"'),
+            },
+        ]
+
+    @property
+    def keys(self) -> List[str]:
+        return ["S1", "S2", "S3"]
