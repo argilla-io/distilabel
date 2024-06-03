@@ -33,6 +33,9 @@ from distilabel.utils.serialization import _Serializable
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
+    from distilabel.steps.tasks.structured_outputs.instructor import (
+        InstructorStructuredOutputType,
+    )
     from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.utils.docstring import Docstring
@@ -300,3 +303,83 @@ class AsyncLLM(LLM):
             return
         if self.event_loop is not None:
             self.event_loop.close()
+
+    @staticmethod
+    def _prepare_structured_output(
+        structured_output: "InstructorStructuredOutputType",
+        client: Any = None,
+        framework: Optional[str] = None,
+    ) -> Dict[str, Union[str, Any]]:
+        """Wraps the client and updates the schema to work store it internally as a json schema.
+
+        Args:
+            structured_output: The configuration dict to prepare the structured output.
+            client: The client to wrap to generate structured output. Implemented to work
+                with `instructor`.
+            framework: The name of the framework.
+
+        Returns:
+            A dictionary containing the wrapped client and the schema to update the structured_output
+            variable in case it is a pydantic model.
+        """
+        from distilabel.steps.tasks.structured_outputs.instructor import (
+            prepare_instructor,
+        )
+
+        result = {}
+        client = prepare_instructor(
+            client,
+            mode=structured_output.get("mode"),
+            framework=framework,
+        )
+        result["client"] = client
+
+        schema = structured_output.get("schema")
+        if not schema:
+            raise ValueError(
+                f"The `structured_output` argument must contain a schema: {structured_output}"
+            )
+        if issubclass(schema, BaseModel):
+            # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
+            structured_output["schema"] = schema.model_json_schema()
+            result["structured_output"] = structured_output
+
+        return result
+
+    @staticmethod
+    def _prepare_kwargs(
+        arguments: Dict[str, Any], structured_output: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Helper method to update the kwargs with the structured output configuration,
+        used in case they are defined.
+
+        Args:
+            arguments: The arguments that would be passed to the LLM as **kwargs.
+                to update with the structured output configuration.
+            structured_outputs: The structured output configuration to update the arguments.
+
+        Returns:
+            kwargs updated with the special arguments used by `instructor`.
+        """
+        # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
+        # for the Instructor client.
+        schema = structured_output.get("schema")
+        if not issubclass(schema, BaseModel):
+            from distilabel.steps.tasks.structured_outputs.utils import (
+                json_schema_to_model,
+            )
+
+            try:
+                schema = json_schema_to_model(schema)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to convert the schema to a pydantic model, the model is too complex currently: {e}"
+                ) from e
+
+        arguments.update(
+            **{
+                "response_model": schema,
+                "max_retries": structured_output.get("max_retries", 1),
+            },
+        )
+        return arguments

@@ -70,6 +70,44 @@ distiset.push_to_hub(
 )
 ```
 
+### Save and load from disk
+
+Saves the [`Distiset`][distilabel.distiset.Distiset] to disk, and optionally (will be done by default) saves the dataset card, the pipeline config file and logs:
+
+```python
+distiset.save_to_disk(
+    "my-dataset",
+    save_card=True,
+    save_pipeline_config=True,
+    save_pipeline_log=True
+)
+```
+
+And load a [`Distiset`][distilabel.distiset.Distiset] that was saved using [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk] just the same way:
+
+```python
+from distilabel.distiset import Distiset
+
+distiset = Distiset.load_from_disk("my-dataset")
+```
+
+or from your cloud provider if that's where it was stored:
+
+```python
+distiset = Distiset.load_from_disk(
+    "s3://path/to/my_dataset",  # gcs:// or any filesystem tolerated by fsspec
+    storage_options={
+        "key": os.environ["S3_ACCESS_KEY"],
+        "secret": os.environ["S3_SECRET_KEY"],
+        ...
+    }
+)
+```
+
+Take into account that these methods work as `datasets.load_from_disk` and `datasets.Dataset.save_to_disk` so the arguments are directly passed to those methods. This means you can also make use of `storage_options` argument to save your [`Distiset`][distilabel.distiset.Distiset] in your cloud provider, including the distilabel artifacts (`pipeline.yaml`, `pipeline.log` and the `README.md` with the dataset card). You can read more in `datasets` documentation [here](https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets).
+
+Take a look at the remaining arguments at [`Distiset.save_to_disk`][distilabel.distiset.Distiset.save_to_disk] and [`Distiset.load_from_disk`][distilabel.distiset.Distiset.load_from_disk].
+
 ## Dataset card
 
 Having this special type of dataset comes with an added advantage when calling [`Distiset.push_to_hub`][distilabel.distiset.Distiset], which is the automatically generated dataset card in the Hugging Face Hub. Note that it is enabled by default, but can be disabled by setting `generate_card=False`:

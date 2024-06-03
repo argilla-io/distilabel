@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import multiprocessing as mp
 import signal
+import sys
 import threading
 import time
 import traceback
@@ -28,8 +28,6 @@ from distilabel.pipeline.base import (
     LAST_BATCH_SENT_FLAG,
     BasePipeline,
     _Batch,
-    _BatchManager,
-    _WriteBuffer,
 )
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
@@ -68,9 +66,14 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
-def _init_worker(queue: "Queue[Any]") -> None:
+def _init_worker(log_queue: "Queue[Any]") -> None:
+    """Init function for the child processes that will execute the `Step`s of the `Pipeline`.
+
+    Args:
+        log_queue: The queue to send the logs to the main process.
+    """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    setup_logging(queue)
+    setup_logging(log_queue)
 
 
 class Pipeline(BasePipeline):
@@ -80,6 +83,8 @@ class Pipeline(BasePipeline):
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
         use_cache: bool = True,
+        storage_parameters: Optional[Dict[str, Any]] = None,
+        use_fs_to_pass_data: bool = False,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -88,6 +93,17 @@ class Pipeline(BasePipeline):
                 the runtime parameters for the step as the value. Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
+            storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
+                that will be used to store the data of the `_Batch`es passed between the
+                steps if `use_fs_to_pass_data` is `True` (for the batches received by a
+                `GlobalStep` it will be always used). It must have at least the "path" key,
+                and it can contain additional keys depending on the protocol. By default,
+                it will use the local file system and a directory in the cache directory.
+                Defaults to `None`.
+            use_fs_to_pass_data: Whether to use the file system to pass the data of
+                the `_Batch`es between the steps. Even if this parameter is `False`, the
+                `Batch`es received by `GlobalStep`s will always use the file system to
+                pass the data. Defaults to `False`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -96,37 +112,15 @@ class Pipeline(BasePipeline):
             RuntimeError: If the pipeline fails to load all the steps.
         """
         log_queue = mp.Queue()
-        # We must place the runtime parameters before calling setup_logging to ensure consistency
-        super().run(parameters, use_cache)
-        setup_logging(log_queue, filename=str(self._cache_location["log_file"]))  # type: ignore
-        self._logger = logging.getLogger("distilabel.pipeline.local")
 
-        if self._dry_run:
-            # This message is placed here to ensure we are using the already setup logger.
-            self._logger.info("🌵 Dry run mode")
+        self._set_logging_parameters(
+            {"log_queue": log_queue, "filename": self._cache_location["log_file"]}
+        )
 
-        if self._batch_manager is None:
-            self._batch_manager = _BatchManager.from_dag(self.dag)
-
-        # If the batch manager is not able to generate batches, that means that the loaded
-        # `_BatchManager` from cache didn't have any remaining batches to process i.e.
-        # the previous pipeline execution was completed successfully.
-        if not self._batch_manager.can_generate():
-            self._logger.info(
-                "💾 Loaded batch manager from cache doesn't have any remaining data. Returning"
-                " `Distiset` from cache data..."
-            )
-            stop_logging()
-            return create_distiset(
-                self._cache_location["data"],
-                pipeline_path=self._cache_location["pipeline"],
-                log_filename_path=self._cache_location["log_file"],
-                enable_metadata=self._enable_metadata,
-            )
-
-        buffer_data_path = self._cache_location["data"]
-        self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
-        write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
+        if distiset := super().run(
+            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+        ):
+            return distiset
 
         num_processes = len(self.dag)
         ctx = mp.get_context()  # type: ignore
@@ -144,7 +138,7 @@ class Pipeline(BasePipeline):
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
-                write_buffer.close()
+                self._write_buffer.close()  # type: ignore
                 self._batch_manager = None
                 stop_logging()
                 raise RuntimeError(
@@ -156,15 +150,17 @@ class Pipeline(BasePipeline):
             self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
-            self._run_output_queue_loop_in_thread(write_buffer)
+            self._run_output_queue_loop_in_thread()
 
             # Send `None` to steps `input_queue`s just in case some step is still waiting
             self._notify_steps_to_stop()
 
-            pool.close()
-            pool.join()
+        # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
+        # all the processes have finished
+        pool.join()
+        manager.join()
 
-        write_buffer.close()
+        self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
@@ -174,15 +170,11 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    def _run_output_queue_loop_in_thread(self, write_buffer: "_WriteBuffer") -> None:
+    def _run_output_queue_loop_in_thread(self) -> None:
         """Runs the output queue loop in a separate thread to receive the output batches
         from the steps. This is done to avoid the signal handler to block the loop, which
-        would prevent the pipeline from stopping correctly.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
-        thread = threading.Thread(target=self._output_queue_loop, args=(write_buffer,))
+        would prevent the pipeline from stopping correctly."""
+        thread = threading.Thread(target=self._output_queue_loop)
         thread.start()
         thread.join()
 
@@ -193,21 +185,28 @@ class Pipeline(BasePipeline):
             if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
                 input_queue.put(None)
 
-    def _output_queue_loop(self, write_buffer: "_WriteBuffer") -> None:
+    def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
-        batches through the pipeline.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
+        batches through the pipeline."""
         while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
             if (batch := self.output_queue.get()) is None:
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
+            self._logger.debug(
+                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
+                f" from output queue: {batch}"
+            )
+
+            if batch.data_path:
+                self._logger.debug(
+                    f"Reading {batch.seq_no} batch data from '{batch.step_name}': '{batch.data_path}'"
+                )
+                batch.read_batch_data_from_fs()
+
             if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch)
+                self._write_buffer.add_batch(batch)  # type: ignore
 
             # If `_STOP_CALLED` was set to `True` while waiting for the output queue, then
             # we need to handle the stop of the pipeline and break the loop to avoid
@@ -217,15 +216,10 @@ class Pipeline(BasePipeline):
                 self._handle_batch_on_stop(batch)
                 break
 
-            self._logger.debug(
-                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
-                f" from output queue: {batch}"
-            )
-
             self._manage_batch_flow(batch)
 
         if _STOP_CALLED:
-            self._handle_stop(write_buffer)
+            self._handle_stop()
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -357,14 +351,10 @@ class Pipeline(BasePipeline):
             )
             self._send_batch_to_step(last_batch.next_batch())
 
-    def _handle_stop(self, write_buffer: "_WriteBuffer") -> None:
+    def _handle_stop(self) -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose
-        any data that was already processed by the steps before the stop was called.
-
-        Args:
-            write_buffer: The write buffer to write the data from the leaf steps to disk.
-        """
+        any data that was already processed by the steps before the stop was called."""
         self._logger.debug("Handling stop of the pipeline execution...")
 
         # Add the remaining batches in the input queues back to the batch manager
@@ -399,7 +389,7 @@ class Pipeline(BasePipeline):
                 continue
 
             if batch.step_name in self.dag.leaf_steps:
-                write_buffer.add_batch(batch)
+                self._write_buffer.add_batch(batch)  # type: ignore
 
             self._handle_batch_on_stop(batch)
 
@@ -522,14 +512,7 @@ class Pipeline(BasePipeline):
         Args:
             batch: The batch to send.
         """
-        self._logger.debug(
-            f"Setting batch {batch.seq_no} as last batch sent to '{batch.step_name}': {batch}"
-        )
-        self._batch_manager.set_last_batch_sent(batch)  # type: ignore
-
-        self._logger.debug(
-            f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
-        )
+        super()._send_batch_to_step(batch)
         input_queue = self.dag.get_step(batch.step_name)[INPUT_QUEUE_ATTR_NAME]
         input_queue.put(batch)
 
@@ -582,7 +565,7 @@ class Pipeline(BasePipeline):
         for step_name in self.dag:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = manager.Queue()
-            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)
+            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)  # type: ignore
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
@@ -623,20 +606,21 @@ class Pipeline(BasePipeline):
             with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
                 self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
             _SUBPROCESS_EXCEPTION = e.subprocess_exception
-            _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(
+            _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(  # type: ignore
                 e.formatted_traceback
             ).as_traceback()
             return
 
         # If the step is global, is not in the last trophic level and has no successors,
         # then we can ignore the error and continue executing the pipeline
+        step_name: str = e.step.name  # type: ignore
         if (
             e.step.is_global
-            and not self.dag.step_in_last_trophic_level(e.step.name)
-            and list(self.dag.get_step_successors(e.step.name)) == []
+            and not self.dag.step_in_last_trophic_level(step_name)
+            and list(self.dag.get_step_successors(step_name)) == []
         ):
             self._logger.error(
-                f"✋ An error occurred when running global step '{e.step.name}' with no"
+                f"✋ An error occurred when running global step '{step_name}' with no"
                 " successors and not in the last trophic level. Pipeline execution can"
                 f" continue. Error will be ignored."
             )
@@ -644,7 +628,7 @@ class Pipeline(BasePipeline):
             return
 
         # Global step with successors failed
-        self._logger.error(f"An error occurred in global step '{e.step.name}'")
+        self._logger.error(f"An error occurred in global step '{step_name}'")
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
         self._cache()
         self._stop()
@@ -691,28 +675,22 @@ class Pipeline(BasePipeline):
             if _STOP_CALLED:
                 global _STOP_CALLS
                 _STOP_CALLS += 1
-                # if _STOP_CALLS == 1:
-                #     self._logger.warning(
-                #         "🛑 Stop has already been called. Ignoring subsequent calls and waiting"
-                #         " for the pipeline to finish..."
-                #     )
                 if _STOP_CALLS == 1:
                     self._logger.warning(
                         "🛑 Press again to force the pipeline to stop."
                     )
                 elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
-                    import gc
-                    import sys
+
+                    if pool:
+                        pool.terminate()
+                        pool.join()
 
                     if manager:
                         manager.shutdown()
+                        manager.join()
 
-                    if pool:
-                        pool.close()
-                        pool.terminate()
-
-                    gc.collect()
+                    stop_logging()
 
                     sys.exit(1)
 
@@ -958,6 +936,11 @@ class _ProcessWrapper:
             self.step._logger.info(
                 f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
             )
+
+            if batch.data_path is not None:
+                self.step._logger.debug(f"Reading batch data from '{batch.data_path}'")
+                batch.read_batch_data_from_fs()
+
             result = []
             try:
                 if self.step.has_multiple_inputs:
@@ -969,11 +952,7 @@ class _ProcessWrapper:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e
 
                 # Impute step outputs columns with `None`
-                for row in batch.data[0]:
-                    data = row.copy()
-                    for output in self.step.outputs:
-                        data[output] = None
-                    result.append(data)
+                result = self._impute_step_outputs(batch)
 
                 # if the step is not global then we can skip the batch which means sending
                 # an empty batch to the output queue
@@ -991,8 +970,26 @@ class _ProcessWrapper:
             if batch.last_batch:
                 break
 
+    def _impute_step_outputs(self, batch: "_Batch") -> List[Dict[str, Any]]:
+        """Imputes the step outputs columns with `None` in the batch data.
+
+        Args:
+            batch: The batch to impute.
+        """
+        result = []
+        for row in batch.data[0]:
+            data = row.copy()
+            for output in self.step.outputs:
+                data[output] = None
+            result.append(data)
+        return result
+
     def _send_batch(self, batch: _Batch) -> None:
         """Sends a batch to the `output_queue`."""
+        if batch.data_path is not None:
+            self.step._logger.debug(f"Writing batch data to '{batch.data_path}'")
+            batch.write_batch_data_to_fs()
+
         self.step._logger.info(
             f"📨 Step '{batch.step_name}' sending batch {batch.seq_no} to output queue"
         )

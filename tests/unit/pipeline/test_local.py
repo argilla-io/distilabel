@@ -58,8 +58,7 @@ class TestLocalPipeline:
         )
         pipeline._send_batch_to_step(batch=batch)  # type: ignore
 
-        batch_manager_mock.set_last_batch_sent.assert_called_once_with(batch)
-        get_step_mock.assert_called_once_with(dummy_generator_step.name)
+        get_step_mock.assert_has_calls([mock.call(dummy_generator_step.name)])
         input_queue.put.assert_called_once_with(batch)
 
     @mock.patch("distilabel.pipeline.local._ProcessWrapper")

@@ -11,11 +11,10 @@ repos:
           - --fuzzy-match-generates-todo
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.4
+    rev: v0.4.5
     hooks:
       - id: ruff
-        args:
-          - --fix
+        args: [--fix]
       - id: ruff-format
 
 ci:

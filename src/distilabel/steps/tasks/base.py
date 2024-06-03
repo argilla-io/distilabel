@@ -25,15 +25,13 @@ from distilabel.steps.base import (
     StepInput,
     _Step,
 )
+from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepOutput
-
-
-DISTILABEL_METADATA_KEY = "distilabel_metadata"
 
 
 class _Task(_Step, ABC):

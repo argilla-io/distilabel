@@ -166,15 +166,8 @@ def run_pipeline():
     )
 
 
-def test_pipeline_cached():
-    ds = run_pipeline()
-    print()
-    print("----- RUNNING PIPELINE AGAIN -----")
-    print()
+def test_pipeline_cached() -> None:
+    run_pipeline()
     ds = run_pipeline()
     assert isinstance(ds, Distiset)
     assert len(ds["default"]["train"]) == 80
-
-
-if __name__ == "__main__":
-    test_pipeline_cached()
