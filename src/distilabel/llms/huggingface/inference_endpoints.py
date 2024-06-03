@@ -16,6 +16,7 @@ import asyncio
 import os
 import random
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
@@ -201,6 +202,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             from huggingface_hub import (
                 AsyncInferenceClient,
                 InferenceClient,
+                constants,
                 get_inference_endpoint,
             )
         except ImportError as ie:
@@ -210,10 +212,14 @@ class InferenceEndpointsLLM(AsyncLLM):
             ) from ie
 
         if self.api_key is None:
-            raise ValueError(
-                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
-                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
-            )
+            if not Path(constants.HF_TOKEN_PATH).exists():
+                raise ValueError(
+                    f"To use `{self.__class__.__name__}` an API key must be provided via"
+                    " `api_key` attribute or runtime parameter, set the environment variable"
+                    f" `{self._api_key_env_var}` or use the `huggingface-hub` CLI to login"
+                    " with `huggingface-cli login`."
+                )
+            self.api_key = SecretStr(open(constants.HF_TOKEN_PATH).read().strip())
 
         if self.model_id is not None:
             client = InferenceClient()
