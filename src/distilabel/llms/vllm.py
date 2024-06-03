@@ -21,7 +21,7 @@ from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -153,7 +153,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "ChatType") -> str:
+    def prepare_input(self, input: "StandardInput") -> str:
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
@@ -166,7 +166,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,

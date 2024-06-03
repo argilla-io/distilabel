@@ -30,7 +30,7 @@ from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -132,7 +132,7 @@ class CohereLLM(AsyncLLM):
                 self.structured_output = structured_output
 
     def _format_chat_to_cohere(
-        self, input: "ChatType"
+        self, input: "StandardInput"
     ) -> Tuple[Union[str, None], List["ChatMessage"], str]:
         """Formats the chat input to the Cohere Chat API conversational format.
 
@@ -169,7 +169,7 @@ class CohereLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         k: Optional[int] = None,
@@ -241,7 +241,7 @@ class CohereLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["StandardInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -249,7 +249,7 @@ class CohereLLM(AsyncLLM):
         synchronously awaiting for the response of each input sent to `agenerate`."""
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["StandardInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

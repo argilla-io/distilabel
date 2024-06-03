@@ -18,7 +18,7 @@ from pydantic import PrivateAttr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from vertexai.generative_models import Content, GenerativeModel
@@ -87,7 +87,7 @@ class VertexAILLM(AsyncLLM):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def _chattype_to_content(self, input: "ChatType") -> List["Content"]:
+    def _chattype_to_content(self, input: "StandardInput") -> List["Content"]:
         """Converts a chat type to a list of content items expected by the API.
 
         Args:
@@ -114,7 +114,7 @@ class VertexAILLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         num_generations: int = 1,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,

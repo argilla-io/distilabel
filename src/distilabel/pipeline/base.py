@@ -46,6 +46,7 @@ from distilabel.pipeline.constants import (
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.utils.dicts import flatten_dict
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
@@ -1556,7 +1557,7 @@ class _BatchManager(_Serializable):
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
 
-            # Store each `_BatchManagerStep` `_Batch`es in a separete file
+            # Store each `_BatchManagerStep` `_Batch`es in a separate file
             for buffered_step_name in step_dump["data"]:
                 step_batches_dir = batch_manager_step_dir / buffered_step_name
                 step_batches_dir.mkdir(parents=True, exist_ok=True)
@@ -1718,7 +1719,16 @@ class _WriteBuffer:
             )
             step_parquet_dir.mkdir()
 
-        table = pa.Table.from_pylist(self._buffers[step_name])
+        try:
+            table = pa.Table.from_pylist(self._buffers[step_name])
+        except pa.lib.ArrowInvalid as pae:
+            if (
+                repr(pae)
+                != "ArrowInvalid('cannot mix struct and non-struct, non-null values')"
+            ):
+                raise pae
+            flattened_buffers = [flatten_dict(buf) for buf in self._buffers[step_name]]
+            table = pa.Table.from_pylist(flattened_buffers)
 
         last_schema = self._buffer_last_schema.get(step_name)
         if last_schema is None:

@@ -31,6 +31,7 @@ from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
 from distilabel.steps.tasks.self_instruct import SelfInstruct
 from distilabel.steps.tasks.sentence_transformers import GenerateSentencePair
+from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
@@ -52,6 +53,7 @@ __all__ = [
     "QualityScorer",
     "SelfInstruct",
     "GenerateSentencePair",
+    "StructuredGeneration",
     "ChatGeneration",
     "TextGeneration",
     "ChatItem",
