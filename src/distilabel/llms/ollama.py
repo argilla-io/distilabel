@@ -19,7 +19,7 @@ from typing_extensions import TypedDict
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from ollama import AsyncClient
@@ -117,7 +117,7 @@ class OllamaLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         num_generations: int = 1,
         format: Literal["", "json"] = "",
         # TODO: include relevant options from `Options` in `agenerate` method.

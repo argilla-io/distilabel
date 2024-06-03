@@ -77,6 +77,7 @@ def test_imports() -> None:
         PrometheusEval,
         QualityScorer,
         SelfInstruct,
+        StructuredGeneration,
         TextGeneration,
         UltraFeedback,
     )

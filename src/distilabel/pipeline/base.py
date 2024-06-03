@@ -32,18 +32,23 @@ from typing import (
     Union,
 )
 
+import fsspec
 import pyarrow as pa
 import pyarrow.parquet as pq
 from typing_extensions import Self
+from upath import UPath
 
 from distilabel import __version__
+from distilabel.distiset import create_distiset
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.constants import (
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.utils.dicts import flatten_dict
 from distilabel.utils.files import list_files_in_dir
+from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _check_is_dir,
@@ -76,6 +81,7 @@ class _CacheLocation(TypedDict):
     pipeline: Path
     batch_manager: Path
     data: Path
+    batch_input_data: Path
     log_file: Path
 
 
@@ -118,14 +124,31 @@ class BasePipeline(_Serializable):
         _cache_dir: The directory where the pipeline will be cached.
         _logger: The logger instance that will be used by the pipeline.
         _batch_manager: The batch manager that will manage the batches received from the
-            steps while running the pipeline.
+            steps while running the pipeline. It will be created when the pipeline is run,
+            from scratch or from cache. Defaults to `None`.
+        _write_buffer: The buffer that will store the data of the leaf steps of the pipeline
+            while running, so the `Distiset` can be created at the end. It will be created
+            when the pipeline is run. Defaults to `None`.
+        _logging_parameters: A dictionary containing the parameters that will passed to
+            `setup_logging` function to initialize the logging. Defaults to `{}`.
+        _fs: The `fsspec` filesystem to be used to store the data of the `_Batch`es passed
+            between the steps. It will be set when the pipeline is run. Defaults to `None`.
+        _storage_base_path: The base path where the data of the `_Batch`es passed between
+            the steps will be stored. It will be set then the pipeline is run. Defaults
+            to `None`.
+        _use_fs_to_pass_data: Whether to use the file system to pass the data of the
+            `_Batch`es between the steps. Even if this parameter is `False`, the `Batch`es
+            received by `GlobalStep`s will always use the file system to pass the data.
+            Defaults to `False`.
+        _dry_run: A flag to indicate if the pipeline is running in dry run mode. Defaults
+            to `False`.
     """
 
     def __init__(
         self,
         name: str,
         description: Optional[str] = None,
-        cache_dir: Optional["PathLike"] = None,
+        cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
     ) -> None:
         """Initialize the `BasePipeline` instance.
@@ -153,8 +176,15 @@ class BasePipeline(_Serializable):
 
         self._logger = logging.getLogger("distilabel.pipeline")
 
-        # It's set to None here, will be created in the call to run
         self._batch_manager: Optional["_BatchManager"] = None
+        self._write_buffer: Optional["_WriteBuffer"] = None
+        self._logging_parameters: Dict[str, Any] = {
+            "filename": self._cache_location["log_file"]
+        }
+
+        self._fs: Optional[fsspec.AbstractFileSystem] = None
+        self._storage_base_path: Optional[str] = None
+        self._use_fs_to_pass_data: bool = False
         self._dry_run: bool = False
 
     def __enter__(self) -> Self:
@@ -224,10 +254,22 @@ class BasePipeline(_Serializable):
 
         return hasher.hexdigest()
 
+    def _set_logging_parameters(self, parameters: Dict[str, Any]) -> None:
+        """Set the parameters that will be passed to the `setup_logging` function to
+        initialize the logging.
+
+        Args:
+            parameters: A dictionary with the parameters that will be passed to the
+                `setup_logging` function.
+        """
+        self._logging_parameters = parameters
+
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
         use_cache: bool = True,
+        storage_parameters: Optional[Dict[str, Any]] = None,
+        use_fs_to_pass_data: bool = False,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
@@ -240,14 +282,58 @@ class BasePipeline(_Serializable):
                 the runtime parameters for the step as the value. Defaults to `None`.
             use_cache: Whether to use the cache from previous pipeline runs. Defaults to
                 `True`.
+            storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
+                that will be used to store the data of the `_Batch`es passed between the
+                steps if `use_fs_to_pass_data` is `True` (for the batches received by a
+                `GlobalStep` it will be always used). It must have at least the "path" key,
+                and it can contain additional keys depending on the protocol. By default,
+                it will use the local file system and a directory in the cache directory.
+                Defaults to `None`.
+            use_fs_to_pass_data: Whether to use the file system to pass the data of
+                the `_Batch`es between the steps. Even if this parameter is `False`, the
+                `Batch`es received by `GlobalStep`s will always use the file system to
+                pass the data. Defaults to `False`.
 
         Returns:
             The `Distiset` created by the pipeline.
         """
-        if use_cache:
-            self._load_from_cache()
+
+        setup_logging(**self._logging_parameters)
+
+        # Set the runtime parameters that will be used during the pipeline execution
         self._set_runtime_parameters(parameters or {})
+
+        # Validate the pipeline DAG to check that all the steps are chainable, there are
+        # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
+
+        # Load the `_BatchManager` from cache or create one from scratch
+        self._load_batch_manager(use_cache)
+
+        # Setup the filesystem that will be used to pass the data of the `_Batch`es
+        self._setup_fsspec(storage_parameters)
+        self._use_fs_to_pass_data = use_fs_to_pass_data
+
+        if self._dry_run:
+            self._logger.info("🌵 Dry run mode")
+
+        # If the batch manager is not able to generate batches, that means that the loaded
+        # `_BatchManager` from cache didn't have any remaining batches to process i.e.
+        # the previous pipeline execution was completed successfully.
+        if not self._batch_manager.can_generate():  # type: ignore
+            self._logger.info(
+                "💾 Loaded batch manager from cache doesn't contain any remaining data."
+                " Returning `Distiset` from cache data..."
+            )
+            stop_logging()
+            return create_distiset(
+                self._cache_location["data"],
+                pipeline_path=self._cache_location["pipeline"],
+                log_filename_path=self._cache_location["log_file"],
+                enable_metadata=self._enable_metadata,
+            )
+
+        self._setup_write_buffer()
 
     def dry_run(
         self,
@@ -296,6 +382,40 @@ class BasePipeline(_Serializable):
             step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
+
+    def _setup_fsspec(
+        self, storage_parameters: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Setups the `fsspec` filesystem to be used to store the data of the `_Batch`es
+        passed between the steps.
+
+        Args:
+            storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
+                that will be used to store the data of the `_Batch`es passed between the
+                steps if `use_fs_to_pass_data` is `True` (for the batches received by a
+                `GlobalStep` it will be always used). It must have at least the "path" key,
+                and it can contain additional keys depending on the protocol. By default,
+                it will use the local file system and a directory in the cache directory.
+                Defaults to `None`.
+        """
+        if not storage_parameters:
+            self._fs = fsspec.filesystem("file")
+            self._storage_base_path = (
+                f"file://{self._cache_location['batch_input_data']}"
+            )
+            return
+
+        if "path" not in storage_parameters:
+            raise ValueError(
+                "The 'path' key must be present in the `storage_parameters` dictionary"
+                " if it's not `None`."
+            )
+
+        path = storage_parameters.pop("path")
+        protocol = UPath(path).protocol
+
+        self._fs = fsspec.filesystem(protocol, **storage_parameters)
+        self._storage_base_path = path
 
     def _add_step(self, step: "_Step") -> None:
         """Add a step to the pipeline.
@@ -411,11 +531,15 @@ class BasePipeline(_Serializable):
             "pipeline": folder / "pipeline.yaml",
             "batch_manager": folder / "batch_manager.json",
             "data": folder / "data",
+            "batch_input_data": folder / "batch_input_data",
             "log_file": folder / "pipeline.log",
         }
 
     def _cache(self) -> None:
         """Saves the `BasePipeline` using the `_cache_filename`."""
+        if self._dry_run:
+            return
+
         self.save(
             path=self._cache_location["pipeline"],
             format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
@@ -424,17 +548,54 @@ class BasePipeline(_Serializable):
             self._batch_manager.cache(self._cache_location["batch_manager"])
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
-    def _load_from_cache(self) -> None:
-        """Will try to load the `BasePipeline` from the cache dir if found, updating
-        the internal `DAG` and `_BatchManager`.
+    def _load_batch_manager(self, use_cache: bool = True) -> None:
+        """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
+        it will create one from scratch.
         """
-        cache_loc = self._cache_location
-        if cache_loc["pipeline"].exists():
-            if cache_loc["batch_manager"].exists():
-                self._batch_manager = _BatchManager.load_from_cache(
-                    cache_loc["batch_manager"]
-                )
-            self._logger.info("💾 Load pipeline from cache")
+        batch_manager_cache_loc = self._cache_location["batch_manager"]
+        if use_cache and batch_manager_cache_loc.exists():
+            self._logger.info(
+                f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
+            )
+            self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
+        else:
+            self._batch_manager = _BatchManager.from_dag(self.dag)
+
+    def _setup_write_buffer(self) -> None:
+        """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
+        pipeline while running, so the `Distiset` can be created at the end.
+        """
+        buffer_data_path = self._cache_location["data"]
+        self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
+        self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
+
+    def _send_batch_to_step(self, batch: "_Batch") -> None:
+        """Sends a batch to the input queue of a step, writing the data of the batch
+        to the filesystem and setting `batch.data_path` with the path where the data
+        was written (if requiered i.e. the step is a global step or `use_fs_to_pass_data`)
+
+        This method should be extended by the specific pipeline implementation, adding
+        the logic to send the batch to the step.
+
+        Args:
+            batch: The batch to send.
+        """
+        self._logger.debug(
+            f"Setting batch {batch.seq_no} as last batch sent to '{batch.step_name}': {batch}"
+        )
+        self._batch_manager.set_last_batch_sent(batch)  # type: ignore
+
+        step: "_Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+        if not step.is_generator and (step.is_global or self._use_fs_to_pass_data):
+            base_path = UPath(self._storage_base_path) / step.name  # type: ignore
+            self._logger.debug(
+                f"Writing {batch.seq_no} batch for '{batch.step_name}' step to filesystem: {base_path}"
+            )
+            batch.write_batch_data_to_fs(self._fs, base_path)  # type: ignore
+
+        self._logger.debug(
+            f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
+        )
 
 
 @dataclass
@@ -446,6 +607,8 @@ class _Batch(_Serializable):
         step_name: The name of the step that will process the batch.
         last_batch: A flag to indicate if the batch is the last one.
         data: The data to be processed.
+        data_hash: The hash of the data. Defaults to `None`.
+        data_path: The path where the data of the batch is stored. Defaults to `None`.
         accumulated: A flag to indicate if the batch is accumulated.
         created_from: A dictionary containing the `seq_no` of the batches of the steps that
             were used to create this batch.
@@ -457,10 +620,12 @@ class _Batch(_Serializable):
     last_batch: bool
     data: List[List[Dict[str, Any]]] = field(default_factory=list, repr=False)
     data_hash: Optional[str] = None
+    data_path: Optional[str] = None
     accumulated: bool = False
     created_from: Dict[str, List[Tuple[int, int]]] = field(default_factory=dict)
     batch_routed_to: List[str] = field(default_factory=list)
     size: int = 0
+    _fs: Optional[fsspec.AbstractFileSystem] = None
 
     def next_batch(self) -> "_Batch":
         """Create a new `_Batch` instance with the next batch of data.
@@ -496,6 +661,9 @@ class _Batch(_Serializable):
         Returns:
             A list with the data taken from the batch.
         """
+
+        if self.data == [] and self.data_path is not None:
+            pass
 
         if num_rows is None:
             data = self.data[0]
@@ -569,6 +737,73 @@ class _Batch(_Serializable):
             A copy of the `_Batch` instance.
         """
         return copy.deepcopy(self)
+
+    def write_batch_data_to_fs(
+        self,
+        fs: Optional[fsspec.AbstractFileSystem] = None,
+        base_path: Optional[UPath] = None,
+    ) -> None:
+        """Writes the content of the batch to the filesystem.
+
+        Args
+            fs: The `fsspec` filesystem to be used to write the data. If not provided, the
+                one set in the `_fs` attribute will be used. Defaults to `None`.
+            base_path: The base path where the data of the batch will be stored. If not
+                provided, the one set in the `data_path` attribute will be used. Defaults
+                to `None`.
+
+        Raises:
+            ValueError: If `fs` is not provided and the `_fs` attribute is not set.
+        """
+
+        if not fs and not self._fs:
+            raise ValueError(
+                "The `fs` parameter must be provided if the `_fs` attribute is not set."
+            )
+
+        if fs:
+            self._fs = fs
+
+        if not base_path and not self.data_path:
+            raise ValueError(
+                "The `base_path` parameter must be provided if the `data_path` attribute"
+                " is not set."
+            )
+
+        seq_no_dir = (
+            base_path / f"seq_no_{self.seq_no}" if base_path else UPath(self.data_path)
+        )
+        seq_no_dir._fs_cached = self._fs  # type: ignore
+        seq_no_dir.mkdir(parents=True, exist_ok=True)
+
+        for i, data in enumerate(self.data):
+            table = pa.Table.from_pylist(data)
+            with self._fs.open(seq_no_dir / f"data_index_{i}.parquet", "wb") as f:  # type: ignore
+                pq.write_table(table, f)
+
+        self.data = []
+        self.data_path = str(seq_no_dir)
+
+    def read_batch_data_from_fs(self) -> None:
+        """Reads the content of the batch from the filesystem."""
+        if not self.data_path:
+            raise ValueError(
+                "`data_path` attribute must be set to read the data from the filesystem."
+                " Use `write_batch_data_to_fs` method to set the `data_path` attribute."
+            )
+
+        if not self._fs:
+            raise ValueError(
+                "`_fs` attribute must be set to read the data from the filesystem."
+                " Use `write_batch_data_to_fs` method to set the `_fs` attribute."
+            )
+
+        for file in self._fs.ls(self.data_path):
+            with self._fs.open(file, "rb") as f:
+                table = pq.read_table(f)
+                self.data.append(table.to_pylist())
+
+        self._fs.rm(self.data_path, recursive=True)
 
 
 @dataclass
@@ -1322,7 +1557,7 @@ class _BatchManager(_Serializable):
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
 
-            # Store each `_BatchManagerStep` `_Batch`es in a separete file
+            # Store each `_BatchManagerStep` `_Batch`es in a separate file
             for buffered_step_name in step_dump["data"]:
                 step_batches_dir = batch_manager_step_dir / buffered_step_name
                 step_batches_dir.mkdir(parents=True, exist_ok=True)
@@ -1484,7 +1719,16 @@ class _WriteBuffer:
             )
             step_parquet_dir.mkdir()
 
-        table = pa.Table.from_pylist(self._buffers[step_name])
+        try:
+            table = pa.Table.from_pylist(self._buffers[step_name])
+        except pa.lib.ArrowInvalid as pae:
+            if (
+                repr(pae)
+                != "ArrowInvalid('cannot mix struct and non-struct, non-null values')"
+            ):
+                raise pae
+            flattened_buffers = [flatten_dict(buf) for buf in self._buffers[step_name]]
+            table = pa.Table.from_pylist(flattened_buffers)
 
         last_schema = self._buffer_last_schema.get(step_name)
         if last_schema is None:

@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -45,7 +46,7 @@ distilabel = "distilabel.cli.app:app"
 "distilabel/components-gallery" = "distilabel.utils.mkdocs.components_gallery:ComponentsGalleryPlugin"
 
 [project.optional-dependencies]
-dev = ["ruff == 0.2.2", "pre-commit >= 3.5.0"]
+dev = ["ruff == 0.4.5", "pre-commit >= 3.5.0"]
 docs = [
     "mkdocs-material >= 9.5.0",
     "mkdocstrings[python] >= 0.24.0",
@@ -57,11 +58,17 @@ docs = [
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
 ]
-tests = ["pytest >= 7.4.0", "pytest-asyncio", "nest-asyncio", "pytest-timeout"]
+tests = [
+    "pytest >= 7.4.0",
+    "pytest-asyncio",
+    "nest-asyncio",
+    "pytest-timeout",
+    "pytest-codspeed",
+]
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
-argilla = ["argilla >= 1.23.0"]
+argilla = ["argilla >= 1.29.0"]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
@@ -74,7 +81,7 @@ ollama = ["ollama >= 0.1.7"]
 openai = ["openai >= 1.0.0"]
 outlines = ["outlines >= 0.0.40"]
 vertexai = ["google-cloud-aiplatform >= 1.38.0"]
-vllm = ["vllm >= 0.2.1", "filelock >= 3.13.4"]
+vllm = ["vllm >= 0.4.0", "outlines == 0.0.34", "filelock >= 3.13.4"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
