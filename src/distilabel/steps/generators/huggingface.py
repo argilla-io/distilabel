@@ -315,7 +315,8 @@ class LoadFromDisk(LoadFromHub):
             else:
                 self.num_examples = len(self._dataset)
 
-    def _prepare_data_files(self, data_path: UPath) -> Tuple[str, str]:
+    @staticmethod
+    def _prepare_data_files(data_path: UPath) -> Tuple[str, str]:
         """Prepare the loading process by setting the `data_files` attribute."""
 
         def get_filetype(data_path: UPath) -> str:

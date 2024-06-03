@@ -13,19 +13,20 @@
 # limitations under the License.
 
 import os
+from pathlib import Path
 from typing import Generator, Union
 
 import pytest
 from datasets import Dataset, IterableDataset
 from distilabel.pipeline import Pipeline
-from distilabel.steps.generators.huggingface import LoadHubDataset
+from distilabel.steps.generators.huggingface import LoadFromDisk, LoadFromHub
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
 
 @pytest.fixture(scope="module")
 def dataset_loader() -> Generator[Union[Dataset, IterableDataset], None, None]:
-    load_hub_dataset = LoadHubDataset(
+    load_hub_dataset = LoadFromHub(
         name="load_dataset",
         repo_id="distilabel-internal-testing/instruction-dataset-mini",
         split="test",
@@ -39,12 +40,12 @@ def dataset_loader() -> Generator[Union[Dataset, IterableDataset], None, None]:
     not DISTILABEL_RUN_SLOW_TESTS,
     reason="These tests depend on internet connection, are slow and depend mainly on HF API, we don't need to test them often.",
 )
-class TestLoadHubDataset:
+class TestLoadFromHub:
     @pytest.mark.parametrize(
         "streaming, ds_type", [(True, IterableDataset), (False, Dataset)]
     )
     def test_runtime_parameters(self, streaming: bool, ds_type) -> None:
-        load_hub_dataset = LoadHubDataset(
+        load_hub_dataset = LoadFromHub(
             name="load_dataset",
             repo_id="distilabel-internal-testing/instruction-dataset-mini",
             split="test",
@@ -60,6 +61,83 @@ class TestLoadHubDataset:
         assert isinstance(generator_step_output[1], bool)
         assert len(generator_step_output[0]) == 2
 
-    def test_dataset_outputs(self, dataset_loader: LoadHubDataset) -> None:
+    def test_dataset_outputs(self, dataset_loader: LoadFromHub) -> None:
         # TODO: This test can be run with/without internet connection, we should emulate it here with a mock.
         assert dataset_loader.outputs == ["prompt", "completion", "meta"]
+
+
+class TestLoadFromDisk:
+    @pytest.mark.parametrize("filetype", ["json", None])
+    @pytest.mark.parametrize("streaming", [True, False])
+    def test_read_from_disk(self, streaming: bool, filetype: Union[str, None]) -> None:
+        loader = LoadFromDisk(
+            filetype=filetype,
+            data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
+            streaming=streaming,
+        )
+        loader.load()
+        generator_step_output = next(loader.process())
+        assert isinstance(generator_step_output, tuple)
+        assert isinstance(generator_step_output[1], bool)
+        assert len(generator_step_output[0]) == 11
+
+    @pytest.mark.parametrize("filetype", ["json", None])
+    def test_read_from_disk_with_folder(self, filetype: Union[str, None]) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filename = "sample_functions.jsonl"
+            sample_file = Path(__file__).parent / filename
+            for i in range(3):
+                Path(tmpdir).mkdir(parents=True, exist_ok=True)
+                (Path(tmpdir) / f"sample_functions_{i}.jsonl").write_text(
+                    sample_file.read_text(), encoding="utf-8"
+                )
+
+            loader = LoadFromDisk(
+                filetype=filetype,
+                data_files=tmpdir,
+            )
+            loader.load()
+            generator_step_output = next(loader.process())
+            assert isinstance(generator_step_output, tuple)
+            assert isinstance(generator_step_output[1], bool)
+            assert len(generator_step_output[0]) == 33
+
+    @pytest.mark.parametrize("filetype", ["json", None])
+    def test_read_from_disk_with_nested_folder(
+        self, filetype: Union[str, None]
+    ) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filename = "sample_functions.jsonl"
+            sample_file = Path(__file__).parent / filename
+            for folder in ["train", "validation"]:
+                (Path(tmpdir) / folder).mkdir(parents=True, exist_ok=True)
+                (Path(tmpdir) / folder / filename).write_text(
+                    sample_file.read_text(), encoding="utf-8"
+                )
+
+            loader = LoadFromDisk(
+                filetype=filetype,
+                data_files=tmpdir,
+            )
+            loader.load()
+            generator_step_output = next(loader.process())
+            assert isinstance(generator_step_output, tuple)
+            assert isinstance(generator_step_output[1], bool)
+            assert len(generator_step_output[0]) == 22
+
+    @pytest.mark.parametrize("load", [True, False])
+    def test_outputs(self, load: bool) -> None:
+        loader = LoadFromDisk(
+            filetype="json",
+            data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
+        )
+        if load:
+            loader.load()
+            assert loader.outputs == ["type", "function"]
+        else:
+            with pytest.raises(ValueError):
+                loader.outputs  # noqa: B018
