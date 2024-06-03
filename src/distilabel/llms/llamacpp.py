@@ -19,7 +19,7 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
@@ -128,7 +128,7 @@ class LlamaCppLLM(LLM):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,

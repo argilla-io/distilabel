@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -129,7 +129,7 @@ class MistralLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
@@ -180,7 +180,7 @@ class MistralLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["StandardInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -189,7 +189,7 @@ class MistralLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["StandardInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [
