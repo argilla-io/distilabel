@@ -12,30 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Union
+import json
+from typing import Any, List
 
-import pytest
-from distilabel.llms import LLM
+from distilabel.llms.base import LLM
+from distilabel.llms.typing import GenerateOutput
+from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.structured_generation import StructuredGeneration
-from distilabel.steps.tasks.typing import ChatType
-from pydantic import BaseModel
+from distilabel.steps.tasks.typing import StructuredInput
+from typing_extensions import override
 
 
-class Character(BaseModel):
-    name: str
-    description: str
-    role: str
-    weapon: str
-
-
-class Animal(BaseModel):
-    name: str
-    species: str
-    habitat: str
-    diet: str
-
-
-class DummyLLM(LLM):
+class DummyStructuredLLM(LLM):
     def load(self) -> None:
         pass
 
@@ -43,63 +31,94 @@ class DummyLLM(LLM):
     def model_name(self) -> str:
         return "test"
 
-    def generate(
-        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
-    ) -> List[List[Union[str, None]]]:
-        return [["output" for _ in range(num_generations)] for _ in inputs]
+    @override
+    def generate(  # type: ignore
+        self, inputs: List["StructuredInput"], num_generations: int = 1, **kwargs: Any
+    ) -> List["GenerateOutput"]:
+        return [
+            [json.dumps({"test": "output"}) for _ in range(num_generations)]
+            for _ in inputs
+        ]
 
 
 class TestStructuredGeneration:
-    @pytest.mark.parametrize(
-        "data, expected",
-        [
-            (
-                {
-                    "instruction": "What's the weather like today in Seattle in Celsius degrees?",
-                    "grammar": {  # Unexpected name
-                        "type": "regex",
-                        "value": "(\\d{1,2})°C",
-                    },
-                },
-                (
-                    [
-                        {
-                            "role": "user",
-                            "content": "What's the weather like today in Seattle in Celsius degrees?",
-                        }
-                    ],
-                    None,
-                ),
-            ),
-            (
-                {
-                    "instruction": "What's the weather like today in Seattle in Celsius degrees?",
-                    "structured_output": {
-                        "format": "regex",
-                        "schema": "(\\d{1,2})°C",
-                    },
-                },
-                (
-                    [
-                        {
-                            "role": "user",
-                            "content": "What's the weather like today in Seattle in Celsius degrees?",
-                        }
-                    ],
-                    {
-                        "format": "regex",
-                        "schema": "(\\d{1,2})°C",
-                    },
-                ),
-            ),
-        ],
-    )
-    def test_format_input_with_data(
-        self, data: Dict[str, Any], expected: List[Dict[str, Any]]
-    ) -> None:
+    def test_format_input(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyStructuredLLM()
+        task = StructuredGeneration(name="task", llm=llm, pipeline=pipeline)
+
+        # 1. Including the `grammar` field within the input
+        assert task.format_input(
+            {
+                "instruction": "test",
+                "system_prompt": "test",
+                "grammar": {"type": "regex", "value": r"[a-zA-Z]+"},
+            }
+        ) == (
+            [{"role": "user", "content": "test"}],
+            {"type": "regex", "value": r"[a-zA-Z]+"},
+        )
+
+        # 2. Not including the `grammar` field within the input
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == (
+            [{"role": "user", "content": "test"}],
+            None,
+        )
+
+    def test_format_input_with_system_prompt(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyStructuredLLM()
         task = StructuredGeneration(
             name="task",
-            llm=DummyLLM(),
+            llm=llm,
+            pipeline=pipeline,
+            use_system_prompt=True,
         )
-        task.load()
-        assert task.format_input(data) == expected
+
+        assert task.format_input({"instruction": "test", "system_prompt": "test"}) == (
+            [
+                {"role": "system", "content": "test"},
+                {"role": "user", "content": "test"},
+            ],
+            None,
+        )
+
+    def test_process(self) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        llm = DummyStructuredLLM()
+        task = StructuredGeneration(name="task", llm=llm, pipeline=pipeline)
+        assert next(
+            task.process(
+                [
+                    {
+                        "instruction": "test",
+                        "grammar": {
+                            "type": "json",
+                            "value": {
+                                "properties": {
+                                    "test": {"title": "Test", "type": "string"}
+                                },
+                                "required": ["test"],
+                                "title": "Test",
+                                "type": "object",
+                            },
+                        },
+                    }
+                ]
+            )
+        ) == [
+            {
+                "instruction": "test",
+                "grammar": {
+                    "type": "json",
+                    "value": {
+                        "properties": {"test": {"title": "Test", "type": "string"}},
+                        "required": ["test"],
+                        "title": "Test",
+                        "type": "object",
+                    },
+                },
+                "generation": '{"test": "output"}',
+                "model_name": "test",
+            }
+        ]

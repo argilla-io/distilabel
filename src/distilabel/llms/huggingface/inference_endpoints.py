@@ -16,6 +16,7 @@ import asyncio
 import os
 import random
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
@@ -32,8 +33,8 @@ from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
-    DefaultInput,
     FormattedInput,
+    StandardInput,
     StructuredOutputType,
 )
 from distilabel.utils.itertools import grouper
@@ -152,10 +153,9 @@ class InferenceEndpointsLLM(AsyncLLM):
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
 
-    # structured_output: Optional[RuntimeParameter[Grammar]] = Field(
     structured_output: Optional[RuntimeParameter[StructuredOutputType]] = Field(
         default=None,
-        description="The grammar to use across all the generations.",
+        description="The structured output format to use across all the generations.",
     )
 
     _model_name: Optional[str] = PrivateAttr(default=None)
@@ -211,6 +211,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             from huggingface_hub import (
                 AsyncInferenceClient,
                 InferenceClient,
+                constants,
                 get_inference_endpoint,
             )
         except ImportError as ie:
@@ -220,10 +221,14 @@ class InferenceEndpointsLLM(AsyncLLM):
             ) from ie
 
         if self.api_key is None:
-            raise ValueError(
-                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
-                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
-            )
+            if not Path(constants.HF_TOKEN_PATH).exists():
+                raise ValueError(
+                    f"To use `{self.__class__.__name__}` an API key must be provided via"
+                    " `api_key` attribute or runtime parameter, set the environment variable"
+                    f" `{self._api_key_env_var}` or use the `huggingface-hub` CLI to login"
+                    " with `huggingface-cli login`."
+                )
+            self.api_key = SecretStr(open(constants.HF_TOKEN_PATH).read().strip())
 
         if self.model_id is not None:
             client = InferenceClient()
@@ -300,7 +305,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     async def _openai_agenerate(
         self,
-        input: "DefaultInput",
+        input: "StandardInput",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -389,14 +394,16 @@ class InferenceEndpointsLLM(AsyncLLM):
                 )
                 stop_sequences = stop_sequences[:4]
 
-        grammar = None
+        structured_output = None
         if isinstance(input, tuple):
-            input, grammar = input
+            input, structured_output = input
 
-        # NOTE: `self.structured_output` applies to all the generations, while `grammar` is intended
-        # to be different per each input, and those are not intended to be used together
-        if grammar is None:
-            grammar = {
+        # NOTE: `self.structured_output` applies to all the generations, while `structured_output` i.e. the
+        # value included within the tuple provided as `input` to this method, is intended to be different per
+        # each input, so those should not be used together. Meaning that it should be either provided at attribute
+        # level i.e. self, or via a column within each input i.e. row.
+        if structured_output is None:
+            structured_output = {
                 "type": self.structured_output["format"],
                 "value": self.structured_output["schema"],
             }
@@ -435,7 +442,7 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
-                grammar=grammar,  # type: ignore
+                grammar=structured_output,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),

@@ -18,10 +18,45 @@ from typing import Any, Dict, Final, List, Union
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
 
+
 STRUCTURED_OUTPUT_COLUMN: Final[str] = "structured_output"
 
-
+# TODO(plaguss): update the docstrings accordingly if the final naming is `structured_output`
 class StructuredGeneration(Task):
+    """Generate structured content for a given `instruction` using an `LLM`.
+
+    `StructuredGeneration` is a pre-defined task that defines the `instruction` and the `grammar`
+    as the inputs, and `generation` as the output. This task is used to generate structured content based on
+    the input instruction and following the schema provided within the `grammar` column per each
+    `instruction`. The `model_name` also returned as part of the output in order to enhance it.
+
+    Attributes:
+        use_system_prompt: Whether to use the system prompt in the generation. Defaults to `True`,
+            which means that if the column `system_prompt` is  defined within the input batch, then
+            the `system_prompt` will be used, otherwise, it will be ignored.
+
+    Input columns:
+        - instruction (`str`): The instruction to generate structured content from.
+        - grammar (`Dict[str, Any]`): The grammar to generate structured content from. It should be a
+            Python dictionary with the keys `type` and `value`, where `type` should be one of `json` or
+            `regex`, and the `value` should be either the JSON schema or the regex pattern, respectively.
+
+    Output columns:
+        - generation (`str`): The generated text matching the provided schema, if possible.
+        - model_name (`str`): The name of the model used to generate the text.
+
+    Categories:
+        - outlines
+        - structured-generation
+
+    Examples:
+        ```python
+        from distilabel.steps.tasks import StructuredGeneration
+
+        task = StructuredGeneration(llm=LLM(...))
+        ```
+    """
+
     use_system_prompt: bool = False
 
     @property
@@ -29,7 +64,7 @@ class StructuredGeneration(Task):
         """The input for the task are the `instruction` and the `grammar`.
         Optionally, if the `use_system_prompt` flag is set to True, then the
         `system_prompt` will be used too."""
-        columns = ["instruction", "grammar"]
+        columns = ["instruction", STRUCTURED_OUTPUT_COLUMN]
         if self.use_system_prompt:
             columns = ["system_prompt"] + columns
         return columns
@@ -66,5 +101,7 @@ class StructuredGeneration(Task):
         self, output: Union[str, None], input: Dict[str, Any]
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
-        will be automatically included within the `process` method of `Task`."""
+        will be automatically included within the `process` method of `Task`. Note that even
+        if the `grammar` is defined to produce a JSON schema, this method will return the raw
+        output i.e. a string without any parsing."""
         return {"generation": output}

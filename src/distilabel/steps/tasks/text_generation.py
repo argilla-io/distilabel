@@ -37,7 +37,7 @@ class TextGeneration(Task):
 
     Output columns:
         - generation (`str`): The generated text.
-        - model_name (`str`): The model name used to generate the text.
+        - model_name (`str`): The name of the model used to generate the text.
 
     Categories:
         - text-generation
