@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -145,6 +146,7 @@ class TestInferenceEndpointsLLM:
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
+        ...
         nest_asyncio.apply()
 
         assert llm.generate(
@@ -158,6 +160,50 @@ class TestInferenceEndpointsLLM:
                 ]
             ]
         ) == [(" Aenean hendrerit aliquam velit. ...",)]
+
+    @pytest.mark.asyncio
+    async def test_agenerate_with_grammar(
+        self, mock_inference_client: MagicMock, _: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            grammar={"type": "regex", "value": r"\b[A-Z][a-z]*\b"},
+        )
+        llm._aclient = mock_inference_client
+
+        llm._aclient.text_generation = AsyncMock(
+            return_value=" Aenean hendrerit aliquam velit. ..."
+        )
+
+        # Since there's a pseudo-random number within the generation kwargs, we set the seed
+        # here first to ensure reproducibility within the tests
+        random.seed(42)
+
+        assert await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        ) == [" Aenean hendrerit aliquam velit. ..."]
+
+        kwargs = {
+            "prompt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "max_new_tokens": 128,
+            "do_sample": False,
+            "typical_p": None,
+            "repetition_penalty": None,
+            "temperature": 1.0,
+            "top_p": None,
+            "top_k": None,
+            "stop_sequences": None,
+            "return_full_text": False,
+            "watermark": False,
+            "grammar": {"type": "regex", "value": "\\b[A-Z][a-z]*\\b"},
+            "seed": 478163327,  # pre-computed random value with `random.seed(42)`
+        }
+        mock_inference_client.text_generation.assert_called_with(**kwargs)
 
     def test_serialization(
         self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
@@ -173,6 +219,7 @@ class TestInferenceEndpointsLLM:
             "base_url": None,
             "tokenizer_id": None,
             "generation_kwargs": {},
+            "grammar": None,
             "model_display_name": None,
             "use_openai_client": False,
             "structured_output": None,
