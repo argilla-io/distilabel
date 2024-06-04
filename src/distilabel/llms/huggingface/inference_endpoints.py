@@ -397,6 +397,10 @@ class InferenceEndpointsLLM(AsyncLLM):
         structured_output = None
         if isinstance(input, tuple):
             input, structured_output = input
+            structured_output = {
+                "type": structured_output["format"],
+                "value": structured_output["schema"],
+            }
 
         # NOTE: `self.structured_output` applies to all the generations, while `structured_output` i.e. the
         # value included within the tuple provided as `input` to this method, is intended to be different per
@@ -413,6 +417,8 @@ class InferenceEndpointsLLM(AsyncLLM):
                     "To use the structured output you have to inform the `format` and `schema` in "
                     "the `structured_output` attribute."
                 ) from e
+
+        self._logger.debug(f"GRAMMAR - STRUCTURED OUTPUT\n{structured_output}")
 
         if self.use_openai_client:
             return await self._openai_agenerate(
