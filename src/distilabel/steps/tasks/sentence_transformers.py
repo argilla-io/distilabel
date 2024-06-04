@@ -113,10 +113,9 @@ class GenerateSentencePair(Task):
 
     @property
     def outputs(self) -> List[str]:
-        if self.triplet:
-            return ["positive", "negative"]
-
-        return ["positive"]
+        columns = ["positive", "negative"] if self.triplet else ["positive"]
+        columns += ["model_name"]
+        return columns
 
     def format_output(
         self, output: Union[str, None], input: Optional[Dict[str, Any]] = None
