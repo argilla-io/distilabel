@@ -54,7 +54,10 @@ class _Task(_Step, ABC):
     group_generations: bool = False
     add_raw_output: RuntimeParameter[bool] = Field(
         default=True,
-        description="Whether to include the raw output of the LLM in the output.",
+        description=(
+            "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>`"
+            "of the `distilabel_metadata` dictionary output column"
+        ),
     )
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
