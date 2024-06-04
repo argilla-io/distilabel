@@ -13,7 +13,7 @@
 # limitations under the License.
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.generators.data import LoadFromBuffer
+from distilabel.steps.generators.data import LoadDataFromDicts, LoadFromBuffer
 from pydantic import ValidationError
 
 
@@ -46,3 +46,8 @@ class TestLoadFromBuffer:
         assert next(result) == ([self.data[-batch_size]], True)
         with pytest.raises(StopIteration):
             next(result)
+
+
+def test_LoadDataFromDicts_deprecation_warning():
+    with pytest.deprecated_call():
+        LoadDataFromDicts(data=[{"instruction": "test"}])

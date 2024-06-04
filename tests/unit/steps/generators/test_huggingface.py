@@ -13,13 +13,20 @@
 # limitations under the License.
 
 import os
+import tempfile
 from pathlib import Path
 from typing import Generator, Union
 
 import pytest
 from datasets import Dataset, IterableDataset
+from distilabel.distiset import Distiset
 from distilabel.pipeline import Pipeline
-from distilabel.steps.generators.huggingface import LoadFromDisk, LoadFromHub
+from distilabel.steps.generators.huggingface import (
+    LoadFromDisk,
+    LoadFromFileSystem,
+    LoadFromHub,
+    LoadHubDataset,
+)
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
@@ -66,11 +73,11 @@ class TestLoadFromHub:
         assert dataset_loader.outputs == ["prompt", "completion", "meta"]
 
 
-class TestLoadFromDisk:
+class TestLoadFromFileSystem:
     @pytest.mark.parametrize("filetype", ["json", None])
     @pytest.mark.parametrize("streaming", [True, False])
-    def test_read_from_disk(self, streaming: bool, filetype: Union[str, None]) -> None:
-        loader = LoadFromDisk(
+    def test_read_from_jsonl(self, streaming: bool, filetype: Union[str, None]) -> None:
+        loader = LoadFromFileSystem(
             filetype=filetype,
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
             streaming=streaming,
@@ -82,7 +89,7 @@ class TestLoadFromDisk:
         assert len(generator_step_output[0]) == 11
 
     @pytest.mark.parametrize("filetype", ["json", None])
-    def test_read_from_disk_with_folder(self, filetype: Union[str, None]) -> None:
+    def test_read_from_jsonl_with_folder(self, filetype: Union[str, None]) -> None:
         import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -94,7 +101,7 @@ class TestLoadFromDisk:
                     sample_file.read_text(), encoding="utf-8"
                 )
 
-            loader = LoadFromDisk(
+            loader = LoadFromFileSystem(
                 filetype=filetype,
                 data_files=tmpdir,
             )
@@ -105,11 +112,9 @@ class TestLoadFromDisk:
             assert len(generator_step_output[0]) == 33
 
     @pytest.mark.parametrize("filetype", ["json", None])
-    def test_read_from_disk_with_nested_folder(
+    def test_read_from_jsonl_with_nested_folder(
         self, filetype: Union[str, None]
     ) -> None:
-        import tempfile
-
         with tempfile.TemporaryDirectory() as tmpdir:
             filename = "sample_functions.jsonl"
             sample_file = Path(__file__).parent / filename
@@ -119,7 +124,7 @@ class TestLoadFromDisk:
                     sample_file.read_text(), encoding="utf-8"
                 )
 
-            loader = LoadFromDisk(
+            loader = LoadFromFileSystem(
                 filetype=filetype,
                 data_files=tmpdir,
             )
@@ -131,7 +136,7 @@ class TestLoadFromDisk:
 
     @pytest.mark.parametrize("load", [True, False])
     def test_outputs(self, load: bool) -> None:
-        loader = LoadFromDisk(
+        loader = LoadFromFileSystem(
             filetype="json",
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
         )
@@ -141,3 +146,49 @@ class TestLoadFromDisk:
         else:
             with pytest.raises(ValueError):
                 loader.outputs  # noqa: B018
+
+
+class TestLoadFromDisk:
+    def test_load_dataset_from_disk(self) -> None:
+        dataset = Dataset.from_dict({"a": [1, 2, 3]})
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = str(Path(tmpdir) / "dataset_path")
+            dataset.save_to_disk(dataset_path)
+
+            loader = LoadFromDisk(dataset_path=dataset_path)
+            loader.load()
+            generator_step_output = next(loader.process())
+            assert isinstance(generator_step_output, tuple)
+            assert isinstance(generator_step_output[1], bool)
+            assert len(generator_step_output[0]) == 3
+
+    def test_load_distiset_from_disk(self) -> None:
+        distiset = Distiset(
+            {
+                "leaf_step_1": Dataset.from_dict({"a": [1, 2, 3]}),
+                "leaf_step_2": Dataset.from_dict(
+                    {"a": [1, 2, 3, 4], "b": [5, 6, 7, 8]}
+                ),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = str(Path(tmpdir) / "dataset_path")
+            distiset.save_to_disk(dataset_path)
+
+            loader = LoadFromDisk(
+                dataset_path=dataset_path, is_distiset=True, config="leaf_step_1"
+            )
+            loader.load()
+            generator_step_output = next(loader.process())
+            assert isinstance(generator_step_output, tuple)
+            assert isinstance(generator_step_output[1], bool)
+            assert len(generator_step_output[0]) == 3
+
+
+def test_LoadHubDataset_deprecation_warning():
+    with pytest.deprecated_call():
+        LoadHubDataset(
+            repo_id="distilabel-internal-testing/instruction-dataset-mini",
+            split="test",
+            batch_size=2,
+        )
