@@ -28,7 +28,7 @@ else:
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
 
-GenerationAction = Literal["paraphrase", "semantically-similar", "query"]
+GenerationAction = Literal["paraphrase", "semantically-similar", "query", "answer"]
 
 POSITIVE_NEGATIVE_PAIR_REGEX = re.compile(
     r"## Positive\s+(.*?)(?:\s+## Negative\s+(.*?))?\s*$",
@@ -39,6 +39,7 @@ GENERATION_ACTION_SENTENCES: Final[Dict[GenerationAction, str]] = {
     "paraphrase": "paraphrase",
     "semantically-similar": "be semantically similar to",
     "query": "be a query for",
+    "answer": "be an answer for",
 }
 
 POSITIVE_SYSTEM_PROMPT: str = (

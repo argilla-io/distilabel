@@ -65,6 +65,18 @@ class TestGenerateSentencePair:
                 False,
                 POSITIVE_SYSTEM_PROMPT.format(action_sentence="be a query for"),
             ),
+            (
+                "answer",
+                True,
+                POSITIVE_NEGATIVE_SYSTEM_PROMPT.format(
+                    action_sentence="be an answer for"
+                ),
+            ),
+            (
+                "answer",
+                False,
+                POSITIVE_SYSTEM_PROMPT.format(action_sentence="be an answer for"),
+            ),
         ],
     )
     def test_format_input(
