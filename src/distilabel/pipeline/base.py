@@ -298,10 +298,17 @@ class BasePipeline(_Serializable):
             The `Distiset` created by the pipeline.
         """
 
-        setup_logging(**self._logging_parameters)
-
-        # Set the runtime parameters that will be used during the pipeline execution
+        # Set the runtime parameters that will be used during the pipeline execution.
+        # They are used to generate the signature of the pipeline that is used to hit the
+        # cache when the pipeline is run, so it's important to do it first.
         self._set_runtime_parameters(parameters or {})
+
+        setup_logging(
+            **{
+                **self._logging_parameters,
+                "filename": str(self._cache_location["log_file"]),
+            }
+        )
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
