@@ -164,7 +164,7 @@ class TestEvolInstruct:
                     ],
                 },
                 {
-                    "description": "Whether to include the raw output of the LLM in the output.",
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                     "name": "add_raw_output",
                     "optional": True,
                 },

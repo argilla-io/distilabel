@@ -56,7 +56,7 @@ class _Task(_Step, ABC):
         default=True,
         description=(
             "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>`"
-            "of the `distilabel_metadata` dictionary output column"
+            " of the `distilabel_metadata` dictionary output column"
         ),
     )
     num_generations: RuntimeParameter[int] = Field(
