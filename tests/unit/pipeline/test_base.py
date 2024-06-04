@@ -589,13 +589,14 @@ class TestBatchManagerStep:
 
         batch_0 = _Batch(
             seq_no=0,
-            step_name="step1",
+            step_name="step2",
             last_batch=False,
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
         batch_manager_step.add_batch(batch_0, prepend=True)
 
-        assert batch_manager_step.data["step1"] == [batch_0, batch_1]
+        assert batch_manager_step.built_batches == [batch_0]
+        assert batch_manager_step.data["step1"] == [batch_1]
         assert batch_manager_step.last_batch_received == []
 
     def test_add_batch_last_batch(self) -> None:
@@ -616,14 +617,31 @@ class TestBatchManagerStep:
         assert batch_manager_step.last_batch_received == ["step1"]
 
     def test_get_batch(self) -> None:
+        previously_built_batch = _Batch(
+            seq_no=0,
+            step_name="step3",
+            last_batch=False,
+            data=[
+                [
+                    {"a": -1},
+                    {"a": 0},
+                ],
+                [
+                    {"b": -1},
+                    {"b": 0},
+                ],
+            ],
+        )
+
         batch_manager_step = _BatchManagerStep(
             step_name="step3",
             accumulate=False,
             input_batch_size=2,
+            seq_no=1,
             data={
                 "step1": [
                     _Batch(
-                        seq_no=0,
+                        seq_no=1,
                         step_name="step1",
                         last_batch=False,
                         data=[
@@ -640,7 +658,7 @@ class TestBatchManagerStep:
                 ],
                 "step2": [
                     _Batch(
-                        seq_no=0,
+                        seq_no=1,
                         step_name="step2",
                         last_batch=False,
                         data=[
@@ -657,13 +675,18 @@ class TestBatchManagerStep:
                     )
                 ],
             },
+            built_batches=[previously_built_batch],
         )
+
+        batch = batch_manager_step.get_batch()
+
+        assert batch == previously_built_batch
 
         batch = batch_manager_step.get_batch()
 
         assert batch == _Batch(
             step_name="step3",
-            seq_no=0,
+            seq_no=1,
             last_batch=False,
             data=[
                 [
@@ -675,14 +698,14 @@ class TestBatchManagerStep:
                     {"b": 2},
                 ],
             ],
-            created_from={"step1": [(0, 5)], "step2": [(0, 5)]},
+            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
         )
 
         batch = batch_manager_step.get_batch()
 
         assert batch == _Batch(
             step_name="step3",
-            seq_no=1,
+            seq_no=2,
             last_batch=False,
             data=[
                 [
@@ -694,7 +717,7 @@ class TestBatchManagerStep:
                     {"b": 4},
                 ],
             ],
-            created_from={"step1": [(0, 5)], "step2": [(0, 5)]},
+            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
         )
 
     def test_get_batches_accumulate(self) -> None:
@@ -1424,7 +1447,7 @@ class TestBatchManagerStep:
     )
     def test_ready_to_create_batch(
         self,
-        data: Dict[str, List[Dict[str, Any]]],
+        data: Dict[str, List[_Batch]],
         last_batch_received: List[str],
         expected: bool,
     ) -> None:
@@ -1873,8 +1896,9 @@ class TestBatchManager:
             data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
         )
         batch_manager.add_batch(to_step="step3", batch=batch_0, prepend=True)
+        assert batch_manager._steps["step3"].built_batches == [batch_0]
         assert batch_manager._steps["step3"].data == {
-            "step1": [batch_0, batch_1],
+            "step1": [batch_1],
             "step2": [],
         }
 
