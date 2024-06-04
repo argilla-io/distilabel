@@ -51,3 +51,8 @@ class TestLoadFromBuffer:
 def test_LoadDataFromDicts_deprecation_warning():
     with pytest.deprecated_call():
         LoadDataFromDicts(data=[{"instruction": "test"}])
+
+    import distilabel
+    from packaging.version import Version
+
+    assert Version(distilabel.__version__) <= Version("1.3.0")

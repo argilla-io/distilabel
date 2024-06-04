@@ -192,3 +192,7 @@ def test_LoadHubDataset_deprecation_warning():
             split="test",
             batch_size=2,
         )
+    import distilabel
+    from packaging.version import Version
+
+    assert Version(distilabel.__version__) <= Version("1.3.0")
