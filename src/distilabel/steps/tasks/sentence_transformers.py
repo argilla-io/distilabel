@@ -98,9 +98,20 @@ class GenerateSentencePair(Task):
 
     @property
     def inputs(self) -> List[str]:
+        """The inputs for the task is the `anchor` sentence."""
         return ["anchor"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
+        """The inputs are formatted as a `ChatType`, with a system prompt describing the
+        task of generating a positive and negative sentences for the anchor sentence. The
+        anchor is provided as the first user interaction in the conversation.
+
+        Args:
+            input: The input containing the `anchor` sentence.
+
+        Returns:
+            A list of dictionaries containing the system and user interactions.
+        """
         action_sentence = GENERATION_ACTION_SENTENCES[self.action]
         system_prompt = (
             POSITIVE_NEGATIVE_SYSTEM_PROMPT if self.triplet else POSITIVE_SYSTEM_PROMPT
@@ -113,6 +124,8 @@ class GenerateSentencePair(Task):
 
     @property
     def outputs(self) -> List[str]:
+        """The outputs for the task are the `positive` and `negative` sentences, as well
+        as the `model_name` used to generate the sentences."""
         columns = ["positive", "negative"] if self.triplet else ["positive"]
         columns += ["model_name"]
         return columns
@@ -120,6 +133,17 @@ class GenerateSentencePair(Task):
     def format_output(
         self, output: Union[str, None], input: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
+        """Formats the output of the LLM, to extract the `positive` and `negative` sentences
+        generated. If the output is `None` or the regex doesn't match, then the outputs
+        will be set to `None` as well.
+
+        Args:
+            output: The output of the LLM.
+            input: The input used to generate the output.
+
+        Returns:
+            The formatted output containing the `positive` and `negative` sentences.
+        """
         if output is None:
             return {"positive": None, "negative": None}
 
