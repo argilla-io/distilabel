@@ -82,6 +82,14 @@ hide:
 
     [:octicons-arrow-right-24: SelfInstruct](selfinstruct.md){ .bottom }
 
+-   :material-vector-line:{ .lg .middle } __GenerateSentencePair__
+
+    ---
+
+    Generate a positive and negative (optionally) sentences given an anchor sentence.
+
+    [:octicons-arrow-right-24: GenerateSentencePair](generatesentencepair.md){ .bottom }
+
 -   :material-check-outline:{ .lg .middle } __StructuredGeneration__
 
     ---
