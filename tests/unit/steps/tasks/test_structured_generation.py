@@ -120,5 +120,6 @@ class TestStructuredGeneration:
                 },
                 "generation": '{"test": "output"}',
                 "model_name": "test",
+                "distilabel_metadata": {"raw_output_task": '{"test": "output"}'},
             }
         ]
