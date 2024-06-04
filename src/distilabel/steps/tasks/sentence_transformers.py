@@ -95,8 +95,9 @@ class GenerateSentencePair(Task):
                 "content": (
                     "Your task is to generate a positive and a negative sentence given"
                     f" an anchor sentence. The positive sentence has to {action_sentence}"
-                    " the anchor sentence, while the negative sentence has to do the opposite."
-                    " You must output only two new sections: `## Positive` and `## Negative`."
+                    " the anchor sentence, while the negative sentence can use similar words"
+                    " but must not be related to the anchor sentence. You must output only"
+                    " two new sections: `## Positive` and `## Negative`."
                 )
                 if self.triplet
                 else (
