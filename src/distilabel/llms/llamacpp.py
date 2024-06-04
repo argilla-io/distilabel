@@ -19,12 +19,10 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
-
-    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 class LlamaCppLLM(LLM):
@@ -76,7 +74,6 @@ class LlamaCppLLM(LLM):
     n_ctx: int = 512
     n_batch: int = 512
     seed: int = 4294967295
-
     verbose: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to print verbose output from llama.cpp library.",
@@ -86,6 +83,10 @@ class LlamaCppLLM(LLM):
         description="Additional dictionary of keyword arguments that will be passed to the"
         " `Llama` class of `llama_cpp` library. See all the supported arguments at: "
         "https://llama-cpp-python.readthedocs.io/en/latest/api-reference/#llama_cpp.Llama.__init__",
+    )
+    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use across all the generations.",
     )
 
     _logits_processor: Optional["LogitsProcessorList"] = PrivateAttr(default=None)
@@ -188,7 +189,7 @@ class LlamaCppLLM(LLM):
         return batch_outputs
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
     ) -> Union["LogitsProcessorList", None]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 

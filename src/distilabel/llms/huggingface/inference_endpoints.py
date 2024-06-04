@@ -402,11 +402,17 @@ class InferenceEndpointsLLM(AsyncLLM):
         # value included within the tuple provided as `input` to this method, is intended to be different per
         # each input, so those should not be used together. Meaning that it should be either provided at attribute
         # level i.e. self, or via a column within each input i.e. row.
-        if structured_output is None:
-            structured_output = {
-                "type": self.structured_output["format"],
-                "value": self.structured_output["schema"],
-            }
+        if structured_output is None and self.structured_output is not None:
+            try:
+                structured_output = {
+                    "type": self.structured_output["format"],
+                    "value": self.structured_output["schema"],
+                }
+            except KeyError as e:
+                raise ValueError(
+                    "To use the structured output you have to inform the `format` and `schema` in "
+                    "the `structured_output` attribute."
+                ) from e
 
         if self.use_openai_client:
             return await self._openai_agenerate(

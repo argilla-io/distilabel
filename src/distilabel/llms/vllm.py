@@ -21,13 +21,11 @@ from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
-
-    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 SamplingParams = None
@@ -93,6 +91,10 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         description="Additional dictionary of keyword arguments that will be passed to the"
         " `vLLM` class of `vllm` library. See all the supported arguments at: "
         "https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py",
+    )
+    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use across all the generations.",
     )
 
     _model: Optional["_vLLM"] = PrivateAttr(...)
@@ -227,7 +229,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         ]
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
     ) -> Union[Callable, None]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 

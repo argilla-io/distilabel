@@ -30,7 +30,7 @@ from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -90,6 +90,12 @@ class CohereLLM(AsyncLLM):
     client_name: RuntimeParameter[str] = Field(
         default="distilabel",
         description="The name of the client to use for the API requests.",
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _ChatMessage: Type["ChatMessage"] = PrivateAttr(...)

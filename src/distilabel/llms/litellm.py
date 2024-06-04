@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from litellm import Choices
@@ -44,6 +44,12 @@ class LiteLLM(AsyncLLM):
     model: str
     verbose: RuntimeParameter[bool] = Field(
         default=False, description="Whether to log the LiteLLM client's logs."
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _aclient: Optional[Callable] = PrivateAttr(...)

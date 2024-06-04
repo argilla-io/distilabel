@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -83,6 +83,12 @@ class GroqLLM(AsyncLLM):
     timeout: RuntimeParameter[int] = Field(
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)

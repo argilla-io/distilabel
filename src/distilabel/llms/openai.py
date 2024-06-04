@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
@@ -81,6 +81,12 @@ class OpenAILLM(AsyncLLM):
     timeout: RuntimeParameter[int] = Field(
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)

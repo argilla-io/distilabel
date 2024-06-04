@@ -20,8 +20,6 @@ import nest_asyncio
 import pytest
 from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
 
-from ..utils import DummyUserDetail
-
 
 @patch("huggingface_hub.AsyncInferenceClient")
 @patch("openai.AsyncOpenAI")
@@ -195,12 +193,12 @@ class TestInferenceEndpointsLLM:
         ) == [(" Aenean hendrerit aliquam velit. ...",)]
 
     @pytest.mark.asyncio
-    async def test_agenerate_with_grammar(
+    async def test_agenerate_with_structured_output(
         self, mock_inference_client: MagicMock, _: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
-            grammar={"type": "regex", "value": r"\b[A-Z][a-z]*\b"},
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
         llm._aclient = mock_inference_client
 
@@ -254,10 +252,9 @@ class TestInferenceEndpointsLLM:
             "base_url": None,
             "tokenizer_id": None,
             "generation_kwargs": {},
-            "grammar": None,
+            "structured_output": None,
             "model_display_name": None,
             "use_openai_client": False,
-            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

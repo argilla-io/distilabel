@@ -19,7 +19,7 @@ from typing_extensions import TypedDict
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from ollama import AsyncClient
@@ -88,6 +88,12 @@ class OllamaLLM(AsyncLLM):
         default=120, description="The timeout for the Ollama API."
     )
     follow_redirects: bool = True
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
 

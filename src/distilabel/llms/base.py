@@ -58,8 +58,6 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     Attributes:
         generation_kwargs: the kwargs to be propagated to either `generate` or `agenerate`
             methods within each `LLM`.
-        structured_output: a dictionary containing the structured output configuration or if more
-            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         _logger: the logger to be used for the `LLM`. It will be initialized when the `load`
             method is called.
     """
@@ -77,7 +75,6 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         description="The kwargs to be propagated to either `generate` or `agenerate`"
         " methods within each `LLM`.",
     )
-    structured_output: Optional[Any] = None
 
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 

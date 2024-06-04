@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -79,6 +79,12 @@ class MistralLLM(AsyncLLM):
     )
     max_concurrent_requests: RuntimeParameter[int] = Field(
         default=64, description="The maximum number of concurrent requests to send."
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
