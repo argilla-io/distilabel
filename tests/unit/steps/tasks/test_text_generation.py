@@ -82,6 +82,9 @@ class TestTextGeneration:
                 "instruction": "test",
                 "generation": "output",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "raw_output_task": "output",
+                },
             }
         ]
 
@@ -139,5 +142,6 @@ class TestChatGeneration:
                 "messages": [{"role": "user", "content": "Tell me a joke."}],
                 "generation": "output",
                 "model_name": "test",
+                "distilabel_metadata": {"raw_output_task": "output"},
             }
         ]
