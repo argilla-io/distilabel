@@ -52,7 +52,10 @@ class _Task(_Step, ABC):
     llm: LLM
 
     group_generations: bool = False
-    add_raw_output: bool = False
+    add_raw_output: RuntimeParameter[bool] = Field(
+        default=True,
+        description="Whether to include the raw output of the LLM in the output.",
+    )
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
