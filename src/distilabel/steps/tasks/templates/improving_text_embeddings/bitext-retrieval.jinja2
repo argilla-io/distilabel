@@ -1,0 +1,13 @@
+Write a {{ unit }} triple with one {{ unit }} in {{ source_language }} and two {{ unit }}s in {{ target_language }} with varying translation qualities in JSON format.
+
+The triple is denotes as ("S1", "S2", "S3"). The translation quality score ranges from 1 to 5, with higher scores are better.
+
+Please adhere to the following guidelines:
+ - The values of "S1" is a string in {{ source_language }}, the value of "S2" and "S3" are strings in {{ target_language }}.
+ - There should be some word overlaps between "S2" and "S3".
+ - The translation quality score of "S2" with respect to "S1" should be {{ high_score }}.
+ - The translation quality score of "S3" with respect to "S1" should be {{ low_score }}.
+ - "S3" should be grammatical and fluent, but contain some keyword or number translation errors, or miss some information, or contain some redundant information.
+ - "S1" requires {{ difficulty }} level education to understand and should be diverse in terms of topic and length.
+
+Your output must always be a JSON object only with three keys "S1", "S2" and "S3", do not explain yourself or output anything else. Be creative!
