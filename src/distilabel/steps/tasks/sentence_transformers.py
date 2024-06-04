@@ -41,6 +41,19 @@ GENERATION_ACTION_SENTENCES: Final[Dict[GenerationAction, str]] = {
     "query": "be a query for",
 }
 
+POSITIVE_SYSTEM_PROMPT: str = (
+    "Your task is to generate a positive sentence given an anchor sentence. The positive"
+    " sentence has to {action_sentence} the anchor sentence. You must output only one new"
+    " section: `## Positive`."
+)
+
+POSITIVE_NEGATIVE_SYSTEM_PROMPT: str = (
+    "Your task is to generate a positive and a negative sentence given an anchor sentence."
+    " The positive sentence has to {action_sentence} the anchor sentence, while the negative"
+    " sentence can use similar words but must not be related to the anchor sentence. You"
+    " must output only two new sections: `## Positive` and `## Negative`."
+)
+
 
 class GenerateSentencePair(Task):
     """Generate a positive and negative (optionally) sentences given an anchor sentence.
@@ -89,27 +102,13 @@ class GenerateSentencePair(Task):
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         action_sentence = GENERATION_ACTION_SENTENCES[self.action]
+        system_prompt = (
+            POSITIVE_NEGATIVE_SYSTEM_PROMPT if self.triplet else POSITIVE_SYSTEM_PROMPT
+        ).format(action_sentence=action_sentence)
+
         return [
-            {
-                "role": "system",
-                "content": (
-                    "Your task is to generate a positive and a negative sentence given"
-                    f" an anchor sentence. The positive sentence has to {action_sentence}"
-                    " the anchor sentence, while the negative sentence can use similar words"
-                    " but must not be related to the anchor sentence. You must output only"
-                    " two new sections: `## Positive` and `## Negative`."
-                )
-                if self.triplet
-                else (
-                    "Your task is to generate a positive sentence given an anchor sentence."
-                    f" The positive sentence has to {action_sentence} the anchor sentence."
-                    " You must output only one new section: `## Positive`."
-                ),
-            },
-            {
-                "role": "user",
-                "content": self._template.render(anchor=input["anchor"]),
-            },
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": self._template.render(anchor=input["anchor"])},
         ]
 
     @property
@@ -127,7 +126,10 @@ class GenerateSentencePair(Task):
 
         match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
         if match is None:
-            return {"positive": None, "negative": None}
+            formatted_output = {"positive": None}
+            if self.triplet:
+                formatted_output["negative"] = None
+            return formatted_output
 
         groups = match.groups()
         if self.triplet:
