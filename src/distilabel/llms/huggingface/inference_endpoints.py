@@ -418,8 +418,6 @@ class InferenceEndpointsLLM(AsyncLLM):
                     "the `structured_output` attribute."
                 ) from e
 
-        self._logger.debug(f"GRAMMAR - STRUCTURED OUTPUT\n{structured_output}")
-
         if self.use_openai_client:
             return await self._openai_agenerate(
                 input=input,
