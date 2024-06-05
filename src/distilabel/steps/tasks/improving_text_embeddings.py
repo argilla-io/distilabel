@@ -138,10 +138,6 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
     def inputs(self) -> List[str]:
         return ["task"]
 
-    # @abstractmethod
-    # def format_input(self, input: Dict[str, Any]) -> ChatType:
-    #     ...
-
 
 class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
     """Base class"""
@@ -280,13 +276,6 @@ class EmbeddingTaskGenerator(GeneratorTask):
         return {"tasks": output}
 
 
-QUERY_TYPE = ["extremely long-tail", "long-tail", "common"]
-QUERY_LENGTH = ["less than 5 words", "5 to 15 words", "at least 10 words"]
-DIFFICULTY = ["high school", "college", "PhD"]
-CLARITY = ["clear", "understandable with some effort", "ambiguous"]
-NUM_WORDS = [50, 100, 200, 300, 400, 500]
-
-
 class GenerateTextRetrievalData(_EmbeddingDataGeneration):
     query_type: Optional[Literal["extremely long-tail", "long-tail", "common"]] = None
     query_length: Optional[
@@ -308,11 +297,20 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     task=input["task"],
-                    query_type=self.query_type or random.choice(QUERY_TYPE),
-                    query_length=self.query_length or random.choice(QUERY_LENGTH),
-                    difficulty=self.difficulty or random.choice(DIFFICULTY),
-                    clarity=self.clarity or random.choice(CLARITY),
-                    num_words=self.num_words or random.choice(NUM_WORDS),
+                    query_type=self.query_type
+                    or random.choice(["extremely long-tail", "long-tail", "common"]),
+                    query_length=self.query_length
+                    or random.choice(
+                        ["less than 5 words", "5 to 15 words", "at least 10 words"]
+                    ),
+                    difficulty=self.difficulty
+                    or random.choice(["high school", "college", "PhD"]),
+                    clarity=self.clarity
+                    or random.choice(
+                        ["clear", "understandable with some effort", "ambiguous"]
+                    ),
+                    num_words=self.num_words
+                    or random.choice([50, 100, 200, 300, 400, 500]),
                     language=self.language,
                 ).strip(),
             }
@@ -320,6 +318,7 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return [
             "user_query",
             "positive_document",
@@ -346,6 +345,7 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return ["input", "positive_document"]
 
 
@@ -368,6 +368,7 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return ["input", "positive_document"]
 
 
@@ -387,8 +388,12 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
                 "role": "user",
                 "content": self._template.render(  # type: ignore
                     task=input["task"],
-                    difficulty=self.difficulty or random.choice(DIFFICULTY),
-                    clarity=self.clarity or random.choice(CLARITY),
+                    difficulty=self.difficulty
+                    or random.choice(["high school", "college", "PhD"]),
+                    clarity=self.clarity
+                    or random.choice(
+                        ["clear", "understandable with some effort", "ambiguous"]
+                    ),
                     language=self.language,
                 ).strip(),
             }
@@ -396,13 +401,8 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return ["input_text", "label", "misleading_label"]
-
-
-UNITS = ["sentence", "phrase", "passage"]
-DIFFICULTIES = ["elementary school", "high school", "college"]
-HIGH_SCORES = ["4", "4.5", "5"]
-LOW_SCORES = ["2.5", "3", "3.5"]
 
 
 class MonolingualTripletGenerator(_EmbeddingDataGenerator):
@@ -416,15 +416,24 @@ class MonolingualTripletGenerator(_EmbeddingDataGenerator):
 
     @property
     def prompt(self) -> ChatType:
-        return [{"role": "user", "content": self._template.render().strip()}]  # type: ignore
+        return [
+            {
+                "role": "user",
+                "content": self._template.render(  # type: ignore
+                    unit=self.unit or random.choice(["sentence", "phrase", "passage"]),
+                    difficulty=self.difficulty
+                    or random.choice(["elementary school", "high school", "college"]),
+                    high_score=self.high_score or random.choice(["4", "4.5", "5"]),
+                    low_score=self.low_score or random.choice(["2.5", "3", "3.5"]),
+                    language=self.language,
+                ).strip(),
+            }
+        ]  # type: ignore
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return ["S1", "S2", "S3"]
-
-
-BITEXT_LOW_SCORES = ["1.5", "2", "2.5"]
-BITEXT_HIGH_SCORES = ["4", "4.5", "5"]
 
 
 class BitextRetrievalGenerator(_EmbeddingDataGenerator):
@@ -443,12 +452,18 @@ class BitextRetrievalGenerator(_EmbeddingDataGenerator):
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
-                    unit=self.unit or random.choice(UNITS),
-                    difficulty=self.difficulty or random.choice(DIFFICULTIES),
+                    unit=self.unit or random.choice(["sentence", "phrase", "passage"]),
+                    difficulty=self.difficulty
+                    or random.choice(["elementary school", "high school", "college"]),
+                    high_score=self.high_score or random.choice(["4", "4.5", "5"]),
+                    low_score=self.low_score or random.choice(["2.5", "3", "3.5"]),
+                    source_language=self.source_language,
+                    target_language=self.target_language,
                 ).strip(),
             }
         ]  # type: ignore
 
     @property
     def keys(self) -> List[str]:
+        """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         return ["S1", "S2", "S3"]
