@@ -121,7 +121,7 @@ class TestEvolInstruct:
         task.load()
         assert task.dump() == {
             "name": "task",
-            "add_raw_output": False,
+            "add_raw_output": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
@@ -162,6 +162,11 @@ class TestEvolInstruct:
                             "keys": [],
                         }
                     ],
+                },
+                {
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                    "name": "add_raw_output",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

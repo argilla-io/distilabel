@@ -94,16 +94,19 @@ class TestTask:
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                 ],
             ),
@@ -114,6 +117,11 @@ class TestTask:
                         "instruction": "test",
                         "output": ["output", "output", "output"],
                         "model_name": "test",
+                        "distilabel_metadata": [
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                        ],
                     },
                 ],
             ),
@@ -188,7 +196,7 @@ class TestTask:
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
-            "add_raw_output": False,
+            "add_raw_output": True,
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
@@ -223,6 +231,11 @@ class TestTask:
                             "name": "generation_kwargs",
                         },
                     ],
+                },
+                {
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                    "name": "add_raw_output",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

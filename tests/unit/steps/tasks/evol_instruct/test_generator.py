@@ -123,7 +123,7 @@ class TestEvolInstructGenerator:
                     "name": task.llm.__class__.__name__,
                 },
             },
-            "add_raw_output": False,
+            "add_raw_output": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "batch_size": task.batch_size,
@@ -157,6 +157,11 @@ class TestEvolInstructGenerator:
                             "name": "generation_kwargs",
                         },
                     ],
+                },
+                {
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                    "name": "add_raw_output",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",
