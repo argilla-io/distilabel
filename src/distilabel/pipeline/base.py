@@ -1578,6 +1578,12 @@ class _BatchManager(_Serializable):
 
             return batch_file
 
+        def remove_files(keep_files: List[str], dir: Path) -> None:
+            files = list_files_in_dir(dir, key=None)
+            remove = set(files) - {Path(file) for file in keep_files}
+            for file in remove:
+                file.unlink()
+
         path = Path(path)
 
         # Do not include `_Batch` data so `dump` is fast
@@ -1593,43 +1599,41 @@ class _BatchManager(_Serializable):
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
 
+            # Store each built `_Batch` in a separate file
+            built_batches_dir = batch_manager_step_dir / "built_batches"
+            built_batches_dir.mkdir(parents=True, exist_ok=True)
+            step_dump["built_batches"] = [
+                str(
+                    save_batch(
+                        batches_dir=built_batches_dir,
+                        batch_dump=batch_dump,
+                        batch_list=self._steps[step_name].built_batches,
+                    )
+                )
+                for batch_dump in step_dump["built_batches"]
+            ]
+            # Remove built `_Batch`es that were consumed from cache
+            remove_files(step_dump["built_batches"], built_batches_dir)
+
             # Store each `_BatchManagerStep` `_Batch`es in a separate file
             for buffered_step_name in step_dump["data"]:
                 step_batches_dir = batch_manager_step_dir / buffered_step_name
                 step_batches_dir.mkdir(parents=True, exist_ok=True)
 
                 # Store each `_Batch` in a separate file
-                built_batches_keep = [
-                    save_batch(
-                        batches_dir=step_batches_dir,
-                        batch_dump=batch_dump,
-                        batch_list=self._steps[step_name].built_batches,
-                    )
-                    for batch_dump in step_dump["built_batches"]
-                ]
-
-                step_dump["built_batches"] = [
-                    str(file_batch) for file_batch in built_batches_keep
-                ]
-
-                data_keep_batches = [
-                    save_batch(
-                        batches_dir=step_batches_dir,
-                        batch_dump=batch_dump,
-                        batch_list=self._steps[step_name].data[buffered_step_name],
+                step_dump["data"][buffered_step_name] = [
+                    str(
+                        save_batch(
+                            batches_dir=step_batches_dir,
+                            batch_dump=batch_dump,
+                            batch_list=self._steps[step_name].data[buffered_step_name],
+                        )
                     )
                     for batch_dump in step_dump["data"][buffered_step_name]
                 ]
 
-                step_dump["data"][buffered_step_name] = [
-                    str(file_batch) for file_batch in data_keep_batches
-                ]
-
                 # Remove `_Batch`es that were consumed from cache
-                files = list_files_in_dir(step_batches_dir, key=None)
-                remove = set(files) - set(built_batches_keep + data_keep_batches)
-                for file in remove:
-                    file.unlink()
+                remove_files(step_dump["data"][buffered_step_name], step_batches_dir)
 
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
