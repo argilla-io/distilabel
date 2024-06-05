@@ -166,7 +166,7 @@ class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
 
 
 # IMPLEMENTED TASKS
-class BrainstormEmbeddingTasks(GeneratorTask):
+class EmbeddingTaskGenerator(GeneratorTask):
     """Generate text retrieval task descriptions using an `LLM`.
 
     ...
@@ -203,7 +203,7 @@ class BrainstormEmbeddingTasks(GeneratorTask):
 
     @property
     def prompt(self) -> ChatType:  # type: ignore
-        return [{"role": "user", "content": self._template.render()}]  # type: ignore
+        return [{"role": "user", "content": self._template.render().strip()}]  # type: ignore
 
     @override
     def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
@@ -285,7 +285,7 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
                     clarity=self.clarity or random.choice(CLARITY),
                     num_words=self.num_words or random.choice(NUM_WORDS),
                     language=self.language,
-                ),
+                ).strip(),
             }
         ]
 
@@ -311,7 +311,7 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
                 "content": self._template.render(  # type: ignore
                     task=input["task"],
                     language=self.language,
-                ),
+                ).strip(),
             }
         ]
 
@@ -333,7 +333,7 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
                 "content": self._template.render(  # type: ignore
                     task=input["task"],
                     language=self.language,
-                ),
+                ).strip(),
             }
         ]
 
@@ -361,7 +361,7 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
                     difficulty=self.difficulty or random.choice(DIFFICULTY),
                     clarity=self.clarity or random.choice(CLARITY),
                     language=self.language,
-                ),
+                ).strip(),
             }
         ]
 
@@ -387,7 +387,7 @@ class MonolingualTripletGenerator(_EmbeddingDataGenerator):
 
     @property
     def prompt(self) -> ChatType:
-        return [{"role": "user", "content": self._template.render()}]  # type: ignore
+        return [{"role": "user", "content": self._template.render().strip()}]  # type: ignore
 
     @property
     def keys(self) -> List[str]:
@@ -413,10 +413,10 @@ class BitextRetrievalGenerator(_EmbeddingDataGenerator):
         return [
             {
                 "role": "user",
-                "content": self._template.render(
+                "content": self._template.render(  # type: ignore
                     unit=self.unit or random.choice(UNITS),
                     difficulty=self.difficulty or random.choice(DIFFICULTIES),
-                ),
+                ).strip(),
             }
         ]  # type: ignore
 
