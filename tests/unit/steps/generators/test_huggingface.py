@@ -22,9 +22,9 @@ from datasets import Dataset, IterableDataset
 from distilabel.distiset import Distiset
 from distilabel.pipeline import Pipeline
 from distilabel.steps.generators.huggingface import (
-    LoadFromDisk,
-    LoadFromFileSystem,
-    LoadFromHub,
+    LoadDataFromDisk,
+    LoadDataFromFileSystem,
+    LoadDataFromHub,
     LoadHubDataset,
 )
 
@@ -33,7 +33,7 @@ DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
 @pytest.fixture(scope="module")
 def dataset_loader() -> Generator[Union[Dataset, IterableDataset], None, None]:
-    load_hub_dataset = LoadFromHub(
+    load_hub_dataset = LoadDataFromHub(
         name="load_dataset",
         repo_id="distilabel-internal-testing/instruction-dataset-mini",
         split="test",
@@ -47,12 +47,12 @@ def dataset_loader() -> Generator[Union[Dataset, IterableDataset], None, None]:
     not DISTILABEL_RUN_SLOW_TESTS,
     reason="These tests depend on internet connection, are slow and depend mainly on HF API, we don't need to test them often.",
 )
-class TestLoadFromHub:
+class TestLoadDataFromHub:
     @pytest.mark.parametrize(
         "streaming, ds_type", [(True, IterableDataset), (False, Dataset)]
     )
     def test_runtime_parameters(self, streaming: bool, ds_type) -> None:
-        load_hub_dataset = LoadFromHub(
+        load_hub_dataset = LoadDataFromHub(
             name="load_dataset",
             repo_id="distilabel-internal-testing/instruction-dataset-mini",
             split="test",
@@ -68,16 +68,16 @@ class TestLoadFromHub:
         assert isinstance(generator_step_output[1], bool)
         assert len(generator_step_output[0]) == 2
 
-    def test_dataset_outputs(self, dataset_loader: LoadFromHub) -> None:
+    def test_dataset_outputs(self, dataset_loader: LoadDataFromHub) -> None:
         # TODO: This test can be run with/without internet connection, we should emulate it here with a mock.
         assert dataset_loader.outputs == ["prompt", "completion", "meta"]
 
 
-class TestLoadFromFileSystem:
+class TestLoadDataFromFileSystem:
     @pytest.mark.parametrize("filetype", ["json", None])
     @pytest.mark.parametrize("streaming", [True, False])
     def test_read_from_jsonl(self, streaming: bool, filetype: Union[str, None]) -> None:
-        loader = LoadFromFileSystem(
+        loader = LoadDataFromFileSystem(
             filetype=filetype,
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
             streaming=streaming,
@@ -101,7 +101,7 @@ class TestLoadFromFileSystem:
                     sample_file.read_text(), encoding="utf-8"
                 )
 
-            loader = LoadFromFileSystem(
+            loader = LoadDataFromFileSystem(
                 filetype=filetype,
                 data_files=tmpdir,
             )
@@ -124,7 +124,7 @@ class TestLoadFromFileSystem:
                     sample_file.read_text(), encoding="utf-8"
                 )
 
-            loader = LoadFromFileSystem(
+            loader = LoadDataFromFileSystem(
                 filetype=filetype,
                 data_files=tmpdir,
             )
@@ -136,7 +136,7 @@ class TestLoadFromFileSystem:
 
     @pytest.mark.parametrize("load", [True, False])
     def test_outputs(self, load: bool) -> None:
-        loader = LoadFromFileSystem(
+        loader = LoadDataFromFileSystem(
             filetype="json",
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
         )
@@ -148,14 +148,14 @@ class TestLoadFromFileSystem:
                 loader.outputs  # noqa: B018
 
 
-class TestLoadFromDisk:
+class TestLoadDataFromDisk:
     def test_load_dataset_from_disk(self) -> None:
         dataset = Dataset.from_dict({"a": [1, 2, 3]})
         with tempfile.TemporaryDirectory() as tmpdir:
             dataset_path = str(Path(tmpdir) / "dataset_path")
             dataset.save_to_disk(dataset_path)
 
-            loader = LoadFromDisk(dataset_path=dataset_path)
+            loader = LoadDataFromDisk(dataset_path=dataset_path)
             loader.load()
             generator_step_output = next(loader.process())
             assert isinstance(generator_step_output, tuple)
@@ -175,7 +175,7 @@ class TestLoadFromDisk:
             dataset_path = str(Path(tmpdir) / "dataset_path")
             distiset.save_to_disk(dataset_path)
 
-            loader = LoadFromDisk(
+            loader = LoadDataFromDisk(
                 dataset_path=dataset_path, is_distiset=True, config="leaf_step_1"
             )
             loader.load()

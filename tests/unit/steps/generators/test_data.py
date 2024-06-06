@@ -13,30 +13,32 @@
 # limitations under the License.
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.generators.data import LoadDataFromDicts, LoadFromBuffer
+from distilabel.steps.generators.data import LoadDataFromDicts
 from pydantic import ValidationError
 
 
-class TestLoadFromBuffer:
+class TestLoadDataFromDicts:
     data = [{"instruction": "test"}] * 10
 
     def test_init(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
-        task = LoadFromBuffer(name="task", pipeline=pipeline, data=data, batch_size=10)
+        task = LoadDataFromDicts(
+            name="task", pipeline=pipeline, data=data, batch_size=10
+        )
         assert task.data == data
         assert task.batch_size == 10
 
     def test_with_errors(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         with pytest.raises(ValidationError):
-            LoadFromBuffer(name="task", pipeline=pipeline)
+            LoadDataFromDicts(name="task", pipeline=pipeline)
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         data: list[dict[str, str]] = self.data
         batch_size = 1
-        task = LoadFromBuffer(
+        task = LoadDataFromDicts(
             name="task", pipeline=pipeline, data=data, batch_size=batch_size
         )
 
@@ -46,13 +48,3 @@ class TestLoadFromBuffer:
         assert next(result) == ([self.data[-batch_size]], True)
         with pytest.raises(StopIteration):
             next(result)
-
-
-def test_LoadDataFromDicts_deprecation_warning():
-    with pytest.deprecated_call():
-        LoadDataFromDicts(data=[{"instruction": "test"}])
-
-    import distilabel
-    from packaging.version import Version
-
-    assert Version(distilabel.__version__) <= Version("1.3.0")
