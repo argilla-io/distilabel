@@ -15,7 +15,8 @@
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from distilabel.pipeline.base import _Batch, _BatchManager
+from distilabel.pipeline.batch import _Batch
+from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.local import Pipeline
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2

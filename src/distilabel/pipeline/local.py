@@ -27,8 +27,8 @@ from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import (
     LAST_BATCH_SENT_FLAG,
     BasePipeline,
-    _Batch,
 )
+from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
