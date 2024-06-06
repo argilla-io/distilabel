@@ -115,13 +115,13 @@ class RuntimeParametersMixin(BaseModel):
                         name, runtime_parameters_names, cutoff=0.5
                     )
                     msg = (
-                        f"⚠️  Runtime parameter '{name}' unknown in step '{self.name}'."
+                        f"⚠️  Runtime parameter '{name}' unknown in step '{self.name}'."  # type: ignore
                     )
                     if closest:
                         msg += f" Did you mean any of: {closest}"
                     else:
                         msg += f" Available runtime parameters for the step: {runtime_parameters_names}."
-                    self.pipeline._logger.warning(msg)
+                    self.pipeline._logger.warning(msg)  # type: ignore
                 continue
 
             attr = getattr(self, name)
