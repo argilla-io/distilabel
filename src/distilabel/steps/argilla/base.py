@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, List, Optional
 from pydantic import Field, PrivateAttr, SecretStr
 
 try:
-    import argilla as rg
+    import argilla_sdk as rg
 except ImportError:
     pass
 
@@ -28,15 +28,16 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from argilla.client.feedback.dataset.remote.dataset import RemoteFeedbackDataset
+    from argilla_sdk import Argilla, Dataset
 
     from distilabel.steps.typing import StepOutput
 
 
+_ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
 _ARGILLA_API_KEY_ENV_VAR_NAME = "ARGILLA_API_KEY"
 
 
-class Argilla(Step, ABC):
+class _Argilla(Step, ABC):
     """Abstract step that provides a class to subclass from, that contains the boilerplate code
     required to interact with Argilla, as well as some extra validations on top of it. It also defines
     the abstract methods that need to be implemented in order to add a new dataset type as a step.
@@ -75,7 +76,7 @@ class Argilla(Step, ABC):
     )
 
     api_url: Optional[RuntimeParameter[str]] = Field(
-        default_factory=lambda: os.getenv("ARGILLA_API_URL"),
+        default_factory=lambda: os.getenv(_ARGILLA_API_URL_ENV_VAR_NAME),
         description="The base URL to use for the Argilla API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
@@ -83,42 +84,59 @@ class Argilla(Step, ABC):
         description="The API key to authenticate the requests to the Argilla API.",
     )
 
-    _rg_dataset: Optional["RemoteFeedbackDataset"] = PrivateAttr(...)
+    _client: Optional["Argilla"] = PrivateAttr(...)
+    _dataset: Optional["Dataset"] = PrivateAttr(...)
 
     def model_post_init(self, __context: Any) -> None:
         """Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings."""
         super().model_post_init(__context)
 
         try:
-            import argilla as rg  # noqa
+            import argilla_sdk as rg  # noqa
         except ImportError as ie:
             raise ImportError(
-                "Argilla is not installed. Please install it using `pip install argilla`."
+                "Argilla is not installed. Please install it using `pip install argilla_sdk --upgrade`."
             ) from ie
 
         warnings.filterwarnings("ignore")
 
-    def _rg_init(self) -> None:
+    def _client_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
         try:
-            if "hf.space" in self.api_url and "HF_TOKEN" in os.environ:
-                headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-            else:
-                headers = None
-            rg.init(
+            self._client = rg.Argilla(  # type: ignore
                 api_url=self.api_url,
-                api_key=self.api_key.get_secret_value(),
-                extra_headers=headers,
-            )  # type: ignore
+                api_key=self.api_key.get_secret_value(),  # type: ignore
+                headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+                if isinstance(self.api_url, str)
+                and "hf.space" in self.api_url
+                and "HF_TOKEN" in os.environ
+                else {},
+            )
         except Exception as e:
             raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
 
-    def _rg_dataset_exists(self) -> bool:
-        """Checks if the dataset already exists in Argilla."""
-        return self.dataset_name in [
-            dataset.name
-            for dataset in rg.FeedbackDataset.list(workspace=self.dataset_workspace)  # type: ignore
-        ]
+    @property
+    def _dataset_exists_in_workspace(self) -> bool:
+        """Checks if the dataset already exists in Argilla in the provided workspace if any."""
+        return (
+            True
+            if self._client.datasets(  # type: ignore
+                name=self.dataset_name,  # type: ignore
+                workspace=self._client.workspaces(name=self.dataset_workspace)  # type: ignore
+                if self.dataset_workspace is not None
+                else None,
+            ).exists()
+            is not None
+            else False
+        )
+        # Alternative way but the above should work
+        # return self.dataset_name in (
+        #     [
+        #         dataset.name for dataset in self._client.workspaces(self.dataset_workspace)  # type: ignore
+        #     ]
+        #     if self.dataset_workspace is not None
+        #     else [dataset.name for dataset in self._client.datasets.list()]  # type: ignore
+        # )
 
     @property
     def outputs(self) -> List[str]:
@@ -133,7 +151,7 @@ class Argilla(Step, ABC):
         """
         super().load()
 
-        self._rg_init()
+        self._client_init()
 
     @property
     @abstractmethod
