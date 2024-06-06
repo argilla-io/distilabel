@@ -13,12 +13,10 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, Final, List, Union
+from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
-
-STRUCTURED_OUTPUT_COLUMN: Final[str] = "structured_output"
 
 
 class StructuredGeneration(Task):
@@ -63,7 +61,7 @@ class StructuredGeneration(Task):
         """The input for the task are the `instruction` and the `structured_output`.
         Optionally, if the `use_system_prompt` flag is set to True, then the
         `system_prompt` will be used too."""
-        columns = ["instruction", STRUCTURED_OUTPUT_COLUMN]
+        columns = ["instruction", "structured_output"]
         if self.use_system_prompt:
             columns = ["system_prompt"] + columns
         return columns
@@ -89,7 +87,7 @@ class StructuredGeneration(Task):
                     stacklevel=2,
                 )
 
-        return (messages, input.get(STRUCTURED_OUTPUT_COLUMN, None))  # type: ignore
+        return (messages, input.get("structured_output", None))  # type: ignore
 
     @property
     def outputs(self) -> List[str]:
