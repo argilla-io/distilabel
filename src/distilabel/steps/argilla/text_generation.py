@@ -117,7 +117,6 @@ class TextGenerationToArgilla(ArgillaBase):
                 settings=_settings,
                 client=self._client,
             )
-            self._logger.info(f"Creating the dataset {self.dataset_name} in Argilla.")
             self._dataset = _dataset.create()
 
     @property
