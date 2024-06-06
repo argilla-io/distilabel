@@ -655,5 +655,11 @@ class BasePipeline(ABC, _Serializable):
             )
             self._send_batch_to_step(batch)
 
+    def _notify_steps_to_stop(self) -> None:
+        """Notifies the steps to stop their infinite running loop by sending `None` to
+        their input queues."""
+        for step_name in self.dag:
+            self._send_to_step(step_name, None)
+
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"

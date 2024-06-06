@@ -312,6 +312,21 @@ class TestBasePipeline:
             ]
         )
 
+    def test_notify_steps_to_stop(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+
+        with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
+            pipeline._notify_steps_to_stop()
+
+        mock_send_to_step.assert_has_calls(
+            [
+                mock.call(generator.name, None),
+                mock.call(step.name, None),
+            ]
+        )
+
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):
             runtime_param1: RuntimeParameter[str] = Field(

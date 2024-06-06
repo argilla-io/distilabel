@@ -177,13 +177,6 @@ class Pipeline(BasePipeline):
         thread.start()
         thread.join()
 
-    def _notify_steps_to_stop(self) -> None:
-        """Notifies the steps to stop their infinite running loop by sending `None` to
-        their input queues."""
-        for step_name in self.dag:
-            if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
-                input_queue.put(None)
-
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
