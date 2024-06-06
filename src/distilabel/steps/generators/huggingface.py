@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import warnings
 from collections import defaultdict
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -29,10 +28,15 @@ from typing import (
     Union,
 )
 
-import requests
-from datasets import Dataset, DatasetInfo, IterableDataset, load_dataset, load_from_disk
+from datasets import (
+    Dataset,
+    DatasetInfo,
+    IterableDataset,
+    get_dataset_infos,
+    load_dataset,
+    load_from_disk,
+)
 from pydantic import Field, PrivateAttr
-from requests.exceptions import ConnectionError
 from upath import UPath
 
 from distilabel.distiset import Distiset
@@ -43,7 +47,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class LoadFromHub(GeneratorStep):
+class LoadDataFromHub(GeneratorStep):
     """Loads a dataset from the Hugging Face Hub.
 
     `GeneratorStep` that loads a dataset from the Hugging Face Hub using the `datasets`
@@ -176,11 +180,11 @@ class LoadFromHub(GeneratorStep):
         Returns:
             The number of examples in the dataset.
         """
-        dataset_info = self._get_dataset_info()
-        split = self.split
-        if self.config:
-            return dataset_info["splits"][split]["num_examples"]
-        return dataset_info["default"]["splits"][split]["num_examples"]
+        return (
+            self._dataset_info[self.config if self.config else "default"]
+            .splits[self.split]
+            .num_examples
+        )
 
     def _get_dataset_columns(self) -> List[str]:
         """Get the columns of the dataset, based on the `config` runtime parameter provided.
@@ -188,18 +192,14 @@ class LoadFromHub(GeneratorStep):
         Returns:
             The columns of the dataset.
         """
-        dataset_info = self._get_dataset_info()
+        return list(
+            self._dataset_info[
+                self.config if self.config else "default"
+            ].features.keys()
+        )
 
-        if isinstance(dataset_info, DatasetInfo):
-            if self.config:
-                return list(self._dataset[self.config].info.features.keys())
-            return list(self._dataset.info.features.keys())
-
-        if self.config:
-            return list(dataset_info["features"].keys())
-        return list(dataset_info["default"]["features"].keys())
-
-    def _get_dataset_info(self) -> Dict[str, Any]:
+    @cached_property
+    def _dataset_info(self) -> Dict[str, DatasetInfo]:
         """Calls the Datasets Server API from Hugging Face to obtain the dataset information.
 
         Returns:
@@ -209,17 +209,20 @@ class LoadFromHub(GeneratorStep):
         config = self.config
 
         try:
-            return _get_hf_dataset_info(repo_id, config)
-        except ConnectionError:
+            return get_dataset_infos(repo_id)
+        except Exception as e:
             # The previous could fail in case of a internet connection issues.
             # Assuming the dataset is already loaded and we can get the info from the loaded dataset, otherwise it will fail anyway.
-            self.load()
+            self._logger.warning(
+                f"Failed to get dataset info from Hugging Face Hub, trying to get it loading the dataset. Error: {e}"
+            )
+            ds = load_dataset(repo_id, config=self.config, split=self.split)
             if config:
-                return self._dataset[config].info
-            return self._dataset.info
+                return ds[config].info
+            return ds.info
 
 
-class LoadHubDataset(LoadFromHub):
+class LoadHubDataset(LoadDataFromHub):
     def __init__(self, **data: Any) -> None:
         warnings.warn(
             "`LoadHubDataset` is deprecated and will be removed in version 1.3.0, use `LoadFromHub` instead.",
@@ -229,43 +232,7 @@ class LoadHubDataset(LoadFromHub):
         return super().__init__(**data)
 
 
-@lru_cache
-def _get_hf_dataset_info(
-    repo_id: str, config: Union[str, None] = None
-) -> Dict[str, Any]:
-    """Calls the Datasets Server API from Hugging Face to obtain the dataset information.
-    The results are cached to avoid making multiple requests to the server.
-
-    Args:
-        repo_id: The Hugging Face Hub repository ID of the dataset.
-        config: The configuration of the dataset. This is optional and only needed if the
-            dataset has multiple configurations.
-
-    Returns:
-        The dataset information.
-    """
-
-    params = {"dataset": repo_id}
-    if config is not None:
-        params["config"] = config
-
-    if "HF_TOKEN" in os.environ:
-        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-    else:
-        headers = None
-
-    response = requests.get(
-        "https://datasets-server.huggingface.co/info", params=params, headers=headers
-    )
-
-    assert (
-        response.status_code == 200
-    ), f"Failed to get '{repo_id}' dataset info. Make sure you have set the HF_TOKEN environment variable if it is a private dataset."
-
-    return response.json()["dataset_info"]
-
-
-class LoadFromFileSystem(LoadFromHub):
+class LoadDataFromFileSystem(LoadDataFromHub):
     """Loads a dataset from a file in your filesystem.
 
     `GeneratorStep` that creates a dataset from a file in the filesystem, uses Hugging Face `datasets`
@@ -396,7 +363,7 @@ class LoadFromFileSystem(LoadFromHub):
         return self._dataset.column_names
 
 
-class LoadFromDisk(LoadFromHub):
+class LoadDataFromDisk(LoadDataFromHub):
     """Load a dataset that was previously saved to disk.
 
     If you previously saved your dataset using the `save_to_disk` method, or

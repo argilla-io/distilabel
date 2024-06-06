@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from typing_extensions import override
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class LoadFromBuffer(GeneratorStep):
+class LoadDataFromDicts(GeneratorStep):
     """Loads a dataset from a list of dictionaries.
 
     `GeneratorStep` that loads a dataset from a list of dictionaries and yields it in
@@ -71,13 +70,3 @@ class LoadFromBuffer(GeneratorStep):
     def outputs(self) -> List[str]:
         """Returns a list of strings with the names of the columns that the step will generate."""
         return list(self.data[0].keys())
-
-
-class LoadDataFromDicts(LoadFromBuffer):
-    def __init__(self, **data: Any) -> None:
-        warnings.warn(
-            "`LoadDataFromDicts` is deprecated and will be removed in version 1.3.0, use `LoadFromBuffer` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return super().__init__(**data)
