@@ -261,6 +261,57 @@ class TestBasePipeline:
 
         mock_sent_to_step.assert_not_called()
 
+    def test_request_initial_batches(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+
+            generator >> step
+
+            generator2 = DummyGeneratorStep()
+            step2 = DummyStep1(input_batch_size=5)
+
+            generator2 >> step2
+
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+
+        # Simulate there were batches from the cache for the steps
+        batch_0 = _Batch(
+            seq_no=0,
+            step_name=generator.name,  # type: ignore
+            last_batch=False,
+            data=[[{"a": i} for i in range(5)]],
+        )  # type: ignore
+        pipeline._batch_manager._steps[step.name].data[generator.name] = [  # type: ignore
+            batch_0
+        ]
+
+        batch_1 = _Batch(
+            seq_no=0,
+            step_name=generator2.name,  # type: ignore
+            last_batch=False,
+            data=[[{"b": i} for i in range(5)]],
+        )  # type: ignore
+        pipeline._batch_manager._steps[step2.name].data[generator2.name] = [  # type: ignore
+            batch_1
+        ]
+
+        with mock.patch.object(
+            pipeline, "_send_batch_to_step"
+        ) as mock_send_batch_to_step:
+            pipeline._request_initial_batches()
+
+        mock_send_batch_to_step.assert_has_calls(
+            [
+                mock.call(mock.ANY),
+                mock.call(mock.ANY),
+                mock.call(_Batch(seq_no=0, step_name=generator.name, last_batch=False)),  # type: ignore
+                mock.call(
+                    _Batch(seq_no=0, step_name=generator2.name, last_batch=False)  # type: ignore
+                ),
+            ]
+        )
+
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):
             runtime_param1: RuntimeParameter[str] = Field(

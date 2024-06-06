@@ -634,5 +634,26 @@ class BasePipeline(ABC, _Serializable):
         self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
         self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
+    def _request_initial_batches(self) -> None:
+        """Requests the initial batches to the generator steps."""
+        assert self._batch_manager, "Batch manager is not set"
+
+        for step in self._batch_manager._steps.values():
+            if batch := step.get_batch():
+                self._logger.debug(
+                    f"Sending initial batch to '{step.step_name}' step: {batch}"
+                )
+                self._send_batch_to_step(batch)
+
+        for step_name in self.dag.root_steps:
+            seq_no = 0
+            if last_batch := self._batch_manager.get_last_batch(step_name):
+                seq_no = last_batch.seq_no + 1
+            batch = _Batch(seq_no=seq_no, step_name=step_name, last_batch=self._dry_run)
+            self._logger.debug(
+                f"Requesting initial batch to '{step_name}' generator step: {batch}"
+            )
+            self._send_batch_to_step(batch)
+
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"
