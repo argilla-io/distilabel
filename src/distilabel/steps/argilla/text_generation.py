@@ -23,14 +23,14 @@ try:
 except ImportError:
     pass
 
-from distilabel.steps.argilla.base import _Argilla
+from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class TextGenerationToArgilla(_Argilla):
+class TextGenerationToArgilla(ArgillaBase):
     """Creates a text generation dataset in Argilla.
 
     `Step` that creates a dataset in Argilla during the load phase, and then pushes the input
