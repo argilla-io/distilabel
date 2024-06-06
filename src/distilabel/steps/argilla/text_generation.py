@@ -167,5 +167,5 @@ class TextGenerationToArgilla(_Argilla):
                         },
                     ),
                 )
-        self._dataset.log(records)  # type: ignore
+        self._dataset.records.log(records)  # type: ignore
         yield inputs

@@ -37,7 +37,7 @@ _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
 _ARGILLA_API_KEY_ENV_VAR_NAME = "ARGILLA_API_KEY"
 
 
-class _Argilla(Step, ABC):
+class ArgillaBase(Step, ABC):
     """Abstract step that provides a class to subclass from, that contains the boilerplate code
     required to interact with Argilla, as well as some extra validations on top of it. It also defines
     the abstract methods that need to be implemented in order to add a new dataset type as a step.
@@ -129,14 +129,6 @@ class _Argilla(Step, ABC):
             is not None
             else False
         )
-        # Alternative way but the above should work
-        # return self.dataset_name in (
-        #     [
-        #         dataset.name for dataset in self._client.workspaces(self.dataset_workspace)  # type: ignore
-        #     ]
-        #     if self.dataset_workspace is not None
-        #     else [dataset.name for dataset in self._client.datasets.list()]  # type: ignore
-        # )
 
     @property
     def outputs(self) -> List[str]:
