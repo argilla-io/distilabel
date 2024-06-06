@@ -19,7 +19,7 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
@@ -129,7 +129,7 @@ class LlamaCppLLM(LLM):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[StandardInput],
+        inputs: List[FormattedInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -159,18 +159,23 @@ class LlamaCppLLM(LLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-
+        structured_output = None
         batch_outputs = []
         for input in inputs:
+            if isinstance(input, tuple):
+                input, structured_output = input
+            elif self.structured_output:
+                structured_output = self.structured_output
+
             outputs = []
             for _ in range(num_generations):
                 # NOTE(plaguss): There seems to be a bug in how the logits processor
                 # is used. Basically it consumes the FSM internally, and it isn't reinitialized
                 # after each generation, so subsequent calls yield nothing. This is a workaround
                 # until is fixed in the `llama_cpp` or `outlines` libraries.
-                if self.structured_output:
+                if structured_output:
                     self._logits_processor = self._prepare_structured_output(
-                        self.structured_output
+                        structured_output
                     )
                 chat_completions: "CreateChatCompletionResponse" = (
                     self._model.create_chat_completion(  # type: ignore
@@ -204,6 +209,6 @@ class LlamaCppLLM(LLM):
         )
 
         result = prepare_guided_output(structured_output, "llamacpp", self._model)
-        if schema := result.get("schema"):
+        if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]

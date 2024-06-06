@@ -12,8 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Optional, Union
+import json
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+)
 
+import numpy as np
 from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
@@ -21,7 +33,7 @@ from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -155,7 +167,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "StandardInput") -> str:
+    def prepare_input(self, input: "FormattedInput") -> str:
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
@@ -165,10 +177,52 @@ class vLLM(LLM, CudaDevicePlacementMixin):
             add_generation_prompt=True,  # type: ignore
         )
 
+    def _prepare_batches(
+        self, inputs: List[FormattedInput]
+    ) -> Tuple[List[List[FormattedInput]], List[int]]:
+        """Prepares the inputs by grouping them by the structured output.
+
+        When we generate structured outputs with schemas obtained from a dataset, we need to
+        prepare the data to try to send batches of inputs instead of single inputs to the model
+        to take advante of the engine. So we group the inputs by the structured output to be
+        passed in the `generate` method.
+
+        Args:
+            inputs: The batch of inputs passed to the generate method. As we expect to be generating
+                structured outputs, each element will be a tuple containing the instruction and the
+                structured output.
+
+        Returns:
+            The prepared batches (sub-batches let's say) to be passed to the `generate` method.
+            Each new tuple will contain instead of the single instruction, a list of instructions
+        """
+        instruction_order = {}
+        batches = {}
+        for i, (instruction, structured_output) in enumerate(inputs):
+            instruction = self.prepare_input(instruction)
+            instruction_order[instruction] = i
+            structured_output = json.dumps(structured_output)
+            if structured_output not in batches:
+                batches[structured_output] = [instruction]
+            else:
+                batches[structured_output].append(instruction)
+
+        # Flatten the instructions in prepared_data
+        flat_instructions = [
+            instruction for _, group in batches.items() for instruction in group
+        ]
+        # Generate the list of indices based on the original order
+        sorted_indices = [
+            instruction_order[instruction] for instruction in flat_instructions
+        ]
+        return [
+            (batch, json.loads(schema)) for schema, batch in batches.items()
+        ], sorted_indices
+
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[StandardInput],
+        inputs: List[FormattedInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -200,33 +254,57 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        prepared_inputs = [self.prepare_input(input) for input in inputs]
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
+        structured_output = None
 
-        sampling_params = SamplingParams(  # type: ignore
-            n=num_generations,
-            presence_penalty=presence_penalty,
-            frequency_penalty=frequency_penalty,
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-            max_tokens=max_new_tokens,
-            logits_processors=(
-                [self._logits_processor] if self._logits_processor else None
-            ),
-            **extra_sampling_params,
-        )
+        if isinstance(inputs[0], tuple):
+            prepared_batches, sorted_indices = self._prepare_batches(inputs)
+        else:
+            # Simulate a batch without the structured output content
+            prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
 
-        batch_outputs = self._model.generate(  # type: ignore
-            prepared_inputs,
-            sampling_params,
-            use_tqdm=False,  # type: ignore
-        )
-        return [
-            [output.text for output in outputs.outputs] for outputs in batch_outputs
-        ]
+        # In case we have a single structured output for the dataset, we can
+        logits_processors = None
+        if self._logits_processor:
+            logits_processors = [self._logits_processor]
+
+        batched_outputs = []
+
+        for prepared_inputs, structured_output in prepared_batches:
+            if structured_output:
+                logits_processors = [self._prepare_structured_output(structured_output)]
+
+            sampling_params = SamplingParams(  # type: ignore
+                n=num_generations,
+                presence_penalty=presence_penalty,
+                frequency_penalty=frequency_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                max_tokens=max_new_tokens,
+                logits_processors=logits_processors,
+                **extra_sampling_params,
+            )
+
+            batch_outputs = self._model.generate(  # type: ignore
+                prepared_inputs,
+                sampling_params,
+                use_tqdm=False,  # type: ignore
+            )
+
+            batched_outputs += [
+                [output.text for output in outputs.outputs] for outputs in batch_outputs
+            ]
+
+        # If logits_processor is set, we need to sort the outputs back to the original order
+        # (would be needed only if we have multiple structured outputs in the dataset)
+        if logits_processors:
+            batched_outputs = _sort_batches(
+                batched_outputs, sorted_indices, num_generations=num_generations
+            )
+        return batched_outputs
 
     def _prepare_structured_output(
         self, structured_output: Optional[OutlinesStructuredOutputType] = None
@@ -244,6 +322,31 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         )
 
         result = prepare_guided_output(structured_output, "vllm", self._model)
-        if schema := result.get("schema"):
+        if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]
+
+
+def _sort_batches(
+    batches: List[List[FormattedInput]], indices: List[int], num_generations: int = 1
+) -> List[str]:
+    """Helper function to sort back the mini-batches generated by the model.
+
+    It must take into account the number of `num_generations` to repeat the indices
+    accordingly.
+
+    Args:
+        batches: The mini-batches generated by the model.
+        indices: The indices that would sort the mini-batches back to the original order.
+        num_generations: The number of generations requested to vLLM. Defaults to 1.
+
+    Returns:
+        Sorted batched_outputs.
+    """
+    flattened_batches = np.array([b for batch in batches for b in batch[0]])
+
+    return np.take_along_axis(
+        flattened_batches,
+        np.argsort(np.repeat(indices, num_generations)),
+        axis=0,
+    ).tolist()
