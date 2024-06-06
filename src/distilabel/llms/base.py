@@ -14,6 +14,7 @@
 
 import asyncio
 import inspect
+import json
 import logging
 import sys
 from abc import ABC, abstractmethod
@@ -344,7 +345,7 @@ class AsyncLLM(LLM):
             raise ValueError(
                 f"The `structured_output` argument must contain a schema: {structured_output}"
             )
-        if issubclass(schema, BaseModel):
+        if inspect.isclass(schema) and issubclass(schema, BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
             structured_output["schema"] = schema.model_json_schema()
             result["structured_output"] = structured_output
@@ -369,10 +370,15 @@ class AsyncLLM(LLM):
         # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
         # for the Instructor client.
         schema = structured_output.get("schema")
-        if not issubclass(schema, BaseModel):
+        # We can assume if it's a class it must be a pydantic model.
+        if not inspect.isclass(schema):
             from distilabel.steps.tasks.structured_outputs.utils import (
                 json_schema_to_model,
             )
+
+            if isinstance(schema, str):
+                # In case it was saved in the dataset as a string.
+                schema = json.loads(schema)
 
             try:
                 schema = json_schema_to_model(schema)
