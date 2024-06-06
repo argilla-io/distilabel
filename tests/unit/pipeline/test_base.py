@@ -21,10 +21,13 @@ from unittest import mock
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
+    LAST_BATCH_SENT_FLAG,
     BasePipeline,
     _GlobalPipelineManager,
 )
 from distilabel.pipeline.batch import _Batch
+from distilabel.pipeline.batch_manager import _BatchManager
+from distilabel.pipeline.routing_batch_function import sample_n_steps
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.typing import StepOutput
@@ -41,12 +44,17 @@ from .utils import (
 )
 
 
+class DummyPipeline(BasePipeline):
+    def _send_to_step(self, step_name: str, to_send: Any) -> None:
+        pass
+
+
 class TestGlobalPipelineManager:
     def teardown_method(self) -> None:
         _GlobalPipelineManager.set_pipeline(None)
 
     def test_set_pipeline(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -55,7 +63,7 @@ class TestGlobalPipelineManager:
         assert _GlobalPipelineManager.get_pipeline() is None
 
     def test_get_pipeline(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -64,7 +72,7 @@ class TestBasePipeline:
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             assert pipeline is not None
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -72,7 +80,7 @@ class TestBasePipeline:
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         pipeline._load_batch_manager(use_cache=True)
         pipeline._cache()
 
@@ -93,19 +101,19 @@ class TestBasePipeline:
             mock_from_dag.assert_called_once_with(pipeline.dag)
 
     def test_setup_write_buffer(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         pipeline._setup_write_buffer()
         assert isinstance(pipeline._write_buffer, _WriteBuffer)
 
     def test_set_logging_parameters(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         pipeline._set_logging_parameters({"unit-test": "yes"})
 
         assert pipeline._logging_parameters == {"unit-test": "yes"}
 
     def test_setup_fsspec(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with mock.patch("fsspec.filesystem") as mock_filesystem:
             pipeline._setup_fsspec({"path": "gcs://my-bucket", "extra": "stuff"})
@@ -113,7 +121,7 @@ class TestBasePipeline:
         mock_filesystem.assert_called_once_with("gcs", **{"extra": "stuff"})
 
     def test_setup_fsspec_default(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         pipeline._setup_fsspec()
 
         assert isinstance(pipeline._fs, LocalFileSystem)
@@ -123,13 +131,31 @@ class TestBasePipeline:
         )
 
     def test_setup_fsspec_raises_value_error(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
 
+    def test_is_convergence_step(self) -> None:
+        sample_two_steps = sample_n_steps(2)
+
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> sample_two_steps >> [step, step2] >> step3
+
+        pipeline.dag.validate()
+
+        assert not pipeline._is_convergence_step(generator.name)  # type: ignore
+        assert not pipeline._is_convergence_step(step.name)  # type: ignore
+        assert not pipeline._is_convergence_step(step2.name)  # type: ignore
+        assert pipeline._is_convergence_step(step3.name)  # type: ignore
+
     def test_send_batch_to_step(self) -> None:
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
             global_step = DummyGlobalStep()
@@ -150,6 +176,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` shouldn't have been called because last batch sent with
+        # `_send_batch_to_step` is from a non-global step.
         mock_write.assert_not_called()
 
         with mock.patch(
@@ -159,6 +187,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=global_step.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` should have been called because last batch sent with
+        # `_send_batch_to_step` is from a global step.
         mock_write.assert_called_once_with(
             pipeline._fs,
             UPath(pipeline._storage_base_path) / global_step.name,
@@ -173,6 +203,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` shouldn't have been called because generator receives
+        # empty batches, so there's no data to write.
         mock_write.assert_not_called()
 
         with mock.patch(
@@ -198,6 +230,37 @@ class TestBasePipeline:
             ]
         )
 
+    def test_send_last_batch_flag_to_step(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        step_name: str = step.name  # type: ignore
+
+        pipeline._batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={step_name: None},
+            last_batch_sent={step_name: None},
+            last_batch_flag_sent_to=[],
+        )
+
+        with mock.patch.object(pipeline, "_send_to_step") as mock_sent_to_step:
+            pipeline._send_last_batch_flag_to_step(step_name)
+
+        mock_sent_to_step.assert_called_once_with(step_name, LAST_BATCH_SENT_FLAG)
+
+        pipeline._batch_manager._last_batch_sent[step_name] = _Batch(
+            seq_no=0,
+            step_name=step_name,
+            last_batch=True,
+        )
+        with mock.patch.object(pipeline, "_send_to_step") as mock_sent_to_step:
+            pipeline._send_last_batch_flag_to_step(step_name)
+
+        mock_sent_to_step.assert_not_called()
+
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):
             runtime_param1: RuntimeParameter[str] = Field(
@@ -221,7 +284,7 @@ class TestBasePipeline:
             def process(self, inputs: StepInput) -> None:
                 pass
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             DummyStep1(name="dummy_step_1")
             DummyStep2(name="dummy_step_2")
 
@@ -322,7 +385,7 @@ class TestBasePipeline:
             def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
                 yield [{}]
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             gen_step = DummyGeneratorStep(name="dummy_generator_step")
             step1 = DummyStep1(name="dummy_step_1")
             step2 = DummyStep2(name="dummy_step_2")
@@ -339,7 +402,7 @@ class TestBasePipeline:
     def test_cache_dir_env_variable(self) -> None:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["DISTILABEL_CACHE_DIR"] = "/tmp/unit-test"
-            pipeline = BasePipeline(name="unit-test-pipeline")
+            pipeline = DummyPipeline(name="unit-test-pipeline")
             assert pipeline._cache_dir == Path("/tmp/unit-test")
 
     @pytest.mark.parametrize(
@@ -362,7 +425,7 @@ class TestBasePipeline:
     )
     def test_step_names_inferred(self, in_pipeline: bool, names: List[str]) -> None:
         if in_pipeline:
-            with BasePipeline(name="unit-test-pipeline"):
+            with DummyPipeline(name="unit-test-pipeline"):
                 gen_step = DummyGeneratorStep()
                 step1_0 = DummyStep1()
                 step2 = DummyStep2()
@@ -382,7 +445,7 @@ class TestBasePipeline:
 
     def test_infer_step_names_big_pipeline(self) -> None:
         # Tests that the name of the steps are inferred correctly when the pipeline is big (say 50 steps).
-        with BasePipeline(name="unit-test-pipeline") as pipe:
+        with DummyPipeline(name="unit-test-pipeline") as pipe:
             gen_step = DummyGeneratorStep()
             for _ in range(50):
                 gen_step.connect(DummyStep1())
@@ -391,18 +454,20 @@ class TestBasePipeline:
 
 class TestPipelineSerialization:
     def test_base_pipeline_dump(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         dump = pipeline.dump()
         assert len(dump.keys()) == 2
         assert "pipeline" in dump
         assert "distilabel" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
-        assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
-        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
+        assert (
+            dump["pipeline"][TYPE_INFO_KEY]["module"] == "tests.unit.pipeline.test_base"
+        )
+        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "DummyPipeline"
 
     def test_base_pipeline_from_dict(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
-        pipe = BasePipeline.from_dict(pipeline.dump())
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+        pipe = DummyPipeline.from_dict(pipeline.dump())
         assert isinstance(pipe, BasePipeline)
 
     def test_pipeline_dump(self):
@@ -420,8 +485,8 @@ class TestPipelineSerialization:
     @pytest.mark.parametrize(
         "format, name, loader",
         [
-            ("yaml", "pipe.yaml", BasePipeline.from_yaml),
-            ("json", "pipe.json", BasePipeline.from_json),
+            ("yaml", "pipe.yaml", DummyPipeline.from_yaml),
+            ("json", "pipe.json", DummyPipeline.from_json),
             ("invalid", "pipe.invalid", None),
         ],
     )
@@ -431,7 +496,7 @@ class TestPipelineSerialization:
         name: str,
         loader: Callable,
     ) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             filename = Path(tmpdirname) / name
@@ -445,7 +510,7 @@ class TestPipelineSerialization:
                 assert isinstance(pipe_from_file, BasePipeline)
 
     def test_base_pipeline_signature(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
         signature = pipeline._create_signature()

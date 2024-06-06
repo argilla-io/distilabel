@@ -30,7 +30,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
-    CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
@@ -506,41 +505,15 @@ class Pipeline(BasePipeline):
             )
             self._send_batch_to_step(batch)
 
-    def _send_batch_to_step(self, batch: "_Batch") -> None:
-        """Sends a batch to the input queue of a step.
-
-        Args:
-            batch: The batch to send.
-        """
-        super()._send_batch_to_step(batch)
-        input_queue = self.dag.get_step(batch.step_name)[INPUT_QUEUE_ATTR_NAME]
-        input_queue.put(batch)
-
-    def _is_convergence_step(self, step_name: str) -> None:
-        """Checks if a step is a convergence step.
+    def _send_to_step(self, step_name: str, to_send: Any) -> None:
+        """Sends something to the input queue of a step.
 
         Args:
             step_name: The name of the step.
+            to_send: The object to send.
         """
-        return self.dag.get_step(step_name).get(CONVERGENCE_STEP_ATTR_NAME)
-
-    def _send_last_batch_flag_to_step(self, step_name: str) -> None:
-        """Sends the `LAST_BATCH_SENT_FLAG` to a step to stop processing batches.
-
-        Args:
-            step_name: The name of the step.
-        """
-        batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
-        if batch and batch.last_batch:
-            return
-
-        self._logger.debug(
-            f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
-            " batches..."
-        )
         input_queue = self.dag.get_step(step_name)[INPUT_QUEUE_ATTR_NAME]
-        input_queue.put(LAST_BATCH_SENT_FLAG)
-        self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
+        input_queue.put(to_send)
 
     def _run_steps_in_loop(
         self,

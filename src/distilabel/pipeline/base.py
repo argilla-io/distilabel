@@ -15,6 +15,7 @@
 import hashlib
 import logging
 import os
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -36,6 +37,7 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.constants import (
+    CONVERGENCE_STEP_ATTR_NAME,
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
@@ -104,7 +106,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(_Serializable):
+class BasePipeline(ABC, _Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
@@ -441,6 +443,14 @@ class BasePipeline(_Serializable):
             value=routing_batch_function is not None,
         )
 
+    def _is_convergence_step(self, step_name: str) -> None:
+        """Checks if a step is a convergence step.
+
+        Args:
+            step_name: The name of the step.
+        """
+        return self.dag.get_step(step_name).get(CONVERGENCE_STEP_ATTR_NAME)
+
     def _add_routing_batch_function(
         self, step_name: str, routing_batch_function: "RoutingBatchFunction"
     ) -> None:
@@ -566,6 +576,16 @@ class BasePipeline(_Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
+    @abstractmethod
+    def _send_to_step(self, step_name: str, to_send: Any) -> None:
+        """Sends something to the input queue of a step.
+
+        Args:
+            step_name: The name of the step.
+            to_send: The object to send.
+        """
+        pass
+
     def _send_batch_to_step(self, batch: "_Batch") -> None:
         """Sends a batch to the input queue of a step, writing the data of the batch
         to the filesystem and setting `batch.data_path` with the path where the data
@@ -593,6 +613,26 @@ class BasePipeline(_Serializable):
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
+
+        self._send_to_step(batch.step_name, batch)
+
+    def _send_last_batch_flag_to_step(self, step_name: str) -> None:
+        """Sends the `LAST_BATCH_SENT_FLAG` to a step to stop processing batches.
+
+        Args:
+            step_name: The name of the step.
+        """
+        batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
+        if batch and batch.last_batch:
+            return
+
+        self._logger.debug(
+            f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
+            " batches..."
+        )
+
+        self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
+        self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"
