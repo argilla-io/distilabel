@@ -18,7 +18,7 @@ import sys
 import threading
 import time
 import traceback
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
 import tblib
 
@@ -31,7 +31,6 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
-    ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
 from distilabel.steps.base import Step
@@ -272,31 +271,6 @@ class Pipeline(BasePipeline):
                 self._request_more_batches_if_needed(step)
 
         self._cache()
-
-    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
-        """Gets the successors and the successors to which the batch has to be routed.
-
-        Args:
-            batch: The batch to which the successors will be determined.
-
-        Returns:
-            The successors to route the batch to and whether the batch was routed using
-            a routing function.
-        """
-        node = self.dag.get_step(batch.step_name)
-        step: "Step" = node[STEP_ATTR_NAME]
-        successors = list(self.dag.get_step_successors(step.name))  # type: ignore
-        route_to = successors
-
-        # Check if the step has a routing function to send the batch to specific steps
-        if routing_batch_function := node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME):
-            route_to = routing_batch_function(batch, successors)
-            successors_str = ", ".join(f"'{successor}'" for successor in route_to)
-            self._logger.info(
-                f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
-            )
-
-        return route_to, route_to != successors
 
     def _get_step_from_batch(self, batch: "_Batch") -> "Step":
         """Gets the `Step` instance from a batch.

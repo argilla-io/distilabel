@@ -23,6 +23,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Tuple,
     TypedDict,
     Union,
 )
@@ -694,12 +695,6 @@ class BasePipeline(ABC, _Serializable):
             )
             self._send_batch_to_step(last_batch.next_batch())
 
-    def _notify_steps_to_stop(self) -> None:
-        """Notifies the steps to stop their infinite running loop by sending `None` to
-        their input queues."""
-        for step_name in self.dag:
-            self._send_to_step(step_name, None)
-
     def _handle_batch_on_stop(self, batch: "_Batch") -> None:
         """Handles a batch that was received from the output queue when the pipeline was
         stopped. It will add and register the batch in the batch manager.
@@ -713,3 +708,34 @@ class BasePipeline(ABC, _Serializable):
         step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)
+
+    def _notify_steps_to_stop(self) -> None:
+        """Notifies the steps to stop their infinite running loop by sending `None` to
+        their input queues."""
+        for step_name in self.dag:
+            self._send_to_step(step_name, None)
+
+    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
+        """Gets the successors and the successors to which the batch has to be routed.
+
+        Args:
+            batch: The batch to which the successors will be determined.
+
+        Returns:
+            The successors to route the batch to and whether the batch was routed using
+            a routing function.
+        """
+        node = self.dag.get_step(batch.step_name)
+        step: "Step" = node[STEP_ATTR_NAME]
+        successors = list(self.dag.get_step_successors(step.name))  # type: ignore
+        route_to = successors
+
+        # Check if the step has a routing function to send the batch to specific steps
+        if routing_batch_function := node.get(ROUTING_BATCH_FUNCTION_ATTR_NAME):
+            route_to = routing_batch_function(batch, successors)
+            successors_str = ", ".join(f"'{successor}'" for successor in route_to)
+            self._logger.info(
+                f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
+            )
+
+        return route_to, route_to != successors

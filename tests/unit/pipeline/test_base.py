@@ -27,7 +27,10 @@ from distilabel.pipeline.base import (
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
-from distilabel.pipeline.routing_batch_function import sample_n_steps
+from distilabel.pipeline.routing_batch_function import (
+    routing_batch_function,
+    sample_n_steps,
+)
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.typing import StepOutput
@@ -347,23 +350,6 @@ class TestBasePipeline:
 
         mock_send_batch_to_step.assert_called_once_with(batch.next_batch())
 
-    def test_notify_steps_to_stop(self) -> None:
-        with DummyPipeline(name="unit-test-pipeline") as pipeline:
-            generator = DummyGeneratorStep()
-            step = DummyStep1(input_batch_size=5)
-
-            generator >> step
-
-        with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
-            pipeline._notify_steps_to_stop()
-
-        mock_send_to_step.assert_has_calls(
-            [
-                mock.call(generator.name, None),
-                mock.call(step.name, None),
-            ]
-        )
-
     def test_handle_batch_on_stop(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
@@ -387,6 +373,75 @@ class TestBasePipeline:
                 mock.call(step3.name, batch),
             ]
         )
+
+    def test_notify_steps_to_stop(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+
+            generator >> step
+
+        with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
+            pipeline._notify_steps_to_stop()
+
+        mock_send_to_step.assert_has_calls(
+            [
+                mock.call(generator.name, None),
+                mock.call(step.name, None),
+            ]
+        )
+
+    def test_get_successors(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        ) == ([step.name, step2.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        ) == ([step3.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
+        ) == ([step3.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
+        ) == ([], False)
+
+    def test_get_successors_with_routing_batch_function(self) -> None:
+        @routing_batch_function()
+        def fixed_routing_batch_function(steps: List[str]) -> List[str]:
+            return ["step_2", "step_3"]
+
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+            step3 = DummyStep1(name="step_3")
+            step4 = DummyStep2(name="step_4")
+
+            generator >> fixed_routing_batch_function >> [step, step2, step3] >> step4
+
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        ) == (["step_2", "step_3"], True)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step4.name, last_batch=False)  # type: ignore
+        ) == ([], False)
 
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):
