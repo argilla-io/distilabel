@@ -91,9 +91,10 @@ class TestGenerateSentencePair:
     ) -> None:
         task = GenerateSentencePair(llm=DummyLLM(), action=action, triplet=triplet)
         task.load()
+        content = "## Anchor\n\nThis is a unit test\n"
         assert task.format_input({"anchor": "This is a unit test"}) == [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": "## Anchor\n\nThis is a unit test\n"},
+            {"role": "user", "content": content},
         ]
 
     @pytest.mark.parametrize(
@@ -168,7 +169,8 @@ class TestGenerateSentencePair:
             context=context,
         )
         task.load()
-        content = f"## Anchor\n\nThis is a unit test\n## Context\n\n{context}"
+        content = f"## Context\n\n{context}\n\n## Anchor\n\nThis is a unit test\n"
+        # content = f"## Anchor\n\nThis is a unit test\n## Context\n\n{context}"
         assert task.format_input({"anchor": "This is a unit test"}) == [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": content},
