@@ -63,7 +63,8 @@ class GenerateSentencePair(Task):
 
     `GenerateSentencePair` is a pre-defined task that given an anchor sentence generates
     a positive sentence related to the anchor and optionally a negative sentence unrelated
-    to the anchor. This task is useful to generate training datasets for training embeddings
+    to the anchor. Optionally, you can give a context to guide the LLM towards more specific
+    behavior. This task is useful to generate training datasets for training embeddings
     models.
 
     Attributes:
@@ -71,7 +72,7 @@ class GenerateSentencePair(Task):
             (anchor, positive, negative). Defaults to `False`.
         action: the action to perform to generate the positive sentence.
         context: the context to use for the generation. Can be helpful to guide the LLM
-            towards more specific context. Defaults to `None`.
+            towards more specific context. Not used by default.
 
     Input columns:
         - anchor (`str`): The anchor sentence to generate the positive and negative sentences.
@@ -168,6 +169,28 @@ class GenerateSentencePair(Task):
         generate_sentence_pair.load()
 
         result = generate_sentence_pair.process([{"anchor": "What Game of Thrones villain would be the most likely to give you mercy?"}])
+        ```
+
+        Generating queries with context (**applies to every action**):
+
+        ```python
+        from distilabel.steps.tasks import GenerateSentencePair
+        from distilabel.llms import InferenceEndpointsLLM
+
+        generate_sentence_pair = GenerateSentencePair(
+            triplet=True, # `False` to generate only positive
+            action="query",
+            context="Argilla is an open-source data curation platform for LLMs.",
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+            ),
+            input_batch_size=10,
+        )
+
+        generate_sentence_pair.load()
+
+        result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
         ```
     """
 
