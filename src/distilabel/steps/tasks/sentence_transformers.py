@@ -43,17 +43,19 @@ GENERATION_ACTION_SENTENCES: Final[Dict[GenerationAction, str]] = {
 }
 
 POSITIVE_SYSTEM_PROMPT: str = (
-    "Your task is to generate a positive sentence given an anchor sentence. The positive"
+    "Your task is to generate a positive sentence given an anchor sentence.{context} The positive"
     " sentence has to {action_sentence} the anchor sentence. You must output only one new"
     " section: `## Positive`."
 )
 
 POSITIVE_NEGATIVE_SYSTEM_PROMPT: str = (
-    "Your task is to generate a positive and a negative sentence given an anchor sentence."
+    "Your task is to generate a positive and a negative sentence given an anchor sentence.{context}"
     " The positive sentence has to {action_sentence} the anchor sentence, while the negative"
     " sentence can use similar words but must not be related to the anchor sentence. You"
     " must output only two new sections: `## Positive` and `## Negative`."
 )
+
+CONTEXT_INTRO: Final[str] = " Take into account the context given."
 
 
 class GenerateSentencePair(Task):
@@ -68,6 +70,8 @@ class GenerateSentencePair(Task):
         triplet: a flag to indicate if the task should generate a triplet of sentences
             (anchor, positive, negative). Defaults to `False`.
         action: the action to perform to generate the positive sentence.
+        context: the context to use for the generation. Can be helpful to guide the LLM
+            towards more specific context. Defaults to `None`.
 
     Input columns:
         - anchor (`str`): The anchor sentence to generate the positive and negative sentences.
@@ -169,6 +173,7 @@ class GenerateSentencePair(Task):
 
     triplet: bool = False
     action: GenerationAction
+    context: str = ""
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -203,11 +208,20 @@ class GenerateSentencePair(Task):
         action_sentence = GENERATION_ACTION_SENTENCES[self.action]
         system_prompt = (
             POSITIVE_NEGATIVE_SYSTEM_PROMPT if self.triplet else POSITIVE_SYSTEM_PROMPT
-        ).format(action_sentence=action_sentence)
+        ).format(
+            action_sentence=action_sentence,
+            context=CONTEXT_INTRO if self.context else "",
+        )
 
         return [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": self._template.render(anchor=input["anchor"])},
+            {
+                "role": "user",
+                "content": self._template.render(
+                    anchor=input["anchor"],
+                    context=self.context if self.context else None,
+                ),
+            },
         ]
 
     @property
