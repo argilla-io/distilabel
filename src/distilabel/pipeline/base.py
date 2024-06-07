@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
-    from distilabel.steps.base import _Step
+    from distilabel.steps.base import Step, _Step
 
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
@@ -660,6 +660,20 @@ class BasePipeline(ABC, _Serializable):
         their input queues."""
         for step_name in self.dag:
             self._send_to_step(step_name, None)
+
+    def _handle_batch_on_stop(self, batch: "_Batch") -> None:
+        """Handles a batch that was received from the output queue when the pipeline was
+        stopped. It will add and register the batch in the batch manager.
+
+        Args:
+            batch: The batch to handle.
+        """
+        assert self._batch_manager, "Batch manager is not set"
+
+        self._batch_manager.register_batch(batch)
+        step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+        for successor in self.dag.get_step_successors(step.name):  # type: ignore
+            self._batch_manager.add_batch(successor, batch)
 
 
 LAST_BATCH_SENT_FLAG = "last_batch_sent"

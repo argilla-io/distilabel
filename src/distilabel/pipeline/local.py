@@ -387,18 +387,6 @@ class Pipeline(BasePipeline):
 
         self._cache()
 
-    def _handle_batch_on_stop(self, batch: "_Batch") -> None:
-        """Handles a batch that was received from the output queue when the pipeline was
-        stopped. It will add and register the batch in the batch manager.
-
-        Args:
-            batch: The batch to handle.
-        """
-        self._batch_manager.register_batch(batch)  # type: ignore
-        step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
-        for successor in self.dag.get_step_successors(step.name):  # type: ignore
-            self._batch_manager.add_batch(successor, batch)  # type: ignore
-
     def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
         """Waits for the input queue of a step to be empty.
 

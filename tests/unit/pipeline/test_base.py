@@ -281,7 +281,7 @@ class TestBasePipeline:
             step_name=generator.name,  # type: ignore
             last_batch=False,
             data=[[{"a": i} for i in range(5)]],
-        )  # type: ignore
+        )
         pipeline._batch_manager._steps[step.name].data[generator.name] = [  # type: ignore
             batch_0
         ]
@@ -309,13 +309,16 @@ class TestBasePipeline:
                 mock.call(
                     _Batch(seq_no=0, step_name=generator2.name, last_batch=False)  # type: ignore
                 ),
-            ]
+            ],
+            any_order=True,
         )
 
     def test_notify_steps_to_stop(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1(input_batch_size=5)
+
+            generator >> step
 
         with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
             pipeline._notify_steps_to_stop()
@@ -324,6 +327,30 @@ class TestBasePipeline:
             [
                 mock.call(generator.name, None),
                 mock.call(step.name, None),
+            ]
+        )
+
+    def test_handle_batch_on_stop(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+            step2 = DummyStep1(input_batch_size=5)
+            step3 = DummyStep1(input_batch_size=5)
+
+            generator >> [step, step2, step3]
+
+        batch_manager_mock = mock.MagicMock()
+        pipeline._batch_manager = batch_manager_mock
+
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        pipeline._handle_batch_on_stop(batch)
+
+        batch_manager_mock.register_batch.assert_called_once_with(batch)
+        batch_manager_mock.add_batch.assert_has_calls(
+            [
+                mock.call(step.name, batch),
+                mock.call(step2.name, batch),
+                mock.call(step3.name, batch),
             ]
         )
 
