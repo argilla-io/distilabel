@@ -114,13 +114,37 @@ hide:
 
     [:octicons-arrow-right-24: LoadDataFromDicts](loaddatafromdicts.md){ .bottom }
 
--   :material-file-download:{ .lg .middle } __LoadHubDataset__
+-   :material-file-download:{ .lg .middle } __LoadDataFromHub__
 
     ---
 
     Loads a dataset from the Hugging Face Hub.
 
+    [:octicons-arrow-right-24: LoadDataFromHub](loaddatafromhub.md){ .bottom }
+
+-   :material-step-forward:{ .lg .middle } __LoadHubDataset__
+
+    ---
+
+    
+
     [:octicons-arrow-right-24: LoadHubDataset](loadhubdataset.md){ .bottom }
+
+-   :material-file-download:{ .lg .middle } __LoadDataFromFileSystem__
+
+    ---
+
+    Loads a dataset from a file in your filesystem.
+
+    [:octicons-arrow-right-24: LoadDataFromFileSystem](loaddatafromfilesystem.md){ .bottom }
+
+-   :material-file-download:{ .lg .middle } __LoadDataFromDisk__
+
+    ---
+
+    Load a dataset that was previously saved to disk.
+
+    [:octicons-arrow-right-24: LoadDataFromDisk](loaddatafromdisk.md){ .bottom }
 
 
 </div>

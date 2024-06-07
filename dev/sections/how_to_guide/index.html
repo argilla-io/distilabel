@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
@@ -220,7 +220,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -2174,7 +2174,7 @@
 
 <h1 id="how-to-guide">How to Guide<a class="headerlink" href="#how-to-guide" title="Permanent link">&para;</a></h1>
 <p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/base/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
-<p>This being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../reference/distilabel/llms/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a> class to generate text.å The <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/#distilabel.steps.LoadHubDataset"><code>LoadHubDataset</code></a> and then use the <a class="autorefs autorefs-internal" href="../../reference/distilabel/llms/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
+<p>This being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../reference/distilabel/llms/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a> class to generate text.å The <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step [<code>LoadHubDataset</code>][distilabel.steps.LoadHubDataset] and then use the <a class="autorefs autorefs-internal" href="../../reference/distilabel/llms/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadHubDataset</span>
@@ -2223,7 +2223,7 @@
 <p>We are using the <a class="autorefs autorefs-internal" href="../../reference/distilabel/pipeline/#distilabel.pipeline.Pipeline"><code>Pipeline</code></a> context manager, meaning that every <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/base/#distilabel.steps.base.Step"><code>Step</code></a> subclass that is defined within the context manager will be added to the pipeline automatically.</p>
 </li>
 <li>
-<p>We define a <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/#distilabel.steps.LoadHubDataset"><code>LoadHubDataset</code></a> step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will basically produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
+<p>We define a [<code>LoadHubDataset</code>][distilabel.steps.LoadHubDataset] step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will basically produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
 </li>
 <li>
 <p>We define a <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../reference/distilabel/llms/#distilabel.llms.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code>.</p>
@@ -2295,7 +2295,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
