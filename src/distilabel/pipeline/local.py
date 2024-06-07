@@ -273,18 +273,6 @@ class Pipeline(BasePipeline):
 
         self._cache()
 
-    def _register_batch(self, batch: "_Batch") -> None:
-        """Registers a batch in the batch manager.
-
-        Args:
-            batch: The batch to register.
-        """
-        self._batch_manager.register_batch(batch)  # type: ignore
-        self._logger.debug(
-            f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
-            " manager"
-        )
-
     def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
 

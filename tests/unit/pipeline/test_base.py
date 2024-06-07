@@ -230,6 +230,19 @@ class TestBasePipeline:
             ]
         )
 
+    def test_register_batch(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        pipeline._batch_manager = mock.MagicMock()
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        pipeline._register_batch(batch)
+
+        pipeline._batch_manager.register_batch.assert_called_once_with(batch)
+
     def test_send_last_batch_flag_to_step(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()

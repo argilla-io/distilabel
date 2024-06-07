@@ -617,6 +617,18 @@ class BasePipeline(ABC, _Serializable):
 
         self._send_to_step(batch.step_name, batch)
 
+    def _register_batch(self, batch: "_Batch") -> None:
+        """Registers a batch in the batch manager.
+
+        Args:
+            batch: The batch to register.
+        """
+        self._batch_manager.register_batch(batch)  # type: ignore
+        self._logger.debug(
+            f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
+            " manager"
+        )
+
     def _send_last_batch_flag_to_step(self, step_name: str) -> None:
         """Sends the `LAST_BATCH_SENT_FLAG` to a step to stop processing batches.
 
