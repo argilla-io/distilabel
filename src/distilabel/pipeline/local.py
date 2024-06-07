@@ -25,12 +25,12 @@ import tblib
 from distilabel.distiset import create_distiset
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.pipeline.base import (
-    LAST_BATCH_SENT_FLAG,
     BasePipeline,
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
     INPUT_QUEUE_ATTR_NAME,
+    LAST_BATCH_SENT_FLAG,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )

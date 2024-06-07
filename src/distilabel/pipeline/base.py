@@ -38,6 +38,7 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
+    LAST_BATCH_SENT_FLAG,
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
@@ -674,6 +675,3 @@ class BasePipeline(ABC, _Serializable):
         step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)
-
-
-LAST_BATCH_SENT_FLAG = "last_batch_sent"

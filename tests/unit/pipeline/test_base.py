@@ -21,12 +21,12 @@ from unittest import mock
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
-    LAST_BATCH_SENT_FLAG,
     BasePipeline,
     _GlobalPipelineManager,
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
+from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.routing_batch_function import sample_n_steps
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput
