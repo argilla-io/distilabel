@@ -212,66 +212,6 @@ class Pipeline(BasePipeline):
         if _STOP_CALLED:
             self._handle_stop()
 
-    def _manage_batch_flow(self, batch: "_Batch") -> None:
-        """Checks if the step that generated the batch has more data in its buffer to
-        generate a new batch. If there's data, then a new batch is sent to the step. If
-        the step has no data in its buffer, then the predecessors generator steps are
-        requested to send a new batch.
-
-        Args:
-            batch: The batch that was processed.
-        """
-        assert self._batch_manager, "Batch manager is not set"
-
-        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the convergence
-        # step if the batch is the last one, so they stop their processing loop even if
-        # they haven't received the last batch because of the routing function.
-        if self._is_convergence_step(batch.step_name) and batch.last_batch:
-            for step_name in self.dag.get_step_predecessors(batch.step_name):
-                self._send_last_batch_flag_to_step(step_name)
-
-        route_to, routed = self._get_successors(batch)
-
-        # Keep track of the steps that the batch was routed to
-        if routed:
-            batch.batch_routed_to = route_to
-
-        self._register_batch(batch)
-
-        step = self._get_step_from_batch(batch)
-
-        # Add the batch to the successors input buffers
-        for successor in route_to:
-            # Copy batch to avoid modifying the same reference in the batch manager
-            batch_to_add = batch.copy() if len(route_to) > 1 else batch
-
-            self._batch_manager.add_batch(successor, batch_to_add)
-
-            # Check if the step is a generator and if there are successors that need data
-            # from this step. This usually happens when the generator `batch_size` is smaller
-            # than the `input_batch_size` of the successor steps.
-            if (
-                step.is_generator
-                and step.name in self._batch_manager.step_empty_buffers(successor)
-            ):
-                last_batch_sent = self._batch_manager.get_last_batch_sent(step.name)
-                self._send_batch_to_step(last_batch_sent.next_batch())  # type: ignore
-
-            # If successor step has enough data in its buffer to create a new batch, then
-            # send the batch to the step.
-            if new_batch := self._batch_manager.get_batch(successor):
-                self._send_batch_to_step(new_batch)
-
-        if not step.is_generator:
-            # Step ("this", the one from which the batch was received) has enough data on its
-            # buffers to create a new batch
-            if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
-                self._send_batch_to_step(new_batch)
-            else:
-                self._request_more_batches_if_needed(step)
-
-        self._cache()
-
     def _handle_stop(self) -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose
