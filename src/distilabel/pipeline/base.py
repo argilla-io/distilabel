@@ -656,6 +656,32 @@ class BasePipeline(ABC, _Serializable):
             )
             self._send_batch_to_step(batch)
 
+    def _request_more_batches_if_needed(self, step: "Step") -> None:
+        """Request more batches to the predecessors steps of `step` if needed.
+
+        Args:
+            step: The step of which it has to be checked if more batches are needed from
+                its predecessors.
+        """
+        empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
+        for previous_step_name in empty_buffers:
+            # Only more batches can be requested to the `GeneratorStep`s as they are the
+            # only kind of steps that lazily generate batches.
+            if previous_step_name not in self.dag.root_steps:
+                continue
+
+            # Get the last batch that the previous step sent to generate the next batch
+            # (next `seq_no`).
+            last_batch = self._batch_manager.get_last_batch_sent(previous_step_name)  # type: ignore
+            if last_batch is None:
+                continue
+
+            self._logger.debug(
+                f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
+                " empty. Requesting new batch..."
+            )
+            self._send_batch_to_step(last_batch.next_batch())
+
     def _notify_steps_to_stop(self) -> None:
         """Notifies the steps to stop their infinite running loop by sending `None` to
         their input queues."""

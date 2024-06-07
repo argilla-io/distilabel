@@ -321,28 +321,6 @@ class Pipeline(BasePipeline):
         """
         return self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
 
-    def _request_more_batches_if_needed(self, step: "Step") -> None:
-        """Request more batches to the predecessors steps of `step` if needed.
-
-        Args:
-            step: The step of which it has to be checked if more batches are needed from
-                its predecessors.
-        """
-        empty_buffers = self._batch_manager.step_empty_buffers(step.name)  # type: ignore
-        for previous_step_name in empty_buffers:
-            if previous_step_name not in self.dag.root_steps:
-                continue
-
-            last_batch = self._batch_manager.get_last_batch_sent(previous_step_name)  # type: ignore
-            if last_batch is None:
-                continue
-
-            self._logger.debug(
-                f"Step '{step.name}' input buffer for step '{previous_step_name}' is"
-                " empty. Requesting new batch..."
-            )
-            self._send_batch_to_step(last_batch.next_batch())
-
     def _handle_stop(self) -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose

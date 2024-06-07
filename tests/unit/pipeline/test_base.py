@@ -313,6 +313,27 @@ class TestBasePipeline:
             any_order=True,
         )
 
+    def test_request_more_batches_if_needed(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        generator_name: str = generator.name  # type: ignore
+
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+
+        batch = _Batch(seq_no=0, step_name=generator_name, last_batch=False)
+        pipeline._batch_manager._last_batch_sent[generator_name] = batch
+
+        with mock.patch.object(
+            pipeline, "_send_batch_to_step"
+        ) as mock_send_batch_to_step:
+            pipeline._request_more_batches_if_needed(step)
+
+        mock_send_batch_to_step.assert_called_once_with(batch.next_batch())
+
     def test_notify_steps_to_stop(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
