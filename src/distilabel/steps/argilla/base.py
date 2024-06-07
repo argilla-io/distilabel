@@ -71,7 +71,7 @@ class ArgillaBase(Step, ABC):
     )
     dataset_workspace: Optional[RuntimeParameter[str]] = Field(
         default=None,
-        description="The workspace where the dataset will be created in Argilla. Defaults"
+        description="The workspace where the dataset will be created in Argilla. Defaults "
         "to `None` which means it will be created in the default workspace.",
     )
 
