@@ -374,6 +374,19 @@ class TestBasePipeline:
             ]
         )
 
+    def test_get_step_from_batch(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        assert pipeline._get_step_from_batch(batch) == generator
+
+        batch = _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        assert pipeline._get_step_from_batch(batch) == step
+
     def test_notify_steps_to_stop(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()

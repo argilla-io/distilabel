@@ -272,17 +272,6 @@ class Pipeline(BasePipeline):
 
         self._cache()
 
-    def _get_step_from_batch(self, batch: "_Batch") -> "Step":
-        """Gets the `Step` instance from a batch.
-
-        Args:
-            batch: The batch to get the step from.
-
-        Returns:
-            The `Step` instance.
-        """
-        return self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
-
     def _handle_stop(self) -> None:
         """Handles the stop of the pipeline execution, which will stop the steps from
         processing more batches and wait for the output queue to be empty, to not lose

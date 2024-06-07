@@ -709,6 +709,17 @@ class BasePipeline(ABC, _Serializable):
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)
 
+    def _get_step_from_batch(self, batch: "_Batch") -> "Step":
+        """Gets the `Step` instance from a batch.
+
+        Args:
+            batch: The batch to get the step from.
+
+        Returns:
+            The `Step` instance.
+        """
+        return self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+
     def _notify_steps_to_stop(self) -> None:
         """Notifies the steps to stop their infinite running loop by sending `None` to
         their input queues."""
