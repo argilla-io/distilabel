@@ -48,7 +48,7 @@ distilabel = "distilabel.cli.app:app"
 [project.optional-dependencies]
 dev = ["ruff == 0.4.5", "pre-commit >= 3.5.0"]
 docs = [
-    "mkdocs-material >= 9.5.0",
+    "mkdocs-material >=9.5.17",
     "mkdocstrings[python] >= 0.24.0",
     "mkdocs-literate-nav >= 0.6.1",
     "mkdocs-section-index >= 0.3.8",
