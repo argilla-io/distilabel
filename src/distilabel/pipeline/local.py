@@ -68,6 +68,14 @@ _STEPS_FINISHED_LOCK = threading.Lock()
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
 
+# if platform.system() != "Windows":
+#     _MULTIPROCESSING_CONTEXT = "forkserver"
+# else:
+#     _MULTIPROCESSING_CONTEXT = "spawn"
+
+_MULTIPROCESSING_CONTEXT = "spawn"
+
+
 def _init_worker(queue: "Queue[Any]") -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(queue)
