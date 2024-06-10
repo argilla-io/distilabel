@@ -15,7 +15,6 @@
 import hashlib
 import logging
 import os
-from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -39,6 +38,7 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
+    INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
@@ -53,6 +53,7 @@ from distilabel.utils.serialization import (
 
 if TYPE_CHECKING:
     from os import PathLike
+    from queue import Queue
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
@@ -108,7 +109,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(ABC, _Serializable):
+class BasePipeline(_Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
@@ -137,6 +138,8 @@ class BasePipeline(ABC, _Serializable):
         _dry_run: A flag to indicate if the pipeline is running in dry run mode. Defaults
             to `False`.
     """
+
+    output_queue: "Queue[Any]"
 
     def __init__(
         self,
@@ -578,10 +581,35 @@ class BasePipeline(ABC, _Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
-    @abstractmethod
     def _get_from_step(self) -> Union["_Batch", None]:
-        """Gets an output from a step."""
-        pass
+        """Gets a batch from the output queue of the steps, or `None` in the case the
+        pipeline is stopping.
+
+        Returns:
+            The batch received from the output queue, or `None` if the pipeline is stopping.
+        """
+        return self.output_queue.get()
+
+    def _add_batches_back_to_batch_manager(self) -> None:
+        """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
+        method should be used when the pipeline has been stopped prematurely."""
+        for step_name in self.dag:
+            node = self.dag.get_step(step_name)
+            step: "_Step" = node[STEP_ATTR_NAME]
+            if step.is_generator:
+                continue
+            if input_queue := node.get(INPUT_QUEUE_ATTR_NAME):
+                while not input_queue.empty():
+                    batch = input_queue.get()
+                    if batch is None:
+                        continue
+                    self._batch_manager.add_batch(  # type: ignore
+                        to_step=step_name, batch=batch, prepend=True
+                    )
+                    self._logger.debug(
+                        f"Adding batch back to the batch manager: {batch}"
+                    )
+                input_queue.put(None)
 
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
@@ -643,7 +671,6 @@ class BasePipeline(ABC, _Serializable):
 
         self._cache()
 
-    @abstractmethod
     def _send_to_step(self, step_name: str, to_send: Any) -> None:
         """Sends something to the input queue of a step.
 
@@ -651,7 +678,8 @@ class BasePipeline(ABC, _Serializable):
             step_name: The name of the step.
             to_send: The object to send.
         """
-        pass
+        input_queue = self.dag.get_step(step_name)[INPUT_QUEUE_ATTR_NAME]
+        input_queue.put(to_send)
 
     def _send_batch_to_step(self, batch: "_Batch") -> None:
         """Sends a batch to the input queue of a step, writing the data of the batch

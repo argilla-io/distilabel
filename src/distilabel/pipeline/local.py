@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.steps.base import GeneratorStep, _Step
+    from distilabel.steps.base import GeneratorStep
 
 
 _STEPS_LOADED_KEY = "steps_loaded"
@@ -176,15 +176,6 @@ class Pipeline(BasePipeline):
         thread.start()
         thread.join()
 
-    def _get_from_step(self) -> Union["_Batch", None]:
-        """Gets a batch from the output queue of the steps, or `None` in the case the
-        pipeline is stopping.
-
-        Returns:
-            The batch received from the output queue, or `None` if the pipeline is stopping.
-        """
-        return self.output_queue.get()
-
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
@@ -227,24 +218,7 @@ class Pipeline(BasePipeline):
         any data that was already processed by the steps before the stop was called."""
         self._logger.debug("Handling stop of the pipeline execution...")
 
-        # Add the remaining batches in the input queues back to the batch manager
-        for step_name in self.dag:
-            node = self.dag.get_step(step_name)
-            step: "_Step" = node[STEP_ATTR_NAME]
-            if step.is_generator:
-                continue
-            if input_queue := node.get(INPUT_QUEUE_ATTR_NAME):
-                while not input_queue.empty():
-                    batch = input_queue.get()
-                    if batch is None:
-                        continue
-                    self._batch_manager.add_batch(  # type: ignore
-                        to_step=step_name, batch=batch, prepend=True
-                    )
-                    self._logger.debug(
-                        f"Adding batch back to the batch manager: {batch}"
-                    )
-                input_queue.put(None)
+        self._add_batches_back_to_batch_manager()
 
         # Wait for the input queue to be empty, which means that all the steps finished
         # processing the batches that were sent before the stop flag.
@@ -342,16 +316,6 @@ class Pipeline(BasePipeline):
             time.sleep(2.5)
 
         return not _STOP_CALLED
-
-    def _send_to_step(self, step_name: str, to_send: Any) -> None:
-        """Sends something to the input queue of a step.
-
-        Args:
-            step_name: The name of the step.
-            to_send: The object to send.
-        """
-        input_queue = self.dag.get_step(step_name)[INPUT_QUEUE_ATTR_NAME]
-        input_queue.put(to_send)
 
     def _run_steps_in_loop(
         self,
