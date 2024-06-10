@@ -68,7 +68,11 @@ tests = [
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
-argilla = ["argilla_sdk >= 0.1.0a3"]
+argilla = [
+    # TODO(alvarobartt): update before the `argilla_sdk` or `argilla` release
+    "argilla_sdk @ git+https://github.com/argilla-io/argilla.git@feat/v2.0.0#subdirectory=argilla-sdk",
+    "ipython",
+]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
 hf-inference-endpoints = ["huggingface_hub >= 0.19.0"]
@@ -90,6 +94,10 @@ Source = "https://github.com/argilla/distilabel"
 
 [tool.hatch.version]
 path = "src/distilabel/__init__.py"
+
+# TODO(alvarobartt): update before the `argilla_sdk` or `argilla` release
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.ruff]
 line-length = 88
