@@ -153,6 +153,20 @@ class TestBasePipeline:
         assert not pipeline._is_convergence_step(step2.name)  # type: ignore
         assert pipeline._is_convergence_step(step3.name)  # type: ignore
 
+    def test_create_step_input_queue(self) -> None:
+        with BasePipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        generator_name: str = generator.name  # type: ignore
+        input_queue = pipeline._create_step_input_queue(generator_name, Queue)
+        assert isinstance(input_queue, Queue)
+        assert isinstance(
+            pipeline.dag.get_step(generator_name)[INPUT_QUEUE_ATTR_NAME], Queue
+        )
+
     def test_add_batches_back_to_batch_manager(self) -> None:
         with BasePipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()

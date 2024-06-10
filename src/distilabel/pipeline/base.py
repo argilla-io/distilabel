@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     Optional,
@@ -137,6 +138,7 @@ class BasePipeline(_Serializable):
             Defaults to `False`.
         _dry_run: A flag to indicate if the pipeline is running in dry run mode. Defaults
             to `False`.
+        output_queue: A queue to store the output of the steps while running the pipeline.
     """
 
     output_queue: "Queue[Any]"
@@ -580,6 +582,22 @@ class BasePipeline(_Serializable):
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
+
+    def _create_step_input_queue(
+        self, step_name: str, QueueClass: Callable
+    ) -> "Queue[Any]":
+        """Creates an input queue for a step.
+
+        Args:
+            step_name: The name of the step.
+            QueueClass: The class of the queue to create.
+
+        Returns:
+            The input queue created.
+        """
+        input_queue = QueueClass()
+        self.dag.set_step_attr(step_name, INPUT_QUEUE_ATTR_NAME, input_queue)
+        return input_queue
 
     def _get_from_step(self) -> Union["_Batch", None]:
         """Gets a batch from the output queue of the steps, or `None` in the case the

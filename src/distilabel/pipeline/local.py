@@ -327,8 +327,9 @@ class Pipeline(BasePipeline):
         """
         for step_name in self.dag:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
-            input_queue = manager.Queue()
-            self.dag.set_step_attr(step.name, INPUT_QUEUE_ATTR_NAME, input_queue)  # type: ignore
+            input_queue = self._create_step_input_queue(
+                step_name=step_name, QueueClass=manager.Queue
+            )
 
             # Set `pipeline` to `None` as in some Python environments the pipeline is not
             # picklable and it will raise an error when trying to send the step to the process.
