@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import os
 import os.path as posixpath
 import re
 from os import PathLike
@@ -28,6 +29,7 @@ from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
+from distilabel.utils import _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
@@ -81,7 +83,26 @@ class Distiset(dict):
                 Whether to generate a dataset card or not. Defaults to True.
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
+
+        Raises:
+            ValueError: If no token is provided and couldn't be retrieved automatically.
         """
+        if token is None:
+            from huggingface_hub import constants
+
+            if token := os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME):
+                pass
+            if token is None:
+                if not Path(constants.HF_TOKEN_PATH).exists():
+                    raise ValueError(
+                        f"To use `{self.__class__.__name__}` an API key must be provided via"
+                        " `token`, set the environment variable"
+                        f" `{_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME}` or use the `huggingface-hub` CLI to login"
+                        " with `huggingface-cli login`."
+                    )
+                with open(constants.HF_TOKEN_PATH) as f:
+                    token = f.read().strip()
+
         for name, dataset in self.items():
             dataset.push_to_hub(
                 repo_id=repo_id,

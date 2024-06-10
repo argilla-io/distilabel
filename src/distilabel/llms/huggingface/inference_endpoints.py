@@ -33,15 +33,13 @@ from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, Grammar, StandardInput
+from distilabel.utils import _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
     from openai import AsyncOpenAI
     from transformers import PreTrainedTokenizer
-
-
-_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
 
 class InferenceEndpointsLLM(AsyncLLM):
