@@ -318,20 +318,22 @@ class EmbeddingTaskGenerator(GeneratorTask):
             formatted_outputs = self._format_outputs(input_outputs)  # type: ignore
             for formatted_output in formatted_outputs:
                 if isinstance(formatted_output["tasks"], list) and self.flatten_tasks:
+                    tasks = formatted_output.pop("tasks")
                     task_outputs.extend(
                         [
-                            {"task": output, "model_name": self.llm.model_name}
-                            for output in formatted_output["tasks"]
+                            {
+                                "task": task,
+                                **formatted_output,
+                                "model_name": self.llm.model_name,
+                            }
+                            for task in tasks
                         ]
                     )
                 else:
+                    if self.flatten_tasks:
+                        formatted_output["task"] = formatted_output.pop("tasks")
                     task_outputs.append(
-                        {
-                            (
-                                "task" if not self.flatten_tasks else "tasks"
-                            ): formatted_output["tasks"],
-                            "model_name": self.llm.model_name,
-                        }
+                        {**formatted_output, "model_name": self.llm.model_name}
                     )
         yield task_outputs, True
 
