@@ -60,6 +60,46 @@ class MistralLLM(AsyncLLM):
         - `timeout`: the maximum time in seconds to wait for a response. Defaults to `120`.
         - `max_concurrent_requests`: the maximum number of concurrent requests to send.
             Defaults to `64`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import MistralLLM
+
+        llm = MistralLLM(model="open-mixtral-8x22b")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import MistralLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = MistralLLM(
+            model="open-mixtral-8x22b",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str

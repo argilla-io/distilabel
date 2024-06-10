@@ -38,6 +38,24 @@ class AnyscaleLLM(OpenAILLM):
             `None` if not set.
         _api_key_env_var: the name of the environment variable to use for the API key.
             It is meant to be used internally.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import AnyscaleLLM
+
+        llm = AnyscaleLLM(model="google/gemma-7b-it", api_key="api.key")
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(

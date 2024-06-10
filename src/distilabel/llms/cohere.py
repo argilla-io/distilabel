@@ -70,6 +70,46 @@ class CohereLLM(AsyncLLM):
             to `120`.
         - `client_name`: the name of the client to use for the API requests. Defaults to
             `"distilabel"`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import CohereLLM
+
+        llm = CohereLLM(model="CohereForAI/c4ai-command-r-plus")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import CohereLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = CohereLLM(
+            model="CohereForAI/c4ai-command-r-plus",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str

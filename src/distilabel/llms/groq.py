@@ -61,6 +61,46 @@ class GroqLLM(AsyncLLM):
             failing. Defaults to `2`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import GroqLLM
+
+        llm = GroqLLM(model="llama3-70b-8192")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import GroqLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = GroqLLM(
+            model="llama3-70b-8192",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str
