@@ -22,6 +22,10 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.improving_text_embeddings import (
     BitextRetrievalGenerator,
     EmbeddingTaskGenerator,
+    GenerateLongTextMatchingData,
+    GenerateShortTextMatchingData,
+    GenerateTextClassificationData,
+    GenerateTextRetrievalData,
     MonolingualTripletGenerator,
 )
 from distilabel.steps.tasks.typing import ChatType
@@ -202,3 +206,201 @@ class TestMonolingualTripletGenerator:
             task.load()
             unique_prompts.add(task.prompt[-1]["content"])
         assert len(unique_prompts) == 1
+
+
+class TestGenerateLongTextMatchingData:
+    def test_format_input(self) -> None:
+        task = GenerateLongTextMatchingData(
+            name="generate_long_text_matching_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+
+        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+            "You have been assigned a text matching task: A"
+        )
+
+    def test_process(self) -> None:
+        task = GenerateLongTextMatchingData(
+            name="generate_long_text_matching_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+
+        assert task.outputs == ["input", "positive_document", "model_name"]
+
+        assert next(task.process(inputs=[{"task": "A"}])) == [
+            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+        ]
+
+
+class TestGenerateShortTextMatchingData:
+    def test_format_input(self) -> None:
+        task = GenerateShortTextMatchingData(
+            name="generate_short_text_matching_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+            "You have been assigned a text matching task: A"
+        )
+
+    def test_process(self) -> None:
+        task = GenerateShortTextMatchingData(
+            name="generate_short_text_matching_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(output=json.dumps({"input": "A", "positive_document": "B"})),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.outputs == ["input", "positive_document", "model_name"]
+        assert next(task.process(inputs=[{"task": "A"}])) == [
+            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+        ]
+
+    def test_reproducibility(self) -> None:
+        unique_prompts = set()
+        for _ in range(10):
+            task = GenerateShortTextMatchingData(
+                name="generate_short_text_matching_data",
+                language="English",
+                add_raw_output=False,
+                seed=42,
+                llm=MockLLM(
+                    output=json.dumps({"input": "A", "positive_document": "B"})
+                ),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
+            task.load()
+            unique_prompts.add(task.format_input({"task": "A"})[-1]["content"])
+
+        assert len(unique_prompts) == 1
+
+
+class TestGenerateTextClassificationData:
+    def test_format_input(self) -> None:
+        task = GenerateTextClassificationData(
+            name="generate_text_classification_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(
+                output=json.dumps(
+                    {"input_text": "A", "label": "B", "misleading_label": "C"}
+                )
+            ),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+            "You have been assigned a text classification task: A"
+        )
+
+    def test_process(self) -> None:
+        task = GenerateTextClassificationData(
+            name="generate_text_classification_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(
+                output=json.dumps(
+                    {"input_text": "A", "label": "B", "misleading_label": "C"}
+                )
+            ),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.outputs == ["input_text", "label", "misleading_label", "model_name"]
+        assert next(task.process(inputs=[{"task": "A"}])) == [
+            {
+                "task": "A",
+                "input_text": "A",
+                "label": "B",
+                "misleading_label": "C",
+                "model_name": "test",
+            }
+        ]
+
+    def test_reproducibility(self) -> None:
+        unique_prompts = set()
+        for _ in range(10):
+            task = GenerateTextClassificationData(
+                name="generate_text_classification_data",
+                language="English",
+                add_raw_output=False,
+                seed=42,
+                llm=MockLLM(
+                    output=json.dumps(
+                        {"input_text": "A", "label": "B", "misleading_label": "C"}
+                    )
+                ),
+                pipeline=Pipeline(name="unit-test-pipeline"),
+            )
+            task.load()
+            unique_prompts.add(task.format_input({"task": "A"})[-1]["content"])
+
+        assert len(unique_prompts) == 1
+
+
+class TestGenerateTextRetrievalData:
+    def test_format_input(self) -> None:
+        task = GenerateTextRetrievalData(
+            name="generate_text_retrieval_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(
+                output=json.dumps(
+                    {
+                        "user_query": "A",
+                        "positive_document": "B",
+                        "hard_negative_document": "C",
+                    }
+                )
+            ),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+            "You have been assigned a retrieval task: A"
+        )
+
+    def test_process(self) -> None:
+        task = GenerateTextRetrievalData(
+            name="generate_text_retrieval_data",
+            language="English",
+            add_raw_output=False,
+            llm=MockLLM(
+                output=json.dumps(
+                    {
+                        "user_query": "A",
+                        "positive_document": "B",
+                        "hard_negative_document": "C",
+                    }
+                )
+            ),
+            pipeline=Pipeline(name="unit-test-pipeline"),
+        )
+        task.load()
+        assert task.outputs == [
+            "user_query",
+            "positive_document",
+            "hard_negative_document",
+            "model_name",
+        ]
+        assert next(task.process(inputs=[{"task": "A"}])) == [
+            {
+                "task": "A",
+                "user_query": "A",
+                "positive_document": "B",
+                "hard_negative_document": "C",
+                "model_name": "test",
+            }
+        ]
