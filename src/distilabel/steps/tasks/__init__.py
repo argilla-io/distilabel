@@ -55,8 +55,6 @@ __all__ = [
     "EvolInstructGenerator",
     "EvolQuality",
     "GenerateEmbeddings",
-    "GenerateTextClassificationData",
-    "GenerateTextRetrievalData",
     "Genstruct",
     "BitextRetrievalGenerator",
     "EmbeddingTaskGenerator",
