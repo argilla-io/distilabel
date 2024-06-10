@@ -153,3 +153,15 @@ If you build something cool with `distilabel` consider adding one of these badge
 
 To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
 
+## Citation
+
+```bibtex
+@misc{distilabel-argilla-2024,
+  author = {Álvaro Bartolomé Del Canto and Gabriel Martín Blázquez and Agustín Piqueres Lajarín and Daniel Vila Suero},
+  title = {Distilabel: An AI Feedback (AIF) framework for building datasets with and for LLMs},
+  year = {2024},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/argilla-io/distilabel}}
+}
+```
