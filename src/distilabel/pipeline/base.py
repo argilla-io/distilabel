@@ -611,6 +611,20 @@ class BasePipeline(_Serializable):
                     )
                 input_queue.put(None)
 
+    def _consume_output_queue(self) -> None:
+        """Consumes the `Batch`es from the output queue until it's empty. This method should
+        be used when the pipeline has been stopped prematurely to consume and to not lose
+        the `Batch`es that were processed by the leaf `Step`s before stopping the pipeline."""
+        while not self.output_queue.empty():
+            batch = self.output_queue.get()
+            if batch is None:
+                continue
+
+            if batch.step_name in self.dag.leaf_steps:
+                self._write_buffer.add_batch(batch)  # type: ignore
+
+            self._handle_batch_on_stop(batch)
+
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
         generate a new batch. If there's data, then a new batch is sent to the step. If

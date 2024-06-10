@@ -225,19 +225,7 @@ class Pipeline(BasePipeline):
         for step_name in self.dag:
             self._wait_step_input_queue_empty(step_name)
 
-        # Consume the output queue until it's empty to not lose any data that was already
-        # processed by the steps before stop was called.
-        while not self.output_queue.empty():
-            batch = self.output_queue.get()
-            if batch is None:
-                continue
-
-            if batch.step_name in self.dag.leaf_steps:
-                self._write_buffer.add_batch(batch)  # type: ignore
-
-            self._handle_batch_on_stop(batch)
-
-        self._cache()
+        self._consume_output_queue()
 
     def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
         """Waits for the input queue of a step to be empty.

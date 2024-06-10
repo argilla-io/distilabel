@@ -158,6 +158,8 @@ class TestBasePipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
 
+            generator >> step
+
         generator_name: str = generator.name  # type: ignore
         step_name: str = step.name  # type: ignore
 
@@ -188,6 +190,38 @@ class TestBasePipeline:
             step_batch_1,
         ]
 
+    def test_consume_output_queue(self) -> None:
+        class DummyPipeline(BasePipeline):
+            output_queue = Queue()
+
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        pipeline._write_buffer = mock.MagicMock()
+        pipeline._handle_batch_on_stop = mock.MagicMock()
+
+        generator_name: str = generator.name  # type: ignore
+        step_name: str = step.name  # type: ignore
+
+        generator_batch = _Batch(seq_no=0, step_name=generator_name, last_batch=False)
+        step_batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+
+        pipeline.output_queue.put(generator_batch)
+        pipeline.output_queue.put(step_batch)
+
+        pipeline._consume_output_queue()
+
+        pipeline._write_buffer.add_batch.assert_called_once_with(step_batch)
+        pipeline._handle_batch_on_stop.assert_has_calls(
+            [
+                mock.call(generator_batch),
+                mock.call(step_batch),
+            ]
+        )
+
     def test_send_to_step(self) -> None:
         class DummyPipeline(BasePipeline):
             output_queue = Queue()
@@ -205,6 +239,7 @@ class TestBasePipeline:
             generator >> [step, global_step]
 
         pipeline._batch_manager = mock.MagicMock()
+        pipeline._send_to_step = mock.MagicMock()
         pipeline._setup_fsspec()
 
         with mock.patch(
@@ -694,9 +729,7 @@ class TestPipelineSerialization:
         assert "pipeline" in dump
         assert "distilabel" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
-        assert (
-            dump["pipeline"][TYPE_INFO_KEY]["module"] == "tests.unit.pipeline.test_base"
-        )
+        assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
 
     def test_base_pipeline_from_dict(self):
