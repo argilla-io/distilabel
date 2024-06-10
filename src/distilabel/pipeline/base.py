@@ -15,6 +15,7 @@
 import hashlib
 import logging
 import os
+import signal
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -905,3 +906,24 @@ class BasePipeline(ABC, _Serializable):
             )
 
         return route_to, route_to != successors
+
+    @abstractmethod
+    def _stop(self) -> None:
+        """Stops the pipeline in a controlled way."""
+        pass
+
+    def _handle_keyboard_interrupt(self) -> Any:
+        """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
+
+        It will try to call self._stop (if the pipeline didn't started yet, it won't
+        have any effect), and if the pool is already started, will close it before exiting
+        the program.
+
+        Returns:
+            The original `signal.SIGINT` handler.
+        """
+
+        def signal_handler(signumber: int, frame: Any) -> None:
+            self._stop()
+
+        return signal.signal(signal.SIGINT, signal_handler)

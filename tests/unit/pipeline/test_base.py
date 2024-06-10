@@ -56,6 +56,9 @@ class DummyPipeline(BasePipeline):
     def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
         pass
 
+    def _stop(self) -> None:
+        pass
+
 
 class TestGlobalPipelineManager:
     def teardown_method(self) -> None:

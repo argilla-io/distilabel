@@ -453,19 +453,6 @@ class Pipeline(BasePipeline):
         self._logger.debug("Sending `None` to the output queue to notify stop...")
         self.output_queue.put(None)
 
-    def _handle_keyboard_interrupt(self) -> None:
-        """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
-
-        It will try to call self._stop (if the pipeline didn't started yet, it won't
-        have any effect), and if the pool is already started, will close it before exiting
-        the program.
-        """
-
-        def signal_handler(signumber: int, frame: Any) -> None:
-            self._stop()
-
-        signal.signal(signal.SIGINT, signal_handler)
-
 
 class _ProcessWrapperException(Exception):
     """Exception to be raised when an error occurs in the `Step` process.
