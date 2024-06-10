@@ -113,14 +113,14 @@ Then run:
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset
+from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(
     name="simple-text-generation-pipeline",
     description="A simple text generation pipeline",
 ) as pipeline:
-    load_dataset = LoadHubDataset(output_mappings={"prompt": "instruction"})
+    load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
 
     generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
 

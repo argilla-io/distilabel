@@ -1,4 +1,4 @@
-# Distiset
+# Using the Distiset dataset object
 
 A [`Pipeline`][distilabel.pipeline.Pipeline] in `distilabel` returns a special type of Hugging Face [`datasets.DatasetDict`](https://huggingface.co/docs/datasets/main/en/package_reference/main_classes#datasets.DatasetDict) which is called [`Distiset`][distilabel.distiset.Distiset], as a combination of `distilabel` and dataset. This object is a wrapper around [`datasets.Dataset`](https://huggingface.co/docs/datasets/main/en/package_reference/main_classes#datasets.Dataset) which comes with some extra functionality to easily deal with the dataset pieces that a [`Pipeline`][distilabel.pipeline.Pipeline] can generate.
 

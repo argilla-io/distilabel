@@ -44,7 +44,7 @@ pip install flash-attn --no-build-isolation
 
 #### Building blocks
 
-- [`LoadHubDataset`][distilabel.steps.LoadHubDataset]: [`GeneratorStep`][distilabel.steps.GeneratorStep] to load a dataset from the Hugging Face Hub.
+- [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub]: [`GeneratorStep`][distilabel.steps.GeneratorStep] to load a dataset from the Hugging Face Hub.
 
 - [`PrometheusEval`][distilabel.steps.tasks.PrometheusEval]: [`Task`][distilabel.steps.tasks.Task] that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.
     - [`vLLM`][distilabel.llms.vLLM]: [`LLM`][distilabel.llms.LLM] that loads a model from the Hugging Face Hub via [vllm-project/vllm](https://github.com/vllm-project/vllm).
@@ -61,12 +61,12 @@ As mentioned before, we will put the previously mentioned building blocks togeth
 ```python
 from distilabel.llms import vLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import KeepColumns, LoadHubDataset
+from distilabel.steps import KeepColumns, LoadDataFromHub
 from distilabel.steps.tasks import PrometheusEval
 
 if __name__ == "__main__":
     with Pipeline(name="prometheus") as pipeline:
-        load_dataset = LoadHubDataset(
+        load_dataset = LoadDataFromHub(
             name="load_dataset",
             repo_id="HuggingFaceH4/instruction-dataset",
             split="test",

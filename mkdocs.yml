@@ -43,6 +43,12 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - toc.follow
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+
   palette:
     - media: "(prefers-color-scheme)"
       primary: white
@@ -125,34 +131,35 @@ plugins:
             heading_level: 4
   - social
   - distilabel/components-gallery:
-      add_after_page: Learn
+      add_after_page: How-to guides
 
 nav:
   - Distilabel: "index.md"
   - Getting started:
-    - Installation: "sections/installation.md"
-    - How-to-Guide: "sections/how_to_guide.md"
-  - Learn:
-    - "sections/learn/index.md"
-    - Tutorial:
-      - "sections/learn/tutorial/index.md"
-      - Step:
-        - "sections/learn/tutorial/step/index.md"
-        - GeneratorStep: "sections/learn/tutorial/step/generator_step.md"
-        - GlobalStep: "sections/learn/tutorial/step/global_step.md"
-      - Task:
-        - "sections/learn/tutorial/task/index.md"
-        - GeneratorTask: "sections/learn/tutorial/task/generator_task.md"
-      - LLM: "sections/learn/tutorial/llm/index.md"
-      - Pipeline: "sections/learn/tutorial/pipeline/index.md"
-      - CLI: "sections/learn/tutorial/cli/index.md"
+    - Installation: "sections/getting_started/installation.md"
+    - Quickstart: "sections/getting_started/quickstart.md"
+    - FAQ: "sections/getting_started/faq.md"
+  - How-to guides:
+    - "sections/how_to_guides/index.md"
+    - Basic:
+      - "sections/how_to_guides/basic/index.md"
+      - Degine Steps as nodes in the DAG:
+        - "sections/how_to_guides/basic/step/index.md"
+        - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
+        - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
+      - Define Tasks as steps with LLMs:
+        - "sections/how_to_guides/basic/task/index.md"
+        - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
+      - Execute prompts with LLMs: "sections/how_to_guides/basic/llm/index.md"
+      - Organize steps in pipelines: "sections/how_to_guides/basic/pipeline/index.md"
+      - CLI: "sections/how_to_guides/basic/cli/index.md"
     - Advanced:
-        - "sections/learn/advanced/index.md"
-        - Argilla: "sections/learn/advanced/argilla.md"
-        - Caching: "sections/learn/advanced/caching.md"
-        - Distiset: "sections/learn/advanced/distiset.md"
-        - Structured Generation: "sections/learn/advanced/structured_generation.md"
-        - Using the file system to pass batch data: "sections/learn/advanced/fs_to_pass_data.md"
+        - "sections/how_to_guides/advanced/index.md"
+        - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+        - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
+        - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
+        - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
+        - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
   - Pipeline Samples:
     - "sections/pipeline_samples/index.md"
     - Examples: "sections/pipeline_samples/examples/index.md"
@@ -162,7 +169,6 @@ nav:
       - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
       - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
       - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
-  - FAQ: "sections/faq.md"
   - API Reference:
     - Pipeline:
       - "api/pipeline/index.md"

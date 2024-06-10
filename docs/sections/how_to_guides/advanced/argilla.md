@@ -1,4 +1,4 @@
-# Argilla
+# Export data to Argilla
 
 As an additional step, besides being able to restore the dataset from the [`Pipeline`][distilabel.pipeline.Pipeline] output as a [`Distiset`][distilabel.distiset.Distiset] (which is a `datasets.DatasetDict` with multiple configurations depending on the leaf nodes of the [`Pipeline`][distilabel.pipeline.Pipeline]), one can also include a [`Step`][distilabel.steps.Step] within the [`Pipeline`][distilabel.pipeline.Pipeline] to easily export the datasets to Argilla with a pre-defined configuration, suiting the annotation purposes.
 
@@ -58,7 +58,7 @@ with Pipeline(name="my-pipeline") as pipeline:
 pipeline.run()
 ```
 
-![Text Generation to Argilla](../../../assets/images/sections/learn/steps/argilla/text_generation.png)
+![Text Generation to Argilla](../../../assets/images/sections/how_to_guides/steps/argilla/text_generation.png)
 
 ### Preference
 
@@ -112,7 +112,7 @@ with Pipeline(name="my-pipeline") as pipeline:
 pipeline.run()
 ```
 
-![Preference to Argilla](../../../assets/images/sections/learn/steps/argilla/preference.png)
+![Preference to Argilla](../../../assets/images/sections/how_to_guides/steps/argilla/preference.png)
 
 !!! NOTE
     If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../pipeline_samples/papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.

@@ -1,3 +1,9 @@
+---
+description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
+hide:
+  - toc
+---
+
 # Frequent Asked Questions (FAQ)
 
 ??? faq "How can I rename the columns in a batch?"
@@ -30,6 +36,6 @@
 
     All the data will be stored in `.cache/distilabel`, but the only data that will persist at the end of the `Pipeline.run` execution is the one from the leaf step/s, so bear that in mind.
 
-    For more information on the caching mechanism in `distilabel`, you can check the [Learn - Advanced - Caching](./learn/advanced/caching.md) section.
+    For more information on the caching mechanism in `distilabel`, you can check the [Learn - Advanced - Caching](../how_to_guides/advanced/caching.md) section.
 
     Also note that when running a [`Step`][distilabel.steps.base.Step] or a [`Task`][distilabel.steps.tasks.Task] standalone, the cache mechanism won't be used, so if you want to use that, you should use the `Pipeline` context manager.
