@@ -18,7 +18,7 @@ import sys
 import threading
 import time
 import traceback
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union, cast
 
 import tblib
 
@@ -31,18 +31,15 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
-    STEP_ATTR_NAME,
 )
-from distilabel.steps.base import Step
 from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
     from multiprocessing.managers import DictProxy, SyncManager
-    from multiprocessing.pool import Pool
     from queue import Queue
 
     from distilabel.distiset import Distiset
-    from distilabel.steps.base import GeneratorStep
+    from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
 _STEPS_LOADED_KEY = "steps_loaded"
@@ -127,12 +124,14 @@ class Pipeline(BasePipeline):
             initializer=_init_worker,
             initargs=(log_queue,),
         ) as pool:
+            self.manager = manager
+            self.pool = pool
             self.output_queue: "Queue[Any]" = manager.Queue()
             self.shared_info = self._create_shared_info_dict(manager)
-            self._handle_keyboard_interrupt(manager=manager, pool=pool)
+            self._handle_keyboard_interrupt()
 
             # Run the steps using the pool of processes
-            self._run_steps_in_loop(pool, manager, self.output_queue, self.shared_info)
+            self._run_steps()
 
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
@@ -305,50 +304,36 @@ class Pipeline(BasePipeline):
 
         return not _STOP_CALLED
 
-    def _run_steps_in_loop(
-        self,
-        pool: "Pool",
-        manager: "SyncManager",
-        output_queue: "Queue[_Batch]",
-        shared_info: "DictProxy[str, Any]",
-    ) -> None:
-        """Using the `pool`, runs the steps in the DAG in an infinite loop waiting for
-        input batches and sending the output batches to the `output_queue`.
+    @property
+    def QueueClass(self) -> Callable:
+        """The callable used to create the input and output queues.
 
-        Each `Step` is wrapped in a `_ProcessWrapper`, which will handle the lifecycle of
-        the `Step` and the communication with the `input_queue` and `output_queue`. The
-        `_ProcessWrapper.run` method is the target function of the process.
+        Returns:
+            The callable to create a `Queue`.
+        """
+        return self.manager.Queue
+
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+        """Runs the `Step` wrapped in a `_ProcessWrapper` in a separate process of the
+        `Pool`.
 
         Args:
-            pool: The pool of processes.
-            manager: The manager to create the queues.
-            output_queue: The queue to send the output batches.
-            shared_info: The shared information between the processes.
+            step: The step to run.
+            input_queue: The input queue to send the data to the step.
         """
-        for step_name in self.dag:
-            step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
-            input_queue = self._create_step_input_queue(
-                step_name=step_name, QueueClass=manager.Queue
-            )
+        process_wrapper = _ProcessWrapper(
+            step=step,
+            input_queue=input_queue,
+            output_queue=self.output_queue,
+            shared_info=self.shared_info,
+            dry_run=self._dry_run,
+        )
 
-            # Set `pipeline` to `None` as in some Python environments the pipeline is not
-            # picklable and it will raise an error when trying to send the step to the process.
-            # `TypeError: cannot pickle 'code' object`
-            step.pipeline = None
-
-            process_wrapper = _ProcessWrapper(
-                step=step,
-                input_queue=input_queue,
-                output_queue=output_queue,
-                shared_info=shared_info,
-                dry_run=self._dry_run,
-            )
-
-            pool.apply_async(
-                process_wrapper.run,
-                callback=self._finished_callback,
-                error_callback=self._error_callback,
-            )  # type: ignore
+        self.pool.apply_async(
+            process_wrapper.run,
+            callback=self._finished_callback,
+            error_callback=self._error_callback,
+        )  # type: ignore
 
     def _error_callback(self, e: BaseException) -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -425,9 +410,7 @@ class Pipeline(BasePipeline):
 
         return False
 
-    def _stop(
-        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
-    ) -> None:
+    def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
         finished processing the batches that were sent before the stop flag. Then it will
@@ -446,13 +429,15 @@ class Pipeline(BasePipeline):
                 elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
 
-                    if pool:
-                        pool.terminate()
-                        pool.join()
+                    if self.pool:
+                        self.pool.terminate()
+                        self.pool.join()
+                        self.pool = None
 
-                    if manager:
-                        manager.shutdown()
-                        manager.join()
+                    if self.manager:
+                        self.manager.shutdown()
+                        self.manager.join()
+                        self.manager = None
 
                     stop_logging()
 
@@ -468,9 +453,7 @@ class Pipeline(BasePipeline):
         self._logger.debug("Sending `None` to the output queue to notify stop...")
         self.output_queue.put(None)
 
-    def _handle_keyboard_interrupt(
-        self, manager: Optional["SyncManager"] = None, pool: Optional["Pool"] = None
-    ) -> None:
+    def _handle_keyboard_interrupt(self) -> None:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
 
         It will try to call self._stop (if the pipeline didn't started yet, it won't
@@ -479,7 +462,7 @@ class Pipeline(BasePipeline):
         """
 
         def signal_handler(signumber: int, frame: Any) -> None:
-            self._stop(manager=manager, pool=pool)
+            self._stop()
 
         signal.signal(signal.SIGINT, signal_handler)
 
@@ -550,7 +533,7 @@ class _ProcessWrapper:
 
     def __init__(
         self,
-        step: "Step",
+        step: "_Step",
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
         shared_info: "DictProxy[str, Any]",

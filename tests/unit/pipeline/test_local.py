@@ -64,11 +64,6 @@ class TestLocalPipeline:
 
     @mock.patch("distilabel.pipeline.local._ProcessWrapper")
     def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
-        pool = mock.MagicMock()
-        manager = mock.MagicMock()
-        queue = mock.MagicMock()
-        shared_info = mock.MagicMock()
-
         with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(name="dummy_step_1")
@@ -77,37 +72,41 @@ class TestLocalPipeline:
             dummy_generator.connect(dummy_step_1)
             dummy_step_1.connect(dummy_step_2)
 
-        pipeline._run_steps_in_loop(pool, manager, queue, shared_info)
+        pipeline.pool = mock.MagicMock()
+        pipeline.manager = mock.MagicMock()
+        pipeline.output_queue = mock.MagicMock()
+        pipeline.shared_info = mock.MagicMock()
+        pipeline._run_steps()
 
-        assert manager.Queue.call_count == 3
+        assert pipeline.manager.Queue.call_count == 3
 
         process_wrapper_mock.assert_has_calls(
             [
                 mock.call(
                     step=dummy_generator,
                     input_queue=mock.ANY,
-                    output_queue=queue,
-                    shared_info=shared_info,
+                    output_queue=pipeline.output_queue,
+                    shared_info=pipeline.shared_info,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
                     input_queue=mock.ANY,
-                    output_queue=queue,
-                    shared_info=shared_info,
+                    output_queue=pipeline.output_queue,
+                    shared_info=pipeline.shared_info,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_2,
                     input_queue=mock.ANY,
-                    output_queue=queue,
-                    shared_info=shared_info,
+                    output_queue=pipeline.output_queue,
+                    shared_info=pipeline.shared_info,
                     dry_run=False,
                 ),
             ],
         )
 
-        pool.apply_async.assert_has_calls(
+        pipeline.pool.apply_async.assert_has_calls(
             [
                 mock.call(
                     process_wrapper_mock.return_value.run,

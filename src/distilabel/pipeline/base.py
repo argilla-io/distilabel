@@ -15,6 +15,7 @@
 import hashlib
 import logging
 import os
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -110,7 +111,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(_Serializable):
+class BasePipeline(ABC, _Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
@@ -583,21 +584,50 @@ class BasePipeline(_Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
-    def _create_step_input_queue(
-        self, step_name: str, QueueClass: Callable
-    ) -> "Queue[Any]":
+    @property
+    @abstractmethod
+    def QueueClass(self) -> Callable:
+        """The class of the queue to use in the pipeline."""
+        pass
+
+    def _create_step_input_queue(self, step_name: str) -> "Queue[Any]":
         """Creates an input queue for a step.
 
         Args:
             step_name: The name of the step.
-            QueueClass: The class of the queue to create.
 
         Returns:
             The input queue created.
         """
-        input_queue = QueueClass()
+        input_queue = self.QueueClass()
         self.dag.set_step_attr(step_name, INPUT_QUEUE_ATTR_NAME, input_queue)
         return input_queue
+
+    @abstractmethod
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+        """Runs the `Step` instance.
+
+        Args:
+            step: The `Step` instance to run.
+            input_queue: The input queue where the step will receive the batches.
+        """
+        pass
+
+    def _run_steps(self) -> None:
+        """Runs the `Step`s of the pipeline, creating first an input queue for each step
+        that will be used to send the batches.
+        """
+        for step_name in self.dag:
+            step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            input_queue = self._create_step_input_queue(step_name=step_name)
+
+            # Set `pipeline` to `None` as in some Python environments the pipeline is not
+            # picklable and it will raise an error when trying to send the step to the process.
+            # `TypeError: cannot pickle 'code' object`
+            step.pipeline = None
+
+            self._logger.debug(f"Running 1 instance of step '{step.name}'...")
+            self._run_step(step=step, input_queue=input_queue)
 
     def _get_from_step(self) -> Union["_Batch", None]:
         """Gets a batch from the output queue of the steps, or `None` in the case the
