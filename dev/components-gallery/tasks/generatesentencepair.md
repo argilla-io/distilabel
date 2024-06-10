@@ -7,7 +7,8 @@ Generate a positive and negative (optionally) sentences given an anchor sentence
 
 `GenerateSentencePair` is a pre-defined task that given an anchor sentence generates
     a positive sentence related to the anchor and optionally a negative sentence unrelated
-    to the anchor. This task is useful to generate training datasets for training embeddings
+    to the anchor. Optionally, you can give a context to guide the LLM towards more specific
+    behavior. This task is useful to generate training datasets for training embeddings
     models.
 
 
@@ -19,6 +20,8 @@ Generate a positive and negative (optionally) sentences given an anchor sentence
 - **triplet**: a flag to indicate if the task should generate a triplet of sentences  (anchor, positive, negative). Defaults to `False`.
 
 - **action**: the action to perform to generate the positive sentence.
+
+- **context**: the context to use for the generation. Can be helpful to guide the LLM  towards more specific context. Not used by default.
 
 
 

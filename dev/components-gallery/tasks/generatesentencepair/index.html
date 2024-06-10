@@ -2421,7 +2421,8 @@
 <p>Generate a positive and negative (optionally) sentences given an anchor sentence.</p>
 <p><code>GenerateSentencePair</code> is a pre-defined task that given an anchor sentence generates
     a positive sentence related to the anchor and optionally a negative sentence unrelated
-    to the anchor. This task is useful to generate training datasets for training embeddings
+    to the anchor. Optionally, you can give a context to guide the LLM towards more specific
+    behavior. This task is useful to generate training datasets for training embeddings
     models.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2430,6 +2431,9 @@
 </li>
 <li>
 <p><strong>action</strong>: the action to perform to generate the positive sentence.</p>
+</li>
+<li>
+<p><strong>context</strong>: the context to use for the generation. Can be helpful to guide the LLM  towards more specific context. Not used by default.</p>
 </li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
