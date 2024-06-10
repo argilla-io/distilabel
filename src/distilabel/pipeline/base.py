@@ -578,6 +578,11 @@ class BasePipeline(ABC, _Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
+    @abstractmethod
+    def _get_from_step(self) -> Union["_Batch", None]:
+        """Gets an output from a step."""
+        pass
+
     def _manage_batch_flow(self, batch: "_Batch") -> None:
         """Checks if the step that generated the batch has more data in its buffer to
         generate a new batch. If there's data, then a new batch is sent to the step. If

@@ -176,12 +176,21 @@ class Pipeline(BasePipeline):
         thread.start()
         thread.join()
 
+    def _get_from_step(self) -> Union["_Batch", None]:
+        """Gets a batch from the output queue of the steps, or `None` in the case the
+        pipeline is stopping.
+
+        Returns:
+            The batch received from the output queue, or `None` if the pipeline is stopping.
+        """
+        return self.output_queue.get()
+
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
         while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
-            if (batch := self.output_queue.get()) is None:
+            if (batch := self._get_from_step()) is None:
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
