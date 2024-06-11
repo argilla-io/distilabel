@@ -42,7 +42,7 @@ next(step.process([{"input_field": "value"}]))
 
 - `input_batch_size` (by default set to 50), is independent for every step and will determine how many input dictionaries will process at once.
 
-### Runtime parameters
+### Runtime parameters
 
 `Step`s can also have `RuntimeParameter`, which are parameters that can only used after the pipeline initialisation when calling the `Pipeline.run`.
 
