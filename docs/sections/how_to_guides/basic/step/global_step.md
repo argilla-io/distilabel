@@ -2,9 +2,7 @@
 
 The [`GlobalStep`][distilabel.steps.GlobalStep] is a subclass of [`Step`][distilabel.steps.Step] that is used to define a step that requires the previous steps to be completed to run, since it will wait until all the input batches are received before running. This step is useful when you need to run a step that requires all the input data to be processed before running.
 
-## Working with GlobalSteps
-
-The [`GlobalStep`][distilabel.steps.GlobalStep] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline] and after some previous steps have been defined. Alternatively, it can also be used as a standalone [`Step`][distilabel.steps.Step] if needed, but then using [`Step`][distilabel.steps.Step] instead would be more appropriate.
+The [`GlobalStep`][distilabel.steps.GlobalStep] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline]. Alternatively, it can also be used as a standalone [`Step`][distilabel.steps.Step] if needed, but then using [`Step`][distilabel.steps.Step] instead would be more appropriate.
 
 ## Defining custom GlobalSteps
 

@@ -1,10 +1,6 @@
 # GeneratorStep
 
-The [`GeneratorStep`][distilabel.steps.GeneratorStep] is a subclass of [`Step`][distilabel.steps.Step] that only produces outputs, but doesn't receive any input. The [`GeneratorStep`][distilabel.steps.GeneratorStep] is intended to be used the first step within a [`Pipeline`][distilabel.pipeline.Pipeline], since it doesn't require any input to run and will generate data that can be potentially used by the follow up steps.
-
-## Working with GeneratorSteps
-
-The [`GeneratorStep`][distilabel.steps.GeneratorStep] is intended to be used within the scope of a [`Pipeline`][distilabel.pipeline.Pipeline] before any other [`Step`][distilabel.steps.Step]. Alternatively, in can also be used as a standalone [`Step`][distilabel.steps.Step] i.e. not within the context of a [`Pipeline`][distilabel.pipeline.Pipeline].
+The [`GeneratorStep`][distilabel.steps.GeneratorStep] is a subclass of [`Step`][distilabel.steps.Step] that is intended to be used the first step within a [`Pipeline`][distilabel.pipeline.Pipeline], because it doesn't require input and generates data that can be used by other steps. Alternatively, in can also be used as a standalone [`Step`][distilabel.steps.Step] outside a [`Pipeline`][distilabel.pipeline.Pipeline].
 
 For example, the following code snippet shows how to use the [`GeneratorStep`][distilabel.steps.GeneratorStep] as a standalone [`Step`][distilabel.steps.Step], to generate data out of a provided list of strings.
 
