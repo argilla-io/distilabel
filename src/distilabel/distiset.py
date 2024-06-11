@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import os
 import os.path as posixpath
 import re
 from os import PathLike
@@ -29,12 +28,12 @@ from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
-from distilabel.utils import _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
 )
 from distilabel.utils.files import list_files_in_dir
+from distilabel.utils.huggingface import get_hf_token
 
 DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
@@ -88,19 +87,7 @@ class Distiset(dict):
             ValueError: If no token is provided and couldn't be retrieved automatically.
         """
         if token is None:
-            from huggingface_hub import constants
-
-            token = os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME):
-            if token is None:
-                if not Path(constants.HF_TOKEN_PATH).exists():
-                    raise ValueError(
-                        f"To use `{self.__class__.__name__}` an API key must be provided via"
-                        " `token`, set the environment variable"
-                        f" `{_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME}` or use the `huggingface-hub` CLI to login"
-                        " with `huggingface-cli login`."
-                    )
-                with open(constants.HF_TOKEN_PATH) as f:
-                    token = f.read().strip()
+            token = get_hf_token(self.__class__.__name__, "token")
 
         for name, dataset in self.items():
             dataset.push_to_hub(
