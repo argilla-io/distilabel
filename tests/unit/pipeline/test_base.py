@@ -24,6 +24,7 @@ import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
     _STEP_LOAD_FAILED_CODE,
+    _STEP_NOT_LOADED_CODE,
     BasePipeline,
     _GlobalPipelineManager,
 )
@@ -160,10 +161,10 @@ class TestBasePipeline:
 
         pipeline._init_steps_load_status()
         assert pipeline._steps_load_status == {
-            generator.name: 0,
-            step.name: 0,
-            step2.name: 0,
-            step3.name: 0,
+            generator.name: _STEP_NOT_LOADED_CODE,
+            step.name: _STEP_NOT_LOADED_CODE,
+            step2.name: _STEP_NOT_LOADED_CODE,
+            step3.name: _STEP_NOT_LOADED_CODE,
         }
 
     def test_run_load_queue_loop(self) -> None:
@@ -239,6 +240,17 @@ class TestBasePipeline:
         pipeline._stop_called = True
 
         assert pipeline._all_steps_loaded() is False
+
+    @pytest.mark.parametrize(
+        "num_workers,expected", [(0, True), (_STEP_LOAD_FAILED_CODE, True), (1, False)]
+    )
+    def test_check_step_not_loaded_or_finished(
+        self, num_workers: int, expected: bool
+    ) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+        pipeline._steps_load_status = {"dummy": num_workers}
+
+        assert pipeline._check_step_not_loaded_or_finished("dummy") is expected
 
     def test_is_convergence_step(self) -> None:
         sample_two_steps = sample_n_steps(2)

@@ -116,6 +116,7 @@ class _GlobalPipelineManager:
 
 
 _STEP_LOAD_FAILED_CODE = -666
+_STEP_NOT_LOADED_CODE = -999
 
 
 class BasePipeline(ABC, _Serializable):
@@ -414,7 +415,7 @@ class BasePipeline(ABC, _Serializable):
         """Initialize the `_steps_load_status` dictionary assigning 0 to every step of
         the pipeline."""
         for step_name in self.dag:
-            self._steps_load_status[step_name] = 0
+            self._steps_load_status[step_name] = _STEP_NOT_LOADED_CODE
 
     def _setup_fsspec(
         self, storage_parameters: Optional[Dict[str, Any]] = None
@@ -632,7 +633,10 @@ class BasePipeline(ABC, _Serializable):
             with self._steps_load_status_lock:
                 step_name, status = load_info["name"], load_info["status"]
                 if status == "loaded":
-                    self._steps_load_status[step_name] += 1
+                    if self._steps_load_status[step_name] == _STEP_NOT_LOADED_CODE:
+                        self._steps_load_status[step_name] = 1
+                    else:
+                        self._steps_load_status[step_name] += 1
                 elif status == "unloaded":
                     self._steps_load_status[step_name] -= 1
                 else:
@@ -670,7 +674,7 @@ class BasePipeline(ABC, _Serializable):
                     if num_workers_loaded == 1:
                         num_steps_loaded += 1
                     workers_message += (
-                        f"\n * '{step_name}' workers: {num_workers_loaded}"
+                        f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}"
                     )
 
                 message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}{workers_message}"
@@ -685,6 +689,24 @@ class BasePipeline(ABC, _Serializable):
             time.sleep(2.5)
 
         return not self._stop_called
+
+    def _check_step_not_loaded_or_finished(self, step_name: str) -> bool:
+        """Checks if a step is not loaded or already finished.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            `True` if the step is not loaded or already finished, `False` otherwise.
+        """
+        with self._steps_load_status_lock:
+            num_workers = self._steps_load_status[step_name]
+
+            # The step has finished (workers = 0) or it has failed to load
+            if num_workers in [0, _STEP_LOAD_FAILED_CODE]:
+                return True
+
+        return False
 
     @property
     @abstractmethod

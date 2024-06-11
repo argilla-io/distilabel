@@ -351,29 +351,6 @@ class Pipeline(BasePipeline):
         with _STEPS_FINISHED_LOCK:
             _STEPS_FINISHED.add(step_name)
 
-    def _check_step_not_loaded_or_finished(self, step_name: str) -> bool:
-        """Checks if a step is not loaded or already finished.
-
-        Args:
-            step_name: The name of the step.
-
-        Returns:
-            `True` if the step is not loaded or already finished, `False` otherwise.
-        """
-        with self._steps_load_status_lock:
-            num_workers = self._steps_load_status[step_name]
-
-            # Load failed for at least one worker
-            if num_workers == -666:
-                return True
-
-            # Check all the workers of the step have been loaded
-            # TODO: update this condition once we allow more than one worker
-            if num_workers <= 1:
-                return True
-
-        return False
-
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
         of all the steps and then wait until the output queue is empty i.e. all the steps
