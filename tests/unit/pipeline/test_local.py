@@ -75,7 +75,7 @@ class TestLocalPipeline:
         pipeline._pool = mock.MagicMock()
         pipeline._manager = mock.MagicMock()
         pipeline._output_queue = mock.MagicMock()
-        pipeline._shared_info = mock.MagicMock()
+        pipeline._load_queue = mock.MagicMock()
         pipeline._run_steps()
 
         assert pipeline._manager.Queue.call_count == 3
@@ -86,21 +86,21 @@ class TestLocalPipeline:
                     step=dummy_generator,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
-                    shared_info=pipeline._shared_info,
+                    load_queue=pipeline._load_queue,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
-                    shared_info=pipeline._shared_info,
+                    load_queue=pipeline._load_queue,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_2,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
-                    shared_info=pipeline._shared_info,
+                    load_queue=pipeline._load_queue,
                     dry_run=False,
                 ),
             ],
@@ -110,17 +110,14 @@ class TestLocalPipeline:
             [
                 mock.call(
                     process_wrapper_mock.return_value.run,
-                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
-                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
                     process_wrapper_mock.return_value.run,
-                    callback=pipeline._finished_callback,
                     error_callback=pipeline._error_callback,
                 ),
             ]

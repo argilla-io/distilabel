@@ -258,7 +258,13 @@ class TestBasePipeline:
 
         pipeline._add_batches_back_to_batch_manager.assert_called_once()
         pipeline._wait_step_input_queue_empty.assert_has_calls(
-            [mock.call() for _ in range(4)]
+            [
+                mock.call(generator.name),
+                mock.call(step.name),
+                mock.call(step2.name),
+                mock.call(step3.name),
+            ],
+            any_order=True,
         )
         pipeline._consume_output_queue.assert_called_once()
 
