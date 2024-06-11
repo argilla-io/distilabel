@@ -169,11 +169,6 @@ nav:
       - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
       - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
   - API Reference:
-    - Pipeline:
-      - "api/pipeline/index.md"
-      - Routing Batch Function: "api/pipeline/routing_batch_function.md"
-      - Typing: "api/pipeline/typing.md"
-      - Utils: "api/pipeline/utils.md"
     - Step:
       - "api/step/index.md"
       - GeneratorStep: "api/step/generator_step.md"
@@ -203,6 +198,11 @@ nav:
         - Together AI: "api/llm/together.md"
         - Google Vertex AI: "api/llm/vertexai.md"
         - vLLM: "api/llm/vllm.md"
+    - Pipeline:
+      - "api/pipeline/index.md"
+      - Routing Batch Function: "api/pipeline/routing_batch_function.md"
+      - Typing: "api/pipeline/typing.md"
+      - Utils: "api/pipeline/utils.md"
     - CLI: "api/cli.md"
   - Community:
     - sections/community/index.md
