@@ -14,7 +14,6 @@
 
 import copy
 import hashlib
-import importlib.util
 import logging
 import os
 from collections import defaultdict
@@ -36,12 +35,12 @@ from typing import (
 import fsspec
 import pyarrow as pa
 import pyarrow.parquet as pq
-from packaging.requirements import InvalidRequirement, Requirement
 from typing_extensions import Self
 from upath import UPath
 
 from distilabel import __version__
 from distilabel.distiset import create_distiset
+from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.constants import (
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
@@ -116,7 +115,7 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
-class BasePipeline(_Serializable):
+class BasePipeline(RequirementsMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
@@ -192,7 +191,6 @@ class BasePipeline(_Serializable):
         self._storage_base_path: Optional[str] = None
         self._use_fs_to_pass_data: bool = False
         self._dry_run: bool = False
-        self._requirements = []
         self.requirements = requirements or []
 
     def __enter__(self) -> Self:
@@ -324,6 +322,13 @@ class BasePipeline(_Serializable):
 
         # Load the `_BatchManager` from cache or create one from scratch
         self._load_batch_manager(use_cache)
+
+        if to_install := self.requirements_to_install():
+            # Print the list of requirements like they would appear in a requirements.txt
+            to_install_list = "\n" + "\n".join(to_install)
+            msg = f"Please install the following requirements to run the pipeline:{to_install_list}"
+            self._logger.error(msg)
+            raise ValueError(msg)
 
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
@@ -612,46 +617,18 @@ class BasePipeline(_Serializable):
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
 
-    @property
-    def requirements(self) -> List[str]:
-        """Return a list of requirements that must be installed to run the `Pipeline`.
+    def _gather_requirements(self) -> List[str]:
+        """Extracts the requirements from the steps to be used in the pipeline.
 
         Returns:
-            List of requirements that must be installed to run the `Pipeline`, sorted alphabetically.
+            List of requirements gathered from the steps.
         """
-        return self._requirements
+        steps_requirements = []
+        for step in self.dag:
+            step_req = self.dag.get_step(step)[STEP_ATTR_NAME].requirements
+            steps_requirements.extend(step_req)
 
-    @requirements.setter
-    def requirements(self, _requirements: List[str]) -> None:
-        requirements = []
-        for r in _requirements:
-            try:
-                Requirement(r)
-                requirements.append(r)
-            except InvalidRequirement:
-                self._logger.warning(f"Invalid requirement: `{r}`")
-
-        self._requirements = sorted(set(self.requirements).union(set(requirements)))
-
-    def requirements_to_install(self) -> Optional[List[str]]:
-        """Check if the requirements are installed in the current environment,
-        and returns the ones that aren't.
-        """
-        from importlib.metadata import version
-
-        from packaging.requirements import Requirement
-
-        to_install = []
-        for requirement in self.requirements:
-            parsed_req = Requirement(requirement)
-            if importlib.util.find_spec(parsed_req.name):
-                if (str(parsed_req.specifier) != "") and (
-                    version(parsed_req.name) != str(parsed_req.specifier)
-                ):
-                    to_install.append(requirement)
-            else:
-                to_install.append(requirement)
-        return to_install
+        return steps_requirements
 
 
 @dataclass
