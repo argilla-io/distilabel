@@ -36,15 +36,19 @@ theme:
   icon:
     repo: fontawesome/brands/github-alt
   features:
-    - navigation.sections # Sections are included in the navigation on the left.
-    # - toc.integrate # # Table of contents is integrated on the left; does not appear separately on the right.
+    - navigation.instant
+    - navigation.sections
     - navigation.tabs
+    - navigation.footer
+    - navigation.top
+    - navigation.tracking
+    - navigation.path
     - header.autohide # header disappears as you scroll
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - content.action.edit
     - toc.follow
-    - navigation.top
     - search.suggest
     - search.highlight
     - search.share
