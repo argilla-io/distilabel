@@ -249,7 +249,7 @@ class TestBasePipeline:
 
             generator >> step
 
-        pipeline.output_queue = Queue()
+        pipeline._output_queue = Queue()
         pipeline._write_buffer = mock.MagicMock()
         pipeline._handle_batch_on_stop = mock.MagicMock()
 
@@ -259,8 +259,8 @@ class TestBasePipeline:
         generator_batch = _Batch(seq_no=0, step_name=generator_name, last_batch=False)
         step_batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
 
-        pipeline.output_queue.put(generator_batch)
-        pipeline.output_queue.put(step_batch)
+        pipeline._output_queue.put(generator_batch)
+        pipeline._output_queue.put(step_batch)
 
         pipeline._consume_output_queue()
 
@@ -274,8 +274,8 @@ class TestBasePipeline:
 
     def test_send_to_step(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline.output_queue = Queue()
-        pipeline.output_queue.put("Hello!")
+        pipeline._output_queue = Queue()
+        pipeline._output_queue.put("Hello!")
         assert pipeline._get_from_step() == "Hello!"
 
     def test_send_batch_to_step(self) -> None:

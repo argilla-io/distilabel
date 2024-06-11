@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.typing import StepLoadStatus
     from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
@@ -124,19 +125,24 @@ class Pipeline(BasePipeline):
             initializer=_init_worker,
             initargs=(log_queue,),
         ) as pool:
-            self.manager = manager
-            self.pool = pool
-            self.output_queue: "Queue[Any]" = manager.Queue()
-            self.shared_info = self._create_shared_info_dict(manager)
+            self._manager = manager
+            self._pool = pool
+            self._output_queue = self.QueueClass()
+            self._load_queue = self.QueueClass()
+            self._shared_info = self._create_shared_info_dict(manager)
             self._handle_keyboard_interrupt()
 
             # Run the steps using the pool of processes
             self._run_steps()
 
+            # Run the loop for receiving the load status of each step
+            self._load_steps_thread = self._run_load_queue_loop_in_thread()
+
             # Wait for all the steps to be loaded correctly
             if not self._all_steps_loaded():
                 self._write_buffer.close()  # type: ignore
                 self._batch_manager = None
+                self._load_steps_thread.join()
                 stop_logging()
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
@@ -147,15 +153,20 @@ class Pipeline(BasePipeline):
             self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
-            self._run_output_queue_loop_in_thread()
+            self._output_queue_thread = self._run_output_queue_loop_in_thread()
+            self._output_queue_thread.join()
 
             # Send `None` to steps `input_queue`s just in case some step is still waiting
             self._notify_steps_to_stop()
 
+            # Stop the load queue loop
+            self._stop_load_queue_loop()
+
         # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
         # all the processes have finished
-        pool.join()
-        manager.join()
+        self._load_steps_thread.join()
+        self._pool.join()
+        self._manager.join()
 
         self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
@@ -167,20 +178,20 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    def _run_output_queue_loop_in_thread(self) -> None:
+    def _run_output_queue_loop_in_thread(self) -> threading.Thread:
         """Runs the output queue loop in a separate thread to receive the output batches
         from the steps. This is done to avoid the signal handler to block the loop, which
         would prevent the pipeline from stopping correctly."""
         thread = threading.Thread(target=self._output_queue_loop)
         thread.start()
-        thread.join()
+        return thread
 
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
         while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
-            if (batch := self._get_from_step()) is None:
+            if (batch := self._output_queue.get()) is None:
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
                 break
 
@@ -276,8 +287,8 @@ class Pipeline(BasePipeline):
         self._logger.info("⏳ Waiting for all the steps to load...")
         previous_message = None
         while not _STOP_CALLED:
-            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
-                steps_loaded = self.shared_info[_STEPS_LOADED_KEY]
+            with self._shared_info[_STEPS_LOADED_LOCK_KEY]:
+                steps_loaded = self._shared_info[_STEPS_LOADED_KEY]
                 num_steps_loaded = (
                     len(steps_loaded)
                     if steps_loaded != [_STEPS_LOADED_ERROR_CODE]
@@ -311,7 +322,8 @@ class Pipeline(BasePipeline):
         Returns:
             The callable to create a `Queue`.
         """
-        return self.manager.Queue
+        assert self._manager, "Manager is not initialized"
+        return self._manager.Queue
 
     def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
         """Runs the `Step` wrapped in a `_ProcessWrapper` in a separate process of the
@@ -321,15 +333,18 @@ class Pipeline(BasePipeline):
             step: The step to run.
             input_queue: The input queue to send the data to the step.
         """
+        assert self._pool, "Pool is not initialized"
+
         process_wrapper = _ProcessWrapper(
             step=step,
             input_queue=input_queue,
-            output_queue=self.output_queue,
-            shared_info=self.shared_info,
+            output_queue=self._output_queue,
+            load_queue=self._load_queue,
+            shared_info=self._shared_info,
             dry_run=self._dry_run,
         )
 
-        self.pool.apply_async(
+        self._pool.apply_async(
             process_wrapper.run,
             callback=self._finished_callback,
             error_callback=self._error_callback,
@@ -352,8 +367,8 @@ class Pipeline(BasePipeline):
 
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
-            with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
-                self.shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
+            with self._shared_info[_STEPS_LOADED_LOCK_KEY]:
+                self._shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
             _SUBPROCESS_EXCEPTION = e.subprocess_exception
             _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(  # type: ignore
                 e.formatted_traceback
@@ -429,15 +444,15 @@ class Pipeline(BasePipeline):
                 elif _STOP_CALLS > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
 
-                    if self.pool:
-                        self.pool.terminate()
-                        self.pool.join()
-                        self.pool = None
+                    if self._pool:
+                        self._pool.terminate()
+                        self._pool.join()
+                        self._pool = None
 
-                    if self.manager:
-                        self.manager.shutdown()
-                        self.manager.join()
-                        self.manager = None
+                    if self._manager:
+                        self._manager.shutdown()
+                        self._manager.join()
+                        self._manager = None
 
                     stop_logging()
 
@@ -450,8 +465,9 @@ class Pipeline(BasePipeline):
         self._logger.info(
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
-        self._logger.debug("Sending `None` to the output queue to notify stop...")
-        self.output_queue.put(None)
+
+        self._stop_load_queue_loop()
+        self._stop_output_queue_loop()
 
 
 class _ProcessWrapperException(Exception):
@@ -515,6 +531,8 @@ class _ProcessWrapper:
         step: The step to run.
         input_queue: The queue to receive the input data.
         output_queue: The queue to send the output data.
+            load_queue: The queue used to notify the main process that the step has been
+                loaded, has been unloaded or has failed to load.
         shared_info: The shared information between the processes.
     """
 
@@ -523,6 +541,7 @@ class _ProcessWrapper:
         step: "_Step",
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
+        load_queue: "Queue[Union[StepLoadStatus, None]]",
         shared_info: "DictProxy[str, Any]",
         dry_run: bool = False,
     ) -> None:
@@ -532,12 +551,15 @@ class _ProcessWrapper:
             step: The step to run.
             input_queue: The queue to receive the input data.
             output_queue: The queue to send the output data.
+            load_queue: The queue used to notify the main process that the step has been
+                loaded, has been unloaded or has failed to load.
             shared_info: The shared information between the processes.
             dry_run: Flag to ensure we are forcing to run the last batch.
         """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
+        self.load_queue = load_queue
         self.shared_info = shared_info
         self._dry_run = dry_run
 
@@ -570,6 +592,7 @@ class _ProcessWrapper:
             self.step.load()
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
+            self._notify_load_failed()
             raise _ProcessWrapperException.create_load_error(
                 str(e), self.step, e
             ) from e
@@ -587,14 +610,27 @@ class _ProcessWrapper:
         except Exception:
             pass
 
+        self._notify_unload()
+
         self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
 
         return self.step.name  # type: ignore
 
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
+        self.load_queue.put({"name": self.step.name, "status": "loaded"})  # type: ignore
+
+        # TODO: remove this
         with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
             self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
+
+    def _notify_unload(self) -> None:
+        """Notifies that the step has been unloaded."""
+        self.load_queue.put({"name": self.step.name, "status": "unloaded"})  # type: ignore
+
+    def _notify_load_failed(self) -> None:
+        """Notifies that the step failed to load."""
+        self.load_queue.put({"name": self.step.name, "status": "load_failed"})  # type: ignore
 
     def _generator_step_process_loop(self) -> None:
         """Runs the process loop for a generator step. It will call the `process` method

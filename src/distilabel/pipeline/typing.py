@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, TypeVar, Union
+from typing import TYPE_CHECKING, Literal, TypedDict, TypeVar, Union
 
 if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep, GlobalStep, Step
@@ -32,3 +32,11 @@ DownstreamConnectableSteps = TypeVar(
     covariant=True,
 )
 """Type for the `Step` types that can be connected as downstream steps."""
+
+
+class StepLoadStatus(TypedDict):
+    """Dict containing information about if one step was loaded/unloaded or if it's load
+    failed"""
+
+    name: str
+    status: Literal["loaded", "unloaded", "load_failed"]

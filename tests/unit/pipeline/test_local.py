@@ -72,41 +72,41 @@ class TestLocalPipeline:
             dummy_generator.connect(dummy_step_1)
             dummy_step_1.connect(dummy_step_2)
 
-        pipeline.pool = mock.MagicMock()
-        pipeline.manager = mock.MagicMock()
-        pipeline.output_queue = mock.MagicMock()
-        pipeline.shared_info = mock.MagicMock()
+        pipeline._pool = mock.MagicMock()
+        pipeline._manager = mock.MagicMock()
+        pipeline._output_queue = mock.MagicMock()
+        pipeline._shared_info = mock.MagicMock()
         pipeline._run_steps()
 
-        assert pipeline.manager.Queue.call_count == 3
+        assert pipeline._manager.Queue.call_count == 3
 
         process_wrapper_mock.assert_has_calls(
             [
                 mock.call(
                     step=dummy_generator,
                     input_queue=mock.ANY,
-                    output_queue=pipeline.output_queue,
-                    shared_info=pipeline.shared_info,
+                    output_queue=pipeline._output_queue,
+                    shared_info=pipeline._shared_info,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
                     input_queue=mock.ANY,
-                    output_queue=pipeline.output_queue,
-                    shared_info=pipeline.shared_info,
+                    output_queue=pipeline._output_queue,
+                    shared_info=pipeline._shared_info,
                     dry_run=False,
                 ),
                 mock.call(
                     step=dummy_step_2,
                     input_queue=mock.ANY,
-                    output_queue=pipeline.output_queue,
-                    shared_info=pipeline.shared_info,
+                    output_queue=pipeline._output_queue,
+                    shared_info=pipeline._shared_info,
                     dry_run=False,
                 ),
             ],
         )
 
-        pipeline.pool.apply_async.assert_has_calls(
+        pipeline._pool.apply_async.assert_has_calls(
             [
                 mock.call(
                     process_wrapper_mock.return_value.run,

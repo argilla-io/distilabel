@@ -16,7 +16,9 @@ import hashlib
 import logging
 import os
 import signal
+import threading
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -60,6 +62,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
+    from distilabel.pipeline.typing import StepLoadStatus
     from distilabel.steps.base import Step, _Step
 
 
@@ -141,9 +144,12 @@ class BasePipeline(ABC, _Serializable):
         _dry_run: A flag to indicate if the pipeline is running in dry run mode. Defaults
             to `False`.
         output_queue: A queue to store the output of the steps while running the pipeline.
+        load_queue: A queue used by each `Step` to notify the main process it has finished
+            loading or it the step has been unloaded.
     """
 
-    output_queue: "Queue[Any]"
+    _output_queue: "Queue[Any]"
+    _load_queue: "Queue[Union[StepLoadStatus, None]]"
 
     def __init__(
         self,
@@ -183,9 +189,13 @@ class BasePipeline(ABC, _Serializable):
             "filename": self._cache_location["log_file"]
         }
 
+        self._steps_load_status = defaultdict(lambda: 0)
+        self._steps_load_status_lock = threading.Lock()
+
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
         self._use_fs_to_pass_data: bool = False
+
         self._dry_run: bool = False
 
     def __enter__(self) -> Self:
@@ -585,6 +595,33 @@ class BasePipeline(ABC, _Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
+    def _run_load_queue_loop_in_thread(self) -> threading.Thread:
+        """Runs a background thread that reads from the `load_queue` to update the status
+        of the number of workers loaded for each step.
+
+        Returns:
+            The thread that was started.
+        """
+        thread = threading.Thread(target=self._run_load_queue_loop)
+        thread.start()
+        return thread
+
+    def _run_load_queue_loop(self) -> None:
+        """Runs a loop that reads from the `load_queue` to update the status of the number
+        of workers loaded for each step."""
+        while True:
+            if (load_info := self._load_queue.get()) is None:
+                self._logger.debug("Received `None` from load queue. Breaking loop.")
+                break
+
+            with self._steps_load_status_lock:
+                step_name, status = load_info["name"], load_info["status"]
+                num = 1 if status == "loaded" else -1
+                self._steps_load_status[step_name] += num
+                self._logger.debug(
+                    f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
+                )
+
     @property
     @abstractmethod
     def QueueClass(self) -> Callable:
@@ -630,15 +667,6 @@ class BasePipeline(ABC, _Serializable):
             self._logger.debug(f"Running 1 instance of step '{step.name}'...")
             self._run_step(step=step, input_queue=input_queue)
 
-    def _get_from_step(self) -> Union["_Batch", None]:
-        """Gets a batch from the output queue of the steps, or `None` in the case the
-        pipeline is stopping.
-
-        Returns:
-            The batch received from the output queue, or `None` if the pipeline is stopping.
-        """
-        return self.output_queue.get()
-
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
         method should be used when the pipeline has been stopped prematurely."""
@@ -664,8 +692,8 @@ class BasePipeline(ABC, _Serializable):
         """Consumes the `Batch`es from the output queue until it's empty. This method should
         be used when the pipeline has been stopped prematurely to consume and to not lose
         the `Batch`es that were processed by the leaf `Step`s before stopping the pipeline."""
-        while not self.output_queue.empty():
-            batch = self.output_queue.get()
+        while not self._output_queue.empty():
+            batch = self._output_queue.get()
             if batch is None:
                 continue
 
@@ -911,6 +939,16 @@ class BasePipeline(ABC, _Serializable):
     def _stop(self) -> None:
         """Stops the pipeline in a controlled way."""
         pass
+
+    def _stop_load_queue_loop(self) -> None:
+        """Stops the `_load_queue` loop sending a `None`."""
+        self._logger.debug("Sending `None` to the load queue to notify stop...")
+        self._load_queue.put(None)
+
+    def _stop_output_queue_loop(self) -> None:
+        """Stops the `_output_queue` loop sending a `None`."""
+        self._logger.debug("Sending `None` to the output queue to notify stop...")
+        self._output_queue.put(None)
 
     def _handle_keyboard_interrupt(self) -> Any:
         """Handles KeyboardInterrupt signal sent during the Pipeline.run method.
