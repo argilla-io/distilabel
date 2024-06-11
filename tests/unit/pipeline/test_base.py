@@ -241,6 +241,27 @@ class TestBasePipeline:
 
         assert pipeline._all_steps_loaded() is False
 
+    def test_handle_stop(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._add_batches_back_to_batch_manager = mock.MagicMock()
+        pipeline._wait_step_input_queue_empty = mock.MagicMock()
+        pipeline._consume_output_queue = mock.MagicMock()
+
+        pipeline._handle_stop()
+
+        pipeline._add_batches_back_to_batch_manager.assert_called_once()
+        pipeline._wait_step_input_queue_empty.assert_has_calls(
+            [mock.call() for _ in range(4)]
+        )
+        pipeline._consume_output_queue.assert_called_once()
+
     @pytest.mark.parametrize(
         "num_workers,expected", [(0, True), (_STEP_LOAD_FAILED_CODE, True), (1, False)]
     )

@@ -28,7 +28,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
-    INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
 )
 from distilabel.utils.logging import setup_logging, stop_logging
@@ -213,38 +212,10 @@ class Pipeline(BasePipeline):
         if self._stop_called:
             self._handle_stop()
 
-    def _handle_stop(self) -> None:
-        """Handles the stop of the pipeline execution, which will stop the steps from
-        processing more batches and wait for the output queue to be empty, to not lose
-        any data that was already processed by the steps before the stop was called."""
-        self._logger.debug("Handling stop of the pipeline execution...")
+        self._cache()
 
-        self._add_batches_back_to_batch_manager()
-
-        # Wait for the input queue to be empty, which means that all the steps finished
-        # processing the batches that were sent before the stop flag.
-        for step_name in self.dag:
-            self._wait_step_input_queue_empty(step_name)
-
-        self._consume_output_queue()
-
-    def _wait_step_input_queue_empty(self, step_name: str) -> Union["Queue[Any]", None]:
-        """Waits for the input queue of a step to be empty.
-
-        Args:
-            step_name: The name of the step.
-
-        Returns:
-            The input queue of the step if it's not loaded or finished, `None` otherwise.
-        """
-        if self._check_step_not_loaded_or_finished(step_name):
-            return None
-
-        if input_queue := self.dag.get_step(step_name).get(INPUT_QUEUE_ATTR_NAME):
-            while input_queue.qsize() != 0:
-                pass
-            return input_queue
-
+    # TODO: remove this, we don't need it. We can use a file per node to keep what steps
+    # are using what GPUs
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
 
@@ -291,11 +262,7 @@ class Pipeline(BasePipeline):
             dry_run=self._dry_run,
         )
 
-        self._pool.apply_async(
-            process_wrapper.run,
-            callback=self._finished_callback,
-            error_callback=self._error_callback,
-        )  # type: ignore
+        self._pool.apply_async(process_wrapper.run, error_callback=self._error_callback)
 
     def _error_callback(self, e: BaseException) -> None:
         """Error callback that will be called when an error occurs in a `Step` process.
@@ -339,17 +306,8 @@ class Pipeline(BasePipeline):
         # Global step with successors failed
         self._logger.error(f"An error occurred in global step '{step_name}'")
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
-        self._cache()
+
         self._stop()
-
-    def _finished_callback(self, step_name: str) -> None:
-        """Callback that will be called when a `Step` process finishes.
-
-        Args:
-            step_name: The name of the step that finished.
-        """
-        with _STEPS_FINISHED_LOCK:
-            _STEPS_FINISHED.add(step_name)
 
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
