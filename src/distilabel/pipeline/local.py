@@ -15,7 +15,6 @@
 import multiprocessing as mp
 import signal
 import sys
-import threading
 import traceback
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union, cast
 
@@ -44,9 +43,6 @@ if TYPE_CHECKING:
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
 _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
-
-_STEPS_FINISHED = set()
-_STEPS_FINISHED_LOCK = threading.Lock()
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
 
@@ -168,7 +164,7 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    # TODO: remove this, we don't need it. We can use a file per node to keep what steps
+    # TODO: remove this, we don't need it. We can use a file per node to keep what steps    # TODO: remove this, we don't need it. We can use a file per node to keep what steps
     # are using what GPUs
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
         """Creates the shared information dictionary to be used by the processes.
