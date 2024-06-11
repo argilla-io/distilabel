@@ -113,10 +113,7 @@ plugins:
   - autorefs # Cross-links to headings
   - gen-files:
       scripts:
-        - docs/scripts/gen_ref_pages.py
         - docs/scripts/gen_popular_issues.py
-  - literate-nav:
-      nav_file: SUMMARY.md
   - section-index
   - mkdocstrings:
       handlers:
