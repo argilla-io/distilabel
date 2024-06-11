@@ -50,7 +50,7 @@ class AnyscaleLLM(OpenAILLM):
 
         llm.load()
 
-        # Synchrounous request
+        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
 
         # Asynchronous request

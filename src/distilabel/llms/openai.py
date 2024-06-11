@@ -72,7 +72,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
+        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
 
         # Asynchronous request
@@ -91,7 +91,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
+        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
 
         # Asynchronous request
@@ -117,7 +117,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
+        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
 
         # Asynchronous request
