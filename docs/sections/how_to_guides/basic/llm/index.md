@@ -2,7 +2,7 @@
 
 ## Working with LLMs
 
-LLM subclasses are designed to be used within a [Task][distilabel.steps.tasks.Task], but can also function standalone.
+LLM subclasses are designed to be used within a [Task][distilabel.steps.tasks.Task], but can also be used standalone.
 
 ```python
 from distilabel.llms import OpenAILLM
