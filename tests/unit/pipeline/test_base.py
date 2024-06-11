@@ -147,6 +147,23 @@ class TestBasePipeline:
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
 
+    def test_init_steps_load_status(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._init_steps_load_status()
+        assert pipeline._steps_load_status == {
+            generator.name: 0,
+            step.name: 0,
+            step2.name: 0,
+            step3.name: 0,
+        }
+
     def test_is_convergence_step(self) -> None:
         sample_two_steps = sample_n_steps(2)
 

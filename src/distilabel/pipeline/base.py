@@ -18,7 +18,6 @@ import os
 import signal
 import threading
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -115,6 +114,9 @@ class _GlobalPipelineManager:
         return cls._context_global_pipeline
 
 
+_STEP_LOAD_FAILED_CODE = -666
+
+
 class BasePipeline(ABC, _Serializable):
     """Base class for a `distilabel` pipeline.
 
@@ -189,7 +191,7 @@ class BasePipeline(ABC, _Serializable):
             "filename": self._cache_location["log_file"]
         }
 
-        self._steps_load_status = defaultdict(lambda: 0)
+        self._steps_load_status = {}
         self._steps_load_status_lock = threading.Lock()
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
@@ -321,6 +323,8 @@ class BasePipeline(ABC, _Serializable):
             }
         )
 
+        self._init_steps_load_status()
+
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
@@ -400,6 +404,12 @@ class BasePipeline(ABC, _Serializable):
             step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             runtime_parameters[step_name] = step.get_runtime_parameters_info()
         return runtime_parameters
+
+    def _init_steps_load_status(self) -> None:
+        """Initialize the `_steps_load_status` dictionary assigning 0 to every step of
+        the pipeline."""
+        for step_name in self.dag:
+            self._steps_load_status[step_name] = 0
 
     def _setup_fsspec(
         self, storage_parameters: Optional[Dict[str, Any]] = None
@@ -616,8 +626,14 @@ class BasePipeline(ABC, _Serializable):
 
             with self._steps_load_status_lock:
                 step_name, status = load_info["name"], load_info["status"]
-                num = 1 if status == "loaded" else -1
-                self._steps_load_status[step_name] += num
+                if status == "loaded":
+                    self._steps_load_status[step_name] += 1
+                elif status == "unloaded":
+                    self._steps_load_status[step_name] -= 1
+                else:
+                    # load failed
+                    self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
+
                 self._logger.debug(
                     f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
                 )
