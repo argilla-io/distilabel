@@ -114,6 +114,7 @@ plugins:
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_pages.py
+        - docs/scripts/gen_popular_issues.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
@@ -152,7 +153,7 @@ nav:
       - Define Tasks as Steps that rely on LLMs:
         - "sections/how_to_guides/basic/task/index.md"
         - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-      - Define LLMs as prompt executors in Tasks: "sections/how_to_guides/basic/llm/index.md"
+      - Define LLMs as local models or remote APIs: "sections/how_to_guides/basic/llm/index.md"
       - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
     - Advanced:
         - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
@@ -206,3 +207,6 @@ nav:
         - Google Vertex AI: "api/llm/vertexai.md"
         - vLLM: "api/llm/vllm.md"
     - CLI: "api/cli.md"
+  - Community:
+    - sections/community/index.md
+    - Issue dashboard: sections/community/popular_issues.md
