@@ -16,7 +16,6 @@ import multiprocessing as mp
 import signal
 import sys
 import threading
-import time
 import traceback
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union, cast
 
@@ -43,18 +42,9 @@ if TYPE_CHECKING:
     from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
-_STEPS_LOADED_KEY = "steps_loaded"
-_STEPS_LOADED_LOCK_KEY = "steps_loaded_lock"
-_STEPS_LOADED_ERROR_CODE = -1
 _CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
 _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
-_STOP_CALLED = False
-_STOP_CALLED_LOCK = threading.Lock()
-_STOP_CALLS = 0
-
-_STEPS_LOADED = set()
-_STEPS_LOADED_LOCK = threading.Lock()
 
 _STEPS_FINISHED = set()
 _STEPS_FINISHED_LOCK = threading.Lock()
@@ -142,6 +132,7 @@ class Pipeline(BasePipeline):
             if not self._all_steps_loaded():
                 self._write_buffer.close()  # type: ignore
                 self._batch_manager = None
+                self._stop_load_queue_loop()
                 self._load_steps_thread.join()
                 stop_logging()
                 raise RuntimeError(
@@ -189,7 +180,7 @@ class Pipeline(BasePipeline):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
-        while self._batch_manager.can_generate() and not _STOP_CALLED:  # type: ignore
+        while self._batch_manager.can_generate() and not self._stop_called:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
             if (batch := self._output_queue.get()) is None:
                 self._logger.debug("Received `None` from output queue. Breaking loop.")
@@ -209,17 +200,17 @@ class Pipeline(BasePipeline):
             if batch.step_name in self.dag.leaf_steps:
                 self._write_buffer.add_batch(batch)  # type: ignore
 
-            # If `_STOP_CALLED` was set to `True` while waiting for the output queue, then
+            # If `_stop_called` was set to `True` while waiting for the output queue, then
             # we need to handle the stop of the pipeline and break the loop to avoid
             # propagating the batches through the pipeline and making the stop process
             # slower.
-            if _STOP_CALLED:
+            if self._stop_called:
                 self._handle_batch_on_stop(batch)
                 break
 
             self._manage_batch_flow(batch)
 
-        if _STOP_CALLED:
+        if self._stop_called:
             self._handle_stop()
 
     def _handle_stop(self) -> None:
@@ -266,54 +257,10 @@ class Pipeline(BasePipeline):
         # TODO: not very important, but we could use a different lock for each matter
         return manager.dict(
             **{
-                _STEPS_LOADED_KEY: manager.list(),
-                _STEPS_LOADED_LOCK_KEY: manager.Lock(),
                 _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
                 _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY: manager.Lock(),
             }
         )
-
-    def _all_steps_loaded(self) -> bool:
-        """Waits for all the steps to load.
-
-        Returns:
-            `True` if all the steps have been loaded correctly, `False` otherwise.
-        """
-
-        def _update_all_steps_loaded(steps_loaded: List[str]) -> None:
-            with _STEPS_LOADED_LOCK:
-                _STEPS_LOADED.update(steps_loaded)
-
-        self._logger.info("⏳ Waiting for all the steps to load...")
-        previous_message = None
-        while not _STOP_CALLED:
-            with self._shared_info[_STEPS_LOADED_LOCK_KEY]:
-                steps_loaded = self._shared_info[_STEPS_LOADED_KEY]
-                num_steps_loaded = (
-                    len(steps_loaded)
-                    if steps_loaded != [_STEPS_LOADED_ERROR_CODE]
-                    else 0
-                )
-                self._logger.debug(f"Steps loaded: {steps_loaded}")
-
-                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}"
-                if num_steps_loaded > 0 and message != previous_message:
-                    self._logger.info(message)
-                    previous_message = message
-
-                if num_steps_loaded == len(self.dag):
-                    self._logger.info("✅ All the steps have been loaded!")
-                    _update_all_steps_loaded(steps_loaded)
-                    return True
-
-                if steps_loaded == [_STEPS_LOADED_ERROR_CODE]:
-                    self._logger.error("❌ Failed to load all the steps")
-                    _update_all_steps_loaded(steps_loaded)
-                    return False
-
-            time.sleep(2.5)
-
-        return not _STOP_CALLED
 
     @property
     def QueueClass(self) -> Callable:
@@ -367,8 +314,6 @@ class Pipeline(BasePipeline):
 
         if e.is_load_error:
             self._logger.error(f"❌ Failed to load step '{e.step.name}': {e.message}")
-            with self._shared_info[_STEPS_LOADED_LOCK_KEY]:
-                self._shared_info[_STEPS_LOADED_KEY] = [_STEPS_LOADED_ERROR_CODE]
             _SUBPROCESS_EXCEPTION = e.subprocess_exception
             _SUBPROCESS_EXCEPTION.__traceback__ = tblib.Traceback.from_string(  # type: ignore
                 e.formatted_traceback
@@ -415,12 +360,16 @@ class Pipeline(BasePipeline):
         Returns:
             `True` if the step is not loaded or already finished, `False` otherwise.
         """
-        with _STEPS_LOADED_LOCK:
-            if step_name not in _STEPS_LOADED:
+        with self._steps_load_status_lock:
+            num_workers = self._steps_load_status[step_name]
+
+            # Load failed for at least one worker
+            if num_workers == -666:
                 return True
 
-        with _STEPS_FINISHED_LOCK:
-            if step_name in _STEPS_FINISHED:
+            # Check all the workers of the step have been loaded
+            # TODO: update this condition once we allow more than one worker
+            if num_workers <= 1:
                 return True
 
         return False
@@ -431,17 +380,14 @@ class Pipeline(BasePipeline):
         finished processing the batches that were sent before the stop flag. Then it will
         send `None` to the output queue to notify the pipeline to stop."""
 
-        global _STOP_CALLED
-
-        with _STOP_CALLED_LOCK:
-            if _STOP_CALLED:
-                global _STOP_CALLS
-                _STOP_CALLS += 1
-                if _STOP_CALLS == 1:
+        with self._stop_called_lock:
+            if self._stop_called:
+                self._stop_calls += 1
+                if self._stop_calls == 1:
                     self._logger.warning(
                         "🛑 Press again to force the pipeline to stop."
                     )
-                elif _STOP_CALLS > 1:
+                elif self._stop_calls > 1:
                     self._logger.warning("🛑 Forcing pipeline interruption.")
 
                     if self._pool:
@@ -459,9 +405,11 @@ class Pipeline(BasePipeline):
                     sys.exit(1)
 
                 return
-            _STOP_CALLED = True
+            self._stop_called = True
 
-        self._logger.debug(f"Steps loaded before calling `stop`: {_STEPS_LOADED}")
+        self._logger.debug(
+            f"Steps loaded before calling `stop`: {self._steps_load_status}"
+        )
         self._logger.info(
             "🛑 Stopping pipeline. Waiting for steps to finish processing batches..."
         )
@@ -619,10 +567,6 @@ class _ProcessWrapper:
     def _notify_load(self) -> None:
         """Notifies that the step has finished executing its `load` function successfully."""
         self.load_queue.put({"name": self.step.name, "status": "loaded"})  # type: ignore
-
-        # TODO: remove this
-        with self.shared_info[_STEPS_LOADED_LOCK_KEY]:
-            self.shared_info[_STEPS_LOADED_KEY].append(self.step.name)
 
     def _notify_unload(self) -> None:
         """Notifies that the step has been unloaded."""

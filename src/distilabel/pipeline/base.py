@@ -17,6 +17,7 @@ import logging
 import os
 import signal
 import threading
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -191,14 +192,18 @@ class BasePipeline(ABC, _Serializable):
             "filename": self._cache_location["log_file"]
         }
 
-        self._steps_load_status = {}
+        self._steps_load_status: Dict[str, int] = {}
         self._steps_load_status_lock = threading.Lock()
+
+        self._stop_called = False
+        self._stop_called_lock = threading.Lock()
+        self._stop_calls = 0
 
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
         self._use_fs_to_pass_data: bool = False
 
-        self._dry_run: bool = False
+        self._dry_run = False
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -637,6 +642,49 @@ class BasePipeline(ABC, _Serializable):
                 self._logger.debug(
                     f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
                 )
+
+    def _all_steps_loaded(self) -> bool:
+        """Waits for all the steps to load.
+
+        Returns:
+            `True` if all the steps have been loaded correctly, `False` otherwise.
+        """
+
+        self._logger.info("⏳ Waiting for all the steps to load...")
+        previous_message = None
+        while not self._stop_called:
+            with self._steps_load_status_lock:
+                self._logger.debug(f"Steps loaded: {self._steps_load_status}")
+
+                if any(
+                    num_workers_loaded == _STEP_LOAD_FAILED_CODE
+                    for num_workers_loaded in self._steps_load_status.values()
+                ):
+                    self._logger.error("❌ Failed to load all the steps")
+                    return False
+
+                num_steps_loaded = 0
+                workers_message = ""
+                for step_name, num_workers_loaded in self._steps_load_status.items():
+                    # TODO: update condition once we allow more than one worker per step
+                    if num_workers_loaded == 1:
+                        num_steps_loaded += 1
+                    workers_message += (
+                        f"\n * '{step_name}' workers: {num_workers_loaded}"
+                    )
+
+                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}{workers_message}"
+                if num_steps_loaded > 0 and message != previous_message:
+                    self._logger.info(message)
+                    previous_message = message
+
+                if num_steps_loaded == len(self.dag):
+                    self._logger.info("✅ All the steps have been loaded!")
+                    return True
+
+            time.sleep(2.5)
+
+        return not self._stop_called
 
     @property
     @abstractmethod

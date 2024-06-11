@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -22,6 +23,7 @@ from unittest import mock
 import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
+    _STEP_LOAD_FAILED_CODE,
     BasePipeline,
     _GlobalPipelineManager,
 )
@@ -164,6 +166,80 @@ class TestBasePipeline:
             step3.name: 0,
         }
 
+    def test_run_load_queue_loop(self) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+
+        pipeline._load_queue = Queue()
+        pipeline._steps_load_status = {"dummy": 0}
+        pipeline._load_queue.put({"name": "dummy", "status": "loaded"})
+
+        thread = pipeline._run_load_queue_loop_in_thread()
+        pipeline._load_queue.put(None)
+        thread.join()
+
+        assert pipeline._steps_load_status["dummy"] == 1
+
+    def test_run_load_queue_loop_receiving_none(self) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+
+        pipeline._load_queue = Queue()
+        pipeline._load_queue.put(None)
+
+        thread = pipeline._run_load_queue_loop_in_thread()
+        thread.join()
+
+        assert not thread.is_alive()
+
+    def test_all_steps_loaded(self, caplog) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            step2.name: 1,
+            step3.name: 1,
+        }
+        caplog.set_level(logging.INFO)
+
+        assert pipeline._all_steps_loaded() is True
+        assert "All the steps have been loaded!" in caplog.text
+
+    def test_all_steps_loaded_with_failing_step(self, caplog) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._init_steps_load_status()
+        pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
+        caplog.set_level(logging.INFO)
+
+        assert pipeline._all_steps_loaded() is False
+        assert "Failed to load all the steps" in caplog.text
+
+    def test_all_steps_loaded_stop_aclled(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._init_steps_load_status()
+        pipeline._stop_called = True
+
+        assert pipeline._all_steps_loaded() is False
+
     def test_is_convergence_step(self) -> None:
         sample_two_steps = sample_n_steps(2)
 
@@ -288,12 +364,6 @@ class TestBasePipeline:
                 mock.call(step_batch),
             ]
         )
-
-    def test_send_to_step(self) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._output_queue = Queue()
-        pipeline._output_queue.put("Hello!")
-        assert pipeline._get_from_step() == "Hello!"
 
     def test_send_batch_to_step(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
