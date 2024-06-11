@@ -56,6 +56,30 @@ class PushToHub(GlobalStep):
         - save
         - dataset
         - huggingface
+
+    Examples:
+
+        Push batches of your dataset to the Hugging Face Hub repository:
+
+        ```python
+        from distilabel.steps import PushToHub
+
+        push = PushToHub(repo_id="path_to/repo")
+        push.load()
+
+        result = next(
+            push.process(
+                [
+                    {
+                        "instruction": "instruction ",
+                        "generation": "generation"
+                    }
+                ],
+            )
+        )
+        # >>> result
+        # [{'instruction': 'instruction ', 'generation': 'generation'}]
+        ```
     """
 
     repo_id: RuntimeParameter[str] = Field(

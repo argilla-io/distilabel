@@ -65,7 +65,7 @@ class CombineColumns(Step):
         # [{'merged_generation': ['AI generated text', 'Other generated text'], 'merged_model_name': ['my_model']}]
         ```
 
-        Pass the name of the output columns:
+        Specify the name of the output columns:
 
         ```python
         from distilabel.steps import CombineColumns
