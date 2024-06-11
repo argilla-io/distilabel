@@ -90,8 +90,7 @@ class Distiset(dict):
         if token is None:
             from huggingface_hub import constants
 
-            if token := os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME):
-                pass
+            token = os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME):
             if token is None:
                 if not Path(constants.HF_TOKEN_PATH).exists():
                     raise ValueError(
