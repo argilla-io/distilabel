@@ -397,6 +397,41 @@ class TestBasePipeline:
                 gen_step.connect(DummyStep1())
         assert list(pipe.dag.G)[-1] == "dummy_step1_49"
 
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["pandas", "numpy"], ["numpy", "pandas"]),
+            (["*`wrong", "pandas>1.0"], ["pandas>1.0"]),
+            (["pandas", "pandas", "pandas"], ["pandas"]),
+        ],
+    )
+    def test_requirements(self, requirements: List[str], expected: List[str]) -> None:
+        with BasePipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements == expected
+
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel"], []),
+            (["distilabel", "yfinance"], ["yfinance"]),
+            (
+                ["distilabel>=3000", "yfinance==1.0.0"],
+                ["distilabel>=3000", "yfinance==1.0.0"],
+            ),
+        ],
+    )
+    def test_requirements_to_install(
+        self, requirements: List[str], expected: List[str]
+    ) -> None:
+        with BasePipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements_to_install() == expected
+
 
 class TestBatch:
     def test_get_data(self) -> None:

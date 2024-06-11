@@ -14,6 +14,7 @@
 
 import copy
 import hashlib
+import importlib.util
 import logging
 import os
 from collections import defaultdict
@@ -35,6 +36,7 @@ from typing import (
 import fsspec
 import pyarrow as pa
 import pyarrow.parquet as pq
+from packaging.requirements import InvalidRequirement, Requirement
 from typing_extensions import Self
 from upath import UPath
 
@@ -150,6 +152,7 @@ class BasePipeline(_Serializable):
         description: Optional[str] = None,
         cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
+        requirements: Optional[List[str]] = None,
     ) -> None:
         """Initialize the `BasePipeline` instance.
 
@@ -161,6 +164,9 @@ class BasePipeline(_Serializable):
                 in the final `Distiset`. It contains metadata used by distilabel, for example
                 the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
                 field. Defaults to `False`.
+            requirements: List of requirements that must be installed to run the Pipeline.
+                Defaults to `None`, but can be helpful to inform in a pipeline to be shared
+                that this requirements must be installed.
         """
         self.name = name
         self.description = description
@@ -186,6 +192,8 @@ class BasePipeline(_Serializable):
         self._storage_base_path: Optional[str] = None
         self._use_fs_to_pass_data: bool = False
         self._dry_run: bool = False
+        self._requirements = []
+        self.requirements = requirements or []
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -603,6 +611,47 @@ class BasePipeline(_Serializable):
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
+
+    @property
+    def requirements(self) -> List[str]:
+        """Return a list of requirements that must be installed to run the `Pipeline`.
+
+        Returns:
+            List of requirements that must be installed to run the `Pipeline`, sorted alphabetically.
+        """
+        return self._requirements
+
+    @requirements.setter
+    def requirements(self, _requirements: List[str]) -> None:
+        requirements = []
+        for r in _requirements:
+            try:
+                Requirement(r)
+                requirements.append(r)
+            except InvalidRequirement:
+                self._logger.warning(f"Invalid requirement: `{r}`")
+
+        self._requirements = sorted(set(self.requirements).union(set(requirements)))
+
+    def requirements_to_install(self) -> Optional[List[str]]:
+        """Check if the requirements are installed in the current environment,
+        and returns the ones that aren't.
+        """
+        from importlib.metadata import version
+
+        from packaging.requirements import Requirement
+
+        to_install = []
+        for requirement in self.requirements:
+            parsed_req = Requirement(requirement)
+            if importlib.util.find_spec(parsed_req.name):
+                if (str(parsed_req.specifier) != "") and (
+                    version(parsed_req.name) != str(parsed_req.specifier)
+                ):
+                    to_install.append(requirement)
+            else:
+                to_install.append(requirement)
+        return to_install
 
 
 @dataclass
