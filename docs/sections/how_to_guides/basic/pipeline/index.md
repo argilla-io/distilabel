@@ -384,7 +384,7 @@ To load the pipeline, we can use the `from_yaml` or `from_json` methods:
 pipeline = Pipeline.from_yaml("pipeline.yaml")
 ```
 
-Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the [CLI](../cli/index.md) knowing the URL of the pipeline.
+Serializing the pipeline is very useful when we want to share the pipeline with others, or when we want to store the pipeline for future use. It can even be hosted online, so the pipeline can be executed directly using the [CLI](../../advanced/cli/index.md) knowing the URL of the pipeline.
 
 ## Fully working example
 

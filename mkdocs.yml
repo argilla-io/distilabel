@@ -141,22 +141,22 @@ nav:
     - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
     - Basic:
-      - Define Steps as nodes in your DAG pipeline:
+      - Define Steps as nodes in a Pipeline:
         - "sections/how_to_guides/basic/step/index.md"
         - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
         - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
       - Define Tasks as Steps that rely on LLMs:
         - "sections/how_to_guides/basic/task/index.md"
         - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-      - Define LLMs as prompt executors: "sections/how_to_guides/basic/llm/index.md"
+      - Define LLMs as prompt executors in Tasks: "sections/how_to_guides/basic/llm/index.md"
       - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
     - Advanced:
+        - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
         - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+        - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
         - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
         - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
-        - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
         - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
-        - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
   - Pipeline Samples:
     - "sections/pipeline_samples/index.md"
     - Examples: "sections/pipeline_samples/examples/index.md"
