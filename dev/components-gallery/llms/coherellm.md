@@ -44,4 +44,22 @@ Cohere API implementation using the async client for concurrent text generation.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import CohereLLM
+
+llm = CohereLLM(model="CohereForAI/c4ai-command-r-plus")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+Generate structured data:
+```
+
+
 

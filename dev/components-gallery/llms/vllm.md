@@ -52,4 +52,45 @@
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import vLLM
+
+# You can pass a custom chat_template to the model
+llm = vLLM(
+    model="prometheus-eval/prometheus-7b-v2.0",
+    chat_template="[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]",
+)
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+```
+
+#### Generate structured data
+```python
+from pathlib import Path
+from distilabel.llms import vLLM
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+
+llm = vLLM(
+    model="prometheus-eval/prometheus-7b-v2.0"
+    structured_output={"format": "json", "schema": Character},
+)
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+```
+
+
 

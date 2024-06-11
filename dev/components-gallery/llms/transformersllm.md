@@ -41,4 +41,20 @@ pipeline.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import TransformersLLM
+
+llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+```
+
+
 

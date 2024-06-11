@@ -46,4 +46,22 @@ Mistral LLM implementation running the async API client.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import MistralLLM
+
+llm = MistralLLM(model="open-mixtral-8x22b")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+Generate structured data:
+```
+
+
 

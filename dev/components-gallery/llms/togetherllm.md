@@ -25,4 +25,23 @@ TogetherLLM LLM implementation running the async API client of OpenAI.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import AnyscaleLLM
+
+llm = TogetherLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key")
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+```
+
+
 

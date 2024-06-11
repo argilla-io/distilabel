@@ -46,4 +46,48 @@ Anthropic LLM implementation running the Async API client.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import AnthropicLLM
+
+llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+```
+
+#### Generate structured data
+```python
+from pydantic import BaseModel
+from distilabel.llms import AnthropicLLM
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+
+llm = AnthropicLLM(
+    model="claude-3-opus-20240229",
+    api_key="api.key",
+    structured_output={"schema": User}
+)
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+```
+
+
 

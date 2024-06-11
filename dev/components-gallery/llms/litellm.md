@@ -28,4 +28,22 @@ LiteLLM implementation running the async API client.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import LiteLLM
+
+llm = LiteLLM(model="gpt-3.5-turbo")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+Generate structured data:
+```
+
+
 

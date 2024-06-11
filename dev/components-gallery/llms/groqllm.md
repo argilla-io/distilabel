@@ -44,4 +44,22 @@ Groq API implementation using the async client for concurrent text generation.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import GroqLLM
+
+llm = GroqLLM(model="llama3-70b-8192")
+
+llm.load()
+
+# Call the model
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+Generate structured data:
+```
+
+
 

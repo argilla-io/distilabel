@@ -40,4 +40,66 @@ OpenAI LLM implementation running the async API client.
 
 
 
+### Examples
+
+
+#### Generate text
+```python
+from distilabel.llms import OpenAILLM
+
+llm = OpenAILLM(model="gpt-4-turbo", api_key="api.key")
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+```
+
+#### Generate text from a custom endpoint following the OpenAI API
+```python
+from distilabel.llms import OpenAILLM
+
+llm = OpenAILLM(
+    model="prometheus-eval/prometheus-7b-v2.0",
+    base_url=r"http://localhost:8080/v1"
+)
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+```
+
+#### Generate structured data
+```python
+from pydantic import BaseModel
+from distilabel.llms import OpenAILLM
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+
+llm = OpenAILLM(
+    model="gpt-4-turbo",
+    api_key="api.key",
+    structured_output={"schema": User}
+)
+
+llm.load()
+
+# Synchronous request
+output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+# Asynchronous request
+output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+```
+
+
 
