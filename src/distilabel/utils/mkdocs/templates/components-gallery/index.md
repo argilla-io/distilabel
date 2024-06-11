@@ -1,8 +1,8 @@
 ---
 hide:
+  - navigation
   - toc
 ---
-
 # Components Gallery
 
 <div class="grid cards" markdown>
