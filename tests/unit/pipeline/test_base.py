@@ -33,6 +33,7 @@ from distilabel.pipeline.base import (
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GlobalStep, Step, StepInput
 from distilabel.steps.typing import StepOutput
+from distilabel.utils.requirements import add_requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
@@ -431,6 +432,36 @@ class TestBasePipeline:
             name="unit-test-pipeline", requirements=requirements
         ) as pipeline:
             assert pipeline.requirements_to_install() == expected
+
+    def test_pipeline_error_from_requirements(self):
+        @add_requirements(["distilabel>=0.0.1"])
+        class CustomStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+                for input in inputs:
+                    input["response"] = "unit test"
+                yield inputs
+
+        with pytest.raises(
+            ValueError,
+            match=r"Please install the following requirements to run the pipeline:\ndistilabel>=0.0.1\nrandom_requirement",
+        ):
+            with BasePipeline(
+                name="unit-test-pipeline", requirements=["random_requirement"]
+            ) as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                step2 = CustomStep()
+
+                gen_step >> step1_0 >> step2
+            pipeline.run()
 
 
 class TestBatch:
