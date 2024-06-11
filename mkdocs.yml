@@ -140,9 +140,7 @@ nav:
     - Quickstart: "sections/getting_started/quickstart.md"
     - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
-    - "sections/how_to_guides/index.md"
     - Basic:
-      - "sections/how_to_guides/basic/index.md"
       - Define Steps as nodes in your DAG pipeline:
         - "sections/how_to_guides/basic/step/index.md"
         - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
@@ -153,7 +151,6 @@ nav:
       - Define LLMs as prompt executors: "sections/how_to_guides/basic/llm/index.md"
       - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
     - Advanced:
-        - "sections/how_to_guides/advanced/index.md"
         - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
         - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
         - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
