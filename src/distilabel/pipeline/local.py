@@ -168,52 +168,6 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    def _run_output_queue_loop_in_thread(self) -> threading.Thread:
-        """Runs the output queue loop in a separate thread to receive the output batches
-        from the steps. This is done to avoid the signal handler to block the loop, which
-        would prevent the pipeline from stopping correctly."""
-        thread = threading.Thread(target=self._output_queue_loop)
-        thread.start()
-        return thread
-
-    def _output_queue_loop(self) -> None:
-        """Loop to receive the output batches from the steps and manage the flow of the
-        batches through the pipeline."""
-        while self._batch_manager.can_generate() and not self._stop_called:  # type: ignore
-            self._logger.debug("Waiting for output batch from step...")
-            if (batch := self._output_queue.get()) is None:
-                self._logger.debug("Received `None` from output queue. Breaking loop.")
-                break
-
-            self._logger.debug(
-                f"Received batch with seq_no {batch.seq_no} from step '{batch.step_name}'"
-                f" from output queue: {batch}"
-            )
-
-            if batch.data_path:
-                self._logger.debug(
-                    f"Reading {batch.seq_no} batch data from '{batch.step_name}': '{batch.data_path}'"
-                )
-                batch.read_batch_data_from_fs()
-
-            if batch.step_name in self.dag.leaf_steps:
-                self._write_buffer.add_batch(batch)  # type: ignore
-
-            # If `_stop_called` was set to `True` while waiting for the output queue, then
-            # we need to handle the stop of the pipeline and break the loop to avoid
-            # propagating the batches through the pipeline and making the stop process
-            # slower.
-            if self._stop_called:
-                self._handle_batch_on_stop(batch)
-                break
-
-            self._manage_batch_flow(batch)
-
-        if self._stop_called:
-            self._handle_stop()
-
-        self._cache()
-
     # TODO: remove this, we don't need it. We can use a file per node to keep what steps
     # are using what GPUs
     def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
