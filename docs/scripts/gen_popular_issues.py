@@ -23,7 +23,7 @@ import mkdocs_gen_files
 REPOSITORY = "argilla-io/distilabel"
 DATA_PATH = "sections/community/popular_issues.md"
 
-GITHUB_ACCESS_TOKEN = os.environ["GITHUB_ACCESS_TOKEN"]
+GITHUB_ACCESS_TOKEN = os.environ["GH_ACCESS_TOKEN"]
 
 
 def fetch_data_from_github(repository, auth_token):
