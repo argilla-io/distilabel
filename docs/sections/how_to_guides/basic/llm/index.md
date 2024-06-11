@@ -1,11 +1,8 @@
 # Define LLMs as local models or remote APIs
 
-
-
 ## Working with LLMs
 
 LLM subclasses are designed to be used within a [Task][distilabel.steps.tasks.Task], but can also function standalone.
-
 
 ```python
 from distilabel.llms import OpenAILLM
