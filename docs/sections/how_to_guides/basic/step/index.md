@@ -1,4 +1,4 @@
-# Step
+# Define Steps as nodes in a Pipeline
 
 The [`Step`][distilabel.steps.Step] is an abstract class which defines the interface for the building blocks to be defined within the context of a [`Pipeline`][distilabel.pipeline.Pipeline], a [`Step`][distilabel.steps.Step] can be seen as a node within a Direct Acyclic Graph (DAG) which execution is orchestrated by the [`Pipeline`][distilabel.pipeline.Pipeline].
 

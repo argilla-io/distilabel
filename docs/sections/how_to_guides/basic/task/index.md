@@ -1,4 +1,4 @@
-# Task
+# Define Tasks as Steps that rely on LLMs
 
 The [`Task`][distilabel.steps.tasks.Task] is an implementation on top of [`Step`][distilabel.steps.Step] that includes the [`LLM`][distilabel.llms.LLM] as a mandatory argument, so that the [`Task`][distilabel.steps.tasks.Task] defines both the input and output format via the `format_input` and `format_output` abstract methods, respectively; and calls the [`LLM`][distilabel.llms.LLM] to generate the text. We can see the [`Task`][distilabel.steps.tasks.Task] as an [`LLM`][distilabel.llms.LLM] powered [`Step`][distilabel.steps.Step].
 

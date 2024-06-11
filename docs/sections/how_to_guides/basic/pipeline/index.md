@@ -1,4 +1,4 @@
-# Pipeline
+# Execute Steps and Tasks in a Pipeline
 
 The [`Pipeline`][distilabel.pipeline.Pipeline] is the central point in `distilabel`, the way to organize the steps to create your datasets. Up to this point we've seen how we can define different [`Step`][distilabel.steps.Step] and [`Task`][distilabel.steps.tasks.Task] subclasses in [Tutorial - Step](../step/index.md) and [Tutorial - Task](../task/index.md), respectively; which together with an [`LLM`][distilabel.llms.LLM] are the building blocks of our datasets, in this section we will take a look at how all these blocks are organized inside a [`Pipeline`][distilabel.pipeline.Pipeline].
 
