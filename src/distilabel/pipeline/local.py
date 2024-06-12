@@ -372,10 +372,6 @@ class _ProcessWrapper:
             and hasattr(self.step, "llm")
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
-            self.step._logger.debug(
-                f"Setting `CudaDevicePlacementMixin` LLM identifier for task '{self.step.name}'"
-                f" to '{self.step.name}'"
-            )
             self.step.llm._llm_identifier = self.step.name
 
     def run(self) -> str:
