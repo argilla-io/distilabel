@@ -58,5 +58,30 @@ graph TD
 
 
 
+### Examples
+
+
+#### Create a conversation from an instruction and a response
+```python
+from distilabel.steps import ConversationTemplate
+
+conv_template = ConversationTemplate()
+conv_template.load()
+
+result = next(
+    conv_template.process(
+        [
+            {
+                "instruction": "Hello",
+                "response": "Hi",
+            }
+        ],
+    )
+)
+# >>> result
+# [{'instruction': 'Hello', 'response': 'Hi', 'conversation': [{'role': 'user', 'content': 'Hello'}, {'role': 'assistant', 'content': 'Hi'}]}]
+```
+
+
 
 

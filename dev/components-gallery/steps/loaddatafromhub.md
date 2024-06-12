@@ -71,5 +71,26 @@ graph TD
 
 
 
+### Examples
+
+
+#### Load data from a dataset in Hugging Face Hub
+```python
+from distilabel.steps import LoadDataFromHub
+
+loader = LoadDataFromHub(
+    repo_id="distilabel-internal-testing/instruction-dataset-mini",
+    split="test",
+    batch_size=2
+)
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'prompt': 'Arianna has 12...', False)
+```
+
+
 
 

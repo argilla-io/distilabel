@@ -71,5 +71,56 @@ graph TD
 
 
 
+### Examples
+
+
+#### Load data from a Hugging Face Dataset
+```python
+from distilabel.steps import LoadDataFromDisk
+
+loader = LoadDataFromDisk(dataset_path="path/to/dataset")
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
+#### Load data from a distilabel Distiset
+```python
+from distilabel.steps import LoadDataFromDisk
+
+# Specify the configuration to load.
+loader = LoadDataFromDisk(
+    dataset_path="path/to/dataset",
+    is_distiset=True,
+    config="leaf_step_1"
+)
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'a': 1}, {'a': 2}, {'a': 3}], True)
+```
+
+#### Load data from a Hugging Face Dataset or Distiset in your cloud provider
+```python
+from distilabel.steps import LoadDataFromDisk
+
+loader = LoadDataFromDisk(
+    dataset_path="gcs://path/to/dataset",
+    storage_options={"project": "experiments-0001"}
+)
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
+
 
 

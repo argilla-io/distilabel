@@ -2361,6 +2361,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter the dataset based on the DEITA score and the cosine distance between the embeddings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       References
@@ -2462,6 +2486,38 @@
 <p><strong>nearest_neighbor_distance</strong> (<code>float</code>): The cosine distance between the embeddings  of the instruction-response pair.</p>
 </li>
 </ul>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<h4 id="filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings">Filter the dataset based on the DEITA score and the cosine distance between the embeddings<a class="headerlink" href="#filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">DeitaFiltering</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">deita_filtering</span> <span class="o">=</span> <span class="n">DeitaFiltering</span><span class="p">(</span><span class="n">data_budget</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">deita_filtering</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">deita_filtering</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="p">[</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="p">{</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">8.12729941</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.24642847</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.34003029</span><span class="p">],</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            <span class="p">},</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            <span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.99329242</span><span class="p">,</span> <span class="mf">0.7800932</span><span class="p">,</span> <span class="mf">0.7799726</span><span class="p">],</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="p">},</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="p">{</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.29041806</span><span class="p">,</span> <span class="mf">14.33088073</span><span class="p">,</span> <span class="mf">13.00557506</span><span class="p">],</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>            <span class="p">},</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="p">],</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="p">)</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># &gt;&gt;&gt; result</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1"># [{&#39;evol_instruction_score&#39;: 0.5, &#39;evol_response_score&#39;: 0.5, &#39;embedding&#39;: [-8.12729941, -5.24642847, -6.34003029], &#39;deita_score&#39;: 0.25, &#39;deita_score_computed_with&#39;: [&#39;evol_instruction_score&#39;, &#39;evol_response_score&#39;], &#39;nearest_neighbor_distance&#39;: 1.9042812683723933}]</span>
+</span></code></pre></div>
 <h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://arxiv.org/abs/2312.15685">What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning</a></li>

@@ -69,5 +69,27 @@ graph TD
 
 
 
+### Examples
+
+
+#### Select the columns to keep
+```python
+from distilabel.steps import KeepColumns
+
+keep_columns = KeepColumns(
+    columns=["instruction", "generation"],
+)
+keep_columns.load()
+
+result = next(
+    keep_columns.process(
+        [{"instruction": "What's the brightest color?", "generation": "white", "model_name": "my_model"}],
+    )
+)
+# >>> result
+# [{'instruction': "What's the brightest color?", 'generation': 'white'}]
+```
+
+
 
 

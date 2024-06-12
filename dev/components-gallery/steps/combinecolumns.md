@@ -66,5 +66,50 @@ graph TD
 
 
 
+### Examples
+
+
+#### Combine columns of a dataset
+```python
+from distilabel.steps import CombineColumns
+
+combine_columns = CombineColumns(
+    name="combine_columns",
+    columns=["generation", "model_name"],
+)
+combine_columns.load()
+
+result = next(
+    combine_columns.process(
+        [{"generation": "AI generated text"}, {"model_name": "my_model"}],
+        [{"generation": "Other generated text", "model_name": "my_model"}]
+    )
+)
+# >>> result
+# [{'merged_generation': ['AI generated text', 'Other generated text'], 'merged_model_name': ['my_model']}]
+```
+
+#### Specify the name of the output columns
+```python
+from distilabel.steps import CombineColumns
+
+combine_columns = CombineColumns(
+    name="combine_columns",
+    columns=["generation", "model_name"],
+    output_columns=["generations", "generation_models"]
+)
+combine_columns.load()
+
+result = next(
+    combine_columns.process(
+        [{"generation": "AI generated text"}, {"model_name": "my_model"}],
+        [{"generation": "Other generated text", "model_name": "my_model"}]
+    )
+)
+# >>> result
+#[{'generations': ['AI generated text', 'Other generated text'], 'generation_models': ['my_model']}]
+```
+
+
 
 

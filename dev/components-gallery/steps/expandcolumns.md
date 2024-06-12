@@ -63,5 +63,31 @@ graph TD
 
 
 
+### Examples
+
+
+#### Expand the selected columns into multiple rows
+```python
+from distilabel.steps import ExpandColumns
+
+expand_columns = ExpandColumns(
+    columns=["generation"],
+)
+expand_columns.load()
+
+result = next(
+    expand_columns.process(
+        [
+            {
+                "instruction": "instruction 1",
+                "generation": ["generation 1", "generation 2"]}
+        ],
+    )
+)
+# >>> result
+# [{'instruction': 'instruction 1', 'generation': 'generation 1'}, {'instruction': 'instruction 1', 'generation': 'generation 2'}]
+```
+
+
 
 

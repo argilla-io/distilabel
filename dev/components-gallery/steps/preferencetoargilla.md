@@ -86,5 +86,61 @@ graph TD
 
 
 
+### Examples
+
+
+#### Push a preference dataset to an Argilla instance
+```python
+from distilabel.steps import PreferenceToArgilla
+
+to_argilla = PreferenceToArgilla(
+    num_generations=2,
+    api_url="https://dibt-demo-argilla-space.hf.space/",
+    api_key="api.key",
+    dataset_name="argilla_dataset",
+    dataset_workspace="my_workspace",
+)
+to_argilla.load()
+
+result = next(
+    to_argilla.process(
+        [
+            {
+                "instruction": "instruction",
+                "generations": ["first_generation", "second_generation"],
+            }
+        ],
+    )
+)
+# >>> result
+# [{'instruction': 'instruction', 'generations': ['first_generation', 'second_generation']}]
+```
+
+#### It can also include ratings and rationales
+```python
+result = next(
+    to_argilla.process(
+        [
+            {
+                "instruction": "instruction",
+                "generations": ["first_generation", "second_generation"],
+                "ratings": ["4", "5"],
+                "rationales": ["rationale for 4", "rationale for 5"],
+            }
+        ],
+    )
+)
+# >>> result
+# [
+#     {
+#         'instruction': 'instruction',
+#         'generations': ['first_generation', 'second_generation'],
+#         'ratings': ['4', '5'],
+#         'rationales': ['rationale for 4', 'rationale for 5']
+#     }
+# ]
+```
+
+
 
 

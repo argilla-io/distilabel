@@ -70,5 +70,51 @@ graph TD
 
 
 
+### Examples
+
+
+#### Load data from a Hugging Face dataset in your file system
+```python
+from distilabel.steps import LoadDataFromFileSystem
+
+loader = LoadDataFromFileSystem(data_files="path/to/dataset.jsonl")
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
+#### Specify a filetype if the file extension is not expected
+```python
+from distilabel.steps import LoadDataFromFileSystem
+
+loader = LoadDataFromFileSystem(filetype="csv", data_files="path/to/dataset.txtr")
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
+#### Load data from a file in your cloud provider
+```python
+from distilabel.steps import LoadDataFromFileSystem
+
+loader = LoadDataFromFileSystem(
+    data_files="gcs://path/to/dataset",
+    storage_options={"project": "experiments-0001"}
+)
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
+
 
 
