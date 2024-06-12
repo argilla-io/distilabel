@@ -1,6 +1,6 @@
 # Cache and recover pipeline executions
 
-Distilabel `Pipelines` automatically save all the intermediate steps to to avoid losing any data in case of error.
+Distilabel `Pipelines` automatically save all the intermediate steps to avoid losing any data in case of error.
 
 ## Cache directory
 
