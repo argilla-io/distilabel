@@ -303,6 +303,12 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """
         self._logger = logging.getLogger(f"distilabel.step.{self.name}")
 
+    def unload(self) -> None:
+        """Method to perform any cleanup logic after the `process` method is called. For
+        example, to close a connection to a database, etc.
+        """
+        pass
+
     @property
     def is_generator(self) -> bool:
         """Whether the step is a generator step or not.

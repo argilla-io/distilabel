@@ -64,9 +64,14 @@ class _Task(_Step, ABC):
     )
 
     def load(self) -> None:
-        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
+        """Loads the LLM via the `LLM.load()` method."""
         super().load()
         self.llm.load()
+
+    def unload(self) -> None:
+        """Unloads the LLM."""
+        self.llm.unload()
+        super().unload()
 
     @abstractmethod
     def format_output(

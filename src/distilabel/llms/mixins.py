@@ -14,11 +14,17 @@
 
 import json
 import os
+import tempfile
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Dict, Generator, List, Literal, Union
 
 import portalocker
 from pydantic import BaseModel, Field, PrivateAttr
+
+_CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
+    Path(tempfile.gettempdir()) / "distilabel_cuda_device_placement_mixin.json"
+)
 
 
 class CudaDevicePlacementMixin(BaseModel):
@@ -72,6 +78,13 @@ class CudaDevicePlacementMixin(BaseModel):
 
         self._assign_cuda_devices()
 
+    def unload(self) -> None:
+        """Unloads the LLM and removes the CUDA devices assigned to it from the device
+        placement information provided in `_device_llm_placement_map`."""
+        with self._device_llm_placement_map() as device_map:
+            if self._llm_identifier in device_map:
+                del device_map[self._llm_identifier]
+
     @contextmanager
     def _device_llm_placement_map(self) -> Generator[Dict[str, List[int]], None, None]:
         """Reads the content of the device placement file of the node with a lock, yields
@@ -81,20 +94,20 @@ class CudaDevicePlacementMixin(BaseModel):
         Yields:
             The content of the device placement file.
         """
-        content = {}
-        try:
-            file = "file.json"
-            with open(file, "r+") as f:
-                portalocker.lock(f, portalocker.LOCK_EX)
-                if os.path.exists(file):
-                    content = json.load(f)
-                yield content
-                f.seek(0)
-                f.truncate()
-                f.write(json.dumps(content))
-        finally:
-            if "f" in locals() and not f.closed:  # type: ignore
-                f.close()  # type: ignore
+        _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.touch()
+        with portalocker.Lock(
+            _CUDA_DEVICE_PLACEMENT_MIXIN_FILE,
+            "r+",
+            flags=portalocker.LockFlags.EXCLUSIVE,
+        ) as f:
+            try:
+                content = json.load(f)
+            except json.JSONDecodeError:
+                content = {}
+            yield content
+            f.seek(0)
+            f.truncate()
+            f.write(json.dumps(content))
 
     def _assign_cuda_devices(self) -> None:
         """Assigns CUDA devices to the LLM based on the device placement information provided

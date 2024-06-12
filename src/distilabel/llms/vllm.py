@@ -148,6 +148,11 @@ class vLLM(LLM, CudaDevicePlacementMixin):
                 self.structured_output
             )
 
+    def unload(self) -> None:
+        """Unloads the `vLLM` model."""
+        CudaDevicePlacementMixin.unload(self)
+        super().unload()
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
