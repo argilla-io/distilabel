@@ -59,6 +59,43 @@ class QualityScorer(Task):
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
+
+    Examples:
+
+        Evaluate the quality of your instructions:
+
+        ```python
+        from distilabel.steps.tasks import QualityScorer
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        scorer = QualityScorer(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            )
+        )
+
+        scorer.load()
+
+        result = next(
+            scorer.process(
+                [
+                    {
+                        "instruction": "instruction",
+                        "responses": ["good response", "weird response", "bad response"]
+                    }
+                ]
+            )
+        )
+        # result
+        [
+            {
+                'instructions': 'instruction',
+                'model_name': 'test',
+                'scores': [5, 3, 1],
+            }
+        ]
+        ```
     """
 
     _template: Union[Template, None] = PrivateAttr(...)

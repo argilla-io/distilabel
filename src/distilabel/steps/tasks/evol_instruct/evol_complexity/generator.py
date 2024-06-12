@@ -59,6 +59,29 @@ class EvolComplexityGenerator(EvolInstructGenerator):
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
+
+    Examples:
+
+        Generate evolved instructions without initial instructions:
+
+        ```python
+        from distilabel.steps.tasks import EvolComplexityGenerator
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        evol_complexity_generator = EvolComplexityGenerator(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            ),
+            num_instructions=2,
+        )
+
+        evol_complexity_generator.load()
+
+        result = next(scorer.process())
+        # result
+        # [{'instruction': 'generated instruction', 'model_name': 'test'}]
+        ```
     """
 
     mutation_templates: Dict[str, str] = GENERATION_MUTATION_TEMPLATES
