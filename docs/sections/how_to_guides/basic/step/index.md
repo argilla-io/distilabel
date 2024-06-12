@@ -115,7 +115,7 @@ We can define a custom step by creating a new subclass of the [`Step`][distilabe
 
 === "Using the `@step` decorator"
 
-    Alternatively, a simpler and more suitable way of defining custom [`Step`][distilabel.steps.Step] subclasses is via the `@step` decorator, which will take care of the boilerplate code, and will allow to define the `inputs`, `outputs`, and `process` methods in a more straightforward way. One downside is that it won't let you access the `self` attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom [`Step`][distilabel.steps.Step] subclass.
+    The `@step` decorator will take care of the boilerplate code, and will allow to define the `inputs`, `outputs`, and `process` methods in a more straightforward way. One downside is that it won't let you access the `self` attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom [`Step`][distilabel.steps.Step] subclass.
 
 
     ```python

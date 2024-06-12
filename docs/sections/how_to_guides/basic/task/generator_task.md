@@ -66,7 +66,7 @@ next(task.process())
 
 ## Defining custom GeneratorTasks
 
-We can define a custom step by creating a new subclass of the [`GeneratorTask`][distilabel.steps.tasks.Task] and defining the following:
+We can define a custom generator task by creating a new subclass of the [`GeneratorTask`][distilabel.steps.tasks.Task] and defining the following:
 
 - `process`: is a method that generates the data based on the [`LLM`][distilabel.llms.LLM] and the `instruction` provided within the class instance, and returns a dictionary with the output data formatted as needed i.e. with the values for the columns in `outputs`. Note that the `inputs` argument is not allowed in this function since this is a [`GeneratorTask`][distilabel.steps.tasks.GeneratorTask]. The signature only expects the `offset` argument, which is used to keep track of the current iteration in the generator.
 
