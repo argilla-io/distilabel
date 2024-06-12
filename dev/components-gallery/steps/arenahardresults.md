@@ -1,0 +1,93 @@
+# ArenaHardResults
+
+
+This `Step` is based on the "From Live Data to High-Quality Benchmarks: The
+
+
+
+Arena-Hard Pipeline" paper that presents Arena Hard, which is a benchmark for
+    instruction-tuned LLMs that contains 500 challenging user queries. This step is
+    a `GlobalStep` that should run right after the `ArenaHard` task to calculate the
+    ELO scores for the evaluated models.
+
+
+
+### Note
+Arena-Hard-Auto has the highest correlation and separability to Chatbot Arena
+among popular open-ended LLM benchmarks.
+
+
+
+
+
+
+### Input & Output Columns
+
+``` mermaid
+graph TD
+	subgraph Dataset
+	end
+
+	subgraph ArenaHardResults
+	end
+
+
+```
+
+
+
+
+
+
+
+### Examples
+
+
+#### comparison between both using Arean Hard prompts
+```python
+from distilabel.pipeline import Pipeline
+from distilabel.steps import CombineColumns, LoadDataFromDicts
+from distilabel.steps.tasks import ArenaHard, TextGeneration
+
+with Pipeline() as pipeline:
+    load_data = LoadDataFromDicts(
+        data=[{"instruction": "What is the capital of France?"}],
+    )
+
+    text_generation_a = TextGeneration(
+        llm=...,  # LLM instance
+        output_mappings={"model_name": "generation_model"},
+    )
+
+    text_generation_b = TextGeneration(
+        llm=...,  # LLM instance
+        output_mappings={"model_name": "generation_model"},
+    )
+
+    combine = CombineColumns(
+        columns=["generation", "generation_model"],
+        output_columns=["generations", "generation_models"],
+    )
+
+    arena_hard = ArenaHard(
+        llm=...,  # LLM instance
+    )
+
+    arena_hard_results = ArenaHardResults(
+        custom_model_column="generation_models",
+        custom_weights={"A>B": 1, "A>>B": 3, "B>A": 1, "B>>A": 3},
+    )
+
+    load_data >> [text_generation_a, text_generation_b] >> combine >> arena_hard >> arena_hard_results
+```
+
+
+
+
+### References
+
+- [From Live Data to High-Quality Benchmarks: The Arena-Hard Pipeline](https://lmsys.org/blog/2024-04-19-arena-hard/)
+
+- [arena-hard-auto](https://github.com/lm-sys/arena-hard-auto/tree/main)
+
+

@@ -26,6 +26,14 @@ hide:
 
     [:octicons-arrow-right-24: PushToHub](pushtohub.md){ .bottom }
 
+-   :material-step-forward:{ .lg .middle } __ArenaHardResults__
+
+    ---
+
+    This `Step` is based on the "From Live Data to High-Quality Benchmarks: The
+
+    [:octicons-arrow-right-24: ArenaHardResults](arenahardresults.md){ .bottom }
+
 -   :material-step-forward:{ .lg .middle } __PreferenceToArgilla__
 
     ---

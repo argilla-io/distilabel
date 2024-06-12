@@ -10,6 +10,14 @@ hide:
 <div class="grid cards" markdown>
 
 
+-   :material-check-outline:{ .lg .middle } __ArenaHard__
+
+    ---
+
+    This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
+
+    [:octicons-arrow-right-24: ArenaHard](arenahard.md){ .bottom }
+
 -   :octicons-number-16:{ .lg .middle } __ComplexityScorer__
 
     ---

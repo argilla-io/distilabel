@@ -536,6 +536,16 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/benchmarks/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/benchmarks/arena_hard/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/steps/tasks/evol_instruct/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
@@ -846,6 +856,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/arenahardresults/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/preferencetoargilla/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
@@ -922,6 +937,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/arenahard/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
