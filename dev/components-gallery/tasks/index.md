@@ -50,6 +50,38 @@ hide:
 
     [:octicons-arrow-right-24: Genstruct](genstruct.md){ .bottom }
 
+-   :material-check-outline:{ .lg .middle } __GenerateTextRetrievalData__
+
+    ---
+
+    Generate text retrieval data with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: GenerateTextRetrievalData](generatetextretrievaldata.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __GenerateShortTextMatchingData__
+
+    ---
+
+    Generate short text matching data with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: GenerateShortTextMatchingData](generateshorttextmatchingdata.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __GenerateLongTextMatchingData__
+
+    ---
+
+    Generate long text matching data with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: GenerateLongTextMatchingData](generatelongtextmatchingdata.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __GenerateTextClassificationData__
+
+    ---
+
+    Generate text classification data with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: GenerateTextClassificationData](generatetextclassificationdata.md){ .bottom }
+
 -   :material-comment-edit:{ .lg .middle } __InstructionBacktranslation__
 
     ---
@@ -137,6 +169,30 @@ hide:
     Generate evolved instructions with increased complexity using an `LLM`.
 
     [:octicons-arrow-right-24: EvolComplexityGenerator](evolcomplexitygenerator.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __MonolingualTripletGenerator__
+
+    ---
+
+    Generate monolingual triplets with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: MonolingualTripletGenerator](monolingualtripletgenerator.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __BitextRetrievalGenerator__
+
+    ---
+
+    Generate bitext retrieval data with an `LLM` to later on train an embedding model.
+
+    [:octicons-arrow-right-24: BitextRetrievalGenerator](bitextretrievalgenerator.md){ .bottom }
+
+-   :material-check-outline:{ .lg .middle } __EmbeddingTaskGenerator__
+
+    ---
+
+    Generate task descriptions for embedding-related tasks using an `LLM`.
+
+    [:octicons-arrow-right-24: EmbeddingTaskGenerator](embeddingtaskgenerator.md){ .bottom }
 
 -   :material-poll:{ .lg .middle } __PairRM__
 
