@@ -2,8 +2,8 @@
 
 ## How to create a pipeline
 
-[`Pipeline`][distilabel.pipeline.Pipeline] organise the steps and tasks in a sequence, where the output of one step is the input of the next one.
-A [`Pipeline`][distilabel.pipeline.Pipeline] should be created by making use of the context manager along with passing a **name**, and optionally a **description**, and that's it[^1]:
+[`Pipeline`][distilabel.pipeline.Pipeline] organise the Steps and Tasks in a sequence, where the output of one step is the input of the next one.
+A [`Pipeline`][distilabel.pipeline.Pipeline] should be created by making use of the context manager along with passing a **name**, and optionally a **description**.
 
 ```python
 from distilabel.pipeline import Pipeline
@@ -13,8 +13,6 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
 ```
 
 ### Connecting steps with the `Step.connect` method
-
-This way, we ensure all the steps we define there are connected with each other under the same [`Pipeline`][distilabel.pipeline.Pipeline]. The next step is to define the steps of our [`Pipeline`][distilabel.pipeline.Pipeline]. It's mandatory that the root steps of the pipeline i.e. the ones that doesn't have any predecessors, are [`GeneratorStep`][distilabel.steps.GeneratorStep]s such as [`LoadDataFromDicts`][distilabel.steps.LoadDataFromDicts] or [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub].
 
 Now, we can define the steps of our [`Pipeline`][distilabel.pipeline.Pipeline].
 
@@ -31,7 +29,7 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
     ...
 ```
 
-Next, we will use `prompt` column from the dataset obtained through `LoadDataFromHub` and use several `LLM`s to execute a `TextGeneration` tasks. We will also use the `Task.connect()` method to connect the steps, so the output of one step is the input of the next one.
+Next, we will use `prompt` column from the dataset obtained through `LoadDataFromHub` and use several `LLM`s to execute a `TextGeneration` task. We will also use the `Task.connect()` method to connect the steps, so the output of one step is the input of the next one.
 
 !!! NOTE
     The order of the execution of the steps will be determined by the connections of the steps. In this case, the `TextGeneration` tasks will be executed after the `LoadDataFromHub` step.
@@ -55,7 +53,6 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
 
     ...
 ```
-
 
 For each row of the dataset, the `TextGeneration` task will generate a text based on the `instruction` column and the `LLM` model, and store the result (a single string) in a new column called `generation`. Because we need to have the `response`s in the same column, we will add `CombineColumns` to combine them all in the same column as a list of strings.
 
@@ -153,7 +150,6 @@ Besides the `Step.connect` method: `step1.connect(step2)`, there's an alternativ
 
 ### Routing batches to specific downstream steps
 
-
 In some pipelines, you may want to send batches from a single upstream step to specific downstream steps based on certain conditions. To achieve this, you can use a `routing_batch_function`. This function takes a list of downstream steps and returns a list of step names to which each batch should be routed.
 
 Let's update the example above to route the batches loaded by the `LoadDataFromHub` step to just 2 of the `TextGeneration` tasks. First, we will create our custom [`routing_batch_function`][distilabel.pipeline.routing_batch_function.routing_batch_function], and then we will update the pipeline to use it:
@@ -193,7 +189,8 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
 
     load_dataset >> sample_two_steps >> tasks >> combine_generations
 ```
- The `routing_batch_function` that we just built is a common one, so `distilabel` comes with an builtin function that can be used to achieve the same behavior:
+
+ The `routing_batch_function` that we just built is a common one, so `distilabel` comes with a builtin function that can be used to achieve the same behavior:
 
 ```python
 from distilable.pipeline import sample_n_steps
@@ -290,9 +287,7 @@ if __name__ == "__main__":
 In case you want to stop the pipeline while it's running using the `Ctrl+C` (`Cmd+C` in MacOS), and the outputs will be stored in the cache. Repeating the command 2 times will force the pipeline to close.
 
 !!! Note
-
     When pushing sending the signal to kill the process, you can expect to see the following log messages:
-
     ![Pipeline ctrl+c](../../../../assets/images/sections/pipeline/pipeline-ctrlc.png)
 
 ## Cache

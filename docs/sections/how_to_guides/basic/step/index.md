@@ -32,7 +32,7 @@ next(step.process([{"input_field": "value"}]))
 # [{'input_field': 'value', 'output_field': 'value'}]
 ```
 !!! NOTE
-    The `Step.load()` always needs to be executed when being used as a standalone. Within a pipeline this will be done within automatically during pipeline execution.
+    The `Step.load()` always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.
 
 ### Arguments
 
