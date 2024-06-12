@@ -34,6 +34,18 @@ class TestEvolQuality:
         EvolQuality(name="task", llm=dummy_llm, num_evolutions=2)
         assert "Step 'task' hasn't received a pipeline" in caplog.text
 
+    def test_apply_random_mutation(self, dummy_llm: LLM) -> None:
+        pipeline = Pipeline(name="unit-test-pipeline")
+        task = EvolQuality(
+            name="task", llm=dummy_llm, num_evolutions=2, pipeline=pipeline
+        )
+        task.load()
+
+        mutated = task._apply_random_mutation("I'm an instruction", "I'm a response")
+
+        assert "I'm an instruction" in mutated
+        assert "I'm a response" in mutated
+
     def test_process(self, dummy_llm: LLM) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         task = EvolQuality(
@@ -80,7 +92,7 @@ class TestEvolQuality:
         task.load()
         assert task.dump() == {
             "name": "task",
-            "add_raw_output": False,
+            "add_raw_output": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "input_batch_size": task.input_batch_size,
@@ -112,8 +124,13 @@ class TestEvolQuality:
                             "name": "generation_kwargs",
                             "description": "The kwargs to be propagated to either `generate` or `agenerate` methods within each `LLM`.",
                             "keys": [],
-                        }
+                        },
                     ],
+                },
+                {
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                    "name": "add_raw_output",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

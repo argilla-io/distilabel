@@ -30,7 +30,7 @@ from distilabel.utils.dicts import combine_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
-    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.tasks.typing import FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
@@ -52,7 +52,13 @@ class _Task(_Step, ABC):
     llm: LLM
 
     group_generations: bool = False
-    add_raw_output: bool = False
+    add_raw_output: RuntimeParameter[bool] = Field(
+        default=True,
+        description=(
+            "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>`"
+            " of the `distilabel_metadata` dictionary output column"
+        ),
+    )
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
@@ -64,7 +70,9 @@ class _Task(_Step, ABC):
 
     @abstractmethod
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self,
+        output: Union[str, None],
+        input: Union[Dict[str, Any], None] = None,
     ) -> Dict[str, Any]:
         """Abstract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task. In
@@ -74,7 +82,9 @@ class _Task(_Step, ABC):
         pass
 
     def _format_outputs(
-        self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
+        self,
+        outputs: "GenerateOutput",
+        inputs: Union[List[Dict[str, Any]], None] = None,
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
@@ -87,8 +97,11 @@ class _Task(_Step, ABC):
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
+        if inputs is None:
+            inputs = [None]  # type: ignore
+
         formatted_outputs = []
-        for output, input in zip(outputs, inputs * len(outputs)):
+        for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._maybe_add_raw_output(
@@ -103,14 +116,14 @@ class _Task(_Step, ABC):
         return formatted_outputs
 
     def _output_on_failure(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """In case of failure to format the output, this method will return a dictionary including
         a new field `distilabel_meta` with the raw output of the LLM.
         """
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
-        outputs["model_name"] = self.llm.model_name
+        outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._maybe_add_raw_output(
             outputs, output, add_raw_output=self.add_raw_output
         )
@@ -142,12 +155,12 @@ class Task(_Task, Step):
     """
 
     @abstractmethod
-    def format_input(self, input: Dict[str, Any]) -> "ChatType":
+    def format_input(self, input: Dict[str, Any]) -> "FormattedInput":
         """Abstract method to format the inputs of the task. It needs to receive an input
         as a Python dictionary, and generates an OpenAI chat-like list of dicts."""
         pass
 
-    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["ChatType"]:
+    def _format_inputs(self, inputs: List[Dict[str, Any]]) -> List["FormattedInput"]:
         """Formats the inputs of the task using the `format_input` method.
 
         Args:
@@ -183,14 +196,14 @@ class Task(_Task, Step):
             if self.group_generations:
                 combined = combine_dicts(*formatted_outputs)
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **combined}
+                    {**input, **combined, "model_name": self.llm.model_name}
                 )
                 continue
 
             # Create a row per generation
             for formatted_output in formatted_outputs:
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **formatted_output}
+                    {**input, **formatted_output, "model_name": self.llm.model_name}
                 )
 
         yield task_outputs

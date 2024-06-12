@@ -21,7 +21,7 @@ from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from transformers import Pipeline
@@ -65,6 +65,21 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
 
     Icon:
         `:hugging:`
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import TransformersLLM
+
+        llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
     """
 
     model: str
@@ -130,7 +145,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "ChatType") -> str:
+    def prepare_input(self, input: "StandardInput") -> str:
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
@@ -143,7 +158,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         temperature: float = 0.1,
@@ -189,7 +204,9 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             for output in outputs
         ]
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
+    def get_last_hidden_states(
+        self, inputs: List["StandardInput"]
+    ) -> List["HiddenState"]:
         """Gets the last `hidden_states` of the model for the given inputs. It doesn't
         execute the task head.
 

@@ -33,6 +33,7 @@ from distilabel.utils.card.dataset_card import (
     size_categories_parser,
 )
 from distilabel.utils.files import list_files_in_dir
+from distilabel.utils.huggingface import get_hf_token
 
 DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
@@ -81,7 +82,13 @@ class Distiset(dict):
                 Whether to generate a dataset card or not. Defaults to True.
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
+
+        Raises:
+            ValueError: If no token is provided and couldn't be retrieved automatically.
         """
+        if token is None:
+            token = get_hf_token(self.__class__.__name__, "token")
+
         for name, dataset in self.items():
             dataset.push_to_hub(
                 repo_id=repo_id,

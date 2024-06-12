@@ -149,7 +149,7 @@ class EvolQuality(Task):
         return (
             self.mutation_templates[mutation]
             .replace("<PROMPT>", instruction)
-            .replace("<RESPONSE>", response[-1])
+            .replace("<RESPONSE>", response)
         )
 
     def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:

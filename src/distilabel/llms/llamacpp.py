@@ -19,7 +19,7 @@ from pydantic import Field, FilePath, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from llama_cpp import CreateChatCompletionResponse, Llama, LogitsProcessorList
@@ -59,6 +59,58 @@ class LlamaCppLLM(LLM):
     References:
         - [`llama.cpp`](https://github.com/ggerganov/llama.cpp)
         - [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python)
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from pathlib import Path
+        from distilabel.llms import LlamaCppLLM
+
+        # You can follow along this example downloading the following model running the following
+        # command in the terminal, that will download the model to the `Downloads` folder:
+        # curl -L -o ~/Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/resolve/main/openhermes-2.5-mistral-7b.Q4_K_M.gguf
+
+        model_path = "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
+
+        llm = LlamaCppLLM(
+            model_path=str(Path.home() / model_path),
+            n_gpu_layers=-1,  # To use the GPU if available
+            n_ctx=1024,       # Set the context size
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pathlib import Path
+        from distilabel.llms import LlamaCppLLM
+
+        model_path = "Downloads/openhermes-2.5-mistral-7b.Q4_K_M.gguf"
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = LlamaCppLLM(
+            model_path=str(Path.home() / model_path),  # type: ignore
+            n_gpu_layers=-1,
+            n_ctx=1024,
+            structured_output={"format": "json", "schema": Character},
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     model_path: RuntimeParameter[FilePath] = Field(
@@ -128,7 +180,7 @@ class LlamaCppLLM(LLM):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,

@@ -56,7 +56,7 @@
 {% for example_title, code in step.docstring.examples.items() %}
 #### {{ example_title }}
 ```python
-{{ code | e }}
+{{ code | replace("\n", "\n") }}
 ```
 {% endfor %}
 {% endif %}

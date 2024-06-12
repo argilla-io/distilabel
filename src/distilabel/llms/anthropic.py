@@ -33,7 +33,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -73,6 +73,50 @@ class AnthropicLLM(AsyncLLM):
         - `timeout`: the maximum time in seconds to wait for a response. Defaults to `600.0`.
         - `max_retries`: the maximum number of times to retry the request before failing.
             Defaults to `6`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import AnthropicLLM
+
+        llm = AnthropicLLM(model="claude-3-opus-20240229", api_key="api.key")
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import AnthropicLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = AnthropicLLM(
+            model="claude-3-opus-20240229",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str
@@ -163,7 +207,7 @@ class AnthropicLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         max_tokens: int = 128,
         stop_sequences: Union[List[str], None] = None,
         temperature: float = 1.0,
@@ -223,7 +267,7 @@ class AnthropicLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["StandardInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -232,7 +276,7 @@ class AnthropicLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["StandardInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

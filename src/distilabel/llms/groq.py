@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -61,6 +61,46 @@ class GroqLLM(AsyncLLM):
             failing. Defaults to `2`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import GroqLLM
+
+        llm = GroqLLM(model="llama3-70b-8192")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import GroqLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = GroqLLM(
+            model="llama3-70b-8192",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str
@@ -131,7 +171,7 @@ class GroqLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         seed: Optional[int] = None,
         max_new_tokens: int = 128,
         temperature: float = 1.0,
@@ -188,7 +228,7 @@ class GroqLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["StandardInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -197,7 +237,7 @@ class GroqLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["StandardInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

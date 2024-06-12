@@ -63,6 +63,9 @@ class TestUltraFeedback:
                 "ratings": [1, 2],
                 "rationales": ["text", "text"],
                 "model_name": "ultrafeedback-model",
+                "distilabel_metadata": {
+                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
+                },
             }
         ]
 
@@ -89,5 +92,8 @@ class TestUltraFeedback:
                 "ratings": [1, 2],
                 "rationales-for-ratings": ["text", "text"],
                 "model_name": "ultrafeedback-model",
+                "distilabel_metadata": {
+                    "raw_output_ultrafeedback": "Type: 1\nRationale: text\nRating: 1\nRationale: text\n\nType: 2\nRationale: text\nRating: 2\nRationale: text"
+                },
             }
         ]

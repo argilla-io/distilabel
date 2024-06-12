@@ -30,7 +30,7 @@ from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -70,6 +70,46 @@ class CohereLLM(AsyncLLM):
             to `120`.
         - `client_name`: the name of the client to use for the API requests. Defaults to
             `"distilabel"`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import CohereLLM
+
+        llm = CohereLLM(model="CohereForAI/c4ai-command-r-plus")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import CohereLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = CohereLLM(
+            model="CohereForAI/c4ai-command-r-plus",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str
@@ -132,7 +172,7 @@ class CohereLLM(AsyncLLM):
                 self.structured_output = structured_output
 
     def _format_chat_to_cohere(
-        self, input: "ChatType"
+        self, input: "StandardInput"
     ) -> Tuple[Union[str, None], List["ChatMessage"], str]:
         """Formats the chat input to the Cohere Chat API conversational format.
 
@@ -169,7 +209,7 @@ class CohereLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         k: Optional[int] = None,
@@ -241,7 +281,7 @@ class CohereLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["ChatType"],
+        inputs: List["StandardInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -249,7 +289,7 @@ class CohereLLM(AsyncLLM):
         synchronously awaiting for the response of each input sent to `agenerate`."""
 
         async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
+            inputs: List["StandardInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

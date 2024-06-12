@@ -9,6 +9,7 @@ The subclasses of [`Task`][distilabel.steps.tasks.Task] are intended to be used 
 For example, the most basic task is the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task, which generates text based on a given instruction, and it can be used standalone as well as within a [`Pipeline`][distilabel.pipeline.Pipeline].
 
 ```python
+```python
 from distilabel.steps.tasks import TextGeneration
 
 task = TextGeneration(
@@ -18,11 +19,22 @@ task = TextGeneration(
 task.load()
 
 next(task.process([{"instruction": "What's the capital of Spain?"}]))
-# [{'instruction': "What's the capital of Spain?", "generation": "The capital of Spain is Madrid.", "model_name": "gpt-4"}]
+# [
+#     {
+#         "instruction": "What's the capital of Spain?",
+#         "generation": "The capital of Spain is Madrid.",
+#         "model_name": "gpt-4",
+#         "distilabel_metadata": {
+#             "raw_output_text-generation": "The capital of Spain is Madrid"
+#         }
+#     }
+# ]
 ```
 
 !!! NOTE
     The `load` method needs to be called ALWAYS if using the tasks as standalone, otherwise, if the [`Pipeline`][distilabel.pipeline.Pipeline] context manager is used, there's no need to call that method, since it will be automatically called on `Pipeline.run`; but in any other case the method `load` needs to be called from the parent class e.g. a [`Task`][distilabel.steps.tasks.Task] with an [`LLM`][distilabel.llms.LLM] will need to call `Task.load` to load both the task and the LLM.
+
+As we can see in the comment of the code snippet above, the task has enriched the input dictionaries adding the `generation`, the `model_name` that was used to generate, and finally the `distilabel_metadata` dictionary that contains the raw output (without post-processing) from the LLM. In this case, the `TextGeneration` task does no post-processing, so the `generation` and the raw output is the same, but some other tasks do post-processing, which in some situations it can fail. That's why is useful to have the raw output available in the `distilabel_metadata` dictionary. If this default behaviour is not desired, then all the `Task`s has a `add_raw_output` attribute that we can set to `False` when creating the instance of the task or at run time.
 
 ## Defining custom Tasks
 

@@ -86,5 +86,8 @@ class TestInstructionBacktranslation:
                 "score": 1,
                 "reason": "This is the reason.",
                 "model_name": "instruction-backtranslation-model",
+                "distilabel_metadata": {
+                    "raw_output_instruction-backtranslation": "This is the reason. Score: 1"
+                },
             }
         ]

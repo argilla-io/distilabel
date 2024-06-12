@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
@@ -60,6 +60,69 @@ class OpenAILLM(AsyncLLM):
 
     Icon:
         `:simple-openai:`
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import OpenAILLM
+
+        llm = OpenAILLM(model="gpt-4-turbo", api_key="api.key")
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Generate text from a custom endpoint following the OpenAI API:
+
+        ```python
+        from distilabel.llms import OpenAILLM
+
+        llm = OpenAILLM(
+            model="prometheus-eval/prometheus-7b-v2.0",
+            base_url=r"http://localhost:8080/v1"
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import OpenAILLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = OpenAILLM(
+            model="gpt-4-turbo",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
+        ```
     """
 
     model: str
@@ -129,7 +192,7 @@ class OpenAILLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: StandardInput,
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,

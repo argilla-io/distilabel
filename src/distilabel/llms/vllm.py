@@ -21,7 +21,7 @@ from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
@@ -72,6 +72,47 @@ class vLLM(LLM, CudaDevicePlacementMixin):
     Runtime parameters:
         - `extra_kwargs`: additional dictionary of keyword arguments that will be passed to
             the `LLM` class of `vllm` library.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import vLLM
+
+        # You can pass a custom chat_template to the model
+        llm = vLLM(
+            model="prometheus-eval/prometheus-7b-v2.0",
+            chat_template="[INST] {{ messages[0]['content'] }}\\n{{ messages[1]['content'] }}[/INST]",
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pathlib import Path
+        from distilabel.llms import vLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = vLLM(
+            model="prometheus-eval/prometheus-7b-v2.0"
+            structured_output={"format": "json", "schema": Character},
+        )
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     model: str
@@ -153,7 +194,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "ChatType") -> str:
+    def prepare_input(self, input: "StandardInput") -> str:
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
@@ -166,7 +207,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
