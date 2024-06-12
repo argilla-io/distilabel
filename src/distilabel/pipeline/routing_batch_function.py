@@ -26,7 +26,7 @@ from distilabel.utils.serialization import (
 )
 
 if TYPE_CHECKING:
-    from distilabel.pipeline.base import _Batch
+    from distilabel.pipeline.batch import _Batch
     from distilabel.pipeline.typing import DownstreamConnectableSteps
     from distilabel.steps.base import _Step
 

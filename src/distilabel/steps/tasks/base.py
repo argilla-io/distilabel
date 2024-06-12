@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -64,9 +65,15 @@ class _Task(_Step, ABC):
     )
 
     def load(self) -> None:
-        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
+        """Loads the LLM via the `LLM.load()` method."""
         super().load()
         self.llm.load()
+
+    @override
+    def unload(self) -> None:
+        """Unloads the LLM."""
+        self._logger.debug("Executing task unload logic.")
+        self.llm.unload()
 
     @abstractmethod
     def format_output(

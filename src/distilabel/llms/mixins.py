@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Union
+import tempfile
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Dict, Generator, List, Literal, Union
 
+import portalocker
 from pydantic import BaseModel, Field, PrivateAttr
 
-if TYPE_CHECKING:
-    from multiprocessing.managers import DictProxy
-    from multiprocessing.synchronize import Lock
+_CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
+    Path(tempfile.gettempdir()) / "distilabel_cuda_device_placement_mixin.json"
+)
 
 
 class CudaDevicePlacementMixin(BaseModel):
@@ -44,11 +49,7 @@ class CudaDevicePlacementMixin(BaseModel):
     cuda_devices: Union[List[int], Literal["auto"]] = Field(default="auto")
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
-    _device_llm_placement_map: Union["DictProxy[str, Any]", None] = PrivateAttr(
-        default=None
-    )
-    _device_llm_placement_lock: Union["Lock", None] = PrivateAttr(default=None)
-    _available_cuda_devices: Union[List[int], None] = PrivateAttr(default=None)
+    _available_cuda_devices: List[int] = PrivateAttr(default_factory=list)
     _can_check_cuda_devices: bool = PrivateAttr(default=False)
 
     def load(self) -> None:
@@ -77,29 +78,40 @@ class CudaDevicePlacementMixin(BaseModel):
 
         self._assign_cuda_devices()
 
-    def set_device_placement_info(
-        self,
-        llm_identifier: str,
-        device_llm_placement_map: "DictProxy[str, Any]",
-        device_llm_placement_lock: "Lock",
-    ) -> None:
-        """Sets the value of `_device_llm_placement_map` to be used to assign CUDA devices
-        to the LLM.
+    def unload(self) -> None:
+        """Unloads the LLM and removes the CUDA devices assigned to it from the device
+        placement information provided in `_device_llm_placement_map`."""
+        with self._device_llm_placement_map() as device_map:
+            if self._llm_identifier in device_map:
+                self._logger.debug(
+                    f"Removing '{self._llm_identifier}' from the CUDA device map file"
+                    f" '{_CUDA_DEVICE_PLACEMENT_MIXIN_FILE}'."
+                )
+                del device_map[self._llm_identifier]
 
-        Args:
-            llm_identifier: the identifier of the LLM to be used as key in the device
-                placement information.
-            device_llm_placement_map: a dictionary with the device placement information for
-                each LLM. It should have two keys. The first key is "lock" and its value is
-                a lock object to be used to synchronize the access to the device placement
-                information. The second key is "value" and its value is a dictionary with the
-                device placement information for each LLM.
-            device_llm_placement_lock: a lock object to be used to synchronize the access to
-                `_device_llm_placement_map`.
+    @contextmanager
+    def _device_llm_placement_map(self) -> Generator[Dict[str, List[int]], None, None]:
+        """Reads the content of the device placement file of the node with a lock, yields
+        the content, and writes the content back to the file after the context manager is
+        closed. If the file doesn't exist, an empty dictionary will be yielded.
+
+        Yields:
+            The content of the device placement file.
         """
-        self._llm_identifier = llm_identifier
-        self._device_llm_placement_map = device_llm_placement_map
-        self._device_llm_placement_lock = device_llm_placement_lock
+        _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.touch()
+        with portalocker.Lock(
+            _CUDA_DEVICE_PLACEMENT_MIXIN_FILE,
+            "r+",
+            flags=portalocker.LockFlags.EXCLUSIVE,
+        ) as f:
+            try:
+                content = json.load(f)
+            except json.JSONDecodeError:
+                content = {}
+            yield content
+            f.seek(0)
+            f.truncate()
+            f.write(json.dumps(content))
 
     def _assign_cuda_devices(self) -> None:
         """Assigns CUDA devices to the LLM based on the device placement information provided
@@ -109,16 +121,14 @@ class CudaDevicePlacementMixin(BaseModel):
         checked if the devices are available to be used by the LLM. If not, a warning will be
         logged."""
 
-        if self._device_llm_placement_map is not None:
-            with self._device_llm_placement_lock:  # type: ignore
-                if self.cuda_devices == "auto":
-                    self.cuda_devices = [
-                        self._get_cuda_device(self._device_llm_placement_map)
-                    ]
-                else:
-                    self._check_cuda_devices(self._device_llm_placement_map)
+        # Take the lock and read the device placement information for each LLM.
+        with self._device_llm_placement_map() as device_map:
+            if self.cuda_devices == "auto":
+                self.cuda_devices = [self._get_cuda_device(device_map)]
+            else:
+                self._check_cuda_devices(device_map)
 
-                self._device_llm_placement_map[self._llm_identifier] = self.cuda_devices  # type: ignore
+            device_map[self._llm_identifier] = self.cuda_devices  # type: ignore
 
         # `_device_llm_placement_map` was not provided and user didn't set the `cuda_devices`
         # attribute. In this case, the `cuda_devices` attribute will be set to an empty list.

@@ -14,7 +14,7 @@
 
 from typing import List
 
-from distilabel.pipeline.base import _Batch
+from distilabel.pipeline.batch import _Batch
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
