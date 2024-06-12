@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union, override
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
