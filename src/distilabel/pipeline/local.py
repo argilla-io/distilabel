@@ -29,19 +29,15 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import (
     LAST_BATCH_SENT_FLAG,
 )
+from distilabel.steps.tasks.base import Task
 from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import DictProxy, SyncManager
     from queue import Queue
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.typing import StepLoadStatus
     from distilabel.steps.base import GeneratorStep, Step, _Step
-
-
-_CUDA_LLM_DEVICE_PLACEMENT_KEY = "cuda_llm_device_placement"
-_CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY = "cuda_llm_device_placement_lock"
 
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
@@ -114,7 +110,6 @@ class Pipeline(BasePipeline):
             self._pool = pool
             self._output_queue = self.QueueClass()
             self._load_queue = self.QueueClass()
-            self._shared_info = self._create_shared_info_dict(manager)
             self._handle_keyboard_interrupt()
 
             # Run the steps using the pool of processes
@@ -164,25 +159,6 @@ class Pipeline(BasePipeline):
         stop_logging()
         return distiset
 
-    # TODO: remove this, we don't need it. We can use a file per node to keep what steps    # TODO: remove this, we don't need it. We can use a file per node to keep what steps
-    # are using what GPUs
-    def _create_shared_info_dict(self, manager: "SyncManager") -> "DictProxy[str, Any]":
-        """Creates the shared information dictionary to be used by the processes.
-
-        Args:
-            manager: The manager to create the shared information.
-
-        Returns:
-            The shared information dictionary.
-        """
-        # TODO: not very important, but we could use a different lock for each matter
-        return manager.dict(
-            **{
-                _CUDA_LLM_DEVICE_PLACEMENT_KEY: manager.dict(**{}),
-                _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY: manager.Lock(),
-            }
-        )
-
     @property
     def QueueClass(self) -> Callable:
         """The callable used to create the input and output queues.
@@ -208,7 +184,6 @@ class Pipeline(BasePipeline):
             input_queue=input_queue,
             output_queue=self._output_queue,
             load_queue=self._load_queue,
-            shared_info=self._shared_info,
             dry_run=self._dry_run,
         )
 
@@ -364,9 +339,8 @@ class _ProcessWrapper:
         step: The step to run.
         input_queue: The queue to receive the input data.
         output_queue: The queue to send the output data.
-            load_queue: The queue used to notify the main process that the step has been
-                loaded, has been unloaded or has failed to load.
-        shared_info: The shared information between the processes.
+        load_queue: The queue used to notify the main process that the step has been loaded,
+            has been unloaded or has failed to load.
     """
 
     def __init__(
@@ -375,7 +349,6 @@ class _ProcessWrapper:
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
         load_queue: "Queue[Union[StepLoadStatus, None]]",
-        shared_info: "DictProxy[str, Any]",
         dry_run: bool = False,
     ) -> None:
         """Initializes the `_ProcessWrapper`.
@@ -386,30 +359,24 @@ class _ProcessWrapper:
             output_queue: The queue to send the output data.
             load_queue: The queue used to notify the main process that the step has been
                 loaded, has been unloaded or has failed to load.
-            shared_info: The shared information between the processes.
             dry_run: Flag to ensure we are forcing to run the last batch.
         """
         self.step = step
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.load_queue = load_queue
-        self.shared_info = shared_info
         self._dry_run = dry_run
 
-        # If step is a task, and it's using a `CUDALLM`, then set the CUDA device map
-        # and the lock for that map.
-        if hasattr(self.step, "llm") and isinstance(
-            self.step.llm, CudaDevicePlacementMixin
+        if (
+            isinstance(self.step, Task)
+            and hasattr(self.step, "llm")
+            and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
-            self.step.llm.set_device_placement_info(
-                llm_identifier=self.step.name,
-                device_llm_placement_map=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENT_KEY
-                ],
-                device_llm_placement_lock=self.shared_info[
-                    _CUDA_LLM_DEVICE_PLACEMENT_LOCK_KEY
-                ],
+            self.step._logger.debug(
+                f"Setting `CudaDevicePlacementMixin` LLM identifier for task '{self.step.name}'"
+                f" to '{self.step.name}'"
             )
+            self.step.llm._llm_identifier = self.step.name
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle
