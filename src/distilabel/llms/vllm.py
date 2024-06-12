@@ -299,9 +299,11 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         if extra_sampling_params is None:
             extra_sampling_params = {}
         structured_output = None
+        needs_sorting = False
 
         if isinstance(inputs[0], tuple):
             prepared_batches, sorted_indices = self._prepare_batches(inputs)
+            needs_sorting = True
         else:
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
@@ -341,7 +343,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
-        if logits_processors:
+        if needs_sorting:
             batched_outputs = _sort_batches(
                 batched_outputs, sorted_indices, num_generations=num_generations
             )
