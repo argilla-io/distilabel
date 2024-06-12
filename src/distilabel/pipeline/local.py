@@ -388,6 +388,7 @@ class _ProcessWrapper:
             self.step.load()
             self.step._logger.debug(f"Step '{self.step.name}' loaded!")
         except Exception as e:
+            self.step.unload()
             self._notify_load_failed()
             raise _ProcessWrapperException.create_load_error(
                 str(e), self.step, e
