@@ -220,6 +220,8 @@ class ArenaHardResults(GlobalStep):
                 "Please install the dependencies by running `pip install distilabel[arena-hard]`."
             ) from e
 
+    # TODO: the `evaluation` is not really required as an input, so it could be removed, since
+    # only `score` is used / required
     @property
     def inputs(self) -> List[str]:
         """The inputs required by this step are the `evaluation` and the `score` generated
@@ -256,6 +258,9 @@ class ArenaHardResults(GlobalStep):
         if self.custom_model_column:
             models = inputs[0][self.custom_model_column]
 
+        # TODO: the battles are only calculated for the first game, even though the official
+        # implementation also covers the possibility of a second game (not within the released
+        # dataset yet)
         battles = pd.DataFrame()
         for input in inputs:
             output = {
@@ -302,6 +307,8 @@ class ArenaHardResults(GlobalStep):
         # with an starting ELO of 1000, so that the evaluated models are compared with
         # `gtp-4-0314` only if it's available within the models
         elo_scores = 400 * lr.coef_[0] + 1000
+        # TODO: we could parametrize the reference / anchor model, but left as is to be faithful to the
+        # original implementation
         if "gpt-4-0314" in models.index:
             elo_scores += 1000 - elo_scores[models["gpt-4-0314"]]
 
