@@ -321,6 +321,16 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/batch/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/batch_manager/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/constants/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
@@ -342,6 +352,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/utils/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/write_buffer/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -846,17 +861,17 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/arenahardresults/</loc>
+         <lastmod>2024-06-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/deitafiltering/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/pushtohub/</loc>
-         <lastmod>2024-06-12</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/arenahardresults/</loc>
          <lastmod>2024-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>

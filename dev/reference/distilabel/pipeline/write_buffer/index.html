@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/typing/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/write_buffer/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>Typing - Distilabel Docs</title>
+        <title>Write buffer - Distilabel Docs</title>
       
     
     
@@ -61,11 +61,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Typing - Distilabel Docs" >
+        <meta  property="og:title"  content="Write buffer - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/pipeline/typing.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/pipeline/write_buffer.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +73,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/typing/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/reference/distilabel/pipeline/write_buffer/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Typing - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Write buffer - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/pipeline/typing.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/reference/distilabel/pipeline/write_buffer.png" >
       
     
     
@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#distilabel.pipeline.typing" class="md-skip">
+        <a href="#distilabel.pipeline.write_buffer" class="md-skip">
           Skip to content
         </a>
       
@@ -141,7 +141,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Typing
+              Write buffer
             
           </span>
         </div>
@@ -2308,45 +2308,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#distilabel.pipeline.typing" class="md-nav__link">
+  <a href="#distilabel.pipeline.write_buffer" class="md-nav__link">
     <span class="md-ellipsis">
-      typing
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.pipeline.typing.DownstreamConnectable" class="md-nav__link">
-    <span class="md-ellipsis">
-      DownstreamConnectable
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.pipeline.typing.DownstreamConnectableSteps" class="md-nav__link">
-    <span class="md-ellipsis">
-      DownstreamConnectableSteps
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.pipeline.typing.UpstreamConnectableSteps" class="md-nav__link">
-    <span class="md-ellipsis">
-      UpstreamConnectableSteps
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#distilabel.pipeline.typing.StepLoadStatus" class="md-nav__link">
-    <span class="md-ellipsis">
-      StepLoadStatus
+      write_buffer
     </span>
   </a>
   
@@ -2370,13 +2334,13 @@
   
 
 
-  <h1>Typing</h1>
+  <h1>Write buffer</h1>
 
 <div class="doc doc-object doc-module">
 
 
 
-<a id="distilabel.pipeline.typing"></a>
+<a id="distilabel.pipeline.write_buffer"></a>
     <div class="doc doc-contents first">
 
 
@@ -2389,124 +2353,6 @@
 
 
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="distilabel.pipeline.typing.DownstreamConnectable" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">DownstreamConnectable</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Step&#39;</span><span class="p">,</span> <span class="s1">&#39;GlobalStep&#39;</span><span class="p">]</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-<a href="#distilabel.pipeline.typing.DownstreamConnectable" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-      <p>Alias for the <code>Step</code> types that can be connected as downstream steps.</p>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="distilabel.pipeline.typing.DownstreamConnectableSteps" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">DownstreamConnectableSteps</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;DownstreamConnectableSteps&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">DownstreamConnectable</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-<a href="#distilabel.pipeline.typing.DownstreamConnectableSteps" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-      <p>Type for the <code>Step</code> types that can be connected as downstream steps.</p>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="distilabel.pipeline.typing.UpstreamConnectableSteps" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">UpstreamConnectableSteps</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;UpstreamConnectableSteps&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Step&#39;</span><span class="p">,</span> <span class="s1">&#39;GlobalStep&#39;</span><span class="p">,</span> <span class="s1">&#39;GeneratorStep&#39;</span><span class="p">])</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-<a href="#distilabel.pipeline.typing.UpstreamConnectableSteps" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-      <p>Type for the <code>Step</code> types that can be connected as upstream steps.</p>
-    </div>
-
-</div>
-
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="distilabel.pipeline.typing.StepLoadStatus" class="doc doc-heading">
-            <code>StepLoadStatus</code>
-
-
-<a href="#distilabel.pipeline.typing.StepLoadStatus" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.TypedDict">TypedDict</span></code></p>
-
-
-      <p>Dict containing information about if one step was loaded/unloaded or if it's load
-failed</p>
-
-              <details class="quote">
-                <summary>Source code in <code>src/distilabel/pipeline/typing.py</code></summary>
-                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="k">class</span> <span class="nc">StepLoadStatus</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict containing information about if one step was loaded/unloaded or if it&#39;s load</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    failed&quot;&quot;&quot;</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;loaded&quot;</span><span class="p">,</span> <span class="s2">&quot;unloaded&quot;</span><span class="p">,</span> <span class="s2">&quot;load_failed&quot;</span><span class="p">]</span>
-</span></code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
 
 
 
