@@ -36,6 +36,7 @@ dependencies = [
     "tblib >= 3.0.0",
     "orjson >= 3.10.0",
     "universal_pathlib >= 0.2.2",
+    "portalocker >= 2.8.2",
 ]
 dynamic = ["version"]
 
