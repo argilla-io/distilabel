@@ -410,6 +410,8 @@ class _ProcessWrapper:
         except Exception:
             pass
 
+        self.step.unload()
+
         self._notify_unload()
 
         self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")

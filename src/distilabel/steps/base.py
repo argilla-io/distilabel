@@ -307,7 +307,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """Method to perform any cleanup logic after the `process` method is called. For
         example, to close a connection to a database, etc.
         """
-        pass
+        self._logger.debug("Executing step unload logic.")
 
     @property
     def is_generator(self) -> bool:

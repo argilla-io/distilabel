@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union, override
 
 from pydantic import Field
 
@@ -68,10 +68,11 @@ class _Task(_Step, ABC):
         super().load()
         self.llm.load()
 
+    @override
     def unload(self) -> None:
         """Unloads the LLM."""
+        self._logger.debug("Executing task unload logic.")
         self.llm.unload()
-        super().unload()
 
     @abstractmethod
     def format_output(

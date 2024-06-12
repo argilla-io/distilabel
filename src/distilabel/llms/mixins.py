@@ -83,6 +83,10 @@ class CudaDevicePlacementMixin(BaseModel):
         placement information provided in `_device_llm_placement_map`."""
         with self._device_llm_placement_map() as device_map:
             if self._llm_identifier in device_map:
+                self._logger.debug(
+                    f"Removing '{self._llm_identifier}' from the CUDA device map file"
+                    f" '{_CUDA_DEVICE_PLACEMENT_MIXIN_FILE}'."
+                )
                 del device_map[self._llm_identifier]
 
     @contextmanager
