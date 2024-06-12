@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..600&display=swap');
 
 :root {
-    --md-primary-fg-color:          #84b0c1;
-    --md-primary-fg-color--light:   #84b0c1;
-    --md-primary-fg-color--dark:    #84b0c1;
+    --md-primary-fg-color:          #f2a8ff;
+    --md-primary-fg-color--light:   #f2a8ff;
+    --md-primary-fg-color--dark:    #f2a8ff;
     --md-text-font:                 "Inter";
 }
 [data-md-color-scheme="default"] {
     --md-primary-fg-color:        #000000;
-    --md-typeset-a-color:         #279bc8;
-    --md-accent-fg-color:         #0ba5e1;
+    --md-typeset-a-color:         #9c50c2;
+    --md-accent-fg-color:         #c57fed;
 }
 [data-md-color-scheme="slate"] {
     --md-primary-fg-color:        #000000;
-    --md-typeset-a-color:         #66bada;
-    --md-accent-fg-color:         #6cd0f7;
+    --md-typeset-a-color:         #ca77d8;
+    --md-accent-fg-color:         #f2a8ff;
 }
 
 .md-sidebar__scrollwrap:focus-within, .md-sidebar__scrollwrap:hover {
