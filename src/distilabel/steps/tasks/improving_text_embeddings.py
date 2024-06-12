@@ -258,6 +258,26 @@ class EmbeddingTaskGenerator(GeneratorTask):
 
     References:
         - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
+
+    Examples:
+
+        Generate embedding tasks for text retrieval:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import EmbeddingTaskGenerator
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = EmbeddingTaskGenerator(
+                category="text-retrieval",
+                flatten_tasks=True,
+                llm=...,  # LLM instance
+            )
+
+            ...
+
+            task >> ...
+        ```
     """
 
     category: Literal[
@@ -373,6 +393,11 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
     Text Embeddings with Large Language Models" and the data is generated based on the
     provided attributes, or randomly sampled if not provided.
 
+    Note:
+        Ideally this task should be used with `EmbeddingTaskGenerator` with `flatten_tasks=True`
+        with the `category="text-retrieval"`; so that the `LLM` generates a list of tasks that
+        are flattened so that each row contains a single task for the text-retrieval category.
+
     Attributes:
         language: The language of the data to be generated, which can be any of the languages
             retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2020.acl-main.747.pdf.
@@ -387,6 +412,37 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
         num_words: The number of words in the query to be generated, which can be `50`, `100`, `200`, `300`, `400`, or `500`.
             Defaults to `None`, meaning that it will be randomly sampled.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+
+    References:
+        - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
+
+    Examples:
+
+        Generate synthetic text retrieval data for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import EmbeddingTaskGenerator, GenerateTextRetrievalData
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = EmbeddingTaskGenerator(
+                category="text-retrieval",
+                flatten_tasks=True,
+                llm=...,  # LLM instance
+            )
+
+            generate = GenerateTextRetrievalData(
+                language="English",
+                query_type="common",
+                query_length="5 to 15 words",
+                difficulty="high school",
+                clarity="clear",
+                num_words=100,
+                llm=...,  # LLM instance
+            )
+
+            task >> generate
+        ```
     """
 
     language: str = Field(
@@ -460,10 +516,42 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
     Text Embeddings with Large Language Models" and the data is generated based on the
     provided attributes, or randomly sampled if not provided.
 
+    Note:
+        Ideally this task should be used with `EmbeddingTaskGenerator` with `flatten_tasks=True`
+        with the `category="text-matching-short"`; so that the `LLM` generates a list of tasks that
+        are flattened so that each row contains a single task for the text-matching-short category.
+
     Attributes:
         language: The language of the data to be generated, which can be any of the languages
             retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2020.acl-main.747.pdf.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+            Note that in this task the `seed` has no effect since there are no sampling params.
+
+    References:
+        - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
+
+    Examples:
+
+        Generate synthetic short text matching data for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import EmbeddingTaskGenerator, GenerateShortTextMatchingData
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = EmbeddingTaskGenerator(
+                category="text-matching-short",
+                flatten_tasks=True,
+                llm=...,  # LLM instance
+            )
+
+            generate = GenerateShortTextMatchingData(
+                language="English",
+                llm=...,  # LLM instance
+            )
+
+            task >> generate
+        ```
     """
 
     language: str = Field(
@@ -476,14 +564,14 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """Method to format the input based on the `task` and the provided attributes, or just
         randomly sampling those if not provided. This method will render the `_template` with
-        the provided arguments and return an OpenAI formatted chat i.e. a `ChatType`, assuming that
-        there's only one turn, being from the user with the content being the rendered `_template`.
+                the provided arguments and return an OpenAI formatted chat i.e. a `ChatType`, assuming that
+                there's only one turn, being from the user with the content being the rendered `_template`.
 
-        Args:
-            input: The input dictionary containing the `task` to be used in the `_template`.
+                Args:
+                    input: The input dictionary containing the `task` to be used in the `_template`.
 
-        Returns:
-            A list with a single chat containing the user's message with the rendered `_template`.
+                Returns:
+                    A list with a single chat containing the user's message with the rendered `_template`.
         """
         return [
             {
@@ -509,10 +597,42 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
     Text Embeddings with Large Language Models" and the data is generated based on the
     provided attributes, or randomly sampled if not provided.
 
+    Note:
+        Ideally this task should be used with `EmbeddingTaskGenerator` with `flatten_tasks=True`
+        with the `category="text-matching-long"`; so that the `LLM` generates a list of tasks that
+        are flattened so that each row contains a single task for the text-matching-long category.
+
     Attributes:
         language: The language of the data to be generated, which can be any of the languages
             retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2020.acl-main.747.pdf.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+            Note that in this task the `seed` has no effect since there are no sampling params.
+
+    References:
+        - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
+
+    Examples:
+
+        Generate synthetic long text matching data for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import EmbeddingTaskGenerator, GenerateLongTextMatchingData
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = EmbeddingTaskGenerator(
+                category="text-matching-long",
+                flatten_tasks=True,
+                llm=...,  # LLM instance
+            )
+
+            generate = GenerateLongTextMatchingData(
+                language="English",
+                llm=...,  # LLM instance
+            )
+
+            task >> generate
+        ```
     """
 
     language: str = Field(
@@ -558,6 +678,11 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
     Text Embeddings with Large Language Models" and the data is generated based on the
     provided attributes, or randomly sampled if not provided.
 
+    Note:
+        Ideally this task should be used with `EmbeddingTaskGenerator` with `flatten_tasks=True`
+        with the `category="text-classification"`; so that the `LLM` generates a list of tasks that
+        are flattened so that each row contains a single task for the text-classification category.
+
     Attributes:
         language: The language of the data to be generated, which can be any of the languages
             retrieved from the list of XLM-R in the Appendix A of https://aclanthology.org/2020.acl-main.747.pdf.
@@ -566,6 +691,34 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
         clarity: The clarity of the query to be generated, which can be `clear`, `understandable with some effort`,
             or `ambiguous`. Defaults to `None`, meaning that it will be randomly sampled.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+
+    References:
+        - [Improving Text Embeddings with Large Language Models](https://arxiv.org/abs/2401.00368)
+
+    Examples:
+
+        Generate synthetic text classification data for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import EmbeddingTaskGenerator, GenerateTextClassificationData
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = EmbeddingTaskGenerator(
+                category="text-classification",
+                flatten_tasks=True,
+                llm=...,  # LLM instance
+            )
+
+            generate = GenerateTextClassificationData(
+                language="English",
+                difficulty="high school",
+                clarity="clear",
+                llm=...,  # LLM instance
+            )
+
+            task >> generate
+        ```
     """
 
     language: str = Field(
@@ -634,6 +787,29 @@ class MonolingualTripletGenerator(_EmbeddingDataGenerator):
         low_score: The low score of the query to be generated, which can be `2.5`, `3`, or `3.5`.
             Defaults to `None`, meaning that it will be randomly sampled.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+
+    Examples:
+
+        Generate monolingual triplets for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import MonolingualTripletGenerator
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = MonolingualTripletGenerator(
+                language="English",
+                unit="sentence",
+                difficulty="elementary school",
+                high_score="4",
+                low_score="2.5",
+                llm=...,
+            )
+
+            ...
+
+            task >> ...
+        ```
     """
 
     language: str = Field(
@@ -696,6 +872,30 @@ class BitextRetrievalGenerator(_EmbeddingDataGenerator):
         low_score: The low score of the query to be generated, which can be `2.5`, `3`, or `3.5`.
             Defaults to `None`, meaning that it will be randomly sampled.
         seed: The random seed to be set in case there's any sampling within the `format_input` method.
+
+    Examples:
+
+        Generate bitext retrieval data for training embedding models:
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps.tasks import BitextRetrievalGenerator
+
+        with Pipeline("my-pipeline") as pipeline:
+            task = BitextRetrievalGenerator(
+                source_language="English",
+                target_language="Spanish",
+                unit="sentence",
+                difficulty="elementary school",
+                high_score="4",
+                low_score="2.5",
+                llm=...,
+            )
+
+            ...
+
+            task >> ...
+        ```
     """
 
     source_language: str = Field(
