@@ -51,6 +51,8 @@ def test_imports() -> None:
         GeneratorStepOutput,
         KeepColumns,
         LoadDataFromDicts,
+        LoadDataFromHub,
+        LoadDataFromDisk,
         LoadHubDataset,
         PushToHub,
         Step,
@@ -61,6 +63,8 @@ def test_imports() -> None:
     )
 
     from distilabel.steps.tasks import (
+        ArenaHard,
+        ArenaHardResults,
         Task,
         GeneratorTask,
         ChatItem,
@@ -72,6 +76,13 @@ def test_imports() -> None:
         EvolInstructGenerator,
         GenerateEmbeddings,
         Genstruct,
+        BitextRetrievalGenerator,
+        EmbeddingTaskGenerator,
+        GenerateLongTextMatchingData,
+        GenerateShortTextMatchingData,
+        GenerateTextClassificationData,
+        GenerateTextRetrievalData,
+        MonolingualTripletGenerator,
         InstructionBacktranslation,
         PairRM,
         PrometheusEval,

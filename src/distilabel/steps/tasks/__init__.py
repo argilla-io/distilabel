@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.benchmarks.arena_hard import ArenaHard, ArenaHardResults
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
@@ -23,6 +24,15 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.improving_text_embeddings import (
+    BitextRetrievalGenerator,
+    EmbeddingTaskGenerator,
+    GenerateLongTextMatchingData,
+    GenerateShortTextMatchingData,
+    GenerateTextClassificationData,
+    GenerateTextRetrievalData,
+    MonolingualTripletGenerator,
+)
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
@@ -37,6 +47,8 @@ from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
+    "ArenaHard",
+    "ArenaHardResults",
     "GeneratorTask",
     "Task",
     "ComplexityScorer",
@@ -47,6 +59,13 @@ __all__ = [
     "EvolQuality",
     "GenerateEmbeddings",
     "Genstruct",
+    "BitextRetrievalGenerator",
+    "EmbeddingTaskGenerator",
+    "GenerateLongTextMatchingData",
+    "GenerateShortTextMatchingData",
+    "GenerateTextClassificationData",
+    "GenerateTextRetrievalData",
+    "MonolingualTripletGenerator",
     "InstructionBacktranslation",
     "PairRM",
     "PrometheusEval",
