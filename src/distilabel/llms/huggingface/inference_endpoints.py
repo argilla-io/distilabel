@@ -16,7 +16,6 @@ import asyncio
 import os
 import random
 import warnings
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import (
@@ -37,15 +36,16 @@ from distilabel.steps.tasks.typing import (
     StandardInput,
     StructuredOutputType,
 )
+from distilabel.utils.huggingface import (
+    _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
+    get_hf_token,
+)
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
     from openai import AsyncOpenAI
     from transformers import PreTrainedTokenizer
-
-
-_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
 
 class InferenceEndpointsLLM(AsyncLLM):
@@ -211,7 +211,6 @@ class InferenceEndpointsLLM(AsyncLLM):
             from huggingface_hub import (
                 AsyncInferenceClient,
                 InferenceClient,
-                constants,
                 get_inference_endpoint,
             )
         except ImportError as ie:
@@ -221,14 +220,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             ) from ie
 
         if self.api_key is None:
-            if not Path(constants.HF_TOKEN_PATH).exists():
-                raise ValueError(
-                    f"To use `{self.__class__.__name__}` an API key must be provided via"
-                    " `api_key` attribute or runtime parameter, set the environment variable"
-                    f" `{self._api_key_env_var}` or use the `huggingface-hub` CLI to login"
-                    " with `huggingface-cli login`."
-                )
-            self.api_key = SecretStr(open(constants.HF_TOKEN_PATH).read().strip())
+            self.api_key = SecretStr(get_hf_token(self.__class__.__name__, "api_key"))
 
         if self.model_id is not None:
             client = InferenceClient()

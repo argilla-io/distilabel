@@ -37,6 +37,24 @@ class TogetherLLM(OpenAILLM):
             used, or `None` if not set.
         _api_key_env_var: the name of the environment variable to use for the API key. It
             is meant to be used internally.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import AnyscaleLLM
+
+        llm = TogetherLLM(model="mistralai/Mixtral-8x7B-Instruct-v0.1", api_key="api.key")
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(

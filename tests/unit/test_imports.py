@@ -51,6 +51,8 @@ def test_imports() -> None:
         GeneratorStepOutput,
         KeepColumns,
         LoadDataFromDicts,
+        LoadDataFromHub,
+        LoadDataFromDisk,
         LoadHubDataset,
         PushToHub,
         Step,

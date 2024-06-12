@@ -17,7 +17,7 @@ from distilabel.steps.generators.data import LoadDataFromDicts
 from pydantic import ValidationError
 
 
-class TestLoadDataFromDictsTask:
+class TestLoadDataFromDicts:
     data = [{"instruction": "test"}] * 10
 
     def test_init(self) -> None:
