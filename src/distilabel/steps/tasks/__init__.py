@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from distilabel.steps.tasks.base import GeneratorTask, Task
+from distilabel.steps.tasks.benchmarks.arena_hard import ArenaHard, ArenaHardResults
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
@@ -46,6 +47,8 @@ from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
+    "ArenaHard",
+    "ArenaHardResults",
     "GeneratorTask",
     "Task",
     "ComplexityScorer",

@@ -225,7 +225,7 @@ class LoadDataFromHub(GeneratorStep):
 class LoadHubDataset(LoadDataFromHub):
     def __init__(self, **data: Any) -> None:
         warnings.warn(
-            "`LoadHubDataset` is deprecated and will be removed in version 1.3.0, use `LoadFromHub` instead.",
+            "`LoadHubDataset` is deprecated and will be removed in version 1.3.0, use `LoadDataFromHub` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
