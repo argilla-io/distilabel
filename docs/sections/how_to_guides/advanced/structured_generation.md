@@ -1,4 +1,4 @@
-# Structured data generation
+# Structured data generation
 
 `Distilabel` has integrations with relevant libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
 
