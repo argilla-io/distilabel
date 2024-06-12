@@ -123,7 +123,7 @@ We can define a custom step by creating a new subclass of the [`Step`][distilabe
     from distilabel.steps.typing import StepOutput
 
     @step(inputs=[...], outputs=[...])
-    def CustomStep(inputs: StepInput) - StepOutput:
+    def CustomStep(inputs: StepInput) -> StepOutput:
         for input in inputs:
             ...
         yield inputs
