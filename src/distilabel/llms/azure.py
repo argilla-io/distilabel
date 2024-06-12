@@ -134,7 +134,9 @@ class AzureOpenAILLM(OpenAILLM):
         """Loads the `AsyncAzureOpenAI` client to benefit from async requests."""
         # This is a workaround to avoid the `OpenAILLM` calling the _prepare_structured_output
         # in the load method before we have the proper client.
-        with patch("OpenAILLM._prepare_structured_output", lambda x: x):
+        with patch(
+            "distilabel.llms.openai.OpenAILLM._prepare_structured_output", lambda x: x
+        ):
             super().load()
 
         try:
