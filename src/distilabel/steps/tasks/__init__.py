@@ -23,6 +23,15 @@ from distilabel.steps.tasks.evol_instruct.generator import EvolInstructGenerator
 from distilabel.steps.tasks.evol_quality.base import EvolQuality
 from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 from distilabel.steps.tasks.genstruct import Genstruct
+from distilabel.steps.tasks.improving_text_embeddings import (
+    BitextRetrievalGenerator,
+    EmbeddingTaskGenerator,
+    GenerateLongTextMatchingData,
+    GenerateShortTextMatchingData,
+    GenerateTextClassificationData,
+    GenerateTextRetrievalData,
+    MonolingualTripletGenerator,
+)
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
@@ -47,6 +56,13 @@ __all__ = [
     "EvolQuality",
     "GenerateEmbeddings",
     "Genstruct",
+    "BitextRetrievalGenerator",
+    "EmbeddingTaskGenerator",
+    "GenerateLongTextMatchingData",
+    "GenerateShortTextMatchingData",
+    "GenerateTextClassificationData",
+    "GenerateTextRetrievalData",
+    "MonolingualTripletGenerator",
     "InstructionBacktranslation",
     "PairRM",
     "PrometheusEval",
