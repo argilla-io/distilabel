@@ -14,6 +14,7 @@
 
 import os
 from datetime import datetime
+from typing import List, Union
 
 import pandas as pd
 import requests
@@ -23,19 +24,33 @@ import mkdocs_gen_files
 REPOSITORY = "argilla-io/distilabel"
 DATA_PATH = "sections/community/popular_issues.md"
 
-GITHUB_ACCESS_TOKEN = os.environ[
-    "GH_ACCESS_TOKEN"
-]  # public_repo and read:org scopes are required
+GITHUB_ACCESS_TOKEN = os.getenv("GH_ACCESS_TOKEN")
 
 
-def fetch_data_from_github(repository, auth_token):
+def fetch_issues_from_github_repository(repository: str, auth_token: Union[str, None] = None) -> pd.DataFrame:
+    if auth_token is None:
+        return pd.DataFrame({
+            "Issue": [],
+            "State": [],
+            "Created at": [],
+            "Closed at": [],
+            "Last update": [],
+            "Labels": [],
+            "Milestone": [],
+            "Reactions": [],
+            "Comments": [],
+            "URL": [],
+            "Repository": [],
+            "Author": [],
+        })
+
     headers = {
         "Authorization": f"token {auth_token}",
         "Accept": "application/vnd.github.v3+json",
     }
     issues_data = []
 
-    print(f"Fetching issues from {repository}...")
+    print(f"Fetching issues from '{repository}'...")
     with requests.Session() as session:
         session.headers.update(headers)
 
@@ -71,7 +86,10 @@ def fetch_data_from_github(repository, auth_token):
     return pd.DataFrame(issues_data)
 
 
-def get_org_members(auth_token):
+def get_org_members(auth_token: Union[str, None] = None) -> List[str]:
+    if auth_token is None:
+        return []
+
     headers = {
         "Authorization": f"token {auth_token}",
         "Accept": "application/vnd.github.v3+json",
@@ -95,7 +113,7 @@ def get_org_members(auth_token):
 
 
 with mkdocs_gen_files.open(DATA_PATH, "w") as f:
-    df = fetch_data_from_github(REPOSITORY, GITHUB_ACCESS_TOKEN)
+    df = fetch_issues_from_github_repository(REPOSITORY, GITHUB_ACCESS_TOKEN)
 
     open_issues = df.loc[df["State"] == "open"]
     engagement_df = (
