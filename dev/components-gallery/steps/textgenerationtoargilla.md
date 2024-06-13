@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # TextGenerationToArgilla
-
 
 Creates a text generation dataset in Argilla.
 

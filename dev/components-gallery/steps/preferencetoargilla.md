@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # PreferenceToArgilla
-
 
 Creates a preference dataset in Argilla.
 

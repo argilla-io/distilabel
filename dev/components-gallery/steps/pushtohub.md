@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # PushToHub
-
 
 Push data to a Hugging Face Hub dataset.
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # UltraFeedback
-
 
 Rank generations focusing on different aspects using an `LLM`.
 

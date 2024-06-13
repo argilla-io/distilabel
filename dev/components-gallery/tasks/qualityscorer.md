@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # QualityScorer
-
 
 Score responses based on their quality using an `LLM`.
 

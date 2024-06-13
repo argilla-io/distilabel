@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # PairRM
-
 
 Rank the candidates based on the input using the `LLM` model.
 

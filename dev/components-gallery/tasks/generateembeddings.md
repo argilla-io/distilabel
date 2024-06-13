@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # GenerateEmbeddings
-
 
 Generate embeddings using the last hidden state of an `LLM`.
 

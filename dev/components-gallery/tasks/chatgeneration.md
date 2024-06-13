@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ChatGeneration
-
 
 Generates text based on a conversation.
 

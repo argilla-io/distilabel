@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # GenerateSentencePair
-
 
 Generate a positive and negative (optionally) sentences given an anchor sentence.
 

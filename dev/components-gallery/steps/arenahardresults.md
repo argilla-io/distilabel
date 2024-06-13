@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ArenaHardResults
-
 
 This `Step` is based on the "From Live Data to High-Quality Benchmarks: The
 

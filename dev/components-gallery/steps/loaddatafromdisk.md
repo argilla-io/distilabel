@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # LoadDataFromDisk
-
 
 Load a dataset that was previously saved to disk.
 

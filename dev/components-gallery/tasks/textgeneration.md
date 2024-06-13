@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # TextGeneration
-
 
 Simple text generation with an `LLM` given an instruction.
 

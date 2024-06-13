@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # Genstruct
-
 
 Generate a pair of instruction-response from a document using an `LLM`.
 

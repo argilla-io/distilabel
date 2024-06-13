@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EmbeddingTaskGenerator
-
 
 Generate task descriptions for embedding-related tasks using an `LLM`.
 

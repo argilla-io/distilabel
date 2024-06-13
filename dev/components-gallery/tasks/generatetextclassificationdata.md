@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # GenerateTextClassificationData
-
 
 Generate text classification data with an `LLM` to later on train an embedding model.
 

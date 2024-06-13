@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EvolQuality
-
 
 Evolve the quality of the responses using an `LLM`.
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # GenerateTextRetrievalData
-
 
 Generate text retrieval data with an `LLM` to later on train an embedding model.
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EvolInstruct
-
 
 Evolve instructions using an `LLM`.
 

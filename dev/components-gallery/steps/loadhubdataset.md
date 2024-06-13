@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # LoadHubDataset
-
 
 
 

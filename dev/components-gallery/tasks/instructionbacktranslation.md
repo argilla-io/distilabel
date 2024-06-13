@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # InstructionBacktranslation
-
 
 Self-Alignment with Instruction Backtranslation.
 

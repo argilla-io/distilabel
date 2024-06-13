@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # MonolingualTripletGenerator
-
 
 Generate monolingual triplets with an `LLM` to later on train an embedding model.
 

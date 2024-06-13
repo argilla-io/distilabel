@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # FormatTextGenerationDPO
-
 
 Format the output of your LLMs for Direct Preference Optimization (DPO).
 

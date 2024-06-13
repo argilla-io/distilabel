@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # FormatChatGenerationSFT
-
 
 Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
 

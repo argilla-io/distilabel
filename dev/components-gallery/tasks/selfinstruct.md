@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # SelfInstruct
-
 
 Generate instructions based on a given input using an `LLM`.
 

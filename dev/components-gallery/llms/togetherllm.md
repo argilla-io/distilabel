@@ -1,4 +1,8 @@
-# TogetherLLM
+---
+hide:
+  - navigation
+---
+TogetherLLM
 
 
 TogetherLLM LLM implementation running the async API client of OpenAI.

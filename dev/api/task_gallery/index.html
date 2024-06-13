@@ -18,7 +18,7 @@
         <link rel="prev" href="../task/generator_task/">
       
       
-        <link rel="next" href="../llm/">
+        <link rel="next" href="../task/typing/">
       
       
       <link rel="icon" href="../../assets/logo.svg">
@@ -210,11 +210,18 @@
       </label>
       <nav class="md-search__options" aria-label="Search">
         
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
       
     </form>
     <div class="md-search__output">
@@ -281,7 +288,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../sections/installation/" class="md-tabs__link">
+        <a href="../../sections/getting_started/installation/" class="md-tabs__link">
           
   
   Getting started
@@ -296,16 +303,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../sections/learn/" class="md-tabs__link">
-        
+    
+    
+      
+  
+  
   
     
+    
+      <li class="md-tabs__item">
+        <a href="../../sections/how_to_guides/basic/step/" class="md-tabs__link">
+          
   
-  Learn
+  How-to guides
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
+  
+
+    
   
 
       
@@ -330,33 +347,17 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../sections/pipeline_samples/" class="md-tabs__link">
-        
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../../sections/pipeline_samples/examples/" class="md-tabs__link">
+          
   
   Pipeline Samples
 
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../sections/faq/" class="md-tabs__link">
-        
-  
+        </a>
+      </li>
     
-  
-  FAQ
-
-      </a>
-    </li>
   
 
       
@@ -369,7 +370,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../pipeline/" class="md-tabs__link">
+        <a href="../step/" class="md-tabs__link">
           
   
   API Reference
@@ -377,6 +378,23 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../sections/community/" class="md-tabs__link">
+        
+  
+    
+  
+  Community
+
+      </a>
+    </li>
   
 
       
@@ -491,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/installation/" class="md-nav__link">
+      <a href="../../sections/getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -512,11 +530,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/how_to_guide/" class="md-nav__link">
+      <a href="../../sections/getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    How-to-Guide
+    Quickstart
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/getting_started/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
   </span>
   
 
@@ -555,29 +594,21 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../sections/learn/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
-    Learn
+    How-to guides
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Learn
+            How-to guides
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -603,29 +634,21 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../sections/learn/tutorial/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
-    Tutorial
+    Basic
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
-            Tutorial
+            Basic
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -653,11 +676,11 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../sections/learn/tutorial/step/" class="md-nav__link ">
+            <a href="../../sections/how_to_guides/basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    Step
+    Define Steps for your Pipeline
   </span>
   
 
@@ -673,7 +696,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1">
             <span class="md-nav__icon md-icon"></span>
-            Step
+            Define Steps for your Pipeline
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -684,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/step/generator_step/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -705,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/step/global_step/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -751,11 +774,11 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../sections/learn/tutorial/task/" class="md-nav__link ">
+            <a href="../../sections/how_to_guides/basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    Task
+    Define Tasks as Steps that rely on LLMs
   </span>
   
 
@@ -771,7 +794,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Task
+            Define Tasks as Steps that rely on LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -782,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/task/generator_task/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -811,11 +834,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/llm/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    LLM
+    Define LLMs as local models or remote APIs
   </span>
   
 
@@ -832,32 +855,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/pipeline/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Pipeline
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../sections/learn/tutorial/cli/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    CLI
+    Execute Steps and Tasks in a Pipeline
   </span>
   
 
@@ -897,24 +899,16 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../sections/learn/advanced/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
     Advanced
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_2">
@@ -930,11 +924,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/advanced/argilla/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/advanced/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Argilla
+    Using the Distiset dataset object
   </span>
   
 
@@ -951,11 +945,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/advanced/caching/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/advanced/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Caching
+    Export data to Argilla
   </span>
   
 
@@ -972,11 +966,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/advanced/distiset/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Distiset
+    Using a file system to pass data of batches between steps
   </span>
   
 
@@ -993,11 +987,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/advanced/structured_generation/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/advanced/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Structured Generation
+    Using CLI to explore and re-run existing Pipelines
   </span>
   
 
@@ -1014,11 +1008,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sections/learn/advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../../sections/how_to_guides/advanced/caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Using the file system to pass batch data
+    Cache and recover pipeline executions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/how_to_guides/advanced/structured_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Structured data generation
   </span>
   
 
@@ -1097,12 +1112,60 @@
   
   
   
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components-gallery/steps/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Steps
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Steps
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Steps
+    
   </span>
   
 
@@ -1111,6 +1174,440 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/arenahardresults/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/deitafiltering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/pushtohub/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/combinecolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/loadhubdataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components-gallery/tasks/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tasks
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tasks
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1123,7 +1620,7 @@
         
   
   <span class="md-ellipsis">
-    Tasks
+    
   </span>
   
 
@@ -1140,15 +1637,940 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/llms/" class="md-nav__link">
+      <a href="../../components-gallery/tasks/arenahard/" class="md-nav__link">
         
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/evolquality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/genstruct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/textgeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/pairrm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components-gallery/llms/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     LLMs
   </span>
   
 
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            LLMs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/anthropicllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/openaillm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/anyscalellm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/togetherllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/coherellm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/groqllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/litellm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/mistralllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/ollamallm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/vertexaillm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/transformersllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/llamacppllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/llms/vllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1183,24 +2605,16 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../sections/pipeline_samples/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
     Pipeline Samples
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
@@ -1381,26 +2795,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../../sections/faq/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    FAQ
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -1421,10 +2815,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1435,8 +2829,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             API Reference
           </label>
@@ -1464,129 +2858,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" >
-        
-          
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../pipeline/" class="md-nav__link ">
-              
-  
-  <span class="md-ellipsis">
-    Pipeline
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_7_1" id="__nav_7_1_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_1">
-            <span class="md-nav__icon md-icon"></span>
-            Pipeline
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../pipeline/routing_batch_function/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Routing Batch Function
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../pipeline/typing/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Typing
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../pipeline/utils/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Utils
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
         
           
           
@@ -1602,14 +2874,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_2" id="__nav_7_2_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6_1" id="__nav_6_1_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
             <span class="md-nav__icon md-icon"></span>
             Step
           </label>
@@ -1697,10 +2969,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_7_2_4" id="__nav_7_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1711,8 +2983,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_2_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_4">
             <span class="md-nav__icon md-icon"></span>
             Step Gallery
           </label>
@@ -1730,6 +3002,27 @@
   
   <span class="md-ellipsis">
     Argilla
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../step_gallery/hugging_face/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hugging Face
   </span>
   
 
@@ -1821,7 +3114,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" checked>
         
           
           
@@ -1837,14 +3130,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_3" id="__nav_7_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6_2" id="__nav_6_2_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_7_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_2">
             <span class="md-nav__icon md-icon"></span>
             Task
           </label>
@@ -3309,6 +4602,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task/typing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Typing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3339,7 +4653,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
         
           
           
@@ -3355,14 +4669,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_4" id="__nav_7_4_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6_3" id="__nav_6_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
             <span class="md-nav__icon md-icon"></span>
             LLM
           </label>
@@ -3387,10 +4701,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_7_4_1" id="__nav_7_4_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_3_1" id="__nav_6_3_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -3401,8 +4715,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_4_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3_1">
             <span class="md-nav__icon md-icon"></span>
             LLM Gallery
           </label>
@@ -3462,6 +4776,27 @@
   
   <span class="md-ellipsis">
     Azure (via OpenAI)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm/cohere/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cohere
   </span>
   
 
@@ -3703,12 +5038,231 @@
   
   
   
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../pipeline/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Pipeline
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_4" id="__nav_6_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            Pipeline
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipeline/routing_batch_function/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Routing Batch Function
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipeline/typing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Typing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipeline/utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distiset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Distiset
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../sections/community/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Community
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Community
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/community/popular_issues/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Issue dashboard
   </span>
   
 
@@ -5143,11 +6697,16 @@
                   
 
   
+    <a href="https://github.com/argilla-io/distilabel/edit/master/docs/api/task_gallery/index.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
   
 
 
 <h1 id="task-gallery">Task Gallery<a class="headerlink" href="#task-gallery" title="Permanent link">&para;</a></h1>
-<p>This section contains the existing <a class="autorefs autorefs-internal" href="../../reference/distilabel/steps/tasks/#distilabel.steps.tasks.Task"><code>Task</code></a> subclasses implemented in <code>distilabel</code>.</p>
+<p>This section contains the existing <a class="autorefs autorefs-internal" href="../task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> subclasses implemented in <code>distilabel</code>.</p>
 
 
 <div class="doc doc-object doc-module">
@@ -5181,7 +6740,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>This <code>Task</code> is based on the "From Live Data to High-Quality Benchmarks: The
@@ -5787,7 +7346,7 @@ the output if needed.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../../reference/distilabel/steps/#distilabel.steps.GlobalStep">GlobalStep</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.GlobalStep" href="../step/global_step/#distilabel.steps.base.GlobalStep">GlobalStep</a></code></p>
 
 
       <p>This <code>Step</code> is based on the "From Live Data to High-Quality Benchmarks: The
@@ -6318,7 +7877,7 @@ case there's a follow up step, since this step won't modify the received inputs.
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../../reference/distilabel/steps/#distilabel.steps.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6344,7 +7903,7 @@ case there's a follow up step, since this step won't modify the received inputs.
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step_gallery/extra/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6946,7 +8505,7 @@ being from the user with the content being the rendered <code>_template</code>.<
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Generates text based on a conversation.</p>
@@ -7374,7 +8933,7 @@ will be automatically included within the <code>process</code> method of <code>T
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Score instructions based on their complexity using an <code>LLM</code>.</p>
@@ -7991,7 +9550,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.base.EvolInstruct" href="../../reference/distilabel/steps/tasks/evol_instruct/base/#distilabel.steps.tasks.evol_instruct.base.EvolInstruct">EvolInstruct</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.base.EvolInstruct" href="#distilabel.steps.tasks.EvolInstruct">EvolInstruct</a></code></p>
 
 
       <p>Evolve instructions to make them more complex using an <code>LLM</code>.</p>
@@ -8317,7 +9876,7 @@ result = next(evol_complexity.process([{&quot;instruction&quot;: &quot;common in
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.generator.EvolInstructGenerator" href="../../reference/distilabel/steps/tasks/evol_instruct/generator/#distilabel.steps.tasks.evol_instruct.generator.EvolInstructGenerator">EvolInstructGenerator</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.evol_instruct.generator.EvolInstructGenerator" href="#distilabel.steps.tasks.EvolInstructGenerator">EvolInstructGenerator</a></code></p>
 
 
       <p>Generate evolved instructions with increased complexity using an <code>LLM</code>.</p>
@@ -8633,7 +10192,7 @@ result = next(scorer.process())
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Evolve instructions using an <code>LLM</code>.</p>
@@ -8712,7 +10271,7 @@ Defaults to the ones provided in the <code>utils.py</code> file.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstruct.seed">seed</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9745,7 +11304,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10285,7 +11844,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10311,7 +11870,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step_gallery/extra/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10442,7 +12001,7 @@ depending whether the value is either <code>False</code> or <code>True</code> fo
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.GeneratorTask" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.GeneratorTask">GeneratorTask</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.GeneratorTask" href="../task/generator_task/#distilabel.steps.tasks.base.GeneratorTask">GeneratorTask</a></code></p>
 
 
       <p>Generate evolved instructions using an <code>LLM</code>.</p>
@@ -10497,7 +12056,7 @@ instructions.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.min_length">min_length</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10509,7 +12068,7 @@ be higher than, to be considered valid. Defaults to <code>512</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.max_length">max_length</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10521,7 +12080,7 @@ be lower than, to be considered valid. Defaults to <code>1024</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolInstructGenerator.seed">seed</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11333,7 +12892,7 @@ first one i.e. FRESH_START, or not.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
+                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11869,7 +13428,7 @@ This is useful if you want to do some validation that requires the entire model 
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../step_gallery/extra/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11879,7 +13438,7 @@ This is useful if you want to do some validation that requires the entire model 
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.GeneratorStepOutput" href="../step_gallery/extra/#distilabel.steps.typing.GeneratorStepOutput">GeneratorStepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12054,7 +13613,7 @@ This is useful if you want to do some validation that requires the entire model 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Evolve the quality of the responses using an <code>LLM</code>.</p>
@@ -12123,7 +13682,7 @@ responses. Defaults to <code>False</code>.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.EvolQuality.seed">seed</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.mixins.runtime_parameters.RuntimeParameter" href="../../reference/distilabel/mixins/runtime_parameters/#distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</a>[int]</code>
+                  <code><span title="distilabel.mixins.runtime_parameters.RuntimeParameter">RuntimeParameter</span>[int]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -12884,7 +14443,7 @@ enum, and returns the provided instruction within the mutation prompt.</p>
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13251,7 +14810,7 @@ This is useful if you want to do some validation that requires the entire model 
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13277,7 +14836,7 @@ This is useful if you want to do some validation that requires the entire model 
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step_gallery/extra/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13362,7 +14921,7 @@ This is useful if you want to do some validation that requires the entire model 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../../reference/distilabel/steps/base/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.Step" href="../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
       <p>Generate embeddings using the last hidden state of an <code>LLM</code>.</p>
@@ -13384,7 +14943,7 @@ Automatic Data Selection in Instruction Tuning'.</p>
           <tr class="doc-section-item">
             <td><code><span title="distilabel.steps.tasks.GenerateEmbeddings.llm">llm</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="../../reference/distilabel/llms/base/#distilabel.llms.base.LLM">LLM</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.llms.base.LLM" href="../llm/#distilabel.llms.base.LLM">LLM</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13794,7 +15353,7 @@ list of dictionaries in OpenAI chat-like format.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13918,7 +15477,7 @@ list of dictionaries in OpenAI chat-like format.</p>
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13944,7 +15503,7 @@ list of dictionaries in OpenAI chat-like format.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step_gallery/extra/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14348,7 +15907,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14429,7 +15988,7 @@ there's only one turn, being from the user with the content being the rendered <
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Generate a positive and negative (optionally) sentences given an anchor sentence.</p>
@@ -15195,7 +16754,7 @@ anchor is provided as the first user interaction in the conversation.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16256,7 +17815,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16832,7 +18391,7 @@ there's only one turn, being from the user with the content being the rendered <
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../../reference/distilabel/steps/tasks/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.ChatType" href="../task/typing/#distilabel.steps.tasks.typing.ChatType">ChatType</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -16941,7 +18500,7 @@ there's only one turn, being from the user with the content being the rendered <
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Generate a pair of instruction-response from a document using an <code>LLM</code>.</p>
@@ -17623,7 +19182,7 @@ captured.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Self-Alignment with Instruction Backtranslation.</p>
@@ -18518,7 +20077,7 @@ being from the user with the content being the rendered <code>_template</code>.<
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Step" href="../../reference/distilabel/steps/base/#distilabel.steps.base.Step">Step</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Step" href="../step/#distilabel.steps.base.Step">Step</a></code></p>
 
 
       <p>Rank the candidates based on the input using the <code>LLM</code> model.</p>
@@ -19070,7 +20629,7 @@ ranks obtained.</p>
           <tr class="doc-section-item">
             <td><code>inputs</code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../../reference/distilabel/steps/base/#distilabel.steps.base.StepInput">StepInput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.base.StepInput" href="../step/#distilabel.steps.base.StepInput">StepInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19096,7 +20655,7 @@ ranks obtained.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../../reference/distilabel/steps/typing/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.typing.StepOutput" href="../step_gallery/extra/#distilabel.steps.typing.StepOutput">StepOutput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -19219,7 +20778,7 @@ ranks obtained.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Critique and rank the quality of generations from an <code>LLM</code> using Prometheus 2.0.</p>
@@ -19297,9 +20856,9 @@ Examples:
     prometheus = PrometheusEval(
         llm=vLLM(
             model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,
-            chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}
+            chat_template=&quot;[INST] {{ messages[0]&quot;content&quot; }}
 </code></pre></div>
-<p>{{ messages[1]['content'] }}[/INST]",
+<p>{{ messages[1]"content" }}[/INST]",
             ),
             mode="absolute",
             rubric="factual-validity"
@@ -19335,9 +20894,9 @@ Examples:
     prometheus = PrometheusEval(
         llm=vLLM(
             model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,
-            chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}
+            chat_template=&quot;[INST] {{ messages[0]&quot;content&quot; }}
 </code></pre></div>
-<p>{{ messages[1]['content'] }}[/INST]",
+<p>{{ messages[1]"content" }}[/INST]",
             ),
             mode="relative",
             rubric="honesty"
@@ -19373,9 +20932,9 @@ Examples:
     prometheus = PrometheusEval(
         llm=vLLM(
             model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,
-            chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}
+            chat_template=&quot;[INST] {{ messages[0]&quot;content&quot; }}
 </code></pre></div>
-<p>{{ messages[1]['content'] }}[/INST]",
+<p>{{ messages[1]"content" }}[/INST]",
             ),
             mode="absolute",
             rubric="custom",
@@ -19419,9 +20978,9 @@ Score 5: E"
     prometheus = PrometheusEval(
         llm=vLLM(
             model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,
-            chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}
+            chat_template=&quot;[INST] {{ messages[0]&quot;content&quot; }}
 </code></pre></div>
-<p>{{ messages[1]['content'] }}[/INST]",
+<p>{{ messages[1]"content" }}[/INST]",
             ),
             mode="absolute",
             rubric="helpfulness",
@@ -19919,7 +21478,7 @@ Score 5: E"
 </span><span id="__span-0-148"><a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="sd">        prometheus = PrometheusEval(</span>
 </span><span id="__span-0-149"><a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">            llm=vLLM(</span>
 </span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">                model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,</span>
-</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}\n{{ messages[1][&#39;content&#39;] }}[/INST]&quot;,</span>
+</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0]\&quot;content\&quot; }}\n{{ messages[1]\&quot;content\&quot; }}[/INST]&quot;,</span>
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">            ),</span>
 </span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">            mode=&quot;absolute&quot;,</span>
 </span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">            rubric=&quot;factual-validity&quot;</span>
@@ -19956,7 +21515,7 @@ Score 5: E"
 </span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="sd">        prometheus = PrometheusEval(</span>
 </span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="sd">            llm=vLLM(</span>
 </span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a><span class="sd">                model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}\n{{ messages[1][&#39;content&#39;] }}[/INST]&quot;,</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0]\&quot;content\&quot; }}\n{{ messages[1]\&quot;content\&quot; }}[/INST]&quot;,</span>
 </span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="sd">            ),</span>
 </span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="sd">            mode=&quot;relative&quot;,</span>
 </span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="sd">            rubric=&quot;honesty&quot;</span>
@@ -19993,7 +21552,7 @@ Score 5: E"
 </span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a><span class="sd">        prometheus = PrometheusEval(</span>
 </span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">            llm=vLLM(</span>
 </span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">                model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}\n{{ messages[1][&#39;content&#39;] }}[/INST]&quot;,</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0]\&quot;content\&quot; }}\n{{ messages[1]\&quot;content\&quot; }}[/INST]&quot;,</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="sd">            ),</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">            mode=&quot;absolute&quot;,</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">            rubric=&quot;custom&quot;,</span>
@@ -20033,7 +21592,7 @@ Score 5: E"
 </span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">        prometheus = PrometheusEval(</span>
 </span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">            llm=vLLM(</span>
 </span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="sd">                model=&quot;prometheus-eval/prometheus-7b-v2.0&quot;,</span>
-</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0][&#39;content&#39;] }}\n{{ messages[1][&#39;content&#39;] }}[/INST]&quot;,</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="sd">                chat_template=&quot;[INST] {{ messages[0]\&quot;content\&quot; }}\n{{ messages[1]\&quot;content\&quot; }}[/INST]&quot;,</span>
 </span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a><span class="sd">            ),</span>
 </span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a><span class="sd">            mode=&quot;absolute&quot;,</span>
 </span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a><span class="sd">            rubric=&quot;helpfulness&quot;,</span>
@@ -20649,7 +22208,7 @@ value of <code>reference</code>.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Score responses based on their quality using an <code>LLM</code>.</p>
@@ -21320,7 +22879,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Generate instructions based on a given input using an <code>LLM</code>.</p>
@@ -21985,7 +23544,7 @@ is the first interaction from the user within a conversation.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Generate structured content for a given <code>instruction</code> using an <code>LLM</code>.</p>
@@ -22653,7 +24212,7 @@ output i.e. a string without any parsing.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Simple text generation with an <code>LLM</code> given an instruction.</p>
@@ -23134,7 +24693,7 @@ will be automatically included within the <code>process</code> method of <code>T
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../../reference/distilabel/steps/tasks/base/#distilabel.steps.tasks.base.Task">Task</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.base.Task" href="../task/#distilabel.steps.tasks.base.Task">Task</a></code></p>
 
 
       <p>Rank generations focusing on different aspects using an <code>LLM</code>.</p>
@@ -24298,9 +25857,55 @@ will be automatically included within the <code>process</code> method of <code>T
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../task/generator_task/" class="md-footer__link md-footer__link--prev" aria-label="Previous: GeneratorTask">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                GeneratorTask
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../task/typing/" class="md-footer__link md-footer__link--next" aria-label="Next: Typing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Typing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -24372,7 +25977,7 @@ will be automatically included within the <code>process</code> method of <code>T
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.tabs", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>

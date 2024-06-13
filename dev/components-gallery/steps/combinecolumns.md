@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # CombineColumns
-
 
 Combines columns from a list of `StepInput`.
 

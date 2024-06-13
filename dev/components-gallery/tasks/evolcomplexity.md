@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EvolComplexity
-
 
 Evolve instructions to make them more complex using an `LLM`.
 

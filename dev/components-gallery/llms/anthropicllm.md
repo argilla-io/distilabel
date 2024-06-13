@@ -1,4 +1,8 @@
-# AnthropicLLM
+---
+hide:
+  - navigation
+---
+AnthropicLLM
 
 
 Anthropic LLM implementation running the Async API client.

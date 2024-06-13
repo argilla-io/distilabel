@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # BitextRetrievalGenerator
-
 
 Generate bitext retrieval data with an `LLM` to later on train an embedding model.
 

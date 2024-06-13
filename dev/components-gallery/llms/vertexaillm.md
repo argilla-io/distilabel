@@ -1,4 +1,8 @@
-# VertexAILLM
+---
+hide:
+  - navigation
+---
+VertexAILLM
 
 
 VertexAI LLM implementation running the async API clients for Gemini.

@@ -1,4 +1,8 @@
-# InferenceEndpointsLLM
+---
+hide:
+  - navigation
+---
+InferenceEndpointsLLM
 
 
 InferenceEndpoints LLM implementation running the async API client.

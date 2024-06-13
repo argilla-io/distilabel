@@ -1,4 +1,8 @@
-# AnyscaleLLM
+---
+hide:
+  - navigation
+---
+AnyscaleLLM
 
 
 Anyscale LLM implementation running the async API client of OpenAI.

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ComplexityScorer
-
 
 Score instructions based on their complexity using an `LLM`.
 

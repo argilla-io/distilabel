@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # PrometheusEval
-
 
 Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
 
@@ -120,8 +123,8 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]['content'] }}
-{{ messages[1]['content'] }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}
+{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="factual-validity"
@@ -157,8 +160,8 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]['content'] }}
-{{ messages[1]['content'] }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}
+{{ messages[1]"content" }}[/INST]",
     ),
     mode="relative",
     rubric="honesty"
@@ -194,8 +197,8 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]['content'] }}
-{{ messages[1]['content'] }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}
+{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="custom",
@@ -239,8 +242,8 @@ from distilabel.llms import vLLM
 prometheus = PrometheusEval(
     llm=vLLM(
         model="prometheus-eval/prometheus-7b-v2.0",
-        chat_template="[INST] {{ messages[0]['content'] }}
-{{ messages[1]['content'] }}[/INST]",
+        chat_template="[INST] {{ messages[0]"content" }}
+{{ messages[1]"content" }}[/INST]",
     ),
     mode="absolute",
     rubric="helpfulness",

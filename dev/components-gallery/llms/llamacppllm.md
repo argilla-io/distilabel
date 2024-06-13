@@ -1,4 +1,8 @@
-# LlamaCppLLM
+---
+hide:
+  - navigation
+---
+LlamaCppLLM
 
 
 llama.cpp LLM implementation running the Python bindings for the C++ code.

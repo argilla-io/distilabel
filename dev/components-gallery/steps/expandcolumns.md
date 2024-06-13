@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ExpandColumns
-
 
 Expand columns that contain lists into multiple rows.
 

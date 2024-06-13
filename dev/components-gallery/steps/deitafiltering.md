@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # DeitaFiltering
-
 
 Filter dataset rows using DEITA filtering strategy.
 

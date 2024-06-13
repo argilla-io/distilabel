@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ConversationTemplate
-
 
 Generate a conversation template from an instruction and a response.
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # KeepColumns
-
 
 Keeps selected columns in the dataset.
 

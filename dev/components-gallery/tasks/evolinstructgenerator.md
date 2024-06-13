@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EvolInstructGenerator
-
 
 Generate evolved instructions using an `LLM`.
 

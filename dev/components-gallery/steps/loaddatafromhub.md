@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # LoadDataFromHub
-
 
 Loads a dataset from the Hugging Face Hub.
 

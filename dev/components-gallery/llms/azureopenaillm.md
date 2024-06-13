@@ -1,4 +1,8 @@
-# AzureOpenAILLM
+---
+hide:
+  - navigation
+---
+AzureOpenAILLM
 
 
 Azure OpenAI LLM implementation running the async API client.

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # StructuredGeneration
-
 
 Generate structured content for a given `instruction` using an `LLM`.
 

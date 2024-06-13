@@ -1,4 +1,8 @@
-# OllamaLLM
+---
+hide:
+  - navigation
+---
+OllamaLLM
 
 
 Ollama LLM implementation running the Async API client.

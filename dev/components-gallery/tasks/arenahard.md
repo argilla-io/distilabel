@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # ArenaHard
-
 
 This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
 

@@ -1,4 +1,8 @@
-# OpenAILLM
+---
+hide:
+  - navigation
+---
+OpenAILLM
 
 
 OpenAI LLM implementation running the async API client.

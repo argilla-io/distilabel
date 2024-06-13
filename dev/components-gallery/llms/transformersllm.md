@@ -1,4 +1,8 @@
-# TransformersLLM
+---
+hide:
+  - navigation
+---
+TransformersLLM
 
 
 Hugging Face `transformers` library LLM implementation using the text generation

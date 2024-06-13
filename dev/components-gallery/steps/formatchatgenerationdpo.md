@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # FormatChatGenerationDPO
-
 
 Format the output of a combination of a `ChatGeneration` + a preference task such as
 

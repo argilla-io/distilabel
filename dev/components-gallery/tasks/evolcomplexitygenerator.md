@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # EvolComplexityGenerator
-
 
 Generate evolved instructions with increased complexity using an `LLM`.
 

@@ -1,4 +1,8 @@
-# LiteLLM
+---
+hide:
+  - navigation
+---
+LiteLLM
 
 
 LiteLLM implementation running the async API client.

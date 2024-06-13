@@ -1,4 +1,8 @@
-# MistralLLM
+---
+hide:
+  - navigation
+---
+MistralLLM
 
 
 Mistral LLM implementation running the async API client.

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # LoadDataFromDicts
-
 
 Loads a dataset from a list of dictionaries.
 

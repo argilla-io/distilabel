@@ -1,8 +1,8 @@
 ---
-hide: 
+hide:
   - toc
+  - navigation
 ---
-
 # LLMs Gallery
 
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # FormatTextGenerationSFT
-
 
 Format the output of a `TextGeneration` task for Supervised Fine-Tuning (SFT).
 

@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # LoadDataFromFileSystem
-
 
 Loads a dataset from a file in your filesystem.
 
