@@ -108,6 +108,172 @@ graph TD
 
 
 
+### Examples
+
+
+#### 0
+```python
+from distilabel.steps.tasks import PrometheusEval
+from distilabel.llms import vLLM
+
+# Consider this as a placeholder for your actual LLM.
+prometheus = PrometheusEval(
+    llm=vLLM(
+        model="prometheus-eval/prometheus-7b-v2.0",
+        chat_template="[INST] {{ messages[0]['content'] }}
+{{ messages[1]['content'] }}[/INST]",
+    ),
+    mode="absolute",
+    rubric="factual-validity"
+)
+
+prometheus.load()
+
+result = next(
+    prometheus.process(
+        [
+            {"instruction": "make something", "generation": "something done"},
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'make something',
+#         'generation': 'something done',
+#         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+#         'feedback': 'the feedback',
+#         'result': 6,
+#     }
+# ]
+```
+
+#### Critique for relative evaluation
+```python
+from distilabel.steps.tasks import PrometheusEval
+from distilabel.llms import vLLM
+
+# Consider this as a placeholder for your actual LLM.
+prometheus = PrometheusEval(
+    llm=vLLM(
+        model="prometheus-eval/prometheus-7b-v2.0",
+        chat_template="[INST] {{ messages[0]['content'] }}
+{{ messages[1]['content'] }}[/INST]",
+    ),
+    mode="relative",
+    rubric="honesty"
+)
+
+prometheus.load()
+
+result = next(
+    prometheus.process(
+        [
+            {"instruction": "make something", "generations": ["something done", "other thing"]},
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'make something',
+#         'generations': ['something done', 'other thing'],
+#         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+#         'feedback': 'the feedback',
+#         'result': 'something done',
+#     }
+# ]
+```
+
+#### Critique with a custom rubric
+```python
+from distilabel.steps.tasks import PrometheusEval
+from distilabel.llms import vLLM
+
+# Consider this as a placeholder for your actual LLM.
+prometheus = PrometheusEval(
+    llm=vLLM(
+        model="prometheus-eval/prometheus-7b-v2.0",
+        chat_template="[INST] {{ messages[0]['content'] }}
+{{ messages[1]['content'] }}[/INST]",
+    ),
+    mode="absolute",
+    rubric="custom",
+    rubrics={
+        "custom": "[A]
+Score 1: A
+Score 2: B
+Score 3: C
+Score 4: D
+Score 5: E"
+    }
+)
+
+prometheus.load()
+
+result = next(
+    prometheus.process(
+        [
+            {"instruction": "make something", "generation": "something done"},
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'make something',
+#         'generation': 'something done',
+#         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+#         'feedback': 'the feedback',
+#         'result': 6,
+#     }
+# ]
+```
+
+#### Critique using a reference answer
+```python
+from distilabel.steps.tasks import PrometheusEval
+from distilabel.llms import vLLM
+
+# Consider this as a placeholder for your actual LLM.
+prometheus = PrometheusEval(
+    llm=vLLM(
+        model="prometheus-eval/prometheus-7b-v2.0",
+        chat_template="[INST] {{ messages[0]['content'] }}
+{{ messages[1]['content'] }}[/INST]",
+    ),
+    mode="absolute",
+    rubric="helpfulness",
+    reference=True,
+)
+
+prometheus.load()
+
+result = next(
+    prometheus.process(
+        [
+            {
+                "instruction": "make something",
+                "generation": "something done",
+                "reference": "this is a reference answer",
+            },
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'make something',
+#         'generation': 'something done',
+#         'reference': 'this is a reference answer',
+#         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+#         'feedback': 'the feedback',
+#         'result': 6,
+#     }
+# ]
+```
+
+
 
 
 ### References

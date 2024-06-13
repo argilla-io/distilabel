@@ -23,7 +23,7 @@ Anthropic LLM implementation running the Async API client.
 
 - **http_client**: if provided, an alternative HTTP client to use for calling Anthropic  API. Defaults to `None`.
 
-- **structured_output**: a dictionary containing the structured output configuration configuration  using `instructor`. Defaults to None.
+- **structured_output**: a dictionary containing the structured output configuration configuration  using `instructor`. You can take a look at the dictionary structure in  `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
 
 - **_api_key_env_var**: the name of the environment variable to use for the API key. It  is meant to be used internally.
 

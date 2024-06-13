@@ -89,6 +89,43 @@ graph TD
 
 
 
+### Examples
+
+
+#### Evolve the quality of the responses given a prompt
+```python
+from distilabel.steps.tasks import EvolQuality
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_quality = EvolQuality(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_evolutions=2,
+)
+
+evol_quality.load()
+
+result = next(
+    evol_quality.process(
+        [
+            {"instruction": "common instruction", "response": "a response"},
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'common instruction',
+#         'response': 'a response',
+#         'evolved_response': 'evolved response',
+#         'model_name': '"mistralai/Mistral-7B-Instruct-v0.2"'
+#     }
+# ]
+```
+
+
 
 
 ### References

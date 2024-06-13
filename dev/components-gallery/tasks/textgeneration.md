@@ -67,5 +67,38 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generate text from an instruction
+```python
+from distilabel.steps.tasks import TextGeneration
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+text_gen = TextGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    )
+)
+
+text_gen.load()
+
+result = next(
+    text_gen.process(
+        [{"instruction": "your instruction"}]
+    )
+)
+# result
+# [
+#     {
+#         'instruction': 'your instruction',
+#         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+#         'generation': 'generation',
+#     }
+# ]
+```
+
+
 
 

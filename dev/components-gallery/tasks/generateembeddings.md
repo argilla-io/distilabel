@@ -67,6 +67,34 @@ graph TD
 
 
 
+### Examples
+
+
+#### Rank LLM candidates
+```python
+from distilabel.steps.tasks import GenerateEmbeddings
+from distilabel.llms.huggingface import TransformersLLM
+
+# Consider this as a placeholder for your actual LLM.
+embedder = GenerateEmbeddings(
+    llm=TransformersLLM(
+        model="TaylorAI/bge-micro-v2",
+        model_kwargs={"is_decoder": True},
+        cuda_devices=[],
+    )
+)
+embedder.load()
+
+result = next(
+    embedder.process(
+        [
+            {"text": "Hello, how are you?"},
+        ]
+    )
+)
+```
+
+
 
 
 ### References

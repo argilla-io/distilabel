@@ -5,9 +5,9 @@ Generate structured content for a given `instruction` using an `LLM`.
 
 
 
-`StructuredGeneration` is a pre-defined task that defines the `instruction` and the `grammar`
+`StructuredGeneration` is a pre-defined task that defines the `instruction` and the `structured_output`
     as the inputs, and `generation` as the output. This task is used to generate structured content based on
-    the input instruction and following the schema provided within the `grammar` column per each
+    the input instruction and following the schema provided within the `structured_output` column per each
     `instruction`. The `model_name` also returned as part of the output in order to enhance it.
 
 
@@ -29,7 +29,7 @@ graph TD
 	subgraph Dataset
 		subgraph Columns
 			ICOL0[instruction]
-			ICOL1[grammar]
+			ICOL1[structured_output]
 		end
 		subgraph New columns
 			OCOL0[generation]
@@ -38,7 +38,7 @@ graph TD
 	end
 
 	subgraph StructuredGeneration
-		StepInput[Input Columns: instruction, grammar]
+		StepInput[Input Columns: instruction, structured_output]
 		StepOutput[Output Columns: generation, model_name]
 	end
 
@@ -56,7 +56,7 @@ graph TD
 
 - **instruction** (`str`): The instruction to generate structured content from.
 
-- **grammar** (`Dict[str, Any]`): The grammar to generate structured content from. It should be a  Python dictionary with the keys `type` and `value`, where `type` should be one of `json` or  `regex`, and the `value` should be either the JSON schema or the regex pattern, respectively.
+- **structured_output** (`Dict[str, Any]`): The structured_output to generate structured content from. It should be a  Python dictionary with the keys `format` and `schema`, where `format` should be one of `json` or  `regex`, and the `schema` should be either the JSON schema or the regex pattern, respectively.
 
 
 
@@ -70,6 +70,96 @@ graph TD
 
 
 
+
+
+### Examples
+
+
+#### Generate structured output from a JSON schema
+```python
+from distilabel.steps.tasks import StructuredGeneration
+from distilabel.llms import InferenceEndpointsLLM
+
+structured_gen = StructuredGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
+)
+
+structured_gen.load()
+
+result = next(
+    structured_gen.process(
+        [
+            {
+                "instruction": "Create an RPG character",
+                "structured_output": {
+                    "type": "json",
+                    "value": {
+                        "properties": {
+                            "name": {
+                                "title": "Name",
+                                "type": "string"
+                            },
+                            "description": {
+                                "title": "Description",
+                                "type": "string"
+                            },
+                            "role": {
+                                "title": "Role",
+                                "type": "string"
+                            },
+                            "weapon": {
+                                "title": "Weapon",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "description",
+                            "role",
+                            "weapon"
+                        ],
+                        "title": "Character",
+                        "type": "object"
+                    }
+                },
+            }
+        ]
+    )
+)
+```
+
+#### Generate structured output from a regex pattern
+```python
+from distilabel.steps.tasks import StructuredGeneration
+from distilabel.llms import InferenceEndpointsLLM
+
+structured_gen = StructuredGeneration(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
+)
+
+structured_gen.load()
+
+result = next(
+    structured_gen.process(
+        [
+            {
+                "instruction": "What's the weather like today in Seattle in Celsius degrees?",
+                "structured_output": {
+                    "type": "regex",
+                    "value": r"(\d{1,2})°C"
+                },
+
+            }
+        ]
+    )
+)
+```
 
 
 

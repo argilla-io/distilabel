@@ -74,6 +74,44 @@ graph TD
 
 
 
+### Examples
+
+
+#### Evaluate the quality of your instructions
+```python
+from distilabel.steps.tasks import QualityScorer
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+scorer = QualityScorer(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    )
+)
+
+scorer.load()
+
+result = next(
+    scorer.process(
+        [
+            {
+                "instruction": "instruction",
+                "responses": ["good response", "weird response", "bad response"]
+            }
+        ]
+    )
+)
+# result
+[
+    {
+        'instructions': 'instruction',
+        'model_name': 'test',
+        'scores': [5, 3, 1],
+    }
+]
+```
+
+
 
 
 ### References

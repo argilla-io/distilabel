@@ -92,6 +92,85 @@ graph TD
 
 
 
+### Examples
+
+
+#### Evolve an instruction using an LLM
+```python
+from distilabel.steps.tasks import EvolInstruct
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_instruct = EvolInstruct(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_evolutions=2,
+)
+
+evol_instruct.load()
+
+result = next(evol_instruct.process([{"instruction": "common instruction"}]))
+# result
+# [{'instruction': 'common instruction', 'evolved_instruction': 'evolved instruction', 'model_name': 'model_name'}]
+```
+
+#### Keep the iterations of the evolutions
+```python
+from distilabel.steps.tasks import EvolInstruct
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_instruct = EvolInstruct(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_evolutions=2,
+    store_evolutions=True,
+)
+
+evol_instruct.load()
+
+result = next(evol_instruct.process([{"instruction": "common instruction"}]))
+# result
+# [
+#     {
+#         'instruction': 'common instruction',
+#         'evolved_instructions': ['initial evolution', 'final evolution'],
+#         'model_name': 'model_name'
+#     }
+# ]
+```
+
+#### Generate answers for the instructions in a single step
+```python
+from distilabel.steps.tasks import EvolInstruct
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_instruct = EvolInstruct(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_evolutions=2,
+    generate_answers=True,
+)
+
+evol_instruct.load()
+
+result = next(evol_instruct.process([{"instruction": "common instruction"}]))
+# result
+# [
+#     {
+#         'instruction': 'common instruction',
+#         'evolved_instruction': 'evolved instruction',
+#         'answer': 'answer to the instruction',
+#         'model_name': 'model_name'
+#     }
+# ]
+```
+
+
 
 
 ### References

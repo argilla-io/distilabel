@@ -74,5 +74,34 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generate instructions based on a given input
+```python
+from distilabel.steps.tasks import SelfInstruct
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+self_instruct = SelfInstruct(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_instructions=5,  # This is the default value
+)
+
+self_instruct.load()
+
+result = next(self_instruct.process([{"input": "instruction"}]))
+# result
+# [
+#     {
+#         'input': 'instruction',
+#         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+#         'instructions': ["instruction 1", "instruction 2", "instruction 3", "instruction 4", "instruction 5"],
+#     }
+# ]
+```
+
+
 
 

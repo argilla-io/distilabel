@@ -81,6 +81,43 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generate instructions from raw documents using the title and content
+```python
+from distilabel.steps.tasks import Genstruct
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+genstruct = Genstruct(
+    llm=InferenceEndpointsLLM(
+        model_id="NousResearch/Genstruct-7B",
+    ),
+)
+
+genstruct.load()
+
+result = next(
+    genstruct.process(
+        [
+            {"title": "common instruction", "content": "content of the document"},
+        ]
+    )
+)
+# result
+# [
+#     {
+#         'title': 'An instruction',
+#         'content': 'content of the document',
+#         'model_name': 'test',
+#         'user': 'An instruction',
+#         'assistant': 'content of the document',
+#     }
+# ]
+```
+
+
 
 
 ### References

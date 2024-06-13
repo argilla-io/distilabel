@@ -80,6 +80,30 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generate evolved instructions without initial instructions
+```python
+from distilabel.steps.tasks import EvolInstructGenerator
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_instruct_generator = EvolInstructGenerator(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_instructions=2,
+)
+
+evol_instruct_generator.load()
+
+result = next(scorer.process())
+# result
+# [{'instruction': 'generated instruction', 'model_name': 'test'}]
+```
+
+
 
 
 ### References

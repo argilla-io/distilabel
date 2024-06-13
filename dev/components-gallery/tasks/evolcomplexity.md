@@ -6,7 +6,7 @@ Evolve instructions to make them more complex using an `LLM`.
 
 
 `EvolComplexity` is a task that evolves instructions to make them more complex,
-    and it is based in the EvolInstruct task, but using slight different prompts, but the
+    and it is based in the EvolInstruct task, using slight different prompts, but the
     exact same evolutionary approach.
 
 
@@ -88,6 +88,30 @@ graph TD
 
 
 
+
+
+### Examples
+
+
+#### Evolve an instruction using an LLM
+```python
+from distilabel.steps.tasks import EvolComplexity
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+evol_complexity = EvolComplexity(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    num_evolutions=2,
+)
+
+evol_complexity.load()
+
+result = next(evol_complexity.process([{"instruction": "common instruction"}]))
+# result
+# [{'instruction': 'common instruction', 'evolved_instruction': 'evolved instruction', 'model_name': 'model_name'}]
+```
 
 
 
