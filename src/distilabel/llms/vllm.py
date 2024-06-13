@@ -386,10 +386,30 @@ def _sort_batches(
     Returns:
         Sorted batched_outputs.
     """
-    flattened_batches = np.array([b for batch in batches for b in batch[0]])
-
-    return np.take_along_axis(
+    batch_sizes = [len(batch) for batch in batches]
+    flattened_batches = np.array([b for batch in batches for b in batch])
+    sorted_batches = np.take_along_axis(
         flattened_batches,
         np.argsort(np.repeat(indices, num_generations)),
         axis=0,
     ).tolist()
+    sorted_batches = _batchify(sorted_batches, batch_sizes)
+    return sorted_batches
+
+
+def _batchify(sorted_batches: List[str], batch_sizes: List[int]) -> List[List[str]]:
+    """Helper function to regenerate the sorted batches from the flattened sorted ones.
+
+    Args:
+        sorted_batches: Output obtained from the `_sort_batches` function.
+        batch_sizes: The batch sizes to be used to split the sorted batches.
+
+    Returns:
+        Batched sorted batches in the original shape.
+    """
+    batches = []
+    idx = 0
+    for bs in batch_sizes:
+        batches.append(sorted_batches[idx : idx + bs])
+        idx += bs
+    return batches

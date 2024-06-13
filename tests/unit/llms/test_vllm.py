@@ -134,7 +134,6 @@ class TestvLLM:
         llm = vLLM(model="dummy")
         llm._tokenizer = DummyTokenizer()
         batches, indices = llm._prepare_batches(formatted_inputs)
-
         # NOTE: We have to simulate calling self._model.generate(n=num_generations) and then sorting the results
         num_generations_batches = []
         for batch in batches:
@@ -142,62 +141,30 @@ class TestvLLM:
                 (np.repeat(batch[0], num_generations).tolist(), batch[1])
             )
         batches = num_generations_batches
-
+        # Recreate as the output from batched_outputs += [[output.text for output in outputs.outputs] for outputs in batch_outputs]
+        batches = [batch for batch, _ in batches]
         sorted_batches = _sort_batches(
             batches, indices, num_generations=num_generations
         )
 
-        assert batches == [
-            (
-                np.repeat(
-                    [
-                        "Generate a character from a RPG game.",
-                        "Repeated character",
-                        "Other character",
-                    ],
-                    num_generations,
-                ).tolist(),
-                {
-                    "format": "json",
-                    "schema": {
-                        "properties": {
-                            "name": {"title": "Name", "type": "string"},
-                            "description": {"title": "Description", "type": "string"},
-                            "role": {"title": "Role", "type": "string"},
-                            "weapon": {"title": "Weapon", "type": "string"},
-                        },
-                        "required": ["name", "description", "role", "weapon"],
-                        "title": "Character",
-                        "type": "object",
-                    },
-                },
-            ),
-            (
-                np.repeat(["Generate an animal from a zoo."], num_generations).tolist(),
-                {
-                    "format": "json",
-                    "schema": {
-                        "properties": {
-                            "name": {"title": "Name", "type": "string"},
-                            "species": {"title": "Species", "type": "string"},
-                            "habitat": {"title": "Habitat", "type": "string"},
-                            "diet": {"title": "Diet", "type": "string"},
-                        },
-                        "required": ["name", "species", "habitat", "diet"],
-                        "title": "Animal",
-                        "type": "object",
-                    },
-                },
-            ),
-            (
-                np.repeat(
-                    [
-                        "What's the weather like today in Seattle in Celsius degrees?",
-                        "repeated regex",
-                    ],
-                    num_generations,
-                ).tolist(),
-                {"format": "regex", "schema": "(\\d{1,2})°C"},
-            ),
+        assert sorted_batches == [
+            np.repeat(
+                [
+                    "Generate a character from a RPG game.",
+                    "Generate an animal from a zoo.",
+                    "Repeated character",
+                ],
+                num_generations,
+            ).tolist(),
+            np.repeat(
+                ["What's the weather like today in Seattle in Celsius degrees?"],
+                num_generations,
+            ).tolist(),
+            np.repeat(
+                [
+                    "Other character",
+                    "repeated regex",
+                ],
+                num_generations,
+            ).tolist(),
         ]
-        assert sorted_batches == expected_sorted_batches
