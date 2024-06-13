@@ -78,6 +78,26 @@ class LoadDataFromHub(GeneratorStep):
 
     Categories:
         - load
+
+    Examples:
+
+        Load data from a dataset in Hugging Face Hub:
+
+        ```python
+        from distilabel.steps import LoadDataFromHub
+
+        loader = LoadDataFromHub(
+            repo_id="distilabel-internal-testing/instruction-dataset-mini",
+            split="test",
+            batch_size=2
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'prompt': 'Arianna has 12...', False)
+        ```
     """
 
     repo_id: RuntimeParameter[str] = Field(
@@ -264,6 +284,53 @@ class LoadDataFromFileSystem(LoadDataFromHub):
 
     Categories:
         - load
+
+    Examples:
+
+        Load data from a Hugging Face dataset in your file system:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(data_files="path/to/dataset.jsonl")
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
+
+        Specify a filetype if the file extension is not expected:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(filetype="csv", data_files="path/to/dataset.txtr")
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
+
+        Load data from a file in your cloud provider:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(
+            data_files="gcs://path/to/dataset",
+            storage_options={"project": "experiments-0001"}
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     data_files: RuntimeParameter[Union[str, Path]] = Field(
@@ -393,11 +460,63 @@ class LoadDataFromDisk(LoadDataFromHub):
 
     Categories:
         - load
+
+    Examples:
+
+        Load data from a Hugging Face Dataset:
+
+        ```python
+        from distilabel.steps import LoadDataFromDisk
+
+        loader = LoadDataFromDisk(dataset_path="path/to/dataset")
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
+
+        Load data from a distilabel Distiset:
+
+        ```python
+        from distilabel.steps import LoadDataFromDisk
+
+        # Specify the configuration to load.
+        loader = LoadDataFromDisk(
+            dataset_path="path/to/dataset",
+            is_distiset=True,
+            config="leaf_step_1"
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'a': 1}, {'a': 2}, {'a': 3}], True)
+        ```
+
+        Load data from a Hugging Face Dataset or Distiset in your cloud provider:
+
+        ```python
+        from distilabel.steps import LoadDataFromDisk
+
+        loader = LoadDataFromDisk(
+            dataset_path="gcs://path/to/dataset",
+            storage_options={"project": "experiments-0001"}
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     dataset_path: RuntimeParameter[Union[str, Path]] = Field(
         default=None,
-        description="_summary_",
+        description="Path to the dataset or distiset.",
     )
     config: RuntimeParameter[str] = Field(
         default=None,

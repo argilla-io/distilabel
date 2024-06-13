@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -64,13 +65,21 @@ class _Task(_Step, ABC):
     )
 
     def load(self) -> None:
-        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
+        """Loads the LLM via the `LLM.load()` method."""
         super().load()
         self.llm.load()
 
+    @override
+    def unload(self) -> None:
+        """Unloads the LLM."""
+        self._logger.debug("Executing task unload logic.")
+        self.llm.unload()
+
     @abstractmethod
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self,
+        output: Union[str, None],
+        input: Union[Dict[str, Any], None] = None,
     ) -> Dict[str, Any]:
         """Abstract method to format the outputs of the task. It needs to receive an output
         as a string, and generates a Python dictionary with the outputs of the task. In
@@ -80,7 +89,9 @@ class _Task(_Step, ABC):
         pass
 
     def _format_outputs(
-        self, outputs: "GenerateOutput", inputs: List[Dict[str, Any]]
+        self,
+        outputs: "GenerateOutput",
+        inputs: Union[List[Dict[str, Any]], None] = None,
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
@@ -93,8 +104,11 @@ class _Task(_Step, ABC):
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
+        if inputs is None:
+            inputs = [None]  # type: ignore
+
         formatted_outputs = []
-        for output, input in zip(outputs, inputs * len(outputs)):
+        for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._maybe_add_raw_output(
@@ -109,7 +123,7 @@ class _Task(_Step, ABC):
         return formatted_outputs
 
     def _output_on_failure(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """In case of failure to format the output, this method will return a dictionary including
         a new field `distilabel_meta` with the raw output of the LLM.
@@ -189,14 +203,14 @@ class Task(_Task, Step):
             if self.group_generations:
                 combined = combine_dicts(*formatted_outputs)
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **combined}
+                    {**input, **combined, "model_name": self.llm.model_name}
                 )
                 continue
 
             # Create a row per generation
             for formatted_output in formatted_outputs:
                 task_outputs.append(
-                    {**input, "model_name": self.llm.model_name, **formatted_output}
+                    {**input, **formatted_output, "model_name": self.llm.model_name}
                 )
 
         yield task_outputs

@@ -58,6 +58,36 @@ class TextGenerationToArgilla(Argilla):
     Input columns:
         - instruction (`str`): The instruction that was used to generate the completion.
         - generation (`str` or `List[str]`): The completions that were generated based on the input instruction.
+
+    Examples:
+
+        Push a text generation dataset to an Argilla instance:
+
+        ```python
+        from distilabel.steps import PreferenceToArgilla
+
+        to_argilla = TextGenerationToArgilla(
+            num_generations=2,
+            api_url="https://dibt-demo-argilla-space.hf.space/",
+            api_key="api.key",
+            dataset_name="argilla_dataset",
+            dataset_workspace="my_workspace",
+        )
+        to_argilla.load()
+
+        result = next(
+            to_argilla.process(
+                [
+                    {
+                        "instruction": "instruction",
+                        "generation": "generation",
+                    }
+                ],
+            )
+        )
+        # >>> result
+        # [{'instruction': 'instruction', 'generation': 'generation'}]
+        ```
     """
 
     _id: str = PrivateAttr(default="id")

@@ -65,6 +65,21 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
 
     Icon:
         `:hugging:`
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import TransformersLLM
+
+        llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
     """
 
     model: str
@@ -124,6 +139,11 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             )
 
         super().load()
+
+    def unload(self) -> None:
+        """Unloads the `vLLM` model."""
+        CudaDevicePlacementMixin.unload(self)
+        super().unload()
 
     @property
     def model_name(self) -> str:
