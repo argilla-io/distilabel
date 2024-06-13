@@ -148,7 +148,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="factual-validity"
@@ -185,7 +185,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="relative",
             rubric="honesty"
@@ -222,7 +222,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="custom",
@@ -262,7 +262,7 @@ class PrometheusEval(Task):
         prometheus = PrometheusEval(
             llm=vLLM(
                 model="prometheus-eval/prometheus-7b-v2.0",
-                chat_template="[INST] {{ messages[0]['content'] }}\n{{ messages[1]['content'] }}[/INST]",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
             ),
             mode="absolute",
             rubric="helpfulness",

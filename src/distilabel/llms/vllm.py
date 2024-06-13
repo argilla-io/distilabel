@@ -83,7 +83,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         # You can pass a custom chat_template to the model
         llm = vLLM(
             model="prometheus-eval/prometheus-7b-v2.0",
-            chat_template="[INST] {{ messages[0]['content'] }}\\n{{ messages[1]['content'] }}[/INST]",
+            chat_template="[INST] {{ messages[0]\"content\" }}\\n{{ messages[1]\"content\" }}[/INST]",
         )
 
         llm.load()
