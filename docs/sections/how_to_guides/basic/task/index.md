@@ -1,4 +1,4 @@
-# Define Tasks as Steps that rely on LLMs
+# Define Tasks that rely on LLMs
 
 ## Working with Tasks
 

@@ -1,4 +1,4 @@
-# Define LLMs as local models or remote APIs
+# Define LLMs as local or remote models
 
 ## Working with LLMs
 

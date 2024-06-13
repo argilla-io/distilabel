@@ -142,15 +142,16 @@ nav:
     - Quickstart: "sections/getting_started/quickstart.md"
     - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
+    - "sections/how_to_guides/index.md"
     - Basic:
       - Define Steps for your Pipeline:
         - "sections/how_to_guides/basic/step/index.md"
         - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
         - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
-      - Define Tasks as Steps that rely on LLMs:
+      - Define Tasks that rely on LLMs:
         - "sections/how_to_guides/basic/task/index.md"
         - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-      - Define LLMs as local models or remote APIs: "sections/how_to_guides/basic/llm/index.md"
+      - Define LLMs as local or remote models: "sections/how_to_guides/basic/llm/index.md"
       - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
     - Advanced:
         - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
