@@ -1,4 +1,4 @@
-# Structured Generation
+# Structured data generation
 
 `Distilabel` has integrations with relevant libraries to generate structured text i.e. to guide the [`LLM`][distilabel.llms.LLM] towards the generation of structured outputs following a JSON schema, a regex, etc.
 
@@ -111,7 +111,7 @@ These were some simple examples, but one can see the options this opens.
 
 !!! Tip
     A full pipeline example can be seen in the following script:
-    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/index.md#llama-cpp-with-outlines)
+    [`examples/structured_generation_with_outlines.py`](../../pipeline_samples/examples/#llama-cpp-with-outlines)
 
 [^1]:
     You can check the variable type by importing it from:
@@ -129,9 +129,7 @@ These were some simple examples, but one can see the options this opens.
 
 ## Instructor
 
-When working with model providers behind an API, there's no direct way of accesing the internal logit processor as `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM], so you can work with the following LLMs: [`OpenAILLM`][distilabel.llms.OpenAILLM], [`AzureOpenAILLM`][distilabel.llms.AzureOpenAILLM], [`CohereLLM`][distilabel.llms.CohereLLM], [`GroqLLM`][distilabel.llms.GroqLLM], [`LiteLLM`][distilabel.llms.LiteLLM] and [`MistralLLM`][distilabel.llms.MistralLLM].
-
-`instructor` works with `pydantic.BaseModel` objects internally but in `distilabel` the examples generated would result in the string representation of them, from which the `BaseModel` object can be regenerated.
+When working with model providers behind an API, there's no direct way of accessing the internal logit processor like `outlines` does, but thanks to [`instructor`](https://python.useinstructor.com/) we can generate structured output from LLM providers based on `pydantic.BaseModel` objects. We have integrated `instructor` to deal with the [`AsyncLLM`][distilabel.llms.AsyncLLM], so you can work with the following LLMs: [`OpenAILLM`][distilabel.llms.OpenAILLM], [`AzureOpenAILLM`][distilabel.llms.AzureOpenAILLM], [`CohereLLM`][distilabel.llms.CohereLLM], [`GroqLLM`][distilabel.llms.GroqLLM], [`LiteLLM`][distilabel.llms.LiteLLM] and [`MistralLLM`][distilabel.llms.MistralLLM].
 
 !!! Note
     For `instructor` integration to work you may need to install the corresponding dependencies:
@@ -170,7 +168,7 @@ llm = MistralLLM(
 llm.load()
 ```
 
-And we are ready to pass our instruction as usual:
+And we are ready to pass our instructions as usual:
 
 ```python
 import json
@@ -198,9 +196,9 @@ We get back a Python dictionary (formatted as a string) that we can parse using 
 OpenAI offers a [JSON Mode](https://platform.openai.com/docs/guides/text-generation/json-mode) to deal with structured output via their API, let's see how to make use of them. The JSON mode instructs the model to always return a JSON object following the instruction required.
 
 !!! WARNING
-    Bear in mind, that in order for this to work, you must instruct the model in some way to generate JSON, either in the `system message` or in the instruction, as can be seen in the [API reference](https://platform.openai.com/docs/guides/text-generation/json-mode).
+    Bear in mind, for this to work, you must instruct the model in some way to generate JSON, either in the `system message` or in the instruction, as can be seen in the [API reference](https://platform.openai.com/docs/guides/text-generation/json-mode).
 
-Contrary to what we have via `outlines`, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found the OpenAI documentation.
+Contrary to what we have via `outlines`, JSON mode will not guarantee the output matches any specific schema, only that it is valid and parses without errors. More information can be found in the OpenAI documentation.
 
 Other than the reference to generating JSON, to ensure the model generates parseable JSON we can pass the argument `response_format="json"`[^3]:
 

@@ -1,20 +1,17 @@
-# Argilla
+# Export data to Argilla
 
-As an additional step, besides being able to restore the dataset from the [`Pipeline`][distilabel.pipeline.Pipeline] output as a [`Distiset`][distilabel.distiset.Distiset] (which is a `datasets.DatasetDict` with multiple configurations depending on the leaf nodes of the [`Pipeline`][distilabel.pipeline.Pipeline]), one can also include a [`Step`][distilabel.steps.Step] within the [`Pipeline`][distilabel.pipeline.Pipeline] to easily export the datasets to Argilla with a pre-defined configuration, suiting the annotation purposes.
+Being able to export the generated synthetic datasets to Argilla, is a core feature within `distilabel`. We believe in the potential of synthetic data, but without removing the impact a human annotator or group of annotators can bring. So on, the Argilla integration makes it straightforward to push a dataset to Argilla while the [`Pipeline`][distilabel.pipeline.Pipeline] is running, to be able to follow along the generation process in Argilla's UI, as well as annotating the records on the fly. One can include a [`Step`][distilabel.steps.Step] within the [`Pipeline`][distilabel.pipeline.Pipeline] to easily export the datasets to Argilla with a pre-defined configuration, suiting the annotation purposes.
 
-Being able to export the generated synthetic datasets to Argilla, was one of the core features we wanted to have integrated within `distilabel` because we believe in the potential of synthetic data, but without removing the impact a human annotator or group of annotators can bring. So on, the Argilla integration makes it straightforward to push a dataset to Argilla while the [`Pipeline`][distilabel.pipeline.Pipeline] is running, to be able to follow along the generation process in Argilla's UI, as well as annotating the records on the fly.
-
-Before using any of the steps about to be described below, you should first have an Argilla instance up and running, so that you can successfully upload the data to Argilla. In order to deploy Argilla, the easiest and most straight forward way is to deploy it via the [Argilla Template in Hugging Face Spaces](https://docs.argilla.io/en/latest/getting_started/installation/deployments/huggingface-spaces.html) as simply as following the steps there, or just via the following button:
+Before using any of the steps about to be described below, you should first have an Argilla instance up and running, so that you can successfully upload the data to Argilla. In order to deploy Argilla, the easiest and most straightforward way is to deploy it via the [Argilla Template in Hugging Face Spaces](https://huggingface.co/docs/hub/en/spaces-sdks-docker-argilla) as simply as following the steps there, or just via the following button:
 
 <a  href="https://huggingface.co/new-space?template=argilla/argilla-template-space">
     <img src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" />
 </a>
 
-Additionally, Argilla offer multiple deployment options listed in the [Argilla Documentation - Installation](https://docs.argilla.io/en/latest/getting_started/installation/deployments/deployments.html) page.
 
 ### Text Generation
 
-For text generation scenarios, i.e. when the [`Pipeline`][distilabel.pipeline.Pipeline] contains a [`TextGeneration`][distilabel.steps.tasks.TextGeneration] step, we have designed the task [`TextGenerationToArgilla`][distilabel.steps.TextGenerationToArgilla], which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.
+For text generation scenarios, i.e. when the [`Pipeline`][distilabel.pipeline.Pipeline] contains a single [`TextGeneration`][distilabel.steps.tasks.TextGeneration] step, we have designed the task [`TextGenerationToArgilla`][distilabel.steps.TextGenerationToArgilla], which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.
 
 The dataset will be pushed with the following configuration:
 
@@ -58,7 +55,7 @@ with Pipeline(name="my-pipeline") as pipeline:
 pipeline.run()
 ```
 
-![Text Generation to Argilla](../../../assets/images/sections/learn/steps/argilla/text_generation.png)
+![Text Generation to Argilla](../../../assets/images/sections/how_to_guides/steps/argilla/text_generation.png)
 
 ### Preference
 
@@ -74,7 +71,7 @@ The dataset will be pushed with the following configuration:
     The [`PreferenceToArgilla`][distilabel.steps.PreferenceToArgilla] step will only work if the [`Pipeline`][distilabel.pipeline.Pipeline] contains multiple [`TextGeneration`][distilabel.steps.tasks.TextGeneration] steps, or if the columns `instruction` and `generations` are available within the batch data. Otherwise, the variable `input_mappings` will need to be set so that either both or one of `instruction` and `generations` are mapped to one of the existing columns in the batch data.
 
 !!! NOTE
-    Additionally, if the [`Pipeline`][distilabel.pipeline.Pipeline] contains an [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] step, the `ratings` and `rationales` will also be available, so if that's the case, those will be automatically injected as suggestions to the existing dataset so that the annotator only needs to review those, instead of fulfilling those by themselves.
+    Additionally, if the [`Pipeline`][distilabel.pipeline.Pipeline] contains an [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] step, the `ratings` and `rationales` will also be available and be automatically injected as suggestions to the existing dataset.
 
 ```python
 from distilabel.llms import OpenAILLM
@@ -112,7 +109,4 @@ with Pipeline(name="my-pipeline") as pipeline:
 pipeline.run()
 ```
 
-![Preference to Argilla](../../../assets/images/sections/learn/steps/argilla/preference.png)
-
-!!! NOTE
-    If you are willing to also add the suggestions, feel free to check ["UltraFeedback: Boosting Language Models with High-quality Feedback"](../../pipeline_samples/papers/ultrafeedback.md) where the [`UltraFeedback`][distilabel.steps.tasks.UltraFeedback] task is used to generate both ratings and rationales for each of the generations of a given instruction.
+![Preference to Argilla](../../../assets/images/sections/how_to_guides/steps/argilla/preference.png)
