@@ -10,7 +10,7 @@ Welcome to the how-to guides section! Here you will find a collection of guides 
 
     ---
 
-    Steps are the building blocks of your pipeline. They can be used to generate data, evaluate models, or perform any other task.
+    Steps are the building blocks of your pipeline. They can be used to generate data, evaluate models, manipulate data, or any other general task.
 
     [:octicons-arrow-right-24: Define Steps](basic/step/index.md)
 
@@ -18,7 +18,7 @@ Welcome to the how-to guides section! Here you will find a collection of guides 
 
     ---
 
-    Tasks are a special type of step that rely on Language Models (LLMs) to generate data.
+    Tasks are a specific type of step that rely on Language Models (LLMs) to generate data.
 
     [:octicons-arrow-right-24: Define Tasks](basic/task/index.md)
 
@@ -26,7 +26,7 @@ Welcome to the how-to guides section! Here you will find a collection of guides 
 
     ---
 
-    LLMs are the core of your tasks. They can be used to outline behavior local or remote models.
+    LLMs are the core of your tasks. They are used to integrate with local models or remote APIs.
 
     [:octicons-arrow-right-24: Define LLMs](basic/llm/index.md)
 
@@ -55,8 +55,7 @@ Welcome to the how-to guides section! Here you will find a collection of guides 
 
     ---
 
-    Argilla is a platform that can be used to store and share data.
-
+    Argilla is a platform that can be used to store, search, and apply feedback to datasets.
     [:octicons-arrow-right-24: Argilla](advanced/argilla.md)
 
 -  __Using a file system to pass data of batches between steps__
