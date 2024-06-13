@@ -75,6 +75,29 @@ class EvolInstructGenerator(GeneratorTask):
     References:
         - [WizardLM: Empowering Large Language Models to Follow Complex Instructions](https://arxiv.org/abs/2304.12244)
         - [GitHub: h2oai/h2o-wizardlm](https://github.com/h2oai/h2o-wizardlm)
+
+    Examples:
+
+        Generate evolved instructions without initial instructions:
+
+        ```python
+        from distilabel.steps.tasks import EvolInstructGenerator
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        evol_instruct_generator = EvolInstructGenerator(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            ),
+            num_instructions=2,
+        )
+
+        evol_instruct_generator.load()
+
+        result = next(scorer.process())
+        # result
+        # [{'instruction': 'generated instruction', 'model_name': 'test'}]
+        ```
     """
 
     num_instructions: int

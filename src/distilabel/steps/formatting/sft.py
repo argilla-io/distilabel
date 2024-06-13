@@ -48,6 +48,39 @@ class FormatTextGenerationSFT(Step):
         - text-generation
         - instruction
         - generation
+
+    Examples:
+
+        Format your dataset for SFT fine tuning:
+
+        ```python
+        from distilabel.steps import FormatTextGenerationSFT
+
+        format_sft = FormatTextGenerationSFT()
+        format_sft.load()
+
+        # NOTE: "system_prompt" can be added optionally.
+        result = next(
+            format_sft.process(
+                [
+                    {
+                        "instruction": "What's 2+2?",
+                        "generation": "4"
+                    }
+                ]
+            )
+        )
+        # >>> result
+        # [
+        #     {
+        #         'instruction': 'What's 2+2?',
+        #         'generation': '4',
+        #         'prompt': 'What's 2+2?',
+        #         'prompt_id': '7762ecf17ad41479767061a8f4a7bfa3b63d371672af5180872f9b82b4cd4e29',
+        #         'messages': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '4'}]
+        #     }
+        # ]
+        ```
     """
 
     @property
@@ -133,6 +166,38 @@ class FormatChatGenerationSFT(Step):
         - chat-generation
         - instruction
         - generation
+
+    Examples:
+
+        Format your dataset for Supervised Fine Tuning (SFT):
+
+        ```python
+        from distilabel.steps import FormatChatGenerationSFT
+
+        format_sft = FormatChatGenerationSFT()
+        format_sft.load()
+
+        # NOTE: "system_prompt" can be added optionally.
+        result = next(
+            format_sft.process(
+                [
+                    {
+                        "messages": [{"role": "user", "content": "What's 2+2?"}],
+                        "generation": "4"
+                    }
+                ]
+            )
+        )
+        # >>> result
+        # [
+        #     {
+        #         'messages': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '4'}],
+        #         'generation': '4',
+        #         'prompt': 'What's 2+2?',
+        #         'prompt_id': '7762ecf17ad41479767061a8f4a7bfa3b63d371672af5180872f9b82b4cd4e29',
+        #     }
+        # ]
+        ```
     """
 
     @property

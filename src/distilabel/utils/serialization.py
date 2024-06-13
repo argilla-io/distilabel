@@ -25,7 +25,18 @@ else:
     from enum import EnumType
 
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union, get_args
+from typing import (
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    get_args,
+)
 
 import yaml
 from pydantic import BaseModel
@@ -41,12 +52,30 @@ StrOrPath = Union[str, os.PathLike]
 SaveFormats = Literal["json", "yaml"]
 
 
+# Mapping to handle import paths that could have been serialized from previous versions
+_OLD_IMPORT_MODULE_ATTR: Dict[Tuple[str, str], Tuple[str, str]] = {
+    ("distilabel.pipeline.base", "_Batch"): ("distilabel.pipeline.batch", "_Batch"),
+    ("distilabel.pipeline.base", "_BatchManager"): (
+        "distilabel.pipeline.batch_manager",
+        "_BatchManager",
+    ),
+    ("distilabel.pipeline.base", "_BatchManagerStep"): (
+        "distilabel.pipeline.batch_manager",
+        "_BatchManagerStep",
+    ),
+}
+
+
 def _get_module_attr(module: str, name: str) -> Type:
     """Gets a class given the module and the name of the class.
 
     Returns:
         The type of the class.
     """
+
+    if (module, name) in _OLD_IMPORT_MODULE_ATTR:
+        module, name = _OLD_IMPORT_MODULE_ATTR[(module, name)]
+
     mod = importlib.import_module(module)
     return getattr(mod, name)
 

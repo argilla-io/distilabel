@@ -49,6 +49,37 @@ class PairRM(Step):
     Note:
         This step differs to other tasks as there is a single implementation of this model
         currently, and we will use a specific `LLM`.
+
+    Examples:
+
+        Rank LLM candidates:
+
+        ```python
+        from distilabel.steps.tasks import PairRM
+
+        # Consider this as a placeholder for your actual LLM.
+        pair_rm = PairRM()
+
+        pair_rm.load()
+
+        result = next(
+            scorer.process(
+                [
+                    {"input": "Hello, how are you?", "candidates": ["fine", "good", "bad"]},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'input': 'Hello, how are you?',
+        #         'candidates': ['fine', 'good', 'bad'],
+        #         'ranks': [2, 1, 3],
+        #         'ranked_candidates': ['good', 'fine', 'bad'],
+        #         'model_name': 'llm-blender/PairRM',
+        #     }
+        # ]
+        ```
     """
 
     model: str = "llm-blender/PairRM"
