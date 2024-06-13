@@ -551,6 +551,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 "description": self.description,
                 **super().dump(),
             },
+            "requirements": self.requirements,
         }
 
     @classmethod
@@ -568,7 +569,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         name = data["pipeline"]["name"]
         description = data["pipeline"].get("description")
-        with cls(name=name, description=description) as pipe:
+        requirements = data.get("requirements", [])
+        with cls(name=name, description=description, requirements=requirements) as pipe:
             pipe.dag = DAG.from_dict(data["pipeline"])
         return pipe
 
