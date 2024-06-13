@@ -17,9 +17,10 @@ from typing import Any, Dict, Type, Union
 import pytest
 from distilabel.llms.huggingface.transformers import TransformersLLM
 from distilabel.steps.tasks.structured_outputs.outlines import (
-    StructuredOutputType,
+    # StructuredOutputType,
     model_to_schema,
 )
+from distilabel.steps.tasks.typing import OutlinesStructuredOutputType
 from pydantic import BaseModel
 
 
@@ -88,10 +89,6 @@ DUMP_REGEX = {
 
 
 class TestOutlinesIntegration:
-    # @pytest.mark.skipif(
-    #     not DISTILABEL_RUN_SLOW_TESTS,
-    #     reason="Slow tests, run locally when needed.",
-    # )
     @pytest.mark.parametrize(
         "format, schema, prompt",
         [
@@ -99,7 +96,7 @@ class TestOutlinesIntegration:
                 "json",
                 DummyUserTest,
                 "Create a user profile with the fields name, last_name and id",
-            ),  #
+            ),
             (
                 "json",
                 model_to_schema(DummyUserTest),
@@ -117,7 +114,9 @@ class TestOutlinesIntegration:
     ) -> None:
         llm = TransformersLLM(
             model="openaccess-ai-collective/tiny-mistral",
-            structured_output=StructuredOutputType(format=format, schema=schema),
+            structured_output=OutlinesStructuredOutputType(
+                format=format, schema=schema
+            ),
         )
         llm.load()
 
@@ -154,7 +153,9 @@ class TestOutlinesIntegration:
     ) -> None:
         llm = TransformersLLM(
             model="openaccess-ai-collective/tiny-mistral",
-            structured_output=StructuredOutputType(format=format, schema=schema),
+            structured_output=OutlinesStructuredOutputType(
+                format=format, schema=schema
+            ),
         )
         llm.load()
         assert llm.dump() == dump

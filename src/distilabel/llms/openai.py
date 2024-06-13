@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
@@ -145,6 +145,12 @@ class OpenAILLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncOpenAI"] = PrivateAttr(...)
@@ -192,7 +198,7 @@ class OpenAILLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: FormattedInput,
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
@@ -236,6 +242,19 @@ class OpenAILLM(AsyncLLM):
                 f"Invalid response format '{response_format}'. Must be either 'text' or 'json'."
             )
 
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="openai",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         kwargs = {
             "messages": input,  # type: ignore
             "model": self.model,
@@ -249,13 +268,13 @@ class OpenAILLM(AsyncLLM):
             "timeout": 50,
             "response_format": {"type": response_format},
         }
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)
 
-        if self.structured_output:
+        if structured_output:
             generations.append(completion.model_dump_json())
             return generations
 

@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -120,6 +120,12 @@ class MistralLLM(AsyncLLM):
     max_concurrent_requests: RuntimeParameter[int] = Field(
         default=64, description="The maximum number of concurrent requests to send."
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
@@ -169,7 +175,7 @@ class MistralLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: FormattedInput,
         max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
@@ -187,6 +193,19 @@ class MistralLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="mistral",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         kwargs = {
             "messages": input,  # type: ignore
             "model": self.model,
@@ -195,15 +214,15 @@ class MistralLLM(AsyncLLM):
             "top_p": top_p,
         }
         generations = []
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
             # TODO: This should work just with the _aclient.chat method, but it's not working.
             # We need to check instructor and see if we can create a PR.
             completion = await self._aclient.chat.completions.create(**kwargs)
         else:
             completion = await self._aclient.chat(**kwargs)
 
-        if self.structured_output:
+        if structured_output:
             generations.append(completion.model_dump_json())
             return generations
 
@@ -220,7 +239,7 @@ class MistralLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["StandardInput"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -229,7 +248,7 @@ class MistralLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["StandardInput"], **kwargs: Any
+            inputs: List["FormattedInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

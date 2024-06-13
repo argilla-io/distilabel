@@ -117,7 +117,6 @@ class TestEvolInstructGenerator:
             "name": "task",
             "llm": {
                 "generation_kwargs": {},
-                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__class__.__module__,
                     "name": task.llm.__class__.__name__,
