@@ -143,7 +143,7 @@ nav:
     - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
     - Basic:
-      - Define Steps as nodes in a Pipeline:
+      - Define Steps for your Pipeline:
         - "sections/how_to_guides/basic/step/index.md"
         - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
         - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
@@ -160,7 +160,6 @@ nav:
         - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
         - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
   - Pipeline Samples:
-    - "sections/pipeline_samples/index.md"
     - Examples: "sections/pipeline_samples/examples/index.md"
     - Papers:
       - "sections/pipeline_samples/papers/index.md"
@@ -176,18 +175,21 @@ nav:
       - "@step": "api/step/decorator.md"
       - Step Gallery:
         - Argilla: "api/step_gallery/argilla.md"
+        - Hugging Face: "api/step_gallery/hugging_face.md"
         - Columns: "api/step_gallery/columns.md"
         - Extra: "api/step_gallery/extra.md"
     - Task:
       - "api/task/index.md"
       - GeneratorTask: "api/task/generator_task.md"
       - Task Gallery: "api/task_gallery/index.md"
+      - Typing: "api/task/typing.md"
     - LLM:
       - "api/llm/index.md"
       - LLM Gallery:
         - Anthropic: "api/llm/anthropic.md"
         - Anyscale: "api/llm/anyscale.md"
         - Azure (via OpenAI): "api/llm/azure.md"
+        - Cohere: "api/llm/cohere.md"
         - Groq: "api/llm/groq.md"
         - Hugging Face: "api/llm/huggingface.md"
         - LiteLLM: "api/llm/litellm.md"
@@ -203,6 +205,7 @@ nav:
       - Routing Batch Function: "api/pipeline/routing_batch_function.md"
       - Typing: "api/pipeline/typing.md"
       - Utils: "api/pipeline/utils.md"
+    - Distiset: "api/distiset.md"
     - CLI: "api/cli.md"
   - Community:
     - sections/community/index.md

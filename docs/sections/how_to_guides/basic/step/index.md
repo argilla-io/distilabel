@@ -1,4 +1,4 @@
-# Define Steps as nodes in a Pipeline
+# Define Steps for your Pipeline
 
 ## Working with Steps
 
