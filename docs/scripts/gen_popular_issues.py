@@ -24,25 +24,31 @@ import mkdocs_gen_files
 REPOSITORY = "argilla-io/distilabel"
 DATA_PATH = "sections/community/popular_issues.md"
 
-GITHUB_ACCESS_TOKEN = os.getenv("GH_ACCESS_TOKEN")
+GITHUB_ACCESS_TOKEN = os.getenv(
+    "GH_ACCESS_TOKEN"
+)  # public_repo and read:org scopes are required
 
 
-def fetch_issues_from_github_repository(repository: str, auth_token: Union[str, None] = None) -> pd.DataFrame:
+def fetch_issues_from_github_repository(
+    repository: str, auth_token: Union[str, None] = None
+) -> pd.DataFrame:
     if auth_token is None:
-        return pd.DataFrame({
-            "Issue": [],
-            "State": [],
-            "Created at": [],
-            "Closed at": [],
-            "Last update": [],
-            "Labels": [],
-            "Milestone": [],
-            "Reactions": [],
-            "Comments": [],
-            "URL": [],
-            "Repository": [],
-            "Author": [],
-        })
+        return pd.DataFrame(
+            {
+                "Issue": [],
+                "State": [],
+                "Created at": [],
+                "Closed at": [],
+                "Last update": [],
+                "Labels": [],
+                "Milestone": [],
+                "Reactions": [],
+                "Comments": [],
+                "URL": [],
+                "Repository": [],
+                "Author": [],
+            }
+        )
 
     headers = {
         "Authorization": f"token {auth_token}",
