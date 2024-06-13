@@ -26,7 +26,7 @@
     
     
       
-        <title>Define LLMs as local models or remote APIs - Distilabel Docs</title>
+        <title>Define LLMs as local or remote models - Distilabel Docs</title>
       
     
     
@@ -65,7 +65,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Define LLMs as local models or remote APIs - Distilabel Docs" >
+        <meta  property="og:title"  content="Define LLMs as local or remote models - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
@@ -81,7 +81,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Define LLMs as local models or remote APIs - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Define LLMs as local or remote models - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
@@ -108,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#define-llms-as-local-models-or-remote-apis" class="md-skip">
+        <a href="#define-llms-as-local-or-remote-models" class="md-skip">
           Skip to content
         </a>
       
@@ -145,7 +145,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Define LLMs as local models or remote APIs
+              Define LLMs as local or remote models
             
           </span>
         </div>
@@ -305,28 +305,16 @@
     
   
   
-    
-    
-      
-  
-  
-    
-  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../" class="md-tabs__link">
+        
   
     
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../step/" class="md-tabs__link">
-          
   
   How-to guides
 
-        </a>
-      </li>
-    
-  
-
-    
+      </a>
+    </li>
   
 
       
@@ -601,16 +589,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     How-to guides
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
@@ -790,7 +786,7 @@
               
   
   <span class="md-ellipsis">
-    Define Tasks as Steps that rely on LLMs
+    Define Tasks that rely on LLMs
   </span>
   
 
@@ -806,7 +802,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Define Tasks as Steps that rely on LLMs
+            Define Tasks that rely on LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -859,7 +855,7 @@
           
   
   <span class="md-ellipsis">
-    Define LLMs as local models or remote APIs
+    Define LLMs as local or remote models
   </span>
   
 
@@ -870,7 +866,7 @@
         
   
   <span class="md-ellipsis">
-    Define LLMs as local models or remote APIs
+    Define LLMs as local or remote models
   </span>
   
 
@@ -4049,7 +4045,7 @@
   
 
 
-<h1 id="define-llms-as-local-models-or-remote-apis">Define LLMs as local models or remote APIs<a class="headerlink" href="#define-llms-as-local-models-or-remote-apis" title="Permanent link">&para;</a></h1>
+<h1 id="define-llms-as-local-or-remote-models">Define LLMs as local or remote models<a class="headerlink" href="#define-llms-as-local-or-remote-models" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-llms">Working with LLMs<a class="headerlink" href="#working-with-llms" title="Permanent link">&para;</a></h2>
 <p>LLM subclasses are designed to be used within a <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task">Task</a>, but they can also be used standalone.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>

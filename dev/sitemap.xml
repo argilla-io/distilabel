@@ -196,6 +196,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/</loc>
+         <lastmod>2024-06-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/advanced/argilla/</loc>
          <lastmod>2024-06-13</lastmod>
          <changefreq>daily</changefreq>

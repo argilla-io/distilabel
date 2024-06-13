@@ -303,26 +303,16 @@
   
   
   
-    
-    
-      
-  
-  
+    <li class="md-tabs__item">
+      <a href="sections/how_to_guides/" class="md-tabs__link">
+        
   
     
-    
-      <li class="md-tabs__item">
-        <a href="sections/how_to_guides/basic/step/" class="md-tabs__link">
-          
   
   How-to guides
 
-        </a>
-      </li>
-    
-  
-
-    
+      </a>
+    </li>
   
 
       
@@ -541,48 +531,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      👨🏽‍💻 Installation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="👨🏽‍💻 Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#badges" class="md-nav__link">
-    <span class="md-ellipsis">
-      Badges
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contribute" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contribute
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -723,16 +671,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="sections/how_to_guides/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     How-to guides
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
@@ -907,7 +863,7 @@
               
   
   <span class="md-ellipsis">
-    Define Tasks as Steps that rely on LLMs
+    Define Tasks that rely on LLMs
   </span>
   
 
@@ -923,7 +879,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
-            Define Tasks as Steps that rely on LLMs
+            Define Tasks that rely on LLMs
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -967,7 +923,7 @@
         
   
   <span class="md-ellipsis">
-    Define LLMs as local models or remote APIs
+    Define LLMs as local or remote models
   </span>
   
 
@@ -4049,48 +4005,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      👨🏽‍💻 Installation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="👨🏽‍💻 Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#badges" class="md-nav__link">
-    <span class="md-ellipsis">
-      Badges
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contribute" class="md-nav__link">
-    <span class="md-ellipsis">
-      Contribute
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -4150,8 +4064,6 @@
 
 <p>Distilabel is the <strong>framework for synthetic data and AI feedback for AI engineers</strong> that require <strong>high-quality outputs, full data ownership, and overall efficiency</strong>.</p>
 <p>If you just want to get started, we recommend you check the <a href="http://distilabel.argilla.io/">documentation</a>. Curious, and want to know more? Keep reading!</p>
-<!-- ![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)  -->
-
 <h2 id="why-use-distilabel">Why use Distilabel?<a class="headerlink" href="#why-use-distilabel" title="Permanent link">&para;</a></h2>
 <p>Whether you are working on <strong>a predictive model</strong> that computes semantic similarity or the next <strong>generative model</strong> that is going to beat the LLM benchmarks. Our framework ensures that the <strong>hard data work pays off</strong>. Distilabel is the missing piece that helps you <strong>synthesize data</strong> and provide <strong>AI feedback</strong>.</p>
 <h3 id="improve-your-ai-output-quality-through-data-quality">Improve your AI output quality through data quality<a class="headerlink" href="#improve-your-ai-output-quality-through-data-quality" title="Permanent link">&para;</a></h3>
@@ -4167,74 +4079,6 @@
 <li>Our <a href="https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs">distilabeled Intel Orca DPO dataset</a> and the <a href="https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B">improved OpenHermes model</a>,, show how we <strong>improve model performance by filtering out 50%</strong> of the original dataset through <strong>AI feedback</strong>.</li>
 <li>The <a href="https://github.com/davanstrien/haiku-dpo">haiku DPO data</a> outlines how anyone can create a <strong>dataset for a specific task</strong> and <strong>the latest research papers</strong> to improve the quality of the dataset.</li>
 </ul>
-<h2 id="installation">👨🏽‍💻 Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="w"> </span>--upgrade
-</span></code></pre></div>
-<p>Requires Python 3.8+</p>
-<p>In addition, the following extras are available:</p>
-<ul>
-<li><code>anthropic</code>: for using models available in <a href="https://www.anthropic.com/api">Anthropic API</a> via the <code>AnthropicLLM</code> integration.</li>
-<li><code>cohere</code>: for using models available in <a href="https://cohere.ai/">Cohere</a> via the <code>CohereLLM</code> integration.</li>
-<li><code>argilla</code>: for exporting the generated datasets to <a href="https://argilla.io/">Argilla</a>.</li>
-<li><code>groq</code>: for using models available in <a href="https://groq.com/">Groq</a> using <a href="https://github.com/groq/groq-python"><code>groq</code></a> Python client via the <code>GroqLLM</code> integration.</li>
-<li><code>hf-inference-endpoints</code>: for using the <a href="https://huggingface.co/inference-endpoints">Hugging Face Inference Endpoints</a> via the <code>InferenceEndpointsLLM</code> integration.</li>
-<li><code>hf-transformers</code>: for using models available in <a href="https://github.com/huggingface/transformers">transformers</a> package via the <code>TransformersLLM</code> integration.</li>
-<li><code>litellm</code>: for using <a href="https://github.com/BerriAI/litellm"><code>LiteLLM</code></a> to call any LLM using OpenAI format via the <code>LiteLLM</code> integration.</li>
-<li><code>llama-cpp</code>: for using <a href="https://github.com/abetlen/llama-cpp-python">llama-cpp-python</a> Python bindings for <code>llama.cpp</code> via the <code>LlamaCppLLM</code> integration.</li>
-<li><code>mistralai</code>: for using models available in <a href="https://mistral.ai/news/la-plateforme/">Mistral AI API</a> via the <code>MistralAILLM</code> integration.</li>
-<li><code>ollama</code>: for using <a href="https://ollama.com/">Ollama</a> and their available models via <code>OllamaLLM</code> integration.</li>
-<li><code>openai</code>: for using <a href="https://openai.com/blog/openai-api">OpenAI API</a> models via the <code>OpenAILLM</code> integration, or the rest of the integrations based on OpenAI and relying on its client as <code>AnyscaleLLM</code>, <code>AzureOpenAILLM</code>, and <code>TogetherLLM</code>.</li>
-<li><code>vertexai</code>: for using <a href="https://cloud.google.com/vertex-ai">Google Vertex AI</a> proprietary models via the <code>VertexAILLM</code> integration.</li>
-<li><code>vllm</code>: for using <a href="https://github.com/vllm-project/vllm">vllm</a> serving engine via the <code>vLLM</code> integration.</li>
-</ul>
-<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
-<p>To run the following example you must install <code>distilabel</code> with both <code>openai</code> extra:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[openai]&quot;</span><span class="w"> </span>--upgrade
-</span></code></pre></div>
-<p>Then run:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;simple-text-generation-pipeline&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A simple text generation pipeline&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">})</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">generate_with_openai</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">))</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">load_dataset</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">generate_with_openai</span><span class="p">)</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>            <span class="n">load_dataset</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>            <span class="p">},</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>            <span class="n">generate_with_openai</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                    <span class="p">}</span>
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                <span class="p">}</span>
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>            <span class="p">},</span>
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="p">},</span>
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>    <span class="p">)</span>
-</span></code></pre></div>
-<h2 id="badges">Badges<a class="headerlink" href="#badges" title="Permanent link">&para;</a></h2>
-<p>If you build something cool with <code>distilabel</code> consider adding one of these badges to your dataset or model card.</p>
-<div class="language-text highlight"><pre><span></span><code>[&lt;img src=&quot;https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-light.png&quot; alt=&quot;Built with Distilabel&quot; width=&quot;200&quot; height=&quot;32&quot;/&gt;](https://github.com/argilla-io/distilabel)
-</code></pre></div>
-<p><a href="https://github.com/argilla-io/distilabel"><img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-light.png" alt="Built with Distilabel" width="200" height="32"/></a></p>
-<div class="language-text highlight"><pre><span></span><code>[&lt;img src=&quot;https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-dark.png&quot; alt=&quot;Built with Distilabel&quot; width=&quot;200&quot; height=&quot;32&quot;/&gt;](https://github.com/argilla-io/distilabel)
-</code></pre></div>
-<p><a href="https://github.com/argilla-io/distilabel"><img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-dark.png" alt="Built with Distilabel" width="200" height="32"/></a></p>
-<h2 id="contribute">Contribute<a class="headerlink" href="#contribute" title="Permanent link">&para;</a></h2>
-<p>To directly contribute with <code>distilabel</code>, check our <a href="https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">good first issues</a> or <a href="https://github.com/argilla-io/distilabel/issues/new/choose">open a new one</a>.</p>
 
 
 
