@@ -33,7 +33,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -60,7 +60,8 @@ class AnthropicLLM(AsyncLLM):
         http_client: if provided, an alternative HTTP client to use for calling Anthropic
             API. Defaults to `None`.
         structured_output: a dictionary containing the structured output configuration configuration
-            using `instructor`. Defaults to None.
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _api_key_env_var: the name of the environment variable to use for the API key. It
             is meant to be used internally.
         _aclient: the `AsyncAnthropic` client to use for the Anthropic API. It is meant
@@ -140,6 +141,12 @@ class AnthropicLLM(AsyncLLM):
         " failing.",
     )
     http_client: Optional[AsyncClient] = Field(default=None, exclude=True)
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
@@ -207,7 +214,7 @@ class AnthropicLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: FormattedInput,
         max_tokens: int = 128,
         stop_sequences: Union[List[str], None] = None,
         temperature: float = 1.0,
@@ -229,6 +236,19 @@ class AnthropicLLM(AsyncLLM):
         """
         from anthropic._types import NOT_GIVEN
 
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="anthropic",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         kwargs = {
             "messages": input,  # type: ignore
             "model": self.model,
@@ -245,13 +265,13 @@ class AnthropicLLM(AsyncLLM):
             "top_k": NOT_GIVEN if top_k is None else top_k,
         }
 
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         generations = []
 
         completion = await self._aclient.messages.create(**kwargs)  # type: ignore
-        if self.structured_output:
+        if structured_output:
             generations.append(completion.model_dump_json())
             return generations
 
@@ -267,7 +287,7 @@ class AnthropicLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["StandardInput"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -276,7 +296,7 @@ class AnthropicLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["StandardInput"], **kwargs: Any
+            inputs: List["FormattedInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

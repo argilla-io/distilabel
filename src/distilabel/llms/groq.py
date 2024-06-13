@@ -22,7 +22,7 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
@@ -124,6 +124,12 @@ class GroqLLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncGroq"] = PrivateAttr(...)
@@ -171,7 +177,7 @@ class GroqLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: FormattedInput,
         seed: Optional[int] = None,
         max_new_tokens: int = 128,
         temperature: float = 1.0,
@@ -196,6 +202,19 @@ class GroqLLM(AsyncLLM):
         References:
             - https://console.groq.com/docs/text-chat
         """
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="groq",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         kwargs = {
             "messages": input,  # type: ignore
             "model": self.model,
@@ -206,12 +225,12 @@ class GroqLLM(AsyncLLM):
             "stream": False,
             "stop": stop,
         }
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         generations = []
         completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
-        if self.structured_output:
+        if structured_output:
             generations.append(completion.model_dump_json())
             return generations
 
@@ -228,7 +247,7 @@ class GroqLLM(AsyncLLM):
     @override
     def generate(
         self,
-        inputs: List["StandardInput"],
+        inputs: List["FormattedInput"],
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
@@ -237,7 +256,7 @@ class GroqLLM(AsyncLLM):
         """
 
         async def agenerate(
-            inputs: List["StandardInput"], **kwargs: Any
+            inputs: List["FormattedInput"], **kwargs: Any
         ) -> "GenerateOutput":
             """Internal function to parallelize the asynchronous generation of responses."""
             tasks = [

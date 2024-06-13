@@ -44,7 +44,7 @@ Answer instructions with knowledge graphs defined as `pydantic.BaseModel` object
     ```
 
     ??? "Visualizing the graphs"
-    
+
         Want to see how to visualize the graphs? You can test it using the following script. Generate some samples on your own and take a look:
 
         !!! NOTE

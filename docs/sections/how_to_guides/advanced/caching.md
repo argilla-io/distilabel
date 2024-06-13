@@ -1,6 +1,6 @@
-# Caching
+# Cache and recover pipeline executions
 
-Distilabel `Pipelines` automatically save all the intermediate steps to to avoid losing any data in case of error.
+Distilabel `Pipelines` automatically save all the intermediate steps to avoid losing any data in case of error.
 
 ## Cache directory
 
@@ -131,5 +131,5 @@ ds
 !!! Note
 
     Internally, the function will try to inject the `pipeline_path` variable if it's not passed via argument, assuming it's in the parent directory of the current one, called `pipeline.yaml`. If the file doesn't exist, it won't raise any error, but take into account that if the `Distiset` is pushed to the Hugging Face Hub, the `pipeline.yaml` won't be generated. The same happens with the `pipeline.log` file, it can be passed via `log_filename_path`, but it will try to locate it automatically.
-    
+
     Lastly, there is the option of including the `distilabel_metadata` column in the final dataset. This column can contain custom metadata generated automatically by the pipeline, like the raw output from an `LLM` without formatting in case of failure, and we can decide whether to include it using the `enable_metadata` argument.

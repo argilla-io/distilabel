@@ -1,20 +1,26 @@
-# How to Guide
+---
+description: Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs.
+hide:
+  - toc
+---
+
+# Quickstart
 
 To start off, `distilabel` is a framework for building pipelines for generating synthetic data using LLMs, that defines a [`Pipeline`][distilabel.pipeline.Pipeline] which orchestrates the execution of the [`Step`][distilabel.steps.base.Step] subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).
 
-This being said, in this guide we will walk you through the process of creating a simple pipeline that uses the [`OpenAILLM`][distilabel.llms.OpenAILLM] class to generate text.å The [`Pipeline`][distilabel.pipeline.Pipeline] will load a dataset that contains a column named `prompt` from the Hugging Face Hub via the step [`LoadHubDataset`][distilabel.steps.LoadHubDataset] and then use the [`OpenAILLM`][distilabel.llms.OpenAILLM] class to generate text based on the dataset using the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task.
+That being said, in this guide we will walk you through the process of creating a simple pipeline that uses the [`OpenAILLM`][distilabel.llms.OpenAILLM] class to generate text. The [`Pipeline`][distilabel.pipeline.Pipeline] will load a dataset that contains a column named `prompt` from the Hugging Face Hub via the step [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub] and then use the [`OpenAILLM`][distilabel.llms.OpenAILLM] class to generate text based on the dataset using the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task.
 
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset
+from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(  # (1)
     name="simple-text-generation-pipeline",
     description="A simple text generation pipeline",
 ) as pipeline:  # (2)
-    load_dataset = LoadHubDataset(  # (3)
+    load_dataset = LoadDataFromHub(  # (3)
         name="load_dataset",
         output_mappings={"prompt": "instruction"},
     )
@@ -50,7 +56,7 @@ if __name__ == "__main__":
 
 2. We are using the [`Pipeline`][distilabel.pipeline.Pipeline] context manager, meaning that every [`Step`][distilabel.steps.base.Step] subclass that is defined within the context manager will be added to the pipeline automatically.
 
-3. We define a [`LoadHubDataset`][distilabel.steps.LoadHubDataset] step named `load_dataset` that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the `pipeline.run` method below, but it can also be defined within the class instance via the arg `repo_id=...`. This step will basically produce output batches with the rows from the dataset, and the column `prompt` will be mapped to the `instruction` field.
+3. We define a [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub] step named `load_dataset` that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the `pipeline.run` method below, but it can also be defined within the class instance via the arg `repo_id=...`. This step will basically produce output batches with the rows from the dataset, and the column `prompt` will be mapped to the `instruction` field.
 
 4. We define a [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task named `text_generation` that will generate text based on the `instruction` field from the dataset. This task will use the [`OpenAILLM`][distilabel.llms.OpenAILLM] class with the model `gpt-3.5-turbo`.
 

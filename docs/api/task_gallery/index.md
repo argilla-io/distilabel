@@ -9,3 +9,4 @@ This section contains the existing [`Task`][distilabel.steps.tasks.Task] subclas
         - "!_Task"
         - "!GeneratorTask"
         - "!ChatType"
+        - "!typing"
