@@ -95,3 +95,20 @@ def test_add_requirements_to_pipeline(
         generator >> [step, global_step]
 
     assert pipeline.requirements == expected
+
+
+def test_requirements_on_step_decorator() -> None:
+    from distilabel.mixins.runtime_parameters import RuntimeParameter
+    from distilabel.steps.decorator import step
+
+    @add_requirements(["distilabel>=0.0.1"])
+    @step(inputs=["instruction"], outputs=["generation"])
+    def UnitTestStep(
+        inputs: StepInput,
+        runtime_param1: RuntimeParameter[int],
+        runtime_param2: RuntimeParameter[float] = 5.0,
+    ) -> StepOutput:
+        """A dummy step for the unit test"""
+        yield []
+
+    assert UnitTestStep.requirements == ["distilabel>=0.0.1"]
