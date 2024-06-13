@@ -905,7 +905,7 @@ class TestBasePipeline:
         ],
     )
     def test_requirements(self, requirements: List[str], expected: List[str]) -> None:
-        with BasePipeline(
+        with DummyPipeline(
             name="unit-test-pipeline", requirements=requirements
         ) as pipeline:
             assert pipeline.requirements == expected
@@ -925,7 +925,7 @@ class TestBasePipeline:
     def test_requirements_to_install(
         self, requirements: List[str], expected: List[str]
     ) -> None:
-        with BasePipeline(
+        with DummyPipeline(
             name="unit-test-pipeline", requirements=requirements
         ) as pipeline:
             assert pipeline.requirements_to_install() == expected
@@ -950,7 +950,7 @@ class TestBasePipeline:
             ValueError,
             match=r"Please install the following requirements to run the pipeline:\ndistilabel>=0.0.1\nrandom_requirement",
         ):
-            with BasePipeline(
+            with DummyPipeline(
                 name="unit-test-pipeline", requirements=["random_requirement"]
             ) as pipeline:
                 gen_step = DummyGeneratorStep()
