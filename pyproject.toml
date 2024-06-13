@@ -57,6 +57,7 @@ docs = [
     "Pillow >= 9.5.0",
     "CairoSVG >= 2.7.1",
     "mknotebooks >= 0.8.0",
+    "pandas >= 2.0",
 ]
 tests = [
     "pytest >= 7.4.0",
