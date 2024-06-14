@@ -23,6 +23,7 @@ from distilabel.llms.litellm import LiteLLM
 from distilabel.llms.llamacpp import LlamaCppLLM
 from distilabel.llms.mistral import MistralLLM
 from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.moa import MixtureOfAgents
 from distilabel.llms.ollama import OllamaLLM
 from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.together import TogetherLLM
@@ -43,6 +44,7 @@ __all__ = [
     "LlamaCppLLM",
     "MistralLLM",
     "CudaDevicePlacementMixin",
+    "MixtureOfAgents",
     "OllamaLLM",
     "OpenAILLM",
     "TogetherLLM",

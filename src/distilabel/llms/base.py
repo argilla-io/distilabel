@@ -299,7 +299,7 @@ class AsyncLLM(LLM):
 
     async def _agenerate(
         self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
-    ) -> List[List[Union[str, None]]]:
+    ) -> List["GenerateOutput"]:
         """Internal function to concurrently generate responses for a list of inputs.
 
         Args:
