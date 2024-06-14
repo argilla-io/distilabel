@@ -12,9 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
+
 import re
 from typing import Any, Dict, List, Union
 
+from jinja2 import Template
+from pydantic import PrivateAttr
 from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
@@ -22,9 +31,17 @@ from distilabel.steps.tasks.typing import ChatType
 
 _PARSE_DEEPSEEK_PROVER_AUTOFORMAL_REGEX = r"```lean4(.*?)```"
 
+_PARSE_DEEPSEEK_PROVER_SCORER_REGEX = (
+    r"Natural language:\n(.*)\nAnalysis:\n(.*)\nAssessment:\n(.*)"
+)
+
 
 class DeepSeekProverAutoFormalization(Task):
     """Task to translate a mathematical problem from natural language to Lean 4.
+
+    Note:
+        A related dataset (MMA from the paper) can be found in Hugging Face:
+        [casey-martin/multilingual-mathematical-autoformalization](https://huggingface.co/datasets/casey-martin/multilingual-mathematical-autoformalization).
 
     Input columns:
         - informal_statement (`str`): The statement to be formalized using Lean 4.
@@ -96,7 +113,7 @@ class DeepSeekProverAutoFormalization(Task):
             },
             {
                 "role": "user",
-                "content": f"Mathematical Problem in Natural Language:\n{input['informal_statement']}",
+                "content": f"Mathematical Problem in Natural Language:\n{input[self.inputs[0]]}",
             },
         ]
 
@@ -108,3 +125,121 @@ class DeepSeekProverAutoFormalization(Task):
         if match:
             match = match.group(1).strip()
         return {"formal_statement": match}
+
+
+class DeepSeekProverScorer(Task):
+    """Task to evaluate the quality of a formalized mathematical problem in Lean 4,
+    inspired by the DeepSeek-Prover task for scoring.
+
+    Note:
+        A related dataset (MMA from the paper) can be found in Hugging Face:
+        [casey-martin/multilingual-mathematical-autoformalization](https://huggingface.co/datasets/casey-martin/multilingual-mathematical-autoformalization).
+
+    Input columns:
+        - formal_statement (`str`): The formalized statement using Lean 4, to be analysed.
+
+    Categories:
+        - scorer
+        - quality
+        - response
+
+    References:
+        - [`DeepSeek-Prover: Advancing Theorem Proving in LLMs through Large-Scale Synthetic Data`](https://arxiv.org/abs/2405.14333).
+        - [`Lean 4`](https://github.com/leanprover/lean4).
+
+    Examples:
+
+        Analyse a formal statement in Lean 4:
+
+        ```python
+        from distilabel.steps.tasks import DeepSeekProverScorer
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prover_scorer = DeepSeekProverAutoFormalization(
+            llm=InferenceEndpointsLLM(
+                model_id="deepseek-ai/deepseek-math-7b-instruct",
+                tokenizer_id="deepseek-ai/deepseek-math-7b-instruct",
+            ),
+        )
+
+        prover_scorer.load()
+
+        result = next(
+            prover_scorer.process(
+                [
+                    {"formal_statement": "theorem isIntegral_root (hg : g.Monic) : IsIntegral R (root g):="},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'formal_statement': 'theorem isIntegral_root (hg : g.Monic) : IsIntegral R (root g):=',
+        #         'informal_statement': 'INFORMAL',
+        #         'analysis': 'ANALYSIS',
+        #         'assessment': 'ASSESSMENT',
+        #         'distilabel_metadata': {
+        #             'raw_output_deep_seek_prover_scorer_0': 'Natural language:\nINFORMAL\nAnalysis:\nANALYSIS\nAssessment:\nASSESSMENT'
+        #         },
+        #         'model_name': 'deepseek-prover-scorer'
+        #     }
+        # ]
+        ```
+    """
+
+    _template: Union[Template, None] = PrivateAttr(...)
+
+    def load(self) -> None:
+        """Loads the Jinja2 template."""
+        super().load()
+
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "deepseek-prover.jinja2"
+        )
+        with open(_path, "r") as f:
+            self._template = Template(f.read())
+
+    @property
+    def inputs(self) -> List[str]:
+        """The input for the task is the `instruction`."""
+        return ["formal_statement"]
+
+    @property
+    def outputs(self):
+        """The output for the task is a list of `instructions` containing the generated instructions."""
+        return ["informal_statement", "analysis", "assessment", "model_name"]
+
+    def format_input(self, input: str) -> ChatType:  # type: ignore
+        """The input is formatted as a `ChatType` assuming that the instruction
+        is the first interaction from the user within a conversation. And the
+        `system_prompt` is added as the first message if it exists."""
+        return [
+            {
+                "role": "system",
+                "content": self._template.render(),
+            },
+            {
+                "role": "user",
+                "content": input[self.inputs[0]],
+            },
+        ]
+
+    @override
+    def format_output(  # type: ignore
+        self, output: Union[str, None], input: Dict[str, Any] = None
+    ) -> Dict[str, Any]:  # type: ignore
+        matches = re.match(_PARSE_DEEPSEEK_PROVER_SCORER_REGEX, output)
+        informal = analysis = assessment = None
+        if matches:
+            informal, analysis, assessment = matches.groups()
+
+        return {
+            "informal_statement": informal,
+            "analysis": analysis,
+            "assessment": assessment,
+        }
