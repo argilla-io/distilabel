@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import List, Optional
 
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -32,6 +32,7 @@ class DummyNestedClass(RuntimeParametersMixin):
 
 class DummyClass(RuntimeParametersMixin):
     nested_class: DummyNestedClass
+    mixins_list: List[DummyNestedClass]
 
     runtime_param1: RuntimeParameter[SecretStr] = Field(
         default=None, description="Runtime param 1"
@@ -43,7 +44,10 @@ class DummyClass(RuntimeParametersMixin):
 
 class TestRuntimeParametersMixin:
     def test_runtime_parameters_names(self) -> None:
-        dummy = DummyClass(nested_class=DummyNestedClass())
+        dummy = DummyClass(
+            nested_class=DummyNestedClass(),
+            mixins_list=[DummyNestedClass(), DummyNestedClass(), DummyNestedClass()],
+        )
 
         assert dummy.runtime_parameters_names == {
             "runtime_param1": False,
@@ -52,10 +56,27 @@ class TestRuntimeParametersMixin:
                 "runtime_param1": False,
                 "runtime_param2": True,
             },
+            "mixins_list": [
+                {
+                    "runtime_param1": False,
+                    "runtime_param2": True,
+                },
+                {
+                    "runtime_param1": False,
+                    "runtime_param2": True,
+                },
+                {
+                    "runtime_param1": False,
+                    "runtime_param2": True,
+                },
+            ],
         }
 
     def test_get_runtime_parameters_info(self) -> None:
-        dummy = DummyClass(nested_class=DummyNestedClass())
+        dummy = DummyClass(
+            nested_class=DummyNestedClass(),
+            mixins_list=[DummyNestedClass(), DummyNestedClass(), DummyNestedClass()],
+        )
 
         assert dummy.get_runtime_parameters_info() == [
             {
@@ -74,6 +95,47 @@ class TestRuntimeParametersMixin:
                 ],
             },
             {
+                "name": "mixins_list",
+                "runtime_parameters_info": [
+                    [
+                        {
+                            "name": "runtime_param1",
+                            "description": "Runtime param 1",
+                            "optional": False,
+                        },
+                        {
+                            "name": "runtime_param2",
+                            "description": "Runtime param 2",
+                            "optional": True,
+                        },
+                    ],
+                    [
+                        {
+                            "name": "runtime_param1",
+                            "description": "Runtime param 1",
+                            "optional": False,
+                        },
+                        {
+                            "name": "runtime_param2",
+                            "description": "Runtime param 2",
+                            "optional": True,
+                        },
+                    ],
+                    [
+                        {
+                            "name": "runtime_param1",
+                            "description": "Runtime param 1",
+                            "optional": False,
+                        },
+                        {
+                            "name": "runtime_param2",
+                            "description": "Runtime param 2",
+                            "optional": True,
+                        },
+                    ],
+                ],
+            },
+            {
                 "name": "runtime_param1",
                 "description": "Runtime param 1",
                 "optional": False,
@@ -86,7 +148,10 @@ class TestRuntimeParametersMixin:
         ]
 
     def test_set_runtime_parameters(self) -> None:
-        dummy = DummyClass(nested_class=DummyNestedClass())
+        dummy = DummyClass(
+            nested_class=DummyNestedClass(),
+            mixins_list=[DummyNestedClass(), DummyNestedClass(), DummyNestedClass()],
+        )
 
         dummy.set_runtime_parameters(
             {

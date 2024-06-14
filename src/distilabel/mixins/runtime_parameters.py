@@ -57,14 +57,23 @@ class RuntimeParametersMixin(BaseModel):
         runtime_parameters = {}
 
         for name, field_info in self.model_fields.items():  # type: ignore
+            # `field: RuntimeParameter[Any]` or `field: Optional[RuntimeParameter[Any]]`
             is_runtime_param, is_optional = _is_runtime_parameter(field_info)
             if is_runtime_param:
                 runtime_parameters[name] = is_optional
                 continue
 
             attr = getattr(self, name)
+
+            # `field: RuntimeParametersMixin`
             if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters[name] = attr.runtime_parameters_names
+
+            # `field: List[RuntiemParametersMixin]`
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                runtime_parameters[name] = [
+                    item.runtime_parameters_names for item in attr
+                ]
 
         return runtime_parameters
 
@@ -82,11 +91,25 @@ class RuntimeParametersMixin(BaseModel):
                 continue
 
             attr = getattr(self, name)
+
+            # Get runtime parameters info for `RuntimeParametersMixin` field
             if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters_info.append(
                     {
                         "name": name,
                         "runtime_parameters_info": attr.get_runtime_parameters_info(),
+                    }
+                )
+                continue
+
+            # Get runtime parameters info for `List[RuntimeParametersMixin]` field
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                runtime_parameters_info.append(
+                    {
+                        "name": name,
+                        "runtime_parameters_info": [
+                            item.get_runtime_parameters_info() for item in attr
+                        ],
                     }
                 )
                 continue
@@ -125,8 +148,17 @@ class RuntimeParametersMixin(BaseModel):
                 continue
 
             attr = getattr(self, name)
+
+            # Set runtime parameters for `RuntimeParametersMixin` field
             if isinstance(attr, RuntimeParametersMixin):
                 attr.set_runtime_parameters(value)
+                self._runtime_parameters[name] = value
+                continue
+
+            # Set runtime parameters for `List[RuntimeParametersMixin]` field
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                for item, item_value in zip(attr, value):
+                    item.set_runtime_parameters(item_value)
                 self._runtime_parameters[name] = value
                 continue
 
@@ -136,6 +168,7 @@ class RuntimeParametersMixin(BaseModel):
             if inspect.isclass(inner_type) and issubclass(inner_type, _SecretField):
                 value = inner_type(value)
 
+            # Set the value of the runtime parameter
             setattr(self, name, value)
             self._runtime_parameters[name] = value
 
