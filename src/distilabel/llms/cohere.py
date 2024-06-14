@@ -27,7 +27,10 @@ from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from cohere import AsyncClient, ChatMessage
@@ -125,6 +128,12 @@ class CohereLLM(AsyncLLM):
         default="distilabel",
         description="The name of the client to use for the API requests.",
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _num_generations_param_supported = False
 
@@ -168,7 +177,7 @@ class CohereLLM(AsyncLLM):
                 self.structured_output = structured_output
 
     def _format_chat_to_cohere(
-        self, input: "StandardInput"
+        self, input: "FormattedInput"
     ) -> Tuple[Union[str, None], List["ChatMessage"], str]:
         """Formats the chat input to the Cohere Chat API conversational format.
 
@@ -205,7 +214,7 @@ class CohereLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: StandardInput,
+        input: FormattedInput,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         k: Optional[int] = None,
@@ -240,6 +249,19 @@ class CohereLLM(AsyncLLM):
         Returns:
             The generated response from the Cohere API model.
         """
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="cohere",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         system, chat_history, message = self._format_chat_to_cohere(input)
 
         kwargs = {
@@ -257,12 +279,12 @@ class CohereLLM(AsyncLLM):
             "presence_penalty": presence_penalty,
             "raw_prompting": raw_prompting,
         }
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         response = await self._aclient.chat(**kwargs)  # type: ignore
 
-        if self.structured_output:
+        if structured_output:
             return response.model_dump_json()
 
         if (text := response.text) == "":

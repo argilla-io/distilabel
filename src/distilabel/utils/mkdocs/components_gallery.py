@@ -21,7 +21,6 @@ from mkdocs.config.base import Config
 from mkdocs.config.config_options import Type
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
-from mkdocs.structure.pages import Page
 from mkdocs_section_index import SectionPage
 
 from distilabel.utils.export_components_info import export_components_info
@@ -360,11 +359,26 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         steps_file = files.get_file_from_path(self.file_paths["steps"][0])
         tasks_file = files.get_file_from_path(self.file_paths["tasks"][0])
         llms_file = files.get_file_from_path(self.file_paths["llms"][0])
+        steps_files = [
+            files.get_file_from_path(path) for path in self.file_paths["steps"][0:]
+        ]
+        tasks_files = [
+            files.get_file_from_path(path) for path in self.file_paths["tasks"][0:]
+        ]
+        llms_files = [
+            files.get_file_from_path(path) for path in self.file_paths["llms"][0:]
+        ]
 
         # Create subsections
-        steps_page = Page("Steps", file=steps_file, config=config)  # type: ignore
-        tasks_page = Page("Tasks", file=tasks_file, config=config)  # type: ignore
-        llms_page = Page("LLMs", file=llms_file, config=config)  # type: ignore
+        steps_page = SectionPage(
+            "Steps", file=steps_file, config=config, children=steps_files
+        )  # type: ignore
+        tasks_page = SectionPage(
+            "Tasks", file=tasks_file, config=config, children=tasks_files
+        )  # type: ignore
+        llms_page = SectionPage(
+            "LLMs", file=llms_file, config=config, children=llms_files
+        )  # type: ignore
 
         # Create the gallery section
         page = SectionPage(

@@ -36,13 +36,23 @@ theme:
   icon:
     repo: fontawesome/brands/github-alt
   features:
-    - navigation.sections # Sections are included in the navigation on the left.
-    # - toc.integrate # # Table of contents is integrated on the left; does not appear separately on the right.
+    - navigation.instant
+    - navigation.sections
     - navigation.tabs
+    - navigation.footer
+    - navigation.top
+    - navigation.tracking
+    - navigation.path
     - header.autohide # header disappears as you scroll
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - content.action.edit
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+
   palette:
     - media: "(prefers-color-scheme)"
       primary: white
@@ -103,9 +113,7 @@ plugins:
   - autorefs # Cross-links to headings
   - gen-files:
       scripts:
-        - docs/scripts/gen_ref_pages.py
-  - literate-nav:
-      nav_file: SUMMARY.md
+        - docs/scripts/gen_popular_issues.py
   - section-index
   - mkdocstrings:
       handlers:
@@ -125,36 +133,34 @@ plugins:
             heading_level: 4
   - social
   - distilabel/components-gallery:
-      add_after_page: Learn
+      add_after_page: How-to guides
 
 nav:
   - Distilabel: "index.md"
   - Getting started:
-    - Installation: "sections/installation.md"
-    - How-to-Guide: "sections/how_to_guide.md"
-  - Learn:
-    - "sections/learn/index.md"
-    - Tutorial:
-      - "sections/learn/tutorial/index.md"
-      - Step:
-        - "sections/learn/tutorial/step/index.md"
-        - GeneratorStep: "sections/learn/tutorial/step/generator_step.md"
-        - GlobalStep: "sections/learn/tutorial/step/global_step.md"
-      - Task:
-        - "sections/learn/tutorial/task/index.md"
-        - GeneratorTask: "sections/learn/tutorial/task/generator_task.md"
-      - LLM: "sections/learn/tutorial/llm/index.md"
-      - Pipeline: "sections/learn/tutorial/pipeline/index.md"
-      - CLI: "sections/learn/tutorial/cli/index.md"
+    - Installation: "sections/getting_started/installation.md"
+    - Quickstart: "sections/getting_started/quickstart.md"
+    - FAQ: "sections/getting_started/faq.md"
+  - How-to guides:
+    - "sections/how_to_guides/index.md"
+    - Basic:
+      - Define Steps for your Pipeline:
+        - "sections/how_to_guides/basic/step/index.md"
+        - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
+        - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
+      - Define Tasks that rely on LLMs:
+        - "sections/how_to_guides/basic/task/index.md"
+        - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
+      - Define LLMs as local or remote models: "sections/how_to_guides/basic/llm/index.md"
+      - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
     - Advanced:
-        - "sections/learn/advanced/index.md"
-        - Argilla: "sections/learn/advanced/argilla.md"
-        - Caching: "sections/learn/advanced/caching.md"
-        - Distiset: "sections/learn/advanced/distiset.md"
-        - Structured Generation: "sections/learn/advanced/structured_generation.md"
-        - Using the file system to pass batch data: "sections/learn/advanced/fs_to_pass_data.md"
+        - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
+        - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+        - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
+        - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
+        - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
+        - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
   - Pipeline Samples:
-    - "sections/pipeline_samples/index.md"
     - Examples: "sections/pipeline_samples/examples/index.md"
     - Papers:
       - "sections/pipeline_samples/papers/index.md"
@@ -162,13 +168,7 @@ nav:
       - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
       - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
       - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
-  - FAQ: "sections/faq.md"
   - API Reference:
-    - Pipeline:
-      - "api/pipeline/index.md"
-      - Routing Batch Function: "api/pipeline/routing_batch_function.md"
-      - Typing: "api/pipeline/typing.md"
-      - Utils: "api/pipeline/utils.md"
     - Step:
       - "api/step/index.md"
       - GeneratorStep: "api/step/generator_step.md"
@@ -176,18 +176,21 @@ nav:
       - "@step": "api/step/decorator.md"
       - Step Gallery:
         - Argilla: "api/step_gallery/argilla.md"
+        - Hugging Face: "api/step_gallery/hugging_face.md"
         - Columns: "api/step_gallery/columns.md"
         - Extra: "api/step_gallery/extra.md"
     - Task:
       - "api/task/index.md"
       - GeneratorTask: "api/task/generator_task.md"
       - Task Gallery: "api/task_gallery/index.md"
+      - Typing: "api/task/typing.md"
     - LLM:
       - "api/llm/index.md"
       - LLM Gallery:
         - Anthropic: "api/llm/anthropic.md"
         - Anyscale: "api/llm/anyscale.md"
         - Azure (via OpenAI): "api/llm/azure.md"
+        - Cohere: "api/llm/cohere.md"
         - Groq: "api/llm/groq.md"
         - Hugging Face: "api/llm/huggingface.md"
         - LiteLLM: "api/llm/litellm.md"
@@ -198,4 +201,13 @@ nav:
         - Together AI: "api/llm/together.md"
         - Google Vertex AI: "api/llm/vertexai.md"
         - vLLM: "api/llm/vllm.md"
+    - Pipeline:
+      - "api/pipeline/index.md"
+      - Routing Batch Function: "api/pipeline/routing_batch_function.md"
+      - Typing: "api/pipeline/typing.md"
+      - Utils: "api/pipeline/utils.md"
+    - Distiset: "api/distiset.md"
     - CLI: "api/cli.md"
+  - Community:
+    - sections/community/index.md
+    - Issue dashboard: sections/community/popular_issues.md

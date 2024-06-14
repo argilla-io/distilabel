@@ -19,12 +19,9 @@ from typing import (
     Any,
     Callable,
     Dict,
-    List,
     Literal,
-    Optional,
     Tuple,
     Type,
-    TypedDict,
     Union,
     get_args,
 )
@@ -32,28 +29,10 @@ from typing import (
 from pydantic import BaseModel
 
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
+from distilabel.steps.tasks.typing import StructuredOutputType
 
 Frameworks = Literal["transformers", "llamacpp", "vllm"]
 """Available frameworks for the structured output configuration. """
-
-
-class StructuredOutputType(TypedDict):
-    """TypedDict to represent the structured output configuration from outlines."""
-
-    format: Literal["json", "regex"]
-    """One of "json" or "regex"."""
-    schema: Union[str, Type[BaseModel]]
-    """The schema to use for the structured output. If "json", it
-    can be a pydantic.BaseModel class, or the schema as a string,
-    as obtained from `model_to_schema(BaseModel)`, if "regex", it
-    should be a regex pattern as a string.
-    """
-    whitespace_pattern: Optional[Union[str, List[str]]]
-    """If "json" corresponds to a string or a list of
-    strings with a pattern (doesn't impact string literals).
-    For example, to allow only a single space or newline with
-    `whitespace_pattern=r"[\n ]?"`
-    """
 
 
 def model_to_schema(schema: Type[BaseModel]) -> Dict[str, Any]:

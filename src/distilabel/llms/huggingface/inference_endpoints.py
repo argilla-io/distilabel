@@ -30,7 +30,11 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import FormattedInput, Grammar, StandardInput
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    StandardInput,
+    StructuredOutputType,
+)
 from distilabel.utils.huggingface import (
     _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
     get_hf_token,
@@ -147,9 +151,9 @@ class InferenceEndpointsLLM(AsyncLLM):
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
 
-    grammar: Optional[RuntimeParameter[Grammar]] = Field(
+    structured_output: Optional[RuntimeParameter[StructuredOutputType]] = Field(
         default=None,
-        description="The grammar to use across all the generations.",
+        description="The structured output format to use across all the generations.",
     )
 
     _num_generations_param_supported = False
@@ -381,9 +385,29 @@ class InferenceEndpointsLLM(AsyncLLM):
                 )
                 stop_sequences = stop_sequences[:4]
 
-        grammar = None
+        structured_output = None
         if isinstance(input, tuple):
-            input, grammar = input
+            input, structured_output = input
+            structured_output = {
+                "type": structured_output["format"],
+                "value": structured_output["schema"],
+            }
+
+        # NOTE: `self.structured_output` applies to all the generations, while `structured_output` i.e. the
+        # value included within the tuple provided as `input` to this method, is intended to be different per
+        # each input, so those should not be used together. Meaning that it should be either provided at attribute
+        # level i.e. self, or via a column within each input i.e. row.
+        if structured_output is None and self.structured_output is not None:
+            try:
+                structured_output = {
+                    "type": self.structured_output["format"],
+                    "value": self.structured_output["schema"],
+                }
+            except KeyError as e:
+                raise ValueError(
+                    "To use the structured output you have to inform the `format` and `schema` in "
+                    "the `structured_output` attribute."
+                ) from e
 
         if self.use_openai_client:
             return await self._openai_agenerate(
@@ -420,9 +444,7 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
-                # NOTE: `self.grammar` applies to all the generations, while `grammar` is intended
-                # to be different per each input, and those are not intended to be used together
-                grammar=grammar or self.grammar,  # type: ignore
+                grammar=structured_output,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),

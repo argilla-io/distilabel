@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import StandardInput
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
 if TYPE_CHECKING:
     from litellm import Choices
@@ -85,6 +85,12 @@ class LiteLLM(AsyncLLM):
     verbose: RuntimeParameter[bool] = Field(
         default=False, description="Whether to log the LiteLLM client's logs."
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
 
     _aclient: Optional[Callable] = PrivateAttr(...)
 
@@ -128,9 +134,9 @@ class LiteLLM(AsyncLLM):
         return self.model
 
     @validate_call
-    async def agenerate(  # type: ignore
+    async def agenerate(  # type: ignore # noqa: C901
         self,
-        input: StandardInput,
+        input: FormattedInput,
         num_generations: int = 1,
         functions: Optional[List] = None,
         function_call: Optional[str] = None,
@@ -194,6 +200,19 @@ class LiteLLM(AsyncLLM):
         """
         import litellm
 
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="litellm",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
         kwargs = {
             "model": self.model,
             "messages": input,
@@ -218,8 +237,8 @@ class LiteLLM(AsyncLLM):
             "force_timeout": force_timeout,
             "custom_llm_provider": custom_llm_provider,
         }
-        if self.structured_output:
-            kwargs = self._prepare_kwargs(kwargs, self.structured_output)
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []

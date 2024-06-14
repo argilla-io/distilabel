@@ -14,10 +14,12 @@
 
 import os
 import urllib.request
-from typing import Generator
+from typing import Any, Dict, Generator
 
 import pytest
 from distilabel.llms.llamacpp import LlamaCppLLM
+
+from .utils import DummyUserDetail
 
 
 @pytest.fixture(scope="module")
@@ -54,3 +56,62 @@ class TestLlamaCppLLM:
 
         assert len(responses) == 2
         assert len(responses[0]) == 3
+
+    @pytest.mark.parametrize(
+        "structured_output, dump",
+        [
+            (
+                None,
+                {
+                    "chat_format": None,
+                    "extra_kwargs": {},
+                    "n_batch": 512,
+                    "n_ctx": 512,
+                    "n_gpu_layers": 0,
+                    "seed": 4294967295,
+                    "generation_kwargs": {},
+                    "structured_output": None,
+                    "type_info": {
+                        "module": "distilabel.llms.llamacpp",
+                        "name": "LlamaCppLLM",
+                    },
+                    "verbose": False,
+                },
+            ),
+            (
+                {
+                    "schema": DummyUserDetail.model_json_schema(),
+                    "format": "json",
+                },
+                {
+                    "chat_format": None,
+                    "extra_kwargs": {},
+                    "n_batch": 512,
+                    "n_ctx": 512,
+                    "n_gpu_layers": 0,
+                    "seed": 4294967295,
+                    "generation_kwargs": {},
+                    "structured_output": {
+                        "schema": DummyUserDetail.model_json_schema(),
+                        "format": "json",
+                    },
+                    "type_info": {
+                        "module": "distilabel.llms.llamacpp",
+                        "name": "LlamaCppLLM",
+                    },
+                    "verbose": False,
+                },
+            ),
+        ],
+    )
+    def test_serialization(
+        self, structured_output: Dict[str, Any], dump: Dict[str, Any]
+    ) -> None:
+        llm = LlamaCppLLM(
+            model_path="tinyllama.gguf",
+            n_gpu_layers=0,
+            structured_output=structured_output,
+        )
+
+        assert llm.dump() == dump
+        assert isinstance(LlamaCppLLM.from_dict(dump), LlamaCppLLM)
