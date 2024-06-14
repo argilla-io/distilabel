@@ -163,7 +163,7 @@ class CohereLLM(AsyncLLM):
                 client=self._aclient,
                 framework="cohere",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -194,7 +194,7 @@ class CohereLLM(AsyncLLM):
                         "An assistant message but be preceded by a user message."
                     )
                 chat_history.append(self._ChatMessage(role="USER", message=message))  # type: ignore
-                chat_history.append(self._ChatMessage(role="CHATBOT", message=content))
+                chat_history.append(self._ChatMessage(role="CHATBOT", message=content))  # type: ignore
                 message = None
 
         if message is None:
@@ -266,7 +266,7 @@ class CohereLLM(AsyncLLM):
             return response.model_dump_json()
 
         if (text := response.text) == "":
-            self._logger.warning(
+            self._logger.warning(  # type: ignore
                 f"Received no response using Cohere client (model: '{self.model}')."
                 f" Finish reason was: {response.finish_reason}"
             )

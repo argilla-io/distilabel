@@ -158,7 +158,7 @@ class GroqLLM(AsyncLLM):
                 client=self._aclient,
                 framework="groq",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 

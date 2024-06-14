@@ -321,11 +321,10 @@ class InferenceEndpointsLLM(AsyncLLM):
             )
         return [completion.choices[0].message.content]
 
-    # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "FormattedInput",
+        input: FormattedInput,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -339,7 +338,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates completions for the given input using the OpenAI async client.
 
         Args:
@@ -407,6 +406,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             # TODO: should we apply a default chat template here instead? e.g. ChatML
             prompt = "\n".join([message["content"] for message in input])
 
+        completion = None
         try:
             completion = await self._aclient.text_generation(  # type: ignore
                 prompt=prompt,  # type: ignore
@@ -427,10 +427,10 @@ class InferenceEndpointsLLM(AsyncLLM):
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),
             )
-            return [completion]
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-            return [None]
+
+        return [completion]
