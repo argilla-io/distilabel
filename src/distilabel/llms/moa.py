@@ -16,7 +16,7 @@ import asyncio
 import itertools
 from typing import TYPE_CHECKING, Any, Dict, List, Union, cast
 
-from pydantic import field_validator
+from pydantic import Field
 
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.steps.tasks.typing import StandardInput
@@ -39,29 +39,27 @@ MOA_SYSTEM_PROMPT = (
 
 
 class MixtureOfAgents(AsyncLLM):
+    """An `LLM` class that leverages `LLM`s collective strenghts to generate a response,
+    as described in the "Mixture-of-Agents Enhances Large Language model Capabilities"
+    paper.
+
+    There is a list of `LLM`s proposing/generating outputs that `LLM`s from the next round/layer
+    can use as auxiliary information. Finally, there is an `LLM` that aggregates the outputs
+    to generate the final response.
+
+    Attributes:
+        aggregator_llm: The `LLM` that aggregates the outputs of the proposer `LLM`s.
+        proposers_llms: The list of `LLM`s that propose outputs to be aggregated.
+        rounds: The number of layers or rounds that the `proposers_llms` will generate
+            outputs. Defaults to `1`.
+
+    References:
+        - [Mixture-of-Agents Enhances Large Language Model Capabilities](https://arxiv.org/abs/2406.04692)
+    """
+
     aggregator_llm: LLM
-    proposers_llms: List[AsyncLLM]
+    proposers_llms: List[AsyncLLM] = Field(default_factory=list)
     rounds: int = 1
-
-    @field_validator("proposers_llms")
-    @classmethod
-    def ensure_at_least_one_proposer_llm(
-        cls, proposers_llms: List[AsyncLLM]
-    ) -> List[AsyncLLM]:
-        """Ensures that the `MixtureOfAgents` has at least one `LLM` in `proposers_llms`.
-
-        Args:
-            proposers_llms: The list of `LLM`s.
-
-        Returns:
-            The list of `LLM`s.
-        """
-        if len(proposers_llms) == 0:
-            raise ValueError(
-                "`MixtureOfAgents` must have at least one `LLM` in `propose_llms`."
-            )
-
-        return proposers_llms
 
     @property
     def runtime_parameters_names(self) -> "RuntimeParametersNames":
@@ -113,6 +111,14 @@ class MixtureOfAgents(AsyncLLM):
         )
 
     def _build_moa_system_prompt(self, prev_outputs: List[str]) -> str:
+        """Builds the Mixture-of-Agents system prompt.
+
+        Args:
+            prev_outputs: The list of previous outputs to use as references.
+
+        Returns:
+            The Mixture-of-Agents system prompt.
+        """
         moa_system_prompt = MOA_SYSTEM_PROMPT
         for i, prev_output in enumerate(prev_outputs):
             if prev_output is not None:
@@ -122,6 +128,15 @@ class MixtureOfAgents(AsyncLLM):
     def _inject_moa_system_prompt(
         self, input: "StandardInput", prev_outputs: List[str]
     ) -> "StandardInput":
+        """Injects the Mixture-of-Agents system prompt into the input.
+
+        Args:
+            input: The input to inject the system prompt into.
+            prev_outputs: The list of previous outputs to use as references.
+
+        Returns:
+            The input with the Mixture-of-Agents system prompt injected.
+        """
         if len(prev_outputs) == 0:
             return input
 
@@ -129,7 +144,8 @@ class MixtureOfAgents(AsyncLLM):
 
         system = next((item for item in input if item["role"] == "system"), None)
         if system:
-            system["content"] = moa_system_prompt
+            original_system_prompt = system["content"]
+            system["content"] = f"{moa_system_prompt}\n\n{original_system_prompt}"
         else:
             input.insert(0, {"role": "system", "content": moa_system_prompt})
 
@@ -141,6 +157,16 @@ class MixtureOfAgents(AsyncLLM):
         num_generations: int = 1,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
+        """Internal function to concurrently generate responses for a list of inputs.
+
+        Args:
+            inputs: the list of inputs to generate responses for.
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+
+        Returns:
+            A list containing the generations for each input.
+        """
         aggregator_llm_kwargs: Dict[str, Any] = kwargs.get("aggregator_llm", {})
         proposers_llms_kwargs: List[Dict[str, Any]] = kwargs.get("proposers_llms", [])
 
