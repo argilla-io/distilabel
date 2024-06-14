@@ -180,7 +180,7 @@ class OpenAILLM(AsyncLLM):
                 client=self._aclient,
                 framework="openai",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -253,7 +253,7 @@ class OpenAILLM(AsyncLLM):
             kwargs = self._prepare_kwargs(kwargs, self.structured_output)
 
         generations = []
-        completion = await self._aclient.chat.completions.create(**kwargs)
+        completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
 
         if self.structured_output:
             generations.append(completion.model_dump_json())

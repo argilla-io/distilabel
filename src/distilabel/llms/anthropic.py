@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
 from typing import (
     TYPE_CHECKING,
-    Any,
     List,
     Literal,
     Optional,
@@ -28,13 +26,11 @@ from typing import (
 
 from httpx import AsyncClient
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import StandardInput
-from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
@@ -140,6 +136,8 @@ class AnthropicLLM(AsyncLLM):
         " failing.",
     )
     http_client: Optional[AsyncClient] = Field(default=None, exclude=True)
+
+    _num_generations_param_supported = False
 
     _api_key_env_var: str = PrivateAttr(default=_ANTHROPIC_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncAnthropic"] = PrivateAttr(...)
@@ -262,29 +260,3 @@ class AnthropicLLM(AsyncLLM):
             )
         generations.append(content)
         return generations
-
-    # TODO: remove this function once Anthropic client allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["StandardInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["StandardInput"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

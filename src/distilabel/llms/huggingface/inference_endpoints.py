@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
 import random
 import warnings
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import (
     Field,
@@ -36,7 +35,6 @@ from distilabel.utils.huggingface import (
     _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
     get_hf_token,
 )
-from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
@@ -153,6 +151,8 @@ class InferenceEndpointsLLM(AsyncLLM):
         default=None,
         description="The grammar to use across all the generations.",
     )
+
+    _num_generations_param_supported = False
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
@@ -434,29 +434,3 @@ class InferenceEndpointsLLM(AsyncLLM):
                 f" Finish reason was: {e}"
             )
             return [None]
-
-    # TODO: remove this function once `AsyncInferenceClient` allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

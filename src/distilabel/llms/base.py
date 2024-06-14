@@ -27,6 +27,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
+from distilabel.utils.itertools import grouper
 from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
@@ -251,6 +252,7 @@ class AsyncLLM(LLM):
         _event_loop: the event loop to be used for the asynchronous generation of responses.
     """
 
+    _num_generations_param_supported = True
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
     _new_event_loop: bool = PrivateAttr(default=False)
 
@@ -295,20 +297,20 @@ class AsyncLLM(LLM):
         """
         pass
 
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
+    async def _agenerate(
+        self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
+    ) -> List[List[Union[str, None]]]:
+        """Internal function to concurrently generate responses for a list of inputs.
 
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> List[List[Union[str, None]]]:
-            """Internal function to parallelize the asynchronous generation of responses."""
+        Args:
+            inputs: the list of inputs to generate responses for.
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+
+        Returns:
+            A list containing the generations for each input.
+        """
+        if self._num_generations_param_supported:
             tasks = [
                 asyncio.create_task(
                     self.agenerate(
@@ -319,7 +321,34 @@ class AsyncLLM(LLM):
             ]
             return await asyncio.gather(*tasks)
 
-        return self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        tasks = [
+            asyncio.create_task(self.agenerate(input=input, **kwargs))
+            for input in inputs
+            for _ in range(num_generations)
+        ]
+        outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
+        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+
+    def generate(
+        self,
+        inputs: List["FormattedInput"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+
+        Args:
+            inputs: the list of inputs to generate responses for.
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+
+        Returns:
+            A list containing the generations for each input.
+        """
+        return self.event_loop.run_until_complete(
+            self._agenerate(inputs=inputs, num_generations=num_generations, **kwargs)
+        )
 
     def __del__(self) -> None:
         """Closes the event loop when the object is deleted."""
@@ -332,7 +361,7 @@ class AsyncLLM(LLM):
             self._event_loop.close()
 
     @staticmethod
-    def _prepare_structured_output(
+    def _prepare_structured_output(  # type: ignore
         structured_output: "InstructorStructuredOutputType",
         client: Any = None,
         framework: Optional[str] = None,
@@ -357,7 +386,7 @@ class AsyncLLM(LLM):
         client = prepare_instructor(
             client,
             mode=structured_output.get("mode"),
-            framework=framework,
+            framework=framework,  # type: ignore
         )
         result["client"] = client
 
@@ -368,7 +397,7 @@ class AsyncLLM(LLM):
             )
         if issubclass(schema, BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-            structured_output["schema"] = schema.model_json_schema()
+            structured_output["schema"] = schema.model_json_schema()  # type: ignore
             result["structured_output"] = structured_output
 
         return result
@@ -390,7 +419,7 @@ class AsyncLLM(LLM):
         """
         # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
         # for the Instructor client.
-        schema = structured_output.get("schema")
+        schema = structured_output.get("schema", {})
         if not issubclass(schema, BaseModel):
             from distilabel.steps.tasks.structured_outputs.utils import (
                 json_schema_to_model,
