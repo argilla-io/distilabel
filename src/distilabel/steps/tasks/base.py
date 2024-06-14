@@ -112,7 +112,9 @@ class _Task(_Step, ABC):
             try:
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._maybe_add_raw_output(
-                    formatted_output, output, add_raw_output=self.add_raw_output
+                    formatted_output,
+                    output,
+                    add_raw_output=self.add_raw_output,  # type: ignore
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
@@ -132,7 +134,9 @@ class _Task(_Step, ABC):
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._maybe_add_raw_output(
-            outputs, output, add_raw_output=self.add_raw_output
+            outputs,
+            output,
+            add_raw_output=self.add_raw_output,  # type: ignore
         )
         return outputs
 

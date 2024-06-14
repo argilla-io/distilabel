@@ -96,6 +96,8 @@ class OllamaLLM(AsyncLLM):
         )
     )
 
+    _num_generations_param_supported = False
+
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
 
     def load(self) -> None:

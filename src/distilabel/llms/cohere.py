@@ -26,6 +26,7 @@ from typing import (
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
     FormattedInput,
@@ -224,7 +225,7 @@ class CohereLLM(AsyncLLM):
         frequency_penalty: Optional[float] = None,
         presence_penalty: Optional[float] = None,
         raw_prompting: Optional[bool] = None,
-    ) -> Union[str, None]:
+    ) -> GenerateOutput:
         """Generates a response from the LLM given an input.
 
         Args:
@@ -253,11 +254,11 @@ class CohereLLM(AsyncLLM):
         if isinstance(input, tuple):
             input, structured_output = input
             result = self._prepare_structured_output(
-                structured_output=structured_output,
+                structured_output=structured_output,  # type: ignore
                 client=self._aclient,
                 framework="cohere",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
 
         if structured_output is None and self.structured_output is not None:
             structured_output = self.structured_output
@@ -280,18 +281,18 @@ class CohereLLM(AsyncLLM):
             "raw_prompting": raw_prompting,
         }
         if structured_output:
-            kwargs = self._prepare_kwargs(kwargs, structured_output)
+            kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
         response = await self._aclient.chat(**kwargs)  # type: ignore
 
         if structured_output:
-            return response.model_dump_json()
+            return [response.model_dump_json()]
 
         if (text := response.text) == "":
             self._logger.warning(  # type: ignore
                 f"Received no response using Cohere client (model: '{self.model}')."
                 f" Finish reason was: {response.finish_reason}"
             )
-            return None
+            return [None]
 
-        return text
+        return [text]
