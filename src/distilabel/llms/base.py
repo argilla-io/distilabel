@@ -164,21 +164,27 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         runtime_parameters_info = super().get_runtime_parameters_info()
 
         generation_kwargs_info = next(
-            runtime_parameter_info
-            for runtime_parameter_info in runtime_parameters_info
-            if runtime_parameter_info["name"] == "generation_kwargs"
+            (
+                runtime_parameter_info
+                for runtime_parameter_info in runtime_parameters_info
+                if runtime_parameter_info["name"] == "generation_kwargs"
+            ),
+            None,
         )
 
-        generate_docstring_args = self.generate_parsed_docstring["args"]
+        # If `generation_kwargs` attribute is present, we need to include the `generate`
+        # method arguments as the information for this attribute.
+        if generation_kwargs_info:
+            generate_docstring_args = self.generate_parsed_docstring["args"]
 
-        generation_kwargs_info["keys"] = []
-        for key, value in generation_kwargs_info["optional"].items():
-            info = {"name": key, "optional": value}
-            if description := generate_docstring_args.get(key):
-                info["description"] = description
-            generation_kwargs_info["keys"].append(info)
+            generation_kwargs_info["keys"] = []
+            for key, value in generation_kwargs_info["optional"].items():
+                info = {"name": key, "optional": value}
+                if description := generate_docstring_args.get(key):
+                    info["description"] = description
+                generation_kwargs_info["keys"].append(info)
 
-        generation_kwargs_info.pop("optional")
+            generation_kwargs_info.pop("optional")
 
         return runtime_parameters_info
 
