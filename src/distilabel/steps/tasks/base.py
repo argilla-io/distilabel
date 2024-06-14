@@ -190,10 +190,11 @@ class Task(_Task, Step):
         """
 
         formatted_inputs = self._format_inputs(inputs)
+
         outputs = self.llm.generate(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
-            **self.llm.generation_kwargs,  # type: ignore
+            **self.llm.get_generation_kwargs(),  # type: ignore
         )
 
         task_outputs = []

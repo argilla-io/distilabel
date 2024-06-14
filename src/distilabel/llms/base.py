@@ -95,6 +95,15 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """Returns the model name used for the LLM."""
         pass
 
+    def get_generation_kwargs(self) -> Dict[str, Any]:
+        """Returns the generation kwargs to be used for the generation. This method can
+        be overridden to provide a more complex logic for the generation kwargs.
+
+        Args:
+            The kwargs to be used for the generation.
+        """
+        return self.generation_kwargs  # type: ignore
+
     @abstractmethod
     def generate(
         self,
