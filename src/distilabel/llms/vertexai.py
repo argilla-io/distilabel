@@ -117,8 +117,6 @@ class VertexAILLM(AsyncLLM):
 
         Args:
             input: a single input in chat format to generate responses for.
-            num_generations: the number of generations to create per input. Defaults to
-                `1`.
             temperature: Controls the randomness of predictions. Range: [0.0, 1.0]. Defaults to `None`.
             top_p: If specified, nucleus sampling will be used. Range: (0.0, 1.0]. Defaults to `None`.
             top_k: If specified, top-k sampling will be used. Defaults to `None`.

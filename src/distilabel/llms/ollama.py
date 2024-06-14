@@ -137,7 +137,6 @@ class OllamaLLM(AsyncLLM):
 
         Args:
             input: the input to use for the generation.
-            num_generations: the number of generations to produce. Defaults to `1`.
             format: the format to use for the generation. Defaults to `""`.
             options: the options to use for the generation. Defaults to `None`.
             keep_alive: whether to keep the connection alive. Defaults to `None`.

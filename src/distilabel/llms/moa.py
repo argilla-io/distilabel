@@ -39,13 +39,13 @@ MOA_SYSTEM_PROMPT = (
 
 
 class MixtureOfAgents(AsyncLLM):
-    """An `LLM` class that leverages `LLM`s collective strenghts to generate a response,
-    as described in the "Mixture-of-Agents Enhances Large Language model Capabilities"
-    paper.
+    """`Mixture-of-Agents` implementation.
 
-    There is a list of `LLM`s proposing/generating outputs that `LLM`s from the next round/layer
-    can use as auxiliary information. Finally, there is an `LLM` that aggregates the outputs
-    to generate the final response.
+    An `LLM` class that leverages `LLM`s collective strenghts to generate a response,
+    as described in the "Mixture-of-Agents Enhances Large Language model Capabilities"
+    paper. There is a list of `LLM`s proposing/generating outputs that `LLM`s from the next
+    round/layer can use as auxiliary information. Finally, there is an `LLM` that aggregates
+    the outputs to generate the final response.
 
     Attributes:
         aggregator_llm: The `LLM` that aggregates the outputs of the proposer `LLM`s.

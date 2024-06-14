@@ -98,7 +98,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         """Returns the generation kwargs to be used for the generation. This method can
         be overridden to provide a more complex logic for the generation kwargs.
 
-        Args:
+        Returns:
             The kwargs to be used for the generation.
         """
         return self.generation_kwargs  # type: ignore
