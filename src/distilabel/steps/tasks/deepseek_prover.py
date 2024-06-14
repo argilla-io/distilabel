@@ -97,13 +97,14 @@ class DeepSeekProverAutoFormalization(Task):
         from distilabel.steps.tasks import DeepSeekProverAutoFormalization
         from distilabel.llms.huggingface import InferenceEndpointsLLM
 
+        # You can gain inspiration from the following examples to create your own few-shot examples:
+        # https://github.com/yangky11/miniF2F-lean4/blob/main/MiniF2F/Valid.lean
         # Consider this as a placeholder for your actual LLM.
         prover_autoformal = DeepSeekProverAutoFormalization(
             llm=InferenceEndpointsLLM(
                 model_id="deepseek-ai/deepseek-math-7b-instruct",
                 tokenizer_id="deepseek-ai/deepseek-math-7b-instruct",
             ),
-            few_shot=True,
             examples=[
                 "theorem amc12a_2019_p21 (z : ℂ) (h₀ : z = (1 + Complex.I) / Real.sqrt 2) :\n\n((∑ k : ℤ in Finset.Icc 1 12, z ^ k ^ 2) * (∑ k : ℤ in Finset.Icc 1 12, 1 / z ^ k ^ 2)) = 36 := by\n\nsorry",
                 "theorem amc12a_2015_p10 (x y : ℤ) (h₀ : 0 < y) (h₁ : y < x) (h₂ : x + y + x * y = 80) : x = 26 := by\n\nsorry"
@@ -133,10 +134,10 @@ class DeepSeekProverAutoFormalization(Task):
         ```
     """
 
-    few_shot: bool = False
     examples: Optional[List[str]] = None
     system_prompt: str = "Translate the problem to Lean 4 (only the core declaration):\n```lean4\nformal statement goes here\n```"
     _template: Union[Template, None] = PrivateAttr(...)
+    _few_shot: bool = PrivateAttr(default=False)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
@@ -176,7 +177,7 @@ class DeepSeekProverAutoFormalization(Task):
                 "role": "user",
                 "content": self._template.render(
                     informal_statement=input[self.inputs[0]],
-                    few_shot=self.few_shot,
+                    few_shot=bool(self.examples),
                     examples=self.examples,
                 ),
             },

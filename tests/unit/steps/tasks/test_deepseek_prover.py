@@ -62,25 +62,21 @@ class DeepSeekProverScorerLLM(LLM):
 
 class TestDeepSeekProverAutoFormalization:
     @pytest.mark.parametrize(
-        "few_shot, examples, expected",
+        "examples, expected",
         [
             (
-                False,
                 [],
                 "Mathematical Problem in Natural Language:\n{informal_statement}",
             ),
             (
-                True,
                 ["ex1", "ex2"],
                 "Mathematical Problem in Natural Language:\n{informal_statement}\n\nPlease use the following examples to guide you with the answer:\n- ex1\n- ex2\n",
             ),
         ],
     )
-    def test_format_input(
-        self, few_shot: bool, examples: List[str], expected: str
-    ) -> None:
+    def test_format_input(self, examples: List[str], expected: str) -> None:
         task = DeepSeekProverAutoFormalization(
-            llm=DeepSeekProverLLM(), few_shot=few_shot, examples=examples
+            llm=DeepSeekProverLLM(), examples=examples
         )
         informal_statement = "If a polynomial g is monic, then the root of g is integral over the ring R."
         task.load()
