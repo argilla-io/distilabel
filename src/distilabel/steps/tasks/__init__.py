@@ -15,7 +15,10 @@
 from distilabel.steps.tasks.base import GeneratorTask, Task
 from distilabel.steps.tasks.benchmarks.arena_hard import ArenaHard, ArenaHardResults
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
-from distilabel.steps.tasks.deepseek_prover import DeepSeekProverAutoFormalization
+from distilabel.steps.tasks.deepseek_prover import (
+    DeepSeekProverAutoFormalization,
+    DeepSeekProverScorer,
+)
 from distilabel.steps.tasks.evol_instruct.base import EvolInstruct
 from distilabel.steps.tasks.evol_instruct.evol_complexity.base import EvolComplexity
 from distilabel.steps.tasks.evol_instruct.evol_complexity.generator import (
@@ -59,6 +62,7 @@ __all__ = [
     "EvolInstructGenerator",
     "EvolQuality",
     "DeepSeekProverAutoFormalization",
+    "DeepSeekProverScorer",
     "GenerateEmbeddings",
     "Genstruct",
     "BitextRetrievalGenerator",
