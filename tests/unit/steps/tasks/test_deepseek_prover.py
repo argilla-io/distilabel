@@ -14,6 +14,7 @@
 
 from typing import Any, List
 
+import pytest
 from distilabel.llms.base import LLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.tasks.deepseek_prover import (
@@ -60,9 +61,26 @@ class DeepSeekProverScorerLLM(LLM):
 
 
 class TestDeepSeekProverAutoFormalization:
-    def test_format_input(self) -> None:
+    @pytest.mark.parametrize(
+        "few_shot, examples, expected",
+        [
+            (
+                False,
+                [],
+                "Mathematical Problem in Natural Language:\n{informal_statement}",
+            ),
+            (
+                True,
+                ["ex1", "ex2"],
+                "Mathematical Problem in Natural Language:\n{informal_statement}\n\nPlease use the following examples to guide you with the answer:\n- ex1\n- ex2\n",
+            ),
+        ],
+    )
+    def test_format_input(
+        self, few_shot: bool, examples: List[str], expected: str
+    ) -> None:
         task = DeepSeekProverAutoFormalization(
-            llm=DeepSeekProverLLM(),
+            llm=DeepSeekProverLLM(), few_shot=few_shot, examples=examples
         )
         informal_statement = "If a polynomial g is monic, then the root of g is integral over the ring R."
         task.load()
@@ -73,7 +91,7 @@ class TestDeepSeekProverAutoFormalization:
             },
             {
                 "role": "user",
-                "content": f"Mathematical Problem in Natural Language:\n{informal_statement}",
+                "content": expected.format(informal_statement=informal_statement),
             },
         ]
 

@@ -20,7 +20,7 @@ else:
     import importlib.resources as importlib_resources
 
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from jinja2 import Template
 from pydantic import PrivateAttr
@@ -90,7 +90,68 @@ class DeepSeekProverAutoFormalization(Task):
         #     }
         # ]
         ```
+
+        Use a few-shot setting to formalize a mathematical problem from natural language to Lean 4:
+
+        ```python
+        from distilabel.steps.tasks import DeepSeekProverAutoFormalization
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prover_autoformal = DeepSeekProverAutoFormalization(
+            llm=InferenceEndpointsLLM(
+                model_id="deepseek-ai/deepseek-math-7b-instruct",
+                tokenizer_id="deepseek-ai/deepseek-math-7b-instruct",
+            ),
+            few_shot=True,
+            examples=[
+                "theorem amc12a_2019_p21 (z : ℂ) (h₀ : z = (1 + Complex.I) / Real.sqrt 2) :\n\n((∑ k : ℤ in Finset.Icc 1 12, z ^ k ^ 2) * (∑ k : ℤ in Finset.Icc 1 12, 1 / z ^ k ^ 2)) = 36 := by\n\nsorry",
+                "theorem amc12a_2015_p10 (x y : ℤ) (h₀ : 0 < y) (h₁ : y < x) (h₂ : x + y + x * y = 80) : x = 26 := by\n\nsorry"
+            ]
+        )
+
+        prover_autoformal.load()
+
+        result = next(
+            prover_autoformal.process(
+                [
+                    {"informal_statement": "If a polynomial g is monic, then the root of g is integral over the ring R."},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'informal_statement': 'If a polynomial g is monic, then the root of g is integral over the ring R.',
+        #         'formal_statement': 'theorem isIntegral_root (hg : g.Monic) : IsIntegral R (root g):=',
+        #         'distilabel_metadata': {
+        #             'raw_output_deep_seek_prover_auto_formalization_0': '```lean4\ntheorem isIntegral_root (hg : g.Monic) : IsIntegral R (root g):=\n```'
+        #         },
+        #         'model_name': 'deepseek-prover'
+        #     }
+        # ]
+        ```
     """
+
+    few_shot: bool = False
+    examples: Optional[List[str]] = None
+    system_prompt: str = "Translate the problem to Lean 4 (only the core declaration):\n```lean4\nformal statement goes here\n```"
+    _template: Union[Template, None] = PrivateAttr(...)
+
+    def load(self) -> None:
+        """Loads the Jinja2 template."""
+        super().load()
+
+        _path = str(
+            importlib_resources.files("distilabel")
+            / "steps"
+            / "tasks"
+            / "templates"
+            / "deepseek_prover"
+            / "deepseek-prover-autoformal.jinja2"
+        )
+        with open(_path, "r") as f:
+            self._template = Template(f.read())
 
     @property
     def inputs(self) -> List[str]:
@@ -109,11 +170,15 @@ class DeepSeekProverAutoFormalization(Task):
         return [
             {
                 "role": "system",
-                "content": "Translate the problem to Lean 4 (only the core declaration):\n```lean4\nformal statement goes here\n```",
+                "content": self.system_prompt,
             },
             {
                 "role": "user",
-                "content": f"Mathematical Problem in Natural Language:\n{input[self.inputs[0]]}",
+                "content": self._template.render(
+                    informal_statement=input[self.inputs[0]],
+                    few_shot=self.few_shot,
+                    examples=self.examples,
+                ),
             },
         ]
 
@@ -121,6 +186,7 @@ class DeepSeekProverAutoFormalization(Task):
     def format_output(  # type: ignore
         self, output: Union[str, None], input: Dict[str, Any] = None
     ) -> Dict[str, Any]:  # type: ignore
+        """Extracts the formal statement from the Lean 4 output."""
         match = re.match(_PARSE_DEEPSEEK_PROVER_AUTOFORMAL_REGEX, output, re.DOTALL)
         if match:
             match = match.group(1).strip()
@@ -199,7 +265,8 @@ class DeepSeekProverScorer(Task):
             / "steps"
             / "tasks"
             / "templates"
-            / "deepseek-prover.jinja2"
+            / "deepseek_prover"
+            / "deepseek-prover-scorer.jinja2"
         )
         with open(_path, "r") as f:
             self._template = Template(f.read())
@@ -233,6 +300,9 @@ class DeepSeekProverScorer(Task):
     def format_output(  # type: ignore
         self, output: Union[str, None], input: Dict[str, Any] = None
     ) -> Dict[str, Any]:  # type: ignore
+        """Analyses the formal statement with Lean 4 output and generates an assessment
+        and the corresponding informal assessment."""
+
         matches = re.match(_PARSE_DEEPSEEK_PROVER_SCORER_REGEX, output)
         informal = analysis = assessment = None
         if matches:
