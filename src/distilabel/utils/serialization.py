@@ -340,12 +340,19 @@ def _check_is_dir(path: StrOrPath) -> None:
 
 
 def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]]:
-    # This function is here to loop over objects that contains nested _Serializable objects.
-    # Cannot work recursively due to the mix between models that inherit from BaseModel and
-    # those that don't, so we loop over the classes and update those that are _Serializable.
-    # Extra introspection to dump nested objects.
-    # Mainly for the LLMs inside a Task for the moment.
-    # This way we ensure the "type_info" is inserted in those objects.
+    """Gets the information of the nested `_Serializable` attributes within another `_Serializable`
+    instance.
+
+    It's mainly used to get the information of the `LLM` objects inside a `Task` object,
+    as they are nested and need to be serialized (`type_info`).
+
+    Args:
+        obj: the object to extract the information from.
+
+    Returns:
+        A list of dictionaries containing the information of the nested `_Serializable`
+        attributes.
+    """
     from distilabel.pipeline.base import BasePipeline
 
     to_update = []
@@ -353,6 +360,12 @@ def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]
         field = getattr(obj, k)
         # Have to remove the Pipeline as it will be inside the Step objects but is really
         # in a higher level hierarchy.
-        if isinstance(field, _Serializable) and (not isinstance(field, BasePipeline)):
+        if isinstance(field, BasePipeline):
+            continue
+
+        if isinstance(field, _Serializable):
             to_update.append({k: getattr(obj, k).dump()})
+        elif isinstance(field, list) and field and isinstance(field[0], _Serializable):
+            to_update.append({k: [x.dump() for x in field]})
+
     return to_update
