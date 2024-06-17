@@ -106,7 +106,15 @@ def load_with_type_info(class_: Any) -> Any:
         return class_
 
     type_info = class_.pop(TYPE_INFO_KEY)
+
     cls = _get_module_attr(type_info["module"], type_info["name"])
+
+    if issubclass(cls, BaseModel):
+        # `pop` keys from the dictionary that are not in the model fields
+        field_names = cls.model_fields
+        keys_to_drop = [k for k in class_.keys() if k not in field_names]
+        for k in keys_to_drop:
+            class_.pop(k)
 
     instance = cls(**class_)
     return instance
