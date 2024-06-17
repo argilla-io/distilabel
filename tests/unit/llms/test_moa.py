@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.llms.moa import MOA_SYSTEM_PROMPT, MixtureOfAgents
+from distilabel.llms.moa import MOA_SYSTEM_PROMPT, MixtureOfAgentsLLM
 
 from tests.unit.conftest import DummyLLM
 
 
 class TestMixtureOfAgents:
     def test_model_name(self) -> None:
-        llm = MixtureOfAgents(
+        llm = MixtureOfAgentsLLM(
             aggregator_llm=DummyLLM(),
             proposers_llms=[DummyLLM(), DummyLLM(), DummyLLM()],
         )
@@ -27,7 +27,7 @@ class TestMixtureOfAgents:
         assert llm.model_name == "moa-test-test-test-test"
 
     def test_build_moa_system_prompt(self) -> None:
-        llm = MixtureOfAgents(
+        llm = MixtureOfAgentsLLM(
             aggregator_llm=DummyLLM(),
             proposers_llms=[DummyLLM(), DummyLLM(), DummyLLM()],
         )
@@ -41,7 +41,7 @@ class TestMixtureOfAgents:
         )
 
     def test_inject_moa_system_prompt(self) -> None:
-        llm = MixtureOfAgents(
+        llm = MixtureOfAgentsLLM(
             aggregator_llm=DummyLLM(),
             proposers_llms=[DummyLLM(), DummyLLM(), DummyLLM()],
         )

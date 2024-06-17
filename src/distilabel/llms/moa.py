@@ -38,7 +38,7 @@ MOA_SYSTEM_PROMPT = (
 )
 
 
-class MixtureOfAgents(AsyncLLM):
+class MixtureOfAgentsLLM(AsyncLLM):
     """`Mixture-of-Agents` implementation.
 
     An `LLM` class that leverages `LLM`s collective strenghts to generate a response,
