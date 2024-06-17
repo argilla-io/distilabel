@@ -27,7 +27,7 @@ from distilabel.steps.tasks.prometheus_eval import _DEFAULT_RUBRICS, PrometheusE
 from jinja2 import Template
 from pydantic import ValidationError
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 def load_template(template: str) -> Template:

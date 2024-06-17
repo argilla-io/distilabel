@@ -20,7 +20,7 @@ from _pytest.logging import LogCaptureFixture
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.benchmarks.arena_hard import ArenaHard, ArenaHardResults
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestArenaHard:
