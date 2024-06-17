@@ -14,7 +14,7 @@
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 import requests
 import yaml
@@ -202,10 +202,14 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
 
     def _add_rows(
         table: Table,
-        runtime_params: List[Union[Dict[str, Any], List[Dict[str, Any]]]],
+        runtime_params: List[Dict[str, Any]],
         prefix: str = "",
     ) -> None:
-        def _add_row(param: Dict[str, Any], prefix: str) -> None:
+        for param in runtime_params:
+            if isinstance(param, str):
+                _add_rows(table, runtime_params[param], f"{prefix}{param}.")
+                continue
+
             # nested (for example `LLM` in `Task`)
             if "runtime_parameters_info" in param:
                 _add_rows(
@@ -229,13 +233,6 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
                 table.add_row(
                     prefix + param["name"], param.get("description"), optional
                 )
-
-        if isinstance(runtime_params, list) and isinstance(runtime_params[0], list):
-            for i, sub_runtime_params in enumerate(runtime_params):
-                _add_rows(table, sub_runtime_params, f"{prefix}{i}.")  # type: ignore
-        else:
-            for param in runtime_params:
-                _add_row(param, prefix)  # type: ignore
 
     steps = []
     for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():

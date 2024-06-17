@@ -400,7 +400,7 @@ class BasePipeline(ABC, _Serializable):
 
     def get_runtime_parameters_info(
         self,
-    ) -> Dict[str, List[Union[Dict[str, Any], List[Dict[str, Any]]]]]:
+    ) -> Dict[str, Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]]:
         """Get the runtime parameters for the steps in the pipeline.
 
         Returns:

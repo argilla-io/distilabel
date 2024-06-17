@@ -71,9 +71,9 @@ class RuntimeParametersMixin(BaseModel):
 
             # `field: List[RuntiemParametersMixin]`
             if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
-                runtime_parameters[name] = [
-                    item.runtime_parameters_names for item in attr
-                ]
+                runtime_parameters[name] = {
+                    str(i): item.runtime_parameters_names for i, item in enumerate(attr)
+                }
 
         return runtime_parameters
 
@@ -107,9 +107,10 @@ class RuntimeParametersMixin(BaseModel):
                 runtime_parameters_info.append(
                     {
                         "name": name,
-                        "runtime_parameters_info": [
-                            item.get_runtime_parameters_info() for item in attr
-                        ],
+                        "runtime_parameters_info": {
+                            str(i): item.get_runtime_parameters_info()
+                            for i, item in enumerate(attr)
+                        },
                     }
                 )
                 continue
@@ -157,7 +158,8 @@ class RuntimeParametersMixin(BaseModel):
 
             # Set runtime parameters for `List[RuntimeParametersMixin]` field
             if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
-                for item, item_value in zip(attr, value):
+                for i, item in enumerate(attr):
+                    item_value = value.get(str(i), {})
                     item.set_runtime_parameters(item_value)
                 self._runtime_parameters[name] = value
                 continue

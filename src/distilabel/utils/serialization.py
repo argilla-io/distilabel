@@ -204,10 +204,15 @@ class _Serializable:
                     "_name": getattr(obj, k).__name__,
                     "_values": {x.name: x.value for x in v},  # type: ignore
                 }
+            elif isinstance(v, list):
+                dump[k] = {str(i): list_v for i, list_v in enumerate(v)}
+
         # Grab the fields that need extra care (LLMs from inside tasks)
         to_update = _extra_serializable_fields(obj)
+
         # Update those in the dumped dict
-        [dump.update(field) for field in to_update]
+        for field in to_update:
+            dump.update(field)
 
         return dump
 
@@ -374,6 +379,6 @@ def _extra_serializable_fields(obj: BaseModel) -> List[Dict[str, Dict[str, Any]]
         if isinstance(field, _Serializable):
             to_update.append({k: getattr(obj, k).dump()})
         elif isinstance(field, list) and field and isinstance(field[0], _Serializable):
-            to_update.append({k: [x.dump() for x in field]})
+            to_update.append({k: {str(i): x.dump() for i, x in enumerate(field)}})
 
     return to_update

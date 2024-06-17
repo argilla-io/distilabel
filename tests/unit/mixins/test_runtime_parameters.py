@@ -56,20 +56,20 @@ class TestRuntimeParametersMixin:
                 "runtime_param1": False,
                 "runtime_param2": True,
             },
-            "mixins_list": [
-                {
+            "mixins_list": {
+                "0": {
                     "runtime_param1": False,
                     "runtime_param2": True,
                 },
-                {
+                "1": {
                     "runtime_param1": False,
                     "runtime_param2": True,
                 },
-                {
+                "2": {
                     "runtime_param1": False,
                     "runtime_param2": True,
                 },
-            ],
+            },
         }
 
     def test_get_runtime_parameters_info(self) -> None:
@@ -96,8 +96,8 @@ class TestRuntimeParametersMixin:
             },
             {
                 "name": "mixins_list",
-                "runtime_parameters_info": [
-                    [
+                "runtime_parameters_info": {
+                    "0": [
                         {
                             "name": "runtime_param1",
                             "description": "Runtime param 1",
@@ -109,7 +109,7 @@ class TestRuntimeParametersMixin:
                             "optional": True,
                         },
                     ],
-                    [
+                    "1": [
                         {
                             "name": "runtime_param1",
                             "description": "Runtime param 1",
@@ -121,7 +121,7 @@ class TestRuntimeParametersMixin:
                             "optional": True,
                         },
                     ],
-                    [
+                    "2": [
                         {
                             "name": "runtime_param1",
                             "description": "Runtime param 1",
@@ -133,7 +133,7 @@ class TestRuntimeParametersMixin:
                             "optional": True,
                         },
                     ],
-                ],
+                },
             },
             {
                 "name": "runtime_param1",

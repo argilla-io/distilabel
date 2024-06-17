@@ -86,6 +86,9 @@ def run(
 def info(config: ConfigOption) -> None:
     from distilabel.cli.pipeline.utils import display_pipeline_information, get_pipeline
 
+    pipeline = get_pipeline(config)
+    display_pipeline_information(pipeline)
+
     try:
         pipeline = get_pipeline(config)
         display_pipeline_information(pipeline)
