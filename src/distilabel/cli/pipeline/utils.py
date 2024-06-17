@@ -14,7 +14,7 @@
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import requests
 import yaml
@@ -120,7 +120,8 @@ def get_pipeline(config: str) -> "BasePipeline":
         FileNotFoundError: If the configuration file does not exist.
     """
     if valid_http_url(config):
-        return Pipeline.from_dict(get_config_from_url(config))
+        data = get_config_from_url(config)
+        return Pipeline.from_dict(data)
 
     if Path(config).is_file():
         return Pipeline.from_file(config)
@@ -200,9 +201,11 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
     from rich.table import Table
 
     def _add_rows(
-        table: Table, runtime_params: List[Dict[str, Any]], prefix: str = ""
+        table: Table,
+        runtime_params: List[Union[Dict[str, Any], List[Dict[str, Any]]]],
+        prefix: str = "",
     ) -> None:
-        for param in runtime_params:
+        def _add_row(param: Dict[str, Any], prefix: str) -> None:
             # nested (for example `LLM` in `Task`)
             if "runtime_parameters_info" in param:
                 _add_rows(
@@ -210,22 +213,29 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
                     runtime_params=param["runtime_parameters_info"],
                     prefix=f"{prefix}{param['name']}.",
                 )
-                continue
-
             # `LLM` special case
-            if "keys" in param:
+            elif "keys" in param:
                 _add_rows(
                     table=table,
                     runtime_params=param["keys"],
                     prefix=f"{prefix}{param['name']}.",
                 )
-                continue
+                return
+            else:
+                optional = param.get("optional", "")
+                if optional != "":
+                    optional = "Yes" if optional else "No"
 
-            optional = param.get("optional", "")
-            if optional != "":
-                optional = "Yes" if optional else "No"
+                table.add_row(
+                    prefix + param["name"], param.get("description"), optional
+                )
 
-            table.add_row(prefix + param["name"], param.get("description"), optional)
+        if isinstance(runtime_params, list) and isinstance(runtime_params[0], list):
+            for i, sub_runtime_params in enumerate(runtime_params):
+                _add_rows(table, sub_runtime_params, f"{prefix}{i}.")  # type: ignore
+        else:
+            for param in runtime_params:
+                _add_row(param, prefix)  # type: ignore
 
     steps = []
     for step_name, runtime_params in pipeline.get_runtime_parameters_info().items():
@@ -239,7 +249,7 @@ def _build_steps_panel(pipeline: "BasePipeline") -> "Panel":
             expand=True,
         )
 
-        table.add_column("Runtime parameter", style="dim", width=50)
+        table.add_column("Runtime parameter", style="dim", width=60)
         table.add_column("Description", width=100)
         table.add_column("Optional", justify="right")
         _add_rows(table, runtime_params)

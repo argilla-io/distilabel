@@ -398,7 +398,9 @@ class BasePipeline(ABC, _Serializable):
         self._dry_run = False
         return distiset
 
-    def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
+    def get_runtime_parameters_info(
+        self,
+    ) -> Dict[str, List[Union[Dict[str, Any], List[Dict[str, Any]]]]]:
         """Get the runtime parameters for the steps in the pipeline.
 
         Returns:
