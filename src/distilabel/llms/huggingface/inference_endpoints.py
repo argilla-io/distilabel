@@ -81,11 +81,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints:
@@ -101,11 +97,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints or TGI:
@@ -120,11 +112,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
     """
 

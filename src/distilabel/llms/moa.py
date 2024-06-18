@@ -26,6 +26,9 @@ if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
     from distilabel.steps.tasks.typing import FormattedInput
 
+# Mixture-of-Agents system prompt from the paper with the addition instructing the LLM
+# to not mention that it used responses from previous models to avoid having texts like
+# "Based on the previous responses..." in the completion.
 MOA_SYSTEM_PROMPT = (
     "You have been provided with a set of responses from various open-source models to the"
     " latest user query. Your task is to synthesize these responses into a single, high-quality"
@@ -33,7 +36,8 @@ MOA_SYSTEM_PROMPT = (
     " recognizing that some of it may be biased or incorrect. Your response should not simply"
     " replicate the given answers but should offer a refined, accurate, and comprehensive"
     " reply to the instruction. Ensure your response is well-structured, coherent, and adheres"
-    " to the highest standards of accuracy and reliability."
+    " to the highest standards of accuracy and reliability. Do not mention that you have used"
+    " the responses from previous models."
     "\nResponses from models:"
 )
 
@@ -55,6 +59,49 @@ class MixtureOfAgentsLLM(AsyncLLM):
 
     References:
         - [Mixture-of-Agents Enhances Large Language Model Capabilities](https://arxiv.org/abs/2406.04692)
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import MixtureOfAgentsLLM, InferenceEndpointsLLM
+
+        llm = MixtureOfAgentsLLM(
+            aggregator_llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+            ),
+            proposers_llms=[
+                InferenceEndpointsLLM(
+                    model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                    tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                ),
+                InferenceEndpointsLLM(
+                    model_id="NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+                    tokenizer_id="NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+                ),
+                InferenceEndpointsLLM(
+                    model_id="HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1",
+                    tokenizer_id="HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1",
+                ),
+            ],
+            rounds=2,
+        )
+
+        llm.load()
+
+        output = llm.generate(
+            inputs=[
+                [
+                    {
+                        "role": "user",
+                        "content": "My favorite witty review of The Rings of Power series is this: Input:",
+                    }
+                ]
+            ]
+        )
+        ```
     """
 
     aggregator_llm: LLM
@@ -168,7 +215,9 @@ class MixtureOfAgentsLLM(AsyncLLM):
             A list containing the generations for each input.
         """
         aggregator_llm_kwargs: Dict[str, Any] = kwargs.get("aggregator_llm", {})
-        proposers_llms_kwargs: List[Dict[str, Any]] = kwargs.get("proposers_llms", [])
+        proposers_llms_kwargs: List[Dict[str, Any]] = kwargs.get(
+            "proposers_llms", [{}] * len(self.proposers_llms)
+        )
 
         prev_outputs = []
         for round in range(self.rounds):

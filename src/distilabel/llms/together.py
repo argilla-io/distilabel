@@ -49,11 +49,7 @@ class TogetherLLM(OpenAILLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
     """
 

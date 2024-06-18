@@ -72,11 +72,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate text from a custom endpoint following the OpenAI API:
@@ -91,11 +87,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate structured data:
@@ -117,11 +109,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
