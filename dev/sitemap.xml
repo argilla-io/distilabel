@@ -221,6 +221,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/advanced/serving_an_llm_for_reuse/</loc>
+         <lastmod>2024-06-18</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/sections/how_to_guides/advanced/structured_generation/</loc>
          <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>

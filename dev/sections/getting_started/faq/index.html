@@ -1058,6 +1058,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serving an LLM for sharing it between several tasks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3910,6 +3931,10 @@
 <p>All the data will be stored in <code>.cache/distilabel</code>, but the only data that will persist at the end of the <code>Pipeline.run</code> execution is the one from the leaf step/s, so bear that in mind.</p>
 <p>For more information on the caching mechanism in <code>distilabel</code>, you can check the <a href="../../how_to_guides/advanced/caching/">Learn - Advanced - Caching</a> section.</p>
 <p>Also note that when running a <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> or a <a class="autorefs autorefs-internal" href="../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> standalone, the cache mechanism won't be used, so if you want to use that, you should use the <code>Pipeline</code> context manager.</p>
+</details>
+<details class="faq">
+<summary>How can I use the same <code>LLM</code> across several tasks without having to load it several times?</summary>
+<p>You can serve the LLM using a solution like TGI or vLLM, and then connect to it using an <code>AsyncLLM</code> client like <code>InferenceEndpointsLLM</code> or <code>OpenAILLM</code>. Please refer to <a href="../../how_to_guides/advanced/serving_an_llm_for_reuse/">Serving LLMs guide</a> for more information.</p>
 </details>
 
 
