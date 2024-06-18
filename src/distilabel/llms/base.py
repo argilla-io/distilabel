@@ -34,12 +34,16 @@ from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.tasks.structured_outputs.instructor import (
-        InstructorStructuredOutputType,
+    from distilabel.mixins.runtime_parameters import (
+        RuntimeParameterInfo,
+        RuntimeParametersNames,
     )
     from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import FormattedInput, StandardInput
+    from distilabel.steps.tasks.typing import (
+        FormattedInput,
+        InstructorStructuredOutputType,
+        StandardInput,
+    )
     from distilabel.utils.docstring import Docstring
 
 if in_notebook():
@@ -161,7 +165,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         return runtime_parameters
 
-    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
         """Gets the information of the runtime parameters of the `LLM` such as the name
         and the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the `LLM`.

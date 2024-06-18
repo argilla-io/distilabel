@@ -31,6 +31,10 @@ RuntimeParameter = Annotated[
 """Used to mark the attributes of a `Step` as a runtime parameter."""
 
 RuntimeParametersNames = Dict[str, Union[bool, "RuntimeParametersNames"]]
+"""Alias for the names of the runtime parameters of a `Step`."""
+
+RuntimeParameterInfo = Dict[str, Any]
+"""Alias for the information of the runtime parameters of a `Step`."""
 
 
 class RuntimeParametersMixin(BaseModel):
@@ -45,7 +49,7 @@ class RuntimeParametersMixin(BaseModel):
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
     @property
-    def runtime_parameters_names(self) -> RuntimeParametersNames:
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
         """Returns a dictionary containing the name of the runtime parameters of the class
         as keys and whether the parameter is required or not as values.
 
@@ -77,7 +81,7 @@ class RuntimeParametersMixin(BaseModel):
 
         return runtime_parameters
 
-    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
         """Gets the information of the runtime parameters of the class such as the name and
         the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the class.
