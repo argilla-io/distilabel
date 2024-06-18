@@ -18,7 +18,7 @@ import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestComplexityScorer:

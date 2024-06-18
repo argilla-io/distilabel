@@ -18,7 +18,7 @@ import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.genstruct import Genstruct
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestGenstruct:

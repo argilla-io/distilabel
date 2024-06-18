@@ -139,7 +139,7 @@ When working with model providers behind an API, there's no direct way of access
     ```
 
 !!! Note
-    Take a look at [`InstructorStructuredOutputType`][distilabel.steps.tasks.structured_outputs.instructor.InstructorStructuredOutputType] to see the expected format
+    Take a look at [`InstructorStructuredOutputType`][distilabel.steps.tasks.typing.InstructorStructuredOutputType] to see the expected format
     of the `structured_output` dict variable.
 
 The following is the same example you can see with `outlines`'s `JSON` section for comparison purposes.

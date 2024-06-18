@@ -73,11 +73,7 @@ class LiteLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
@@ -268,7 +264,7 @@ class LiteLLM(AsyncLLM):
 
         for choice in choices:
             if (content := choice.message.content) is None:
-                self._logger.warning(
+                self._logger.warning(  # type: ignore
                     f"Received no response using LiteLLM client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )

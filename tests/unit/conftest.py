@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List, Union
+from typing import TYPE_CHECKING
 
-from distilabel.llms.base import LLM
-from distilabel.steps.tasks.typing import ChatType
+import pytest
+from distilabel.llms.base import AsyncLLM
+
+if TYPE_CHECKING:
+    from distilabel.llms.typing import GenerateOutput
+    from distilabel.steps.tasks.typing import FormattedInput
 
 
-class DummyLLM(LLM):
+# Defined here too, so that the serde still works
+class DummyLLM(AsyncLLM):
     def load(self) -> None:
         pass
 
@@ -26,7 +31,12 @@ class DummyLLM(LLM):
     def model_name(self) -> str:
         return "test"
 
-    def generate(
-        self, inputs: List["ChatType"], num_generations: int = 1, **kwargs: Any
-    ) -> List[List[Union[str, None]]]:
-        return [["output" for _ in range(num_generations)] for _ in inputs]
+    async def agenerate(
+        self, input: "FormattedInput", num_generations: int = 1
+    ) -> "GenerateOutput":
+        return ["output" for _ in range(num_generations)]
+
+
+@pytest.fixture
+def dummy_llm() -> AsyncLLM:
+    return DummyLLM()

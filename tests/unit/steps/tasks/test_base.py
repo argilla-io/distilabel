@@ -22,7 +22,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
 from pydantic import ValidationError
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -156,7 +156,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
         # 2. Runtime parameters in init
@@ -171,7 +171,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
         # 3. Runtime parameters in init superseded by runtime parameters
@@ -187,7 +187,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
     def test_serialization(self) -> None:
@@ -203,7 +203,7 @@ class TestTask:
             "llm": {
                 "generation_kwargs": {},
                 "type_info": {
-                    "module": "tests.unit.steps.tasks.utils",
+                    "module": "tests.unit.conftest",
                     "name": "DummyLLM",
                 },
             },
@@ -221,12 +221,7 @@ class TestTask:
                         {
                             "description": "The kwargs to be propagated to either `generate` or "
                             "`agenerate` methods within each `LLM`.",
-                            "keys": [
-                                {
-                                    "name": "kwargs",
-                                    "optional": False,
-                                },
-                            ],
+                            "keys": [],
                             "name": "generation_kwargs",
                         },
                     ],

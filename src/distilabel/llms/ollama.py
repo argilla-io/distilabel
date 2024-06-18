@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Literal, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Sequence, Union
 
 from pydantic import Field, PrivateAttr, validate_call
 from typing_extensions import TypedDict
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import InstructorStructuredOutputType, StandardInput
 
@@ -95,6 +96,8 @@ class OllamaLLM(AsyncLLM):
         )
     )
 
+    _num_generations_param_supported = False
+
     _aclient: Optional["AsyncClient"] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -124,18 +127,16 @@ class OllamaLLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: StandardInput,
-        num_generations: int = 1,
         format: Literal["", "json"] = "",
         # TODO: include relevant options from `Options` in `agenerate` method.
         options: Union[Options, None] = None,
         keep_alive: Union[bool, None] = None,
-    ) -> List[str]:
+    ) -> GenerateOutput:
         """
         Generates a response asynchronously, using the [Ollama Async API definition](https://github.com/ollama/ollama-python).
 
         Args:
             input: the input to use for the generation.
-            num_generations: the number of generations to produce. Defaults to `1`.
             format: the format to use for the generation. Defaults to `""`.
             options: the options to use for the generation. Defaults to `None`.
             keep_alive: whether to keep the connection alive. Defaults to `None`.
@@ -143,10 +144,9 @@ class OllamaLLM(AsyncLLM):
         Returns:
             A list of strings as completion for the given input.
         """
-        generations = []
-        # TODO: remove this for-loop and override the `generate` method
-        for _ in range(num_generations):
-            completion = await self._aclient.chat(  # type: ignore
+        text = None
+        try:
+            completion: Dict[str, Any] = await self._aclient.chat(  # type: ignore
                 model=self.model,
                 messages=input,  # type: ignore
                 stream=False,
@@ -154,7 +154,11 @@ class OllamaLLM(AsyncLLM):
                 options=options,
                 keep_alive=keep_alive,
             )
-            # TODO: improve error handling
-            generations.append(completion["message"]["content"])
+            text = completion["message"]["content"]
+        except Exception as e:
+            self._logger.warning(  # type: ignore
+                f"⚠️ Received no response using Ollama client (model: '{self.model_name}')."
+                f" Finish reason was: {e}"
+            )
 
-        return generations
+        return [text]

@@ -310,7 +310,7 @@ class TestStepSerialization:
                     **{
                         "name": "dummy",
                         TYPE_INFO_KEY: {
-                            "module": "tests.unit.pipeline.step.test_base",
+                            "module": "tests.unit.steps.test_base",
                             "name": "DummyStep",
                         },
                     }
@@ -327,7 +327,7 @@ class TestStepSerialization:
                 **{
                     "name": "dummy",
                     TYPE_INFO_KEY: {
-                        "module": "tests.pipeline.step.test_base",
+                        "module": "tests.unit.steps.test_base",
                         "name": "DummyStep",
                     },
                 }
