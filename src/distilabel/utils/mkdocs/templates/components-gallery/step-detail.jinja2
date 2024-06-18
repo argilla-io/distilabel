@@ -1,5 +1,8 @@
+---
+hide:
+  - navigation
+---
 # {{ step.name }}
-
 {% if step.docstring.short_description %}
 {{ step.docstring.short_description }}
 {% endif %}
@@ -56,7 +59,7 @@
 {% for example_title, code in step.docstring.examples.items() %}
 #### {{ example_title }}
 ```python
-{{ code | e }}
+{{ code | replace("\n", "\n") }}
 ```
 {% endfor %}
 {% endif %}

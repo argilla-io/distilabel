@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
 import random
 import warnings
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import (
     Field,
@@ -31,16 +30,20 @@ from typing_extensions import override
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.itertools import grouper
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    StandardInput,
+    StructuredOutputType,
+)
+from distilabel.utils.huggingface import (
+    _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
+    get_hf_token,
+)
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
     from openai import AsyncOpenAI
     from transformers import PreTrainedTokenizer
-
-
-_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME = "HF_TOKEN"
 
 
 class InferenceEndpointsLLM(AsyncLLM):
@@ -78,11 +81,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints:
@@ -98,11 +97,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints or TGI:
@@ -117,11 +112,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
     """
 
@@ -147,6 +138,13 @@ class InferenceEndpointsLLM(AsyncLLM):
     tokenizer_id: Optional[str] = None
     model_display_name: Optional[str] = None
     use_openai_client: bool = False
+
+    structured_output: Optional[RuntimeParameter[StructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use across all the generations.",
+    )
+
+    _num_generations_param_supported = False
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
@@ -210,10 +208,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             ) from ie
 
         if self.api_key is None:
-            raise ValueError(
-                f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
-                f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
-            )
+            self.api_key = SecretStr(get_hf_token(self.__class__.__name__, "api_key"))
 
         if self.model_id is not None:
             client = InferenceClient()
@@ -290,7 +285,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     async def _openai_agenerate(
         self,
-        input: "ChatType",
+        input: "StandardInput",
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -318,11 +313,10 @@ class InferenceEndpointsLLM(AsyncLLM):
             )
         return [completion.choices[0].message.content]
 
-    # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: FormattedInput,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -336,7 +330,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates completions for the given input using the OpenAI async client.
 
         Args:
@@ -379,6 +373,30 @@ class InferenceEndpointsLLM(AsyncLLM):
                 )
                 stop_sequences = stop_sequences[:4]
 
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            structured_output = {
+                "type": structured_output["format"],
+                "value": structured_output["schema"],
+            }
+
+        # NOTE: `self.structured_output` applies to all the generations, while `structured_output` i.e. the
+        # value included within the tuple provided as `input` to this method, is intended to be different per
+        # each input, so those should not be used together. Meaning that it should be either provided at attribute
+        # level i.e. self, or via a column within each input i.e. row.
+        if structured_output is None and self.structured_output is not None:
+            try:
+                structured_output = {
+                    "type": self.structured_output["format"],
+                    "value": self.structured_output["schema"],
+                }
+            except KeyError as e:
+                raise ValueError(
+                    "To use the structured output you have to inform the `format` and `schema` in "
+                    "the `structured_output` attribute."
+                ) from e
+
         if self.use_openai_client:
             return await self._openai_agenerate(
                 input=input,
@@ -400,6 +418,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             # TODO: should we apply a default chat template here instead? e.g. ChatML
             prompt = "\n".join([message["content"] for message in input])
 
+        completion = None
         try:
             completion = await self._aclient.text_generation(  # type: ignore
                 prompt=prompt,  # type: ignore
@@ -413,40 +432,15 @@ class InferenceEndpointsLLM(AsyncLLM):
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
                 watermark=watermark,
+                grammar=structured_output,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),
             )
-            return [completion]
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-            return [None]
 
-    # TODO: remove this function once `AsyncInferenceClient` allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["ChatType"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+        return [completion]

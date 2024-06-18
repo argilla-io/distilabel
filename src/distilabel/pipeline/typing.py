@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, TypeVar, Union
+from typing import TYPE_CHECKING, Dict, List, Literal, TypedDict, TypeVar, Union
 
 if TYPE_CHECKING:
+    from distilabel.mixins.runtime_parameters import RuntimeParameterInfo
     from distilabel.steps.base import GeneratorStep, GlobalStep, Step
 
 DownstreamConnectable = Union["Step", "GlobalStep"]
@@ -32,3 +33,17 @@ DownstreamConnectableSteps = TypeVar(
     covariant=True,
 )
 """Type for the `Step` types that can be connected as downstream steps."""
+
+
+class StepLoadStatus(TypedDict):
+    """Dict containing information about if one step was loaded/unloaded or if it's load
+    failed"""
+
+    name: str
+    status: Literal["loaded", "unloaded", "load_failed"]
+
+
+PipelineRuntimeParametersInfo = Dict[
+    str, Union[List["RuntimeParameterInfo"], Dict[str, "RuntimeParameterInfo"]]
+]
+"""Alias for the information of the runtime parameters of a `Pipeline`."""

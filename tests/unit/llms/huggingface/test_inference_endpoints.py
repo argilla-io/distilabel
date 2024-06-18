@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
+from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import nest_asyncio
@@ -22,6 +24,36 @@ from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLL
 @patch("huggingface_hub.AsyncInferenceClient")
 @patch("openai.AsyncOpenAI")
 class TestInferenceEndpointsLLM:
+    def test_load_no_api_key(
+        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral"
+        )
+
+        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to not exist
+        with mock.patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = False
+            with pytest.raises(
+                ValueError,
+                match="To use `InferenceEndpointsLLM` an API key must be provided",
+            ):
+                llm.load()
+
+    def test_load_with_cached_token(
+        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral"
+        )
+
+        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
+        with mock.patch("pathlib.Path.exists", return_value=True), mock.patch(
+            "builtins.open", new_callable=mock.mock_open, read_data="hf_token"
+        ):
+            # Should not raise any errors
+            llm.load()
+
     def test_serverless_inference_endpoints_llm(
         self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
     ) -> None:
@@ -145,6 +177,7 @@ class TestInferenceEndpointsLLM:
         )
         llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
+        ...
         nest_asyncio.apply()
 
         assert llm.generate(
@@ -159,8 +192,54 @@ class TestInferenceEndpointsLLM:
             ]
         ) == [(" Aenean hendrerit aliquam velit. ...",)]
 
+    @pytest.mark.asyncio
+    async def test_agenerate_with_structured_output(
+        self, mock_inference_client: MagicMock, _: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
+        )
+        llm._aclient = mock_inference_client
+
+        llm._aclient.text_generation = AsyncMock(
+            return_value=" Aenean hendrerit aliquam velit. ..."
+        )
+
+        # Since there's a pseudo-random number within the generation kwargs, we set the seed
+        # here first to ensure reproducibility within the tests
+        random.seed(42)
+
+        assert await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        ) == [" Aenean hendrerit aliquam velit. ..."]
+
+        kwargs = {
+            "prompt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "max_new_tokens": 128,
+            "do_sample": False,
+            "typical_p": None,
+            "repetition_penalty": None,
+            "temperature": 1.0,
+            "top_p": None,
+            "top_k": None,
+            "stop_sequences": None,
+            "return_full_text": False,
+            "watermark": False,
+            "grammar": {"type": "regex", "value": "\\b[A-Z][a-z]*\\b"},
+            "seed": 478163327,  # pre-computed random value with `random.seed(42)`
+        }
+        mock_inference_client.text_generation.assert_called_with(**kwargs)
+
     def test_serialization(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+        self,
+        mock_inference_client: MagicMock,
+        mock_openai_client: MagicMock,
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
@@ -173,9 +252,9 @@ class TestInferenceEndpointsLLM:
             "base_url": None,
             "tokenizer_id": None,
             "generation_kwargs": {},
+            "structured_output": None,
             "model_display_name": None,
             "use_openai_client": False,
-            "structured_output": None,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

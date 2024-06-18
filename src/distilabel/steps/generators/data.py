@@ -40,6 +40,24 @@ class LoadDataFromDicts(GeneratorStep):
 
     Categories:
         - load
+
+    Examples:
+
+        Load data from a list of dictionaries:
+
+        ```python
+        from distilabel.steps import LoadDataFromDicts
+
+        loader = LoadDataFromDicts(
+            data=[{"instruction": "What are 2+2?"}] * 5,
+            batch_size=2
+        )
+        loader.load()
+
+        result = next(loader.process())
+        # >>> result
+        # ([{'instruction': 'What are 2+2?'}, {'instruction': 'What are 2+2?'}], False)
+        ```
     """
 
     data: List[Dict[str, Any]]

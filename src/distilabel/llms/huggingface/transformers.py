@@ -15,13 +15,14 @@
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
-from pydantic import PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
 
 if TYPE_CHECKING:
     from transformers import Pipeline
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
     from transformers.tokenization_utils import PreTrainedTokenizer
 
     from distilabel.llms.typing import HiddenState
-    from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
 
 
 class TransformersLLM(LLM, CudaDevicePlacementMixin):
@@ -62,9 +62,26 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         token: the Hugging Face Hub token that will be used to authenticate to the Hugging
             Face Hub. If not provided, the `HF_TOKEN` environment or `huggingface_hub` package
             local configuration will be used. Defaults to `None`.
+        structured_output: a dictionary containing the structured output configuration or if more
+            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
 
     Icon:
         `:hugging:`
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import TransformersLLM
+
+        llm = TransformersLLM(model="microsoft/Phi-3-mini-4k-instruct")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+        ```
     """
 
     model: str
@@ -78,6 +95,10 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     device: Optional[Union[str, int]] = None
     device_map: Optional[Union[str, Dict[str, Any]]] = None
     token: Optional[str] = None
+    structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
+        default=None,
+        description="The structured output format to use across all the generations.",
+    )
 
     _pipeline: Optional["Pipeline"] = PrivateAttr(...)
     _prefix_allowed_tokens_fn: Union[Callable, None] = PrivateAttr(default=None)
@@ -125,12 +146,17 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
 
         super().load()
 
+    def unload(self) -> None:
+        """Unloads the `vLLM` model."""
+        CudaDevicePlacementMixin.unload(self)
+        super().unload()
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "ChatType") -> str:
+    def prepare_input(self, input: "StandardInput") -> str:
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
@@ -143,7 +169,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     @validate_call
     def generate(  # type: ignore
         self,
-        inputs: List[ChatType],
+        inputs: List[StandardInput],
         num_generations: int = 1,
         max_new_tokens: int = 128,
         temperature: float = 0.1,
@@ -189,7 +215,9 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             for output in outputs
         ]
 
-    def get_last_hidden_states(self, inputs: List["ChatType"]) -> List["HiddenState"]:
+    def get_last_hidden_states(
+        self, inputs: List["StandardInput"]
+    ) -> List["HiddenState"]:
         """Gets the last `hidden_states` of the model for the given inputs. It doesn't
         execute the task head.
 
@@ -222,7 +250,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         ]
 
     def _prepare_structured_output(
-        self, structured_output: Optional["StructuredOutputType"] = None
+        self, structured_output: Optional[OutlinesStructuredOutputType] = None
     ) -> Union[Callable, None]:
         """Creates the appropriate function to filter tokens to generate structured outputs.
 

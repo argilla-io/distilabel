@@ -53,8 +53,7 @@ def step(
     inputs: Union[List[str], None] = None,
     outputs: Union[List[str], None] = None,
     step_type: Literal["normal"] = "normal",
-) -> Callable[..., Type["Step"]]:
-    ...
+) -> Callable[..., Type["Step"]]: ...
 
 
 @overload
@@ -62,8 +61,7 @@ def step(
     inputs: Union[List[str], None] = None,
     outputs: Union[List[str], None] = None,
     step_type: Literal["global"] = "global",
-) -> Callable[..., Type["GlobalStep"]]:
-    ...
+) -> Callable[..., Type["GlobalStep"]]: ...
 
 
 @overload
@@ -71,8 +69,7 @@ def step(
     inputs: None = None,
     outputs: Union[List[str], None] = None,
     step_type: Literal["generator"] = "generator",
-) -> Callable[..., Type["GeneratorStep"]]:
-    ...
+) -> Callable[..., Type["GeneratorStep"]]: ...
 
 
 def step(

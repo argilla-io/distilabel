@@ -20,7 +20,7 @@ from pydantic import Field, PrivateAttr, validate_call
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
 if TYPE_CHECKING:
     from litellm import Choices
@@ -33,14 +33,59 @@ class LiteLLM(AsyncLLM):
         model: the model name to use for the LLM e.g. "gpt-3.5-turbo" or "mistral/mistral-large",
             etc.
         verbose: whether to log the LiteLLM client's logs. Defaults to `False`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
 
     Runtime parameters:
         - `verbose`: whether to log the LiteLLM client's logs. Defaults to `False`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import LiteLLM
+
+        llm = LiteLLM(model="gpt-3.5-turbo")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import LiteLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = LiteLLM(
+            model="gpt-3.5-turbo",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     model: str
     verbose: RuntimeParameter[bool] = Field(
         default=False, description="Whether to log the LiteLLM client's logs."
+    )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
     )
 
     _aclient: Optional[Callable] = PrivateAttr(...)
@@ -69,15 +114,25 @@ class LiteLLM(AsyncLLM):
                     continue
                 logging.getLogger(key).setLevel(logging.CRITICAL)
 
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="litellm",
+            )
+            self._aclient = result.get("client")
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
         return self.model
 
     @validate_call
-    async def agenerate(  # type: ignore
+    async def agenerate(  # type: ignore # noqa: C901
         self,
-        input: ChatType,
+        input: FormattedInput,
         num_generations: int = 1,
         functions: Optional[List] = None,
         function_call: Optional[str] = None,
@@ -141,34 +196,53 @@ class LiteLLM(AsyncLLM):
         """
         import litellm
 
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="litellm",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
+        kwargs = {
+            "model": self.model,
+            "messages": input,
+            "n": num_generations,
+            "functions": functions,
+            "function_call": function_call,
+            "temperature": temperature,
+            "top_p": top_p,
+            "stream": False,
+            "stop": stop,
+            "max_tokens": max_tokens,
+            "presence_penalty": presence_penalty,
+            "frequency_penalty": frequency_penalty,
+            "logit_bias": logit_bias,
+            "user": user,
+            "metadata": metadata,
+            "api_base": api_base,
+            "api_version": api_version,
+            "api_key": api_key,
+            "model_list": model_list,
+            "mock_response": mock_response,
+            "force_timeout": force_timeout,
+            "custom_llm_provider": custom_llm_provider,
+        }
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
+
         async def _call_aclient_until_n_choices() -> List["Choices"]:
             choices = []
             while len(choices) < num_generations:
-                completion = await self._aclient(  # type: ignore
-                    model=self.model,
-                    messages=input,
-                    n=num_generations,
-                    functions=functions,
-                    function_call=function_call,
-                    temperature=temperature,
-                    top_p=top_p,
-                    stream=False,
-                    stop=stop,
-                    max_tokens=max_tokens,
-                    presence_penalty=presence_penalty,
-                    frequency_penalty=frequency_penalty,
-                    logit_bias=logit_bias,
-                    user=user,
-                    metadata=metadata,
-                    api_base=api_base,
-                    api_version=api_version,
-                    api_key=api_key,
-                    model_list=model_list,
-                    mock_response=mock_response,
-                    force_timeout=force_timeout,
-                    custom_llm_provider=custom_llm_provider,
-                )
-                choices.extend(completion.choices)
+                completion = await self._aclient(**kwargs)  # type: ignore
+                if not self.structured_output:
+                    completion = completion.choices
+                choices.extend(completion)
             return choices
 
         # litellm.drop_params is used to en/disable sending **kwargs parameters to the API if they cannot be used
@@ -183,9 +257,14 @@ class LiteLLM(AsyncLLM):
                 raise e
 
         generations = []
+
+        if self.structured_output:
+            generations.append([choice.model_dump_json() for choice in choices])
+            return generations
+
         for choice in choices:
             if (content := choice.message.content) is None:
-                self._logger.warning(
+                self._logger.warning(  # type: ignore
                     f"Received no response using LiteLLM client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )

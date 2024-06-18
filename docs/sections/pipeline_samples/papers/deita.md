@@ -38,7 +38,7 @@ Import distilabel:
 ```python
 from distilabel.llms import TransformersLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import ConversationTemplate, DeitaFiltering, ExpandColumns, LoadHubDataset
+from distilabel.steps import ConversationTemplate, DeitaFiltering, ExpandColumns, LoadDataFromHub
 from distilabel.steps.tasks import ComplexityScorer, EvolInstruct, EvolQuality, GenerateEmbeddings, QualityScorer
 ```
 
@@ -47,7 +47,7 @@ Define the distilabel Pipeline and load the dataset from the Hugging Face Hub.
 ```python
 pipeline = Pipeline(name="DEITA")
 
-load_data = LoadHubDataset(
+load_data = LoadDataFromHub(
     name="load_data", batch_size=100, output_mappings={"prompt": "instruction"}, pipeline=pipeline
 )
 ```

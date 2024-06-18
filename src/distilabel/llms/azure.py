@@ -14,6 +14,7 @@
 
 import os
 from typing import TYPE_CHECKING, Optional
+from unittest.mock import patch
 
 from pydantic import Field, PrivateAttr, SecretStr
 from typing_extensions import override
@@ -45,6 +46,65 @@ class AzureOpenAILLM(OpenAILLM):
 
     Icon:
         `:simple-microsoftazure:`
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import AzureOpenAILLM
+
+        llm = AzureOpenAILLM(model="gpt-4-turbo", api_key="api.key")
+
+        llm.load()
+
+        # Synchrounous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Generate text from a custom endpoint following the OpenAI API:
+
+        ```python
+        from distilabel.llms import AzureOpenAILLM
+
+        llm = AzureOpenAILLM(
+            model="prometheus-eval/prometheus-7b-v2.0",
+            base_url=r"http://localhost:8080/v1"
+        )
+
+        llm.load()
+
+        # Synchronous request
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        # Asynchronous request
+        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
+        ```
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import AzureOpenAILLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = AzureOpenAILLM(
+            model="gpt-4-turbo",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     base_url: Optional[RuntimeParameter[str]] = Field(
@@ -68,7 +128,12 @@ class AzureOpenAILLM(OpenAILLM):
     @override
     def load(self) -> None:
         """Loads the `AsyncAzureOpenAI` client to benefit from async requests."""
-        super().load()
+        # This is a workaround to avoid the `OpenAILLM` calling the _prepare_structured_output
+        # in the load method before we have the proper client.
+        with patch(
+            "distilabel.llms.openai.OpenAILLM._prepare_structured_output", lambda x: x
+        ):
+            super().load()
 
         try:
             from openai import AsyncAzureOpenAI
@@ -93,3 +158,6 @@ class AzureOpenAILLM(OpenAILLM):
             max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
         )
+
+        if self.structured_output:
+            self._prepare_structured_output(self.structured_output)

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 from typing import TYPE_CHECKING, List
 
 import pytest
@@ -83,7 +84,9 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class Argilla with abstract methods inputs, process",
+            match="Can't instantiate abstract class Argilla with abstract methods inputs, process"
+            if sys.version_info < (3, 12)
+            else "Can't instantiate abstract class Argilla without an implementation for abstract methods 'inputs', 'process'",
         ):
             Argilla(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 

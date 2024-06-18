@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 from dataclasses import field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
@@ -21,7 +22,7 @@ from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.base import Task
 from pydantic import ValidationError
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
@@ -77,7 +78,9 @@ class TestTask:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class Task with abstract methods format_input, format_output",
+            match="Can't instantiate abstract class Task with abstract methods format_input, format_output"
+            if sys.version_info < (3, 12)
+            else "Can't instantiate abstract class Task without an implementation for abstract methods 'format_input', 'format_output'",
         ):
             Task(name="task", llm=DummyLLM())  # type: ignore
 
@@ -91,16 +94,19 @@ class TestTask:
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
                         "instruction": "test",
                         "output": "output",
                         "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
                     },
                 ],
             ),
@@ -111,6 +117,11 @@ class TestTask:
                         "instruction": "test",
                         "output": ["output", "output", "output"],
                         "model_name": "test",
+                        "distilabel_metadata": [
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                        ],
                     },
                 ],
             ),
@@ -145,7 +156,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
         # 2. Runtime parameters in init
@@ -160,7 +171,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
         # 3. Runtime parameters in init superseded by runtime parameters
@@ -176,7 +187,7 @@ class TestTask:
         assert task.llm.runtime_parameters_names == {
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
-            "generation_kwargs": {"kwargs": False},
+            "generation_kwargs": {},
         }
 
     def test_serialization(self) -> None:
@@ -185,15 +196,14 @@ class TestTask:
         task = DummyTask(name="task", llm=llm, pipeline=pipeline)
         assert task.dump() == {
             "name": "task",
-            "add_raw_output": False,
+            "add_raw_output": True,
             "input_mappings": {},
             "output_mappings": {},
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
-                "structured_output": None,
                 "type_info": {
-                    "module": "tests.unit.steps.tasks.utils",
+                    "module": "tests.unit.conftest",
                     "name": "DummyLLM",
                 },
             },
@@ -211,15 +221,15 @@ class TestTask:
                         {
                             "description": "The kwargs to be propagated to either `generate` or "
                             "`agenerate` methods within each `LLM`.",
-                            "keys": [
-                                {
-                                    "name": "kwargs",
-                                    "optional": False,
-                                },
-                            ],
+                            "keys": [],
                             "name": "generation_kwargs",
                         },
                     ],
+                },
+                {
+                    "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                    "name": "add_raw_output",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

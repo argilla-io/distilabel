@@ -50,7 +50,7 @@ Compute is expensive and output quality is important. We help you **focus on dat
 
 Synthesize and judge data with **latest research papers** while ensuring **flexibility, scalability and fault tolerance**. So you can focus on improving your data and training your models.
 
-## 🏘️ Community
+## Community
 
 We are an open-source community-driven project and we love to hear from you. Here are some ways to get involved:
 
@@ -68,7 +68,7 @@ Distilabel is a tool that can be used to **synthesize data and provide AI feedba
 - Our [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) and the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B),, show how we **improve model performance by filtering out 50%** of the original dataset through **AI feedback**.
 - The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) outlines how anyone can create a **dataset for a specific task** and **the latest research papers** to improve the quality of the dataset.
 
-## 👨🏽‍💻 Installation
+## Installation
 
 ```sh
 pip install distilabel --upgrade
@@ -116,7 +116,7 @@ with Pipeline(
 
     generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
 
-    load_dataset.connect(generate_with_openai)
+    load_dataset >> generate_with_openai
 
 if __name__ == "__main__":
     distiset = pipeline.run(
@@ -153,3 +153,15 @@ If you build something cool with `distilabel` consider adding one of these badge
 
 To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).
 
+## Citation
+
+```bibtex
+@misc{distilabel-argilla-2024,
+  author = {Álvaro Bartolomé Del Canto and Gabriel Martín Blázquez and Agustín Piqueres Lajarín and Daniel Vila Suero},
+  title = {Distilabel: An AI Feedback (AIF) framework for building datasets with and for LLMs},
+  year = {2024},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/argilla-io/distilabel}}
+}
+```

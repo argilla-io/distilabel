@@ -15,7 +15,7 @@
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.self_instruct import SelfInstruct
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestSelfInstruct:

@@ -12,21 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.itertools import grouper
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from groq import AsyncGroq
+
 
 _GROQ_API_BASE_URL_ENV_VAR_NAME = "GROQ_BASE_URL"
 _GROQ_API_KEY_ENV_VAR_NAME = "GROQ_API_KEY"
@@ -45,6 +46,9 @@ class GroqLLM(AsyncLLM):
             failing. Defaults to `2`.
         timeout: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _api_key_env_var: the name of the environment variable to use for the API key.
         _aclient: the `AsyncGroq` client from the `groq` package.
 
@@ -57,6 +61,42 @@ class GroqLLM(AsyncLLM):
             failing. Defaults to `2`.
         - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
             to `120`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import GroqLLM
+
+        llm = GroqLLM(model="llama3-70b-8192")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import GroqLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = GroqLLM(
+            model="llama3-70b-8192",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     model: str
@@ -80,6 +120,14 @@ class GroqLLM(AsyncLLM):
         default=120,
         description="The maximum time in seconds to wait for a response from the API.",
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
+
+    _num_generations_param_supported = False
 
     _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncGroq"] = PrivateAttr(...)
@@ -109,6 +157,16 @@ class GroqLLM(AsyncLLM):
             timeout=self.timeout,
         )
 
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="groq",
+            )
+            self._aclient = result.get("client")  # type: ignore
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
@@ -117,7 +175,7 @@ class GroqLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: FormattedInput,
         seed: Optional[int] = None,
         max_new_tokens: int = 128,
         temperature: float = 1.0,
@@ -142,17 +200,38 @@ class GroqLLM(AsyncLLM):
         References:
             - https://console.groq.com/docs/text-chat
         """
-        completion = await self._aclient.chat.completions.create(  # type: ignore
-            messages=input,  # type: ignore
-            model=self.model,
-            seed=seed,  # type: ignore
-            temperature=temperature,
-            max_tokens=max_new_tokens,
-            top_p=top_p,
-            stream=False,
-            stop=stop,
-        )
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="groq",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "seed": seed,
+            "temperature": temperature,
+            "max_tokens": max_new_tokens,
+            "top_p": top_p,
+            "stream": False,
+            "stop": stop,
+        }
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
+
         generations = []
+        completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
+        if structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
                 self._logger.warning(  # type: ignore
@@ -161,29 +240,3 @@ class GroqLLM(AsyncLLM):
                 )
             generations.append(content)
         return generations
-
-    # TODO: remove this function once Groq client allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["ChatType"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

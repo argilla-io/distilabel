@@ -135,6 +135,165 @@ class PrometheusEval(Task):
     References:
         - [Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models](https://arxiv.org/abs/2405.01535)
         - [prometheus-eval: Evaluate your LLM's response with Prometheus 💯](https://github.com/prometheus-eval/prometheus-eval)
+
+    Examples:
+
+        Critique and evaluate LLM generation quality using Prometheus 2.0:
+
+        ```python
+        from distilabel.steps.tasks import PrometheusEval
+        from distilabel.llms import vLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prometheus = PrometheusEval(
+            llm=vLLM(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+            ),
+            mode="absolute",
+            rubric="factual-validity"
+        )
+
+        prometheus.load()
+
+        result = next(
+            prometheus.process(
+                [
+                    {"instruction": "make something", "generation": "something done"},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'make something',
+        #         'generation': 'something done',
+        #         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+        #         'feedback': 'the feedback',
+        #         'result': 6,
+        #     }
+        # ]
+        ```
+
+        Critique for relative evaluation:
+
+        ```python
+        from distilabel.steps.tasks import PrometheusEval
+        from distilabel.llms import vLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prometheus = PrometheusEval(
+            llm=vLLM(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+            ),
+            mode="relative",
+            rubric="honesty"
+        )
+
+        prometheus.load()
+
+        result = next(
+            prometheus.process(
+                [
+                    {"instruction": "make something", "generations": ["something done", "other thing"]},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'make something',
+        #         'generations': ['something done', 'other thing'],
+        #         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+        #         'feedback': 'the feedback',
+        #         'result': 'something done',
+        #     }
+        # ]
+        ```
+
+        Critique with a custom rubric:
+
+        ```python
+        from distilabel.steps.tasks import PrometheusEval
+        from distilabel.llms import vLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prometheus = PrometheusEval(
+            llm=vLLM(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+            ),
+            mode="absolute",
+            rubric="custom",
+            rubrics={
+                "custom": "[A]\nScore 1: A\nScore 2: B\nScore 3: C\nScore 4: D\nScore 5: E"
+            }
+        )
+
+        prometheus.load()
+
+        result = next(
+            prometheus.process(
+                [
+                    {"instruction": "make something", "generation": "something done"},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'make something',
+        #         'generation': 'something done',
+        #         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+        #         'feedback': 'the feedback',
+        #         'result': 6,
+        #     }
+        # ]
+        ```
+
+        Critique using a reference answer:
+
+        ```python
+        from distilabel.steps.tasks import PrometheusEval
+        from distilabel.llms import vLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        prometheus = PrometheusEval(
+            llm=vLLM(
+                model="prometheus-eval/prometheus-7b-v2.0",
+                chat_template="[INST] {{ messages[0]\"content\" }}\n{{ messages[1]\"content\" }}[/INST]",
+            ),
+            mode="absolute",
+            rubric="helpfulness",
+            reference=True,
+        )
+
+        prometheus.load()
+
+        result = next(
+            prometheus.process(
+                [
+                    {
+                        "instruction": "make something",
+                        "generation": "something done",
+                        "reference": "this is a reference answer",
+                    },
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'make something',
+        #         'generation': 'something done',
+        #         'reference': 'this is a reference answer',
+        #         'model_name': 'prometheus-eval/prometheus-7b-v2.0',
+        #         'feedback': 'the feedback',
+        #         'result': 6,
+        #     }
+        # ]
+        ```
     """
 
     mode: Literal["absolute", "relative"]
@@ -202,7 +361,7 @@ class PrometheusEval(Task):
             if self.reference:
                 return ["instruction", "generation", "reference"]
             return ["instruction", "generation"]
-        else:  # self.mode == "relative"
+        else:
             if self.reference:
                 return ["instruction", "generations", "reference"]
             return ["instruction", "generations"]

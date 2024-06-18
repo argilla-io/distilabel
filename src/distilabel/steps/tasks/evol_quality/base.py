@@ -65,6 +65,42 @@ class EvolQuality(Task):
 
     References:
         - [`What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning`](https://arxiv.org/abs/2312.15685)
+
+    Examples:
+
+        Evolve the quality of the responses given a prompt:
+
+        ```python
+        from distilabel.steps.tasks import EvolQuality
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        evol_quality = EvolQuality(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            ),
+            num_evolutions=2,
+        )
+
+        evol_quality.load()
+
+        result = next(
+            evol_quality.process(
+                [
+                    {"instruction": "common instruction", "response": "a response"},
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'common instruction',
+        #         'response': 'a response',
+        #         'evolved_response': 'evolved response',
+        #         'model_name': '"mistralai/Mistral-7B-Instruct-v0.2"'
+        #     }
+        # ]
+        ```
     """
 
     num_evolutions: int
@@ -149,7 +185,7 @@ class EvolQuality(Task):
         return (
             self.mutation_templates[mutation]
             .replace("<PROMPT>", instruction)
-            .replace("<RESPONSE>", response[-1])
+            .replace("<RESPONSE>", response)
         )
 
     def _evolve_reponses(self, inputs: "StepInput") -> List[List[str]]:

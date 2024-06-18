@@ -16,7 +16,7 @@ import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestTextGeneration:
@@ -54,6 +54,12 @@ class TestTextGeneration:
         )
 
         with pytest.raises(
+            ValueError,
+            match=r"Providing \`instruction\` formatted as an OpenAI chat / conversation is deprecated",
+        ):
+            task.format_input({"instruction": [{"role": "user", "content": "test"}]})
+
+        with pytest.raises(
             ValueError, match=r"Input \`instruction\` must be a string. Got: 1."
         ):
             task.format_input({"instruction": 1})
@@ -76,25 +82,11 @@ class TestTextGeneration:
                 "instruction": "test",
                 "generation": "output",
                 "model_name": "test",
+                "distilabel_metadata": {
+                    "raw_output_task": "output",
+                },
             }
         ]
-
-    def test_deprecation_warning(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
-        llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
-
-        with pytest.warns(
-            DeprecationWarning,
-            match=r"Providing \`instruction\` formatted as an OpenAI chat \/ conversation is about to be deprecated in \`distilabel v1.2.0\`",
-        ):
-            task.format_input(
-                {
-                    "instruction": [
-                        {"role": "user", "content": "Tell me a joke."},
-                    ]
-                }
-            )
 
 
 class TestChatGeneration:
@@ -150,5 +142,6 @@ class TestChatGeneration:
                 "messages": [{"role": "user", "content": "Tell me a joke."}],
                 "generation": "output",
                 "model_name": "test",
+                "distilabel_metadata": {"raw_output_task": "output"},
             }
         ]

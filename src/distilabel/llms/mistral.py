@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.itertools import grouper
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from mistralai.async_client import MistralAsyncClient
@@ -45,6 +45,9 @@ class MistralLLM(AsyncLLM):
         timeout: the maximum time in seconds to wait for a response. Defaults to `120`.
         max_concurrent_requests: the maximum number of concurrent requests to send. Defaults
             to `64`.
+        structured_output: a dictionary containing the structured output configuration configuration
+            using `instructor`. You can take a look at the dictionary structure in
+            `InstructorStructuredOutputType` from `distilabel.steps.tasks.structured_outputs.instructor`.
         _api_key_env_var: the name of the environment variable to use for the API key. It is meant to
             be used internally.
         _aclient: the `MistralAsyncClient` to use for the Mistral API. It is meant to be used internally.
@@ -57,6 +60,42 @@ class MistralLLM(AsyncLLM):
         - `timeout`: the maximum time in seconds to wait for a response. Defaults to `120`.
         - `max_concurrent_requests`: the maximum number of concurrent requests to send.
             Defaults to `64`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import MistralLLM
+
+        llm = MistralLLM(model="open-mixtral-8x22b")
+
+        llm.load()
+
+        # Call the model
+        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+
+        Generate structured data:
+
+        ```python
+        from pydantic import BaseModel
+        from distilabel.llms import MistralLLM
+
+        class User(BaseModel):
+            name: str
+            last_name: str
+            id: int
+
+        llm = MistralLLM(
+            model="open-mixtral-8x22b",
+            api_key="api.key",
+            structured_output={"schema": User}
+        )
+
+        llm.load()
+
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        ```
     """
 
     model: str
@@ -77,6 +116,14 @@ class MistralLLM(AsyncLLM):
     max_concurrent_requests: RuntimeParameter[int] = Field(
         default=64, description="The maximum number of concurrent requests to send."
     )
+    structured_output: Optional[RuntimeParameter[InstructorStructuredOutputType]] = (
+        Field(
+            default=None,
+            description="The structured output format to use across all the generations.",
+        )
+    )
+
+    _num_generations_param_supported = False
 
     _api_key_env_var: str = PrivateAttr(_MISTRALAI_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["MistralAsyncClient"] = PrivateAttr(...)
@@ -102,10 +149,20 @@ class MistralLLM(AsyncLLM):
         self._aclient = MistralAsyncClient(
             api_key=self.api_key.get_secret_value(),
             endpoint=self.endpoint,
-            max_retries=self.max_retries,
-            timeout=self.timeout,
-            max_concurrent_requests=self.max_concurrent_requests,
+            max_retries=self.max_retries,  # type: ignore
+            timeout=self.timeout,  # type: ignore
+            max_concurrent_requests=self.max_concurrent_requests,  # type: ignore
         )
+
+        if self.structured_output:
+            result = self._prepare_structured_output(
+                structured_output=self.structured_output,
+                client=self._aclient,
+                framework="mistral",
+            )
+            self._aclient = result.get("client")  # type: ignore
+            if structured_output := result.get("structured_output"):
+                self.structured_output = structured_output
 
     @property
     def model_name(self) -> str:
@@ -116,7 +173,7 @@ class MistralLLM(AsyncLLM):
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: ChatType,
+        input: FormattedInput,
         max_new_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
@@ -134,45 +191,44 @@ class MistralLLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        completion = await self._aclient.chat(  # type: ignore
-            messages=input,
-            model=self.model,
-            temperature=temperature,
-            max_tokens=max_new_tokens,
-            top_p=top_p,
-        )
+        structured_output = None
+        if isinstance(input, tuple):
+            input, structured_output = input
+            result = self._prepare_structured_output(
+                structured_output=structured_output,
+                client=self._aclient,
+                framework="mistral",
+            )
+            self._aclient = result.get("client")
+
+        if structured_output is None and self.structured_output is not None:
+            structured_output = self.structured_output
+
+        kwargs = {
+            "messages": input,  # type: ignore
+            "model": self.model,
+            "max_tokens": max_new_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+        }
         generations = []
+        if structured_output:
+            kwargs = self._prepare_kwargs(kwargs, structured_output)
+            # TODO: This should work just with the _aclient.chat method, but it's not working.
+            # We need to check instructor and see if we can create a PR.
+            completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
+        else:
+            completion = await self._aclient.chat(**kwargs)  # type: ignore
+
+        if structured_output:
+            generations.append(completion.model_dump_json())
+            return generations
+
         for choice in completion.choices:
             if (content := choice.message.content) is None:
-                self._logger.warning(
+                self._logger.warning(  # type: ignore
                     f"Received no response using MistralAI client (model: '{self.model}')."
                     f" Finish reason was: {choice.finish_reason}"
                 )
             generations.append(content)
         return generations
-
-    # TODO: remove this function once Mistral client allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["ChatType"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["ChatType"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
