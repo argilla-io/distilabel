@@ -1251,27 +1251,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/arenahardresults/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
@@ -1686,27 +1665,6 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/tasks/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../components-gallery/tasks/arenahard/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4007,11 +3965,11 @@
     <img src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" />
 </a></p>
 <h3 id="text-generation">Text Generation<a class="headerlink" href="#text-generation" title="Permanent link">&para;</a></h3>
-<p>For text generation scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains a single <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> step, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
+<p>For text generation scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains a single [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] step, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
 <p>The dataset will be pushed with the following configuration:</p>
 <ul>
 <li>
-<p><strong>Fields</strong>: <code>instruction</code> and <code>generation</code>, both being fields of type <code>argilla.TextField</code>, plus the automatically generated <code>id</code> for the given <code>instruction</code> to be able to search for other records with the same <code>instruction</code> in the dataset. The field <code>instruction</code> must always be a string, while the field <code>generation</code> can either be a single string or a list of strings (useful when there are multiple parent nodes of type <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a>); even though each record will always contain at most one <code>instruction</code>-<code>generation</code> pair.</p>
+<p><strong>Fields</strong>: <code>instruction</code> and <code>generation</code>, both being fields of type <code>argilla.TextField</code>, plus the automatically generated <code>id</code> for the given <code>instruction</code> to be able to search for other records with the same <code>instruction</code> in the dataset. The field <code>instruction</code> must always be a string, while the field <code>generation</code> can either be a single string or a list of strings (useful when there are multiple parent nodes of type [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration]); even though each record will always contain at most one <code>instruction</code>-<code>generation</code> pair.</p>
 </li>
 <li>
 <p><strong>Questions</strong>: <code>quality</code> will be the only question for the annotators to answer, i.e., to annotate, and it will be an <code>argilla.LabelQuestion</code> referring to the quality of the provided generation for the given instruction. It can be annotated as either 👎 (bad) or 👍 (good).</p>
@@ -4019,7 +3977,7 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a> step will only work as is if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains one or multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, or if the columns <code>instruction</code> and <code>generation</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generation</code> are mapped to one of the existing columns in the batch data.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a> step will only work as is if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains one or multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, or if the columns <code>instruction</code> and <code>generation</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generation</code> are mapped to one of the existing columns in the batch data.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span><span class="p">,</span> <span class="n">TextGenerationToArgilla</span>
@@ -4054,7 +4012,7 @@
 </span></code></pre></div>
 <p><img alt="Text Generation to Argilla" src="../../../../assets/images/sections/how_to_guides/steps/argilla/text_generation.png" /></p>
 <h3 id="preference">Preference<a class="headerlink" href="#preference" title="Permanent link">&para;</a></h3>
-<p>For preference scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
+<p>For preference scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
 <p>The dataset will be pushed with the following configuration:</p>
 <ul>
 <li>
@@ -4066,11 +4024,11 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a> step will only work if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, or if the columns <code>instruction</code> and <code>generations</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generations</code> are mapped to one of the existing columns in the batch data.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a> step will only work if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, or if the columns <code>instruction</code> and <code>generations</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generations</code> are mapped to one of the existing columns in the batch data.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Additionally, if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains an <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a> step, the <code>ratings</code> and <code>rationales</code> will also be available and be automatically injected as suggestions to the existing dataset.</p>
+<p>Additionally, if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains an [<code>UltraFeedback</code>][distilabel.steps.tasks.UltraFeedback] step, the <code>ratings</code> and <code>rationales</code> will also be available and be automatically injected as suggestions to the existing dataset.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span><span class="p">,</span> <span class="n">PreferenceToArgilla</span>

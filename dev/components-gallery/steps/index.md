@@ -10,14 +10,6 @@ hide:
 <div class="grid cards" markdown>
 
 
--   :material-step-forward:{ .lg .middle } __ArenaHardResults__
-
-    ---
-
-    Process Arena Hard results to calculate the ELO scores.
-
-    [:octicons-arrow-right-24: ArenaHardResults](arenahardresults.md){ .bottom }
-
 -   :material-filter:{ .lg .middle } __DeitaFiltering__
 
     ---

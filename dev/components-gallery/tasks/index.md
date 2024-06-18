@@ -10,14 +10,6 @@ hide:
 <div class="grid cards" markdown>
 
 
--   :material-check-outline:{ .lg .middle } __ArenaHard__
-
-    ---
-
-    Evaluates two assistant responses using an LLM as judge.
-
-    [:octicons-arrow-right-24: ArenaHard](arenahard.md){ .bottom }
-
 -   :octicons-number-16:{ .lg .middle } __ComplexityScorer__
 
     ---

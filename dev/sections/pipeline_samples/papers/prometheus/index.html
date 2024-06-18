@@ -1180,27 +1180,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/arenahardresults/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
@@ -1615,27 +1594,6 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/tasks/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../components-gallery/tasks/arenahard/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4063,9 +4021,9 @@
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The section is named <code>Replication</code> but in this case we're not replicating the Prometheus 2 paper per se, but rather showing how to use the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented within <code>distilabel</code> to evaluate the quality of the responses from a given instruction using the Prometheus 2 model.</p>
+<p>The section is named <code>Replication</code> but in this case we're not replicating the Prometheus 2 paper per se, but rather showing how to use the [<code>PrometheusEval</code>][distilabel.steps.tasks.PrometheusEval] task implemented within <code>distilabel</code> to evaluate the quality of the responses from a given instruction using the Prometheus 2 model.</p>
 </div>
-<p>To showcase Prometheus 2 we will be using the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a> task implemented in <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://hf.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
+<p>To showcase Prometheus 2 we will be using the [<code>PrometheusEval</code>][distilabel.steps.tasks.PrometheusEval] task implemented in <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://hf.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
 <h4 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h4>
 <p>To reproduce the code below, one will need to install <code>distilabel</code> as it follows:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[vllm]&gt;=1.1.0&quot;</span>
@@ -4083,7 +4041,7 @@
 <p><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/step/generator_step/#distilabel.steps.base.GeneratorStep"><code>GeneratorStep</code></a> to load a dataset from the Hugging Face Hub.</p>
 </li>
 <li>
-<p><a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.PrometheusEval"><code>PrometheusEval</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.</p>
+<p>[<code>PrometheusEval</code>][distilabel.steps.tasks.PrometheusEval]: <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> that assesses the quality of a response for a given instruction using any of the Prometheus 2 models.</p>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../../../../api/llm/vllm/#distilabel.llms.vllm.vLLM"><code>vLLM</code></a>: <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> that loads a model from the Hugging Face Hub via <a href="https://github.com/vllm-project/vllm">vllm-project/vllm</a>.</li>
 </ul>

@@ -306,11 +306,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/arenahardresults/</loc>
-         <lastmod>2024-06-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/deitafiltering/</loc>
          <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
@@ -397,11 +392,6 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/</loc>
-         <lastmod>2024-06-18</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/tasks/arenahard/</loc>
          <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
