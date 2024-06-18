@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
 from typing import (
     TYPE_CHECKING,
-    Any,
     List,
     Optional,
     Sequence,
@@ -26,17 +24,17 @@ from typing import (
 )
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
-from distilabel.utils.itertools import grouper
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from cohere import AsyncClient, ChatMessage
-
-    from distilabel.llms.typing import GenerateOutput
 
 
 _COHERE_API_KEY_ENV_VAR_NAME = "COHERE_API_KEY"
@@ -104,11 +102,7 @@ class CohereLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
@@ -137,6 +131,8 @@ class CohereLLM(AsyncLLM):
             description="The structured output format to use across all the generations.",
         )
     )
+
+    _num_generations_param_supported = False
 
     _ChatMessage: Type["ChatMessage"] = PrivateAttr(...)
     _aclient: "AsyncClient" = PrivateAttr(...)
@@ -173,7 +169,7 @@ class CohereLLM(AsyncLLM):
                 client=self._aclient,
                 framework="cohere",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -204,7 +200,7 @@ class CohereLLM(AsyncLLM):
                         "An assistant message but be preceded by a user message."
                     )
                 chat_history.append(self._ChatMessage(role="USER", message=message))  # type: ignore
-                chat_history.append(self._ChatMessage(role="CHATBOT", message=content))
+                chat_history.append(self._ChatMessage(role="CHATBOT", message=content))  # type: ignore
                 message = None
 
         if message is None:
@@ -225,7 +221,7 @@ class CohereLLM(AsyncLLM):
         frequency_penalty: Optional[float] = None,
         presence_penalty: Optional[float] = None,
         raw_prompting: Optional[bool] = None,
-    ) -> Union[str, None]:
+    ) -> GenerateOutput:
         """Generates a response from the LLM given an input.
 
         Args:
@@ -254,11 +250,11 @@ class CohereLLM(AsyncLLM):
         if isinstance(input, tuple):
             input, structured_output = input
             result = self._prepare_structured_output(
-                structured_output=structured_output,
+                structured_output=structured_output,  # type: ignore
                 client=self._aclient,
                 framework="cohere",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
 
         if structured_output is None and self.structured_output is not None:
             structured_output = self.structured_output
@@ -281,42 +277,18 @@ class CohereLLM(AsyncLLM):
             "raw_prompting": raw_prompting,
         }
         if structured_output:
-            kwargs = self._prepare_kwargs(kwargs, structured_output)
+            kwargs = self._prepare_kwargs(kwargs, structured_output)  # type: ignore
 
         response = await self._aclient.chat(**kwargs)  # type: ignore
 
         if structured_output:
-            return response.model_dump_json()
+            return [response.model_dump_json()]
 
         if (text := response.text) == "":
-            self._logger.warning(
+            self._logger.warning(  # type: ignore
                 f"Received no response using Cohere client (model: '{self.model}')."
                 f" Finish reason was: {response.finish_reason}"
             )
-            return None
+            return [None]
 
-        return text
-
-    @override
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`."""
-
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return await asyncio.gather(*tasks)
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+        return [text]
