@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-AnthropicLLM
+# AnthropicLLM
 
 
 Anthropic LLM implementation running the Async API client.
@@ -86,11 +86,7 @@ llm = AnthropicLLM(
 
 llm.load()
 
-# Synchronous request
 output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
 ```
 
 

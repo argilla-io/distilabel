@@ -14,7 +14,7 @@ hide:
 
     ---
 
-    This `Step` is based on the "From Live Data to High-Quality Benchmarks: The
+    Process Arena Hard results to calculate the ELO scores.
 
     [:octicons-arrow-right-24: ArenaHardResults](arenahardresults.md){ .bottom }
 

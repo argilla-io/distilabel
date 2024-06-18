@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -2468,6 +2468,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/llms/ollamallm/" class="md-nav__link">
         
   
@@ -3765,6 +3786,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#distilabel.pipeline.typing.PipelineRuntimeParametersInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      PipelineRuntimeParametersInfo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#distilabel.pipeline.typing.UpstreamConnectableSteps" class="md-nav__link">
     <span class="md-ellipsis">
       UpstreamConnectableSteps
@@ -3999,6 +4029,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#distilabel.pipeline.typing.PipelineRuntimeParametersInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      PipelineRuntimeParametersInfo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#distilabel.pipeline.typing.UpstreamConnectableSteps" class="md-nav__link">
     <span class="md-ellipsis">
       UpstreamConnectableSteps
@@ -4105,6 +4144,27 @@
 
 
 
+<h2 id="distilabel.pipeline.typing.PipelineRuntimeParametersInfo" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">PipelineRuntimeParametersInfo</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="s1">&#39;RuntimeParameterInfo&#39;</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;RuntimeParameterInfo&#39;</span><span class="p">]]]</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#distilabel.pipeline.typing.PipelineRuntimeParametersInfo" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Alias for the information of the runtime parameters of a <code>Pipeline</code>.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h2 id="distilabel.pipeline.typing.UpstreamConnectableSteps" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">UpstreamConnectableSteps</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;UpstreamConnectableSteps&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Step&#39;</span><span class="p">,</span> <span class="s1">&#39;GlobalStep&#39;</span><span class="p">,</span> <span class="s1">&#39;GeneratorStep&#39;</span><span class="p">])</span></code>
 
@@ -4144,17 +4204,17 @@ failed</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/pipeline/typing.py</code></summary>
-                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-38">38</a></span>
 <span class="normal"><a href="#__codelineno-0-39">39</a></span>
 <span class="normal"><a href="#__codelineno-0-40">40</a></span>
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="k">class</span> <span class="nc">StepLoadStatus</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict containing information about if one step was loaded/unloaded or if it&#39;s load</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    failed&quot;&quot;&quot;</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;loaded&quot;</span><span class="p">,</span> <span class="s2">&quot;unloaded&quot;</span><span class="p">,</span> <span class="s2">&quot;load_failed&quot;</span><span class="p">]</span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="k">class</span> <span class="nc">StepLoadStatus</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict containing information about if one step was loaded/unloaded or if it&#39;s load</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    failed&quot;&quot;&quot;</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;loaded&quot;</span><span class="p">,</span> <span class="s2">&quot;unloaded&quot;</span><span class="p">,</span> <span class="s2">&quot;load_failed&quot;</span><span class="p">]</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 

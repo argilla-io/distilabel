@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/llms/azureopenaillm/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/llms/mixtureofagentsllm/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>AzureOpenAILLM - Distilabel Docs</title>
+        <title>MixtureOfAgentsLLM - Distilabel Docs</title>
       
     
     
@@ -61,11 +61,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="AzureOpenAILLM - Distilabel Docs" >
+        <meta  property="og:title"  content="MixtureOfAgentsLLM - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/llms/azureopenaillm.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/llms/mixtureofagentsllm.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +73,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/llms/azureopenaillm/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/llms/mixtureofagentsllm/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="AzureOpenAILLM - Distilabel Docs" >
+        <meta  name="twitter:title"  content="MixtureOfAgentsLLM - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/llms/azureopenaillm.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/llms/mixtureofagentsllm.png" >
       
     
     
@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#azureopenaillm" class="md-skip">
+        <a href="#mixtureofagentsllm" class="md-skip">
           Skip to content
         </a>
       
@@ -141,7 +141,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              AzureOpenAILLM
+              MixtureOfAgentsLLM
             
           </span>
         </div>
@@ -2317,7 +2317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./" class="md-nav__link">
+      <a href="../azureopenaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2464,7 +2464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mixtureofagentsllm/" class="md-nav__link">
+      <a href="./" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3914,26 +3914,17 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#generate-text-from-a-custom-endpoint-following-the-openai-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate text from a custom endpoint following the OpenAI API
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#generate-structured-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate structured data
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
   
 </li>
       
@@ -3952,72 +3943,68 @@
                   
 
 
-<h1 id="azureopenaillm">AzureOpenAILLM<a class="headerlink" href="#azureopenaillm" title="Permanent link">&para;</a></h1>
-<p>Azure OpenAI LLM implementation running the async API client.</p>
+<h1 id="mixtureofagentsllm">MixtureOfAgentsLLM<a class="headerlink" href="#mixtureofagentsllm" title="Permanent link">&para;</a></h1>
+<p><code>Mixture-of-Agents</code> implementation.</p>
+<p>An <code>LLM</code> class that leverages <code>LLM</code>s collective strenghts to generate a response,
+    as described in the "Mixture-of-Agents Enhances Large Language model Capabilities"
+    paper. There is a list of <code>LLM</code>s proposing/generating outputs that <code>LLM</code>s from the next
+    round/layer can use as auxiliary information. Finally, there is an <code>LLM</code> that aggregates
+    the outputs to generate the final response.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>model</strong>: the model name to use for the LLM i.e. the name of the Azure deployment.</p>
+<p><strong>aggregator_llm</strong>: The <code>LLM</code> that aggregates the outputs of the proposer <code>LLM</code>s.</p>
 </li>
 <li>
-<p><strong>base_url</strong>: the base URL to use for the Azure OpenAI API can be set with <code>AZURE_OPENAI_ENDPOINT</code>.  Defaults to <code>None</code> which means that the value set for the environment variable  <code>AZURE_OPENAI_ENDPOINT</code> will be used, or <code>None</code> if not set.</p>
+<p><strong>proposers_llms</strong>: The list of <code>LLM</code>s that propose outputs to be aggregated.</p>
 </li>
 <li>
-<p><strong>api_key</strong>: the API key to authenticate the requests to the Azure OpenAI API. Defaults to <code>None</code>  which means that the value set for the environment variable <code>AZURE_OPENAI_API_KEY</code> will be  used, or <code>None</code> if not set.</p>
-</li>
-<li>
-<p><strong>api_version</strong>: the API version to use for the Azure OpenAI API. Defaults to <code>None</code> which means  that the value set for the environment variable <code>OPENAI_API_VERSION</code> will be used, or  <code>None</code> if not set.</p>
+<p><strong>rounds</strong>: The number of layers or rounds that the <code>proposers_llms</code> will generate  outputs. Defaults to <code>1</code>.</p>
 </li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <h4 id="generate-text">Generate text<a class="headerlink" href="#generate-text" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">AzureOpenAILLM</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MixtureOfAgentsLLM</span><span class="p">,</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">AzureOpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api.key&quot;</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Synchrounous request</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">}]])</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Asynchronous request</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">output</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">agenerate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">}])</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">MixtureOfAgentsLLM</span><span class="p">(</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">aggregator_llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">proposers_llms</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="p">),</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO&quot;</span><span class="p">,</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO&quot;</span><span class="p">,</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="p">),</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="p">),</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="p">],</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">rounds</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="p">)</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="p">[</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>            <span class="p">{</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;My favorite witty review of The Rings of Power series is this: Input:&quot;</span><span class="p">,</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>            <span class="p">}</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        <span class="p">]</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="p">]</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="p">)</span>
 </span></code></pre></div>
-<h4 id="generate-text-from-a-custom-endpoint-following-the-openai-api">Generate text from a custom endpoint following the OpenAI API<a class="headerlink" href="#generate-text-from-a-custom-endpoint-following-the-openai-api" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">AzureOpenAILLM</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">AzureOpenAILLM</span><span class="p">(</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;prometheus-eval/prometheus-7b-v2.0&quot;</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">base_url</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;http://localhost:8080/v1&quot;</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Synchronous request</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">}]])</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Asynchronous request</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">output</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">agenerate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">}])</span>
-</span></code></pre></div>
-<h4 id="generate-structured-data">Generate structured data<a class="headerlink" href="#generate-structured-data" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">AzureOpenAILLM</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">last_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">AzureOpenAILLM</span><span class="p">(</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;api.key&quot;</span><span class="p">,</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">structured_output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">User</span><span class="p">}</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">llm</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="n">output</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Create a user profile for the following marathon&quot;</span><span class="p">}]])</span>
-</span></code></pre></div>
+<h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2406.04692">Mixture-of-Agents Enhances Large Language Model Capabilities</a></li>
+</ul>
 
 
 

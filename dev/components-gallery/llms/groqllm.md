@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-GroqLLM
+# GroqLLM
 
 
 Groq API implementation using the async client for concurrent text generation.

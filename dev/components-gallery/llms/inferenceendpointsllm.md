@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-InferenceEndpointsLLM
+# InferenceEndpointsLLM
 
 
 InferenceEndpoints LLM implementation running the async API client.
@@ -53,11 +53,7 @@ llm = InferenceEndpointsLLM(
 
 llm.load()
 
-# Synchrounous request
 output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
 ```
 
 #### Dedicated Inference Endpoints
@@ -72,11 +68,7 @@ llm = InferenceEndpointsLLM(
 
 llm.load()
 
-# Synchrounous request
 output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
 ```
 
 #### Dedicated Inference Endpoints or TGI
@@ -90,11 +82,7 @@ llm = InferenceEndpointsLLM(
 
 llm.load()
 
-# Synchrounous request
 output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
 ```
 
 

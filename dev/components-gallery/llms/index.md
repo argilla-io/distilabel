@@ -90,6 +90,14 @@ hide:
 
     [:octicons-arrow-right-24: MistralLLM](mistralllm.md){ .bottom }
 
+-   :material-brain:{ .lg .middle } __MixtureOfAgentsLLM__
+
+    ---
+
+    `Mixture-of-Agents` implementation.
+
+    [:octicons-arrow-right-24: MixtureOfAgentsLLM](mixtureofagentsllm.md){ .bottom }
+
 -   :material-brain:{ .lg .middle } __OllamaLLM__
 
     ---

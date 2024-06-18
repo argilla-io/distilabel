@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-AnyscaleLLM
+# AnyscaleLLM
 
 
 Anyscale LLM implementation running the async API client of OpenAI.
@@ -40,11 +40,7 @@ llm = AnyscaleLLM(model="google/gemma-7b-it", api_key="api.key")
 
 llm.load()
 
-# Synchronous request
 output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-# Asynchronous request
-output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
 ```
 
 

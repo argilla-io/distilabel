@@ -14,7 +14,7 @@ hide:
 
     ---
 
-    This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
+    Evaluates two assistant responses using an LLM as judge.
 
     [:octicons-arrow-right-24: ArenaHard](arenahard.md){ .bottom }
 

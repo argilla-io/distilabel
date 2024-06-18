@@ -4,11 +4,12 @@ hide:
 ---
 # ArenaHard
 
+Evaluates two assistant responses using an LLM as judge.
+
+
+
 This `Task` is based on the "From Live Data to High-Quality Benchmarks: The
-
-
-
-Arena-Hard Pipeline" paper that presents Arena Hard, which is a benchmark for
+    Arena-Hard Pipeline" paper that presents Arena Hard, which is a benchmark for
     instruction-tuned LLMs that contains 500 challenging user queries. GPT-4 is used
     as the judge to compare the model responses against a baseline model, which defaults
     to `gpt-4-0314`.

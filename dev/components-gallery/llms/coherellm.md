@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-CohereLLM
+# CohereLLM
 
 
 Cohere API implementation using the async client for concurrent text generation.

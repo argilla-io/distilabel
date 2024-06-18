@@ -2,7 +2,7 @@
 hide:
   - navigation
 ---
-MistralLLM
+# MistralLLM
 
 
 Mistral LLM implementation running the async API client.
