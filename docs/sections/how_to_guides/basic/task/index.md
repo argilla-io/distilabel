@@ -7,23 +7,25 @@ The [`Task`][distilabel.steps.tasks.Task] is a special kind of [`Step`][distilab
 For example, the most basic task is the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task, which generates text based on a given instruction.
 
 ```python
+from distilabel.llms import InferenceEndpointsLLM
 from distilabel.steps.tasks import TextGeneration
 
 task = TextGeneration(
     name="text-generation",
-    llm=OpenAILLM(model="gpt-4"),
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
 )
 task.load()
 
 next(task.process([{"instruction": "What's the capital of Spain?"}]))
 # [
 #     {
-#         "instruction": "What's the capital of Spain?",
-#         "generation": "The capital of Spain is Madrid.",
-#         "model_name": "gpt-4",
-#         "distilabel_metadata": {
-#             "raw_output_text-generation": "The capital of Spain is Madrid"
-#         }
+#         'instruction': "What's the capital of Spain?",
+#         'generation': 'The capital of Spain is Madrid.',
+#         'distilabel_metadata': {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
 #     }
 # ]
 ```
@@ -32,6 +34,78 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
     The `Step.load()` always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.
 
 As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task adds a `generation` based on the `instruction`. Additionally, it provides some metadata about the LLM call through `distilabel_metadata`. This can be disabled by setting the `add_raw_output` attribute to `False` when creating the task.
+
+## Specifying the number of generations and grouping generations
+
+All the `Task`s have a `num_generations` attribute that allows defining the number of generations that we want to have per input. We can update the example above to generate 3 completions per input:
+
+```python
+from distilabel.llms import InferenceEndpointsLLM
+from distilabel.steps.tasks import TextGeneration
+
+task = TextGeneration(
+    name="text-generation",
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
+    num_generations=3,
+)
+task.load()
+
+next(task.process([{"instruction": "What's the capital of Spain?"}]))
+# [
+#     {
+#         'instruction': "What's the capital of Spain?",
+#         'generation': 'The capital of Spain is Madrid.',
+#         'distilabel_metadata': {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
+#     },
+#     {
+#         'instruction': "What's the capital of Spain?",
+#         'generation': 'The capital of Spain is Madrid.',
+#         'distilabel_metadata': {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
+#     },
+#     {
+#         'instruction': "What's the capital of Spain?",
+#         'generation': 'The capital of Spain is Madrid.',
+#         'distilabel_metadata': {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
+#     }
+# ]
+```
+
+In addition, we might want to group the generations in a single output row as maybe one downstream step expects a single row with multiple generations. We can achieve this by setting the `group_generations` attribute to `True`:
+
+```python
+from distilabel.llms import InferenceEndpointsLLM
+from distilabel.steps.tasks import TextGeneration
+
+task = TextGeneration(
+    name="text-generation",
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+        tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    ),
+    num_generations=3,
+)
+task.load()
+
+next(task.process([{"instruction": "What's the capital of Spain?"}]))
+# [
+#     {
+#         'instruction': "What's the capital of Spain?",
+#         'generation': ['The capital of Spain is Madrid.', 'The capital of Spain is Madrid.', 'The capital of Spain is Madrid.'],
+#         'distilabel_metadata': [
+#             {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#             {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#             {'raw_output_text-generation': 'The capital of Spain is Madrid.'}
+#         ],
+#         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
+#     }
+# ]
+```
 
 ## Defining custom Tasks
 
