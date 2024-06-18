@@ -63,8 +63,6 @@ def test_imports() -> None:
     )
 
     from distilabel.steps.tasks import (
-        ArenaHard,
-        ArenaHardResults,
         Task,
         GeneratorTask,
         ChatItem,
