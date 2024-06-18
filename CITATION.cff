@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Bartolomé"
+  given-names: "Álvaro"
+- family-names: "Martín-Blázquez"
+  given-names: "Gabriel"
+- family-names: "Piqueres-Lajarín"
+  given-names: "Agustín"
+- family-names: "Vila-Suero"
+  given-names: "Daniel"
+title: "Distilabel: An AI Feedback (AIF) framework for building datasets with and for LLMs."
+version: 1.1.1
+date-released: 2024-05-22
+url: "https://github.com/argilla-io/distilabel"
