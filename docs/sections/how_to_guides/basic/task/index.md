@@ -89,6 +89,7 @@ task = TextGeneration(
         tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
     ),
     num_generations=3,
+    group_generations=True
 )
 task.load()
 
