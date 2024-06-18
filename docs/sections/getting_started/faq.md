@@ -39,3 +39,6 @@ hide:
     For more information on the caching mechanism in `distilabel`, you can check the [Learn - Advanced - Caching](../how_to_guides/advanced/caching.md) section.
 
     Also note that when running a [`Step`][distilabel.steps.base.Step] or a [`Task`][distilabel.steps.tasks.Task] standalone, the cache mechanism won't be used, so if you want to use that, you should use the `Pipeline` context manager.
+
+??? faq "How can I use the same `LLM` across several tasks without having to load it several times?"
+    You can serve the LLM using a solution like TGI or vLLM, and then connect to it using an `AsyncLLM` client like `InferenceEndpointsLLM` or `OpenAILLM`. Please refer to [Serving LLMs guide](../how_to_guides/advanced/serving_an_llm_for_reuse.md) for more information.
