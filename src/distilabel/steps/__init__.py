@@ -14,7 +14,13 @@
 
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
-from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.steps.base import (
+    GeneratorStep,
+    GlobalStep,
+    Step,
+    StepInput,
+    StepResources,
+)
 from distilabel.steps.combine import CombineColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
@@ -42,6 +48,7 @@ from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
+    "StepResources",
     "CombineColumns",
     "ConversationTemplate",
     "DeitaFiltering",

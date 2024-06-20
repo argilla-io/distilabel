@@ -99,7 +99,7 @@ class Pipeline(BasePipeline):
         ):
             return distiset
 
-        num_processes = len(self.dag)
+        num_processes = self.dag.get_total_replica_count()
         ctx = mp.get_context()  # type: ignore
         with ctx.Manager() as manager, ctx.Pool(
             num_processes,

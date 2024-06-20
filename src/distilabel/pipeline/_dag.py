@@ -93,6 +93,15 @@ class DAG(_Serializable):
             raise ValueError(f"Step with name '{name}' does not exist")
         return self.G.nodes[name]
 
+    def get_step_replica_count(self, name: str) -> int:
+        """Gets the number of replicas of the step.
+
+        Returns:
+            The number of replicas of the step.
+        """
+        step: "_Step" = self.get_step(name)[STEP_ATTR_NAME]
+        return step.resources.replicas if step.is_normal else 1  # type: ignore
+
     def set_step_attr(self, name: str, attr: str, value: Any) -> None:
         """Set an attribute of a step in the DAG.
 
@@ -240,6 +249,14 @@ class DAG(_Serializable):
         return self.is_step_in_trophic_level(
             step_name, max(self.trophic_levels.values())
         )
+
+    def get_total_replica_count(self) -> int:
+        """Calculates the total number of replicas needed to run the pipeline.
+
+        Returns:
+            The total number of replicas needed to run the pipeline.
+        """
+        return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
     def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and

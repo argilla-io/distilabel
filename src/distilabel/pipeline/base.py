@@ -716,12 +716,10 @@ class BasePipeline(ABC, _Serializable):
                 num_steps_loaded = 0
                 workers_message = ""
                 for step_name, num_workers_loaded in self._steps_load_status.items():
-                    # TODO: update condition once we allow more than one worker per step
-                    if num_workers_loaded == 1:
+                    step_replica_count = self.dag.get_step_replica_count(step_name)
+                    if num_workers_loaded == step_replica_count:
                         num_steps_loaded += 1
-                    workers_message += (
-                        f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}"
-                    )
+                    workers_message += f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}/{step_replica_count}"
 
                 message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}{workers_message}"
                 if num_steps_loaded > 0 and message != previous_message:
@@ -828,8 +826,17 @@ class BasePipeline(ABC, _Serializable):
             # `TypeError: cannot pickle 'code' object`
             step.pipeline = None
 
-            self._logger.debug(f"Running 1 instance of step '{step.name}'...")
-            self._run_step(step=step, input_queue=input_queue)
+            if not step.is_normal and step.resources.replicas > 1:  # type: ignore
+                self._logger.warning(
+                    f"Step '{step_name}' is a `GeneratorStep` or `GlobalStep` and has more"
+                    " than 1 replica. Only `Step` instances can have more than 1 replica."
+                    " The number of replicas for the step will be set to 1."
+                )
+
+            step_num_replicas: int = step.resources.replicas if step.is_normal else 1  # type: ignore
+            for _ in range(step_num_replicas):
+                self._logger.debug(f"Running 1 instance of step '{step.name}'...")
+                self._run_step(step=step, input_queue=input_queue)
 
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This

@@ -24,6 +24,7 @@ def test_imports() -> None:
         GenerateOutput,
         HiddenState,
         InferenceEndpointsLLM,
+        MixtureOfAgentsLLM,
         LlamaCppLLM,
         LLM,
         LiteLLM,
