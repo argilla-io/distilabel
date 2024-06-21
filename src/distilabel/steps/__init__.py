@@ -21,7 +21,7 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
-from distilabel.steps.combine import CombineColumns
+from distilabel.steps.combine import CombineColumns, CombineKeys
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.expand import ExpandColumns
@@ -50,6 +50,7 @@ __all__ = [
     "TextGenerationToArgilla",
     "StepResources",
     "CombineColumns",
+    "CombineKeys",
     "ConversationTemplate",
     "DeitaFiltering",
     "ExpandColumns",
