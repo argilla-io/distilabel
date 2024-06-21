@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from distilabel.steps.base import StepInput
 
@@ -58,4 +58,26 @@ def combine_dicts(
                 else:
                     combined_dict[key] = value
         result.append(combined_dict)
+    return result
+
+
+def combine_keys(row: Dict[str, Any], keys: List[str], new_key: str = "combined_key"):
+    """Combines keys in a dictionary into a single key on the specified `new_key`.
+
+    Args:
+        row: Dictionary corresponding to a row in a dataset.
+        keys: List of keys to combine.
+        new_key: Name of the new key created.
+
+    Returns:
+        Dictionary with the new combined key.
+    """
+    result = row.copy()  # preserve the original dictionary
+    combined = []
+    for key in keys:
+        to_combine = result.pop(key)
+        if not isinstance(to_combine, list):
+            to_combine = [to_combine]
+        combined += to_combine
+    result[new_key] = combined
     return result
