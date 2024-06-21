@@ -169,18 +169,20 @@ class Pipeline(BasePipeline):
         assert self._manager, "Manager is not initialized"
         return self._manager.Queue
 
-    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
         """Runs the `Step` wrapped in a `_ProcessWrapper` in a separate process of the
         `Pool`.
 
         Args:
             step: The step to run.
             input_queue: The input queue to send the data to the step.
+            replica: The replica ID assigned.
         """
         assert self._pool, "Pool is not initialized"
 
         process_wrapper = _ProcessWrapper(
             step=step,
+            replica=replica,
             input_queue=input_queue,
             output_queue=self._output_queue,
             load_queue=self._load_queue,
@@ -337,6 +339,7 @@ class _ProcessWrapper:
 
     Attributes:
         step: The step to run.
+        replica: The replica ID assigned.
         input_queue: The queue to receive the input data.
         output_queue: The queue to send the output data.
         load_queue: The queue used to notify the main process that the step has been loaded,
@@ -346,6 +349,7 @@ class _ProcessWrapper:
     def __init__(
         self,
         step: "_Step",
+        replica: int,
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
         load_queue: "Queue[Union[StepLoadStatus, None]]",
@@ -362,6 +366,7 @@ class _ProcessWrapper:
             dry_run: Flag to ensure we are forcing to run the last batch.
         """
         self.step = step
+        self.replica = replica
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.load_queue = load_queue
@@ -411,7 +416,9 @@ class _ProcessWrapper:
 
         self._notify_unload()
 
-        self.step._logger.info(f"🏁 Finished running step '{self.step.name}'")
+        self.step._logger.info(
+            f"🏁 Finished running step '{self.step.name}' (replica: {self.replica})"
+        )
 
         return self.step.name  # type: ignore
 
@@ -499,7 +506,7 @@ class _ProcessWrapper:
                 break
 
             self.step._logger.info(
-                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}'"
+                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}' (replica: {self.replica})"
             )
 
             if batch.data_path is not None:

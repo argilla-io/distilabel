@@ -804,12 +804,13 @@ class BasePipeline(ABC, _Serializable):
         return input_queue
 
     @abstractmethod
-    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
         """Runs the `Step` instance.
 
         Args:
             step: The `Step` instance to run.
             input_queue: The input queue where the step will receive the batches.
+            replica: The replica ID assigned.
         """
         pass
 
@@ -834,9 +835,9 @@ class BasePipeline(ABC, _Serializable):
                 )
 
             step_num_replicas: int = step.resources.replicas if step.is_normal else 1  # type: ignore
-            for _ in range(step_num_replicas):
+            for replica in range(step_num_replicas):
                 self._logger.debug(f"Running 1 instance of step '{step.name}'...")
-                self._run_step(step=step, input_queue=input_queue)
+                self._run_step(step=step, input_queue=input_queue, replica=replica)
 
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
@@ -884,10 +885,10 @@ class BasePipeline(ABC, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the convergence
-        # step if the batch is the last one, so they stop their processing loop even if
-        # they haven't received the last batch because of the routing function.
-        if self._is_convergence_step(batch.step_name) and batch.last_batch:
+        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the step
+        # if the batch is the last one, so they stop their processing loop even if they
+        # haven't received the last batch because of the routing function.
+        if batch.last_batch:
             for step_name in self.dag.get_step_predecessors(batch.step_name):
                 self._send_last_batch_flag_to_step(step_name)
 
@@ -991,16 +992,13 @@ class BasePipeline(ABC, _Serializable):
         Args:
             step_name: The name of the step.
         """
-        batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
-        if batch and batch.last_batch:
-            return
-
         self._logger.debug(
             f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
             " batches..."
         )
 
-        self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
+        for _ in range(self.dag.get_step_replica_count(step_name)):
+            self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
         self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
     def _request_initial_batches(self) -> None:

@@ -84,6 +84,7 @@ class _BatchManagerStep(_Serializable):
         default_factory=dict
     )
     next_expected_created_from_batch_seq_no: int = 0
+    next_expected_seq_no: Dict[str, int] = field(default_factory=dict)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -105,6 +106,8 @@ class _BatchManagerStep(_Serializable):
 
         if batch.last_batch:
             self.last_batch_received.append(from_step)
+
+        self.data[from_step].sort(key=lambda batch: batch.seq_no)
 
     def get_batch(self) -> Union[_Batch, None]:
         """Create a new batch of data for the step to process. It will return `None` if
@@ -182,6 +185,7 @@ class _BatchManagerStep(_Serializable):
             input_batch_size=getattr(step, "input_batch_size", None),
             data={predecessor: [] for predecessor in predecessors},
             convergence_step=convergence_step,
+            next_expected_seq_no={predecessor: 0 for predecessor in predecessors},
         )
 
     def _get_seq_no(self) -> int:
@@ -328,6 +332,7 @@ class _BatchManagerStep(_Serializable):
             step_data = []
             idx_drop_batches = []
             remaining_rows: int = self.input_batch_size  # type: ignore
+            next_expected_seq_no = None
             for idx, batch in enumerate(self.data[step_name]):
                 if remaining_rows == 0:
                     break
@@ -345,10 +350,16 @@ class _BatchManagerStep(_Serializable):
                 # Keep track of the batches used to create the batch
                 batches_used[step_name].append((batch.seq_no, batch.size))
 
+                next_expected_seq_no = batch.seq_no
+
                 # If the batch was entirely consumed, then remove it from the buffer
                 if len(batch.data[0]) == 0:
+                    next_expected_seq_no += 1
                     idx_drop_batches.append(idx)
                     continue
+
+            if next_expected_seq_no:
+                self.next_expected_seq_no[step_name] = next_expected_seq_no
 
             # Remove the batches that were entirely consumed
             idx_drop_batches.reverse()
@@ -438,10 +449,22 @@ class _BatchManagerStep(_Serializable):
             `True` if ready to create a batch, `False` otherwise.
         """
         for step_name, batches in self.data.items():
-            num_rows = sum(len(batch.data[0]) for batch in batches)
+            # Depending on the number of replicas of the `Step` it can happen that some
+            # replica is faster and send batch with `seq_no==1` faster than the other that
+            # sends the batch with `seq_no==0`. We need to check which `seq_no` was expected
+            # next to not mess up the ordering of the rows.
+            next_expected_seq_no = self.next_expected_seq_no[step_name]
+
+            num_rows = 0
+            for batch in batches:
+                # Need to create batches using the data from batches with sequential `seq_no`
+                if batch.seq_no != next_expected_seq_no:
+                    return False
+                num_rows += len(batch.data[0])
+                next_expected_seq_no += 1
 
             # If there are now rows but the last batch was already received, then there
-            # are no more batch to be created
+            # are no more batches to be created
             if num_rows == 0 and step_name in self.last_batch_received:
                 return False
 
@@ -634,7 +657,9 @@ class _BatchManager(_Serializable):
         Args:
             batch: _Batch from which we will register the sequence number and the last batch received.
         """
-        self._last_batch_received[batch.step_name] = batch
+        last_batch = self._last_batch_received[batch.step_name]
+        if not last_batch or (last_batch and last_batch.seq_no < batch.seq_no):
+            self._last_batch_received[batch.step_name] = batch
 
     def get_last_batch(self, step_name: str) -> Union[_Batch, None]:
         """Gets the last batch received from a step.
