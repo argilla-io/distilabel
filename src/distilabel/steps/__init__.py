@@ -15,7 +15,7 @@
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
-from distilabel.steps.combine import CombineColumns
+from distilabel.steps.combine import CombineColumns, CombineKeys
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.expand import ExpandColumns
@@ -43,6 +43,7 @@ __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
     "CombineColumns",
+    "CombineKeys",
     "ConversationTemplate",
     "DeitaFiltering",
     "ExpandColumns",
