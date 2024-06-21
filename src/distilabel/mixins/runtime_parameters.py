@@ -31,6 +31,10 @@ RuntimeParameter = Annotated[
 """Used to mark the attributes of a `Step` as a runtime parameter."""
 
 RuntimeParametersNames = Dict[str, Union[bool, "RuntimeParametersNames"]]
+"""Alias for the names of the runtime parameters of a `Step`."""
+
+RuntimeParameterInfo = Dict[str, Any]
+"""Alias for the information of the runtime parameters of a `Step`."""
 
 
 class RuntimeParametersMixin(BaseModel):
@@ -45,7 +49,7 @@ class RuntimeParametersMixin(BaseModel):
     _runtime_parameters: Dict[str, Any] = PrivateAttr(default_factory=dict)
 
     @property
-    def runtime_parameters_names(self) -> RuntimeParametersNames:
+    def runtime_parameters_names(self) -> "RuntimeParametersNames":
         """Returns a dictionary containing the name of the runtime parameters of the class
         as keys and whether the parameter is required or not as values.
 
@@ -57,18 +61,27 @@ class RuntimeParametersMixin(BaseModel):
         runtime_parameters = {}
 
         for name, field_info in self.model_fields.items():  # type: ignore
+            # `field: RuntimeParameter[Any]` or `field: Optional[RuntimeParameter[Any]]`
             is_runtime_param, is_optional = _is_runtime_parameter(field_info)
             if is_runtime_param:
                 runtime_parameters[name] = is_optional
                 continue
 
             attr = getattr(self, name)
+
+            # `field: RuntimeParametersMixin`
             if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters[name] = attr.runtime_parameters_names
 
+            # `field: List[RuntiemParametersMixin]`
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                runtime_parameters[name] = {
+                    str(i): item.runtime_parameters_names for i, item in enumerate(attr)
+                }
+
         return runtime_parameters
 
-    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
         """Gets the information of the runtime parameters of the class such as the name and
         the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the class.
@@ -82,11 +95,26 @@ class RuntimeParametersMixin(BaseModel):
                 continue
 
             attr = getattr(self, name)
+
+            # Get runtime parameters info for `RuntimeParametersMixin` field
             if isinstance(attr, RuntimeParametersMixin):
                 runtime_parameters_info.append(
                     {
                         "name": name,
                         "runtime_parameters_info": attr.get_runtime_parameters_info(),
+                    }
+                )
+                continue
+
+            # Get runtime parameters info for `List[RuntimeParametersMixin]` field
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                runtime_parameters_info.append(
+                    {
+                        "name": name,
+                        "runtime_parameters_info": {
+                            str(i): item.get_runtime_parameters_info()
+                            for i, item in enumerate(attr)
+                        },
                     }
                 )
                 continue
@@ -125,8 +153,18 @@ class RuntimeParametersMixin(BaseModel):
                 continue
 
             attr = getattr(self, name)
+
+            # Set runtime parameters for `RuntimeParametersMixin` field
             if isinstance(attr, RuntimeParametersMixin):
                 attr.set_runtime_parameters(value)
+                self._runtime_parameters[name] = value
+                continue
+
+            # Set runtime parameters for `List[RuntimeParametersMixin]` field
+            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+                for i, item in enumerate(attr):
+                    item_value = value.get(str(i), {})
+                    item.set_runtime_parameters(item_value)
                 self._runtime_parameters[name] = value
                 continue
 
@@ -136,6 +174,7 @@ class RuntimeParametersMixin(BaseModel):
             if inspect.isclass(inner_type) and issubclass(inner_type, _SecretField):
                 value = inner_type(value)
 
+            # Set the value of the runtime parameter
             setattr(self, name, value)
             self._runtime_parameters[name] = value
 

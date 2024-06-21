@@ -106,7 +106,8 @@ with Pipeline(name="my-pipeline") as pipeline:
 
     load_dataset >> text_generation >> to_argilla
 
-pipeline.run()
+if __name__ == "__main__":
+    pipeline.run()
 ```
 
 ![Preference to Argilla](../../../assets/images/sections/how_to_guides/steps/argilla/preference.png)

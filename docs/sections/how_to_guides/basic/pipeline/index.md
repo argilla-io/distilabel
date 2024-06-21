@@ -48,8 +48,8 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
         MistralLLM(model="mistral-large-2402"),
         VertexAILLM(model="gemini-1.5-pro"),
     ):
-        task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)  # (1)
-        task.connect(load_dataset)  # (2)
+        task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+        task.connect(load_dataset)
 
     ...
 ```
@@ -68,7 +68,7 @@ from distilabel.steps.tasks import TextGeneration
 with Pipeline("pipe-name", description="My first pipe") as pipeline:
     load_dataset = LoadDataFromHub(name="load_dataset")
 
-    combine_generations = CombineColumns(  # (1)
+    combine_generations = CombineColumns(
         name="combine_generations",
         columns=["generation", "model_name"],
         output_columns=["generations", "model_names"],
@@ -284,11 +284,7 @@ if __name__ == "__main__":
 
 ### Stopping the pipeline
 
-In case you want to stop the pipeline while it's running using the `Ctrl+C` (`Cmd+C` in MacOS), and the outputs will be stored in the cache. Repeating the command 2 times will force the pipeline to close.
-
-!!! Note
-    When pushing sending the signal to kill the process, you can expect to see the following log messages:
-    ![Pipeline ctrl+c](../../../../assets/images/sections/pipeline/pipeline-ctrlc.png)
+In case you want to stop the pipeline while it's running, you can press ++ctrl+c++ or ++cmd+c++ depending on your OS (or send a `SIGINT` to the main process), and the outputs will be stored in the cache. Pressing an additional time will force the pipeline to stop its execution, but this can lead to losing the generated outputs for certain batches.
 
 ## Cache
 

@@ -16,7 +16,6 @@ import inspect
 import logging
 import re
 from abc import ABC, abstractmethod
-from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, overload
 
@@ -27,7 +26,7 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
 )
-from distilabel.utils.serialization import TYPE_INFO_KEY, _Serializable
+from distilabel.utils.serialization import _Serializable
 from distilabel.utils.typing_ import is_parameter_annotated_with
 
 if TYPE_CHECKING:
@@ -452,51 +451,6 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             The outputs of the step after the `outputs_mappings`.
         """
         return [self.output_mappings.get(output, output) for output in self.outputs]
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "_Step":
-        """Create a Step from a dict containing the serialized data.
-
-        Needs the information from the step and the Pipeline it belongs to.
-
-        Note:
-            It's intended for internal use.
-
-        Args:
-            data: dictionary containing the serialized data from a `Step` and the
-                `Pipeline` it belongs to.
-
-        Returns:
-            A `Step` instance.
-        """
-        # Remove the "type_info" to avoid errors on instantiation
-        _data = data.copy()
-        if TYPE_INFO_KEY in _data.keys():
-            _data.pop(TYPE_INFO_KEY)
-
-        # Before passing the data to instantiate the general step, we have to instantiate
-        # some of the internal objects. For the moment we only take into account the LLM,
-        # we should take care if we update any of the objects.
-        if llm := _data.get("llm"):
-            from distilabel.utils.serialization import _get_module_attr
-
-            nested_cls = _get_module_attr(**llm.pop(TYPE_INFO_KEY))
-            # Load the LLM and update the _data inplace
-            nested_cls = nested_cls(**llm)
-            _data.update({"llm": nested_cls})
-
-        # Enums need a specific restoring process
-        for k, v in _data.items():
-            if isinstance(v, dict) and "_type" in v and v["_type"] == "enum":
-                _data[k] = Enum(v["_name"], v["_values"], type=eval(v["_enum_type"]))
-
-        # Skip `runtime_parameters_info` since extras are not allowed
-        _data.pop("runtime_parameters_info", None)
-
-        # Every step needs the pipeline, and the remaining arguments are general
-        step = cls(**_data)
-
-        return step
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         dump = super()._model_dump(obj, **kwargs)

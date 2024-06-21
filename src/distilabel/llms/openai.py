@@ -72,11 +72,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate text from a custom endpoint following the OpenAI API:
@@ -91,11 +87,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate structured data:
@@ -117,11 +109,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
@@ -186,7 +174,7 @@ class OpenAILLM(AsyncLLM):
                 client=self._aclient,
                 framework="openai",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -272,7 +260,7 @@ class OpenAILLM(AsyncLLM):
             kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         generations = []
-        completion = await self._aclient.chat.completions.create(**kwargs)
+        completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
 
         if structured_output:
             generations.append(completion.model_dump_json())
