@@ -124,7 +124,7 @@ class CombineColumns(Step):
 
 
 class CombineKeys(Step):
-    """Combines keys from a `StepInput`.
+    """Combines keys from a row.
 
     `CombineKeys` is a `Step` that implements the `process` method that calls the `combine_keys`
     function to handle and combine keys in a `StepInput`. `CombineKeys` provides two attributes
