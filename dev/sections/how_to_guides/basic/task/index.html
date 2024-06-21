@@ -1321,6 +1321,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../components-gallery/steps/combinekeys/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
@@ -3935,7 +3956,7 @@
 <h1 id="define-tasks-that-rely-on-llms">Define Tasks that rely on LLMs<a class="headerlink" href="#define-tasks-that-rely-on-llms" title="Permanent link">&para;</a></h1>
 <h2 id="working-with-tasks">Working with Tasks<a class="headerlink" href="#working-with-tasks" title="Permanent link">&para;</a></h2>
 <p>The <a class="autorefs autorefs-internal" href="../../../../api/task/#distilabel.steps.tasks.base.Task"><code>Task</code></a> is a special kind of <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> that includes the <a class="autorefs autorefs-internal" href="../../../../api/llm/#distilabel.llms.base.LLM"><code>LLM</code></a> as a mandatory argument. As with a <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>, it is normally used within a <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> but can also be used standalone.</p>
-<p>For example, the most basic task is the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task, which generates text based on a given instruction.</p>
+<p>For example, the most basic task is the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task, which generates text based on a given instruction.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -3962,7 +3983,7 @@
 <p class="admonition-title">Note</p>
 <p>The <code>Step.load()</code> always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.</p>
 </div>
-<p>As shown above, the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task adds a <code>generation</code> based on the <code>instruction</code>. Additionally, it provides some metadata about the LLM call through <code>distilabel_metadata</code>. This can be disabled by setting the <code>add_raw_output</code> attribute to <code>False</code> when creating the task.</p>
+<p>As shown above, the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task adds a <code>generation</code> based on the <code>instruction</code>. Additionally, it provides some metadata about the LLM call through <code>distilabel_metadata</code>. This can be disabled by setting the <code>add_raw_output</code> attribute to <code>False</code> when creating the task.</p>
 <h2 id="specifying-the-number-of-generations-and-grouping-generations">Specifying the number of generations and grouping generations<a class="headerlink" href="#specifying-the-number-of-generations-and-grouping-generations" title="Permanent link">&para;</a></h2>
 <p>All the <code>Task</code>s have a <code>num_generations</code> attribute that allows defining the number of generations that we want to have per input. We can update the example above to generate 3 completions per input:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>

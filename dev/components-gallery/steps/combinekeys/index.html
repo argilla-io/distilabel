@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/steps/deitafiltering/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/components-gallery/steps/combinekeys/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>DeitaFiltering - Distilabel Docs</title>
+        <title>CombineKeys - Distilabel Docs</title>
       
     
     
@@ -61,11 +61,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="DeitaFiltering - Distilabel Docs" >
+        <meta  property="og:title"  content="CombineKeys - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/steps/deitafiltering.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/steps/combinekeys.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +73,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/steps/deitafiltering/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/components-gallery/steps/combinekeys/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="DeitaFiltering - Distilabel Docs" >
+        <meta  name="twitter:title"  content="CombineKeys - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/steps/deitafiltering.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/components-gallery/steps/combinekeys.png" >
       
     
     
@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deitafiltering" class="md-skip">
+        <a href="#combinekeys" class="md-skip">
           Skip to content
         </a>
       
@@ -141,7 +141,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DeitaFiltering
+              CombineKeys
             
           </span>
         </div>
@@ -1197,7 +1197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./" class="md-nav__link">
+      <a href="../deitafiltering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1302,7 +1302,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../combinekeys/" class="md-nav__link">
+      <a href="./" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3896,15 +3896,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#runtime-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Runtime Parameters
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#input-output-columns" class="md-nav__link">
     <span class="md-ellipsis">
       Input &amp; Output Columns
@@ -3948,9 +3939,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings" class="md-nav__link">
+  <a href="#combine-keys-in-rows-of-a-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Filter the dataset based on the DEITA score and the cosine distance between the embeddings
+      Combine keys in rows of a dataset
     </span>
   </a>
   
@@ -3958,15 +3949,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
-    <span class="md-ellipsis">
-      References
-    </span>
-  </a>
   
 </li>
       
@@ -3985,120 +3967,77 @@
                   
 
 
-<h1 id="deitafiltering">DeitaFiltering<a class="headerlink" href="#deitafiltering" title="Permanent link">&para;</a></h1>
-<p>Filter dataset rows using DEITA filtering strategy.</p>
-<p>Filter the dataset based on the DEITA score and the cosine distance between the embeddings.
-    It's an implementation of the filtering step from the paper 'What Makes Good Data
-    for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning'.</p>
+<h1 id="combinekeys">CombineKeys<a class="headerlink" href="#combinekeys" title="Permanent link">&para;</a></h1>
+<p>Combines keys from a row.</p>
+<p><code>CombineKeys</code> is a <code>Step</code> that implements the <code>process</code> method that calls the <code>combine_keys</code>
+    function to handle and combine keys in a <code>StepInput</code>. <code>CombineKeys</code> provides two attributes
+    <code>keys</code> and <code>output_keys</code> to specify the keys to merge and the resulting output key.</p>
+<div class="language-text highlight"><pre><span></span><code>This step can be useful if you have a `Task` that generates instructions for example, and you
+want to have more examples of those. In such a case, you could for example use another `Task`
+to multiply your instructions synthetically, what would yield two different keys splitted.
+Using `CombineKeys` you can merge them and use them as a single column in your dataset for
+further processing.
+</code></pre></div>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>data_budget</strong>: The desired size of the dataset after filtering.</p>
+<p><strong>columns</strong>: List of strings with the names of the columns to merge.</p>
 </li>
 <li>
-<p><strong>diversity_threshold</strong>: If a row has a cosine distance with respect to it's nearest  neighbor greater than this value, it will be included in the filtered dataset.  Defaults to <code>0.9</code>.</p>
-</li>
-<li>
-<p><strong>normalize_embeddings</strong>: Whether to normalize the embeddings before computing the cosine  distance. Defaults to <code>True</code>.</p>
-</li>
-</ul>
-<h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p><strong>data_budget</strong>: The desired size of the dataset after filtering.</p>
-</li>
-<li>
-<p><strong>diversity_threshold</strong>: If a row has a cosine distance with respect to it's nearest  neighbor greater than this value, it will be included in the filtered dataset.</p>
+<p><strong>output_columns</strong>: Optional list of strings with the names of the output columns.</p>
 </li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
 <pre class="mermaid"><code>graph TD
     subgraph Dataset
         subgraph Columns
-            ICOL0[evol_instruction_score]
-            ICOL1[evol_response_score]
-            ICOL2[embedding]
+            ICOL0[dynamic]
         end
         subgraph New columns
-            OCOL0[deita_score]
-            OCOL1[deita_score_computed_with]
-            OCOL2[nearest_neighbor_distance]
+            OCOL0[dynamic]
         end
     end
 
-    subgraph DeitaFiltering
-        StepInput[Input Columns: evol_instruction_score, evol_response_score, embedding]
-        StepOutput[Output Columns: deita_score, deita_score_computed_with, nearest_neighbor_distance]
+    subgraph CombineKeys
+        StepInput[Input Columns: dynamic]
+        StepOutput[Output Columns: dynamic]
     end
 
     ICOL0 --&gt; StepInput
-    ICOL1 --&gt; StepInput
-    ICOL2 --&gt; StepInput
     StepOutput --&gt; OCOL0
-    StepOutput --&gt; OCOL1
-    StepOutput --&gt; OCOL2
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
 <ul>
-<li>
-<p><strong>evol_instruction_score</strong> (<code>float</code>): The score of the instruction generated by  <code>ComplexityScorer</code> step.</p>
-</li>
-<li>
-<p><strong>evol_response_score</strong> (<code>float</code>): The score of the response generated by  <code>QualityScorer</code> step.</p>
-</li>
-<li>
-<p><strong>embedding</strong> (<code>List[float]</code>): The embedding generated for the conversation of the  instruction-response pair using <code>GenerateEmbeddings</code> step.</p>
-</li>
+<li><strong>dynamic</strong> (determined by <code>keys</code> attribute): The keys to merge.</li>
 </ul>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
-<li>
-<p><strong>deita_score</strong> (<code>float</code>): The DEITA score for the instruction-response pair.</p>
-</li>
-<li>
-<p><strong>deita_score_computed_with</strong> (<code>List[str]</code>): The scores used to compute the DEITA  score.</p>
-</li>
-<li>
-<p><strong>nearest_neighbor_distance</strong> (<code>float</code>): The cosine distance between the embeddings  of the instruction-response pair.</p>
-</li>
+<li><strong>dynamic</strong> (determined by <code>keys</code> and <code>output_key</code> attributes): The columns  that were merged.</li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<h4 id="filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings">Filter the dataset based on the DEITA score and the cosine distance between the embeddings<a class="headerlink" href="#filter-the-dataset-based-on-the-deita-score-and-the-cosine-distance-between-the-embeddings" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">DeitaFiltering</span>
+<h4 id="combine-keys-in-rows-of-a-dataset">Combine keys in rows of a dataset<a class="headerlink" href="#combine-keys-in-rows-of-a-dataset" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineKeys</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">deita_filtering</span> <span class="o">=</span> <span class="n">DeitaFiltering</span><span class="p">(</span><span class="n">data_budget</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">deita_filtering</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">deita_filtering</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="p">[</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="p">{</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">8.12729941</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.24642847</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.34003029</span><span class="p">],</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            <span class="p">},</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            <span class="p">{</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.99329242</span><span class="p">,</span> <span class="mf">0.7800932</span><span class="p">,</span> <span class="mf">0.7799726</span><span class="p">],</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="p">},</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="p">{</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                <span class="s2">&quot;evol_instruction_score&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                <span class="s2">&quot;evol_response_score&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.29041806</span><span class="p">,</span> <span class="mf">14.33088073</span><span class="p">,</span> <span class="mf">13.00557506</span><span class="p">],</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>            <span class="p">},</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="p">],</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="p">)</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="p">)</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># &gt;&gt;&gt; result</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1"># [{&#39;evol_instruction_score&#39;: 0.5, &#39;evol_response_score&#39;: 0.5, &#39;embedding&#39;: [-8.12729941, -5.24642847, -6.34003029], &#39;deita_score&#39;: 0.25, &#39;deita_score_computed_with&#39;: [&#39;evol_instruction_score&#39;, &#39;evol_response_score&#39;], &#39;nearest_neighbor_distance&#39;: 1.9042812683723933}]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">combiner</span> <span class="o">=</span> <span class="n">CombineKeys</span><span class="p">(</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;queries&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple_queries&quot;</span><span class="p">],</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;queries&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">combiner</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">combiner</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="p">[</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>            <span class="p">{</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                <span class="s2">&quot;queries&quot;</span><span class="p">:</span> <span class="s2">&quot;How are you?&quot;</span><span class="p">,</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                <span class="s2">&quot;multiple_queries&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;What&#39;s up?&quot;</span><span class="p">,</span> <span class="s2">&quot;Everything ok?&quot;</span><span class="p">]</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            <span class="p">}</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="p">],</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="p">)</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># &gt;&gt;&gt; result</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># [{&#39;queries&#39;: [&#39;How are you?&#39;, &quot;What&#39;s up?&quot;, &#39;Everything ok?&#39;]}]</span>
 </span></code></pre></div>
-<h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
-<ul>
-<li><a href="https://arxiv.org/abs/2312.15685">What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning</a></li>
-</ul>
 
 
 

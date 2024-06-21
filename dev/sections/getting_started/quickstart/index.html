@@ -1323,6 +1323,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/combinekeys/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
@@ -3903,7 +3924,7 @@
 
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
-<p>That being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task.</p>
+<p>That being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
@@ -3955,10 +3976,10 @@
 <p>We define a <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will basically produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
 </li>
 <li>
-<p>We define a [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code>.</p>
+<p>We define a <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code>.</p>
 </li>
 <li>
-<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code> that will be used by the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> is used, we assume that the <code>OPENAI_API_KEY</code> environment variable is set, and the OpenAI API will be used to generate the text.</p>
+<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code> that will be used by the <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> is used, we assume that the <code>OPENAI_API_KEY</code> environment variable is set, and the OpenAI API will be used to generate the text.</p>
 </li>
 <li>
 <p>We connect the <code>load_dataset</code> step to the <code>text_generation</code> task using the <code>rshift</code> operator, meaning that the output from the <code>load_dataset</code> step will be used as input for the <code>text_generation</code> task.</p>

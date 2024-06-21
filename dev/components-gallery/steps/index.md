@@ -50,6 +50,14 @@ hide:
 
     [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
 
+-   :material-step-forward:{ .lg .middle } __CombineKeys__
+
+    ---
+
+    Combines keys from a row.
+
+    [:octicons-arrow-right-24: CombineKeys](combinekeys.md){ .bottom }
+
 -   :material-step-forward:{ .lg .middle } __ExpandColumns__
 
     ---
