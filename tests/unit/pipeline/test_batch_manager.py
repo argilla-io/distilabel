@@ -297,6 +297,47 @@ class TestBatchManagerStep:
 
         assert batch_manager_step.get_batch() is None
 
+    def test_set_next_expected_seq_no(self) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step3",
+            accumulate=False,
+            input_batch_size=2,
+            data={
+                "step1": [
+                    _Batch(
+                        seq_no=0,
+                        step_name="step1",
+                        last_batch=False,
+                        data=[
+                            [
+                                {"a": 1},
+                            ]
+                        ],
+                    )
+                ],
+                "step2": [
+                    _Batch(
+                        seq_no=0,
+                        step_name="step2",
+                        last_batch=False,
+                        data=[
+                            [
+                                {"b": 1},
+                                {"b": 2},
+                            ]
+                        ],
+                    )
+                ],
+            },
+            next_expected_seq_no={"step1": 0, "step2": 0},
+        )
+
+        batch_manager_step.set_next_expected_seq_no(
+            from_step="step1", next_expected_seq_no=1
+        )
+
+        assert batch_manager_step.next_expected_seq_no["step1"] == 1
+
     def test_from_step(self, dummy_step_1: "Step") -> None:
         batch_manager_step = _BatchManagerStep.from_step(
             step=dummy_step_1, predecessors=["step1", "step2"]

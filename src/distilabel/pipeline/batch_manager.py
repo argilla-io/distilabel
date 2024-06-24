@@ -161,6 +161,20 @@ class _BatchManagerStep(_Serializable):
             and sum(len(batch.data[0]) for batch in batches) < self.input_batch_size  # type: ignore
         ]
 
+    def set_next_expected_seq_no(
+        self, from_step: str, next_expected_seq_no: int
+    ) -> None:
+        """Sets the next expected sequence number of a `_Batch` received by the step comming
+        from `from_step`.
+
+        Args:
+            from_step: The name of the step from which its next expected sequence number
+                in step has to be updated.
+            next_expected_seq_no: the next expected sequence number of a `_Batch` comming
+                from `from_step`.
+        """
+        self.next_expected_seq_no[from_step] = next_expected_seq_no
+
     @classmethod
     def from_step(
         cls, step: "_Step", predecessors: Iterable[str], convergence_step: bool = False
@@ -742,6 +756,22 @@ class _BatchManager(_Serializable):
             step_name: The name of the step.
         """
         self._last_batch_flag_sent_to.append(step_name)
+
+    def set_next_expected_seq_no(
+        self, step_name: str, from_step: str, next_expected_seq_no: int
+    ) -> None:
+        """Sets the next expected sequence number of a `_Batch` received by `step` comming
+        from `from_step`.
+
+        Args:
+            step_name: The step name which next expected sequence number for `from_step`
+                has to be updated.
+            from_step: The name of the step from which its next expected sequence number
+                in step has to be updated.
+            next_expected_seq_no: the next expected sequence number of a `_Batch` comming
+                from `from_step`.
+        """
+        self._steps[step_name].set_next_expected_seq_no(from_step, next_expected_seq_no)
 
     @classmethod
     def from_dag(cls, dag: "DAG") -> "_BatchManager":

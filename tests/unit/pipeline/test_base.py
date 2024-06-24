@@ -654,16 +654,16 @@ class TestBasePipeline:
 
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
-        ) == ([step.name, step2.name], False)
+        ) == ([step.name, step2.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
-        ) == ([step3.name], False)
+        ) == ([step3.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
-        ) == ([step3.name], False)
+        ) == ([step3.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
-        ) == ([], False)
+        ) == ([], [], False)
 
     def test_get_successors_with_routing_batch_function(self) -> None:
         @routing_batch_function()
@@ -681,19 +681,42 @@ class TestBasePipeline:
 
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
-        ) == (["step_2", "step_3"], True)
+        ) == (["step_2", "step_3"], ["step_1"], True)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
-        ) == ([step4.name], False)
+        ) == ([step4.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
-        ) == ([step4.name], False)
+        ) == ([step4.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
-        ) == ([step4.name], False)
+        ) == ([step4.name], [], False)
         assert pipeline._get_successors(
             _Batch(seq_no=0, step_name=step4.name, last_batch=False)  # type: ignore
-        ) == ([], False)
+        ) == ([], [], False)
+
+    def test_set_next_expected_seq_no(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep(name="generator")
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+            step3 = DummyStep1(name="step_3")
+            step4 = DummyStep2(name="step_4")
+
+            generator >> [step, step2, step3] >> step4
+
+        pipeline._batch_manager = mock.MagicMock()
+
+        pipeline._set_next_expected_seq_no(
+            steps=["step_1", "step_2"], from_step="generator", next_expected_seq_no=666
+        )
+
+        pipeline._batch_manager.set_next_expected_seq_no.assert_has_calls(
+            [
+                mock.call("step_1", "generator", 666),
+                mock.call("step_2", "generator", 666),
+            ]
+        )
 
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):

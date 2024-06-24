@@ -892,13 +892,20 @@ class BasePipeline(ABC, _Serializable):
             for step_name in self.dag.get_step_predecessors(batch.step_name):
                 self._send_last_batch_flag_to_step(step_name)
 
-        route_to, routed = self._get_successors(batch)
+        self._register_batch(batch)
+
+        route_to, do_not_route_to, routed = self._get_successors(batch)
 
         # Keep track of the steps that the batch was routed to
         if routed:
             batch.batch_routed_to = route_to
 
-        self._register_batch(batch)
+        for step_name in do_not_route_to:
+            self._batch_manager.set_next_expected_seq_no(
+                step_name=step_name,
+                from_step=batch.step_name,
+                next_expected_seq_no=batch.seq_no + 1,
+            )
 
         step = self._get_step_from_batch(batch)
 
@@ -1079,7 +1086,7 @@ class BasePipeline(ABC, _Serializable):
         for step_name in self.dag:
             self._send_to_step(step_name, None)
 
-    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
+    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
 
         Args:
@@ -1102,7 +1109,29 @@ class BasePipeline(ABC, _Serializable):
                 f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
             )
 
-        return route_to, route_to != successors
+        return route_to, list(set(successors) - set(route_to)), route_to != successors
+
+    def _set_next_expected_seq_no(
+        self, steps: List[str], from_step: str, next_expected_seq_no: int
+    ) -> None:
+        """Sets the next expected sequence number of a `_Batch` received by `step` from
+        `from_step`. This is necessary as some `Step`s might not receive all the batches
+        comming from the previous steps because there is a routing batch function.
+
+        Args:
+            steps: list of steps to which the next expected sequence number of a `_Batch`
+                from `from_step` has to be updated in the `_BatchManager`.
+            from_step: the name of the step from which the next expected sequence number
+                of a `_Batch` has to be updated in `steps`.
+            next_expected_seq_no: the number of the next expected sequence number of a `Batch`
+                from `from_step`.
+        """
+        assert self._batch_manager, "Batch manager is not set"
+
+        for step in steps:
+            self._batch_manager.set_next_expected_seq_no(
+                step, from_step, next_expected_seq_no
+            )
 
     @abstractmethod
     def _stop(self) -> None:
