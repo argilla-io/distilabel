@@ -39,26 +39,13 @@ def Generate(inputs: StepInput) -> "StepOutput":
 
 
 @step(outputs=["generations"])
-def Generate2(inputs: StepInput) -> "StepOutput":
-    sleep_time = random.uniform(1.0, 2.0)
-    time.sleep(sleep_time)
-    for input in inputs:
-        input["2generation"] = "I slept for {} seconds".format(sleep_time)
-    yield inputs
-
-
-@step(outputs=["generations"])
 def CombineGenerations(*inputs: StepInput) -> "StepOutput":
-    generation_key = (
-        "2generation" if "2generation" in inputs[0][0].keys() else "generation"
-    )
-
     combined_list = []
     for rows in zip(*inputs):
         combined_dict = {
             "index": rows[0]["index"],
             "instruction": [row["instruction"] for row in rows],
-            f"{generation_key}s": [row[generation_key] for row in rows],
+            "generations": [row["generation"] for row in rows],
         }
 
         # Check consistency in "index" and "instruction"
@@ -86,4 +73,4 @@ def test_multiple_replicas() -> None:
 
     for i, row in enumerate(distiset["default"]["train"]):
         assert row["index"] == i
-        assert len(row["2generations"]) == 2
+        assert len(row["generations"]) == 4

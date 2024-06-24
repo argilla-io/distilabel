@@ -120,6 +120,11 @@ class TestStep:
 
         assert step.runtime_parameters_names == {
             "input_batch_size": True,
+            "resources": {
+                "cpus": True,
+                "gpus": True,
+                "replicas": True,
+            },
             "runtime_param1": False,
             "runtime_param2": True,
             "runtime_param3": True,
@@ -290,7 +295,32 @@ class TestStepSerialization:
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "replicas": 1,
+            },
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",

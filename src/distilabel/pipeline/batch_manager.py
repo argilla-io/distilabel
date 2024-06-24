@@ -103,11 +103,10 @@ class _BatchManagerStep(_Serializable):
             self.built_batches.append(batch)
         else:
             self.data[from_step].append(batch)
+            self.data[from_step].sort(key=lambda batch: batch.seq_no)
 
         if batch.last_batch:
             self.last_batch_received.append(from_step)
-
-        self.data[from_step].sort(key=lambda batch: batch.seq_no)
 
     def get_batch(self) -> Union[_Batch, None]:
         """Create a new batch of data for the step to process. It will return `None` if

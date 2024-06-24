@@ -95,6 +95,11 @@ class TestEvolQuality:
             "add_raw_output": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "replicas": 1,
+            },
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
@@ -111,6 +116,26 @@ class TestEvolQuality:
             "include_original_response": task.include_original_response,
             "seed": task.seed,
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",

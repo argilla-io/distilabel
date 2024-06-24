@@ -18,6 +18,7 @@ from unittest import mock
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps.base import StepResources
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
@@ -66,7 +67,9 @@ class TestLocalPipeline:
     def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-            dummy_step_1 = DummyStep1(name="dummy_step_1")
+            dummy_step_1 = DummyStep1(
+                name="dummy_step_1", resources=StepResources(replicas=2)
+            )
             dummy_step_2 = DummyStep2(name="dummy_step_2")
 
             dummy_generator.connect(dummy_step_1)
@@ -84,6 +87,7 @@ class TestLocalPipeline:
             [
                 mock.call(
                     step=dummy_generator,
+                    replica=0,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
@@ -91,6 +95,15 @@ class TestLocalPipeline:
                 ),
                 mock.call(
                     step=dummy_step_1,
+                    replica=0,
+                    input_queue=mock.ANY,
+                    output_queue=pipeline._output_queue,
+                    load_queue=pipeline._load_queue,
+                    dry_run=False,
+                ),
+                mock.call(
+                    step=dummy_step_1,
+                    replica=1,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
@@ -98,6 +111,7 @@ class TestLocalPipeline:
                 ),
                 mock.call(
                     step=dummy_step_2,
+                    replica=0,
                     input_queue=mock.ANY,
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,

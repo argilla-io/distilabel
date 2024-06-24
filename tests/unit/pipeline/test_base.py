@@ -36,7 +36,7 @@ from distilabel.pipeline.routing_batch_function import (
     sample_n_steps,
 )
 from distilabel.pipeline.write_buffer import _WriteBuffer
-from distilabel.steps.base import Step, StepInput, _Step
+from distilabel.steps.base import Step, StepInput, StepResources, _Step
 from distilabel.steps.typing import StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from fsspec.implementations.local import LocalFileSystem
@@ -314,7 +314,7 @@ class TestBasePipeline:
     def test_run_steps(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
-            step = DummyStep1()
+            step = DummyStep1(resources=StepResources(replicas=2))
 
             generator >> step
 
@@ -332,8 +332,9 @@ class TestBasePipeline:
 
         pipeline._run_step.assert_has_calls(
             [
-                mock.call(step=mock.ANY, input_queue=mock.ANY),
-                mock.call(step=mock.ANY, input_queue=mock.ANY),
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=0),
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=0),
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=1),
             ]
         )
 
@@ -514,16 +515,6 @@ class TestBasePipeline:
             pipeline._send_last_batch_flag_to_step(step_name)
 
         mock_sent_to_step.assert_called_once_with(step_name, LAST_BATCH_SENT_FLAG)
-
-        pipeline._batch_manager._last_batch_sent[step_name] = _Batch(
-            seq_no=0,
-            step_name=step_name,
-            last_batch=True,
-        )
-        with mock.patch.object(pipeline, "_send_to_step") as mock_sent_to_step:
-            pipeline._send_last_batch_flag_to_step(step_name)
-
-        mock_sent_to_step.assert_not_called()
 
     def test_request_initial_batches(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -734,6 +725,26 @@ class TestBasePipeline:
         assert pipeline.get_runtime_parameters_info() == {
             "dummy_step_1": [
                 {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                    ],
+                },
+                {
                     "description": "The number of rows that will contain the batches processed by the "
                     "step.",
                     "name": "input_batch_size",
@@ -751,6 +762,26 @@ class TestBasePipeline:
                 },
             ],
             "dummy_step_2": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the "
                     "step.",
@@ -982,7 +1013,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "a11ac46253598e6fe126420b23b9ad31c6422c92"
+        assert signature == "1ef5193c8686de48728cb9e5e9b88bca62bc0957"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
