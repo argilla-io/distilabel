@@ -173,7 +173,8 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no: the next expected sequence number of a `_Batch` comming
                 from `from_step`.
         """
-        self.next_expected_seq_no[from_step] = next_expected_seq_no
+        if not self.data[from_step]:
+            self.next_expected_seq_no[from_step] = next_expected_seq_no
 
     @classmethod
     def from_step(
@@ -390,6 +391,10 @@ class _BatchManagerStep(_Serializable):
             `True` if there is enough data to create a batch for the step. Otherwise,
             `False`.
         """
+
+        if self.built_batches:
+            return True
+
         if self.accumulate:
             return self._ready_to_create_batch_accumulate()
 

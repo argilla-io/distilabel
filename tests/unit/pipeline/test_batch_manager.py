@@ -303,18 +303,7 @@ class TestBatchManagerStep:
             accumulate=False,
             input_batch_size=2,
             data={
-                "step1": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step1",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"a": 1},
-                            ]
-                        ],
-                    )
-                ],
+                "step1": [],
                 "step2": [
                     _Batch(
                         seq_no=0,
@@ -337,6 +326,12 @@ class TestBatchManagerStep:
         )
 
         assert batch_manager_step.next_expected_seq_no["step1"] == 1
+
+        batch_manager_step.set_next_expected_seq_no(
+            from_step="step2", next_expected_seq_no=1
+        )
+
+        assert batch_manager_step.next_expected_seq_no["step2"] == 0
 
     def test_from_step(self, dummy_step_1: "Step") -> None:
         batch_manager_step = _BatchManagerStep.from_step(

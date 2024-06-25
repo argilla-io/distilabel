@@ -900,12 +900,11 @@ class BasePipeline(ABC, _Serializable):
         if routed:
             batch.batch_routed_to = route_to
 
-        for step_name in do_not_route_to:
-            self._batch_manager.set_next_expected_seq_no(
-                step_name=step_name,
-                from_step=batch.step_name,
-                next_expected_seq_no=batch.seq_no + 1,
-            )
+        self._set_next_expected_seq_no(
+            steps=do_not_route_to,
+            from_step=batch.step_name,
+            next_expected_seq_no=batch.seq_no + 1,
+        )
 
         step = self._get_step_from_batch(batch)
 
