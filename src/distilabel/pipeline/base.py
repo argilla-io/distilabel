@@ -1129,7 +1129,9 @@ class BasePipeline(ABC, _Serializable):
 
         for step in steps:
             self._batch_manager.set_next_expected_seq_no(
-                step, from_step, next_expected_seq_no
+                step_name=step,
+                from_step=from_step,
+                next_expected_seq_no=next_expected_seq_no,
             )
 
     @abstractmethod

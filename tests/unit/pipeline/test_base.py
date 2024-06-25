@@ -713,8 +713,12 @@ class TestBasePipeline:
 
         pipeline._batch_manager.set_next_expected_seq_no.assert_has_calls(
             [
-                mock.call("step_1", "generator", 666),
-                mock.call("step_2", "generator", 666),
+                mock.call(
+                    step_name="step_1", from_step="generator", next_expected_seq_no=666
+                ),
+                mock.call(
+                    step_name="step_2", from_step="generator", next_expected_seq_no=666
+                ),
             ]
         )
 

@@ -84,7 +84,7 @@ class _BatchManagerStep(_Serializable):
         default_factory=dict
     )
     next_expected_created_from_batch_seq_no: int = 0
-    next_expected_seq_no: Dict[str, int] = field(default_factory=dict)
+    next_expected_seq_no: Dict[str, Tuple[int, int]] = field(default_factory=dict)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -116,13 +116,13 @@ class _BatchManagerStep(_Serializable):
             A `_Batch` instance if there is enough data to create a batch. Otherwise,
             `None`.
         """
-        if not self._ready_to_create_batch():
-            return None
-
         # If there are batches in the `built_batches` list, then return the first one
         # and remove it from the list.
         if self.built_batches:
             return self.built_batches.pop(0)
+
+        if not self._ready_to_create_batch():
+            return None
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
@@ -173,8 +173,20 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no: the next expected sequence number of a `_Batch` comming
                 from `from_step`.
         """
-        if not self.data[from_step]:
-            self.next_expected_seq_no[from_step] = next_expected_seq_no
+
+        if not self.data[from_step] or (
+            self.data[from_step]
+            and self.data[from_step][0].seq_no >= next_expected_seq_no
+        ):
+            self.next_expected_seq_no[from_step] = (
+                next_expected_seq_no,
+                next_expected_seq_no,
+            )
+        else:
+            self.next_expected_seq_no[from_step] = (
+                self.next_expected_seq_no[from_step][0],
+                next_expected_seq_no,
+            )
 
     @classmethod
     def from_step(
@@ -199,7 +211,7 @@ class _BatchManagerStep(_Serializable):
             input_batch_size=getattr(step, "input_batch_size", None),
             data={predecessor: [] for predecessor in predecessors},
             convergence_step=convergence_step,
-            next_expected_seq_no={predecessor: 0 for predecessor in predecessors},
+            next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
         )
 
     def _get_seq_no(self) -> int:
@@ -372,13 +384,39 @@ class _BatchManagerStep(_Serializable):
                     idx_drop_batches.append(idx)
                     continue
 
-            if next_expected_seq_no:
-                self.next_expected_seq_no[step_name] = next_expected_seq_no
-
             # Remove the batches that were entirely consumed
             idx_drop_batches.reverse()
             for idx in idx_drop_batches:
                 self.data[step_name].pop(idx)
+
+            # Update the `next_expected_seq_no` from `step_name`. It can happen that:
+            # 1. This step didn't receive one batch because it was routed to other batches
+            # and `set_next_expected_seq_no` method was called. If the first element
+            # is not equal to the second, that means there is a potential `next_expected_seq_no`
+            # from `step_name`. If there is no data left, then we set that as the `next_expected_seq_no`.
+            # 2. `set_next_expected_seq_no` has not been called, so we set the `next_expected_seq_no`
+            # taking into account the data left in the step.
+            step_next_expected_seq_no = self.next_expected_seq_no[step_name]
+            if step_next_expected_seq_no[0] != step_next_expected_seq_no[1] and (
+                not self.data[step_name]
+                or (
+                    self.data[step_name]
+                    and self.data[step_name][0].seq_no >= step_next_expected_seq_no[1]
+                )
+            ):
+                self.next_expected_seq_no[step_name] = (
+                    step_next_expected_seq_no[1],
+                    step_next_expected_seq_no[1],
+                )
+            elif next_expected_seq_no:
+                self.next_expected_seq_no[step_name] = (
+                    next_expected_seq_no,
+                    next_expected_seq_no
+                    if next_expected_seq_no > step_next_expected_seq_no[1]
+                    else step_next_expected_seq_no[1],
+                )
+
+            print(f"{self.step_name} updated {self.next_expected_seq_no=} {self.data=}")
 
             data.append(step_data)
 
@@ -392,16 +430,21 @@ class _BatchManagerStep(_Serializable):
             `False`.
         """
 
-        if self.built_batches:
-            return True
-
         if self.accumulate:
             return self._ready_to_create_batch_accumulate()
 
         if self.convergence_step:
             return self._ready_to_create_batch_convergence_step()
 
-        return self._ready_to_create_batch_normal()
+        result = self._ready_to_create_batch_normal()
+        if not result:
+            print(
+                f"{self.step_name} not ready to create batch",
+                self.next_expected_seq_no,
+                self.data,
+            )
+
+        return result
 
     def _ready_to_create_batch_accumulate(self) -> bool:
         """Checks if there is enough data for an step accumulating data. It will return
@@ -438,6 +481,9 @@ class _BatchManagerStep(_Serializable):
         # Not all output batches to which the input batch was routed to haven't been
         # received
         batch_routed_to = batches[0][0].batch_routed_to
+        print(
+            f"convergence step {self.step_name} expecting {seq_no=} from {batch_routed_to=}"
+        )
         batches_received_from = {batch.step_name for batch, _ in batches}
         if any(step_name not in batches_received_from for step_name in batch_routed_to):
             return False
@@ -471,14 +517,18 @@ class _BatchManagerStep(_Serializable):
             # replica is faster and send batch with `seq_no==1` faster than the other that
             # sends the batch with `seq_no==0`. We need to check which `seq_no` was expected
             # next to not mess up the ordering of the rows.
-            next_expected_seq_no = self.next_expected_seq_no[step_name]
+            next_expected_seq_no = self.next_expected_seq_no[step_name][0]
 
+            # `batches` are sorted by `seq_no`
             num_rows = 0
             for batch in batches:
                 # Need to create batches using the data from batches with sequential `seq_no`
                 if batch.seq_no != next_expected_seq_no:
-                    return False
+                    break
+                # There are enough rows to create a batch
                 num_rows += len(batch.data[0])
+                if self.input_batch_size and num_rows >= self.input_batch_size:
+                    break
                 next_expected_seq_no += 1
 
             # If there are now rows but the last batch was already received, then there
