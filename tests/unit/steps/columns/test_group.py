@@ -13,8 +13,9 @@
 # limitations under the License.
 
 
+import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.columns.group import GroupColumns
+from distilabel.steps.columns.group import CombineColumns, GroupColumns
 
 
 class TestGroupColumns:
@@ -44,3 +45,15 @@ class TestGroupColumns:
         )
         output = next(combine.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
         assert output == [{"merged_a": [1, 3], "merged_b": [2, 4]}]
+
+
+def test_CombineColumns_deprecation_warning():
+    with pytest.deprecated_call():
+        CombineColumns(
+            name="combine_columns",
+            columns=["generation", "model_name"],
+        )
+    import distilabel
+    from packaging.version import Version
+
+    assert Version(distilabel.__version__) <= Version("1.5.0")
