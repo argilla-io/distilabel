@@ -63,7 +63,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
-    from distilabel.pipeline.typing import StepLoadStatus
+    from distilabel.pipeline.typing import PipelineRuntimeParametersInfo, StepLoadStatus
     from distilabel.steps.base import Step, _Step
 
 
@@ -410,7 +410,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._dry_run = False
         return distiset
 
-    def get_runtime_parameters_info(self) -> Dict[str, List[Dict[str, Any]]]:
+    def get_runtime_parameters_info(self) -> "PipelineRuntimeParametersInfo":
         """Get the runtime parameters for the steps in the pipeline.
 
         Returns:

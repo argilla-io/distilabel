@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
-from typing_extensions import override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.base import RuntimeParameter
-from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
-from distilabel.utils.itertools import grouper
+from distilabel.steps.tasks.typing import (
+    FormattedInput,
+    InstructorStructuredOutputType,
+)
 
 if TYPE_CHECKING:
     from groq import AsyncGroq
@@ -95,11 +95,7 @@ class GroqLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
@@ -130,6 +126,8 @@ class GroqLLM(AsyncLLM):
             description="The structured output format to use across all the generations.",
         )
     )
+
+    _num_generations_param_supported = False
 
     _api_key_env_var: str = PrivateAttr(_GROQ_API_KEY_ENV_VAR_NAME)
     _aclient: Optional["AsyncGroq"] = PrivateAttr(...)
@@ -165,7 +163,7 @@ class GroqLLM(AsyncLLM):
                 client=self._aclient,
                 framework="groq",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -242,29 +240,3 @@ class GroqLLM(AsyncLLM):
                 )
             generations.append(content)
         return generations
-
-    # TODO: remove this function once Groq client allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))

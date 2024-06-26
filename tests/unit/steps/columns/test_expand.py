@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.expand import ExpandColumns
+from distilabel.steps.columns.expand import ExpandColumns
 
 
 class TestExpandColumns:

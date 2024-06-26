@@ -48,27 +48,27 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
         MistralLLM(model="mistral-large-2402"),
         VertexAILLM(model="gemini-1.5-pro"),
     ):
-        task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)  # (1)
-        task.connect(load_dataset)  # (2)
+        task = TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+        task.connect(load_dataset)
 
     ...
 ```
 
-For each row of the dataset, the `TextGeneration` task will generate a text based on the `instruction` column and the `LLM` model, and store the result (a single string) in a new column called `generation`. Because we need to have the `response`s in the same column, we will add `CombineColumns` to combine them all in the same column as a list of strings.
+For each row of the dataset, the `TextGeneration` task will generate a text based on the `instruction` column and the `LLM` model, and store the result (a single string) in a new column called `generation`. Because we need to have the `response`s in the same column, we will add `GroupColumns` to combine them all in the same column as a list of strings.
 
 !!! NOTE
-    In this case, the `CombineColumns` tasks will be executed after all `TextGeneration` steps.
+    In this case, the `GroupColumns` tasks will be executed after all `TextGeneration` steps.
 
 ```python
 from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import CombineColumns, LoadDataFromHub
+from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline("pipe-name", description="My first pipe") as pipeline:
     load_dataset = LoadDataFromHub(name="load_dataset")
 
-    combine_generations = CombineColumns(  # (1)
+    combine_generations = GroupColumns(
         name="combine_generations",
         columns=["generation", "model_name"],
         output_columns=["generations", "model_names"],
@@ -95,13 +95,13 @@ Besides the `Step.connect` method: `step1.connect(step2)`, there's an alternativ
     ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
-    from distilabel.steps import CombineColumns, LoadDataFromHub
+    from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration
 
     with Pipeline("pipe-name", description="My first pipe") as pipeline:
         load_dataset = LoadDataFromHub(name="load_dataset")
 
-        combine_generations = CombineColumns(
+        combine_generations = GroupColumns(
             name="combine_generations",
             columns=["generation", "model_name"],
             output_columns=["generations", "model_names"],
@@ -123,13 +123,13 @@ Besides the `Step.connect` method: `step1.connect(step2)`, there's an alternativ
     ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
-    from distilabel.steps import CombineColumns, LoadDataFromHub
+    from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration
 
     with Pipeline("pipe-name", description="My first pipe") as pipeline:
         load_dataset = LoadDataFromHub(name="load_dataset")
 
-        combine_generations = CombineColumns(
+        combine_generations = GroupColumns(
             name="combine_generations",
             columns=["generation", "model_name"],
             output_columns=["generations", "model_names"],
@@ -158,7 +158,7 @@ Let's update the example above to route the batches loaded by the `LoadDataFromH
 import random
 from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline, routing_batch_function
-from distilabel.steps import CombineColumns, LoadDataFromHub
+from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 @routing_batch_function
@@ -181,7 +181,7 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
             TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
         )
 
-    combine_generations = CombineColumns(
+    combine_generations = GroupColumns(
         name="combine_generations",
         columns=["generation", "model_name"],
         output_columns=["generations", "model_names"],
@@ -284,11 +284,7 @@ if __name__ == "__main__":
 
 ### Stopping the pipeline
 
-In case you want to stop the pipeline while it's running using the `Ctrl+C` (`Cmd+C` in MacOS), and the outputs will be stored in the cache. Repeating the command 2 times will force the pipeline to close.
-
-!!! Note
-    When pushing sending the signal to kill the process, you can expect to see the following log messages:
-    ![Pipeline ctrl+c](../../../../assets/images/sections/pipeline/pipeline-ctrlc.png)
+In case you want to stop the pipeline while it's running, you can press ++ctrl+c++ or ++cmd+c++ depending on your OS (or send a `SIGINT` to the main process), and the outputs will be stored in the cache. Pressing an additional time will force the pipeline to stop its execution, but this can lead to losing the generated outputs for certain batches.
 
 ## Cache
 
@@ -311,7 +307,7 @@ Memory issues can arise when processing large datasets or when using large model
 ```python
 from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import CombineColumns, LoadDataFromHub
+from distilabel.steps import GroupColumns, LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline("pipe-name", description="My first pipe") as pipeline:
@@ -373,7 +369,7 @@ To sum up, here is the full code of the pipeline we have created in this section
     ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline
-    from distilabel.steps import CombineColumns, LoadDataFromHub
+    from distilabel.steps import GroupColumns, LoadDataFromHub
     from distilabel.steps.tasks import TextGeneration
 
     with Pipeline("pipe-name", description="My first pipe") as pipeline:
@@ -382,7 +378,7 @@ To sum up, here is the full code of the pipeline we have created in this section
             output_mappings={"prompt": "instruction"},
         )
 
-        combine_generations = CombineColumns(
+        combine_generations = GroupColumns(
             name="combine_generations",
             columns=["generation", "model_name"],
             output_columns=["generations", "model_names"],

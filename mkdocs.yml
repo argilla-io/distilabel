@@ -90,6 +90,7 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
+  - pymdownx.keys
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -138,75 +139,77 @@ plugins:
 nav:
   - Distilabel: "index.md"
   - Getting started:
-    - Installation: "sections/getting_started/installation.md"
-    - Quickstart: "sections/getting_started/quickstart.md"
-    - FAQ: "sections/getting_started/faq.md"
+      - Installation: "sections/getting_started/installation.md"
+      - Quickstart: "sections/getting_started/quickstart.md"
+      - FAQ: "sections/getting_started/faq.md"
   - How-to guides:
-    - Basic:
-      - Define Steps for your Pipeline:
-        - "sections/how_to_guides/basic/step/index.md"
-        - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
-        - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
-      - Define Tasks as Steps that rely on LLMs:
-        - "sections/how_to_guides/basic/task/index.md"
-        - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
-      - Define LLMs as local models or remote APIs: "sections/how_to_guides/basic/llm/index.md"
-      - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
-    - Advanced:
-        - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-        - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
-        - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
-        - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
-        - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
-        - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
+      - "sections/how_to_guides/index.md"
+      - Basic:
+          - Define Steps for your Pipeline:
+              - "sections/how_to_guides/basic/step/index.md"
+              - GeneratorStep: "sections/how_to_guides/basic/step/generator_step.md"
+              - GlobalStep: "sections/how_to_guides/basic/step/global_step.md"
+          - Define Tasks that rely on LLMs:
+              - "sections/how_to_guides/basic/task/index.md"
+              - GeneratorTask: "sections/how_to_guides/basic/task/generator_task.md"
+          - Define LLMs as local or remote models: "sections/how_to_guides/basic/llm/index.md"
+          - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
+      - Advanced:
+          - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
+          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
+          - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
+          - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
+          - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
+          - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
+          - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
   - Pipeline Samples:
-    - Examples: "sections/pipeline_samples/examples/index.md"
-    - Papers:
-      - "sections/pipeline_samples/papers/index.md"
-      - DEITA: "sections/pipeline_samples/papers/deita.md"
-      - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
-      - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
-      - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+      - Examples: "sections/pipeline_samples/examples/index.md"
+      - Papers:
+          - "sections/pipeline_samples/papers/index.md"
+          - DEITA: "sections/pipeline_samples/papers/deita.md"
+          - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
+          - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
+          - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
   - API Reference:
-    - Step:
-      - "api/step/index.md"
-      - GeneratorStep: "api/step/generator_step.md"
-      - GlobalStep: "api/step/global_step.md"
-      - "@step": "api/step/decorator.md"
-      - Step Gallery:
-        - Argilla: "api/step_gallery/argilla.md"
-        - Hugging Face: "api/step_gallery/hugging_face.md"
-        - Columns: "api/step_gallery/columns.md"
-        - Extra: "api/step_gallery/extra.md"
-    - Task:
-      - "api/task/index.md"
-      - GeneratorTask: "api/task/generator_task.md"
-      - Task Gallery: "api/task_gallery/index.md"
-      - Typing: "api/task/typing.md"
-    - LLM:
-      - "api/llm/index.md"
-      - LLM Gallery:
-        - Anthropic: "api/llm/anthropic.md"
-        - Anyscale: "api/llm/anyscale.md"
-        - Azure (via OpenAI): "api/llm/azure.md"
-        - Cohere: "api/llm/cohere.md"
-        - Groq: "api/llm/groq.md"
-        - Hugging Face: "api/llm/huggingface.md"
-        - LiteLLM: "api/llm/litellm.md"
-        - llama.cpp: "api/llm/llamacpp.md"
-        - Mistral: "api/llm/mistral.md"
-        - Ollama: "api/llm/ollama.md"
-        - OpenAI: "api/llm/openai.md"
-        - Together AI: "api/llm/together.md"
-        - Google Vertex AI: "api/llm/vertexai.md"
-        - vLLM: "api/llm/vllm.md"
-    - Pipeline:
-      - "api/pipeline/index.md"
-      - Routing Batch Function: "api/pipeline/routing_batch_function.md"
-      - Typing: "api/pipeline/typing.md"
-      - Utils: "api/pipeline/utils.md"
-    - Distiset: "api/distiset.md"
-    - CLI: "api/cli.md"
+      - Step:
+          - "api/step/index.md"
+          - GeneratorStep: "api/step/generator_step.md"
+          - GlobalStep: "api/step/global_step.md"
+          - "@step": "api/step/decorator.md"
+          - Step Gallery:
+              - Argilla: "api/step_gallery/argilla.md"
+              - Hugging Face: "api/step_gallery/hugging_face.md"
+              - Columns: "api/step_gallery/columns.md"
+              - Extra: "api/step_gallery/extra.md"
+      - Task:
+          - "api/task/index.md"
+          - GeneratorTask: "api/task/generator_task.md"
+          - Task Gallery: "api/task_gallery/index.md"
+          - Typing: "api/task/typing.md"
+      - LLM:
+          - "api/llm/index.md"
+          - LLM Gallery:
+              - Anthropic: "api/llm/anthropic.md"
+              - Anyscale: "api/llm/anyscale.md"
+              - Azure (via OpenAI): "api/llm/azure.md"
+              - Cohere: "api/llm/cohere.md"
+              - Groq: "api/llm/groq.md"
+              - Hugging Face: "api/llm/huggingface.md"
+              - LiteLLM: "api/llm/litellm.md"
+              - llama.cpp: "api/llm/llamacpp.md"
+              - Mistral: "api/llm/mistral.md"
+              - Ollama: "api/llm/ollama.md"
+              - OpenAI: "api/llm/openai.md"
+              - Together AI: "api/llm/together.md"
+              - Google Vertex AI: "api/llm/vertexai.md"
+              - vLLM: "api/llm/vllm.md"
+      - Pipeline:
+          - "api/pipeline/index.md"
+          - Routing Batch Function: "api/pipeline/routing_batch_function.md"
+          - Typing: "api/pipeline/typing.md"
+          - Utils: "api/pipeline/utils.md"
+      - Distiset: "api/distiset.md"
+      - CLI: "api/cli.md"
   - Community:
-    - sections/community/index.md
-    - Issue dashboard: sections/community/popular_issues.md
+      - sections/community/index.md
+      - Issue dashboard: sections/community/popular_issues.md

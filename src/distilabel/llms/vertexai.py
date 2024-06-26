@@ -21,19 +21,7 @@ from distilabel.llms.typing import GenerateOutput
 from distilabel.steps.tasks.typing import StandardInput
 
 if TYPE_CHECKING:
-    from vertexai.generative_models import Content, GenerativeModel
-
-
-def _is_gemini_model(model: str) -> bool:
-    """Returns `True` if the model is a model from the Vertex AI Gemini API.
-
-    Args:
-        model (str): the model name to be checked.
-
-    Returns:
-        bool: `True` if the model is a model from the Vertex AI Gemini API.
-    """
-    return "gemini" in model
+    from vertexai.generative_models import Content, GenerationResponse, GenerativeModel
 
 
 class VertexAILLM(AsyncLLM):
@@ -58,6 +46,8 @@ class VertexAILLM(AsyncLLM):
     """
 
     model: str
+
+    _num_generations_param_supported = False
 
     _aclient: Optional["GenerativeModel"] = PrivateAttr(...)
 
@@ -115,7 +105,6 @@ class VertexAILLM(AsyncLLM):
     async def agenerate(  # type: ignore
         self,
         input: StandardInput,
-        num_generations: int = 1,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
         top_k: Optional[int] = None,
@@ -128,8 +117,6 @@ class VertexAILLM(AsyncLLM):
 
         Args:
             input: a single input in chat format to generate responses for.
-            num_generations: the number of generations to create per input. Defaults to
-                `1`.
             temperature: Controls the randomness of predictions. Range: [0.0, 1.0]. Defaults to `None`.
             top_p: If specified, nucleus sampling will be used. Range: (0.0, 1.0]. Defaults to `None`.
             top_k: If specified, top-k sampling will be used. Defaults to `None`.
@@ -143,33 +130,40 @@ class VertexAILLM(AsyncLLM):
         """
         from vertexai.generative_models import GenerationConfig
 
-        contents = self._chattype_to_content(input)
-        generations = []
-        # TODO: remove this for-loop and override `generate`
-        for _ in range(num_generations):
-            content = await self._aclient.generate_content_async(  # type: ignore
-                contents=contents,
-                generation_config=GenerationConfig(
-                    candidate_count=1,  # only one candidate allowed per call
-                    temperature=temperature,
-                    top_k=top_k,
-                    top_p=top_p,
-                    max_output_tokens=max_output_tokens,
-                    stop_sequences=stop_sequences,
-                ),
-                safety_settings=safety_settings,
-                tools=tools,
-                stream=False,
+        content: "GenerationResponse" = await self._aclient.generate_content_async(  # type: ignore
+            contents=self._chattype_to_content(input),
+            generation_config=GenerationConfig(
+                candidate_count=1,  # only one candidate allowed per call
+                temperature=temperature,
+                top_k=top_k,
+                top_p=top_p,
+                max_output_tokens=max_output_tokens,
+                stop_sequences=stop_sequences,
+            ),
+            safety_settings=safety_settings,  # type: ignore
+            tools=tools,  # type: ignore
+            stream=False,
+        )
+
+        text = None
+        try:
+            text = content.candidates[0].text
+        except ValueError:
+            self._logger.warning(  # type: ignore
+                f"Received no response using VertexAI client (model: '{self.model}')."
+                f" Finish reason was: '{content.candidates[0].finish_reason}'."
             )
 
-            text = None
-            try:
-                text = content.candidates[0].text
-            except ValueError:
-                self._logger.warning(
-                    f"Received no response using VertexAI client (model: '{self.model}')."
-                    f" Finish reason was: '{content.candidates[0].finish_reason}'."
-                )
-            generations.append(text)
+        return [text]
 
-        return generations
+
+def _is_gemini_model(model: str) -> bool:
+    """Returns `True` if the model is a model from the Vertex AI Gemini API.
+
+    Args:
+        model (str): the model name to be checked.
+
+    Returns:
+        bool: `True` if the model is a model from the Vertex AI Gemini API.
+    """
+    return "gemini" in model

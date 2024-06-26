@@ -39,6 +39,8 @@ def test_imports() -> None:
 
     from distilabel.steps import (
         CombineColumns,
+        GroupColumns,
+        MergeColumns,
         ConversationTemplate,
         DeitaFiltering,
         ExpandColumns,
@@ -53,7 +55,6 @@ def test_imports() -> None:
         LoadDataFromDicts,
         LoadDataFromHub,
         LoadDataFromDisk,
-        LoadHubDataset,
         PushToHub,
         Step,
         StepOutput,
@@ -63,8 +64,6 @@ def test_imports() -> None:
     )
 
     from distilabel.steps.tasks import (
-        ArenaHard,
-        ArenaHardResults,
         Task,
         GeneratorTask,
         ChatItem,

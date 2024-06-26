@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import os
 import random
 import warnings
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import (
     Field,
@@ -40,7 +39,6 @@ from distilabel.utils.huggingface import (
     _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
     get_hf_token,
 )
-from distilabel.utils.itertools import grouper
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
@@ -83,11 +81,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints:
@@ -103,11 +97,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Dedicated Inference Endpoints or TGI:
@@ -122,11 +112,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         llm.load()
 
-        # Synchrounous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
     """
 
@@ -157,6 +143,8 @@ class InferenceEndpointsLLM(AsyncLLM):
         default=None,
         description="The structured output format to use across all the generations.",
     )
+
+    _num_generations_param_supported = False
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
@@ -325,11 +313,10 @@ class InferenceEndpointsLLM(AsyncLLM):
             )
         return [completion.choices[0].message.content]
 
-    # TODO: add `num_generations` parameter once either TGI or `AsyncInferenceClient` allows `n` parameter
     @validate_call
     async def agenerate(  # type: ignore
         self,
-        input: "FormattedInput",
+        input: FormattedInput,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -343,7 +330,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         return_full_text: bool = False,
         seed: Optional[int] = None,
         watermark: bool = False,
-    ) -> "GenerateOutput":
+    ) -> GenerateOutput:
         """Generates completions for the given input using the OpenAI async client.
 
         Args:
@@ -431,6 +418,7 @@ class InferenceEndpointsLLM(AsyncLLM):
             # TODO: should we apply a default chat template here instead? e.g. ChatML
             prompt = "\n".join([message["content"] for message in input])
 
+        completion = None
         try:
             completion = await self._aclient.text_generation(  # type: ignore
                 prompt=prompt,  # type: ignore
@@ -449,36 +437,10 @@ class InferenceEndpointsLLM(AsyncLLM):
                 # generated every time
                 seed=seed or random.randint(0, 2147483647),
             )
-            return [completion]
         except Exception as e:
             self._logger.warning(  # type: ignore
                 f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
                 f" Finish reason was: {e}"
             )
-            return [None]
 
-    # TODO: remove this function once `AsyncInferenceClient` allows `n` parameter
-    @override
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
-    ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
-
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> "GenerateOutput":
-            """Internal function to parallelize the asynchronous generation of responses."""
-            tasks = [
-                asyncio.create_task(self.agenerate(input=input, **kwargs))
-                for input in inputs
-                for _ in range(num_generations)
-            ]
-            return [outputs[0] for outputs in await asyncio.gather(*tasks)]
-
-        outputs = self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+        return [completion]

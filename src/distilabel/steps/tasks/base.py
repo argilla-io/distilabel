@@ -27,7 +27,7 @@ from distilabel.steps.base import (
     _Step,
 )
 from distilabel.steps.constants import DISTILABEL_METADATA_KEY
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
@@ -112,7 +112,9 @@ class _Task(_Step, ABC):
             try:
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._maybe_add_raw_output(
-                    formatted_output, output, add_raw_output=self.add_raw_output
+                    formatted_output,
+                    output,
+                    add_raw_output=self.add_raw_output,  # type: ignore
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
@@ -132,7 +134,9 @@ class _Task(_Step, ABC):
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._maybe_add_raw_output(
-            outputs, output, add_raw_output=self.add_raw_output
+            outputs,
+            output,
+            add_raw_output=self.add_raw_output,  # type: ignore
         )
         return outputs
 
@@ -190,10 +194,11 @@ class Task(_Task, Step):
         """
 
         formatted_inputs = self._format_inputs(inputs)
+
         outputs = self.llm.generate(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
-            **self.llm.generation_kwargs,  # type: ignore
+            **self.llm.get_generation_kwargs(),  # type: ignore
         )
 
         task_outputs = []
@@ -201,7 +206,7 @@ class Task(_Task, Step):
             formatted_outputs = self._format_outputs(input_outputs, inputs)
 
             if self.group_generations:
-                combined = combine_dicts(*formatted_outputs)
+                combined = group_dicts(*formatted_outputs)
                 task_outputs.append(
                     {**input, **combined, "model_name": self.llm.model_name}
                 )
