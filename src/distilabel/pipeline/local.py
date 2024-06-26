@@ -116,44 +116,28 @@ class Pipeline(BasePipeline):
             self._load_steps_thread = self._run_load_queue_loop_in_thread()
 
             # Wait for all the steps to be loaded correctly
-            if not self._all_steps_loaded():
-                self._write_buffer.close()  # type: ignore
-                self._batch_manager = None
-                self._stop_load_queue_loop()
-                self._load_steps_thread.join()
+            if not self._all_steps_loaded(steps=list(self.dag)):
+                self._teardown()
                 stop_logging()
                 raise RuntimeError(
                     "Failed to load all the steps. Could not run pipeline."
                 ) from _SUBPROCESS_EXCEPTION
 
-            # Send the "first" batches to the steps so the batches starts flowing through
-            # the input queues and output queue
-            self._request_initial_batches()
-
             # Start a loop to receive the output batches from the steps
             self._output_queue_thread = self._run_output_queue_loop_in_thread()
             self._output_queue_thread.join()
 
-            # Send `None` to steps `input_queue`s just in case some step is still waiting
-            self._notify_steps_to_stop()
+            self._teardown()
 
-            # Stop the load queue loop
-            self._stop_load_queue_loop()
-
-        # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
-        # all the processes have finished
-        self._load_steps_thread.join()
-        self._pool.join()
-        self._manager.join()
-
-        self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
         )
+
         stop_logging()
+
         return distiset
 
     @property
@@ -232,6 +216,25 @@ class Pipeline(BasePipeline):
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
 
         self._stop()
+
+    def _teardown(self) -> None:
+        """Clean/release/stop resources reserved to run the pipeline."""
+        if self._write_buffer:
+            self._write_buffer.close()
+
+        if self._batch_manager:
+            self._batch_manager = None
+
+        self._stop_load_queue_loop()
+        self._load_steps_thread.join()
+
+        if self._pool:
+            self._pool.terminate()
+            self._pool.join()
+
+        if self._manager:
+            self._manager.shutdown()
+            self._manager.join()
 
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues

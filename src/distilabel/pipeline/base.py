@@ -623,6 +623,10 @@ class BasePipeline(ABC, _Serializable):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
+        # Send the "first" batches to the steps so the batches starts flowing through
+        # the input queues and output queue
+        self._request_initial_batches()
+
         while self._batch_manager.can_generate() and not self._stop_called:  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
             if (batch := self._output_queue.get()) is None:
@@ -657,6 +661,9 @@ class BasePipeline(ABC, _Serializable):
             self._handle_stop()
 
         self._cache()
+
+        # Send `None` to steps `input_queue`s just in case some step is still waiting
+        self._notify_steps_to_stop()
 
     def _run_load_queue_loop_in_thread(self) -> threading.Thread:
         """Runs a background thread that reads from the `load_queue` to update the status
@@ -711,7 +718,7 @@ class BasePipeline(ABC, _Serializable):
                         )
                         break
 
-    def _all_steps_loaded(self) -> bool:
+    def _all_steps_loaded(self, steps: List[str]) -> bool:
         """Waits for all the steps to load.
 
         Returns:
@@ -722,24 +729,29 @@ class BasePipeline(ABC, _Serializable):
         previous_message = None
         while not self._stop_called:
             with self._steps_load_status_lock:
-                self._logger.debug(f"Steps loaded: {self._steps_load_status}")
+                filtered_steps_load_status = {
+                    step_name: replicas
+                    for step_name, replicas in self._steps_load_status.items()
+                    if step_name in steps
+                }
+                self._logger.debug(f"Steps loaded: {filtered_steps_load_status}")
 
                 if any(
-                    num_workers_loaded == _STEP_LOAD_FAILED_CODE
-                    for num_workers_loaded in self._steps_load_status.values()
+                    replicas_loaded == _STEP_LOAD_FAILED_CODE
+                    for replicas_loaded in filtered_steps_load_status.values()
                 ):
                     self._logger.error("❌ Failed to load all the steps")
                     return False
 
                 num_steps_loaded = 0
                 workers_message = ""
-                for step_name, num_workers_loaded in self._steps_load_status.items():
+                for step_name, replicas in filtered_steps_load_status.items():
                     step_replica_count = self.dag.get_step_replica_count(step_name)
-                    if num_workers_loaded == step_replica_count:
+                    if replicas == step_replica_count:
                         num_steps_loaded += 1
-                    workers_message += f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}/{step_replica_count}"
+                    workers_message += f"\n * '{step_name}' workers: {max(0, replicas)}/{step_replica_count}"
 
-                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}{workers_message}"
+                message = f"⏳ Steps loaded: {num_steps_loaded}/{len(filtered_steps_load_status)}{workers_message}"
                 if num_steps_loaded > 0 and message != previous_message:
                     self._logger.info(message)
                     previous_message = message
@@ -1154,6 +1166,11 @@ class BasePipeline(ABC, _Serializable):
                 from_step=from_step,
                 next_expected_seq_no=next_expected_seq_no,
             )
+
+    @abstractmethod
+    def _teardown(self) -> None:
+        """Clean/release/stop resources reserved to run the pipeline."""
+        pass
 
     @abstractmethod
     def _stop(self) -> None:
