@@ -90,7 +90,13 @@ def _infer_step_name(
 
 
 class StepResources(RuntimeParametersMixin, BaseModel):
-    """A class to define the resources assigned to a `_Step`."""
+    """A class to define the resources assigned to a `_Step`.
+
+    Attributes:
+        replicas: The number of replicas for the step.
+        cpus: The number of CPUs assigned to each step replica.
+        gpus: The number of GPUs assigned to each step replica.
+    """
 
     replicas: RuntimeParameter[PositiveInt] = Field(
         default=1, description="The number of replicas for the step."
