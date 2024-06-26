@@ -25,6 +25,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     List,
     Optional,
     Tuple,
@@ -671,27 +672,44 @@ class BasePipeline(ABC, _Serializable):
     def _run_load_queue_loop(self) -> None:
         """Runs a loop that reads from the `load_queue` to update the status of the number
         of workers loaded for each step."""
-        while True:
-            if (load_info := self._load_queue.get()) is None:
-                self._logger.debug("Received `None` from load queue. Breaking loop.")
-                break
 
-            with self._steps_load_status_lock:
-                step_name, status = load_info["name"], load_info["status"]
-                if status == "loaded":
-                    if self._steps_load_status[step_name] == _STEP_NOT_LOADED_CODE:
-                        self._steps_load_status[step_name] = 1
+        for stage, stage_steps in enumerate(self.dag.get_steps_load_stages()):
+            self._run_steps(steps=stage_steps)
+
+            while True:
+                if (load_info := self._load_queue.get()) is None:
+                    self._logger.debug(
+                        "Received `None` from load queue. Breaking loop."
+                    )
+                    break
+
+                with self._steps_load_status_lock:
+                    step_name, status = load_info["name"], load_info["status"]
+                    if status == "loaded":
+                        if self._steps_load_status[step_name] == _STEP_NOT_LOADED_CODE:
+                            self._steps_load_status[step_name] = 1
+                        else:
+                            self._steps_load_status[step_name] += 1
+                    elif status == "unloaded":
+                        self._steps_load_status[step_name] -= 1
                     else:
-                        self._steps_load_status[step_name] += 1
-                elif status == "unloaded":
-                    self._steps_load_status[step_name] -= 1
-                else:
-                    # load failed
-                    self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
+                        # load failed
+                        self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
 
-                self._logger.debug(
-                    f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
-                )
+                    self._logger.debug(
+                        f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
+                    )
+
+                    # If all the steps of this stage have been unloaded (downscaled to 0
+                    # replicas), then we can start loading the steps of the next stage.
+                    if all(
+                        self._steps_load_status[step_name] == 0
+                        for step_name in stage_steps
+                    ):
+                        self._logger.debug(
+                            f"All the steps from '{stage}' stage have been unloaded."
+                        )
+                        break
 
     def _all_steps_loaded(self) -> bool:
         """Waits for all the steps to load.
@@ -814,11 +832,14 @@ class BasePipeline(ABC, _Serializable):
         """
         pass
 
-    def _run_steps(self) -> None:
+    def _run_steps(self, steps: Iterable[str]) -> None:
         """Runs the `Step`s of the pipeline, creating first an input queue for each step
         that will be used to send the batches.
+
+        Args:
+            steps:
         """
-        for step_name in self.dag:
+        for step_name in steps:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = self._create_step_input_queue(step_name=step_name)
 
@@ -836,7 +857,7 @@ class BasePipeline(ABC, _Serializable):
 
             step_num_replicas: int = step.resources.replicas if step.is_normal else 1  # type: ignore
             for replica in range(step_num_replicas):
-                self._logger.debug(f"Running 1 instance of step '{step.name}'...")
+                self._logger.debug(f"Running 1 replica of step '{step.name}'...")
                 self._run_step(step=step, input_queue=input_queue, replica=replica)
 
     def _add_batches_back_to_batch_manager(self) -> None:

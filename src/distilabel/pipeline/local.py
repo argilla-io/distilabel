@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.typing import StepLoadStatus
-    from distilabel.steps.base import GeneratorStep, Step, _Step
+    from distilabel.steps.base import GeneratorStep, _Step
 
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
@@ -111,9 +111,6 @@ class Pipeline(BasePipeline):
             self._output_queue = self.QueueClass()
             self._load_queue = self.QueueClass()
             self._handle_keyboard_interrupt()
-
-            # Run the steps using the pool of processes
-            self._run_steps()
 
             # Run the loop for receiving the load status of each step
             self._load_steps_thread = self._run_load_queue_loop_in_thread()
@@ -293,7 +290,7 @@ class _ProcessWrapperException(Exception):
     def __init__(
         self,
         message: str,
-        step: "Step",
+        step: "_Step",
         code: int,
         subprocess_exception: Optional[Exception] = None,
     ) -> None:
@@ -309,7 +306,7 @@ class _ProcessWrapperException(Exception):
     def create_load_error(
         cls,
         message: str,
-        step: "Step",
+        step: "_Step",
         subprocess_exception: Optional[Exception] = None,
     ) -> "_ProcessWrapperException":
         """Creates a `_ProcessWrapperException` for a load error.
@@ -396,7 +393,9 @@ class _ProcessWrapper:
             self.step.unload()
             self._notify_load_failed()
             raise _ProcessWrapperException.create_load_error(
-                str(e), self.step, e
+                message=f"Step load failed: {e}",
+                step=self.step,
+                subprocess_exception=e,
             ) from e
 
         self._notify_load()
