@@ -27,7 +27,7 @@ from distilabel.steps.base import (
     _Step,
 )
 from distilabel.steps.constants import DISTILABEL_METADATA_KEY
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
@@ -206,7 +206,7 @@ class Task(_Task, Step):
             formatted_outputs = self._format_outputs(input_outputs, inputs)
 
             if self.group_generations:
-                combined = combine_dicts(*formatted_outputs)
+                combined = group_dicts(*formatted_outputs)
                 task_outputs.append(
                     {**input, **combined, "model_name": self.llm.model_name}
                 )
