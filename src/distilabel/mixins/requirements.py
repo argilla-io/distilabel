@@ -60,7 +60,7 @@ class RequirementsMixin:
 
         self._requirements = sorted(set(self._requirements).union(set(requirements)))
 
-    def requirements_to_install(self) -> Optional[List[str]]:
+    def requirements_to_install(self) -> List[str]:
         """Check if the requirements are installed in the current environment, and returns the ones that aren't.
 
         Returns:
