@@ -416,8 +416,6 @@ class _BatchManagerStep(_Serializable):
                     else step_next_expected_seq_no[1],
                 )
 
-            print(f"{self.step_name} updated {self.next_expected_seq_no=} {self.data=}")
-
             data.append(step_data)
 
         return data, dict(batches_used), batch_routed_to
@@ -436,15 +434,7 @@ class _BatchManagerStep(_Serializable):
         if self.convergence_step:
             return self._ready_to_create_batch_convergence_step()
 
-        result = self._ready_to_create_batch_normal()
-        if not result:
-            print(
-                f"{self.step_name} not ready to create batch",
-                self.next_expected_seq_no,
-                self.data,
-            )
-
-        return result
+        return self._ready_to_create_batch_normal()
 
     def _ready_to_create_batch_accumulate(self) -> bool:
         """Checks if there is enough data for an step accumulating data. It will return
@@ -481,9 +471,6 @@ class _BatchManagerStep(_Serializable):
         # Not all output batches to which the input batch was routed to haven't been
         # received
         batch_routed_to = batches[0][0].batch_routed_to
-        print(
-            f"convergence step {self.step_name} expecting {seq_no=} from {batch_routed_to=}"
-        )
         batches_received_from = {batch.step_name for batch, _ in batches}
         if any(step_name not in batches_received_from for step_name in batch_routed_to):
             return False
