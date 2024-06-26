@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import importlib.util
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from packaging.requirements import InvalidRequirement, Requirement
 
@@ -24,7 +24,7 @@ class RequirementsMixin:
     Used to add requirements to a `Step` and a `Pipeline`.
     """
 
-    _requirements: List[str] = []
+    _requirements: Union[List[str], None] = []
 
     def _gather_requirements(self) -> List[str]:
         """This method will be overwritten in the `BasePipeline` class to gather the requirements
@@ -41,8 +41,9 @@ class RequirementsMixin:
         Returns:
             List of requirements that must be installed to run the `Pipeline`, sorted alphabetically.
         """
-        self.requirements = self._gather_requirements()
-        return self._requirements
+        if self.requirements is None:
+            self.requirements = self._gather_requirements()
+        return self.requirements
 
     @requirements.setter
     def requirements(self, _requirements: List[str]) -> None:
