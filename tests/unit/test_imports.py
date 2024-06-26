@@ -39,7 +39,7 @@ def test_imports() -> None:
 
     from distilabel.steps import (
         CombineColumns,
-        CombineKeys,
+        MergeColumns,
         ConversationTemplate,
         DeitaFiltering,
         ExpandColumns,

@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.combine import CombineColumns, CombineKeys
+from distilabel.steps.combine import CombineColumns, MergeColumns
 
 
 class TestCombineColumns:
@@ -48,7 +48,7 @@ class TestCombineColumns:
         assert output == [{"merged_a": [1, 3], "merged_b": [2, 4]}]
 
 
-class TestCombineKeys:
+class TestMergeColumns:
     @pytest.mark.parametrize(
         "output_key, expected",
         [
@@ -57,7 +57,7 @@ class TestCombineKeys:
         ],
     )
     def test_init(self, output_key: Optional[str], expected: str) -> None:
-        task = CombineKeys(keys=["query", "queries"], output_key=output_key)
+        task = MergeColumns(keys=["query", "queries"], output_key=output_key)
 
         assert task.inputs == ["query", "queries"]
         assert task.outputs == [expected]
@@ -71,7 +71,7 @@ class TestCombineKeys:
         ],
     )
     def test_process(self, keys: List[Dict[str, Any]]) -> None:
-        combiner = CombineKeys(
+        combiner = MergeColumns(
             keys=["query", "queries"],
         )
         output = next(combiner.process(keys))

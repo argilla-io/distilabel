@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from typing_extensions import override
 
-from distilabel.pipeline.utils import combine_dicts, combine_keys
+from distilabel.pipeline.utils import combine_dicts, merge_columns
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
@@ -123,17 +123,17 @@ class CombineColumns(Step):
         )
 
 
-class CombineKeys(Step):
-    """Combines keys from a row.
+class MergeColumns(Step):
+    """Merge keys from a row.
 
-    `CombineKeys` is a `Step` that implements the `process` method that calls the `combine_keys`
-    function to handle and combine keys in a `StepInput`. `CombineKeys` provides two attributes
+    `MergeColumns` is a `Step` that implements the `process` method that calls the `combine_keys`
+    function to handle and combine keys in a `StepInput`. `MergeColumns` provides two attributes
     `keys` and `output_keys` to specify the keys to merge and the resulting output key.
 
     This step can be useful if you have a `Task` that generates instructions for example, and you
     want to have more examples of those. In such a case, you could for example use another `Task`
     to multiply your instructions synthetically, what would yield two different keys splitted.
-    Using `CombineKeys` you can merge them and use them as a single column in your dataset for
+    Using `MergeColumns` you can merge them and use them as a single column in your dataset for
     further processing.
 
     Attributes:
@@ -152,9 +152,9 @@ class CombineKeys(Step):
         Combine keys in rows of a dataset:
 
         ```python
-        from distilabel.steps import CombineKeys
+        from distilabel.steps import MergeColumns
 
-        combiner = CombineKeys(
+        combiner = MergeColumns(
             keys=["queries", "multiple_queries"],
             output_key="queries",
         )
@@ -191,7 +191,7 @@ class CombineKeys(Step):
         combined = []
         for input in inputs:
             combined.append(
-                combine_keys(
+                merge_columns(
                     input,
                     keys=self.keys,
                     new_key=self.outputs[0],
