@@ -258,6 +258,33 @@ class DAG(_Serializable):
         """
         return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
+    def get_steps_load_stages(self) -> List[str]:
+        """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
+        are determined by `GlobalStep`s as they receive all the data at once, which means
+        that a `GlobalStep` is not required to be loaded until all their previous steps
+        have finished their execution, and the successors of the global step are not required
+        to be loaded until the global has finished.
+
+        Returns:
+            A sorted list by stage containing list with the names of the steps of each
+            stage.
+        """
+        stages = []
+        current_stage = []
+        for step_name in nx.topological_sort(self.G):
+            step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
+            if not step.is_global:
+                current_stage.append(step_name)
+            else:
+                stages.append(current_stage)
+                stages.append([step_name])
+                current_stage = []
+
+        if current_stage:
+            stages.append(current_stage)
+
+        return stages
+
     def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and
         have the correct inputs and outputs.
