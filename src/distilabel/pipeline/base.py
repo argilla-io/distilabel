@@ -346,7 +346,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         if to_install := self.requirements_to_install():
             # Print the list of requirements like they would appear in a requirements.txt
             to_install_list = "\n" + "\n".join(to_install)
-            msg = f"Please install the following requirements to run the pipeline:{to_install_list}"
+            msg = f"Please install the following requirements to run the pipeline: {to_install_list}"
             self._logger.error(msg)
             raise ValueError(msg)
 
