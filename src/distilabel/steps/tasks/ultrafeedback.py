@@ -27,7 +27,7 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 
 class UltraFeedback(Task):
@@ -225,7 +225,7 @@ class UltraFeedback(Task):
                     "rationales": matches.group(2),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)
 
     def _format_types_ratings_rationales_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -271,4 +271,4 @@ class UltraFeedback(Task):
                     "rationales-for-ratings": matches.group(4),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)
