@@ -61,7 +61,9 @@ def combine_dicts(
     return result
 
 
-def combine_keys(row: Dict[str, Any], keys: List[str], new_key: str = "combined_key"):
+def combine_keys(
+    row: Dict[str, Any], keys: List[str], new_key: str = "combined_key"
+) -> Dict[str, Any]:
     """Combines keys in a dictionary into a single key on the specified `new_key`.
 
     Args:
