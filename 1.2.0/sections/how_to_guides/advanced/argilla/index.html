@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -225,7 +225,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+      <div class="md-search__scrollwrap" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -3986,11 +3986,11 @@
     <img src="https://huggingface.co/datasets/huggingface/badges/raw/main/deploy-to-spaces-lg.svg" />
 </a></p>
 <h3 id="text-generation">Text Generation<a class="headerlink" href="#text-generation" title="Permanent link">&para;</a></h3>
-<p>For text generation scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains a single [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] step, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
+<p>For text generation scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains a single <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> step, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
 <p>The dataset will be pushed with the following configuration:</p>
 <ul>
 <li>
-<p><strong>Fields</strong>: <code>instruction</code> and <code>generation</code>, both being fields of type <code>argilla.TextField</code>, plus the automatically generated <code>id</code> for the given <code>instruction</code> to be able to search for other records with the same <code>instruction</code> in the dataset. The field <code>instruction</code> must always be a string, while the field <code>generation</code> can either be a single string or a list of strings (useful when there are multiple parent nodes of type [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration]); even though each record will always contain at most one <code>instruction</code>-<code>generation</code> pair.</p>
+<p><strong>Fields</strong>: <code>instruction</code> and <code>generation</code>, both being fields of type <code>argilla.TextField</code>, plus the automatically generated <code>id</code> for the given <code>instruction</code> to be able to search for other records with the same <code>instruction</code> in the dataset. The field <code>instruction</code> must always be a string, while the field <code>generation</code> can either be a single string or a list of strings (useful when there are multiple parent nodes of type <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a>); even though each record will always contain at most one <code>instruction</code>-<code>generation</code> pair.</p>
 </li>
 <li>
 <p><strong>Questions</strong>: <code>quality</code> will be the only question for the annotators to answer, i.e., to annotate, and it will be an <code>argilla.LabelQuestion</code> referring to the quality of the provided generation for the given instruction. It can be annotated as either 👎 (bad) or 👍 (good).</p>
@@ -3998,7 +3998,7 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a> step will only work as is if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains one or multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, or if the columns <code>instruction</code> and <code>generation</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generation</code> are mapped to one of the existing columns in the batch data.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.text_generation.TextGenerationToArgilla"><code>TextGenerationToArgilla</code></a> step will only work as is if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains one or multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, or if the columns <code>instruction</code> and <code>generation</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generation</code> are mapped to one of the existing columns in the batch data.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span><span class="p">,</span> <span class="n">TextGenerationToArgilla</span>
@@ -4033,7 +4033,7 @@
 </span></code></pre></div>
 <p><img alt="Text Generation to Argilla" src="../../../../assets/images/sections/how_to_guides/steps/argilla/text_generation.png" /></p>
 <h3 id="preference">Preference<a class="headerlink" href="#preference" title="Permanent link">&para;</a></h3>
-<p>For preference scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
+<p>For preference scenarios, i.e. when the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, we have designed the task <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a>, which will seamlessly push the generated data to Argilla, and allow the annotator to review the records.</p>
 <p>The dataset will be pushed with the following configuration:</p>
 <ul>
 <li>
@@ -4045,11 +4045,11 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a> step will only work if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] steps, or if the columns <code>instruction</code> and <code>generations</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generations</code> are mapped to one of the existing columns in the batch data.</p>
+<p>The <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a> step will only work if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains multiple <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> steps, or if the columns <code>instruction</code> and <code>generations</code> are available within the batch data. Otherwise, the variable <code>input_mappings</code> will need to be set so that either both or one of <code>instruction</code> and <code>generations</code> are mapped to one of the existing columns in the batch data.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Additionally, if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains an [<code>UltraFeedback</code>][distilabel.steps.tasks.UltraFeedback] step, the <code>ratings</code> and <code>rationales</code> will also be available and be automatically injected as suggestions to the existing dataset.</p>
+<p>Additionally, if the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> contains an <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.UltraFeedback"><code>UltraFeedback</code></a> step, the <code>ratings</code> and <code>rationales</code> will also be available and be automatically injected as suggestions to the existing dataset.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span><span class="p">,</span> <span class="n">PreferenceToArgilla</span>
@@ -4216,8 +4216,8 @@
       
       
     
-    <a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-20wllqq29-Z11~kp2SeFYjJ0qevJRiPg" target="_blank" rel="noopener" title="join.slack.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>
+    <a href="http://hf.co/join/discord" target="_blank" rel="noopener" title="hf.co" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg>
     </a>
   
 </div>
@@ -4235,7 +4235,7 @@
     <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

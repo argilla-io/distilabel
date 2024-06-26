@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -225,7 +225,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+      <div class="md-search__scrollwrap" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -3903,7 +3903,7 @@
 
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>To start off, <code>distilabel</code> is a framework for building pipelines for generating synthetic data using LLMs, that defines a <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> which orchestrates the execution of the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a> subclasses, and those will be connected as nodes in a Direct Acyclic Graph (DAG).</p>
-<p>That being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task.</p>
+<p>That being said, in this guide we will walk you through the process of creating a simple pipeline that uses the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text. The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> will load a dataset that contains a column named <code>prompt</code> from the Hugging Face Hub via the step <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> and then use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class to generate text based on the dataset using the <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
@@ -3955,10 +3955,10 @@
 <p>We define a <a class="autorefs autorefs-internal" href="../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a> step named <code>load_dataset</code> that will load a dataset from the Hugging Face Hub, as provided via runtime parameters in the <code>pipeline.run</code> method below, but it can also be defined within the class instance via the arg <code>repo_id=...</code>. This step will basically produce output batches with the rows from the dataset, and the column <code>prompt</code> will be mapped to the <code>instruction</code> field.</p>
 </li>
 <li>
-<p>We define a [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code>.</p>
+<p>We define a <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task named <code>text_generation</code> that will generate text based on the <code>instruction</code> field from the dataset. This task will use the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code>.</p>
 </li>
 <li>
-<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code> that will be used by the [<code>TextGeneration</code>][distilabel.steps.tasks.TextGeneration] task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> is used, we assume that the <code>OPENAI_API_KEY</code> environment variable is set, and the OpenAI API will be used to generate the text.</p>
+<p>We define the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> class with the model <code>gpt-3.5-turbo</code> that will be used by the <a class="autorefs autorefs-internal" href="../../../api/task_gallery/#distilabel.steps.tasks.TextGeneration"><code>TextGeneration</code></a> task. In this case, since the <a class="autorefs autorefs-internal" href="../../../api/llm/openai/#distilabel.llms.openai.OpenAILLM"><code>OpenAILLM</code></a> is used, we assume that the <code>OPENAI_API_KEY</code> environment variable is set, and the OpenAI API will be used to generate the text.</p>
 </li>
 <li>
 <p>We connect the <code>load_dataset</code> step to the <code>text_generation</code> task using the <code>rshift</code> operator, meaning that the output from the <code>load_dataset</code> step will be used as input for the <code>text_generation</code> task.</p>
@@ -4103,8 +4103,8 @@
       
       
     
-    <a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-20wllqq29-Z11~kp2SeFYjJ0qevJRiPg" target="_blank" rel="noopener" title="join.slack.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>
+    <a href="http://hf.co/join/discord" target="_blank" rel="noopener" title="hf.co" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg>
     </a>
   
 </div>
@@ -4122,7 +4122,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.081f42fc.min.js"></script>
       
         <script src="../../../javascripts/mathjax.js"></script>
       
