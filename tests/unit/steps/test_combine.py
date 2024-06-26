@@ -16,12 +16,12 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.combine import CombineColumns, MergeColumns
+from distilabel.steps.columns.group import GroupColumns, MergeColumns
 
 
-class TestCombineColumns:
+class TestGroupColumns:
     def test_init(self) -> None:
-        task = CombineColumns(
+        task = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
@@ -29,7 +29,7 @@ class TestCombineColumns:
         assert task.inputs == ["a", "b"]
         assert task.outputs == ["merged_a", "merged_b"]
 
-        task = CombineColumns(
+        task = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             output_columns=["c", "d"],
@@ -39,7 +39,7 @@ class TestCombineColumns:
         assert task.outputs == ["c", "d"]
 
     def test_process(self) -> None:
-        combine = CombineColumns(
+        combine = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
@@ -50,29 +50,29 @@ class TestCombineColumns:
 
 class TestMergeColumns:
     @pytest.mark.parametrize(
-        "output_key, expected",
+        "output_column, expected",
         [
-            (None, "combined_key"),
+            (None, "combined_column"),
             ("queries", "queries"),
         ],
     )
-    def test_init(self, output_key: Optional[str], expected: str) -> None:
-        task = MergeColumns(keys=["query", "queries"], output_key=output_key)
+    def test_init(self, output_column: Optional[str], expected: str) -> None:
+        task = MergeColumns(columns=["query", "queries"], output_column=output_column)
 
         assert task.inputs == ["query", "queries"]
         assert task.outputs == [expected]
 
     @pytest.mark.parametrize(
-        "keys",
+        "columns",
         [
             [{"query": 1, "queries": 2}],
             [{"query": 1, "queries": [2]}],
             [{"query": [1], "queries": [2]}],
         ],
     )
-    def test_process(self, keys: List[Dict[str, Any]]) -> None:
+    def test_process(self, columns: List[Dict[str, Any]]) -> None:
         combiner = MergeColumns(
-            keys=["query", "queries"],
+            columns=["query", "queries"],
         )
-        output = next(combiner.process(keys))
-        assert output == [{"combined_key": [1, 2]}]
+        output = next(combiner.process(columns))
+        assert output == [{"combined_column": [1, 2]}]
