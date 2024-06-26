@@ -55,7 +55,6 @@ def test_imports() -> None:
         LoadDataFromDicts,
         LoadDataFromHub,
         LoadDataFromDisk,
-        LoadHubDataset,
         PushToHub,
         Step,
         StepOutput,

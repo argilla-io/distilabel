@@ -335,7 +335,7 @@ if __name__ == "__main__":
     from distilabel.steps import (
         GroupColumns,
         KeepColumns,
-        LoadHubDataset,
+        LoadDataFromHub,
         StepInput,
         step,
     )
@@ -369,7 +369,7 @@ if __name__ == "__main__":
             yield input
 
     with Pipeline(name="arena-hard-v0.1") as pipeline:
-        load_dataset = LoadHubDataset(
+        load_dataset = LoadDataFromHub(
             name="load_dataset",
             repo_id="alvarobartt/lmsys-arena-hard-v0.1",
             split="test",
