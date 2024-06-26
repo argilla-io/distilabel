@@ -251,7 +251,7 @@ def routing_batch_function(
     ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline, routing_batch_function
-    from distilabel.steps import LoadHubDataset, CombineColumns
+    from distilabel.steps import LoadDataFromHub, CombineColumns
 
 
     @routing_batch_function
@@ -260,7 +260,7 @@ def routing_batch_function(
 
 
     with Pipeline(name="routing-batch-function") as pipeline:
-        load_data = LoadHubDataset()
+        load_data = LoadDataFromHub()
 
         generations = []
         for llm in (
@@ -336,14 +336,14 @@ def sample_n_steps(n: int) -> RoutingBatchFunction:
     ```python
     from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
     from distilabel.pipeline import Pipeline, sample_n_steps
-    from distilabel.steps import LoadHubDataset, CombineColumns
+    from distilabel.steps import LoadDataFromHub, CombineColumns
 
 
     random_routing_batch = sample_n_steps(2)
 
 
     with Pipeline(name="routing-batch-function") as pipeline:
-        load_data = LoadHubDataset()
+        load_data = LoadDataFromHub()
 
         generations = []
         for llm in (

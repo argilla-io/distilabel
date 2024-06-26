@@ -33,7 +33,6 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromDisk,
     LoadDataFromFileSystem,
     LoadDataFromHub,
-    LoadHubDataset,
 )
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.keep import KeepColumns
@@ -58,7 +57,6 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
-    "LoadHubDataset",
     "PushToHub",
     "Step",
     "StepInput",
