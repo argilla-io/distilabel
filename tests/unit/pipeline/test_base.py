@@ -174,6 +174,81 @@ class TestBasePipeline:
             step3.name: _STEP_NOT_LOADED_CODE,
         }
 
+    def test_initialize_pipeline_execution(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._current_stage = 0
+        pipeline._all_steps_loaded = mock.MagicMock(return_value=True)
+        pipeline._set_steps_not_loaded_exception = mock.MagicMock()
+        pipeline._request_initial_batches = mock.MagicMock()
+
+        pipeline._initialize_pipeline_execution()
+
+        pipeline._all_steps_loaded.assert_called_once_with(
+            stage=pipeline._current_stage
+        )
+        pipeline._set_steps_not_loaded_exception.assert_not_called()
+        pipeline._request_initial_batches.assert_called_once()
+
+    def test_should_continue_processing(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            pass
+
+        pipeline._batch_manager = mock.MagicMock()
+        pipeline._stop_called = False
+        pipeline._batch_manager.can_generate.return_value = True
+
+        assert pipeline._should_continue_processing()
+
+        pipeline._batch_manager.can_generate.return_value = False
+
+        assert not pipeline._should_continue_processing()
+
+    def test_should_load_next_stage(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+            global_step = DummyGlobalStep()
+
+            generator >> [step, step2] >> step3 >> global_step
+
+        pipeline._current_stage = 0
+        pipeline._stages_last_batch = [0, 0]
+
+        assert not pipeline._should_load_next_stage()
+
+        pipeline._stages_last_batch = [4, 0]
+
+        assert pipeline._should_load_next_stage()
+
+        pipeline._current_stage = 1
+        pipeline._stages_last_batch = [4, 1]
+
+        assert not pipeline._should_load_next_stage()
+
+    def test_update_stage(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            pass
+
+        pipeline._current_stage = 0
+        pipeline._should_load_next_stage = mock.MagicMock(return_value=True)
+        pipeline._all_steps_loaded = mock.MagicMock(return_value=True)
+
+        pipeline._update_stage()
+
+        assert pipeline._current_stage == 1
+        pipeline._all_steps_loaded.assert_called_once_with(
+            stage=pipeline._current_stage
+        )
+
     def test_run_load_queue_loop(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
 
