@@ -96,6 +96,14 @@ Welcome to the how-to guides section! Here you will find a collection of guides 
 
     Serve an LLM via TGI or vLLM to make requests and connect using a client like `InferenceEndpointsLLM` or `OpenAILLM` to avoid wasting resources.
 
-    [:octicons-arrow-right-24: Sharing an LLM across tasks](advanced/serving_al_llm_for_reuse.md)
+    [:octicons-arrow-right-24: Sharing an LLM across tasks](advanced/serving_an_llm_for_reuse.md)
+
+-  __Impose requirements to your pipelines and steps__
+
+    ---
+
+    Add requirements to steps in a pipeline to ensure they are installed and avoid errors.
+
+    [:octicons-arrow-right-24: Pipeline requirements](advanced/pipeline_requirements.md)
 
 </div>
