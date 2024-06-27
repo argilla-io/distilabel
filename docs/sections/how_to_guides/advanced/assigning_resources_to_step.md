@@ -1,6 +1,6 @@
 # Assigning resources to a `Step`
 
-When dealing with complex pipelines that gets executed in a distributed environment with abundant resources (CPUs and GPUs), sometimes it's necessary to allocate these resources judiciously among the `Step`s. This is why `distilabel` allows to specify the number of `replicas`, `cpus` and `gpus` for each `Step`. Let's see that with an example:
+When dealing with complex pipelines that get executed in a distributed environment with abundant resources (CPUs and GPUs), sometimes it's necessary to allocate these resources judiciously among the `Step`s. This is why `distilabel` allows to specify the number of `replicas`, `cpus` and `gpus` for each `Step`. Let's see that with an example:
 
 ```python
 from distilabel.pipeline import Pipeline
