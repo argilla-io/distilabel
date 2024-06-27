@@ -1,7 +1,6 @@
 # Add requirements to run a Pipeline
 
-When sharing a pipeline that is not made of the predefined `Steps` and `Tasks` in distilabel, you may want to add the specific requirements that are needed to run it,
-to warn the user if something isn't installed and avoid errors when running.
+When sharing a `Pipeline` that contains custom `Step`s or `Task`s, you may want to add the specific requirements that are needed to run them. `distilabel` will take this list of requirements and warn the user if any are missing.
 
 You can now add requirements at the step level as well as on the pipeline. The following is a sample pipeline that adds requirements `nltk` as a dependency to a sample `CustomStep`, and we also inform the pipeline must run using `distilabel>=1.3.0`:
 
