@@ -66,12 +66,12 @@ def group_columns(
 def merge_columns(
     row: Dict[str, Any], columns: List[str], new_column: str = "combined_key"
 ) -> Dict[str, Any]:
-    """Merge columns in a dictionary into a single column on the specified `new_key`.
+    """Merge columns in a dictionary into a single column on the specified `new_column`.
 
     Args:
         row: Dictionary corresponding to a row in a dataset.
-        keys: List of keys to merge.
-        new_key: Name of the new key created.
+        columns: List of keys to merge.
+        new_column: Name of the new key created.
 
     Returns:
         Dictionary with the new merged key.
