@@ -57,7 +57,13 @@ class DummyPipeline(BasePipeline):
     def QueueClass(self) -> Callable:
         return Queue
 
-    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
+        pass
+
+    def _teardown(self) -> None:
+        pass
+
+    def _set_steps_not_loaded_exception(self) -> None:
         pass
 
     def _stop(self) -> None:
@@ -198,19 +204,21 @@ class TestBasePipeline:
             step = DummyStep1()
             step2 = DummyStep1()
             step3 = DummyStep2()
+            step4 = DummyGlobalStep()
 
-            generator >> [step, step2] >> step3
+            generator >> [step, step2] >> step3 >> step4
 
         pipeline._steps_load_status = {  # type: ignore
             generator.name: 1,
             step.name: 1,
             step2.name: 1,
             step3.name: 1,
+            step4.name: -999,
         }
         caplog.set_level(logging.INFO)
 
-        assert pipeline._all_steps_loaded() is True
-        assert "All the steps have been loaded!" in caplog.text
+        assert pipeline._all_steps_loaded(stage=0) is True
+        assert "All the steps from stage 0 have been loaded!" in caplog.text
 
     def test_all_steps_loaded_with_failing_step(self, caplog) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -218,29 +226,31 @@ class TestBasePipeline:
             step = DummyStep1()
             step2 = DummyStep1()
             step3 = DummyStep2()
+            step4 = DummyGlobalStep()
 
-            generator >> [step, step2] >> step3
+            generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
-        assert pipeline._all_steps_loaded() is False
-        assert "Failed to load all the steps" in caplog.text
+        assert pipeline._all_steps_loaded(stage=0) is False
+        assert "Failed to load all the steps of stage 0" in caplog.text
 
-    def test_all_steps_loaded_stop_aclled(self) -> None:
+    def test_all_steps_loaded_stop_called(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
             step2 = DummyStep1()
             step3 = DummyStep2()
+            step4 = DummyGlobalStep()
 
-            generator >> [step, step2] >> step3
+            generator >> [step, step2] >> step3 >> step4
 
         pipeline._init_steps_load_status()
         pipeline._stop_called = True
 
-        assert pipeline._all_steps_loaded() is False
+        assert pipeline._all_steps_loaded(stage=0) is False
 
     def test_handle_stop(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -316,12 +326,13 @@ class TestBasePipeline:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1(resources=StepResources(replicas=2))
+            global_step = DummyGlobalStep()
 
-            generator >> step
+            generator >> step >> global_step
 
         pipeline._create_step_input_queue = mock.MagicMock()
         pipeline._run_step = mock.MagicMock()
-        pipeline._run_steps()
+        pipeline._run_steps(steps=[generator.name, step.name])  # type: ignore
 
         pipeline._create_step_input_queue.assert_has_calls(
             [

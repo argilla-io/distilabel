@@ -72,14 +72,15 @@ class TestLocalPipeline:
             )
             dummy_step_2 = DummyStep2(name="dummy_step_2")
 
-            dummy_generator.connect(dummy_step_1)
-            dummy_step_1.connect(dummy_step_2)
+            dummy_generator >> dummy_step_1 >> dummy_step_2
 
         pipeline._pool = mock.MagicMock()
         pipeline._manager = mock.MagicMock()
         pipeline._output_queue = mock.MagicMock()
         pipeline._load_queue = mock.MagicMock()
-        pipeline._run_steps()
+        pipeline._run_steps(
+            steps=[dummy_generator.name, dummy_step_1.name, dummy_step_2.name]  # type: ignore
+        )
 
         assert pipeline._manager.Queue.call_count == 3
 
