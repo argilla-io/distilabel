@@ -164,13 +164,13 @@ class _BatchManagerStep(_Serializable):
     def set_next_expected_seq_no(
         self, from_step: str, next_expected_seq_no: int
     ) -> None:
-        """Sets the next expected sequence number of a `_Batch` received by the step comming
+        """Sets the next expected sequence number of a `_Batch` received by the step coming
         from `from_step`.
 
         Args:
             from_step: The name of the step from which its next expected sequence number
                 in step has to be updated.
-            next_expected_seq_no: the next expected sequence number of a `_Batch` comming
+            next_expected_seq_no: the next expected sequence number of a `_Batch` coming
                 from `from_step`.
         """
 

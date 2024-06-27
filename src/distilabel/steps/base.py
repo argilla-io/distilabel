@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, overl
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
+from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
@@ -109,7 +110,7 @@ class StepResources(RuntimeParametersMixin, BaseModel):
     )
 
 
-class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
@@ -240,16 +239,6 @@ class LoadDataFromHub(GeneratorStep):
             if config:
                 return ds[config].info
             return ds.info
-
-
-class LoadHubDataset(LoadDataFromHub):
-    def __init__(self, **data: Any) -> None:
-        warnings.warn(
-            "`LoadHubDataset` is deprecated and will be removed in version 1.3.0, use `LoadDataFromHub` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return super().__init__(**data)
 
 
 class LoadDataFromFileSystem(LoadDataFromHub):

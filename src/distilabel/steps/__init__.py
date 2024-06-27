@@ -21,10 +21,12 @@ from distilabel.steps.base import (
     StepInput,
     StepResources,
 )
-from distilabel.steps.combine import CombineColumns, CombineKeys
+from distilabel.steps.columns.expand import ExpandColumns
+from distilabel.steps.columns.group import CombineColumns, GroupColumns
+from distilabel.steps.columns.keep import KeepColumns
+from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
-from distilabel.steps.expand import ExpandColumns
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -39,18 +41,17 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromDisk,
     LoadDataFromFileSystem,
     LoadDataFromHub,
-    LoadHubDataset,
 )
 from distilabel.steps.globals.huggingface import PushToHub
-from distilabel.steps.keep import KeepColumns
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
     "StepResources",
+    "GroupColumns",
+    "MergeColumns",
     "CombineColumns",
-    "CombineKeys",
     "ConversationTemplate",
     "DeitaFiltering",
     "ExpandColumns",
@@ -65,7 +66,6 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
-    "LoadHubDataset",
     "PushToHub",
     "Step",
     "StepInput",
