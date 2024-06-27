@@ -71,11 +71,12 @@ class RequirementsMixin:
 
         to_install = []
         for req in self.requirements:
-            if importlib.util.find_spec(req.name):
-                if (str(req.specifier) != "") and (
-                    version(req.name) != str(req.specifier)
+            requirement = Requirement(req)
+            if importlib.util.find_spec(requirement.name):
+                if (str(requirement.specifier) != "") and (
+                    version(requirement.name) != str(requirement.specifier)
                 ):
-                    to_install.append(str(req))
+                    to_install.append(req)
             else:
-                to_install.append(str(req))
+                to_install.append(req)
         return to_install

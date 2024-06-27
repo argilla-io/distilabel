@@ -948,7 +948,7 @@ class TestBasePipeline:
 
         with pytest.raises(
             ValueError,
-            match=r"Please install the following requirements to run the pipeline:\ndistilabel>=0.0.1\nrandom_requirement",
+            match=r"Please install the following requirements to run the pipeline: \ndistilabel>=0.0.1\nrandom_requirement",
         ):
             with DummyPipeline(
                 name="unit-test-pipeline", requirements=["random_requirement"]
