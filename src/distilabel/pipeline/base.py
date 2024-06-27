@@ -38,6 +38,7 @@ from upath import UPath
 
 from distilabel import __version__
 from distilabel.distiset import create_distiset
+from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
@@ -119,7 +120,7 @@ _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
 
-class BasePipeline(ABC, _Serializable):
+class BasePipeline(ABC, RequirementsMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
 
     Attributes:
@@ -161,6 +162,7 @@ class BasePipeline(ABC, _Serializable):
         description: Optional[str] = None,
         cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
+        requirements: Optional[List[str]] = None,
     ) -> None:
         """Initialize the `BasePipeline` instance.
 
@@ -172,6 +174,9 @@ class BasePipeline(ABC, _Serializable):
                 in the final `Distiset`. It contains metadata used by distilabel, for example
                 the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
                 field. Defaults to `False`.
+            requirements: List of requirements that must be installed to run the Pipeline.
+                Defaults to `None`, but can be helpful to inform in a pipeline to be shared
+                that this requirements must be installed.
         """
         self.name = name
         self.description = description
@@ -203,8 +208,8 @@ class BasePipeline(ABC, _Serializable):
         self._fs: Optional[fsspec.AbstractFileSystem] = None
         self._storage_base_path: Optional[str] = None
         self._use_fs_to_pass_data: bool = False
-
         self._dry_run = False
+        self.requirements = requirements or []
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -337,6 +342,13 @@ class BasePipeline(ABC, _Serializable):
 
         # Load the `_BatchManager` from cache or create one from scratch
         self._load_batch_manager(use_cache)
+
+        if to_install := self.requirements_to_install():
+            # Print the list of requirements like they would appear in a requirements.txt
+            to_install_list = "\n" + "\n".join(to_install)
+            msg = f"Please install the following requirements to run the pipeline: {to_install_list}"
+            self._logger.error(msg)
+            raise ModuleNotFoundError(msg)
 
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
@@ -539,6 +551,7 @@ class BasePipeline(ABC, _Serializable):
                 "description": self.description,
                 **super().dump(),
             },
+            "requirements": self.requirements,
         }
 
     @classmethod
@@ -556,7 +569,8 @@ class BasePipeline(ABC, _Serializable):
         """
         name = data["pipeline"]["name"]
         description = data["pipeline"].get("description")
-        with cls(name=name, description=description) as pipe:
+        requirements = data.get("requirements", [])
+        with cls(name=name, description=description, requirements=requirements) as pipe:
             pipe.dag = DAG.from_dict(data["pipeline"])
         return pipe
 
@@ -963,8 +977,20 @@ class BasePipeline(ABC, _Serializable):
         self._logger.debug(
             f"Sending batch {batch.seq_no} to step '{batch.step_name}': {batch}"
         )
-
         self._send_to_step(batch.step_name, batch)
+
+    def _gather_requirements(self) -> List[str]:
+        """Extracts the requirements from the steps to be used in the pipeline.
+
+        Returns:
+            List of requirements gathered from the steps.
+        """
+        steps_requirements = []
+        for step in self.dag:
+            step_req = self.dag.get_step(step)[STEP_ATTR_NAME].requirements
+            steps_requirements.extend(step_req)
+
+        return steps_requirements
 
     def _register_batch(self, batch: "_Batch") -> None:
         """Registers a batch in the batch manager.

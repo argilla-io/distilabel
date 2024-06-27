@@ -38,6 +38,7 @@ from distilabel.pipeline.routing_batch_function import (
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput, _Step
 from distilabel.steps.typing import StepOutput
+from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
@@ -894,36 +895,130 @@ class TestBasePipeline:
                 gen_step.connect(DummyStep1())
         assert list(pipe.dag.G)[-1] == "dummy_step1_49"
 
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["pandas", "numpy"], ["numpy", "pandas"]),
+            (["*`wrong", "pandas>1.0"], ["pandas>1.0"]),
+            (["pandas", "pandas", "pandas"], ["pandas"]),
+        ],
+    )
+    def test_requirements(self, requirements: List[str], expected: List[str]) -> None:
+        with DummyPipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements == expected
+
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel"], []),
+            (["distilabel", "yfinance"], ["yfinance"]),
+            (
+                ["distilabel>=3000", "yfinance==1.0.0"],
+                ["distilabel>=3000", "yfinance==1.0.0"],
+            ),
+        ],
+    )
+    def test_requirements_to_install(
+        self, requirements: List[str], expected: List[str]
+    ) -> None:
+        with DummyPipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements_to_install() == expected
+
+    def test_pipeline_error_from_requirements(self):
+        @requirements(["distilabel>=0.0.1"])
+        class CustomStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
+
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
+
+            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+                for input in inputs:
+                    input["response"] = "unit test"
+                yield inputs
+
+        with pytest.raises(
+            ModuleNotFoundError,
+            match=r"Please install the following requirements to run the pipeline: \ndistilabel>=0.0.1\nrandom_requirement",
+        ):
+            with DummyPipeline(
+                name="unit-test-pipeline", requirements=["random_requirement"]
+            ) as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                step2 = CustomStep()
+
+                gen_step >> step1_0 >> step2
+            pipeline.run()
+
 
 class TestPipelineSerialization:
-    def test_base_pipeline_dump(self):
-        pipeline = DummyPipeline(name="unit-test-pipeline")
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel>=0.0.1"], ["distilabel>=0.0.1"]),
+        ],
+    )
+    def test_base_pipeline_dump(
+        self, requirements: Optional[List[str]], expected: List[str]
+    ):
+        pipeline = DummyPipeline(name="unit-test-pipeline", requirements=requirements)
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "requirements" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert (
             dump["pipeline"][TYPE_INFO_KEY]["module"] == "tests.unit.pipeline.test_base"
         )
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "DummyPipeline"
+        assert dump["requirements"] == expected
 
-    def test_base_pipeline_from_dict(self):
-        pipeline = DummyPipeline(name="unit-test-pipeline")
+    @pytest.mark.parametrize(
+        "requirements",
+        [
+            None,
+            ["distilabel>=0.0.1"],
+        ],
+    )
+    def test_base_pipeline_from_dict(self, requirements: Optional[List[str]]):
+        pipeline = DummyPipeline(name="unit-test-pipeline", requirements=requirements)
         pipe = DummyPipeline.from_dict(pipeline.dump())
         assert isinstance(pipe, DummyPipeline)
 
-    def test_pipeline_dump(self):
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel>=0.0.1"], ["distilabel>=0.0.1"]),
+        ],
+    )
+    def test_pipeline_dump(
+        self, requirements: Optional[List[str]], expected: List[str]
+    ):
         from distilabel.pipeline.local import Pipeline
 
-        pipeline = Pipeline(name="unit-test-pipeline")
+        pipeline = Pipeline(name="unit-test-pipeline", requirements=requirements)
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "requirements" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.local"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "Pipeline"
+        assert dump["requirements"] == expected
 
     @pytest.mark.parametrize(
         "format, name, loader",
