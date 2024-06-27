@@ -162,7 +162,7 @@ nav:
           - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
-          - Impose requirements to your pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
   - Pipeline Samples:
       - Examples: "sections/pipeline_samples/examples/index.md"
       - Papers:
