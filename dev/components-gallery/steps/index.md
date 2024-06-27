@@ -42,22 +42,6 @@ hide:
 
     [:octicons-arrow-right-24: TextGenerationToArgilla](textgenerationtoargilla.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __CombineColumns__
-
-    ---
-
-    Combines columns from a list of `StepInput`.
-
-    [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
-
--   :material-step-forward:{ .lg .middle } __CombineKeys__
-
-    ---
-
-    Combines keys from a row.
-
-    [:octicons-arrow-right-24: CombineKeys](combinekeys.md){ .bottom }
-
 -   :material-step-forward:{ .lg .middle } __ExpandColumns__
 
     ---
@@ -65,6 +49,38 @@ hide:
     Expand columns that contain lists into multiple rows.
 
     [:octicons-arrow-right-24: ExpandColumns](expandcolumns.md){ .bottom }
+
+-   :material-step-forward:{ .lg .middle } __GroupColumns__
+
+    ---
+
+    Combines columns from a list of `StepInput`.
+
+    [:octicons-arrow-right-24: GroupColumns](groupcolumns.md){ .bottom }
+
+-   :material-step-forward:{ .lg .middle } __CombineColumns__
+
+    ---
+
+    
+
+    [:octicons-arrow-right-24: CombineColumns](combinecolumns.md){ .bottom }
+
+-   :material-step-forward:{ .lg .middle } __KeepColumns__
+
+    ---
+
+    Keeps selected columns in the dataset.
+
+    [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
+
+-   :material-step-forward:{ .lg .middle } __MergeColumns__
+
+    ---
+
+    Merge columns from a row.
+
+    [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
 -   :material-step-forward:{ .lg .middle } __ConversationTemplate__
 
@@ -106,14 +122,6 @@ hide:
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __KeepColumns__
-
-    ---
-
-    Keeps selected columns in the dataset.
-
-    [:octicons-arrow-right-24: KeepColumns](keepcolumns.md){ .bottom }
-
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 
     ---
@@ -129,14 +137,6 @@ hide:
     Loads a dataset from the Hugging Face Hub.
 
     [:octicons-arrow-right-24: LoadDataFromHub](loaddatafromhub.md){ .bottom }
-
--   :material-step-forward:{ .lg .middle } __LoadHubDataset__
-
-    ---
-
-    
-
-    [:octicons-arrow-right-24: LoadHubDataset](loadhubdataset.md){ .bottom }
 
 -   :material-file-download:{ .lg .middle } __LoadDataFromFileSystem__
 

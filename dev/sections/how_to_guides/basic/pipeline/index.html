@@ -1235,6 +1235,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/pipeline_requirements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Specify requirements for pipelines and steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1458,6 +1479,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
@@ -1479,7 +1542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/combinekeys/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1500,7 +1563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1626,27 +1689,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
@@ -1669,27 +1711,6 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../components-gallery/steps/loadhubdataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4249,20 +4270,20 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="o">...</span>
 </span></code></pre></div>
-<p>For each row of the dataset, the <code>TextGeneration</code> task will generate a text based on the <code>instruction</code> column and the <code>LLM</code> model, and store the result (a single string) in a new column called <code>generation</code>. Because we need to have the <code>response</code>s in the same column, we will add <code>CombineColumns</code> to combine them all in the same column as a list of strings.</p>
+<p>For each row of the dataset, the <code>TextGeneration</code> task will generate a text based on the <code>instruction</code> column and the <code>LLM</code> model, and store the result (a single string) in a new column called <code>generation</code>. Because we need to have the <code>response</code>s in the same column, we will add <code>GroupColumns</code> to combine them all in the same column as a list of strings.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In this case, the <code>CombineColumns</code> tasks will be executed after all <code>TextGeneration</code> steps.</p>
+<p>In this case, the <code>GroupColumns</code> tasks will be executed after all <code>TextGeneration</code> steps.</p>
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_dataset&quot;</span><span class="p">)</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
 </span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
@@ -4285,13 +4306,13 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 <p>Each call to <code>step1.connect(step2)</code> has been exchanged by <code>step1 &gt;&gt; step2</code> within the loop.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_dataset&quot;</span><span class="p">)</span>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
 </span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
@@ -4310,13 +4331,13 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 <p>Each task is first appended to a list, and then all the calls to connections are done in a single call.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_dataset&quot;</span><span class="p">)</span>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
 </span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
 </span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
@@ -4343,7 +4364,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span> <span class="nn">random</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">routing_batch_function</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
 </span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="nd">@routing_batch_function</span>
@@ -4366,7 +4387,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>            <span class="n">TextGeneration</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;text_generation_with_</span><span class="si">{</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
 </span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>        <span class="p">)</span>
 </span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>
-</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
 </span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
 </span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
 </span><span id="__span-6-30"><a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
@@ -4461,7 +4482,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 <p>Memory issues can arise when processing large datasets or when using large models. To avoid this, we can use the <code>input_batch_size</code> argument of individual tasks. <code>TextGeneration</code> task will receive 5 dictionaries, while the <code>LoadDataFromHub</code> step will send 10 dictionaries per batch:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
 </span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
@@ -4520,7 +4541,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span><span class="p">,</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">VertexAILLM</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">CombineColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GroupColumns</span><span class="p">,</span> <span class="n">LoadDataFromHub</span>
 </span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
 </span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
 </span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="s2">&quot;pipe-name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My first pipe&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
@@ -4529,7 +4550,7 @@ A <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilab
 </span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">},</span>
 </span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="p">)</span>
 </span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
-</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">CombineColumns</span><span class="p">(</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="n">combine_generations</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
 </span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;combine_generations&quot;</span><span class="p">,</span>
 </span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
 </span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>

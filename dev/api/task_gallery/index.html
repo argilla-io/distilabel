@@ -1062,6 +1062,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Specify requirements for pipelines and steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1285,6 +1306,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
@@ -1306,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/combinekeys/" class="md-nav__link">
+      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1327,7 +1390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1453,27 +1516,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
@@ -1496,27 +1538,6 @@
   
     <li class="md-nav__item">
       <a href="../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../components-gallery/steps/loadhubdataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -23695,7 +23716,7 @@ result = next(
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>                    <span class="s2">&quot;rationales&quot;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>                <span class="p">}</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>            <span class="p">)</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="k">return</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="k">return</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>
 </span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="k">def</span> <span class="nf">_format_types_ratings_rationales_output</span><span class="p">(</span>
 </span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -23741,7 +23762,7 @@ result = next(
 </span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>                    <span class="s2">&quot;rationales-for-ratings&quot;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
 </span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>                <span class="p">}</span>
 </span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>            <span class="p">)</span>
-</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="k">return</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="k">return</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
@@ -23874,7 +23895,7 @@ result = next(
 </span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>                <span class="s2">&quot;rationales&quot;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>            <span class="p">}</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>        <span class="p">)</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="k">return</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="k">return</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -23984,7 +24005,7 @@ result = next(
 </span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>                <span class="s2">&quot;rationales-for-ratings&quot;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
 </span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>            <span class="p">}</span>
 </span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>        <span class="p">)</span>
-</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>    <span class="k">return</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>    <span class="k">return</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

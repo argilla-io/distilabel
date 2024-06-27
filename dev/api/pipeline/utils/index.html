@@ -1062,6 +1062,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Specify requirements for pipelines and steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1285,6 +1306,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
@@ -1306,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/combinekeys/" class="md-nav__link">
+      <a href="../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1327,7 +1390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1453,27 +1516,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
@@ -1496,27 +1538,6 @@
   
     <li class="md-nav__item">
       <a href="../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loadhubdataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3789,18 +3810,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#distilabel.pipeline.utils.combine_dicts" class="md-nav__link">
+  <a href="#distilabel.pipeline.utils.group_columns" class="md-nav__link">
     <span class="md-ellipsis">
-      combine_dicts
+      group_columns
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#distilabel.pipeline.utils.combine_keys" class="md-nav__link">
+  <a href="#distilabel.pipeline.utils.merge_columns" class="md-nav__link">
     <span class="md-ellipsis">
-      combine_keys
+      merge_columns
     </span>
   </a>
   
@@ -3984,18 +4005,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#distilabel.pipeline.utils.combine_dicts" class="md-nav__link">
+  <a href="#distilabel.pipeline.utils.group_columns" class="md-nav__link">
     <span class="md-ellipsis">
-      combine_dicts
+      group_columns
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#distilabel.pipeline.utils.combine_keys" class="md-nav__link">
+  <a href="#distilabel.pipeline.utils.merge_columns" class="md-nav__link">
     <span class="md-ellipsis">
-      combine_keys
+      merge_columns
     </span>
   </a>
   
@@ -4049,17 +4070,17 @@
 <div class="doc doc-object doc-function">
 
 
-<h2 id="distilabel.pipeline.utils.combine_dicts" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="n">merge_keys</span><span class="p">,</span> <span class="n">output_merge_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<h2 id="distilabel.pipeline.utils.group_columns" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">group_columns</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="n">group_columns</span><span class="p">,</span> <span class="n">output_group_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-<a href="#distilabel.pipeline.utils.combine_dicts" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#distilabel.pipeline.utils.group_columns" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-      <p>Combines multiple list of dictionaries into a single list of dictionaries on the
-specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provided, then it will also rename
-<code>merge_keys</code>.</p>
+      <p>Groups multiple list of dictionaries into a single list of dictionaries on the
+specified <code>group_columns</code>. If <code>group_columns</code> are provided, then it will also rename
+<code>group_columns</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4088,7 +4109,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>merge_keys</code></td>
+            <td><code>group_columns</code></td>
             <td>
                   <code><span title="typing.List">List</span>[str]</code>
             </td>
@@ -4102,7 +4123,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>output_merge_keys</code></td>
+            <td><code>output_group_columns</code></td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
             </td>
@@ -4134,7 +4155,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A list of dictionaries where the values of the <code>merge_keys</code> are combined into a</p>
+                <p>A list of dictionaries where the values of the <code>group_columns</code> are combined into a</p>
               </div>
             </td>
           </tr>
@@ -4144,7 +4165,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
             <td>
               <div class="doc-md-description">
-                <p>list and renamed to <code>output_merge_keys</code>.</p>
+                <p>list and renamed to <code>output_group_columns</code>.</p>
               </div>
             </td>
           </tr>
@@ -4194,48 +4215,52 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
 <span class="normal"><a href="#__codelineno-0-58">58</a></span>
 <span class="normal"><a href="#__codelineno-0-59">59</a></span>
 <span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span> <span class="nf">combine_dicts</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span> <span class="nf">group_columns</span><span class="p">(</span>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="o">*</span><span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">,</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="n">merge_keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="n">output_merge_keys</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="n">group_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="n">output_group_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepInput</span><span class="p">:</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Combines multiple list of dictionaries into a single list of dictionaries on the</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">    specified `merge_keys`. If `output_merge_keys` are provided, then it will also rename</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    `merge_keys`.</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Groups multiple list of dictionaries into a single list of dictionaries on the</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">    specified `group_columns`. If `group_columns` are provided, then it will also rename</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    `group_columns`.</span>
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        inputs: list of dictionaries to combine.</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        merge_keys: list of keys to merge on.</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        output_merge_keys: list of keys to rename the merge keys to. Defaults to `None`.</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        group_columns: list of keys to merge on.</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        output_group_columns: list of keys to rename the merge keys to. Defaults to `None`.</span>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        A list of dictionaries where the values of the `merge_keys` are combined into a</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">        list and renamed to `output_merge_keys`.</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        A list of dictionaries where the values of the `group_columns` are combined into a</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">        list and renamed to `output_group_columns`.</span>
 </span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="k">if</span> <span class="n">output_merge_keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_merge_keys</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_keys</span><span class="p">):</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>            <span class="s2">&quot;The length of output_merge_keys must be the same as the length of merge_keys&quot;</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="p">)</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="k">if</span> <span class="n">output_merge_keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="n">output_merge_keys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;merged_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">merge_keys</span><span class="p">]</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">merge_keys_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">merge_keys</span><span class="p">,</span> <span class="n">output_merge_keys</span><span class="p">))</span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="c1"># Use zip to iterate over lists based on their index</span>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="k">for</span> <span class="n">dicts_at_index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">):</span>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">combined_dict</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="c1"># Iterate over dicts at the same index</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dicts_at_index</span><span class="p">:</span>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>            <span class="c1"># Iterate over key-value pairs in each dict</span>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a>                <span class="c1"># If the key is in the merge_keys, append the value to the existing list</span>
-</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">merge_keys_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>                    <span class="n">combined_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">merge_keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a>                <span class="c1"># If the key is not in the merge_keys, create a new key-value pair</span>
-</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>                <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a>                    <span class="n">combined_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combined_dict</span><span class="p">)</span>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="k">return</span> <span class="n">result</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="k">if</span> <span class="n">output_group_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_group_columns</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">group_columns</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="p">):</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>            <span class="s2">&quot;The length of output_group_columns must be the same as the length of group_columns&quot;</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="p">)</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="k">if</span> <span class="n">output_group_columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">output_group_columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;grouped_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group_columns</span><span class="p">]</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">group_columns_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">group_columns</span><span class="p">,</span> <span class="n">output_group_columns</span><span class="p">))</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="c1"># Use zip to iterate over lists based on their index</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="k">for</span> <span class="n">dicts_at_index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">inputs</span><span class="p">):</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="n">combined_dict</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="c1"># Iterate over dicts at the same index</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dicts_at_index</span><span class="p">:</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a>            <span class="c1"># Iterate over key-value pairs in each dict</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>                <span class="c1"># If the key is in the merge_keys, append the value to the existing list</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a>                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group_columns_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>                    <span class="n">combined_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">group_columns_dict</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a>                <span class="c1"># If the key is not in the merge_keys, create a new key-value pair</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>                <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>                    <span class="n">combined_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combined_dict</span><span class="p">)</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="k">return</span> <span class="n">result</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4245,15 +4270,15 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
 <div class="doc doc-object doc-function">
 
 
-<h2 id="distilabel.pipeline.utils.combine_keys" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">combine_keys</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">new_key</span><span class="o">=</span><span class="s1">&#39;combined_key&#39;</span><span class="p">)</span></code>
+<h2 id="distilabel.pipeline.utils.merge_columns" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">merge_columns</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">new_column</span><span class="o">=</span><span class="s1">&#39;combined_key&#39;</span><span class="p">)</span></code>
 
-<a href="#distilabel.pipeline.utils.combine_keys" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#distilabel.pipeline.utils.merge_columns" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-      <p>Combines keys in a dictionary into a single key on the specified <code>new_key</code>.</p>
+      <p>Merge columns in a dictionary into a single column on the specified <code>new_column</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4282,13 +4307,13 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>keys</code></td>
+            <td><code>columns</code></td>
             <td>
                   <code><span title="typing.List">List</span>[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>List of keys to combine.</p>
+                <p>List of keys to merge.</p>
               </div>
             </td>
             <td>
@@ -4296,7 +4321,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>new_key</code></td>
+            <td><code>new_column</code></td>
             <td>
                   <code>str</code>
             </td>
@@ -4324,10 +4349,11 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
       <tbody>
           <tr class="doc-section-item">
             <td>
+                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Dictionary with the new combined key.</p>
+                <p>Dictionary with the new merged key.</p>
               </div>
             </td>
           </tr>
@@ -4336,9 +4362,7 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
 
             <details class="quote">
               <summary>Source code in <code>src/distilabel/pipeline/utils.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-66">66</a></span>
 <span class="normal"><a href="#__codelineno-0-67">67</a></span>
 <span class="normal"><a href="#__codelineno-0-68">68</a></span>
 <span class="normal"><a href="#__codelineno-0-69">69</a></span>
@@ -4355,26 +4379,32 @@ specified <code>merge_keys</code>. If <code>output_merge_keys</code> are provide
 <span class="normal"><a href="#__codelineno-0-80">80</a></span>
 <span class="normal"><a href="#__codelineno-0-81">81</a></span>
 <span class="normal"><a href="#__codelineno-0-82">82</a></span>
-<span class="normal"><a href="#__codelineno-0-83">83</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="k">def</span> <span class="nf">combine_keys</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">new_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;combined_key&quot;</span><span class="p">):</span>
-</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Combines keys in a dictionary into a single key on the specified `new_key`.</span>
-</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a>
-</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">        row: Dictionary corresponding to a row in a dataset.</span>
-</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">        keys: List of keys to combine.</span>
-</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">        new_key: Name of the new key created.</span>
-</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">        Dictionary with the new combined key.</span>
-</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># preserve the original dictionary</span>
-</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a>    <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>        <span class="n">to_combine</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_combine</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>            <span class="n">to_combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_combine</span><span class="p">]</span>
-</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>        <span class="n">combined</span> <span class="o">+=</span> <span class="n">to_combine</span>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a>    <span class="n">result</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined</span>
-</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>    <span class="k">return</span> <span class="n">result</span>
+<span class="normal"><a href="#__codelineno-0-83">83</a></span>
+<span class="normal"><a href="#__codelineno-0-84">84</a></span>
+<span class="normal"><a href="#__codelineno-0-85">85</a></span>
+<span class="normal"><a href="#__codelineno-0-86">86</a></span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="k">def</span> <span class="nf">merge_columns</span><span class="p">(</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">new_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;combined_key&quot;</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge columns in a dictionary into a single column on the specified `new_column`.</span>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">        row: Dictionary corresponding to a row in a dataset.</span>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">        columns: List of keys to merge.</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        new_column: Name of the new key created.</span>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        Dictionary with the new merged key.</span>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># preserve the original dictionary</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a>        <span class="n">to_combine</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_combine</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>            <span class="n">to_combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_combine</span><span class="p">]</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="n">combined</span> <span class="o">+=</span> <span class="n">to_combine</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="n">result</span><span class="p">[</span><span class="n">new_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">return</span> <span class="n">result</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

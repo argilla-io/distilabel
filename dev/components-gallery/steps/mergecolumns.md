@@ -2,20 +2,20 @@
 hide:
   - navigation
 ---
-# CombineKeys
+# MergeColumns
 
-Combines keys from a row.
+Merge columns from a row.
 
 
 
-`CombineKeys` is a `Step` that implements the `process` method that calls the `combine_keys`
-    function to handle and combine keys in a `StepInput`. `CombineKeys` provides two attributes
-    `keys` and `output_keys` to specify the keys to merge and the resulting output key.
+`MergeColumns` is a `Step` that implements the `process` method that calls the `merge_columns`
+    function to handle and combine columns in a `StepInput`. `MergeColumns` provides two attributes
+    `columns` and `output_column` to specify the columns to merge and the resulting output column.
 
     This step can be useful if you have a `Task` that generates instructions for example, and you
     want to have more examples of those. In such a case, you could for example use another `Task`
-    to multiply your instructions synthetically, what would yield two different keys splitted.
-    Using `CombineKeys` you can merge them and use them as a single column in your dataset for
+    to multiply your instructions synthetically, what would yield two different columns splitted.
+    Using `MergeColumns` you can merge them and use them as a single column in your dataset for
     further processing.
 
 
@@ -26,7 +26,7 @@ Combines keys from a row.
 
 - **columns**: List of strings with the names of the columns to merge.
 
-- **output_columns**: Optional list of strings with the names of the output columns.
+- **output_column**: str name of the output column
 
 
 
@@ -45,7 +45,7 @@ graph TD
 		end
 	end
 
-	subgraph CombineKeys
+	subgraph MergeColumns
 		StepInput[Input Columns: dynamic]
 		StepOutput[Output Columns: dynamic]
 	end
@@ -60,7 +60,7 @@ graph TD
 #### Inputs
 
 
-- **dynamic** (determined by `keys` attribute): The keys to merge.
+- **dynamic** (determined by `columns` attribute): The columns to merge.
 
 
 
@@ -68,7 +68,7 @@ graph TD
 #### Outputs
 
 
-- **dynamic** (determined by `keys` and `output_key` attributes): The columns  that were merged.
+- **dynamic** (determined by `columns` and `output_column` attributes): The columns  that were merged.
 
 
 
@@ -77,13 +77,13 @@ graph TD
 ### Examples
 
 
-#### Combine keys in rows of a dataset
+#### Combine columns in rows of a dataset
 ```python
-from distilabel.steps import CombineKeys
+from distilabel.steps import MergeColumns
 
-combiner = CombineKeys(
-    keys=["queries", "multiple_queries"],
-    output_key="queries",
+combiner = MergeColumns(
+    columns=["queries", "multiple_queries"],
+    output_column="queries",
 )
 combiner.load()
 

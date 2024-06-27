@@ -1062,6 +1062,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Specify requirements for pipelines and steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1285,6 +1306,48 @@
   
   
     <li class="md-nav__item">
+      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
@@ -1306,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/combinekeys/" class="md-nav__link">
+      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1327,7 +1390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1453,27 +1516,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components-gallery/steps/keepcolumns/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
@@ -1496,27 +1538,6 @@
   
     <li class="md-nav__item">
       <a href="../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../components-gallery/steps/loadhubdataset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4667,7 +4688,7 @@ a list or create a row per generation. Defaults to <code>False</code>.</p>
 </span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>            <span class="n">formatted_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_outputs</span><span class="p">(</span><span class="n">input_outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
 </span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>
 </span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_generations</span><span class="p">:</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>                <span class="n">combined</span> <span class="o">=</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>                <span class="n">combined</span> <span class="o">=</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>                <span class="n">task_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
 </span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>                    <span class="p">{</span><span class="o">**</span><span class="nb">input</span><span class="p">,</span> <span class="o">**</span><span class="n">combined</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="p">}</span>
 </span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>                <span class="p">)</span>
@@ -4855,7 +4876,7 @@ as a Python dictionary, and generates an OpenAI chat-like list of dicts.</p>
 </span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>        <span class="n">formatted_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_outputs</span><span class="p">(</span><span class="n">input_outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
 </span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>
 </span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_generations</span><span class="p">:</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>            <span class="n">combined</span> <span class="o">=</span> <span class="n">combine_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>            <span class="n">combined</span> <span class="o">=</span> <span class="n">group_dicts</span><span class="p">(</span><span class="o">*</span><span class="n">formatted_outputs</span><span class="p">)</span>
 </span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>            <span class="n">task_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
 </span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>                <span class="p">{</span><span class="o">**</span><span class="nb">input</span><span class="p">,</span> <span class="o">**</span><span class="n">combined</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">model_name</span><span class="p">}</span>
 </span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>            <span class="p">)</span>
