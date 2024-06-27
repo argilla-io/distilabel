@@ -258,7 +258,7 @@ class DAG(_Serializable):
         """
         return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
-    def get_steps_load_stages(self) -> List[str]:
+    def get_steps_load_stages(self) -> List[List[str]]:
         """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
         are determined by `GlobalStep`s as they receive all the data at once, which means
         that a `GlobalStep` is not required to be loaded until all their previous steps

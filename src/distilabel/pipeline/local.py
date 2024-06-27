@@ -115,19 +115,15 @@ class Pipeline(BasePipeline):
             # Run the loop for receiving the load status of each step
             self._load_steps_thread = self._run_load_queue_loop_in_thread()
 
-            # Wait for all the steps to be loaded correctly
-            if not self._all_steps_loaded(steps=list(self.dag)):
-                self._teardown()
-                stop_logging()
-                raise RuntimeError(
-                    "Failed to load all the steps. Could not run pipeline."
-                ) from _SUBPROCESS_EXCEPTION
-
             # Start a loop to receive the output batches from the steps
             self._output_queue_thread = self._run_output_queue_loop_in_thread()
             self._output_queue_thread.join()
 
             self._teardown()
+
+            if self._exception:
+                stop_logging()
+                raise self._exception
 
         distiset = create_distiset(
             self._cache_location["data"],
@@ -235,6 +231,17 @@ class Pipeline(BasePipeline):
         if self._manager:
             self._manager.shutdown()
             self._manager.join()
+
+    def _set_steps_not_loaded_exception(self) -> None:
+        """Raises a `RuntimeError` notifying that the steps load has failed.
+
+        Raises:
+            RuntimeError: containing the information and why a step failed to be loaded.
+        """
+        self._exception = RuntimeError(
+            "Failed to load all the steps. Could not run pipeline."
+        )
+        self._exception.__cause__ = _SUBPROCESS_EXCEPTION
 
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues

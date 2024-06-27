@@ -318,6 +318,9 @@ class BasePipeline(ABC, _Serializable):
             The `Distiset` created by the pipeline.
         """
 
+        self._load_next_stage = False
+        self._exception: Union[Exception, None] = None
+
         # Set the runtime parameters that will be used during the pipeline execution.
         # They are used to generate the signature of the pipeline that is used to hit the
         # cache when the pipeline is run, so it's important to do it first.
@@ -623,6 +626,14 @@ class BasePipeline(ABC, _Serializable):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
+        load_stages = self.dag.get_steps_load_stages()
+        next_stage = 1
+
+        # Wait for all the steps to be loaded correctly
+        if not self._all_steps_loaded(steps=load_stages[0]):
+            self._set_steps_not_loaded_exception()
+            return
+
         # Send the "first" batches to the steps so the batches starts flowing through
         # the input queues and output queue
         self._request_initial_batches()
@@ -656,6 +667,14 @@ class BasePipeline(ABC, _Serializable):
                 break
 
             self._manage_batch_flow(batch)
+
+            # Check if all the steps of this stage have finished. If that's the case, then
+            # load the steps of the next stage.
+            if self._load_next_stage and next_stage < len(load_stages):
+                if not self._all_steps_loaded(steps=load_stages[next_stage]):
+                    self._set_steps_not_loaded_exception()
+                    return
+                next_stage += 1
 
         if self._stop_called:
             self._handle_stop()
@@ -716,6 +735,7 @@ class BasePipeline(ABC, _Serializable):
                         self._logger.debug(
                             f"All the steps from '{stage}' stage have been unloaded."
                         )
+                        self._load_next_stage = True
                         break
 
     def _all_steps_loaded(self, steps: List[str]) -> bool:
@@ -1170,6 +1190,15 @@ class BasePipeline(ABC, _Serializable):
     @abstractmethod
     def _teardown(self) -> None:
         """Clean/release/stop resources reserved to run the pipeline."""
+        pass
+
+    @abstractmethod
+    def _set_steps_not_loaded_exception(self) -> None:
+        """Used to raise `RuntimeError` when the load of the steps failed.
+
+        Raises:
+            RuntimeError: containing the information and why a step failed to be loaded.
+        """
         pass
 
     @abstractmethod
