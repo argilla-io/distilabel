@@ -1,0 +1,9 @@
+Mathematical Problem in Natural Language:
+{{ informal_statement }}
+{%- if few_shot %}
+
+Please use the following examples to guide you with the answer:
+{%- for example in examples %}
+- {{ example }}
+{%- endfor %}
+{% endif -%}
