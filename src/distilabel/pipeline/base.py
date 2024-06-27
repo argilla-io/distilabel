@@ -730,12 +730,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 num_steps_loaded = 0
                 workers_message = ""
                 for step_name, num_workers_loaded in self._steps_load_status.items():
-                    # TODO: update condition once we allow more than one worker per step
-                    if num_workers_loaded == 1:
+                    step_replica_count = self.dag.get_step_replica_count(step_name)
+                    if num_workers_loaded == step_replica_count:
                         num_steps_loaded += 1
-                    workers_message += (
-                        f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}"
-                    )
+                    workers_message += f"\n * '{step_name}' workers: {max(0, num_workers_loaded)}/{step_replica_count}"
 
                 message = f"⏳ Steps loaded: {num_steps_loaded}/{len(self.dag)}{workers_message}"
                 if num_steps_loaded > 0 and message != previous_message:
@@ -820,12 +818,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         return input_queue
 
     @abstractmethod
-    def _run_step(self, step: "_Step", input_queue: "Queue[Any]") -> None:
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
         """Runs the `Step` instance.
 
         Args:
             step: The `Step` instance to run.
             input_queue: The input queue where the step will receive the batches.
+            replica: The replica ID assigned.
         """
         pass
 
@@ -842,8 +841,17 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # `TypeError: cannot pickle 'code' object`
             step.pipeline = None
 
-            self._logger.debug(f"Running 1 instance of step '{step.name}'...")
-            self._run_step(step=step, input_queue=input_queue)
+            if not step.is_normal and step.resources.replicas > 1:  # type: ignore
+                self._logger.warning(
+                    f"Step '{step_name}' is a `GeneratorStep` or `GlobalStep` and has more"
+                    " than 1 replica. Only `Step` instances can have more than 1 replica."
+                    " The number of replicas for the step will be set to 1."
+                )
+
+            step_num_replicas: int = step.resources.replicas if step.is_normal else 1  # type: ignore
+            for replica in range(step_num_replicas):
+                self._logger.debug(f"Running 1 instance of step '{step.name}'...")
+                self._run_step(step=step, input_queue=input_queue, replica=replica)
 
     def _add_batches_back_to_batch_manager(self) -> None:
         """Add the `Batch`es that were sent to a `Step` back to the `_BatchManager`. This
@@ -891,20 +899,26 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the convergence
-        # step if the batch is the last one, so they stop their processing loop even if
-        # they haven't received the last batch because of the routing function.
-        if self._is_convergence_step(batch.step_name) and batch.last_batch:
+        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the step
+        # if the batch is the last one, so they stop their processing loop even if they
+        # haven't received the last batch because of the routing function.
+        if batch.last_batch:
             for step_name in self.dag.get_step_predecessors(batch.step_name):
                 self._send_last_batch_flag_to_step(step_name)
 
-        route_to, routed = self._get_successors(batch)
+        self._register_batch(batch)
+
+        route_to, do_not_route_to, routed = self._get_successors(batch)
 
         # Keep track of the steps that the batch was routed to
         if routed:
             batch.batch_routed_to = route_to
 
-        self._register_batch(batch)
+        self._set_next_expected_seq_no(
+            steps=do_not_route_to,
+            from_step=batch.step_name,
+            next_expected_seq_no=batch.seq_no + 1,
+        )
 
         step = self._get_step_from_batch(batch)
 
@@ -1010,16 +1024,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             step_name: The name of the step.
         """
-        batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
-        if batch and batch.last_batch:
-            return
-
         self._logger.debug(
             f"Sending `LAST_BATCH_SENT_FLAG` to '{step_name}' step to stop processing"
             " batches..."
         )
 
-        self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
+        for _ in range(self.dag.get_step_replica_count(step_name)):
+            self._send_to_step(step_name, LAST_BATCH_SENT_FLAG)
         self._batch_manager.set_last_batch_flag_sent_to(step_name)  # type: ignore
 
     def _request_initial_batches(self) -> None:
@@ -1100,7 +1111,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         for step_name in self.dag:
             self._send_to_step(step_name, None)
 
-    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], bool]:
+    def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.
 
         Args:
@@ -1123,7 +1134,31 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 f"🚏 Using '{step.name}' routing function to send batch {batch.seq_no} to steps: {successors_str}"
             )
 
-        return route_to, route_to != successors
+        return route_to, list(set(successors) - set(route_to)), route_to != successors
+
+    def _set_next_expected_seq_no(
+        self, steps: List[str], from_step: str, next_expected_seq_no: int
+    ) -> None:
+        """Sets the next expected sequence number of a `_Batch` received by `step` from
+        `from_step`. This is necessary as some `Step`s might not receive all the batches
+        comming from the previous steps because there is a routing batch function.
+
+        Args:
+            steps: list of steps to which the next expected sequence number of a `_Batch`
+                from `from_step` has to be updated in the `_BatchManager`.
+            from_step: the name of the step from which the next expected sequence number
+                of a `_Batch` has to be updated in `steps`.
+            next_expected_seq_no: the number of the next expected sequence number of a `Batch`
+                from `from_step`.
+        """
+        assert self._batch_manager, "Batch manager is not set"
+
+        for step in steps:
+            self._batch_manager.set_next_expected_seq_no(
+                step_name=step,
+                from_step=from_step,
+                next_expected_seq_no=next_expected_seq_no,
+            )
 
     @abstractmethod
     def _stop(self) -> None:

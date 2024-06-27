@@ -22,9 +22,9 @@ from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.routing_batch_function import routing_batch_function
-from distilabel.steps.base import GeneratorStep, Step, StepInput
+from distilabel.steps.base import GeneratorStep, Step, StepInput, StepResources
 
-from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
+from .utils import DummyGeneratorStep, DummyGlobalStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import (
@@ -220,6 +220,18 @@ class TestDAG:
         assert not dag.step_in_last_trophic_level("dummy_generator_step")
         assert not dag.step_in_last_trophic_level("dummy_step_1")
         assert dag.step_in_last_trophic_level("dummy_step_2")
+
+    def test_get_total_replica_count(self) -> None:
+        dag = DAG()
+
+        # `replicas` should be ignored for `GeneratorStep`
+        dag.add_step(DummyGeneratorStep(resources=StepResources(replicas=100)))
+        dag.add_step(DummyStep1(resources=StepResources(replicas=5)))
+        dag.add_step(DummyStep2(resources=StepResources(replicas=5)))
+        # `replicas` should be ignored for `GlobalStep`
+        dag.add_step(DummyGlobalStep(resources=StepResources(replicas=100)))
+
+        assert dag.get_total_replica_count() == 12
 
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"

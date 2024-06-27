@@ -24,6 +24,7 @@ def test_imports() -> None:
         GenerateOutput,
         HiddenState,
         InferenceEndpointsLLM,
+        MixtureOfAgentsLLM,
         LlamaCppLLM,
         LLM,
         LiteLLM,
@@ -38,6 +39,7 @@ def test_imports() -> None:
     from distilabel.pipeline import Pipeline
 
     from distilabel.steps import (
+        StepResources,
         CombineColumns,
         GroupColumns,
         MergeColumns,

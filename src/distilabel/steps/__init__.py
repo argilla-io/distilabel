@@ -14,7 +14,13 @@
 
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
-from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
+from distilabel.steps.base import (
+    GeneratorStep,
+    GlobalStep,
+    Step,
+    StepInput,
+    StepResources,
+)
 from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
@@ -42,6 +48,7 @@ from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
+    "StepResources",
     "GroupColumns",
     "MergeColumns",
     "CombineColumns",

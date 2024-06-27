@@ -90,6 +90,26 @@ def _infer_step_name(
     return name
 
 
+class StepResources(RuntimeParametersMixin, BaseModel):
+    """A class to define the resources assigned to a `_Step`.
+
+    Attributes:
+        replicas: The number of replicas for the step.
+        cpus: The number of CPUs assigned to each step replica.
+        gpus: The number of GPUs assigned to each step replica.
+    """
+
+    replicas: RuntimeParameter[PositiveInt] = Field(
+        default=1, description="The number of replicas for the step."
+    )
+    cpus: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The number of CPUs assigned to each step replica."
+    )
+    gpus: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The number of GPUs assigned to each step replica."
+    )
+
+
 class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
@@ -146,6 +166,7 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     )
 
     name: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9_-]+$")
+    resources: StepResources = StepResources()
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}

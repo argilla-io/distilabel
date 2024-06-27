@@ -144,6 +144,7 @@ class TestBatchManagerStep:
                 ],
             },
             built_batches=[previously_built_batch],
+            next_expected_seq_no={"step1": (1, 1), "step2": (1, 1)},
         )
 
         batch = batch_manager_step.get_batch()
@@ -291,9 +292,65 @@ class TestBatchManagerStep:
                     )
                 ],
             },
+            next_expected_seq_no={"step1": (0, 0), "step2": (0, 0)},
         )
 
         assert batch_manager_step.get_batch() is None
+
+    def test_set_next_expected_seq_no(self) -> None:
+        batch_manager_step = _BatchManagerStep(
+            step_name="step3",
+            accumulate=False,
+            input_batch_size=2,
+            data={
+                "step1": [],
+                "step2": [
+                    _Batch(
+                        seq_no=0,
+                        step_name="step2",
+                        last_batch=False,
+                        data=[
+                            [
+                                {"b": 1},
+                                {"b": 2},
+                            ]
+                        ],
+                    )
+                ],
+                "step3": [
+                    _Batch(
+                        seq_no=2,
+                        step_name="step3",
+                        last_batch=False,
+                        data=[
+                            [
+                                {"b": 1},
+                                {"b": 2},
+                            ]
+                        ],
+                    )
+                ],
+            },
+            next_expected_seq_no={"step1": (0, 0), "step2": (0, 0), "step3": (0, 0)},
+        )
+
+        batch_manager_step.set_next_expected_seq_no(
+            from_step="step1", next_expected_seq_no=1
+        )
+
+        assert batch_manager_step.next_expected_seq_no["step1"] == (1, 1)
+
+        batch_manager_step.set_next_expected_seq_no(
+            from_step="step2", next_expected_seq_no=1
+        )
+
+        assert batch_manager_step.next_expected_seq_no["step2"] == (0, 1)
+
+        batch_manager_step.set_next_expected_seq_no(
+            from_step="step3", next_expected_seq_no=1
+        )
+
+        assert batch_manager_step.next_expected_seq_no["step3"] == (1, 1)
 
     def test_from_step(self, dummy_step_1: "Step") -> None:
         batch_manager_step = _BatchManagerStep.from_step(
@@ -364,6 +421,7 @@ class TestBatchManagerStep:
                 "step1": [batch_step_1],
                 "step2": [batch_step_2],
             },
+            next_expected_seq_no={"step1": (0, 0), "step2": (0, 0)},
         )
 
         data, created_from, routed_to = batch_manager_step._get_data()
@@ -828,7 +886,7 @@ class TestBatchManagerStep:
         assert batch_manager_step._last_batch() is expected
 
     @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
+        "data, last_batch_received, next_expected_seq_no, expected",
         [
             (
                 {
@@ -843,6 +901,7 @@ class TestBatchManagerStep:
                     ],
                 },
                 [],
+                {"step1": (0, 0), "step2": (0, 0)},
                 False,
             ),
             (
@@ -865,6 +924,7 @@ class TestBatchManagerStep:
                     ],
                 },
                 [],
+                {"step1": (0, 0), "step2": (0, 0)},
                 False,
             ),
             (
@@ -887,6 +947,7 @@ class TestBatchManagerStep:
                     ],
                 },
                 ["step1", "step2"],
+                {"step1": (0, 0), "step2": (0, 0)},
                 True,
             ),
             (
@@ -909,7 +970,31 @@ class TestBatchManagerStep:
                     ],
                 },
                 ["step1", "step2"],
+                {"step1": (0, 0), "step2": (0, 0)},
                 True,
+            ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=1,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
+                        )
+                    ],
+                    "step2": [
+                        _Batch(
+                            seq_no=1,
+                            step_name="step2",
+                            last_batch=True,
+                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
+                        )
+                    ],
+                },
+                ["step1", "step2"],
+                {"step1": (0, 0), "step2": (0, 0)},
+                False,
             ),
         ],
     )
@@ -917,6 +1002,7 @@ class TestBatchManagerStep:
         self,
         data: Dict[str, List[_Batch]],
         last_batch_received: List[str],
+        next_expected_seq_no: Dict[str, int],
         expected: bool,
     ) -> None:
         batch_manager_step = _BatchManagerStep(
@@ -925,6 +1011,7 @@ class TestBatchManagerStep:
             input_batch_size=5,
             data=data,
             last_batch_received=last_batch_received,
+            next_expected_seq_no=next_expected_seq_no,
         )
 
         assert batch_manager_step._ready_to_create_batch() is expected
@@ -1420,18 +1507,21 @@ class TestBatchManager:
                 accumulate=False,
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
+                next_expected_seq_no={"dummy_generator_step": (0, 0)},
             ),
             "dummy_global_step": _BatchManagerStep(
                 step_name="dummy_global_step",
                 accumulate=True,
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
+                next_expected_seq_no={"dummy_generator_step": (0, 0)},
             ),
             "dummy_step_2": _BatchManagerStep(
                 step_name="dummy_step_2",
                 accumulate=False,
                 input_batch_size=50,
                 data={"dummy_step_1": []},
+                next_expected_seq_no={"dummy_step_1": (0, 0)},
             ),
         }
 
