@@ -41,7 +41,8 @@ def test_imports() -> None:
     from distilabel.steps import (
         StepResources,
         CombineColumns,
-        CombineKeys,
+        GroupColumns,
+        MergeColumns,
         ConversationTemplate,
         DeitaFiltering,
         ExpandColumns,
@@ -56,7 +57,6 @@ def test_imports() -> None:
         LoadDataFromDicts,
         LoadDataFromHub,
         LoadDataFromDisk,
-        LoadHubDataset,
         PushToHub,
         Step,
         StepOutput,
