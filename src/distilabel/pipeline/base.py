@@ -379,6 +379,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._setup_write_buffer()
 
+        self._print_load_stages_info()
+
     def dry_run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
@@ -629,6 +631,15 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 
+    def _print_load_stages_info(self) -> None:
+        stages = self.dag.get_steps_load_stages()
+        msg = ""
+        for stage, steps in enumerate(stages):
+            msg += f"\n * Stage {stage}: {steps}"
+        self._logger.info(
+            f"⌛ The steps of the pipeline will be loaded in stages:{msg}"
+        )
+
     def _run_output_queue_loop_in_thread(self) -> threading.Thread:
         """Runs the output queue loop in a separate thread to receive the output batches
         from the steps. This is done to avoid the signal handler to block the loop, which
@@ -701,7 +712,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     def _run_load_queue_loop_in_thread(self) -> threading.Thread:
         """Runs a background thread that reads from the `load_queue` to update the status
-        of the number of workers loaded for each step.
+        of the number of replicas loaded for each step.
 
         Returns:
             The thread that was started.
@@ -712,7 +723,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     def _run_load_queue_loop(self) -> None:
         """Runs a loop that reads from the `load_queue` to update the status of the number
-        of workers loaded for each step."""
+        of replicas loaded for each step."""
 
         for stage, stage_steps in enumerate(self.dag.get_steps_load_stages()):
             self._run_steps(steps=stage_steps)
@@ -738,7 +749,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         self._steps_load_status[step_name] = _STEP_LOAD_FAILED_CODE
 
                     self._logger.debug(
-                        f"Step '{step_name}' loaded workers: {self._steps_load_status[step_name]}"
+                        f"Step '{step_name}' loaded replicas: {self._steps_load_status[step_name]}"
                     )
 
                     # If all the steps of this stage have been unloaded (downscaled to 0
@@ -788,14 +799,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     return False
 
                 num_steps_loaded = 0
-                workers_message = ""
+                replicas_message = ""
                 for step_name, replicas in filtered_steps_load_status.items():
                     step_replica_count = self.dag.get_step_replica_count(step_name)
                     if replicas == step_replica_count:
                         num_steps_loaded += 1
-                    workers_message += f"\n * '{step_name}' workers: {max(0, replicas)}/{step_replica_count}"
+                    replicas_message += f"\n * '{step_name}' replicas: {max(0, replicas)}/{step_replica_count}"
 
-                message = f"⏳ Steps from stage '{stage}' loaded: {num_steps_loaded}/{len(filtered_steps_load_status)}{workers_message}"
+                message = f"⏳ Steps from stage '{stage}' loaded: {num_steps_loaded}/{len(filtered_steps_load_status)}{replicas_message}"
                 if num_steps_loaded > 0 and message != previous_message:
                     self._logger.info(message)
                     previous_message = message
@@ -852,10 +863,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             `True` if the step is not loaded or already finished, `False` otherwise.
         """
         with self._steps_load_status_lock:
-            num_workers = self._steps_load_status[step_name]
+            num_replicas = self._steps_load_status[step_name]
 
-            # The step has finished (workers = 0) or it has failed to load
-            if num_workers in [0, _STEP_LOAD_FAILED_CODE]:
+            # The step has finished (replicas = 0) or it has failed to load
+            if num_replicas in [0, _STEP_LOAD_FAILED_CODE]:
                 return True
 
         return False
