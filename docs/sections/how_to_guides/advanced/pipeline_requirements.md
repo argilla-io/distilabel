@@ -2,7 +2,7 @@
 
 When sharing a `Pipeline` that contains custom `Step`s or `Task`s, you may want to add the specific requirements that are needed to run them. `distilabel` will take this list of requirements and warn the user if any are missing.
 
-You can now add requirements at the step level as well as on the pipeline. The following is a sample pipeline that adds requirements `nltk` as a dependency to a sample `CustomStep`, and we also inform the pipeline must run using `distilabel>=1.3.0`:
+Let's see how we can add additional requirements with an example. The first thing we're going to do is to add requirements for our `CustomStep`. To do so we use the `requirements` decorator to specify that the step has `nltk>=3.8` as dependency (we can use [version specifiers](https://peps.python.org/pep-0440/#version-specifiers)). In addition, we're going to specify at `Pipeline` level that we need `distilabel>=1.3.0` to run it.
 
 ```python
 from typing import List
