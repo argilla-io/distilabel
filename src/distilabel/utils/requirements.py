@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING, Callable, List, TypeVar, Union
 
 if TYPE_CHECKING:
-    from distilabel.steps import Step
+    from distilabel.steps.base import _Step
+
+S = TypeVar("S", bound="_Step")
 
 
-def add_requirements(requirements: Union[List[str]]) -> "Step":
+def requirements(requirements: Union[List[str]]) -> Callable[[S], S]:
     """Decorator to add requirements to a Step.
 
     When creating a custom step for a Pipeline that requires additional packages to be installed,
@@ -33,7 +35,7 @@ def add_requirements(requirements: Union[List[str]]) -> "Step":
     Example:
 
         ```python
-        @add_requirements(["my_library>=1.0.1"])
+        @requirements(["my_library>=1.0.1"])
         class CustomStep(Step):
             @property
             def inputs(self) -> List[str]:
@@ -50,7 +52,7 @@ def add_requirements(requirements: Union[List[str]]) -> "Step":
         ```
     """
 
-    def decorator(step: "Step") -> "Step":
+    def decorator(step: S) -> S:
         step.requirements = requirements
         return step
 
