@@ -947,7 +947,7 @@ class TestBasePipeline:
                 yield inputs
 
         with pytest.raises(
-            ValueError,
+            ModuleNotFoundError,
             match=r"Please install the following requirements to run the pipeline: \ndistilabel>=0.0.1\nrandom_requirement",
         ):
             with DummyPipeline(

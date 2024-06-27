@@ -348,7 +348,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             to_install_list = "\n" + "\n".join(to_install)
             msg = f"Please install the following requirements to run the pipeline: {to_install_list}"
             self._logger.error(msg)
-            raise ValueError(msg)
+            raise ModuleNotFoundError(msg)
 
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
