@@ -19,13 +19,13 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import Step
 from distilabel.steps.base import StepInput
 from distilabel.steps.typing import StepOutput
-from distilabel.utils.requirements import add_requirements
+from distilabel.utils.requirements import requirements
 
 from ..pipeline.utils import DummyGeneratorStep
 
 
 def test_add_requirements_decorator():
-    @add_requirements(["distilabel>=0.0.1"])
+    @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
         @property
         def inputs(self) -> List[str]:
@@ -55,7 +55,7 @@ def test_add_requirements_to_pipeline(
 ) -> None:
     # Check the pipeline has the requirements from the steps defined within it.
 
-    @add_requirements(["distilabel>=0.0.1"])
+    @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
         @property
         def inputs(self) -> List[str]:
@@ -70,7 +70,7 @@ def test_add_requirements_to_pipeline(
                 input["response"] = "unit test"
             yield inputs
 
-    @add_requirements(["numpy"])
+    @requirements(["numpy"])
     class OtherStep(Step):
         @property
         def inputs(self) -> List[str]:
@@ -93,7 +93,8 @@ def test_add_requirements_to_pipeline(
         global_step = OtherStep()
 
         generator >> [step, global_step]
-
+    print("REQS", pipeline.requirements)
+    print("REQS_PRIVATE", pipeline._requirements)
     assert pipeline.requirements == expected
 
 
@@ -101,7 +102,7 @@ def test_requirements_on_step_decorator() -> None:
     from distilabel.mixins.runtime_parameters import RuntimeParameter
     from distilabel.steps.decorator import step
 
-    @add_requirements(["distilabel>=0.0.1"])
+    @requirements(["distilabel>=0.0.1"])
     @step(inputs=["instruction"], outputs=["generation"])
     def UnitTestStep(
         inputs: StepInput,

@@ -38,7 +38,7 @@ from distilabel.pipeline.routing_batch_function import (
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import Step, StepInput, _Step
 from distilabel.steps.typing import StepOutput
-from distilabel.utils.requirements import add_requirements
+from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
@@ -931,7 +931,7 @@ class TestBasePipeline:
             assert pipeline.requirements_to_install() == expected
 
     def test_pipeline_error_from_requirements(self):
-        @add_requirements(["distilabel>=0.0.1"])
+        @requirements(["distilabel>=0.0.1"])
         class CustomStep(Step):
             @property
             def inputs(self) -> List[str]:
