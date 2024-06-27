@@ -38,7 +38,8 @@ with Pipeline(
     step1 = CustomStep()
     loader >> step1
 
-pipeline.run()
+if __name__ == "__main__":
+    pipeline.run()
 ```
 
 Once we call `pipeline.run()`, if any of the requirements informed at the `Step` or `Pipeline` level isn't met, a `ValueError` will be raised telling us that we should install the list of dependencies:
