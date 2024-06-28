@@ -221,16 +221,19 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3 >> global_step
 
         pipeline._current_stage = 0
-        pipeline._stages_last_batch = [0, 0]
+        pipeline._stages_last_batch = [[], []]
 
         assert not pipeline._should_load_next_stage()
 
-        pipeline._stages_last_batch = [4, 0]
+        pipeline._stages_last_batch = [[step3.name], []]  # type: ignore
 
         assert pipeline._should_load_next_stage()
 
         pipeline._current_stage = 1
-        pipeline._stages_last_batch = [4, 1]
+        pipeline._stages_last_batch = [  # type: ignore
+            [step3.name],
+            [global_step.name],
+        ]
 
         assert not pipeline._should_load_next_stage()
 

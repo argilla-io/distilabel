@@ -212,7 +212,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._dry_run = False
 
         self._current_stage = 0
-        self._stages_last_batch: List[int] = []
+        self._stages_last_batch: List[List[str]] = []
 
         self.requirements = requirements or []
 
@@ -622,7 +622,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _load_stages_status(self, use_cache: bool = True) -> None:
         # TODO: use cache
         self._current_stage = 0
-        self._stages_last_batch = [0] * len(self.dag.get_steps_load_stages())
+        self._stages_last_batch = [
+            [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
+        ]
 
     def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
@@ -647,7 +649,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     def _print_load_stages_info(self) -> None:
         """Prints the information about the load stages."""
-        stages = self.dag.get_steps_load_stages()
+        stages, _ = self.dag.get_steps_load_stages()
         msg = ""
         for stage, steps in enumerate(stages):
             msg += f"\n * Stage {stage}: {steps}"
@@ -734,7 +736,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             self._write_buffer.add_batch(batch)  # type: ignore
 
         if batch.last_batch:
-            self._stages_last_batch[self._current_stage] += 1
+            _, stages_last_steps = self.dag.get_steps_load_stages()
+            stage_last_steps = stages_last_steps[self._current_stage]
+            if batch.step_name in stage_last_steps:
+                self._stages_last_batch[self._current_stage].append(batch.step_name)
+                self._stages_last_batch[self._current_stage].sort()
+
             # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the step
             # if the batch is the last one, so they stop their processing loop even if they
             # haven't received the last batch because of the routing function.
@@ -756,11 +763,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             `True` if the next stage should be loaded, `False` otherwise.
         """
-        stages = self.dag.get_steps_load_stages()
-        there_is_next_stage = self._current_stage + 1 < len(stages)
-        stage_last_batches_received = self._stages_last_batch[
-            self._current_stage
-        ] == len(stages[self._current_stage])
+        _, stage_last_steps = self.dag.get_steps_load_stages()
+        there_is_next_stage = self._current_stage + 1 < len(stage_last_steps)
+        stage_last_batches_received = (
+            self._stages_last_batch[self._current_stage]
+            == stage_last_steps[self._current_stage]
+        )
         return there_is_next_stage and stage_last_batches_received
 
     def _finalize_pipeline_execution(self) -> None:
@@ -821,7 +829,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             `True` if all the steps have been loaded correctly, `False` otherwise.
         """
 
-        steps = self.dag.get_steps_load_stages()[stage]
+        steps_stages, _ = self.dag.get_steps_load_stages()
+        steps = steps_stages[stage]
 
         # Run the steps of the stage
         self._run_steps(steps=steps)

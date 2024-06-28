@@ -23,6 +23,7 @@ from typing import (
     Iterable,
     List,
     Set,
+    Tuple,
     Type,
     Union,
 )
@@ -258,7 +259,7 @@ class DAG(_Serializable):
         """
         return sum([self.get_step_replica_count(step_name) for step_name in self.G])
 
-    def get_steps_load_stages(self) -> List[List[str]]:
+    def get_steps_load_stages(self) -> Tuple[List[List[str]], List[List[str]]]:
         """Gets the stages in which the `Step`s of the `Pipeline` should be loaded. Stages
         are determined by `GlobalStep`s as they receive all the data at once, which means
         that a `GlobalStep` is not required to be loaded until all their previous steps
@@ -266,24 +267,37 @@ class DAG(_Serializable):
         to be loaded until the global has finished.
 
         Returns:
-            A sorted list by stage containing list with the names of the steps of each
-            stage.
+            A tuple with the first element containing asorted list by stage containing
+            lists with the names of the steps of the stage, and the second element a list
+            sorted by stage containing lists with the names of the last steps of the stage.
         """
+
+        def _get_stage_last_steps(stage_steps: List[str]) -> List[str]:
+            subgraph = self.G.subgraph(stage_steps)
+            return sorted(
+                [node for node in subgraph.nodes() if subgraph.out_degree(node) == 0]
+            )
+
         stages = []
         current_stage = []
+        stages_last_steps = []
+
         for step_name in nx.topological_sort(self.G):
             step: "_Step" = self.get_step(step_name)[STEP_ATTR_NAME]
             if not step.is_global:
                 current_stage.append(step_name)
             else:
                 stages.append(current_stage)
+                stages_last_steps.append(_get_stage_last_steps(current_stage))
                 stages.append([step_name])
+                stages_last_steps.append([step_name])
                 current_stage = []
 
         if current_stage:
             stages.append(current_stage)
+            stages_last_steps.append(_get_stage_last_steps(current_stage))
 
-        return stages
+        return stages, stages_last_steps
 
     def validate(self) -> None:
         """Validates that the `Step`s included in the pipeline are correctly connected and
@@ -326,7 +340,7 @@ class DAG(_Serializable):
                     # Validate routing batch function (if any)
                     predecessors = list(self.get_step_predecessors(step.name))  # type: ignore
                     self._validate_convergence_step(
-                        step,
+                        step,  # type: ignore
                         predecessors,
                         steps_receiving_routed_batches,  # type: ignore
                     )
