@@ -735,6 +735,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         if batch.last_batch:
             self._stages_last_batch[self._current_stage] += 1
+            # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the step
+            # if the batch is the last one, so they stop their processing loop even if they
+            # haven't received the last batch because of the routing function.
+            for step_name in self.dag.get_step_predecessors(batch.step_name):
+                self._send_last_batch_flag_to_step(step_name)
 
     def _update_stage(self) -> None:
         """Checks if the steps of next stage should be loaded and updates `_current_stage`
@@ -1020,13 +1025,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             batch: The batch that was processed.
         """
         assert self._batch_manager, "Batch manager is not set"
-
-        # Make sure to send the `LAST_BATCH_SENT_FLAG` to the predecessors of the step
-        # if the batch is the last one, so they stop their processing loop even if they
-        # haven't received the last batch because of the routing function.
-        if batch.last_batch:
-            for step_name in self.dag.get_step_predecessors(batch.step_name):
-                self._send_last_batch_flag_to_step(step_name)
 
         self._register_batch(batch)
 
