@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from distilabel.pipeline import Pipeline
+from distilabel.pipeline import Pipeline, sample_n_steps
 from distilabel.steps import (
     GroupColumns,
     LoadDataFromDicts,
@@ -26,6 +26,9 @@ from distilabel.steps import (
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
+
+
+routing_batch_function = sample_n_steps(2)
 
 
 @step(inputs=["instruction"], outputs=["generation"])
@@ -40,35 +43,38 @@ def Global(inputs: StepInput) -> "StepOutput":
     yield inputs
 
 
-with Pipeline(name="pipeline") as pipeline:
-    load_data = LoadDataFromDicts(
-        data=[{"instruction": f"{i} instruction"} for i in range(1000)]
-    )
-
-    generates_0 = [Generate(resources=StepResources(replicas=i)) for i in range(1, 4)]
-
-    group_0 = GroupColumns(columns=["generation"], output_columns=["generations"])
-
-    global_0 = Global()
-
-    generates_1 = [Generate(resources=StepResources(replicas=i)) for i in range(1, 3)]
-
-    group_1 = GroupColumns(columns=["generation"], output_columns=["generations"])
-
-    global_1 = Global()
-
-    (
-        load_data
-        >> generates_0
-        >> group_0
-        >> global_0
-        >> generates_1
-        >> group_1
-        >> global_1
-    )
-
-
 def test_load_stages() -> None:
+    with Pipeline(name="pipeline") as pipeline:
+        load_data = LoadDataFromDicts(
+            data=[{"instruction": f"{i} instruction"} for i in range(1000)]
+        )
+
+        generates_0 = [
+            Generate(resources=StepResources(replicas=i)) for i in range(1, 4)
+        ]
+
+        group_0 = GroupColumns(columns=["generation"], output_columns=["generations"])
+
+        global_0 = Global()
+
+        generates_1 = [
+            Generate(resources=StepResources(replicas=i)) for i in range(1, 3)
+        ]
+
+        group_1 = GroupColumns(columns=["generation"], output_columns=["generations"])
+
+        global_1 = Global()
+
+        (
+            load_data
+            >> generates_0
+            >> group_0
+            >> global_0
+            >> generates_1
+            >> group_1
+            >> global_1
+        )
+
     with mock.patch.object(
         pipeline, "_all_steps_loaded", wraps=pipeline._all_steps_loaded
     ) as all_steps_loaded_mock:
@@ -82,3 +88,27 @@ def test_load_stages() -> None:
             mock.call(stage=3),
         ]
     )
+
+
+def test_load_stages_with_routing_batch_function() -> None:
+    with Pipeline(name="pipeline") as pipeline:
+        load_data = LoadDataFromDicts(
+            data=[{"instruction": f"{i} instruction"} for i in range(1000)]
+        )
+
+        generates_0 = [
+            Generate(resources=StepResources(replicas=i)) for i in range(1, 4)
+        ]
+
+        group_0 = GroupColumns(columns=["generation"], output_columns=["generations"])
+
+        global_0 = Global()
+
+        load_data >> routing_batch_function >> generates_0 >> group_0 >> global_0
+
+    with mock.patch.object(
+        pipeline, "_all_steps_loaded", wraps=pipeline._all_steps_loaded
+    ) as all_steps_loaded_mock:
+        pipeline.run(use_cache=False)
+
+    all_steps_loaded_mock.assert_has_calls([mock.call(stage=0), mock.call(stage=1)])
