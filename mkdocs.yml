@@ -34,7 +34,7 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   icon:
-    repo: fontawesome/brands/github-alt
+    repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.sections
@@ -211,6 +211,9 @@ nav:
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
           - Utils: "api/pipeline/utils.md"
+      - Mixins:
+          - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
+          - RequirementsMixin: "api/mixins/requirements.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
   - Community:
