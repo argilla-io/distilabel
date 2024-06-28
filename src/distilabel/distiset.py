@@ -15,6 +15,7 @@
 import logging
 import os.path as posixpath
 import re
+import sys
 from os import PathLike
 from pathlib import Path
 from typing import Any, Dict, Final, Optional, Union
@@ -23,7 +24,7 @@ import fsspec
 import yaml
 from datasets import Dataset, load_dataset, load_from_disk
 from datasets.filesystems import is_remote_filesystem
-from huggingface_hub import DatasetCardData, HfApi
+from huggingface_hub import DatasetCardData, HfApi, upload_file
 from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
@@ -61,6 +62,7 @@ class Distiset(dict):
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
+        include_script: bool = True,
         **kwargs: Any,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
@@ -80,12 +82,23 @@ class Distiset(dict):
                 if no token is passed and the user is not logged-in.
             generate_card:
                 Whether to generate a dataset card or not. Defaults to True.
+            include_script:
+                Whether you want to push the pipeline script to the hugging face hub to share it.
+                Defaults to True
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
 
         Raises:
             ValueError: If no token is provided and couldn't be retrieved automatically.
         """
+        script_filename = sys.argv[0]
+        filename_py = (
+            script_filename.split("/")[-1]
+            if "/" in script_filename
+            else script_filename
+        )
+        script_path = Path.cwd() / script_filename
+
         if token is None:
             token = get_hf_token(self.__class__.__name__, "token")
 
@@ -100,6 +113,16 @@ class Distiset(dict):
 
         if generate_card:
             self._generate_card(repo_id, token)
+
+        if include_script and script_path.exists():
+            upload_file(
+                path_or_fileobj=script_path,
+                path_in_repo=filename_py,
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+                commit_message="Include pipeline script.",
+            )
 
     def _get_card(
         self, repo_id: str, token: Optional[str] = None
