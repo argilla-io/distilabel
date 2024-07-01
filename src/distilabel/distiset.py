@@ -114,9 +114,6 @@ class Distiset(dict):
                 **kwargs,
             )
 
-        if generate_card:
-            self._generate_card(repo_id, token)
-
         if include_script and script_path.exists():
             upload_file(
                 path_or_fileobj=script_path,
@@ -127,8 +124,17 @@ class Distiset(dict):
                 commit_message="Include pipeline script.",
             )
 
+        if generate_card:
+            self._generate_card(
+                repo_id, token, include_script=include_script, filename_py=filename_py
+            )
+
     def _get_card(
-        self, repo_id: str, token: Optional[str] = None
+        self,
+        repo_id: str,
+        token: Optional[str] = None,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
     ) -> DistilabelDatasetCard:
         """Generates the dataset card for the `Distiset`.
 
@@ -141,6 +147,9 @@ class Distiset(dict):
             token: The token to authenticate with the Hugging Face Hub.
                 We assume that if it's provided, the dataset will be in the Hugging Face Hub,
                 so the README metadata will be extracted from there.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
 
         Returns:
             The dataset card for the `Distiset`.
@@ -167,6 +176,8 @@ class Distiset(dict):
             card_data=DatasetCardData(**metadata),
             repo_id=repo_id,
             sample_records=sample_records,
+            include_script=include_script,
+            filename_py=filename_py,
         )
 
         return card
@@ -194,7 +205,13 @@ class Distiset(dict):
         metadata = yaml.safe_load(metadata)
         return metadata
 
-    def _generate_card(self, repo_id: str, token: str) -> None:
+    def _generate_card(
+        self,
+        repo_id: str,
+        token: str,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
+    ) -> None:
         """Generates a dataset card and pushes it to the Hugging Face Hub, and
         if the `pipeline.yaml` path is available in the `Distiset`, uploads that
         to the same repository.
@@ -202,8 +219,16 @@ class Distiset(dict):
         Args:
             repo_id: The ID of the repository to push to, from the `push_to_hub` method.
             token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
         """
-        card = self._get_card(repo_id=repo_id, token=token)
+        card = self._get_card(
+            repo_id=repo_id,
+            token=token,
+            include_script=include_script,
+            filename_py=filename_py,
+        )
 
         card.push_to_hub(
             repo_id,
