@@ -1063,6 +1063,20 @@ class TestBatchManagerStep:
                 ["step1"],
                 False,
             ),
+            (
+                {
+                    "step1": [
+                        _Batch(
+                            seq_no=0,
+                            step_name="step1",
+                            last_batch=True,
+                            data=[[]],
+                        )
+                    ],
+                },
+                ["step1"],
+                False,
+            ),
         ],
     )
     def test_ready_to_create_batch_accumulate(

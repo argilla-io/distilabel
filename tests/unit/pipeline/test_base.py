@@ -276,6 +276,19 @@ class TestBasePipeline:
 
         assert not thread.is_alive()
 
+    def test_is_step_running(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 0,
+        }
+
+        assert pipeline._is_step_running(generator.name)  # type: ignore
+        assert not pipeline._is_step_running(step.name)  # type: ignore
+
     def test_run_stage_steps_and_wait(self, caplog) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
@@ -619,6 +632,12 @@ class TestBasePipeline:
             generator2 >> step2
 
         pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            generator2.name: 1,
+            step2.name: 1,
+        }
 
         # Simulate there were batches from the cache for the steps
         batch_0 = _Batch(

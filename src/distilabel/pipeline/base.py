@@ -768,7 +768,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # if the batch is the last one, so they stop their processing loop even if they
             # haven't received the last batch because of the routing function.
             for step_name in self.dag.get_step_predecessors(batch.step_name):
-                self._send_last_batch_flag_to_step(step_name)
+                if self._is_step_running(step_name):
+                    self._send_last_batch_flag_to_step(step_name)
 
     def _update_stage(self) -> None:
         """Checks if the steps of next stage should be loaded and updates `_current_stage`
@@ -843,6 +844,18 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 self._logger.debug(
                     f"Step '{step_name}' loaded replicas: {self._steps_load_status[step_name]}"
                 )
+
+    def _is_step_running(self, step_name: str) -> bool:
+        """Checks if the step is running (at least one replica is running).
+
+        Args:
+            step_name: The step to be check if running.
+
+        Returns:
+            `True` if the step is running, `False` otherwise.
+        """
+        with self._steps_load_status_lock:
+            return self._steps_load_status[step_name] >= 1
 
     def _run_stage_steps_and_wait(self, stage: int) -> bool:
         """Runs the steps of the specified stage and waits for them to be ready.
@@ -1192,6 +1205,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         assert self._batch_manager, "Batch manager is not set"
 
         for step in self._batch_manager._steps.values():
+            if not self._is_step_running(step.step_name):
+                continue
             if batch := step.get_batch():
                 self._logger.debug(
                     f"Sending initial batch to '{step.step_name}' step: {batch}"
@@ -1199,6 +1214,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 self._send_batch_to_step(batch)
 
         for step_name in self.dag.root_steps:
+            if not self._is_step_running(step_name):
+                continue
             seq_no = 0
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
