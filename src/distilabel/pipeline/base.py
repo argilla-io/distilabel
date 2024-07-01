@@ -226,7 +226,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         The main use is to find the pipeline in the cache folder.
 
         Returns:
-            int: Signature of the pipeline.
+            Signature of the pipeline.
         """
         hasher = hashlib.sha1()
 

@@ -364,3 +364,11 @@ class TestStepSerialization:
             }
         )
         assert f"Step '{dummy_step.name}' hasn't received a pipeline" in caplog.text
+
+    def test_equality(self):
+        assert (
+            DummyStep()._create_signature()
+            == "74966afad539aae3a6555d255900ae3c9fc24a5f"
+        )
+        assert DummyStep() == DummyStep()
+        assert DummyStep(name="dummy") != DummyStep(name="other")
