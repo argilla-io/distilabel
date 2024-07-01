@@ -78,7 +78,7 @@ def test_load_stages() -> None:
         )
 
     with mock.patch.object(
-        pipeline, "_all_steps_loaded", wraps=pipeline._run_stage_steps_and_wait
+        pipeline, "_run_stage_steps_and_wait", wraps=pipeline._run_stage_steps_and_wait
     ) as all_steps_loaded_mock:
         pipeline.run(use_cache=False)
 

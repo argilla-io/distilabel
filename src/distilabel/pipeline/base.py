@@ -52,7 +52,7 @@ from distilabel.pipeline.constants import (
     STEP_ATTR_NAME,
 )
 from distilabel.pipeline.write_buffer import _WriteBuffer
-from distilabel.utils.logging import setup_logging
+from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _Serializable,
@@ -379,12 +379,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 "💾 Loaded batch manager from cache doesn't contain any remaining data."
                 " Returning `Distiset` from cache data..."
             )
-            return create_distiset(
+            distiset = create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
                 log_filename_path=self._cache_location["log_file"],
                 enable_metadata=self._enable_metadata,
             )
+            stop_logging()
+            return distiset
 
         self._setup_write_buffer()
 

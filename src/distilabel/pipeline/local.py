@@ -30,7 +30,7 @@ from distilabel.pipeline.constants import (
     LAST_BATCH_SENT_FLAG,
 )
 from distilabel.steps.tasks.base import Task
-from distilabel.utils.logging import setup_logging
+from distilabel.utils.logging import setup_logging, stop_logging
 
 if TYPE_CHECKING:
     from queue import Queue
@@ -131,6 +131,8 @@ class Pipeline(BasePipeline):
             enable_metadata=self._enable_metadata,
         )
 
+        stop_logging()
+
         return distiset
 
     @property
@@ -155,7 +157,7 @@ class Pipeline(BasePipeline):
         assert self._pool, "Pool is not initialized"
 
         process_wrapper = _ProcessWrapper(
-            step=step,
+            step=step,  # type: ignore
             replica=replica,
             input_queue=input_queue,
             output_queue=self._output_queue,
@@ -265,6 +267,8 @@ class Pipeline(BasePipeline):
                         self._manager.shutdown()
                         self._manager.join()
                         self._manager = None
+
+                    stop_logging()
 
                     sys.exit(1)
 

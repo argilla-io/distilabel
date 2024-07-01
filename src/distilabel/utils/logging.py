@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import atexit
 import logging
 import multiprocessing as mp
 import os
@@ -99,6 +98,3 @@ def stop_logging() -> None:
         queue_listener.stop()
         queue_listener.queue.close()
         queue_listener = None
-
-
-atexit.register(stop_logging)
