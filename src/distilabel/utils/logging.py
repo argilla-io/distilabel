@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
 import logging
 import multiprocessing as mp
 import os
@@ -83,10 +84,7 @@ def setup_logging(
         log_level = "INFO"
 
     root_logger = logging.getLogger()
-
-    running_test = "PYTEST_CURRENT_TEST" in os.environ
-    if not running_test:
-        root_logger.handlers.clear()
+    root_logger.handlers.clear()
 
     if log_queue is not None:
         root_logger.addHandler(QueueHandler(log_queue))
@@ -101,3 +99,6 @@ def stop_logging() -> None:
         queue_listener.stop()
         queue_listener.queue.close()
         queue_listener = None
+
+
+atexit.register(stop_logging)

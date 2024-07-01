@@ -644,6 +644,7 @@ class _BatchManagerStep(_Serializable):
             "convergence_step": self.convergence_step,
             "convergence_step_batches_consumed": self.convergence_step_batches_consumed,
             "next_expected_created_from_batch_seq_no": self.next_expected_created_from_batch_seq_no,
+            "next_expected_seq_no": self.next_expected_seq_no,
         }
 
 

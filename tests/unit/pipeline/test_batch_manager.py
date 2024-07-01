@@ -1115,6 +1115,7 @@ class TestBatchManagerStep:
                 "step2": [batch_step_2],
             },
             built_batches=[batch_step_3],
+            next_expected_seq_no={"step1": (0, 0), "step2": (0, 0)},
         )
         assert batch_manager_step.dump() == {
             "step_name": "step3",
@@ -1197,6 +1198,10 @@ class TestBatchManagerStep:
             "seq_no": 0,
             "last_batch_received": [],
             "next_expected_created_from_batch_seq_no": 0,
+            "next_expected_seq_no": {
+                "step1": (0, 0),
+                "step2": (0, 0),
+            },
             "type_info": {
                 "module": "distilabel.pipeline.batch_manager",
                 "name": "_BatchManagerStep",
@@ -1573,6 +1578,10 @@ class TestBatchManager:
                     input_batch_size=5,
                     data={"step1": [], "step2": []},
                     built_batches=[built_batch],
+                    next_expected_seq_no={
+                        "step1": (1, 1),
+                        "step2": (1, 1),
+                    },
                     seq_no=1,
                 )
             },
@@ -1621,6 +1630,10 @@ class TestBatchManager:
                     "seq_no": 1,
                     "last_batch_received": [],
                     "next_expected_created_from_batch_seq_no": 0,
+                    "next_expected_seq_no": {
+                        "step1": (1, 1),
+                        "step2": (1, 1),
+                    },
                     "type_info": {
                         "module": "distilabel.pipeline.batch_manager",
                         "name": "_BatchManagerStep",
