@@ -62,7 +62,7 @@ class Distiset(dict):
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
-        include_script: bool = True,
+        include_script: bool = False,
         **kwargs: Any,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
@@ -84,7 +84,10 @@ class Distiset(dict):
                 Whether to generate a dataset card or not. Defaults to True.
             include_script:
                 Whether you want to push the pipeline script to the hugging face hub to share it.
-                Defaults to True
+                If set to True, the name of the script that was run to create the distiset will be
+                automatically determined, and that will be the name of the file uploaded to your
+                repository. Take into account, this operation only makes sense for a distiset obtained
+                from calling `Pipeline.run()` method. Defaults to False.
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
 
