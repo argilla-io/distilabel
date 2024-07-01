@@ -112,51 +112,27 @@ class Pipeline(BasePipeline):
             self._load_queue = self.QueueClass()
             self._handle_keyboard_interrupt()
 
-            # Run the steps using the pool of processes
-            self._run_steps()
-
             # Run the loop for receiving the load status of each step
             self._load_steps_thread = self._run_load_queue_loop_in_thread()
-
-            # Wait for all the steps to be loaded correctly
-            if not self._all_steps_loaded():
-                self._write_buffer.close()  # type: ignore
-                self._batch_manager = None
-                self._stop_load_queue_loop()
-                self._load_steps_thread.join()
-                stop_logging()
-                raise RuntimeError(
-                    "Failed to load all the steps. Could not run pipeline."
-                ) from _SUBPROCESS_EXCEPTION
-
-            # Send the "first" batches to the steps so the batches starts flowing through
-            # the input queues and output queue
-            self._request_initial_batches()
 
             # Start a loop to receive the output batches from the steps
             self._output_queue_thread = self._run_output_queue_loop_in_thread()
             self._output_queue_thread.join()
 
-            # Send `None` to steps `input_queue`s just in case some step is still waiting
-            self._notify_steps_to_stop()
+            self._teardown()
 
-            # Stop the load queue loop
-            self._stop_load_queue_loop()
+            if self._exception:
+                raise self._exception
 
-        # `Pool.__exit__` has already called `terminate`, `join` the pool to make sure
-        # all the processes have finished
-        self._load_steps_thread.join()
-        self._pool.join()
-        self._manager.join()
-
-        self._write_buffer.close()  # type: ignore
         distiset = create_distiset(
             self._cache_location["data"],
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
         )
+
         stop_logging()
+
         return distiset
 
     @property
@@ -181,7 +157,7 @@ class Pipeline(BasePipeline):
         assert self._pool, "Pool is not initialized"
 
         process_wrapper = _ProcessWrapper(
-            step=step,
+            step=step,  # type: ignore
             replica=replica,
             input_queue=input_queue,
             output_queue=self._output_queue,
@@ -235,6 +211,36 @@ class Pipeline(BasePipeline):
         self._logger.error(f"Subprocess traceback:\n\n{e.formatted_traceback}")
 
         self._stop()
+
+    def _teardown(self) -> None:
+        """Clean/release/stop resources reserved to run the pipeline."""
+        if self._write_buffer:
+            self._write_buffer.close()
+
+        if self._batch_manager:
+            self._batch_manager = None
+
+        self._stop_load_queue_loop()
+        self._load_steps_thread.join()
+
+        if self._pool:
+            self._pool.terminate()
+            self._pool.join()
+
+        if self._manager:
+            self._manager.shutdown()
+            self._manager.join()
+
+    def _set_steps_not_loaded_exception(self) -> None:
+        """Raises a `RuntimeError` notifying that the steps load has failed.
+
+        Raises:
+            RuntimeError: containing the information and why a step failed to be loaded.
+        """
+        self._exception = RuntimeError(
+            "Failed to load all the steps. Could not run pipeline."
+        )
+        self._exception.__cause__ = _SUBPROCESS_EXCEPTION
 
     def _stop(self) -> None:
         """Stops the pipeline execution. It will first send `None` to the input queues
@@ -293,7 +299,7 @@ class _ProcessWrapperException(Exception):
     def __init__(
         self,
         message: str,
-        step: "Step",
+        step: "_Step",
         code: int,
         subprocess_exception: Optional[Exception] = None,
     ) -> None:
@@ -309,7 +315,7 @@ class _ProcessWrapperException(Exception):
     def create_load_error(
         cls,
         message: str,
-        step: "Step",
+        step: "_Step",
         subprocess_exception: Optional[Exception] = None,
     ) -> "_ProcessWrapperException":
         """Creates a `_ProcessWrapperException` for a load error.
@@ -348,7 +354,7 @@ class _ProcessWrapper:
 
     def __init__(
         self,
-        step: "_Step",
+        step: Union["Step", "GeneratorStep"],
         replica: int,
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
@@ -396,7 +402,9 @@ class _ProcessWrapper:
             self.step.unload()
             self._notify_load_failed()
             raise _ProcessWrapperException.create_load_error(
-                str(e), self.step, e
+                message=f"Step load failed: {e}",
+                step=self.step,
+                subprocess_exception=e,
             ) from e
 
         self._notify_load()
@@ -417,7 +425,7 @@ class _ProcessWrapper:
         self._notify_unload()
 
         self.step._logger.info(
-            f"🏁 Finished running step '{self.step.name}' (replica: {self.replica})"
+            f"🏁 Finished running step '{self.step.name}' (replica ID: {self.replica})"
         )
 
         return self.step.name  # type: ignore
@@ -494,6 +502,7 @@ class _ProcessWrapper:
             _ProcessWrapperException: If an error occurs during the execution of the
                 `process` method and the step is global.
         """
+        step = cast("Step", self.step)
         while True:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
@@ -506,7 +515,7 @@ class _ProcessWrapper:
                 break
 
             self.step._logger.info(
-                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}' (replica: {self.replica})"
+                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}' (replica ID: {self.replica})"
             )
 
             if batch.data_path is not None:
@@ -516,9 +525,9 @@ class _ProcessWrapper:
             result = []
             try:
                 if self.step.has_multiple_inputs:
-                    result = next(self.step.process_applying_mappings(*batch.data))
+                    result = next(step.process_applying_mappings(*batch.data))
                 else:
-                    result = next(self.step.process_applying_mappings(batch.data[0]))
+                    result = next(step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e

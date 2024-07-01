@@ -24,9 +24,6 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-random.seed(42)
-
-
 @routing_batch_function()
 def random_routing_batch(steps: List[str]) -> List[str]:
     return random.sample(steps, 2)
