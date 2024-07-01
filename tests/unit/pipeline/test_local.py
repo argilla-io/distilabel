@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 
 
 class TestLocalPipeline:
-    @mock.patch("distilabel.pipeline.local._ProcessWrapper")
-    def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
+    @mock.patch("distilabel.pipeline.local._StepWrapper")
+    def test_create_processes(self, step_wrapper_mock: mock.MagicMock) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(
@@ -46,7 +46,7 @@ class TestLocalPipeline:
 
         assert pipeline._manager.Queue.call_count == 3
 
-        process_wrapper_mock.assert_has_calls(
+        step_wrapper_mock.assert_has_calls(
             [
                 mock.call(
                     step=dummy_generator,
@@ -86,15 +86,15 @@ class TestLocalPipeline:
         pipeline._pool.apply_async.assert_has_calls(
             [
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
             ]
