@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.typing import StepLoadStatus
-    from distilabel.steps.base import GeneratorStep, _Step
+    from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
 _SUBPROCESS_EXCEPTION: Union[Exception, None] = None
@@ -122,7 +122,6 @@ class Pipeline(BasePipeline):
             self._teardown()
 
             if self._exception:
-                stop_logging()
                 raise self._exception
 
         distiset = create_distiset(
@@ -158,7 +157,7 @@ class Pipeline(BasePipeline):
         assert self._pool, "Pool is not initialized"
 
         process_wrapper = _ProcessWrapper(
-            step=step,
+            step=step,  # type: ignore
             replica=replica,
             input_queue=input_queue,
             output_queue=self._output_queue,
@@ -355,7 +354,7 @@ class _ProcessWrapper:
 
     def __init__(
         self,
-        step: "_Step",
+        step: Union["Step", "GeneratorStep"],
         replica: int,
         input_queue: "Queue[_Batch]",
         output_queue: "Queue[_Batch]",
@@ -426,7 +425,7 @@ class _ProcessWrapper:
         self._notify_unload()
 
         self.step._logger.info(
-            f"🏁 Finished running step '{self.step.name}' (replica: {self.replica})"
+            f"🏁 Finished running step '{self.step.name}' (replica ID: {self.replica})"
         )
 
         return self.step.name  # type: ignore
@@ -503,6 +502,7 @@ class _ProcessWrapper:
             _ProcessWrapperException: If an error occurs during the execution of the
                 `process` method and the step is global.
         """
+        step = cast("Step", self.step)
         while True:
             if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
@@ -515,7 +515,7 @@ class _ProcessWrapper:
                 break
 
             self.step._logger.info(
-                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}' (replica: {self.replica})"
+                f"📦 Processing batch {batch.seq_no} in '{batch.step_name}' (replica ID: {self.replica})"
             )
 
             if batch.data_path is not None:
@@ -525,9 +525,9 @@ class _ProcessWrapper:
             result = []
             try:
                 if self.step.has_multiple_inputs:
-                    result = next(self.step.process_applying_mappings(*batch.data))
+                    result = next(step.process_applying_mappings(*batch.data))
                 else:
-                    result = next(self.step.process_applying_mappings(batch.data[0]))
+                    result = next(step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
                     raise _ProcessWrapperException(str(e), self.step, 2, e) from e

@@ -184,13 +184,13 @@ class TestBasePipeline:
             generator >> [step, step2] >> step3
 
         pipeline._current_stage = 0
-        pipeline._all_steps_loaded = mock.MagicMock(return_value=True)
+        pipeline._run_stage_steps_and_wait = mock.MagicMock(return_value=True)
         pipeline._set_steps_not_loaded_exception = mock.MagicMock()
         pipeline._request_initial_batches = mock.MagicMock()
 
         pipeline._initialize_pipeline_execution()
 
-        pipeline._all_steps_loaded.assert_called_once_with(
+        pipeline._run_stage_steps_and_wait.assert_called_once_with(
             stage=pipeline._current_stage
         )
         pipeline._set_steps_not_loaded_exception.assert_not_called()
@@ -243,12 +243,12 @@ class TestBasePipeline:
 
         pipeline._current_stage = 0
         pipeline._should_load_next_stage = mock.MagicMock(return_value=True)
-        pipeline._all_steps_loaded = mock.MagicMock(return_value=True)
+        pipeline._run_stage_steps_and_wait = mock.MagicMock(return_value=True)
 
         pipeline._update_stage()
 
         assert pipeline._current_stage == 1
-        pipeline._all_steps_loaded.assert_called_once_with(
+        pipeline._run_stage_steps_and_wait.assert_called_once_with(
             stage=pipeline._current_stage
         )
 
@@ -276,7 +276,20 @@ class TestBasePipeline:
 
         assert not thread.is_alive()
 
-    def test_all_steps_loaded(self, caplog) -> None:
+    def test_is_step_running(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 0,
+        }
+
+        assert pipeline._is_step_running(generator.name)  # type: ignore
+        assert not pipeline._is_step_running(step.name)  # type: ignore
+
+    def test_run_stage_steps_and_wait(self, caplog) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
@@ -295,10 +308,10 @@ class TestBasePipeline:
         }
         caplog.set_level(logging.INFO)
 
-        assert pipeline._all_steps_loaded(stage=0) is True
+        assert pipeline._run_stage_steps_and_wait(stage=0) is True
         assert "All the steps from stage 0 have been loaded!" in caplog.text
 
-    def test_all_steps_loaded_with_failing_step(self, caplog) -> None:
+    def test_run_stage_steps_and_wait_with_failing_step(self, caplog) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
@@ -312,10 +325,10 @@ class TestBasePipeline:
         pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
         caplog.set_level(logging.INFO)
 
-        assert pipeline._all_steps_loaded(stage=0) is False
+        assert pipeline._run_stage_steps_and_wait(stage=0) is False
         assert "Failed to load all the steps of stage 0" in caplog.text
 
-    def test_all_steps_loaded_stop_called(self) -> None:
+    def test_run_stage_steps_and_wait_stop_called(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
@@ -328,7 +341,7 @@ class TestBasePipeline:
         pipeline._init_steps_load_status()
         pipeline._stop_called = True
 
-        assert pipeline._all_steps_loaded(stage=0) is False
+        assert pipeline._run_stage_steps_and_wait(stage=0) is False
 
     def test_handle_stop(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -619,6 +632,12 @@ class TestBasePipeline:
             generator2 >> step2
 
         pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            generator2.name: 1,
+            step2.name: 1,
+        }
 
         # Simulate there were batches from the cache for the steps
         batch_0 = _Batch(
@@ -720,8 +739,15 @@ class TestBasePipeline:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1(input_batch_size=5)
+            global_step = DummyGlobalStep()
 
-            generator >> step
+            generator >> step >> global_step
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            global_step.name: -999,
+        }
 
         with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
             pipeline._notify_steps_to_stop()

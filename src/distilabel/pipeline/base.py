@@ -56,6 +56,7 @@ from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _Serializable,
+    read_json,
 )
 
 if TYPE_CHECKING:
@@ -67,25 +68,25 @@ if TYPE_CHECKING:
     from distilabel.pipeline.typing import PipelineRuntimeParametersInfo, StepLoadStatus
     from distilabel.steps.base import Step, _Step
 
+    class _CacheLocation(TypedDict):
+        """Dictionary to store the filenames and directories of a cached pipeline.
+
+        Attributes:
+            pipeline: The filename where the pipeline content will be serialized.
+            batch_manager: The filename where the batch manager content will be serialized.
+            data: The directory where the output data of each leaf step will be stored.
+            log_file: The filename where the logs will be stored.
+        """
+
+        pipeline: Path
+        batch_manager: Path
+        data: Path
+        batch_input_data: Path
+        log_file: Path
+        stages_file: Path
+
 
 BASE_CACHE_DIR = Path.home() / ".cache" / "distilabel" / "pipelines"
-
-
-class _CacheLocation(TypedDict):
-    """Dictionary to store the filenames and directories of a cached pipeline.
-
-    Attributes:
-        pipeline: The filename where the pipeline content will be serialized.
-        batch_manager: The filename where the batch manager content will be serialized.
-        data: The directory where the output data of each leaf step will be stored.
-        log_file: The filename where the logs will be stored.
-    """
-
-    pipeline: Path
-    batch_manager: Path
-    data: Path
-    batch_input_data: Path
-    log_file: Path
 
 
 class _GlobalPipelineManager:
@@ -378,13 +379,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 "💾 Loaded batch manager from cache doesn't contain any remaining data."
                 " Returning `Distiset` from cache data..."
             )
-            stop_logging()
-            return create_distiset(
+            distiset = create_distiset(
                 self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
                 log_filename_path=self._cache_location["log_file"],
                 enable_metadata=self._enable_metadata,
             )
+            stop_logging()
+            return distiset
 
         self._setup_write_buffer()
 
@@ -590,7 +592,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         return pipe
 
     @property
-    def _cache_location(self) -> _CacheLocation:
+    def _cache_location(self) -> "_CacheLocation":
         """Dictionary containing the the object that will stored and the location,
         whether it is a filename or a folder.
 
@@ -604,6 +606,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             "data": folder / "data",
             "batch_input_data": folder / "batch_input_data",
             "log_file": folder / "pipeline.log",
+            "stages_file": folder / "stages.json",
         }
 
     def _cache(self) -> None:
@@ -615,16 +618,37 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             path=self._cache_location["pipeline"],
             format=self._cache_location["pipeline"].suffix.replace(".", ""),  # type: ignore
         )
+
         if self._batch_manager is not None:
             self._batch_manager.cache(self._cache_location["batch_manager"])
+
+        self._save_stages_status()
+
         self._logger.debug("Pipeline and batch manager saved to cache.")
 
+    def _save_stages_status(self) -> None:
+        """Saves the stages status to cache."""
+        self.save(
+            path=self._cache_location["stages_file"],
+            format="json",
+            dump={
+                "current_stage": self._current_stage,
+                "stages_last_batch": self._stages_last_batch,
+            },
+        )
+
     def _load_stages_status(self, use_cache: bool = True) -> None:
-        # TODO: use cache
-        self._current_stage = 0
-        self._stages_last_batch = [
-            [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
-        ]
+        """Try to load the stages status from cache, or initialize it if cache file doesn't
+        exist or cache is not going to be used."""
+        if use_cache and self._cache_location["stages_file"].exists():
+            stages_status = read_json(self._cache_location["stages_file"])
+            self._current_stage = stages_status["current_stage"]
+            self._stages_last_batch = stages_status["stages_last_batch"]
+        else:
+            self._current_stage = 0
+            self._stages_last_batch = [
+                [] for _ in range(len(self.dag.get_steps_load_stages()[0]))
+            ]
 
     def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
@@ -703,7 +727,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """Load the steps of the required stage to continue initialize the pipeline execution,
         and requests the initial batches to trigger the batch flowing in the pipeline."""
         # Wait for all the steps to be loaded correctly
-        if not self._all_steps_loaded(stage=self._current_stage):
+        if not self._run_stage_steps_and_wait(stage=self._current_stage):
             self._set_steps_not_loaded_exception()
             return
 
@@ -746,14 +770,15 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # if the batch is the last one, so they stop their processing loop even if they
             # haven't received the last batch because of the routing function.
             for step_name in self.dag.get_step_predecessors(batch.step_name):
-                self._send_last_batch_flag_to_step(step_name)
+                if self._is_step_running(step_name):
+                    self._send_last_batch_flag_to_step(step_name)
 
     def _update_stage(self) -> None:
         """Checks if the steps of next stage should be loaded and updates `_current_stage`
         attribute."""
         if self._should_load_next_stage():
             self._current_stage += 1
-            if not self._all_steps_loaded(stage=self._current_stage):
+            if not self._run_stage_steps_and_wait(stage=self._current_stage):
                 self._set_steps_not_loaded_exception()
                 return
 
@@ -781,6 +806,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         # Send `None` to steps `input_queue`s just in case some step is still waiting
         self._notify_steps_to_stop()
+
+        # Reset flag state
+        self._stop_called = False
 
     def _run_load_queue_loop_in_thread(self) -> threading.Thread:
         """Runs a background thread that reads from the `load_queue` to update the status
@@ -819,7 +847,19 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     f"Step '{step_name}' loaded replicas: {self._steps_load_status[step_name]}"
                 )
 
-    def _all_steps_loaded(self, stage: int) -> bool:
+    def _is_step_running(self, step_name: str) -> bool:
+        """Checks if the step is running (at least one replica is running).
+
+        Args:
+            step_name: The step to be check if running.
+
+        Returns:
+            `True` if the step is running, `False` otherwise.
+        """
+        with self._steps_load_status_lock:
+            return self._steps_load_status[step_name] >= 1
+
+    def _run_stage_steps_and_wait(self, stage: int) -> bool:
         """Runs the steps of the specified stage and waits for them to be ready.
 
         Args:
@@ -1000,7 +1040,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             if input_queue := node.get(INPUT_QUEUE_ATTR_NAME):
                 while not input_queue.empty():
                     batch = input_queue.get()
-                    if batch is None:
+                    if not isinstance(batch, _Batch):
                         continue
                     self._batch_manager.add_batch(  # type: ignore
                         to_step=step_name, batch=batch, prepend=True
@@ -1167,6 +1207,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         assert self._batch_manager, "Batch manager is not set"
 
         for step in self._batch_manager._steps.values():
+            if not self._is_step_running(step.step_name):
+                continue
             if batch := step.get_batch():
                 self._logger.debug(
                     f"Sending initial batch to '{step.step_name}' step: {batch}"
@@ -1174,6 +1216,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 self._send_batch_to_step(batch)
 
         for step_name in self.dag.root_steps:
+            if not self._is_step_running(step_name):
+                continue
             seq_no = 0
             if last_batch := self._batch_manager.get_last_batch(step_name):
                 seq_no = last_batch.seq_no + 1
@@ -1237,8 +1281,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _notify_steps_to_stop(self) -> None:
         """Notifies the steps to stop their infinite running loop by sending `None` to
         their input queues."""
-        for step_name in self.dag:
-            self._send_to_step(step_name, None)
+        with self._steps_load_status_lock:
+            for step_name, replicas in self._steps_load_status.items():
+                if replicas > 0:
+                    self._send_to_step(step_name, None)
 
     def _get_successors(self, batch: "_Batch") -> Tuple[List[str], List[str], bool]:
         """Gets the successors and the successors to which the batch has to be routed.

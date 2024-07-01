@@ -15,54 +15,16 @@
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from distilabel.pipeline.batch import _Batch
-from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import StepResources
 
 from .utils import DummyGeneratorStep, DummyStep1, DummyStep2
 
 if TYPE_CHECKING:
-    from distilabel.steps.base import GeneratorStep
+    pass
 
 
 class TestLocalPipeline:
-    def test_request_initial_batches(
-        self, dummy_generator_step: "GeneratorStep"
-    ) -> None:
-        send_batch_to_step_mock = mock.MagicMock()
-        pipeline = dummy_generator_step.pipeline
-        pipeline._send_batch_to_step = send_batch_to_step_mock  # type: ignore
-        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)  # type: ignore
-        pipeline._request_initial_batches()  # type: ignore
-
-        send_batch_to_step_mock.assert_has_calls(
-            [
-                mock.call(_Batch(seq_no=0, step_name=step_name, last_batch=False))
-                for step_name in pipeline.dag.root_steps
-            ]
-        )
-
-    def test_send_batch_to_step(self, dummy_generator_step: "GeneratorStep") -> None:
-        pipeline = dummy_generator_step.pipeline
-
-        input_queue = mock.MagicMock()
-        step = mock.MagicMock()
-        step.__getitem__.return_value = input_queue
-        get_step_mock = mock.MagicMock(return_value=step)
-        pipeline.dag.get_step = get_step_mock  # type: ignore
-
-        batch_manager_mock = mock.MagicMock()
-        pipeline._batch_manager = batch_manager_mock  # type: ignore
-
-        batch = _Batch(
-            seq_no=0, step_name=dummy_generator_step.name, last_batch=False, data=[[]]
-        )
-        pipeline._send_batch_to_step(batch=batch)  # type: ignore
-
-        get_step_mock.assert_has_calls([mock.call(dummy_generator_step.name)])
-        input_queue.put.assert_called_once_with(batch)
-
     @mock.patch("distilabel.pipeline.local._ProcessWrapper")
     def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
