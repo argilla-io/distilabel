@@ -145,7 +145,9 @@ class RayPipeline(BasePipeline):
             log_queue=self._log_queue,
         )
 
-        resources = {}
+        resources: Dict[str, Any] = {
+            "name": f"distilabel-{self.name}-{step.name}-{replica}"
+        }
 
         if step.resources.cpus is not None:
             resources["num_cpus"] = step.resources.cpus
@@ -153,8 +155,7 @@ class RayPipeline(BasePipeline):
         if step.resources.gpus is not None:
             resources["num_gpus"] = step.resources.gpus
 
-        if len(resources) > 1:
-            step_wrapper.options(**resources).remote()
+        step_wrapper.options(**resources).remote()
 
         step_wrapper.run.remote()
 
