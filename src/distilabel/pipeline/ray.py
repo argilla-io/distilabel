@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from distilabel.distiset import create_distiset
 from distilabel.pipeline.base import BasePipeline
+from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 
@@ -53,15 +54,21 @@ class RayPipeline(BasePipeline):
     ) -> "Distiset":
         self._init_ray()
 
-        self._log_queue = self.QueueClass()
+        self._log_queue = self.QueueClass(
+            actor_options={"name": f"distilabel-{self.name}-log-queue"}
+        )
 
         if distiset := super().run(
             parameters, use_cache, storage_parameters, use_fs_to_pass_data
         ):
             return distiset
 
-        self._output_queue = self.QueueClass()
-        self._load_queue = self.QueueClass()
+        self._output_queue = self.QueueClass(
+            actor_options={"name": f"distilabel-{self.name}-output-queue"}
+        )
+        self._load_queue = self.QueueClass(
+            actor_options={"name": f"distilabel-{self.name}-load-queue"}
+        )
         self._handle_keyboard_interrupt()
 
         # Run the loop for receiving the load status of each step
@@ -110,6 +117,21 @@ class RayPipeline(BasePipeline):
         from ray.util.queue import Queue
 
         return Queue
+
+    def _create_step_input_queue(self, step_name: str) -> "Queue[Any]":
+        """Creates an input queue for a step. Override to set actor name.
+
+        Args:
+            step_name: The name of the step.
+
+        Returns:
+            The input queue created.
+        """
+        input_queue = self.QueueClass(
+            actor_options={"name": f"distilabel-{self.name}-input-queue-{step_name}"}
+        )
+        self.dag.set_step_attr(step_name, INPUT_QUEUE_ATTR_NAME, input_queue)
+        return input_queue
 
     def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
         """Creates a replica of an `Step` using a Ray Actor.
