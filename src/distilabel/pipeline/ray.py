@@ -107,7 +107,12 @@ class RayPipeline(BasePipeline):
         if self._ray_head_node_host:
             ray.init(
                 f"ray://{self._ray_head_node_host}:{self._ray_head_node_port}",
-                runtime_env={"pip": self.requirements},
+                runtime_env={
+                    "pip": self.requirements
+                    + [
+                        "distilabel @ git+https://github.com/argilla-io/distilabel.git@ray-pipeline"
+                    ]
+                },
             )
         else:
             ray.init()
