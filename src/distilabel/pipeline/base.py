@@ -137,8 +137,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         _write_buffer: The buffer that will store the data of the leaf steps of the pipeline
             while running, so the `Distiset` can be created at the end. It will be created
             when the pipeline is run. Defaults to `None`.
-        _logging_parameters: A dictionary containing the parameters that will passed to
-            `setup_logging` function to initialize the logging. Defaults to `{}`.
         _fs: The `fsspec` filesystem to be used to store the data of the `_Batch`es passed
             between the steps. It will be set when the pipeline is run. Defaults to `None`.
         _storage_base_path: The base path where the data of the `_Batch`es passed between
@@ -196,9 +194,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._batch_manager: Optional["_BatchManager"] = None
         self._write_buffer: Optional["_WriteBuffer"] = None
-        self._logging_parameters: Dict[str, Any] = {
-            "filename": self._cache_location["log_file"]
-        }
 
         self._steps_load_status: Dict[str, int] = {}
         self._steps_load_status_lock = threading.Lock()
@@ -218,6 +213,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self.requirements = requirements or []
 
         self._exception: Union[Exception, None] = None
+
+        self._log_queue: Union["Queue[Any]", None] = None
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -286,16 +283,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         return hasher.hexdigest()
 
-    def _set_logging_parameters(self, parameters: Dict[str, Any]) -> None:
-        """Set the parameters that will be passed to the `setup_logging` function to
-        initialize the logging.
-
-        Args:
-            parameters: A dictionary with the parameters that will be passed to the
-                `setup_logging` function.
-        """
-        self._logging_parameters = parameters
-
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
@@ -338,10 +325,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._set_runtime_parameters(parameters or {})
 
         setup_logging(
-            **{
-                **self._logging_parameters,
-                "filename": str(self._cache_location["log_file"]),
-            }
+            log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are

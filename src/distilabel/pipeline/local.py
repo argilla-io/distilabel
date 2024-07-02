@@ -15,7 +15,7 @@
 import multiprocessing as mp
 import signal
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union, cast
 
 import tblib
 
@@ -81,11 +81,7 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
-        log_queue = mp.Queue()
-
-        self._set_logging_parameters(
-            {"log_queue": log_queue, "filename": self._cache_location["log_file"]}
-        )
+        self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
             parameters, use_cache, storage_parameters, use_fs_to_pass_data
@@ -97,7 +93,7 @@ class Pipeline(BasePipeline):
         with ctx.Manager() as manager, ctx.Pool(
             num_processes,
             initializer=_init_worker,
-            initargs=(log_queue,),
+            initargs=(self._log_queue,),
         ) as pool:
             self._manager = manager
             self._pool = pool
