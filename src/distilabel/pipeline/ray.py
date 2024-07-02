@@ -133,6 +133,18 @@ class RayPipeline(BasePipeline):
                 setup_logging(log_queue=self._log_queue)
                 return self._step_wrapper.run()
 
+        resources: Dict[str, Any] = {
+            "name": f"distilabel-{self.name}-{step.name}-{replica}"
+        }
+
+        if step.resources.cpus is not None:
+            resources["num_cpus"] = step.resources.cpus
+
+        if step.resources.gpus is not None:
+            resources["num_gpus"] = step.resources.gpus
+
+        _StepWrapperRay = _StepWrapperRay.options(**resources)  # type: ignore
+
         step_wrapper = _StepWrapperRay.remote(
             step_wrapper=_StepWrapper(
                 step=step,  # type: ignore
@@ -144,18 +156,6 @@ class RayPipeline(BasePipeline):
             ),
             log_queue=self._log_queue,
         )
-
-        resources: Dict[str, Any] = {
-            "name": f"distilabel-{self.name}-{step.name}-{replica}"
-        }
-
-        if step.resources.cpus is not None:
-            resources["num_cpus"] = step.resources.cpus
-
-        if step.resources.gpus is not None:
-            resources["num_gpus"] = step.resources.gpus
-
-        step_wrapper.options(**resources).remote()
 
         step_wrapper.run.remote()
 
