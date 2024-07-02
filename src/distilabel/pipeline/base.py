@@ -53,7 +53,6 @@ from distilabel.pipeline.constants import (
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
-    TYPE_INFO_KEY,
     _Serializable,
 )
 
@@ -228,34 +227,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Returns:
             Signature of the pipeline.
         """
-        hasher = hashlib.sha1()
 
-        steps_info = []
         pipeline_dump = self.dump()["pipeline"]
 
-        for step in pipeline_dump["steps"]:
-            step_info = step["name"]
-            for argument, value in sorted(step[STEP_ATTR_NAME].items()):
-                if (argument == TYPE_INFO_KEY) or (value is None):
-                    continue
-
-                if isinstance(value, dict):
-                    # input_mappings/output_mappings
-                    step_info += "-".join(
-                        [f"{str(k)}-{str(v)}" for k, v in value.items()]
-                    )
-                elif isinstance(value, (list, tuple)):
-                    # runtime_parameters_info
-                    step_info += "-".join([str(v) for v in value])
-                elif isinstance(value, (int, str, float)):
-                    # batch_size/name
-                    step_info += str(value)
-                else:
-                    raise ValueError(
-                        f"Field '{argument}' in step '{step['name']}' has type {type(value)}, explicitly cast the type to 'str'."
-                    )
-
-            steps_info.append(step_info)
+        # From the steps we will only take into account the name and how many they are,
+        # as we will control them in the internal folder
+        steps_info = list(self.dag)
 
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
@@ -270,13 +247,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             if type_info := routing_batch_function._get_type_info():
                 step += f"-{type_info}"
 
-        hasher.update(
+        return hashlib.sha1(
             ",".join(
                 steps_info + connections_info + routing_batch_functions_info
             ).encode()
-        )
-
-        return hasher.hexdigest()
+        ).hexdigest()
 
     def _set_logging_parameters(self, parameters: Dict[str, Any]) -> None:
         """Set the parameters that will be passed to the `setup_logging` function to
