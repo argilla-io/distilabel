@@ -593,7 +593,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     @property
     def _cache_location(self) -> "_CacheLocation":
-        """Dictionary containing the the object that will stored and the location,
+        """Dictionary containing the object that will stored and the location,
         whether it is a filename or a folder.
 
         Returns:
@@ -724,7 +724,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._finalize_pipeline_execution()
 
     def _initialize_pipeline_execution(self) -> None:
-        """Load the steps of the required stage to continue initialize the pipeline execution,
+        """Load the steps of the required stage to initialize the pipeline execution,
         and requests the initial batches to trigger the batch flowing in the pipeline."""
         # Wait for all the steps to be loaded correctly
         if not self._run_stage_steps_and_wait(stage=self._current_stage):
