@@ -354,7 +354,6 @@ class _Serializable:
         Returns:
             Signature of the `Step`.
         """
-        hasher = hashlib.sha1()
 
         def flatten_dump(d, parent_key="", sep="_"):
             items = []
@@ -373,9 +372,7 @@ class _Serializable:
         for name, value in flatten_dump(self.dump()):
             info.append(f"{name}-{str(value)}")
 
-        hasher.update("-".join(info).encode())
-
-        return hasher.hexdigest()
+        return hashlib.sha1("-".join(info).encode()).hexdigest()
 
     def __eq__(self, other: Self) -> bool:
         """Implements equality operator for serializable objects (intended to be used between steps).
