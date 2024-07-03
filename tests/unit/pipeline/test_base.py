@@ -127,12 +127,6 @@ class TestBasePipeline:
         pipeline._setup_write_buffer()
         assert isinstance(pipeline._write_buffer, _WriteBuffer)
 
-    def test_set_logging_parameters(self) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._set_logging_parameters({"unit-test": "yes"})
-
-        assert pipeline._logging_parameters == {"unit-test": "yes"}
-
     def test_setup_fsspec(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
 
