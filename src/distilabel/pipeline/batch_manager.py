@@ -449,7 +449,7 @@ class _BatchManagerStep(_Serializable):
         """
         return all(
             step in self.last_batch_received
-            and sum(len(batch.data[0]) for batch in batches) >= 0
+            and sum(len(batch.data[0]) for batch in batches) > 0
             for step, batches in self.data.items()
         )
 
