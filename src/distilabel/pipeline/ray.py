@@ -30,6 +30,8 @@ if TYPE_CHECKING:
 
 
 class RayPipeline(BasePipeline):
+    """Ray pipeline implementation allowing to run a pipeline in a Ray cluster."""
+
     def __init__(
         self,
         name: str,
@@ -37,13 +39,30 @@ class RayPipeline(BasePipeline):
         cache_dir: Optional[Union[str, "PathLike"]] = None,
         enable_metadata: bool = False,
         requirements: Optional[List[str]] = None,
-        ray_head_node_host: Optional[str] = None,
-        ray_head_node_port: int = 10001,
+        ray_head_node_url: Optional[str] = None,
     ) -> None:
+        """Initialize the `RayPipeline` instance.
+
+        Args:
+            name: The name of the pipeline.
+            description: A description of the pipeline. Defaults to `None`.
+            cache_dir: A directory where the pipeline will be cached. Defaults to `None`.
+            enable_metadata: Whether to include the distilabel metadata column for the pipeline
+                in the final `Distiset`. It contains metadata used by distilabel, for example
+                the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
+                field. Defaults to `False`.
+            requirements: List of requirements that must be installed to run the Pipeline.
+                Defaults to `None`, but can be helpful to inform in a pipeline to be shared
+                that this requirements must be installed.
+            ray_head_node_url: The URL that can be used to connect to the head node of
+                the Ray cluster. Normally, you won't want to use this argument as the
+                recommended way to submit a job to a Ray cluster is using the [Ray Jobs
+                CLI](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview).
+                Defaults to `None`.
+        """
         super().__init__(name, description, cache_dir, enable_metadata, requirements)
 
-        self._ray_head_node_host = ray_head_node_host
-        self._ray_head_node_port = ray_head_node_port
+        self._ray_head_node_url = ray_head_node_url
 
     def run(
         self,
@@ -52,6 +71,31 @@ class RayPipeline(BasePipeline):
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
     ) -> "Distiset":
+        """Runs the pipeline in the Ray cluster.
+
+        Args:
+            parameters: A dictionary with the step name as the key and a dictionary with
+                the runtime parameters for the step as the value. Defaults to `None`.
+            use_cache: Whether to use the cache from previous pipeline runs. Defaults to
+                `True`.
+            storage_parameters: A dictionary with the storage parameters (`fsspec` and path)
+                that will be used to store the data of the `_Batch`es passed between the
+                steps if `use_fs_to_pass_data` is `True` (for the batches received by a
+                `GlobalStep` it will be always used). It must have at least the "path" key,
+                and it can contain additional keys depending on the protocol. By default,
+                it will use the local file system and a directory in the cache directory.
+                Defaults to `None`.
+            use_fs_to_pass_data: Whether to use the file system to pass the data of
+                the `_Batch`es between the steps. Even if this parameter is `False`, the
+                `Batch`es received by `GlobalStep`s will always use the file system to
+                pass the data. Defaults to `False`.
+
+        Returns:
+            The `Distiset` created by the pipeline.
+
+        Raises:
+            RuntimeError: If the pipeline fails to load all the steps.
+        """
         self._init_ray()
 
         self._log_queue = self.QueueClass(
@@ -96,7 +140,7 @@ class RayPipeline(BasePipeline):
         return distiset
 
     def _init_ray(self) -> None:
-        """Init or connects to a Ray cluster."""
+        """Inits or connects to a Ray cluster."""
         try:
             import ray
         except ImportError as ie:
@@ -104,11 +148,8 @@ class RayPipeline(BasePipeline):
                 "ray is not installed. Please install it using `pip install ray`."
             ) from ie
 
-        if self._ray_head_node_host:
-            ray.init(
-                f"ray://{self._ray_head_node_host}:{self._ray_head_node_port}",
-                runtime_env={"pip": self.requirements},
-            )
+        if self._ray_head_node_url:
+            ray.init(self._ray_head_node_url, runtime_env={"pip": self.requirements})
         else:
             ray.init()
 
