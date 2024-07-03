@@ -206,6 +206,9 @@ class RayPipeline(BasePipeline):
         if step.resources.gpus is not None:
             resources["num_gpus"] = step.resources.gpus
 
+        if step.resources.resources is not None:
+            resources["resources"] = step.resources.resources
+
         _StepWrapperRay = _StepWrapperRay.options(**resources)  # type: ignore
 
         step_wrapper = _StepWrapperRay.remote(
