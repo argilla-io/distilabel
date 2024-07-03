@@ -233,6 +233,73 @@ class TestDAG:
 
         assert dag.get_total_replica_count() == 12
 
+    def test_get_steps_load_stages(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
+            global_0 = DummyGlobalStep(name="global_0")
+            dummies_1 = [DummyStep1(name=f"dummy_step_1_{i}") for i in range(3)]
+            global_1 = DummyGlobalStep(name="global_1")
+
+            generator >> dummies_0 >> global_0 >> dummies_1 >> global_1
+
+        assert pipeline.dag.get_steps_load_stages() == (
+            [
+                [
+                    "dummy_generator_step",
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                [
+                    "dummy_step_1_0",
+                    "dummy_step_1_1",
+                    "dummy_step_1_2",
+                ],
+                ["global_1"],
+            ],
+            [
+                [
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ],
+                ["global_0"],
+                [
+                    "dummy_step_1_0",
+                    "dummy_step_1_1",
+                    "dummy_step_1_2",
+                ],
+                ["global_1"],
+            ],
+        )
+
+    def test_get_steps_load_stages_simple(self) -> None:
+        with Pipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep(name="dummy_generator_step")
+            dummies_0 = [DummyStep1(name=f"dummy_step_0_{i}") for i in range(3)]
+
+            generator >> dummies_0
+
+        assert pipeline.dag.get_steps_load_stages() == (
+            [
+                [
+                    "dummy_generator_step",
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ]
+            ],
+            [
+                [
+                    "dummy_step_0_0",
+                    "dummy_step_0_1",
+                    "dummy_step_0_2",
+                ]
+            ],
+        )
+
     def test_validate_first_step_not_generator(
         self, dummy_step_1: "Step", dummy_step_2: "Step"
     ) -> None:
