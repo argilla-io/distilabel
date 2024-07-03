@@ -90,11 +90,14 @@ class Pipeline(BasePipeline):
 
         num_processes = self.dag.get_total_replica_count()
         ctx = mp.get_context()  # type: ignore
-        with ctx.Manager() as manager, ctx.Pool(
-            num_processes,
-            initializer=_init_worker,
-            initargs=(self._log_queue,),
-        ) as pool:
+        with (
+            ctx.Manager() as manager,
+            ctx.Pool(
+                num_processes,
+                initializer=_init_worker,
+                initargs=(self._log_queue,),
+            ) as pool,
+        ):
             self._manager = manager
             self._pool = pool
             self._output_queue = self.QueueClass()

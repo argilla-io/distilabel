@@ -6,14 +6,13 @@ build-backend = "hatchling.build"
 name = "distilabel"
 description = "Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "Apache-2.0"
 keywords = ["llm", "annotation", "alignment", "synthetic", "data", "rlaif"]
 authors = [{ name = "Argilla", email = "admin@argilla.io" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
