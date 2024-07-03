@@ -15,7 +15,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
@@ -70,6 +70,8 @@ class _BatchManagerStep(_Serializable):
             batch from step A used by steps B and C and obtained from the `created_from`
             of the batches created by them. It's used to avoid messing up the order of the
             batches. Only used if `convergence_step=True`. Defaults to `0`.
+        step_signature: The signature that defines a given `Step`. It will be used for the
+            caching mechanism.
     """
 
     step_name: str
@@ -85,6 +87,7 @@ class _BatchManagerStep(_Serializable):
     )
     next_expected_created_from_batch_seq_no: int = 0
     next_expected_seq_no: Dict[str, Tuple[int, int]] = field(default_factory=dict)
+    step_signature: Optional[str] = None
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -212,6 +215,7 @@ class _BatchManagerStep(_Serializable):
             data={predecessor: [] for predecessor in predecessors},
             convergence_step=convergence_step,
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
+            step_signature=step._create_signature(),
         )
 
     def _get_seq_no(self) -> int:
@@ -644,7 +648,27 @@ class _BatchManagerStep(_Serializable):
             "convergence_step": self.convergence_step,
             "convergence_step_batches_consumed": self.convergence_step_batches_consumed,
             "next_expected_created_from_batch_seq_no": self.next_expected_created_from_batch_seq_no,
+            "next_expected_seq_no": self.next_expected_seq_no,
+            "step_signature": self.step_signature,
         }
+
+    def _create_signature(self) -> str:
+        """The signature of a `_BathManagerStep` corresponds to the name of the step with
+        it's signature, as we just need to match them.
+        """
+        return f"{self.step_name}_{self.step_signature}"
+
+    def invalidate_cache(self) -> None:
+        """Restarts the `_BatchManagerStep` state to recompute the data.
+        All the arguments unrelated to the data stay the same.
+        """
+        data = {}
+        next_expected_seq_no = {}
+        for predecessor in self.data.keys():
+            data[predecessor] = []
+            next_expected_seq_no[predecessor] = (0, 0)
+        self.data = data
+        self.next_expected_seq_no = next_expected_seq_no
 
 
 class _BatchManager(_Serializable):
@@ -665,6 +689,7 @@ class _BatchManager(_Serializable):
         last_batch_received: Dict[str, Union[_Batch, None]],
         last_batch_sent: Dict[str, Union[_Batch, None]],
         last_batch_flag_sent_to: List[str],
+        steps_order: List[str],
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -677,12 +702,15 @@ class _BatchManager(_Serializable):
                 `_Batch` sent to the step.
             last_batch_flag_sent_to: A list with the names of the steps to which `LAST_BATCH_SENT_FLAG`
                 was sent.
+            steps_order: List with step names sorted according to the `DAG`. We need the info for the
+                cache, to ensure we invalidate successors of a given step.
         """
 
         self._steps = steps
         self._last_batch_received = last_batch_received
         self._last_batch_sent = last_batch_sent
         self._last_batch_flag_sent_to = last_batch_flag_sent_to
+        self._steps_order = steps_order
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -691,7 +719,6 @@ class _BatchManager(_Serializable):
             `True` if there are still batches to be processed by the steps. Otherwise,
             `False`.
         """
-
         for step_name, batch in self._last_batch_received.items():
             if step_name not in self._last_batch_flag_sent_to:
                 if not batch:
@@ -704,6 +731,33 @@ class _BatchManager(_Serializable):
                     return True
 
         return False
+
+    def invalidate_cache_for(self, step_to_invalidate: str) -> None:
+        """Invalidate the step that changed and dependend ones.
+
+        WORK IN PROGRESS:
+            Currently for the step_to_invalidate's _BatchManagerStep, the cache is cleared,
+            and the internal variables are set to None to restart the pipeline after those
+            steps.
+
+        Args:
+            step_name: Name of the `_BatchManagerStep` that changed.
+        """
+        # Loop over the steps sorted, so we can invalidate successor steps
+        invalidate_after = False
+        for step_name in self._steps_order:
+            if (step_name == step_to_invalidate) or invalidate_after:
+                # HAVE TO INVALIDATE THE SUCCESSORS
+                self._steps[step_name].invalidate_cache()
+                # Remove the step from the last batch received to recompute the data.
+                self._last_batch_received[step_name] = None
+                self._last_batch_sent[step_name] = None
+                # NOTE: Do we need the following?
+                if step_name in self._last_batch_flag_sent_to:
+                    self._last_batch_flag_sent_to.remove(step_name)
+                # TODO: We have to insert the batches from the previous steps already finished
+                # in the pending ones, or is this dealt with automatically??
+                invalidate_after = True
 
     def register_batch(self, batch: _Batch) -> None:
         """Method to register a batch received from a step. It will keep track of the
@@ -741,7 +795,7 @@ class _BatchManager(_Serializable):
         """
         if to_step not in self._steps:
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
-
+        # SI ESTE BATCH NO ESTÁ GUARDADO, QUE SE GUARDE
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
 
@@ -802,15 +856,15 @@ class _BatchManager(_Serializable):
     def set_next_expected_seq_no(
         self, step_name: str, from_step: str, next_expected_seq_no: int
     ) -> None:
-        """Sets the next expected sequence number of a `_Batch` received by `step` comming
+        """Sets the next expected sequence number of a `_Batch` received by `step` coming
         from `from_step`.
 
         Args:
-            step_name: The step name which next expected sequence number for `from_step`
+            step_name: The step name whose next expected sequence number for `from_step`
                 has to be updated.
             from_step: The name of the step from which its next expected sequence number
                 in step has to be updated.
-            next_expected_seq_no: the next expected sequence number of a `_Batch` comming
+            next_expected_seq_no: the next expected sequence number of a `_Batch` coming
                 from `from_step`.
         """
         self._steps[step_name].set_next_expected_seq_no(from_step, next_expected_seq_no)
@@ -828,12 +882,14 @@ class _BatchManager(_Serializable):
         steps = {}
         last_batch_received = {}
         last_batch_sent = {}
+        steps_order = []
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
             last_batch_sent[step.name] = None
             if step.is_generator:
                 continue
+            steps_order.append(step_name)
             predecessors = list(dag.get_step_predecessors(step_name))
             convergence_step = all(
                 dag.get_step(predecessor).get(RECEIVES_ROUTED_BATCHES_ATTR_NAME, False)
@@ -845,7 +901,7 @@ class _BatchManager(_Serializable):
                 convergence_step=convergence_step,
             )
             steps[step_name] = batch_manager_step
-        return cls(steps, last_batch_received, last_batch_sent, [])
+        return cls(steps, last_batch_received, last_batch_sent, [], steps_order)
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
         """Dumps the content of the `_BatchManager` to a dictionary.
@@ -868,6 +924,7 @@ class _BatchManager(_Serializable):
                 for step_name, batch in self._last_batch_sent.items()
             },
             "last_batch_flag_sent_to": self._last_batch_flag_sent_to,
+            "steps_order": self._steps_order,
         }
 
     def cache(self, path: "StrOrPath") -> None:
@@ -903,18 +960,30 @@ class _BatchManager(_Serializable):
         path = Path(path)
 
         # Do not include `_Batch` data so `dump` is fast
-        dump = self.dump(include_batch_data=False)
+        # dump = self.dump(include_batch_data=False)
+        # NOTE: INCLUDE BATCH DATA, ADDED WHEN IMPROVED TO INCLUDE CACHE AT STEP LEVEL
+        dump = self.dump(include_batch_data=True)
         batch_manager_step_files = {}
 
         # Do this to avoid modifying the dictionary while iterating over it
         batch_manager_steps = set(dump["steps"].keys())
         for step_name in batch_manager_steps:
+            step_name_signed = self._steps[step_name]._create_signature()
+
             step_dump = dump["steps"].pop(step_name)
 
             # Create a directory for each batch manager step to store their batches
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
-
+            # Directory to store the batch manager data, the batches of each step, so we
+            # can recover them afterwards.
+            batch_manager_data_dir = (
+                path.parent / "batch_manager_data" / step_name_signed
+            )
+            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+            print(f"DATA oN STEP {step_name}", self._steps[step_name].data)
+            batches = self._steps[step_name].data
+            print("BATCH", [b.data for b in batches])
             # Store each built `_Batch` in a separate file
             built_batches_dir = batch_manager_step_dir / "built_batches"
             built_batches_dir.mkdir(parents=True, exist_ok=True)
@@ -954,6 +1023,7 @@ class _BatchManager(_Serializable):
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
                 path.parent / f"batch_manager_steps/{step_name}/batch_manager_step.json"
+                # path.parent / f"batch_manager_steps/{step_name_signed}/batch_manager_step.json"
             )
             self.save(path=batch_manager_step_file, format="json", dump=step_dump)
 

@@ -233,6 +233,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # From the steps we will only take into account the name and how many they are,
         # as we will control them in the internal folder
         steps_info = list(self.dag)
+        # NOTE: We could improve the caching mechanism if different steps are exchanged in order for
+        # or 1 out 5 is removed, we could still reuse the results from some of
+        # the steps.
 
         connections_info = [
             f"{c['from']}-{'-'.join(c['to'])}" for c in pipeline_dump["connections"]
@@ -589,6 +592,31 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
             )
             self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
+            # TODO: After loading the cached batch manager, invalidate
+            # the batch manager steps whose signature changed
+            invalidate_following_steps = False
+            for step_name in self.dag:
+                # TODO: Update code once `_BatchManager` deals itself with the invalidated cached steps.
+                if self.dag.get_step(step_name)[STEP_ATTR_NAME].is_generator:
+                    # GeneratorSteps aren't cached
+                    continue
+
+                step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+                batch_manager_step = self._batch_manager._steps[step_name]
+                if (
+                    step._create_signature() != batch_manager_step.step_signature
+                ) or invalidate_following_steps:
+                    # Clear step (how to do it?)
+                    self._batch_manager.invalidate_cache_for(
+                        step_to_invalidate=step_name
+                    )
+                    break
+                    # batch_manager_step.invalidate_cache()
+                    # self._logger.info(
+                    #     f"💾 `_BatchManagerStep` for '{step_name}' changed and will be recomputed {'as the last step changed' if invalidate_following_steps else ''}"
+                    # )
+                    # invalidate_following_steps = True
+
         else:
             self._batch_manager = _BatchManager.from_dag(self.dag)
 
@@ -1011,7 +1039,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _request_initial_batches(self) -> None:
         """Requests the initial batches to the generator steps."""
         assert self._batch_manager, "Batch manager is not set"
-
         for step in self._batch_manager._steps.values():
             if batch := step.get_batch():
                 self._logger.debug(
