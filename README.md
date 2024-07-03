@@ -74,7 +74,7 @@ Distilabel is a tool that can be used to **synthesize data and provide AI feedba
 pip install distilabel --upgrade
 ```
 
-Requires Python 3.8+
+Requires Python 3.9+
 
 In addition, the following extras are available:
 
