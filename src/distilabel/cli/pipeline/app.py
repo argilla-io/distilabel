@@ -25,9 +25,6 @@ app = typer.Typer(help="Commands to run and inspect Distilabel pipelines.")
 ConfigOption = Annotated[
     str, typer.Option(help="Path or URL to the Distilabel pipeline configuration file.")
 ]
-ScriptOption = Annotated[
-    str, typer.Option(help="Path or URL to a script containing a distilabel pipeline.")
-]
 
 
 def parse_runtime_param(value: str) -> Tuple[List[str], str]:
@@ -50,11 +47,13 @@ def run(
     config: str = typer.Option(
         None, help="Path or URL to the Distilabel pipeline configuration file."
     ),
-    trust_code: str = typer.Option(
+    script: str = typer.Option(
         None,
-        "--trust-code",
-        "-t",
-        help="Path or URL to a python script containing a distilabel pipeline.",
+        help="URL pointing to a python script containing a distilabel pipeline.",
+    ),
+    pipeline_variable_name: str = typer.Option(
+        default="pipeline",
+        help="Name of the pipeline in a script. I.e. the 'pipeline' variable in `with Pipeline(...) as pipeline:...`.",
     ),
     ignore_cache: bool = typer.Option(
         False, help="Whether to ignore the cache and re-run the pipeline from scratch."
@@ -73,16 +72,12 @@ def run(
         None, help="The Hugging Face Hub API token to use when pushing the dataset."
     ),
 ) -> None:
-    from distilabel.cli.pipeline.utils import (
-        get_pipeline,
-        parse_runtime_parameters,
-        run_script,
-    )
+    from distilabel.cli.pipeline.utils import get_pipeline, parse_runtime_parameters
 
-    if trust_code:
+    if script:
         if config:
             typer.secho(
-                "Only one of `--config` or `--trust-code` must be informed.",
+                "Only one of `--config` or `--script` can be informed.",
                 fg=typer.colors.RED,
                 bold=True,
             )
@@ -90,18 +85,16 @@ def run(
         do_run = typer.prompt("This will run a remote script, are you sure? (y/n)")
         if do_run.lower() != "y":
             raise typer.Exit(code=0)
-        run_script(trust_code)
-        return typer.Exit(code=0)
-    if not config:
+    if not config and not script:
         typer.secho(
-            "`--config` or `--trust-code` must be informed.",
+            "`--config` or `--script` must be informed.",
             fg=typer.colors.RED,
             bold=True,
         )
         raise typer.Exit(code=1)
 
     try:
-        pipeline = get_pipeline(config)
+        pipeline = get_pipeline(config or script, pipeline_name=pipeline_variable_name)
     except Exception as e:
         typer.secho(str(e), fg=typer.colors.RED, bold=True)
         raise typer.Exit(code=1) from e

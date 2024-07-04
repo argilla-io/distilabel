@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 import os
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
@@ -122,11 +121,53 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
     return response.json()
 
 
-def get_pipeline(config: str) -> "BasePipeline":
-    """Get a pipeline from a configuration file.
+def get_pipeline_from_url(url: str, pipeline_name: str = "pipeline") -> "BasePipeline":
+    """Downloads the file to the current working directory and loads the pipeline object
+    from a python script.
 
     Args:
-        config: The path or URL to the pipeline configuration file.
+        url: The URL pointing to the python script with the pipeline definition.
+        pipeline_name: The name of the pipeline in the script.
+            I.e: `with Pipeline(...) as pipeline:...`.
+
+    Returns:
+        The pipeline instantiated.
+
+    Raises:
+        ValueError: If the file format is not supported.
+    """
+    if not url.endswith(".py"):
+        raise ValueError(
+            f"Unsupported file format for '{url}'. It must be a python file."
+        )
+    response = _download_remote_file(url)
+
+    content = response.content.decode("utf-8")
+    script_local = Path.cwd() / Path(url).name
+    script_local.write_text(content)
+
+    # Add the current working directory to sys.path
+    sys.path.insert(0, os.getcwd())
+    module = importlib.import_module(str(Path(url).stem))
+    pipeline = getattr(module, pipeline_name, None)
+    if not pipeline:
+        raise ValueError(
+            f"The script must contain an object with the pipeline named: '{pipeline_name}' that can be imported"
+        )
+
+    return pipeline
+
+
+def get_pipeline(
+    config_or_script: str, pipeline_name: str = "pipeline"
+) -> "BasePipeline":
+    """Get a pipeline from a configuration file or a remote python script.
+
+    Args:
+        config_or_script: The path or URL to the pipeline configuration file
+            or URL to a python script.
+        pipeline_name: The name of the pipeline in the script.
+            I.e: `with Pipeline(...) as pipeline:...`.
 
     Returns:
         The pipeline.
@@ -135,42 +176,31 @@ def get_pipeline(config: str) -> "BasePipeline":
         ValueError: If the file format is not supported.
         FileNotFoundError: If the configuration file does not exist.
     """
-    if valid_http_url(config):
-        data = get_config_from_url(config)
-        return Pipeline.from_dict(data)
+    config = script = None
+    if config_or_script.endswith((".json", ".yaml", ".yml")):
+        config = config_or_script
+    elif config_or_script.endswith(".py"):
+        script = config_or_script
+    else:
+        raise ValueError(
+            "The file must be a valid config file or python script with a pipeline."
+        )
+
+    if valid_http_url(config_or_script):
+        if config:
+            data = get_config_from_url(config)
+            return Pipeline.from_dict(data)
+        return get_pipeline_from_url(script, pipeline_name=pipeline_name)
+
+    if not config:
+        raise ValueError(
+            f"To run a pipeline from a python script, run it as `python {script}`"
+        )
 
     if Path(config).is_file():
         return Pipeline.from_file(config)
 
-    raise FileNotFoundError(f"Config file '{config}' does not exist.")
-
-
-def run_script(script: str) -> None:
-    """Run a distilabel pipeline defined in a python script.
-
-    Args:
-        script: The path or URL to the python script containing the distilabel pipeline.
-
-    Raises:
-        FileNotFoundError: If the script doesn't exist.
-    """
-
-    def run(file):
-        subprocess.run(["python", str(file)], stdout=sys.stdout, stderr=sys.stdout)
-
-    if valid_http_url(script):
-        response = _download_remote_file(script)
-        # Write file to a temporary directory, and run it there.
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            script_local = Path(tmp_dir) / Path(script).name
-            script_local.write_text(response.content.decode("utf-8"))
-            run(script_local)
-        return
-    if Path(script).is_file():
-        run(script)
-        return
-
-    raise FileNotFoundError(f"File '{script}' does not exist.")
+    raise FileNotFoundError(f"File '{config_or_script}' does not exist.")
 
 
 def display_pipeline_information(pipeline: "BasePipeline") -> None:
