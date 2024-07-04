@@ -18,10 +18,10 @@ This dataset has been created with [distilabel](https://distilabel.argilla.io/).
 The pipeline script was uploaded to easily reproduce the dataset:
 [{{ filename_py }}](https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}).
 
-You can download the file and run it as:
+It can be run directly using the CLI:
 
 ```console
-python {{ filename_py }}
+distilabel pipeline run --trust-code "https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}"
 ```
 {% endif %}
 
