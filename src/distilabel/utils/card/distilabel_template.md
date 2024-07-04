@@ -21,7 +21,7 @@ The pipeline script was uploaded to easily reproduce the dataset:
 It can be run directly using the CLI:
 
 ```console
-distilabel pipeline run --trust-code "https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}"
+distilabel pipeline run --script "https://huggingface.co/datasets/{{ repo_id }}/raw/main/{{ filename_py }}"
 ```
 {% endif %}
 
