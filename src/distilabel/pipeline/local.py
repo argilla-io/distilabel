@@ -23,6 +23,7 @@ from distilabel.distiset import create_distiset
 from distilabel.pipeline.base import (
     BasePipeline,
 )
+from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
 from distilabel.utils.logging import setup_logging, stop_logging
 
@@ -48,6 +49,30 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
 
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
+
+    def ray(self, ray_head_node_url: Optional[str] = None) -> RayPipeline:
+        """Creates a `RayPipeline` using the init parameters of this pipeline. This is a
+        convenient method that can be used to "transform" one common `Pipeline` to a `RayPipeline`
+        and it's mainly used by the CLI.
+
+        Args:
+            ray_head_node_url: The URL that can be used to connect to the head node of
+                the Ray cluster. Normally, you won't want to use this argument as the
+                recommended way to submit a job to a Ray cluster is using the [Ray Jobs
+                CLI](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview).
+                Defaults to `None`.
+
+        Returns:
+            A `RayPipeline` instance.
+        """
+        return RayPipeline(
+            name=self.name,
+            description=self.description,
+            cache_dir=self._cache_dir,
+            enable_metadata=self._enable_metadata,
+            requirements=self.requirements,
+            ray_head_node_url=ray_head_node_url,
+        )
 
     def run(
         self,
