@@ -151,7 +151,7 @@ def get_pipeline_from_url(url: str, pipeline_name: str = "pipeline") -> "BasePip
     module = importlib.import_module(str(Path(url).stem))
     pipeline = getattr(module, pipeline_name, None)
     if not pipeline:
-        raise ValueError(
+        raise ImportError(
             f"The script must contain an object with the pipeline named: '{pipeline_name}' that can be imported"
         )
 
