@@ -79,7 +79,7 @@ def valid_http_url(url: str) -> bool:
 
 
 def _download_remote_file(url: str) -> str:
-    """Downloads a file from a huggingface repository.
+    """Downloads a file from a Hugging Face Hub repository.
 
     Args:
         url: URL of the file to download.

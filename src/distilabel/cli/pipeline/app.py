@@ -44,10 +44,10 @@ def run(
         List[Any],
         typer.Option(help="", parser=parse_runtime_param, default_factory=list),
     ],
-    config: str = typer.Option(
-        None, help="Path or URL to the Distilabel pipeline configuration file."
+    config: Optional[str] = typer.Option(
+        None, help="Path or URL to the distilabel pipeline configuration file."
     ),
-    script: str = typer.Option(
+    script: Optional[str] = typer.Option(
         None,
         help="URL pointing to a python script containing a distilabel pipeline.",
     ),
