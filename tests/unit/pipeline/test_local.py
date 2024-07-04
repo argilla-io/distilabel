@@ -99,3 +99,54 @@ class TestLocalPipeline:
                 ),
             ]
         )
+
+    def test_ray(self) -> None:
+        with Pipeline(
+            name="dummy",
+            description="dummy",
+            cache_dir="/tmp",
+            enable_metadata=True,
+            requirements=["dummy"],
+        ) as pipeline:
+            generator = DummyGeneratorStep()
+            dummy = DummyStep1()
+
+            generator >> dummy
+
+        ray_pipeline = pipeline.ray()
+
+        assert ray_pipeline.name == pipeline.name
+        assert ray_pipeline.description == pipeline.description
+        assert ray_pipeline._cache_dir == pipeline._cache_dir
+        assert ray_pipeline._enable_metadata == pipeline._enable_metadata
+        assert ray_pipeline.requirements == pipeline.requirements
+        assert ray_pipeline.dag == pipeline.dag
+
+    def test_run_detected_ray(self) -> None:
+        with Pipeline(
+            name="dummy",
+            description="dummy",
+            cache_dir="/tmp",
+            enable_metadata=True,
+            requirements=["dummy"],
+        ) as pipeline:
+            generator = DummyGeneratorStep()
+            dummy = DummyStep1()
+
+            generator >> dummy
+
+        run_pipeline_mock = mock.MagicMock()
+
+        with (
+            mock.patch(
+                "distilabel.pipeline.local.script_executed_in_ray_cluster",
+                return_value=True,
+            ),
+            mock.patch(
+                "distilabel.pipeline.local.Pipeline.ray", return_value=run_pipeline_mock
+            ) as ray_mock,
+        ):
+            pipeline.run()
+
+        ray_mock.assert_called_once()
+        run_pipeline_mock.run.assert_called_once()
