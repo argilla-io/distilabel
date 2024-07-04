@@ -321,7 +321,7 @@ class Distiset(dict):
         Examples:
             ```python
             # Save your distiset in a local folder:
-            >>> distiset.save_to_disk(dataset_path="my-distiset")
+            >>> distiset.save_to_disk(distiset_path="my-distiset")
             # Save your distiset in a remote storage:
             >>> storage_options = {
             ...     "key": os.environ["S3_ACCESS_KEY"],
@@ -331,7 +331,7 @@ class Distiset(dict):
             ...         "region_name": os.environ["S3_REGION"],
             ...     },
             ... }
-            >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
+            >>> distiset.save_to_disk(distiset_path="my-distiset", storage_options=storage_options)
             ```
         """
         distiset_path = str(distiset_path)

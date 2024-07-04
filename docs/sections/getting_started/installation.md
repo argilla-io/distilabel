@@ -9,7 +9,7 @@ hide:
 !!! NOTE
     Since `distilabel` v1.0.0 was recently released, we refactored most of the stuff, so the installation below only applies to `distilabel` v1.0.0 and above.
 
-You will need to have at least Python 3.8 or higher, up to Python 3.12, since support for the latter is still a work in progress.
+You will need to have at least Python 3.9 or higher, up to Python 3.12, since support for the latter is still a work in progress.
 
 To install the latest release of the package from PyPI you can use the following command:
 
@@ -46,7 +46,7 @@ Additionally, as part of `distilabel` some extra dependencies are available, mai
 
 - `llama-cpp`: for using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) Python bindings for `llama.cpp` via the `LlamaCppLLM` integration.
 
-- `mistralai`: for using models available in [Mistral AI API](https://mistral.ai/news/la-plateforme/) via the `MistralAILLM` integration. Note that the [`mistralai` Python client](https://github.com/mistralai/client-python) can only be installed from Python 3.9 onwards, so this is the only `distilabel` dependency that's not supported in Python 3.8.
+- `mistralai`: for using models available in [Mistral AI API](https://mistral.ai/news/la-plateforme/) via the `MistralAILLM` integration.
 
 - `ollama`: for using [Ollama](https://ollama.com/) and their available models via `OllamaLLM` integration.
 

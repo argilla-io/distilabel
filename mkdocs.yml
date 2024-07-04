@@ -18,9 +18,8 @@ extra:
       link: https://twitter.com/argilla_io
     - icon: fontawesome/brands/youtube
       link: https://www.youtube.com/channel/UCAIz8TmvQQrLqbD7sd-5S2A
-    - icon: fontawesome/brands/slack
-      link: https://join.slack.com/t/rubrixworkspace/shared_invite/zt-20wllqq29-Z11~kp2SeFYjJ0qevJRiPg
-
+    - icon: fontawesome/brands/discord
+      link: http://hf.co/join/discord
 extra_css:
   - stylesheets/extra.css
 
@@ -34,7 +33,7 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   icon:
-    repo: fontawesome/brands/github-alt
+    repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.sections
@@ -211,6 +210,9 @@ nav:
           - Routing Batch Function: "api/pipeline/routing_batch_function.md"
           - Typing: "api/pipeline/typing.md"
           - Utils: "api/pipeline/utils.md"
+      - Mixins:
+          - RuntimeParametersMixin: "api/mixins/runtime_parameters.md"
+          - RequirementsMixin: "api/mixins/requirements.md"
       - Distiset: "api/distiset.md"
       - CLI: "api/cli.md"
   - Community:

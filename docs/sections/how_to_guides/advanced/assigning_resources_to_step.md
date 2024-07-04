@@ -26,5 +26,18 @@ with Pipeline(name="resources") as pipeline:
     )
 ```
 
-In the example above, we're creating a `PrometheusEval` task (remember that `Task`s are `Step`s) that will use `vLLM` to serve `prometheus-eval/prometheus-7b-v2.0` model. This task is resource intensive as it requires an LLM, which in turn requires a GPU to run fast. With that in mind, we have specified the `resources` required for the task using the [`StepResources`][distilabel.steps.base.StepResources] class, and we have defined that we need `1` GPU and `1` CPU per replica of the task. In addition, we have defined that we need `2` replicas i.e. we will run two instances of the task so the computation for the whole dataset runs faster. When running the pipeline, `distilabel` will create the tasks in nodes that have available the specified resources.
+In the example above, we're creating a `PrometheusEval` task (remember that `Task`s are `Step`s) that will use `vLLM` to serve `prometheus-eval/prometheus-7b-v2.0` model. This task is resource intensive as it requires an LLM, which in turn requires a GPU to run fast. With that in mind, we have specified the `resources` required for the task using the [`StepResources`][distilabel.steps.base.StepResources] class, and we have defined that we need `1` GPU and `1` CPU per replica of the task. In addition, we have defined that we need `2` replicas i.e. we will run two instances of the task so the computation for the whole dataset runs faster. In addition, `StepResources` uses the [RuntimeParametersMixin][distilabel.mixins.runtime_parameters.RuntimeParametersMixin], so we can also specify the resources for each step when running the pipeline:
+
+```python
+...
+
+if __name__ == "__main__":
+    pipeline.run(
+        parameters={
+            prometheus.name: {"resources": {"replicas": 2, "cpus": 1, "gpus": 1}}
+        }
+    )
+```
+
+And that's it! When running the pipeline, `distilabel` will create the tasks in nodes that have available the specified resources.
 
