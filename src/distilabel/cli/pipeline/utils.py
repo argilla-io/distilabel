@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import os
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
@@ -76,6 +79,24 @@ def valid_http_url(url: str) -> bool:
     return True
 
 
+def _download_remote_file(url: str) -> str:
+    """Downloads a file from a huggingface repository.
+
+    Args:
+        url: URL of the file to download.
+
+    Returns:
+        The content of the file.
+    """
+    if "huggingface.co" in url and "HF_TOKEN" in os.environ:
+        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+    else:
+        headers = None
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response
+
+
 def get_config_from_url(url: str) -> Dict[str, Any]:
     """Loads the pipeline configuration from a URL pointing to a JSON or YAML file.
 
@@ -92,12 +113,7 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
         raise ValueError(
             f"Unsupported file format for '{url}'. Only JSON and YAML are supported"
         )
-    if "huggingface.co" in url and "HF_TOKEN" in os.environ:
-        headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
-    else:
-        headers = None
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    response = _download_remote_file(url)
 
     if url.endswith((".yaml", ".yml")):
         content = response.content.decode("utf-8")
@@ -127,6 +143,34 @@ def get_pipeline(config: str) -> "BasePipeline":
         return Pipeline.from_file(config)
 
     raise FileNotFoundError(f"Config file '{config}' does not exist.")
+
+
+def run_script(script: str) -> None:
+    """Run a distilabel pipeline defined in a python script.
+
+    Args:
+        script: The path or URL to the python script containing the distilabel pipeline.
+
+    Raises:
+        FileNotFoundError: If the script doesn't exist.
+    """
+
+    def run(file):
+        subprocess.run(["python", str(file)], stdout=sys.stdout, stderr=sys.stdout)
+
+    if valid_http_url(script):
+        response = _download_remote_file(script)
+        # Write file to a temporary directory, and run it there.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            script_local = Path(tmp_dir) / Path(script).name
+            script_local.write_text(response.content.decode("utf-8"))
+            run(script_local)
+        return
+    if Path(script).is_file():
+        run(script)
+        return
+
+    raise FileNotFoundError(f"File '{script}' does not exist.")
 
 
 def display_pipeline_information(pipeline: "BasePipeline") -> None:
