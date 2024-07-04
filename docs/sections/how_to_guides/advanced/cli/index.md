@@ -55,7 +55,7 @@ The pipeline information includes the steps used in the `Pipeline` along with th
 
 ### `distilabel pipeline run`
 
-We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling, or pointing to a python script containing a distilabel pipeline, using `distilabel pipeline run`:
+We can also run a `Pipeline` from the CLI just pointing to the same `pipeline.yaml` file or an URL pointing to it and calling `distilabel pipeline run`. Alternatively, an URL pointing to a Python script containing a distilabel pipeline can be used:
 
 ```bash
 $ distilabel pipeline run --help
