@@ -129,6 +129,7 @@ class TestEvolInstructGenerator:
                 "cpus": None,
                 "gpus": None,
                 "replicas": 1,
+                "resources": None,
             },
             "batch_size": task.batch_size,
             "num_instructions": task.num_instructions,
@@ -163,6 +164,11 @@ class TestEvolInstructGenerator:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],

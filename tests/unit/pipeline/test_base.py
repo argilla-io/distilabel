@@ -882,6 +882,11 @@ class TestBasePipeline:
                             "name": "gpus",
                             "optional": True,
                         },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
+                            "optional": True,
+                        },
                     ],
                 },
                 {
@@ -918,6 +923,11 @@ class TestBasePipeline:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],
@@ -1217,7 +1227,7 @@ class TestPipelineSerialization:
                 pipe_from_file = loader(filename)
                 assert isinstance(pipe_from_file, DummyPipeline)
 
-    def test_base_pipeline_signature(self):
+    def test_base_pipeline_signature(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
@@ -1247,7 +1257,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "1ef5193c8686de48728cb9e5e9b88bca62bc0957"
+        assert signature == "8cd3c74911bedc41c4a73a7ca69baf187aa0146e"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

@@ -128,6 +128,7 @@ class TestEvolInstruct:
                 "cpus": None,
                 "gpus": None,
                 "replicas": 1,
+                "resources": None,
             },
             "input_batch_size": task.input_batch_size,
             "llm": {
@@ -168,6 +169,11 @@ class TestEvolInstruct:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],

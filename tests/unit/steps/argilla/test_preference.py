@@ -102,6 +102,7 @@ class TestPreferenceToArgilla:
                 "cpus": None,
                 "gpus": None,
                 "replicas": 1,
+                "resources": None,
             },
             "input_batch_size": 50,
             "num_generations": 2,
@@ -125,6 +126,11 @@ class TestPreferenceToArgilla:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],

@@ -124,6 +124,7 @@ class TestStep:
                 "cpus": True,
                 "gpus": True,
                 "replicas": True,
+                "resources": True,
             },
             "runtime_param1": False,
             "runtime_param2": True,
@@ -299,6 +300,7 @@ class TestStepSerialization:
                 "cpus": None,
                 "gpus": None,
                 "replicas": 1,
+                "resources": None,
             },
             "runtime_parameters_info": [
                 {
@@ -317,6 +319,11 @@ class TestStepSerialization:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],
