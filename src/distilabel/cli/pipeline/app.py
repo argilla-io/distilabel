@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import re
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 import typer
 from typing_extensions import Annotated
