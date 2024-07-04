@@ -26,6 +26,7 @@ from distilabel.pipeline.base import (
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.ray import script_executed_in_ray_cluster
 
 if TYPE_CHECKING:
     from queue import Queue
@@ -106,6 +107,15 @@ class Pipeline(BasePipeline):
         Raises:
             RuntimeError: If the pipeline fails to load all the steps.
         """
+        if script_executed_in_ray_cluster():
+            print("Script running in Ray cluster... Using `RayPipeline`...")
+            return self.ray().run(
+                parameters=parameters,
+                use_cache=use_cache,
+                storage_parameters=storage_parameters,
+                use_fs_to_pass_data=use_fs_to_pass_data,
+            )
+
         self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
