@@ -66,7 +66,7 @@ class Pipeline(BasePipeline):
         Returns:
             A `RayPipeline` instance.
         """
-        return RayPipeline(
+        pipeline = RayPipeline(
             name=self.name,
             description=self.description,
             cache_dir=self._cache_dir,
@@ -74,6 +74,8 @@ class Pipeline(BasePipeline):
             requirements=self.requirements,
             ray_head_node_url=ray_head_node_url,
         )
+        pipeline.dag = self.dag
+        return pipeline
 
     def run(
         self,
