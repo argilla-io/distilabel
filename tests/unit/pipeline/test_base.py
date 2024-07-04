@@ -105,11 +105,14 @@ class TestBasePipeline:
         pipeline._load_batch_manager(use_cache=True)
         pipeline._cache()
 
-        with mock.patch(
-            "distilabel.pipeline.base._BatchManager.load_from_cache"
-        ) as mock_load_from_cache, mock.patch(
-            "distilabel.pipeline.base._BatchManager.from_dag"
-        ) as mock_from_dag:
+        with (
+            mock.patch(
+                "distilabel.pipeline.base._BatchManager.load_from_cache"
+            ) as mock_load_from_cache,
+            mock.patch(
+                "distilabel.pipeline.base._BatchManager.from_dag"
+            ) as mock_from_dag,
+        ):
             pipeline._load_batch_manager(use_cache=use_cache)
 
         if use_cache:

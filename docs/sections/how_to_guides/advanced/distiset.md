@@ -67,8 +67,25 @@ distiset.push_to_hub(
     commit_message="Initial commit",
     private=False,
     token=os.getenv("HF_TOKEN"),
+    generate_card=True,
+    include_script=False
 )
 ```
+
+!!! info "New since version 1.3.0"
+    Since version `1.3.0` you can automatically push the script that created your pipeline to the same repository. For example, assuming you have a file like the following:
+
+    ``` py title="sample_pipe.py"
+    with Pipeline() as pipe:
+        ...
+    distiset = pipe.run()
+    distiset.push_to_hub(
+        "my-org/my-dataset,
+        include_script=True
+    )
+    ```
+
+    After running the command, you could visit the repository and the file `sample_pipe.py` will be stored to simplify sharing your pipeline with the community.
 
 ### Save and load from disk
 
