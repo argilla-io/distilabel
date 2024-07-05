@@ -98,6 +98,7 @@ class TestEvolQuality:
             "resources": {
                 "cpus": None,
                 "gpus": None,
+                "memory": None,
                 "replicas": 1,
                 "resources": None,
             },
@@ -136,7 +137,12 @@ class TestEvolQuality:
                             "optional": True,
                         },
                         {
-                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
                             "name": "resources",
                             "optional": True,
                         },

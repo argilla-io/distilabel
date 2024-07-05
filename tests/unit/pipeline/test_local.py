@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     pass
 
 
-class TestLocalPipeline:
+class TestPipeline:
     @mock.patch("distilabel.pipeline.local._StepWrapper")
-    def test_create_processes(self, step_wrapper_mock: mock.MagicMock) -> None:
+    def test_run_steps(self, step_wrapper_mock: mock.MagicMock) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(

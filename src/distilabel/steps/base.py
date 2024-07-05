@@ -97,6 +97,7 @@ class StepResources(RuntimeParametersMixin, BaseModel):
         replicas: The number of replicas for the step.
         cpus: The number of CPUs assigned to each step replica.
         gpus: The number of GPUs assigned to each step replica.
+        memory: The memory in bytes required for each step replica.
         resources: A dictionary containing the number of custom resources required for
             each step replica.
     """
@@ -110,10 +111,13 @@ class StepResources(RuntimeParametersMixin, BaseModel):
     gpus: Optional[RuntimeParameter[PositiveInt]] = Field(
         default=None, description="The number of GPUs assigned to each step replica."
     )
+    memory: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The memory in bytes required for each step replica."
+    )
     resources: Optional[RuntimeParameter[Dict[str, int]]] = Field(
         default=None,
         description="A dictionary containing names of custom resources and the"
-        " number of those resources required.",
+        " number of those resources required for each step replica.",
     )
 
 

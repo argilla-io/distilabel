@@ -54,6 +54,7 @@ class TestStepDecorator:
                 "cpus": True,
                 "gpus": True,
                 "replicas": True,
+                "memory": True,
                 "resources": True,
             },
             "runtime_param1": False,

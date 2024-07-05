@@ -844,7 +844,7 @@ class TestBasePipeline:
                 default=None, description="runtime_param2 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
         class DummyStep2(Step):
@@ -855,7 +855,7 @@ class TestBasePipeline:
                 default=None, description="runtime_param4 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -883,7 +883,12 @@ class TestBasePipeline:
                             "optional": True,
                         },
                         {
-                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
                             "name": "resources",
                             "optional": True,
                         },
@@ -926,7 +931,12 @@ class TestBasePipeline:
                             "optional": True,
                         },
                         {
-                            "description": "A dictionary containing names of custom resources and the number of those resources required.",
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
                             "name": "resources",
                             "optional": True,
                         },
@@ -1257,7 +1267,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "8cd3c74911bedc41c4a73a7ca69baf187aa0146e"
+        assert signature == "f291da215cd42085c538e4897e4355f614932547"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

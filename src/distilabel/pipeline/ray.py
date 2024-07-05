@@ -214,11 +214,18 @@ class RayPipeline(BasePipeline):
         if step.resources.gpus is not None:
             resources["num_gpus"] = step.resources.gpus
 
+        if step.resources.memory is not None:
+            resources["memory"] = step.resources.memory
+
         if step.resources.resources is not None:
             resources["resources"] = step.resources.resources
 
         _StepWrapperRay = _StepWrapperRay.options(**resources)  # type: ignore
 
+        self._logger.debug(
+            f"Creating Ray actor for '{step.name}' (replica ID: {replica}) with resources:"
+            f" {resources}"
+        )
         step_wrapper = _StepWrapperRay.remote(
             step_wrapper=_StepWrapper(
                 step=step,  # type: ignore
@@ -231,6 +238,10 @@ class RayPipeline(BasePipeline):
             log_queue=self._log_queue,
         )
 
+        self._logger.debug(
+            f"Executing remote `run` method of Ray actor for '{step.name}' (replica ID:"
+            f" {replica})..."
+        )
         step_wrapper.run.remote()
 
     def _teardown(self) -> None:
