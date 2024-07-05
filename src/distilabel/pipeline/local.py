@@ -51,7 +51,11 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
 class Pipeline(BasePipeline):
     """Local pipeline implementation using `multiprocessing`."""
 
-    def ray(self, ray_head_node_url: Optional[str] = None) -> RayPipeline:
+    def ray(
+        self,
+        ray_head_node_url: Optional[str] = None,
+        ray_init_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> RayPipeline:
         """Creates a `RayPipeline` using the init parameters of this pipeline. This is a
         convenient method that can be used to "transform" one common `Pipeline` to a `RayPipeline`
         and it's mainly used by the CLI.
@@ -62,6 +66,8 @@ class Pipeline(BasePipeline):
                 recommended way to submit a job to a Ray cluster is using the [Ray Jobs
                 CLI](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview).
                 Defaults to `None`.
+            ray_init_kwargs: kwargs that will be passed to the `ray.init` method. Defaults
+                to `None`.
 
         Returns:
             A `RayPipeline` instance.
@@ -73,6 +79,7 @@ class Pipeline(BasePipeline):
             enable_metadata=self._enable_metadata,
             requirements=self.requirements,
             ray_head_node_url=ray_head_node_url,
+            ray_init_kwargs=ray_init_kwargs,
         )
         pipeline.dag = self.dag
         return pipeline

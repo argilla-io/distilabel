@@ -40,6 +40,7 @@ class RayPipeline(BasePipeline):
         enable_metadata: bool = False,
         requirements: Optional[List[str]] = None,
         ray_head_node_url: Optional[str] = None,
+        ray_init_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the `RayPipeline` instance.
 
@@ -59,10 +60,13 @@ class RayPipeline(BasePipeline):
                 recommended way to submit a job to a Ray cluster is using the [Ray Jobs
                 CLI](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview).
                 Defaults to `None`.
+            ray_init_kwargs: kwargs that will be passed to the `ray.init` method. Defaults
+                to `None`.
         """
         super().__init__(name, description, cache_dir, enable_metadata, requirements)
 
         self._ray_head_node_url = ray_head_node_url
+        self._ray_init_kwargs = ray_init_kwargs or {}
 
     def run(
         self,
@@ -145,13 +149,17 @@ class RayPipeline(BasePipeline):
             import ray
         except ImportError as ie:
             raise ImportError(
-                "ray is not installed. Please install it using `pip install ray`."
+                "ray is not installed. Please install it using `pip install ray[default]`."
             ) from ie
 
         if self._ray_head_node_url:
-            ray.init(self._ray_head_node_url, runtime_env={"pip": self.requirements})
+            ray.init(
+                self._ray_head_node_url,
+                runtime_env={"pip": self.requirements},
+                **self._ray_init_kwargs,
+            )
         else:
-            ray.init()
+            ray.init(**self._ray_init_kwargs)
 
     @property
     def QueueClass(self) -> Callable:
