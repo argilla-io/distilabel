@@ -471,6 +471,7 @@ class _ProcessWrapper:
                 f"🧬 Starting yielding batches from generator step '{self.step.name}'."
                 f" Offset: {offset}"
             )
+
             for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.set_data([data])
                 batch.last_batch = self._dry_run or last_batch

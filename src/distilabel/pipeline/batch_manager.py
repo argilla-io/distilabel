@@ -72,6 +72,9 @@ class _BatchManagerStep(_Serializable):
             batches. Only used if `convergence_step=True`. Defaults to `0`.
         step_signature: The signature that defines a given `Step`. It will be used for the
             caching mechanism.
+        cached_data_dir: Optional path pointing to where the cached batches are stored.
+        use_cache: Flag from the original Step to indicate whether this step should make use of
+            the cached data.
     """
 
     step_name: str
@@ -143,7 +146,6 @@ class _BatchManagerStep(_Serializable):
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
         # TODO: remove `_last_batch` method and integrate logic in `_get_data`
-
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
 
@@ -721,6 +723,8 @@ class _BatchManager(_Serializable):
                 was sent.
             steps_order: List with step names sorted according to the `DAG`. We need the info for the
                 cache, to ensure we invalidate successors of a given step.
+            data_directories: Dictionary to keep track of the step and the directory with the
+                corresponding cached data.
         """
 
         self._steps = steps
