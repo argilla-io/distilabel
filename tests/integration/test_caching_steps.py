@@ -91,7 +91,7 @@ def test_cached_steps() -> None:
     print("######" * 4)
     print("Rerun failed pipeline")
     print("######" * 4)
-    # run_pipeline(do_fail=False, use_cache=True)
+    run_pipeline(do_fail=False, use_cache=True)
 
 
 if __name__ == "__main__":

@@ -88,6 +88,8 @@ class _BatchManagerStep(_Serializable):
     next_expected_created_from_batch_seq_no: int = 0
     next_expected_seq_no: Dict[str, Tuple[int, int]] = field(default_factory=dict)
     step_signature: Optional[str] = None
+    cached_data_dir: Optional[str] = None
+    use_cache: bool = False
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -127,9 +129,21 @@ class _BatchManagerStep(_Serializable):
         if not self._ready_to_create_batch():
             return None
 
+        # NOTE: Try loading from cache
+        # If the cached data directory exists, corresponds to the one we have currently,
+        # we can load it from the cache:
+        cached_data_dir = Path(self.cached_data_dir)
+        if self.use_cache:
+            if cached_data_dir.name == self._create_signature():
+                print("STEP CAN BE READ FROM CACHE")
+                # batch = _Batch.from_json(cached_data_dir / f"batch_{self._get_seq_no()}.json")
+                # print(batch)
+                # return batch
+
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
         # TODO: remove `_last_batch` method and integrate logic in `_get_data`
+
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
 
@@ -216,6 +230,7 @@ class _BatchManagerStep(_Serializable):
             convergence_step=convergence_step,
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
             step_signature=step._create_signature(),
+            use_cache=step.use_cache,
         )
 
     def _get_seq_no(self) -> int:
@@ -650,6 +665,7 @@ class _BatchManagerStep(_Serializable):
             "next_expected_created_from_batch_seq_no": self.next_expected_created_from_batch_seq_no,
             "next_expected_seq_no": self.next_expected_seq_no,
             "step_signature": self.step_signature,
+            "cached_data_dir": self.cached_data_dir,
         }
 
     def _create_signature(self) -> str:
@@ -690,6 +706,7 @@ class _BatchManager(_Serializable):
         last_batch_sent: Dict[str, Union[_Batch, None]],
         last_batch_flag_sent_to: List[str],
         steps_order: List[str],
+        data_directories: Optional[Dict[str, str]] = None,
     ) -> None:
         """Initialize the `_BatchManager` instance.
 
@@ -711,6 +728,7 @@ class _BatchManager(_Serializable):
         self._last_batch_sent = last_batch_sent
         self._last_batch_flag_sent_to = last_batch_flag_sent_to
         self._steps_order = steps_order
+        self._data_directories = data_directories
 
     def can_generate(self) -> bool:
         """Checks if there are still batches to be processed by the steps.
@@ -781,7 +799,13 @@ class _BatchManager(_Serializable):
         """
         return self._last_batch_received.get(step_name)
 
-    def add_batch(self, to_step: str, batch: _Batch, prepend: bool = False) -> None:
+    def add_batch(
+        self,
+        to_step: str,
+        batch: _Batch,
+        prepend: bool = False,
+        path: "StrOrPath" = None,
+    ) -> None:
         """Add an output batch from `batch.step_name` to `to_step`.
 
         Args:
@@ -789,15 +813,28 @@ class _BatchManager(_Serializable):
             batch: The output batch of an step to be processed by `to_step`.
             prepend: If `True`, the content of the batch will be added at the start of
                 the buffer.
+            path: The path to the caching directory, will be used to cache the batches.
 
         Raises:
             ValueError: If `to_step` is not found in the batch manager.
         """
         if to_step not in self._steps:
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
-        # SI ESTE BATCH NO ESTÁ GUARDADO, QUE SE GUARDE
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
+
+        # Caching every _Batch
+        # NOTE: The steps are saved anyway, even if they failed, how can we control it? should we control it??
+        if path:
+            step_name_signed = step._create_signature()
+
+            batch_manager_data_dir = (
+                Path(path).parent / "batch_manager_data" / step_name_signed
+            )
+            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
+            if not filename.exists():
+                self.save(path=filename, format="json", dump=batch.dump())
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
@@ -927,6 +964,16 @@ class _BatchManager(_Serializable):
             "steps_order": self._steps_order,
         }
 
+    def get_data_directories(self, path: "StrOrPath") -> Dict[str, str]:
+        batch_manager_data_dirs = {}
+        for step_name, step in self._steps.items():
+            step_name_signed = step._create_signature()
+            batch_manager_data_dirs[step_name] = str(
+                path.parent / "batch_manager_data" / step_name_signed
+            )
+
+        return batch_manager_data_dirs
+
     def cache(self, path: "StrOrPath") -> None:
         """Cache the `_BatchManager` to a file.
 
@@ -959,31 +1006,24 @@ class _BatchManager(_Serializable):
 
         path = Path(path)
 
+        # Set the data directories in the `_BatchManagerSteps` before dumping them
+        data_directories = self.get_data_directories(path)
+        for step_name, data_dir in data_directories.items():
+            self._steps[step_name].cached_data_dir = data_dir
+
         # Do not include `_Batch` data so `dump` is fast
-        # dump = self.dump(include_batch_data=False)
-        # NOTE: INCLUDE BATCH DATA, ADDED WHEN IMPROVED TO INCLUDE CACHE AT STEP LEVEL
-        dump = self.dump(include_batch_data=True)
+        dump = self.dump(include_batch_data=False)
         batch_manager_step_files = {}
 
         # Do this to avoid modifying the dictionary while iterating over it
         batch_manager_steps = set(dump["steps"].keys())
         for step_name in batch_manager_steps:
-            step_name_signed = self._steps[step_name]._create_signature()
-
             step_dump = dump["steps"].pop(step_name)
 
             # Create a directory for each batch manager step to store their batches
             batch_manager_step_dir = path.parent / "batch_manager_steps" / step_name
             batch_manager_step_dir.mkdir(parents=True, exist_ok=True)
-            # Directory to store the batch manager data, the batches of each step, so we
-            # can recover them afterwards.
-            batch_manager_data_dir = (
-                path.parent / "batch_manager_data" / step_name_signed
-            )
-            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
-            print(f"DATA oN STEP {step_name}", self._steps[step_name].data)
-            batches = self._steps[step_name].data
-            print("BATCH", [b.data for b in batches])
+
             # Store each built `_Batch` in a separate file
             built_batches_dir = batch_manager_step_dir / "built_batches"
             built_batches_dir.mkdir(parents=True, exist_ok=True)
@@ -1023,7 +1063,6 @@ class _BatchManager(_Serializable):
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
                 path.parent / f"batch_manager_steps/{step_name}/batch_manager_step.json"
-                # path.parent / f"batch_manager_steps/{step_name_signed}/batch_manager_step.json"
             )
             self.save(path=batch_manager_step_file, format="json", dump=step_dump)
 
@@ -1031,6 +1070,7 @@ class _BatchManager(_Serializable):
             batch_manager_step_files[step_name] = batch_manager_step_file
 
         dump["steps"] = batch_manager_step_files
+        dump["data_directories"] = data_directories
         self.save(path=path, format="json", dump=dump)
 
     @classmethod
