@@ -42,13 +42,11 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Deploy hidden docs for PR
-        if: github.event_name == 'pull_request'
         run: |
           PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
           mike deploy pr-$PR_NUMBER --prop-set hidden=true --push
 
       - name: Comment PR with docs link
-        if: github.event.action == 'opened' && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
