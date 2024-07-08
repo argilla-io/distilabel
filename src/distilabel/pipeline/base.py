@@ -174,7 +174,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 in the final `Distiset`. It contains metadata used by distilabel, for example
                 the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
                 field. Defaults to `False`.
-            requirements: List of requirements that must be installed to run the Pipeline.
+            requirements: List of requirements that must be installed to run the pipeline.
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
