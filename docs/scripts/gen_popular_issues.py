@@ -24,9 +24,8 @@ import mkdocs_gen_files
 REPOSITORY = "argilla-io/distilabel"
 DATA_PATH = "sections/community/popular_issues.md"
 
-GITHUB_ACCESS_TOKEN = os.getenv(
-    "GH_ACCESS_TOKEN"
-)  # public_repo and read:org scopes are required
+# public_repo and read:org scopes are required
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 
 def fetch_issues_from_github_repository(
@@ -119,7 +118,7 @@ def get_org_members(auth_token: Union[str, None] = None) -> List[str]:
 
 
 with mkdocs_gen_files.open(DATA_PATH, "w") as f:
-    df = fetch_issues_from_github_repository(REPOSITORY, GITHUB_ACCESS_TOKEN)
+    df = fetch_issues_from_github_repository(REPOSITORY, GITHUB_TOKEN)
 
     open_issues = df.loc[df["State"] == "open"]
     engagement_df = (
@@ -129,7 +128,7 @@ with mkdocs_gen_files.open(DATA_PATH, "w") as f:
         .reset_index()
     )
 
-    members = get_org_members(GITHUB_ACCESS_TOKEN)
+    members = get_org_members(GITHUB_TOKEN)
     community_issues = df.loc[~df["Author"].isin(members)]
     community_issues_df = (
         community_issues[
