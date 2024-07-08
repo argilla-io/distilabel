@@ -1,13 +1,5 @@
 [
   {
-    "version": "pr-774",
-    "title": "pr-774",
-    "aliases": [],
-    "properties": {
-      "hidden": true
-    }
-  },
-  {
     "version": "dev",
     "title": "dev",
     "aliases": []
