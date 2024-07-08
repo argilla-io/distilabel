@@ -20,6 +20,7 @@ from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -289,3 +290,20 @@ class RayPipeline(BasePipeline):
 
         self._stop_load_queue_loop()
         self._stop_output_queue_loop()
+
+    def dump(self, **kwargs: Any) -> Dict[str, Any]:
+        """Dumps the pipeline information. Override to hardcode the type info to `Pipeline`,
+        as we don't want to create a `RayPipeline` directly but create it using `Pipeline.ray`
+        method.
+
+        Returns:
+            The pipeline dump.
+        """
+        from distilabel.pipeline import Pipeline
+
+        dict_ = super().dump()
+        dict_["pipeline"][TYPE_INFO_KEY] = {
+            "module": Pipeline.__module__,
+            "name": Pipeline.__name__,
+        }
+        return dict_
