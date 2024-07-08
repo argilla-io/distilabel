@@ -45,6 +45,8 @@ jobs:
         run: |
           PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
           mike deploy pr-$PR_NUMBER --prop-set hidden=true --push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment PR with docs link
         uses: actions/github-script@v7
