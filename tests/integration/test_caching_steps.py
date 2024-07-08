@@ -51,6 +51,7 @@ class DummyStep(Step):
 
         for input in inputs:
             input["response"] = "I don't know"
+
         if self.do_fail:
             raise ValueError("The step failed")
         yield inputs
@@ -70,12 +71,14 @@ def test_cached_steps() -> None:
                 name="step_b",
                 input_batch_size=10,
                 input_mappings={"instruction": "response"},
+                output_mappings={"response": "response_1"},
                 do_fail=do_fail,
             )
             step_c = DummyStep(
                 name="step_c",
                 input_batch_size=10,
-                input_mappings={"instruction": "response"},
+                input_mappings={"instruction": "response_1"},
+                output_mappings={"response": "response_2"},
             )
 
             step_generator >> step_a >> step_b >> step_c
