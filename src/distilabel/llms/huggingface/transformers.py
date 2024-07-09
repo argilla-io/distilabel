@@ -20,6 +20,7 @@ from pydantic import Field, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from distilabel.llms.typing import HiddenState
 
 
-class TransformersLLM(LLM, CudaDevicePlacementMixin):
+class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """Hugging Face `transformers` library LLM implementation using the text generation
     pipeline.
 
@@ -106,6 +107,8 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
     def load(self) -> None:
         """Loads the model and tokenizer and creates the text generation pipeline. In addition,
         it will configure the tokenizer chat template."""
+        MagpieChatTemplateMixin.load(self)
+
         if self.device == "cuda":
             CudaDevicePlacementMixin.load(self)
 
@@ -160,6 +163,9 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         """Prepares the input by applying the chat template to the input, which is formatted
         as an OpenAI conversation, and adding the generation prompt.
         """
+        if (prepared_input := super().prepare_input(input=input)) is not None:
+            return prepared_input
+
         return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
@@ -176,6 +182,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         repetition_penalty: float = 1.1,
         top_p: float = 1.0,
         top_k: int = 0,
+        stop_sequence: Union[str, List[str], None] = None,
         do_sample: bool = True,
     ) -> List[GenerateOutput]:
         """Generates `num_generations` responses for each input using the text generation
@@ -206,6 +213,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             repetition_penalty=repetition_penalty,
             top_p=top_p,
             top_k=top_k,
+            stop_sequence=stop_sequence,
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,

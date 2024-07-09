@@ -35,6 +35,7 @@ from distilabel.steps.tasks.improving_text_embeddings import (
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
+from distilabel.steps.tasks.magpie.base import Magpie
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -64,6 +65,7 @@ __all__ = [
     "GenerateTextRetrievalData",
     "MonolingualTripletGenerator",
     "InstructionBacktranslation",
+    "Magpie",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",

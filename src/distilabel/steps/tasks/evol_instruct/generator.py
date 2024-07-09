@@ -280,6 +280,7 @@ class EvolInstructGenerator(GeneratorTask):
         instructions = []
         mutation_no = 0
 
+        # TODO: update to take into account `offset`
         iter_no = 0
         while len(instructions) < self.num_instructions:
             prompts = self._apply_random_mutation(iter_no=iter_no)
