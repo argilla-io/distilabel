@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
 from distilabel.pipeline.ray import RayPipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
+from distilabel.utils.serialization import TYPE_INFO_KEY
 
-__all__ = ["Pipeline", "RayPipeline", "routing_batch_function", "sample_n_steps"]
+
+class TestRayPipeline:
+    def test_dump(self) -> None:
+        pipeline = RayPipeline(name="unit-test")
+        dump = pipeline.dump()
+
+        assert dump["pipeline"][TYPE_INFO_KEY] == {
+            "module": "distilabel.pipeline.local",
+            "name": "Pipeline",
+        }

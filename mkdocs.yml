@@ -155,14 +155,15 @@ nav:
           - Execute Steps and Tasks in a Pipeline: "sections/how_to_guides/basic/pipeline/index.md"
       - Advanced:
           - Using the Distiset dataset object: "sections/how_to_guides/advanced/distiset.md"
-          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
-          - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
-          - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Cache and recover pipeline executions: "sections/how_to_guides/advanced/caching.md"
-          - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
+          - Export data to Argilla: "sections/how_to_guides/advanced/argilla.md"
           - Structured data generation: "sections/how_to_guides/advanced/structured_generation.md"
-          - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
           - Specify requirements for pipelines and steps: "sections/how_to_guides/advanced/pipeline_requirements.md"
+          - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
+          - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
+          - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
+          - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
+          - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
   - Pipeline Samples:
       - Examples: "sections/pipeline_samples/examples/index.md"
       - Papers:

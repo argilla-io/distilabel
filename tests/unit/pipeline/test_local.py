@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     pass
 
 
-class TestLocalPipeline:
-    @mock.patch("distilabel.pipeline.local._ProcessWrapper")
-    def test_create_processes(self, process_wrapper_mock: mock.MagicMock) -> None:
+class TestPipeline:
+    @mock.patch("distilabel.pipeline.local._StepWrapper")
+    def test_run_steps(self, step_wrapper_mock: mock.MagicMock) -> None:
         with Pipeline(name="unit-test-pipeline") as pipeline:
             dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
             dummy_step_1 = DummyStep1(
@@ -46,7 +46,7 @@ class TestLocalPipeline:
 
         assert pipeline._manager.Queue.call_count == 3
 
-        process_wrapper_mock.assert_has_calls(
+        step_wrapper_mock.assert_has_calls(
             [
                 mock.call(
                     step=dummy_generator,
@@ -86,16 +86,67 @@ class TestLocalPipeline:
         pipeline._pool.apply_async.assert_has_calls(
             [
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
                 mock.call(
-                    process_wrapper_mock.return_value.run,
+                    step_wrapper_mock.return_value.run,
                     error_callback=pipeline._error_callback,
                 ),
             ]
         )
+
+    def test_ray(self) -> None:
+        with Pipeline(
+            name="dummy",
+            description="dummy",
+            cache_dir="/tmp",
+            enable_metadata=True,
+            requirements=["dummy"],
+        ) as pipeline:
+            generator = DummyGeneratorStep()
+            dummy = DummyStep1()
+
+            generator >> dummy
+
+        ray_pipeline = pipeline.ray()
+
+        assert ray_pipeline.name == pipeline.name
+        assert ray_pipeline.description == pipeline.description
+        assert ray_pipeline._cache_dir == pipeline._cache_dir
+        assert ray_pipeline._enable_metadata == pipeline._enable_metadata
+        assert ray_pipeline.requirements == pipeline.requirements
+        assert ray_pipeline.dag == pipeline.dag
+
+    def test_run_detected_ray(self) -> None:
+        with Pipeline(
+            name="dummy",
+            description="dummy",
+            cache_dir="/tmp",
+            enable_metadata=True,
+            requirements=["dummy"],
+        ) as pipeline:
+            generator = DummyGeneratorStep()
+            dummy = DummyStep1()
+
+            generator >> dummy
+
+        run_pipeline_mock = mock.MagicMock()
+
+        with (
+            mock.patch(
+                "distilabel.pipeline.local.script_executed_in_ray_cluster",
+                return_value=True,
+            ),
+            mock.patch(
+                "distilabel.pipeline.local.Pipeline.ray", return_value=run_pipeline_mock
+            ) as ray_mock,
+        ):
+            pipeline.run()
+
+        ray_mock.assert_called_once()
+        run_pipeline_mock.run.assert_called_once()

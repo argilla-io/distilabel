@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 from typing import TYPE_CHECKING, Dict, List
 
-from distilabel.distiset import Distiset
+import pytest
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline.local import Pipeline
+from distilabel.pipeline.ray import RayPipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.data import LoadDataFromDicts
 
@@ -147,18 +148,29 @@ class GenerateResponse(Step):
         return ["response"]
 
 
-def run_pipeline():
-    with Pipeline(name="unit-test-pipeline") as pipeline:
+@pytest.mark.skipif(
+    sys.version_info >= (3, 12), reason="`ray` is not compatible with `python>=3.12`"
+)
+def test_run_pipeline() -> None:
+    import ray
+    from ray.cluster_utils import Cluster
+
+    # TODO: if we add more tests, this should be a fixture
+    cluster = Cluster(initialize_head=True, head_node_args={"num_cpus": 10})
+    ray.init(address=cluster.address)
+
+    with RayPipeline(
+        name="unit-test-pipeline", ray_init_kwargs={"ignore_reinit_error": True}
+    ) as pipeline:
         load_dataset = LoadDataFromDicts(name="load_dataset", data=DATA, batch_size=8)
         rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
         generate_response = GenerateResponse(
             name="generate_response", input_batch_size=16
         )
 
-        load_dataset.connect(rename_columns)
-        rename_columns.connect(generate_response)
+        load_dataset >> rename_columns >> generate_response
 
-    return pipeline.run(
+    distiset = pipeline.run(
         parameters={
             "rename_columns": {
                 "rename_mappings": {
@@ -168,9 +180,4 @@ def run_pipeline():
         }
     )
 
-
-def test_pipeline_cached() -> None:
-    run_pipeline()
-    ds = run_pipeline()
-    assert isinstance(ds, Distiset)
-    assert len(ds["default"]["train"]) == 80
+    assert len(distiset["default"]["train"]) == 80
