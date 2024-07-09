@@ -8,10 +8,11 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout docs-site
+      - name: Checkout merged branch
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -19,7 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install mike
+        run: pip install -e .[docs]
 
       - name: Set git credentials
         run: |
