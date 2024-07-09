@@ -1046,10 +1046,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     if not isinstance(batch, _Batch):
                         continue
                     self._batch_manager.add_batch(  # type: ignore
-                        to_step=step_name,
-                        batch=batch,
-                        prepend=True,
-                        path=self._cache_location["batch_manager"],
+                        to_step=step_name, batch=batch, prepend=True
                     )
                     self._logger.debug(
                         f"Adding batch back to the batch manager: {batch}"
@@ -1102,9 +1099,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # Copy batch to avoid modifying the same reference in the batch manager
             batch_to_add = batch.copy() if len(route_to) > 1 else batch
 
-            self._batch_manager.add_batch(
-                successor, batch_to_add, path=self._cache_location["batch_manager"]
-            )
+            self._batch_manager.add_batch(successor, batch_to_add)
 
             # Check if the step is a generator and if there are successors that need data
             # from this step. This usually happens when the generator `batch_size` is smaller
@@ -1272,9 +1267,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._batch_manager.register_batch(batch)
         step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
-            self._batch_manager.add_batch(
-                successor, batch, path=self._cache_location["batch_manager"]
-            )
+            self._batch_manager.add_batch(successor, batch)
 
     def _get_step_from_batch(self, batch: "_Batch") -> "Step":
         """Gets the `Step` instance from a batch.
