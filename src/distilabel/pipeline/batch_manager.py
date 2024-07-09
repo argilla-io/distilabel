@@ -93,6 +93,7 @@ class _BatchManagerStep(_Serializable):
     step_signature: Optional[str] = None
     cached_data_dir: Optional[str] = None
     use_cache: bool = False
+    # Guardar identificador (el nombre del paso del cuál es el batch) del batch y un offset de los datos (la longitud de los datos del batch)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -834,6 +835,13 @@ class _BatchManager(_Serializable):
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
+
+        # TODO: Save batches
+        # if not filename.exists():
+        # HAbría que guardar la información suficiente para que sepa leer del batch lo que necesite,
+        # es decir si el batch tiene BS=50, pero necesitamos 25, coger solo esos.
+        # Tenemos que guardar en el _BatchManagerStep el punto en el que se quedó, y de ahí saca
+        # la información para saber donde seguir
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
