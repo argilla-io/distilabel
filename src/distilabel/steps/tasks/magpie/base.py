@@ -12,25 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field, PositiveInt
 
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.llms.typing import GenerateOutput
     from distilabel.steps.tasks.typing import ChatType, FormattedInput
     from distilabel.steps.typing import StepOutput
 
 
 class Magpie(Task):
-    n_turns: Optional[RuntimeParameter[PositiveInt]] = Field(
-        default=None,
-        description="If provided, then the number of turns to generate for the conversation.",
+    n_turns: RuntimeParameter[PositiveInt] = Field(
+        default=1,
+        description="The number of turns to generate for the conversation.",
     )
+
+    def model_post_init(self, _: Any) -> None:
+        """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
+        super().load()
+
+        if not isinstance(self.llm, MagpieChatTemplateMixin):
+            raise ValueError(
+                f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+            )
+
+        self.llm.use_magpie_template = True
 
     @property
     def inputs(self) -> List[str]:
@@ -41,9 +53,6 @@ class Magpie(Task):
 
     @property
     def outputs(self) -> List[str]:
-        if self.n_turns is None:
-            return ["instruction"]
-
         return ["conversation"]
 
     def format_output(
@@ -63,24 +72,41 @@ class Magpie(Task):
             for input in inputs
         ]
 
-    def _format_instruction_generation_output(self, outputs: List["GenerateOutput"]):
-        instructions = []
-        for output in outputs:
-            if output[0] is None:
-                instructions.append({"instruction": None})
-            else:
-                parts = output[0].split("\n")
-                instructions.append({"instruction": parts[0]})
-        return instructions
+    def _append_messages_to_conversations(
+        self, role: str, messages: List[str], conversations: List["ChatType"]
+    ) -> List["ChatType"]:
+        for instruction, conversation in zip(messages, conversations):
+            conversation.append({"role": role, "content": instruction})
+        return conversations
 
     def process(self, inputs: StepInput) -> "StepOutput":
-        inputs_for_instruction_generation = (
-            self._prepare_inputs_for_instruction_generation(inputs=inputs)
-        )
-        outputs = self.llm.generate(
-            inputs=inputs_for_instruction_generation, num_generations=1
-        )
-        instructions = self._format_instruction_generation_output(outputs=outputs)
+        conversations = self._prepare_inputs_for_instruction_generation(inputs=inputs)
 
-        if self.n_turns is None:
-            yield instructions
+        for _ in range(self.n_turns):  # type: ignore
+            # Generate instruction or user message
+            outputs = self.llm.generate(
+                inputs=conversations,
+                num_generations=1,
+                **self.llm.generation_kwargs,  # type: ignore
+            )
+
+            conversations = self._append_messages_to_conversations(
+                role="user",
+                messages=[output[0] for output in outputs],
+                conversations=conversations,  # type: ignore
+            )
+
+            # Generate response
+            outputs = self.llm.generate(
+                inputs=conversations,
+                num_generations=1,
+                **self.llm.generation_kwargs,  # type: ignore
+            )
+
+            conversations = self._append_messages_to_conversations(
+                role="assistant",
+                messages=[output[0] for output in outputs],
+                conversations=conversations,  # type: ignore
+            )
+
+        yield [{"conversation": conversation} for conversation in conversations]
