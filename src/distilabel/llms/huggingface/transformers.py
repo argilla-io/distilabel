@@ -19,7 +19,7 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput

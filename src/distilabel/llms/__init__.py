@@ -22,7 +22,7 @@ from distilabel.llms.huggingface import InferenceEndpointsLLM, TransformersLLM
 from distilabel.llms.litellm import LiteLLM
 from distilabel.llms.llamacpp import LlamaCppLLM
 from distilabel.llms.mistral import MistralLLM
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.moa import MixtureOfAgentsLLM
 from distilabel.llms.ollama import OllamaLLM
 from distilabel.llms.openai import OpenAILLM

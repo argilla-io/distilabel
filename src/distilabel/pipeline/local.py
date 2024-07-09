@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union, ca
 import tblib
 
 from distilabel.distiset import create_distiset
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.pipeline.base import (
     BasePipeline,
 )

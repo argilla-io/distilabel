@@ -30,7 +30,7 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
@@ -304,14 +304,13 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         if extra_sampling_params is None:
             extra_sampling_params = {}
         structured_output = None
-        needs_sorting = False
 
         if isinstance(inputs[0], tuple):
             prepared_batches, sorted_indices = self._prepare_batches(inputs)
-            needs_sorting = True
         else:
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
+            sorted_indices = None
 
         # In case we have a single structured output for the dataset, we can
         logits_processors = None
@@ -348,7 +347,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
-        if needs_sorting:
+        if sorted_indices is not None:
             batched_outputs = _sort_batches(
                 batched_outputs, sorted_indices, num_generations=num_generations
             )
