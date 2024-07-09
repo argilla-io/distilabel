@@ -12,24 +12,28 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/structuredgeneration/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-766/sections/how_to_guides/advanced/scaling_with_ray/">
       
       
+        <link rel="prev" href="../serving_an_llm_for_reuse/">
       
       
-      <link rel="icon" href="../../../assets/logo.svg">
+        <link rel="next" href="../../../pipeline_samples/examples/">
+      
+      
+      <link rel="icon" href="../../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
     
     
       
-        <title>StructuredGeneration - Distilabel Docs</title>
+        <title>Scaling and distributing a pipeline with Ray - Distilabel Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -61,11 +65,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="StructuredGeneration - Distilabel Docs" >
+        <meta  property="og:title"  content="Scaling and distributing a pipeline with Ray - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-766/assets/images/social/components-gallery/tasks/structuredgeneration.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-766/assets/images/social/sections/how_to_guides/advanced/scaling_with_ray.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -73,15 +77,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-766/components-gallery/tasks/structuredgeneration/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-766/sections/how_to_guides/advanced/scaling_with_ray/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="StructuredGeneration - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Scaling and distributing a pipeline with Ray - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-766/assets/images/social/components-gallery/tasks/structuredgeneration.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-766/assets/images/social/sections/how_to_guides/advanced/scaling_with_ray.png" >
       
     
     
@@ -104,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#structuredgeneration" class="md-skip">
+        <a href="#scaling-and-distributing-a-pipeline-with-ray" class="md-skip">
           Skip to content
         </a>
       
@@ -122,9 +126,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -141,7 +145,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              StructuredGeneration
+              Scaling and distributing a pipeline with Ray
             
           </span>
         </div>
@@ -265,7 +269,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -284,7 +288,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../sections/getting_started/installation/" class="md-tabs__link">
+        <a href="../../../getting_started/installation/" class="md-tabs__link">
           
   
   Getting started
@@ -298,9 +302,11 @@
         
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../../sections/how_to_guides/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../" class="md-tabs__link">
         
   
     
@@ -317,7 +323,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../" class="md-tabs__link">
+      <a href="../../../../components-gallery/" class="md-tabs__link">
         
   
     
@@ -336,7 +342,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../sections/pipeline_samples/examples/" class="md-tabs__link">
+        <a href="../../../pipeline_samples/examples/" class="md-tabs__link">
           
   
   Pipeline Samples
@@ -354,7 +360,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../api/step/" class="md-tabs__link">
+        <a href="../../../../api/step/" class="md-tabs__link">
           
   
   API Reference
@@ -370,7 +376,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../sections/community/" class="md-tabs__link">
+      <a href="../../../community/" class="md-tabs__link">
         
   
     
@@ -393,9 +399,7 @@
           
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -406,9 +410,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     Distilabel Docs
@@ -435,7 +439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -495,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/installation/" class="md-nav__link">
+      <a href="../../../getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -516,7 +520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/quickstart/" class="md-nav__link">
+      <a href="../../../getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -537,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/faq/" class="md-nav__link">
+      <a href="../../../getting_started/faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -562,27 +566,32 @@
       
   
   
+    
   
   
+  
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -593,13 +602,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             How-to guides
@@ -618,17 +627,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -670,7 +682,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/basic/step/" class="md-nav__link ">
+            <a href="../../basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -701,7 +713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/step/generator_step/" class="md-nav__link">
+      <a href="../../basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -722,7 +734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/step/global_step/" class="md-nav__link">
+      <a href="../../basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -768,7 +780,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/basic/task/" class="md-nav__link ">
+            <a href="../../basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -799,7 +811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/task/generator_task/" class="md-nav__link">
+      <a href="../../basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -828,7 +840,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/llm/" class="md-nav__link">
+      <a href="../../basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -849,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/pipeline/" class="md-nav__link">
+      <a href="../../basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -875,25 +887,30 @@
                 
   
   
+    
   
   
+  
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -904,7 +921,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Advanced
@@ -918,7 +935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/distiset/" class="md-nav__link">
+      <a href="../distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -939,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/caching/" class="md-nav__link">
+      <a href="../caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -960,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/argilla/" class="md-nav__link">
+      <a href="../argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -981,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/structured_generation/" class="md-nav__link">
+      <a href="../structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1002,7 +1019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../pipeline_requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1023,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1044,7 +1061,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1065,7 +1082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../assigning_resources_to_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1086,7 +1103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+      <a href="../serving_an_llm_for_reuse/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1104,10 +1121,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Scaling and distributing a pipeline with Ray
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1116,6 +1153,77 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#relation-between-distilabel-steps-and-ray-actors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relation between distilabel steps and Ray Actors
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executing-a-pipeline-with-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executing a pipeline with Ray
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Executing a pipeline with Ray">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-ray-jobs-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Ray Jobs API
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      File system requirements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executing-a-raypipeline-in-a-cluster-with-slurm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executing a RayPipeline in a cluster with Slurm
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1160,7 +1268,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../../../components-gallery/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1208,7 +1316,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../steps/" class="md-nav__link ">
+            <a href="../../../../components-gallery/steps/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1239,7 +1347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1260,7 +1368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/deitafiltering/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1281,7 +1389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/pushtohub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1302,7 +1410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/preferencetoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1323,7 +1431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/textgenerationtoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1344,7 +1452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/expandcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1365,7 +1473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/groupcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1386,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/combinecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,7 +1515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/keepcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1428,7 +1536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/mergecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1449,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/conversationtemplate/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1470,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formattextgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1491,7 +1599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formatchatgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1512,7 +1620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formattextgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1533,7 +1641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formatchatgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1554,7 +1662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromdicts/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1575,7 +1683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromhub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1596,7 +1704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromfilesystem/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1617,7 +1725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromdisk/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1663,7 +1771,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../../../components-gallery/tasks/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1694,7 +1802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1715,7 +1823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../complexityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1736,7 +1844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1757,7 +1865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolcomplexity/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1778,7 +1886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolquality/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolquality/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1799,7 +1907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../genstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/genstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1820,7 +1928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatetextretrievaldata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1841,7 +1949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generateshorttextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1862,7 +1970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatelongtextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1883,7 +1991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatetextclassificationdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1904,7 +2012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instructionbacktranslation/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1925,7 +2033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prometheuseval/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1946,7 +2054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qualityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1967,7 +2075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../selfinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1988,7 +2096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatesentencepair/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2009,7 +2117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2030,7 +2138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../textgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/textgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2051,7 +2159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../chatgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2072,7 +2180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ultrafeedback/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2093,7 +2201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolinstructgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2114,7 +2222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolcomplexitygenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2135,7 +2243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monolingualtripletgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2156,7 +2264,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bitextretrievalgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2177,7 +2285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../embeddingtaskgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2198,7 +2306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pairrm/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/pairrm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2219,7 +2327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generateembeddings/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2265,7 +2373,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llms/" class="md-nav__link ">
+            <a href="../../../../components-gallery/llms/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2296,7 +2404,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2317,7 +2425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/anthropicllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2338,7 +2446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/openaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2359,7 +2467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/anyscalellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anyscalellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2380,7 +2488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/azureopenaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2401,7 +2509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/togetherllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/togetherllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2422,7 +2530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/coherellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/coherellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2443,7 +2551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/groqllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/groqllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2464,7 +2572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/inferenceendpointsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2485,7 +2593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/litellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2506,7 +2614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/mistralllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mistralllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2527,7 +2635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/mixtureofagentsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2548,7 +2656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/ollamallm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/ollamallm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2569,7 +2677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/vertexaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vertexaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2590,7 +2698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/transformersllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/transformersllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2611,7 +2719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/llamacppllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/llamacppllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2632,7 +2740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/vllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2708,7 +2816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/examples/" class="md-nav__link">
+      <a href="../../../pipeline_samples/examples/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2746,7 +2854,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/pipeline_samples/papers/" class="md-nav__link ">
+            <a href="../../../pipeline_samples/papers/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2777,7 +2885,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/deita/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/deita/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2798,7 +2906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2819,7 +2927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/prometheus/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/prometheus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2840,7 +2948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2933,7 +3041,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/step/" class="md-nav__link ">
+            <a href="../../../../api/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2964,7 +3072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/generator_step/" class="md-nav__link">
+      <a href="../../../../api/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2985,7 +3093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/global_step/" class="md-nav__link">
+      <a href="../../../../api/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3006,7 +3114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/decorator/" class="md-nav__link">
+      <a href="../../../../api/step/decorator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3027,7 +3135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/resources/" class="md-nav__link">
+      <a href="../../../../api/step/resources/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3088,7 +3196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/argilla/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3109,7 +3217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/hugging_face/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/hugging_face/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3130,7 +3238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/columns/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/columns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3151,7 +3259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/extra/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/extra/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3205,7 +3313,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/task/" class="md-nav__link ">
+            <a href="../../../../api/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3236,7 +3344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/generator_task/" class="md-nav__link">
+      <a href="../../../../api/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3257,7 +3365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_gallery/" class="md-nav__link">
+      <a href="../../../../api/task_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3278,7 +3386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/typing/" class="md-nav__link">
+      <a href="../../../../api/task/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3324,7 +3432,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3395,7 +3503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anthropic/" class="md-nav__link">
+      <a href="../../../../api/llm/anthropic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3416,7 +3524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anyscale/" class="md-nav__link">
+      <a href="../../../../api/llm/anyscale/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3437,7 +3545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/azure/" class="md-nav__link">
+      <a href="../../../../api/llm/azure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3458,7 +3566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/cohere/" class="md-nav__link">
+      <a href="../../../../api/llm/cohere/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3479,7 +3587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/groq/" class="md-nav__link">
+      <a href="../../../../api/llm/groq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3500,7 +3608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/huggingface/" class="md-nav__link">
+      <a href="../../../../api/llm/huggingface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3521,7 +3629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/litellm/" class="md-nav__link">
+      <a href="../../../../api/llm/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3542,7 +3650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llamacpp/" class="md-nav__link">
+      <a href="../../../../api/llm/llamacpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3563,7 +3671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/mistral/" class="md-nav__link">
+      <a href="../../../../api/llm/mistral/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3584,7 +3692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/ollama/" class="md-nav__link">
+      <a href="../../../../api/llm/ollama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3605,7 +3713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/openai/" class="md-nav__link">
+      <a href="../../../../api/llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3626,7 +3734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/together/" class="md-nav__link">
+      <a href="../../../../api/llm/together/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3647,7 +3755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vertexai/" class="md-nav__link">
+      <a href="../../../../api/llm/vertexai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3668,7 +3776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vllm/" class="md-nav__link">
+      <a href="../../../../api/llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3722,7 +3830,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/pipeline/" class="md-nav__link ">
+            <a href="../../../../api/pipeline/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3753,7 +3861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/routing_batch_function/" class="md-nav__link">
+      <a href="../../../../api/pipeline/routing_batch_function/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3774,7 +3882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/typing/" class="md-nav__link">
+      <a href="../../../../api/pipeline/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3795,7 +3903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/utils/" class="md-nav__link">
+      <a href="../../../../api/pipeline/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3864,7 +3972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/runtime_parameters/" class="md-nav__link">
+      <a href="../../../../api/mixins/runtime_parameters/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3885,7 +3993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/requirements/" class="md-nav__link">
+      <a href="../../../../api/mixins/requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3914,7 +4022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/distiset/" class="md-nav__link">
+      <a href="../../../../api/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3935,7 +4043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/cli/" class="md-nav__link">
+      <a href="../../../../api/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3980,7 +4088,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/community/" class="md-nav__link ">
+            <a href="../../../community/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4011,7 +4119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/community/popular_issues/" class="md-nav__link">
+      <a href="../../../community/popular_issues/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4040,8 +4148,6 @@
             
             
               
-                
-              
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -4061,37 +4167,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#attributes" class="md-nav__link">
+  <a href="#relation-between-distilabel-steps-and-ray-actors" class="md-nav__link">
     <span class="md-ellipsis">
-      Attributes
+      Relation between distilabel steps and Ray Actors
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#input-output-columns" class="md-nav__link">
+  <a href="#executing-a-pipeline-with-ray" class="md-nav__link">
     <span class="md-ellipsis">
-      Input &amp; Output Columns
+      Executing a pipeline with Ray
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Input & Output Columns">
+    <nav class="md-nav" aria-label="Executing a pipeline with Ray">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
+  <a href="#using-ray-jobs-api" class="md-nav__link">
     <span class="md-ellipsis">
-      Inputs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#outputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Outputs
+      Using Ray Jobs API
     </span>
   </a>
   
@@ -4103,35 +4200,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#file-system-requirements" class="md-nav__link">
     <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#generate-structured-output-from-a-json-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate structured output from a JSON schema
+      File system requirements
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#generate-structured-output-from-a-regex-pattern" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#executing-a-raypipeline-in-a-cluster-with-slurm" class="md-nav__link">
     <span class="md-ellipsis">
-      Generate structured output from a regex pattern
+      Executing a RayPipeline in a cluster with Slurm
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -4149,142 +4231,191 @@
                 
                   
 
+  
+    <a href="https://github.com/argilla-io/distilabel/edit/master/docs/sections/how_to_guides/advanced/scaling_with_ray.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
 
-<h1 id="structuredgeneration">StructuredGeneration<a class="headerlink" href="#structuredgeneration" title="Permanent link">&para;</a></h1>
-<p>Generate structured content for a given <code>instruction</code> using an <code>LLM</code>.</p>
-<p><code>StructuredGeneration</code> is a pre-defined task that defines the <code>instruction</code> and the <code>structured_output</code>
-    as the inputs, and <code>generation</code> as the output. This task is used to generate structured content based on
-    the input instruction and following the schema provided within the <code>structured_output</code> column per each
-    <code>instruction</code>. The <code>model_name</code> also returned as part of the output in order to enhance it.</p>
-<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>use_system_prompt</strong>: Whether to use the system prompt in the generation. Defaults to <code>True</code>,  which means that if the column <code>system_prompt</code> is defined within the input batch, then  the <code>system_prompt</code> will be used, otherwise, it will be ignored.</li>
-</ul>
-<h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
+
+<h1 id="scaling-and-distributing-a-pipeline-with-ray">Scaling and distributing a pipeline with Ray<a class="headerlink" href="#scaling-and-distributing-a-pipeline-with-ray" title="Permanent link">&para;</a></h1>
+<p>Although the local <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline">Pipeline</a> based on <a href="https://docs.python.org/3/library/multiprocessing.html"><code>multiprocessing</code></a> + <a href="../serving_an_llm_for_reuse/">serving LLMs with an external service</a> is enough for executing most of the pipelines used to create SFT and preference datasets, there are scenarios where you might need to scale your pipeline across multiple machines. In such cases, distilabel leverages <a href="https://www.ray.io/">Ray</a> to distribute the workload efficiently. This allows you to generate larger datasets, reduce execution time, and maximize resource utilization across a cluster of machines, without needing to change a single line of code.</p>
+<h2 id="relation-between-distilabel-steps-and-ray-actors">Relation between distilabel steps and Ray Actors<a class="headerlink" href="#relation-between-distilabel-steps-and-ray-actors" title="Permanent link">&para;</a></h2>
+<p>A <code>distilabel</code> pipeline consist of several <a class="autorefs autorefs-internal" href="../../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>s. An <code>Step</code> is a class that defines a basic life-cycle:</p>
+<ol>
+<li>It will load or create the resources (LLMs, clients, etc) required to run its logic.</li>
+<li>It will run a loop waiting for incoming batches received using a queue. Once it receives one batch, it will process it and put the processed batch into an output queue.</li>
+<li>When it finish a batch that is the final one or receives a special signal, the loop will finish and the unload logic will be executed.</li>
+</ol>
+<p>So an <code>Step</code> needs to maintain a minimum state and the best way to do that with Ray is using <a href="https://docs.ray.io/en/latest/ray-core/actors.html">actors</a>.</p>
 <pre class="mermaid"><code>graph TD
-    subgraph Dataset
-        subgraph Columns
-            ICOL0[instruction]
-            ICOL1[structured_output]
-        end
-        subgraph New columns
-            OCOL0[generation]
-            OCOL1[model_name]
-        end
-    end
-
-    subgraph StructuredGeneration
-        StepInput[Input Columns: instruction, structured_output]
-        StepOutput[Output Columns: generation, model_name]
-    end
-
-    ICOL0 --&gt; StepInput
-    ICOL1 --&gt; StepInput
-    StepOutput --&gt; OCOL0
-    StepOutput --&gt; OCOL1
-    StepInput --&gt; StepOutput
+    A[Step] --&gt;|has| B[Multiple Replicas]
+    B --&gt;|wrapped in| C[Ray Actor]
+    C --&gt;|maintains| D[Step Replica State]
+    C --&gt;|executes| E[Step Lifecycle]
+    E --&gt;|1. Load/Create Resources| F[LLMs, Clients, etc.]
+    E --&gt;|2. Process batches from| G[Input Queue]
+    E --&gt;|3. Processed batches are put in| H[Output Queue]
+    E --&gt;|4. Unload| I[Cleanup]
 </code></pre>
-<h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p><strong>instruction</strong> (<code>str</code>): The instruction to generate structured content from.</p>
-</li>
-<li>
-<p><strong>structured_output</strong> (<code>Dict[str, Any]</code>): The structured_output to generate structured content from. It should be a  Python dictionary with the keys <code>format</code> and <code>schema</code>, where <code>format</code> should be one of <code>json</code> or  <code>regex</code>, and the <code>schema</code> should be either the JSON schema or the regex pattern, respectively.</p>
-</li>
-</ul>
-<h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p><strong>generation</strong> (<code>str</code>): The generated text matching the provided schema, if possible.</p>
-</li>
-<li>
-<p><strong>model_name</strong> (<code>str</code>): The name of the model used to generate the text.</p>
-</li>
-</ul>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<h4 id="generate-structured-output-from-a-json-schema">Generate structured output from a JSON schema<a class="headerlink" href="#generate-structured-output-from-a-json-schema" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">StructuredGeneration</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">structured_gen</span> <span class="o">=</span> <span class="n">StructuredGeneration</span><span class="p">(</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">),</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">structured_gen</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">structured_gen</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="p">[</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>            <span class="p">{</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Create an RPG character&quot;</span><span class="p">,</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                <span class="s2">&quot;structured_output&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                            <span class="p">},</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Description&quot;</span><span class="p">,</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                            <span class="p">},</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">,</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>                            <span class="p">},</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                            <span class="s2">&quot;weapon&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Weapon&quot;</span><span class="p">,</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>                                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>                            <span class="p">}</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>                        <span class="p">},</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>                        <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>                            <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>                            <span class="s2">&quot;description&quot;</span><span class="p">,</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>                            <span class="s2">&quot;role&quot;</span><span class="p">,</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>                            <span class="s2">&quot;weapon&quot;</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>                        <span class="p">],</span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Character&quot;</span><span class="p">,</span>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span>
-</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>                    <span class="p">}</span>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>                <span class="p">},</span>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>            <span class="p">}</span>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>        <span class="p">]</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>    <span class="p">)</span>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="p">)</span>
+<h2 id="executing-a-pipeline-with-ray">Executing a pipeline with Ray<a class="headerlink" href="#executing-a-pipeline-with-ray" title="Permanent link">&para;</a></h2>
+<p>The recommended way to execute a <code>distilabel</code> pipeline using Ray is using the <a href="https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-api">Ray Jobs API</a>.</p>
+<p>Before jumping on the explanation, let's first install the prerequisites:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>distilabel<span class="o">[</span>ray<span class="o">]</span>
+</span></code></pre></div></p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>It's recommended to create a virtual environment.</p>
+</div>
+<p>For the purpose of explaining how to execute a pipeline with Ray, we'll use the following pipeline throughout the examples:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">vLLM</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromHub</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;text-generation-ray-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">load_data_from_hub</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">})</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">vLLM</span><span class="p">(</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="p">)</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">load_data_from_hub</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>            <span class="n">load_data_from_hub</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="s2">&quot;repo_id&quot;</span><span class="p">:</span> <span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            <span class="p">},</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="n">text_generation</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                    <span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>                        <span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>                    <span class="p">}</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                <span class="p">},</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>                <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;gpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="c1"># (1)</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>            <span class="p">},</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="p">}</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    <span class="p">)</span>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="s2">&quot;&lt;YOUR_HF_USERNAME_OR_ORGANIZATION&gt;/text-generation-distilabel-ray&quot;</span> <span class="c1"># (2)</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="p">)</span>
 </span></code></pre></div>
-<h4 id="generate-structured-output-from-a-regex-pattern">Generate structured output from a regex pattern<a class="headerlink" href="#generate-structured-output-from-a-regex-pattern" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">StructuredGeneration</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">structured_gen</span> <span class="o">=</span> <span class="n">StructuredGeneration</span><span class="p">(</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="p">),</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">)</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">structured_gen</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">structured_gen</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="p">[</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>            <span class="p">{</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the weather like today in Seattle in Celsius degrees?&quot;</span><span class="p">,</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                <span class="s2">&quot;structured_output&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;regex&quot;</span><span class="p">,</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;(\d{1,2})°C&quot;</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                <span class="p">},</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>            <span class="p">}</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="p">]</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="p">)</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="p">)</span>
+<ol>
+<li>We're setting <a href="../assigning_resources_to_step/">resources</a> for the <code>text_generation</code> step and defining that we want two replicas and one GPU per replica. <code>distilabel</code> will create two replicas of the step i.e. two actors in the Ray cluster, and each actor will request to be allocated in a node of the cluster that have at least one GPU. You can read more about how Ray manages the resources <a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resources">here</a>.</li>
+<li>You should modify this and add your user or organization on the Hugging Face Hub.</li>
+</ol>
+<p>It's a basic pipeline with just two steps: one to load a dataset from the Hub with an <code>instruction</code> column and one to generate a <code>response</code> for that instruction using Llama 3 8B Instruct with <a href="/distilabel/components-gallery/llms/vllm/">vLLM</a>. Simple but enough to demonstrate how to distribute and scale the workload using a Ray cluster!</p>
+<h3 id="using-ray-jobs-api">Using Ray Jobs API<a class="headerlink" href="#using-ray-jobs-api" title="Permanent link">&para;</a></h3>
+<p>If you don't know the Ray Jobs API then it's recommended to read <a href="https://docs.ray.io/en/latest/cluster/running-applications/job-submission/index.html#ray-jobs-overview">Ray Jobs Overview</a>. Quick summary: Ray Jobs is the recommended way to execute a job in a Ray cluster as it will handle packaging, deploying and managing the Ray application.</p>
+<p>To execute the pipeline above, we first need to create a directory (kind of a package) with the pipeline script (or scripts)
+that we will submit to the Ray cluster:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkdir<span class="w"> </span>ray-pipeline
 </span></code></pre></div>
+<p>The content of the directory <code>ray-pipeline</code> should be:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ray-pipeline/
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── pipeline.py
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>└── runtime_env.yaml
+</span></code></pre></div>
+<p>The first file contains the code of the pipeline, while the second one (<code>runtime_env.yaml</code>) is a specific Ray file containing the <a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#environment-dependencies">environment dependencies</a> required to run the job:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">pip</span><span class="p">:</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">distilabel[ray,vllm] &gt;= 1.3.0</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">env_vars</span><span class="p">:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">HF_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;YOUR_HF_TOKEN&gt;</span>
+</span></code></pre></div>
+<p>With this file we're basically informing to the Ray cluster that it will have to install <code>distilabel</code> with the <code>vllm</code> and <code>ray</code> extra dependencies to be able to run the job. In addition, we're defining the <code>HF_TOKEN</code> environment variable that will be used (by the <code>push_to_hub</code> method) to upload the resulting dataset to the Hugging Face Hub. </p>
+<p>After that, we can proceed to execute the <code>ray</code> command that will submit the job to the Ray cluster:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ray<span class="w"> </span>job<span class="w"> </span>submit<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--address<span class="w"> </span>http://localhost:8265<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--working-dir<span class="w"> </span>ray-pipeline<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>--runtime-env<span class="w"> </span>ray-pipeline/runtime_env.yaml<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>pipeline.py
+</span></code></pre></div></p>
+<p>What this will do, it's to basically upload the <code>--working-dir</code> to the Ray cluster, install the dependencies and then execute the <code>python pipeline.py</code> command from the head node.</p>
+<h2 id="file-system-requirements">File system requirements<a class="headerlink" href="#file-system-requirements" title="Permanent link">&para;</a></h2>
+<p>As described in <a href="../fs_to_pass_data/">Using a file system to pass data to steps</a>, <code>distilabel</code> relies on the file system to pass the data to the <code>GlobalStep</code>s, so if the pipeline to be executed in the Ray cluster have any <code>GlobalStep</code> or do you want to set the <code>use_fs_to_pass_data=True</code> of the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline.run">run</a> method, then you will need to setup a file system to which all the nodes of the Ray cluster have access:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">},</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">storage_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;file:///mnt/data&quot;</span><span class="p">},</span> <span class="c1"># (1)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">use_fs_to_pass_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<ol>
+<li>All the nodes of the Ray cluster should have access to <code>/mnt/data</code>.</li>
+</ol>
+<h2 id="executing-a-raypipeline-in-a-cluster-with-slurm">Executing a <code>RayPipeline</code> in a cluster with Slurm<a class="headerlink" href="#executing-a-raypipeline-in-a-cluster-with-slurm" title="Permanent link">&para;</a></h2>
+<p>If you have access to an HPC, then you're probably also a user of <a href="https://slurm.schedmd.com/">Slurm</a>, a workload manager typically used on HPCs. We can create Slurm job that takes some nodes and deploy a Ray cluster to run a distributed <code>distilabel</code> pipeline:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1">#SBATCH --job-name=distilabel-ray-text-generation</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1">#SBATCH --partition=your-partition</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1">#SBATCH --qos=normal</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1">#SBATCH --nodes=2 # (1)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1">#SBATCH --exclusive</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1">#SBATCH --ntasks-per-node=1 # (2)</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1">#SBATCH --gpus-per-node=1 # (3)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1">#SBATCH --time=0:30:00</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="nb">set</span><span class="w"> </span>-ex
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SLURM_JOB_ID: </span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&quot;</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SLURM_JOB_NODELIST: </span><span class="nv">$SLURM_JOB_NODELIST</span><span class="s2">&quot;</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="c1"># Activate virtual environment</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="nb">source</span><span class="w"> </span>/path/to/virtualenv/.venv/bin/activate
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="c1"># Getting the node names</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="nv">nodes</span><span class="o">=</span><span class="k">$(</span>scontrol<span class="w"> </span>show<span class="w"> </span>hostnames<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SLURM_JOB_NODELIST</span><span class="s2">&quot;</span><span class="k">)</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="nv">nodes_array</span><span class="o">=(</span><span class="nv">$nodes</span><span class="o">)</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="c1"># Get the IP address of the head node</span>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="nv">head_node</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[0]</span><span class="si">}</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="nv">head_node_ip</span><span class="o">=</span><span class="k">$(</span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span>hostname<span class="w"> </span>--ip-address<span class="k">)</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="c1"># Start Ray head node</span>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="nv">port</span><span class="o">=</span><span class="m">6379</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="nv">ip_head</span><span class="o">=</span><span class="nv">$head_node_ip</span>:<span class="nv">$port</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="nb">export</span><span class="w"> </span>ip_head
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;IP Head: </span><span class="nv">$ip_head</span><span class="s2">&quot;</span>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting HEAD at </span><span class="nv">$head_node</span><span class="s2">&quot;</span>
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a><span class="w">    </span>ray<span class="w"> </span>start<span class="w"> </span>--head<span class="w"> </span>--node-ip-address<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span><span class="w"> </span>--port<span class="o">=</span><span class="nv">$port</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a><span class="w">    </span>--dashboard-host<span class="o">=</span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="w">    </span>--block<span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>
+</span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="c1"># Give some time to head node to start...</span>
+</span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>sleep<span class="w"> </span><span class="m">10</span>
+</span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a>
+</span><span id="__span-7-42"><a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a><span class="c1"># Start Ray worker nodes</span>
+</span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a><span class="nv">worker_num</span><span class="o">=</span><span class="k">$((</span><span class="nv">SLURM_JOB_NUM_NODES</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+</span><span id="__span-7-44"><a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a>
+</span><span id="__span-7-45"><a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a><span class="c1"># Start from 1 (0 is head node)</span>
+</span><span id="__span-7-46"><a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a><span class="k">for</span><span class="w"> </span><span class="o">((</span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span>i<span class="w"> </span>&lt;<span class="o">=</span><span class="w"> </span>worker_num<span class="p">;</span><span class="w"> </span>i++<span class="o">))</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-7-47"><a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a><span class="w">    </span><span class="nv">node_i</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="si">}</span>
+</span><span id="__span-7-48"><a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting WORKER </span><span class="nv">$i</span><span class="s2"> at </span><span class="nv">$node_i</span><span class="s2">&quot;</span>
+</span><span id="__span-7-49"><a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a><span class="w">    </span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node_i</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-50"><a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a><span class="w">        </span>ray<span class="w"> </span>start<span class="w"> </span>--address<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ip_head</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-51"><a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a><span class="w">        </span>--block<span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-7-52"><a id="__codelineno-7-52" name="__codelineno-7-52" href="#__codelineno-7-52"></a><span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+</span><span id="__span-7-53"><a id="__codelineno-7-53" name="__codelineno-7-53" href="#__codelineno-7-53"></a><span class="k">done</span>
+</span><span id="__span-7-54"><a id="__codelineno-7-54" name="__codelineno-7-54" href="#__codelineno-7-54"></a>
+</span><span id="__span-7-55"><a id="__codelineno-7-55" name="__codelineno-7-55" href="#__codelineno-7-55"></a><span class="c1"># Finally submit the job to the cluster</span>
+</span><span id="__span-7-56"><a id="__codelineno-7-56" name="__codelineno-7-56" href="#__codelineno-7-56"></a>ray<span class="w"> </span>job<span class="w"> </span>submit<span class="w"> </span>--address<span class="w"> </span>http://localhost:8265<span class="w"> </span>--working-dir<span class="w"> </span>ray-pipeline<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>-u<span class="w"> </span>pipeline.py
+</span></code></pre></div>
+<ol>
+<li>In this case, we just want two nodes: one to run the Ray head node and one to run a worker. </li>
+<li>We just want to run a task per node i.e. the Ray command that starts the head/worker node.</li>
+<li>We have selected 1 GPU per node, but we could have selected more depending on the pipeline.</li>
+</ol>
 
 
 
@@ -4297,8 +4428,6 @@
 
 
 
-
-  
 
 
 
@@ -4322,6 +4451,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../serving_an_llm_for_reuse/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Serving an LLM for sharing it between several tasks">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Serving an LLM for sharing it between several tasks
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../../pipeline_samples/examples/" class="md-footer__link md-footer__link--next" aria-label="Next: Examples">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Examples
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -4394,12 +4561,12 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../../javascripts/mathjax.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

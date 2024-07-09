@@ -943,69 +943,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/argilla/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Export data to Argilla
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Using a file system to pass data of batches between steps
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/cli/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Using CLI to explore and re-run existing Pipelines
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../sections/how_to_guides/advanced/caching/" class="md-nav__link">
         
   
@@ -1027,11 +964,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../../../sections/how_to_guides/advanced/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Assigning resources to a step
+    Export data to Argilla
   </span>
   
 
@@ -1069,6 +1006,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Specify requirements for pipelines and steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using CLI to explore and re-run existing Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using a file system to pass data of batches between steps
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sections/how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Assigning resources to a step
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../sections/how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
         
   
@@ -1090,11 +1111,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../../../sections/how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Specify requirements for pipelines and steps
+    Scaling and distributing a pipeline with Ray
   </span>
   
 
@@ -4166,33 +4187,33 @@ to train a model, to perform a global aggregation, etc.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/distilabel/steps/base.py</code></summary>
-                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-643">643</a></span>
-<span class="normal"><a href="#__codelineno-0-644">644</a></span>
-<span class="normal"><a href="#__codelineno-0-645">645</a></span>
-<span class="normal"><a href="#__codelineno-0-646">646</a></span>
-<span class="normal"><a href="#__codelineno-0-647">647</a></span>
-<span class="normal"><a href="#__codelineno-0-648">648</a></span>
-<span class="normal"><a href="#__codelineno-0-649">649</a></span>
-<span class="normal"><a href="#__codelineno-0-650">650</a></span>
-<span class="normal"><a href="#__codelineno-0-651">651</a></span>
-<span class="normal"><a href="#__codelineno-0-652">652</a></span>
-<span class="normal"><a href="#__codelineno-0-653">653</a></span>
-<span class="normal"><a href="#__codelineno-0-654">654</a></span>
+                <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-654">654</a></span>
 <span class="normal"><a href="#__codelineno-0-655">655</a></span>
-<span class="normal"><a href="#__codelineno-0-656">656</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-643"><a id="__codelineno-0-643" name="__codelineno-0-643"></a><span class="k">class</span> <span class="nc">GlobalStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-</span><span id="__span-0-644"><a id="__codelineno-0-644" name="__codelineno-0-644"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A special kind of `Step` which it&#39;s `process` method receives all the data processed</span>
-</span><span id="__span-0-645"><a id="__codelineno-0-645" name="__codelineno-0-645"></a><span class="sd">    by their previous steps at once, instead of receiving it in batches. This kind of steps</span>
-</span><span id="__span-0-646"><a id="__codelineno-0-646" name="__codelineno-0-646"></a><span class="sd">    are useful when the processing logic requires to have all the data at once, for example</span>
-</span><span id="__span-0-647"><a id="__codelineno-0-647" name="__codelineno-0-647"></a><span class="sd">    to train a model, to perform a global aggregation, etc.</span>
-</span><span id="__span-0-648"><a id="__codelineno-0-648" name="__codelineno-0-648"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-649"><a id="__codelineno-0-649" name="__codelineno-0-649"></a>
-</span><span id="__span-0-650"><a id="__codelineno-0-650" name="__codelineno-0-650"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-651"><a id="__codelineno-0-651" name="__codelineno-0-651"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-0-652"><a id="__codelineno-0-652" name="__codelineno-0-652"></a>        <span class="k">return</span> <span class="p">[]</span>
-</span><span id="__span-0-653"><a id="__codelineno-0-653" name="__codelineno-0-653"></a>
-</span><span id="__span-0-654"><a id="__codelineno-0-654" name="__codelineno-0-654"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-655"><a id="__codelineno-0-655" name="__codelineno-0-655"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-0-656"><a id="__codelineno-0-656" name="__codelineno-0-656"></a>        <span class="k">return</span> <span class="p">[]</span>
+<span class="normal"><a href="#__codelineno-0-656">656</a></span>
+<span class="normal"><a href="#__codelineno-0-657">657</a></span>
+<span class="normal"><a href="#__codelineno-0-658">658</a></span>
+<span class="normal"><a href="#__codelineno-0-659">659</a></span>
+<span class="normal"><a href="#__codelineno-0-660">660</a></span>
+<span class="normal"><a href="#__codelineno-0-661">661</a></span>
+<span class="normal"><a href="#__codelineno-0-662">662</a></span>
+<span class="normal"><a href="#__codelineno-0-663">663</a></span>
+<span class="normal"><a href="#__codelineno-0-664">664</a></span>
+<span class="normal"><a href="#__codelineno-0-665">665</a></span>
+<span class="normal"><a href="#__codelineno-0-666">666</a></span>
+<span class="normal"><a href="#__codelineno-0-667">667</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-654"><a id="__codelineno-0-654" name="__codelineno-0-654"></a><span class="k">class</span> <span class="nc">GlobalStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+</span><span id="__span-0-655"><a id="__codelineno-0-655" name="__codelineno-0-655"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A special kind of `Step` which it&#39;s `process` method receives all the data processed</span>
+</span><span id="__span-0-656"><a id="__codelineno-0-656" name="__codelineno-0-656"></a><span class="sd">    by their previous steps at once, instead of receiving it in batches. This kind of steps</span>
+</span><span id="__span-0-657"><a id="__codelineno-0-657" name="__codelineno-0-657"></a><span class="sd">    are useful when the processing logic requires to have all the data at once, for example</span>
+</span><span id="__span-0-658"><a id="__codelineno-0-658" name="__codelineno-0-658"></a><span class="sd">    to train a model, to perform a global aggregation, etc.</span>
+</span><span id="__span-0-659"><a id="__codelineno-0-659" name="__codelineno-0-659"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-660"><a id="__codelineno-0-660" name="__codelineno-0-660"></a>
+</span><span id="__span-0-661"><a id="__codelineno-0-661" name="__codelineno-0-661"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-662"><a id="__codelineno-0-662" name="__codelineno-0-662"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-0-663"><a id="__codelineno-0-663" name="__codelineno-0-663"></a>        <span class="k">return</span> <span class="p">[]</span>
+</span><span id="__span-0-664"><a id="__codelineno-0-664" name="__codelineno-0-664"></a>
+</span><span id="__span-0-665"><a id="__codelineno-0-665" name="__codelineno-0-665"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-666"><a id="__codelineno-0-666" name="__codelineno-0-666"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-0-667"><a id="__codelineno-0-667" name="__codelineno-0-667"></a>        <span class="k">return</span> <span class="p">[]</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 

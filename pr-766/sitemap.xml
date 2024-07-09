@@ -246,6 +246,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-766/sections/how_to_guides/advanced/scaling_with_ray/</loc>
+         <lastmod>2024-07-09</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-766/sections/how_to_guides/advanced/serving_an_llm_for_reuse/</loc>
          <lastmod>2024-07-09</lastmod>
          <changefreq>daily</changefreq>
