@@ -135,14 +135,15 @@ class _BatchManagerStep(_Serializable):
         # NOTE: Try loading from cache
         # If the cached data directory exists, corresponds to the one we have currently,
         # we can load it from the cache:
-        cached_data_dir = Path(self.cached_data_dir)
+        batch_manager_data_dir = Path(self.cached_data_dir)
         seq_no = self._get_seq_no()
         if self.use_cache:
-            if cached_data_dir.name == self._create_signature():
-                print("STEP CAN BE READ FROM CACHE")
-                batch_path = cached_data_dir / f"batch_{seq_no}.json"
+            if batch_manager_data_dir.name == self._create_signature():
+                batch_path = batch_manager_data_dir / f"batch_{seq_no}.json"
                 if batch_path.exists():
+                    print("Step read from cache", batch_path)
                     batch = _Batch.from_json(batch_path)
+                    return batch
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
@@ -160,7 +161,6 @@ class _BatchManagerStep(_Serializable):
         )
         # Cache the batches at this stage
         if self.use_cache:
-            batch_manager_data_dir = Path(self.cached_data_dir)
             batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
             filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
             if not filename.exists():
