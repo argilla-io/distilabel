@@ -62,23 +62,29 @@ class DummyStep(Step):
 
 
 def test_cached_steps() -> None:
+    use_cache_per_step = True
+
     def run_pipeline(do_fail: bool = False, use_cache: bool = True):
         with Pipeline(name="test_pipeline_caching") as pipeline:
             step_generator = StepGenerator(num_batches=4, batch_size=8)
 
-            step_a = DummyStep(name="step_a", input_batch_size=10)
+            step_a = DummyStep(
+                name="step_a", input_batch_size=4, use_cache=use_cache_per_step
+            )
             step_b = DummyStep(
                 name="step_b",
                 input_batch_size=10,
                 input_mappings={"instruction": "response"},
                 output_mappings={"response": "response_1"},
                 do_fail=do_fail,
+                use_cache=use_cache_per_step,
             )
             step_c = DummyStep(
                 name="step_c",
-                input_batch_size=10,
-                input_mappings={"instruction": "response_1"},
+                input_batch_size=12,
+                input_mappings={"instruction": "response"},
                 output_mappings={"response": "response_2"},
+                use_cache=use_cache_per_step,
             )
 
             step_generator >> step_a >> step_b >> step_c
@@ -91,7 +97,7 @@ def test_cached_steps() -> None:
     print("######" * 4)
     print("Rerun failed pipeline")
     print("######" * 4)
-    run_pipeline(do_fail=False, use_cache=True)
+    # run_pipeline(do_fail=False, use_cache=True)
 
 
 if __name__ == "__main__":

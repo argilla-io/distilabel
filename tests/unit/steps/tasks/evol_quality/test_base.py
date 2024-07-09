@@ -98,7 +98,9 @@ class TestEvolQuality:
             "resources": {
                 "cpus": None,
                 "gpus": None,
+                "memory": None,
                 "replicas": 1,
+                "resources": None,
             },
             "input_batch_size": task.input_batch_size,
             "llm": {
@@ -132,6 +134,16 @@ class TestEvolQuality:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],
