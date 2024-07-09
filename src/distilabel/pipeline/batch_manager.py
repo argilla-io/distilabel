@@ -93,6 +93,7 @@ class _BatchManagerStep(_Serializable):
     step_signature: Optional[str] = None
     cached_data_dir: Optional[str] = None
     use_cache: bool = False
+    data_offset: Dict[str, Any] = None
     # Guardar identificador (el nombre del paso del cuál es el batch) del batch y un offset de los datos (la longitud de los datos del batch)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
@@ -136,9 +137,9 @@ class _BatchManagerStep(_Serializable):
         # NOTE: Try loading from cache
         # If the cached data directory exists, corresponds to the one we have currently,
         # we can load it from the cache:
-        batch_manager_data_dir = Path(self.cached_data_dir)
         seq_no = self._get_seq_no()
-        if self.use_cache:
+        if self.use_cache and self.cached_data_dir:
+            batch_manager_data_dir = Path(self.cached_data_dir)
             if batch_manager_data_dir.name == self._create_signature():
                 batch_path = batch_manager_data_dir / f"batch_{seq_no}.json"
                 if batch_path.exists():
@@ -160,13 +161,8 @@ class _BatchManagerStep(_Serializable):
             created_from=created_from,
             batch_routed_to=batch_routed_to,
         )
-        # Cache the batches at this stage
-        # if self.use_cache:
-        batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
-        filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
-        if not filename.exists():
-            print("CACHING", filename)
-            self.save(path=filename, format="json", dump=batch.dump())
+        print("GET_BATCH")
+        print(batch)
 
         return batch
 
@@ -244,6 +240,7 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
             step_signature=step._create_signature(),
             use_cache=step.use_cache,
+            cached_data_dir=step,
         )
 
     def _get_seq_no(self) -> int:
@@ -679,6 +676,8 @@ class _BatchManagerStep(_Serializable):
             "next_expected_seq_no": self.next_expected_seq_no,
             "step_signature": self.step_signature,
             "cached_data_dir": self.cached_data_dir,
+            "use_cache": self.use_cache,
+            "data_offset": self.data_offset,
         }
 
     def _create_signature(self) -> str:
@@ -819,6 +818,7 @@ class _BatchManager(_Serializable):
         to_step: str,
         batch: _Batch,
         prepend: bool = False,
+        path: Optional["StrOrPath"] = None,
     ) -> None:
         """Add an output batch from `batch.step_name` to `to_step`.
 
@@ -836,12 +836,23 @@ class _BatchManager(_Serializable):
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
 
-        # TODO: Save batches
         # if not filename.exists():
         # HAbría que guardar la información suficiente para que sepa leer del batch lo que necesite,
         # es decir si el batch tiene BS=50, pero necesitamos 25, coger solo esos.
         # Tenemos que guardar en el _BatchManagerStep el punto en el que se quedó, y de ahí saca
         # la información para saber donde seguir
+        print("ADD_BATCH")
+        print(batch)
+        if path:
+            step_name_signed = step._create_signature()
+
+            batch_manager_data_dir = (
+                Path(path).parent / "batch_manager_data" / step_name_signed
+            )
+            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
+            if not filename.exists():
+                self.save(path=filename, format="json", dump=batch.dump())
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
@@ -927,6 +938,7 @@ class _BatchManager(_Serializable):
         last_batch_received = {}
         last_batch_sent = {}
         steps_order = []
+
         for step_name in dag:
             step: "_Step" = dag.get_step(step_name)[STEP_ATTR_NAME]
             last_batch_received[step.name] = None
