@@ -160,12 +160,12 @@ class _BatchManagerStep(_Serializable):
             batch_routed_to=batch_routed_to,
         )
         # Cache the batches at this stage
-        if self.use_cache:
-            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
-            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
-            if not filename.exists():
-                print("CACHING", filename)
-                self.save(path=filename, format="json", dump=batch.dump())
+        # if self.use_cache:
+        batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+        filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
+        if not filename.exists():
+            print("CACHING", filename)
+            self.save(path=filename, format="json", dump=batch.dump())
 
         return batch
 

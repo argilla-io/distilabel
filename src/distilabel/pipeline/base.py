@@ -326,6 +326,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
 
+        # If the pipeline is not using the cache, set all the steps' cache to False.
+        if not use_cache:
+            for step_name in self.dag:
+                self.dag.get_step(step_name)[STEP_ATTR_NAME].use_cache = False
+
         # Set the initial load status for all the steps
         self._init_steps_load_status()
 
