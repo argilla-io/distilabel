@@ -136,21 +136,21 @@ class _BatchManagerStep(_Serializable):
         # If the cached data directory exists, corresponds to the one we have currently,
         # we can load it from the cache:
         cached_data_dir = Path(self.cached_data_dir)
+        seq_no = self._get_seq_no()
         if self.use_cache:
             if cached_data_dir.name == self._create_signature():
                 print("STEP CAN BE READ FROM CACHE")
-                # batch = _Batch.from_json(cached_data_dir / f"batch_{self._get_seq_no()}.json")
-                # print(batch)
-                # return batch
+                batch_path = cached_data_dir / f"batch_{seq_no}.json"
+                if batch_path.exists():
+                    batch = _Batch.from_json(batch_path)
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
         # TODO: remove `_last_batch` method and integrate logic in `_get_data`
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
-
-        return _Batch(
-            seq_no=self._get_seq_no(),
+        batch = _Batch(
+            seq_no=seq_no,
             step_name=self.step_name,
             last_batch=last_batch,
             data=data,
@@ -158,6 +158,16 @@ class _BatchManagerStep(_Serializable):
             created_from=created_from,
             batch_routed_to=batch_routed_to,
         )
+        # Cache the batches at this stage
+        if self.use_cache:
+            batch_manager_data_dir = Path(self.cached_data_dir)
+            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
+            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
+            if not filename.exists():
+                print("CACHING", filename)
+                self.save(path=filename, format="json", dump=batch.dump())
+
+        return batch
 
     def empty_buffers(self) -> List[str]:
         """Checks if the input buffer for the step is empty.
@@ -808,7 +818,6 @@ class _BatchManager(_Serializable):
         to_step: str,
         batch: _Batch,
         prepend: bool = False,
-        path: "StrOrPath" = None,
     ) -> None:
         """Add an output batch from `batch.step_name` to `to_step`.
 
@@ -817,7 +826,6 @@ class _BatchManager(_Serializable):
             batch: The output batch of an step to be processed by `to_step`.
             prepend: If `True`, the content of the batch will be added at the start of
                 the buffer.
-            path: The path to the caching directory, will be used to cache the batches.
 
         Raises:
             ValueError: If `to_step` is not found in the batch manager.
@@ -826,19 +834,6 @@ class _BatchManager(_Serializable):
             raise ValueError(f"Step '{to_step}' not found in the batch manager.")
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
-
-        # Caching every _Batch
-        # NOTE: The steps are saved anyway, even if they failed, how can we control it? should we control it??
-        if path:
-            step_name_signed = step._create_signature()
-
-            batch_manager_data_dir = (
-                Path(path).parent / "batch_manager_data" / step_name_signed
-            )
-            batch_manager_data_dir.mkdir(parents=True, exist_ok=True)
-            filename = batch_manager_data_dir / f"batch_{batch.seq_no}.json"
-            if not filename.exists():
-                self.save(path=filename, format="json", dump=batch.dump())
 
     def get_batch(self, step_name: str) -> Union[_Batch, None]:
         """Get the next batch to be processed by the step.
