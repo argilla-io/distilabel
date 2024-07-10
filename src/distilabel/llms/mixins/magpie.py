@@ -48,7 +48,7 @@ class MagpieChatTemplateMixin(BaseModel, validate_assignment=True):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
     """
 
-    use_magpie_template: bool = True
+    use_magpie_template: bool = False
     magpie_pre_query_template: Union[MagpieAvailablePreQueryTemplates, str, None] = None
 
     @field_validator("magpie_pre_query_template")
