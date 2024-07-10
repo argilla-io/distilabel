@@ -4109,6 +4109,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outputs
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4149,10 +4158,8 @@
     the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
     After this instruct is generated, it can be sent again to the LLM to generate this time
     an assistant response. This process can be repeated N times allowing to build a multi-turn
-    conversation.</p>
-<div class="language-text highlight"><pre><span></span><code>This method was described in the paper &#39;Magpie: Alignment Data Synthesis from
-Scratch by Prompting Aligned LLMs with Nothing&#39;.
-</code></pre></div>
+    conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
+    Scratch by Prompting Aligned LLMs with Nothing'.</p>
 <h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
@@ -4167,25 +4174,28 @@ Scratch by Prompting Aligned LLMs with Nothing&#39;.
     subgraph Dataset
         subgraph Columns
             ICOL0[system_prompt]
-            ICOL1[conversation]
+        end
+        subgraph New columns
+            OCOL0[conversation]
         end
     end
 
     subgraph Magpie
-        StepInput[Input Columns: system_prompt, conversation]
+        StepInput[Input Columns: system_prompt]
+        StepOutput[Output Columns: conversation]
     end
 
     ICOL0 --&gt; StepInput
-    ICOL1 --&gt; StepInput
+    StepOutput --&gt; OCOL0
+    StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
 <ul>
-<li>
-<p><strong>system_prompt</strong> (<code>str</code>, optional): an optional system prompt that can be provided  to guide the generation of the instruct LLM and steer it to generate instructions  of certain topic.  Outputs columns:</p>
-</li>
-<li>
-<p><strong>conversation</strong> (<code>ChatType</code>): the generated conversation which is a list of chat  items with a role and a message.</p>
-</li>
+<li><strong>system_prompt</strong> (<code>str</code>, optional): an optional system prompt that can be provided  to guide the generation of the instruct LLM and steer it to generate instructions  of certain topic.</li>
+</ul>
+<h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>conversation</strong> (<code>ChatType</code>): the generated conversation which is a list of chat  items with a role and a message.</li>
 </ul>
 <h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
 <ul>

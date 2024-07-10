@@ -17,9 +17,7 @@ Magpie is a neat method that allows generating user instructions with no seed da
     the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
     After this instruct is generated, it can be sent again to the LLM to generate this time
     an assistant response. This process can be repeated N times allowing to build a multi-turn
-    conversation.
-
-    This method was described in the paper 'Magpie: Alignment Data Synthesis from
+    conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.
 
 
@@ -43,16 +41,20 @@ graph TD
 	subgraph Dataset
 		subgraph Columns
 			ICOL0[system_prompt]
-			ICOL1[conversation]
+		end
+		subgraph New columns
+			OCOL0[conversation]
 		end
 	end
 
 	subgraph Magpie
-		StepInput[Input Columns: system_prompt, conversation]
+		StepInput[Input Columns: system_prompt]
+		StepOutput[Output Columns: conversation]
 	end
 
 	ICOL0 --> StepInput
-	ICOL1 --> StepInput
+	StepOutput --> OCOL0
+	StepInput --> StepOutput
 
 ```
 
@@ -60,11 +62,15 @@ graph TD
 #### Inputs
 
 
-- **system_prompt** (`str`, optional): an optional system prompt that can be provided  to guide the generation of the instruct LLM and steer it to generate instructions  of certain topic.  Outputs columns:
+- **system_prompt** (`str`, optional): an optional system prompt that can be provided  to guide the generation of the instruct LLM and steer it to generate instructions  of certain topic.
+
+
+
+
+#### Outputs
+
 
 - **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message.
-
-
 
 
 
