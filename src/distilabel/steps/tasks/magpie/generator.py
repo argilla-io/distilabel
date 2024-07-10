@@ -12,20 +12,86 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 from pydantic import Field
 
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.base import GeneratorTask
+from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
 
 
-class MagpieInstructionGenerator(GeneratorTask):
-    num_instructions: RuntimeParameter[int] = Field(
-        default=None, description="The number of instructions to generate."
+class MagpieGenerator(GeneratorTask, MagpieBase):
+    """Generator task the generates instructions or conversations using Magpie.
+
+    Magpie is a neat method that allows generating user instructions with no seed data
+    or specific system prompt thanks to the autoregressive capabilities of the instruct
+    fine-tuned LLMs. As they were fine-tuned using a chat template composed by a user message
+    and a desired assistant output, the instruct fine-tuned LLM learns that after the pre-query
+    or pre-instruct tokens comes an instruction. If these pre-query tokens are sent to the
+    LLM without any user message, then the LLM will continue generating tokens as it was
+    the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
+    After this instruct is generated, it can be sent again to the LLM to generate this time
+    an assistant response. This process can be repeated N times allowing to build a multi-turn
+    conversation.
+
+    This method was described in the paper 'Magpie: Alignment Data Synthesis from
+    Scratch by Prompting Aligned LLMs with Nothing'.
+
+    Runtime parameters:
+        - `n_turns`: the number of turns that the generated conversation will have.
+        - `system_prompt`: an optional system prompt that can be used to steer the LLM to
+            generate content of certain topic, guide the style, etc. Defaults to `None`.
+        - `num_rows`: the number of rows to be generated.
+
+    Outputs columns:
+        - conversation (`ChatType`): the generated conversation which is a list of chat
+            items with a role and a message.
+
+    Categories:
+        - instruction-generation
+        - mt-generation
+        - generator
+
+    References:
+        - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
+    """
+
+    # TODO: move this to `GeneratorTask`
+    num_rows: RuntimeParameter[int] = Field(
+        default=None, description="The number of rows to generate."
     )
 
+    def model_post_init(self, __context: Any) -> None:
+        """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
+        super().model_post_init(__context)
+
+        if not isinstance(self.llm, MagpieChatTemplateMixin):
+            raise ValueError(
+                f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+            )
+
+        self.llm.use_magpie_template = True
+
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
-        pass
+        """Generates the desired number of instructions or conversations using Magpie.
+
+        Args:
+            offset: The offset to start the generation from. Defaults to `0`.
+
+        Yields:
+            The generated instructions or conversations.
+        """
+        generated = offset
+
+        while generated <= self.num_rows:  # type: ignore
+            conversations = self._generate_with_pre_query_template(
+                inputs=[{} for _ in range(self.batch_size)]  # type: ignore
+            )
+            generated += self.batch_size  # type: ignore
+            yield (conversations, generated == self.num_generations)

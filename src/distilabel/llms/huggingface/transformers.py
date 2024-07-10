@@ -158,15 +158,21 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return self.model
 
     def prepare_input(self, input: "StandardInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        prompt = self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+        prompt: str = self._pipeline.tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
             add_generation_prompt=True,
         )
-        return super().apply_pre_query_template(prompt, input)
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
     def generate(  # type: ignore
@@ -211,6 +217,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
         )
         return [
             [generation["generated_text"] for generation in output]

@@ -36,6 +36,7 @@ from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
 from distilabel.steps.tasks.magpie.base import Magpie
+from distilabel.steps.tasks.magpie.generator import MagpieGenerator
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -66,6 +67,7 @@ __all__ = [
     "MonolingualTripletGenerator",
     "InstructionBacktranslation",
     "Magpie",
+    "MagpieGenerator",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",
