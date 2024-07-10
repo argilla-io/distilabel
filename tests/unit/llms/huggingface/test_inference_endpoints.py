@@ -12,13 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import random
+from typing import Generator
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+
+
+@pytest.fixture(autouse=True)
+def mock_hf_token_env_variable() -> Generator[None, None, None]:
+    with patch.dict(os.environ, {"HF_TOKEN": "hf_token"}):
+        yield
 
 
 @patch("huggingface_hub.AsyncInferenceClient")
@@ -46,6 +54,8 @@ class TestInferenceEndpointsLLM:
         assert llm.tokenizer_id == llm.model_id
 
     def test_load_no_api_key(self, mock_inference_client: MagicMock) -> None:
+        del os.environ["HF_TOKEN"]
+
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral"
         )
