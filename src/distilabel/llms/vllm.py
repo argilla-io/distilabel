@@ -31,6 +31,7 @@ from pydantic import Field, PrivateAttr, validate_call
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
@@ -39,11 +40,13 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
+    from distilabel.steps.tasks.typing import StandardInput
+
 
 SamplingParams = None
 
 
-class vLLM(LLM, CudaDevicePlacementMixin):
+class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
 
     Attributes:
@@ -213,15 +216,22 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "FormattedInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+    def prepare_input(self, input: "StandardInput") -> str:
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        return self._tokenizer.apply_chat_template(  # type: ignore
+        prompt = self._tokenizer.apply_chat_template(  # type: ignore
             input,  # type: ignore
             tokenize=False,
             add_generation_prompt=True,  # type: ignore
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     def _prepare_batches(
         self, inputs: List[FormattedInput]
