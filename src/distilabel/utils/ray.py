@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distilabel.pipeline.local import Pipeline
-from distilabel.pipeline.ray import RayPipeline
-from distilabel.pipeline.routing_batch_function import (
-    routing_batch_function,
-    sample_n_steps,
-)
+import os
 
-__all__ = ["Pipeline", "RayPipeline", "routing_batch_function", "sample_n_steps"]
+
+def script_executed_in_ray_cluster() -> bool:
+    """Checks if running in a Ray cluster. The checking is based on the presence of
+    typical Ray environment variables that are set in each node of the cluster.
+
+    Returns:
+        `True` if running on a Ray cluster, `False` otherwise.
+    """
+    return all(
+        env in os.environ
+        for env in ["RAY_NODE_TYPE_NAME", "RAY_CLUSTER_NAME", "RAY_ADDRESS"]
+    )

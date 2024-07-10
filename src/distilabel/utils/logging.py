@@ -96,5 +96,8 @@ def stop_logging() -> None:
     global queue_listener
     if queue_listener is not None:
         queue_listener.stop()
-        queue_listener.queue.close()
+        if hasattr(queue_listener.queue, "close"):
+            queue_listener.queue.close()  # type: ignore
+        if hasattr(queue_listener.queue, "shutdown"):
+            queue_listener.queue.shutdown()  # type: ignore
         queue_listener = None

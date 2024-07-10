@@ -130,12 +130,6 @@ class TestBasePipeline:
         pipeline._setup_write_buffer()
         assert isinstance(pipeline._write_buffer, _WriteBuffer)
 
-    def test_set_logging_parameters(self) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._set_logging_parameters({"unit-test": "yes"})
-
-        assert pipeline._logging_parameters == {"unit-test": "yes"}
-
     def test_setup_fsspec(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
 
@@ -850,7 +844,7 @@ class TestBasePipeline:
                 default=None, description="runtime_param2 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
         class DummyStep2(Step):
@@ -861,7 +855,7 @@ class TestBasePipeline:
                 default=None, description="runtime_param4 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -886,6 +880,16 @@ class TestBasePipeline:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],
@@ -924,6 +928,16 @@ class TestBasePipeline:
                         {
                             "description": "The number of GPUs assigned to each step replica.",
                             "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
                             "optional": True,
                         },
                     ],
@@ -1223,7 +1237,7 @@ class TestPipelineSerialization:
                 pipe_from_file = loader(filename)
                 assert isinstance(pipe_from_file, DummyPipeline)
 
-    def test_base_pipeline_signature(self):
+    def test_base_pipeline_signature(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
@@ -1253,7 +1267,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "1ef5193c8686de48728cb9e5e9b88bca62bc0957"
+        assert signature == "f291da215cd42085c538e4897e4355f614932547"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

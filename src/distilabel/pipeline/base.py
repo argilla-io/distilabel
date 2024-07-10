@@ -137,8 +137,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         _write_buffer: The buffer that will store the data of the leaf steps of the pipeline
             while running, so the `Distiset` can be created at the end. It will be created
             when the pipeline is run. Defaults to `None`.
-        _logging_parameters: A dictionary containing the parameters that will passed to
-            `setup_logging` function to initialize the logging. Defaults to `{}`.
         _fs: The `fsspec` filesystem to be used to store the data of the `_Batch`es passed
             between the steps. It will be set when the pipeline is run. Defaults to `None`.
         _storage_base_path: The base path where the data of the `_Batch`es passed between
@@ -176,7 +174,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 in the final `Distiset`. It contains metadata used by distilabel, for example
                 the raw outputs of the `LLM` without processing would be here, inside `raw_output_...`
                 field. Defaults to `False`.
-            requirements: List of requirements that must be installed to run the Pipeline.
+            requirements: List of requirements that must be installed to run the pipeline.
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
@@ -196,9 +194,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._batch_manager: Optional["_BatchManager"] = None
         self._write_buffer: Optional["_WriteBuffer"] = None
-        self._logging_parameters: Dict[str, Any] = {
-            "filename": self._cache_location["log_file"]
-        }
 
         self._steps_load_status: Dict[str, int] = {}
         self._steps_load_status_lock = threading.Lock()
@@ -218,6 +213,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self.requirements = requirements or []
 
         self._exception: Union[Exception, None] = None
+
+        self._log_queue: Union["Queue[Any]", None] = None
 
     def __enter__(self) -> Self:
         """Set the global pipeline instance when entering a pipeline context."""
@@ -286,16 +283,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         return hasher.hexdigest()
 
-    def _set_logging_parameters(self, parameters: Dict[str, Any]) -> None:
-        """Set the parameters that will be passed to the `setup_logging` function to
-        initialize the logging.
-
-        Args:
-            parameters: A dictionary with the parameters that will be passed to the
-                `setup_logging` function.
-        """
-        self._logging_parameters = parameters
-
     def run(
         self,
         parameters: Optional[Dict[str, Dict[str, Any]]] = None,
@@ -338,10 +325,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         self._set_runtime_parameters(parameters or {})
 
         setup_logging(
-            **{
-                **self._logging_parameters,
-                "filename": str(self._cache_location["log_file"]),
-            }
+            log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
@@ -692,7 +676,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _output_queue_loop(self) -> None:
         """Loop to receive the output batches from the steps and manage the flow of the
         batches through the pipeline."""
-        self._initialize_pipeline_execution()
+        if not self._initialize_pipeline_execution():
+            return
 
         while self._should_continue_processing():  # type: ignore
             self._logger.debug("Waiting for output batch from step...")
@@ -717,23 +702,31 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
             # If there is another load stage and all the `last_batch`es from the stage
             # have been received, then load the next stage.
-            self._update_stage()
+            if self._should_load_next_stage():
+                if not self._update_stage():
+                    break
 
             self._manage_batch_flow(batch)
 
         self._finalize_pipeline_execution()
 
-    def _initialize_pipeline_execution(self) -> None:
+    def _initialize_pipeline_execution(self) -> bool:
         """Load the steps of the required stage to initialize the pipeline execution,
-        and requests the initial batches to trigger the batch flowing in the pipeline."""
+        and requests the initial batches to trigger the batch flowing in the pipeline.
+
+        Returns:
+            `True` if initialization went OK, `False` otherwise.
+        """
         # Wait for all the steps to be loaded correctly
         if not self._run_stage_steps_and_wait(stage=self._current_stage):
             self._set_steps_not_loaded_exception()
-            return
+            return False
 
         # Send the "first" batches to the steps so the batches starts flowing through
         # the input queues and output queue
         self._request_initial_batches()
+
+        return True
 
     def _should_continue_processing(self) -> bool:
         """Condition for the consume batches from the `output_queue` loop.
@@ -773,14 +766,19 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 if self._is_step_running(step_name):
                     self._send_last_batch_flag_to_step(step_name)
 
-    def _update_stage(self) -> None:
+    def _update_stage(self) -> bool:
         """Checks if the steps of next stage should be loaded and updates `_current_stage`
-        attribute."""
-        if self._should_load_next_stage():
-            self._current_stage += 1
-            if not self._run_stage_steps_and_wait(stage=self._current_stage):
-                self._set_steps_not_loaded_exception()
-                return
+        attribute.
+
+        Returns:
+            `True` if updating the stage went OK, `False` otherwise.
+        """
+        self._current_stage += 1
+        if not self._run_stage_steps_and_wait(stage=self._current_stage):
+            self._set_steps_not_loaded_exception()
+            return False
+
+        return True
 
     def _should_load_next_stage(self) -> bool:
         """Returns if the next stage should be loaded.
