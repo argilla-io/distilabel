@@ -161,9 +161,7 @@ class Magpie(Task, MagpieBase):
     the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
     After this instruct is generated, it can be sent again to the LLM to generate this time
     an assistant response. This process can be repeated N times allowing to build a multi-turn
-    conversation.
-
-    This method was described in the paper 'Magpie: Alignment Data Synthesis from
+    conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.
 
     Runtime parameters:
@@ -178,7 +176,7 @@ class Magpie(Task, MagpieBase):
             to guide the generation of the instruct LLM and steer it to generate instructions
             of certain topic.
 
-    Outputs columns:
+    Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message.
 
