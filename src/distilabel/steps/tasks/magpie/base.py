@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
     "You are a helpful Al assistant. The user will engage in a multi−round conversation"
-    " with you,asking initial questions and following up with additional related questions."
+    " with you, asking initial questions and following up with additional related questions."
     " Your goal is to provide thorough, relevant and insightful responses to help the user"
     " with their queries."
 )
@@ -177,7 +177,7 @@ class Magpie(Task, MagpieBase):
     fine-tuned LLMs. As they were fine-tuned using a chat template composed by a user message
     and a desired assistant output, the instruct fine-tuned LLM learns that after the pre-query
     or pre-instruct tokens comes an instruction. If these pre-query tokens are sent to the
-    LLM without any user message, then the LLM will continue generating tokens as it was
+    LLM without any user message, then the LLM will continue generating tokens as if it was
     the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
     After this instruct is generated, it can be sent again to the LLM to generate this time
     an assistant response. This process can be repeated N times allowing to build a multi-turn
