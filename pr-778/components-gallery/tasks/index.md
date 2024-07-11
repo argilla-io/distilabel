@@ -90,7 +90,7 @@ hide:
 
     [:octicons-arrow-right-24: InstructionBacktranslation](instructionbacktranslation.md){ .bottom }
 
--   :material-check-outline:{ .lg .middle } __Magpie__
+-   :material-text-box-edit:{ .lg .middle } __Magpie__
 
     ---
 
@@ -202,7 +202,7 @@ hide:
 
     [:octicons-arrow-right-24: EmbeddingTaskGenerator](embeddingtaskgenerator.md){ .bottom }
 
--   :material-check-outline:{ .lg .middle } __MagpieGenerator__
+-   :material-text-box-edit:{ .lg .middle } __MagpieGenerator__
 
     ---
 
