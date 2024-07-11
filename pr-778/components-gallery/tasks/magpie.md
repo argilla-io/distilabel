@@ -89,6 +89,114 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generating instructions with Llama 3 8B Instruct and TransformersLLM
+```python
+from distilabel.llms import TransformersLLM
+from distilabel.steps.tasks import Magpie
+
+magpie = Magpie(
+    llm=TransformersLLM(
+        model="meta-llama/Meta-Llama-3-8B-Instruct",
+        magpie_pre_query_template="llama3",
+        generation_kwargs={
+            "temperature": 1.0,
+            "max_new_tokens": 64,
+        },
+        device="mps",
+    ),
+    only_instruction=True,
+)
+
+magpie.load()
+
+result = next(
+    magpie.process(
+        inputs=[
+            {
+                "system_prompt": "You're a math expert AI assistant that helps students of secondary school to solve calculus problems."
+            },
+            {
+                "system_prompt": "You're an expert florist AI assistant that helps user to erradicate pests in their crops."
+            },
+        ]
+    )
+)
+# [
+#     {'instruction': "That's me! I'd love some help with solving calculus problems! What kind of calculation are you most effective at? Linear Algebra, derivatives, integrals, optimization?"},
+#     {'instruction': 'I was wondering if there are certain flowers and plants that can be used for pest control?'}
+# ]
+```
+
+#### Generating conversations with Llama 3 8B Instruct and TransformersLLM
+```python
+from distilabel.llms import TransformersLLM
+from distilabel.steps.tasks import Magpie
+
+magpie = Magpie(
+    llm=TransformersLLM(
+        model="meta-llama/Meta-Llama-3-8B-Instruct",
+        magpie_pre_query_template="llama3",
+        generation_kwargs={
+            "temperature": 1.0,
+            "max_new_tokens": 256,
+        },
+        device="mps",
+    ),
+    n_turns=2,
+)
+
+magpie.load()
+
+result = next(
+    magpie.process(
+        inputs=[
+            {
+                "system_prompt": "You're a math expert AI assistant that helps students of secondary school to solve calculus problems."
+            },
+            {
+                "system_prompt": "You're an expert florist AI assistant that helps user to erradicate pests in their crops."
+            },
+        ]
+    )
+)
+# [
+#     {
+#         'conversation': [
+#             {'role': 'system', 'content': "You're a math expert AI assistant that helps students of secondary school to solve calculus problems."},
+#             {
+#                 'role': 'user',
+#                 'content': 'I'm having trouble solving the limits of functions in calculus. Could you explain how to work with them? Limits of functions are denoted by lim x→a f(x) or lim x→a [f(x)]. It is read as "the limit as x approaches a of f
+# of x".'
+#             },
+#             {
+#                 'role': 'assistant',
+#                 'content': 'Limits are indeed a fundamental concept in calculus, and understanding them can be a bit tricky at first, but don't worry, I'm here to help! The notation lim x→a f(x) indeed means "the limit as x approaches a of f of
+# x". What it's asking us to do is find the'
+#             }
+#         ]
+#     },
+#     {
+#         'conversation': [
+#             {'role': 'system', 'content': "You're an expert florist AI assistant that helps user to erradicate pests in their crops."},
+#             {
+#                 'role': 'user',
+#                 'content': "As a flower shop owner, I'm noticing some unusual worm-like creatures causing damage to my roses and other flowers. Can you help me identify what the problem is? Based on your expertise as a florist AI assistant, I think it
+# might be pests or diseases, but I'm not sure which."
+#             },
+#             {
+#                 'role': 'assistant',
+#                 'content': "I'd be delighted to help you investigate the issue! Since you've noticed worm-like creatures damaging your roses and other flowers, I'll take a closer look at the possibilities. Here are a few potential culprits: 1.
+# **Aphids**: These small, soft-bodied insects can secrete a sticky substance called"
+#             }
+#         ]
+#     }
+# ]
+```
+
+
 
 
 ### References
