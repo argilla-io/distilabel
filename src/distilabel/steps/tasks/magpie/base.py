@@ -50,11 +50,23 @@ class MagpieBase(RuntimeParametersMixin):
         default=1,
         description="The number of turns to generate for the conversation.",
     )
+    only_instruction: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to generate only the instruction. If this argument"
+        " is `True`, then `n_turns` will be ignored.",
+    )
     system_prompt: Optional[RuntimeParameter[str]] = Field(
         default=None,
         description="An optional system prompt that can be used to steer the LLM to generate"
         " content of certain topic, guide the style, etc.",
     )
+
+    @property
+    def outputs(self) -> List[str]:
+        """Either a multi-turn conversation or the instruction generated."""
+        if self.only_instruction:
+            return ["instruction"]
+        return ["conversation"]
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
@@ -104,18 +116,10 @@ class MagpieBase(RuntimeParametersMixin):
             conversation.append({"role": role, "content": instruction})
         return conversations
 
-    def _generate_with_pre_query_template(
+    def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Generate a list of instructions or conversations of the specified number of turns.
-
-        Args:
-            inputs: a list of dictionaries that can contain a `system_prompt` key.
-
-        Returns:
-            The list of generated conversations.
-        """
-        conversations = self._prepare_inputs_for_instruction_generation(inputs=inputs)
+        conversations = self._prepare_inputs_for_instruction_generation(inputs)
 
         for _ in range(self.n_turns):  # type: ignore
             # Generate instruction or user message
@@ -148,6 +152,29 @@ class MagpieBase(RuntimeParametersMixin):
 
         return [{"conversation": conversation} for conversation in conversations]
 
+    def _generate_with_pre_query_template(
+        self, inputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Generate a list of instructions or conversations of the specified number of turns.
+
+        Args:
+            inputs: a list of dictionaries that can contain a `system_prompt` key.
+
+        Returns:
+            The list of generated conversations.
+        """
+
+        if self.only_instruction:
+            prepared_inputs = self._prepare_inputs_for_instruction_generation(inputs)
+            outputs = self.llm.generate(
+                inputs=prepared_inputs,
+                num_generations=1,
+                **self.llm.generation_kwargs,  # type: ignore
+            )
+            return [{"instruction": output[0]} for output in outputs]
+
+        return self._generate_multi_turn_conversation(inputs)
+
 
 class Magpie(Task, MagpieBase):
     """Generates conversations using an instruct fine-tuned LLM.
@@ -164,8 +191,19 @@ class Magpie(Task, MagpieBase):
     conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.
 
+    Attributes:
+        n_turns: the number of turns that the generated conversation will have.
+        only_instruction: whether to generate only the instruction. If this argument is
+            `True`, then `n_turns` will be ignored. Defaults to `False`.
+        system_prompt: an optional system prompt that can be used to steer the LLM to generate
+            content of certain topic, guide the style, etc. If the provided inputs contains
+            a `system_prompt` column, then this runtime parameter will be ignored and the
+            one from the column will be used. Defaults to `None`.
+
     Runtime parameters:
         - `n_turns`: the number of turns that the generated conversation will have.
+        only_instruction: whether to generate only the instruction. If this argument is
+            `True`, then `n_turns` will be ignored. Defaults to `False`.
         - `system_prompt`: an optional system prompt that can be used to steer the LLM to
             generate content of certain topic, guide the style, etc. If the provided inputs
             contains a `system_prompt` column, then this runtime parameter will be ignored
@@ -178,7 +216,8 @@ class Magpie(Task, MagpieBase):
 
     Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
-            items with a role and a message.
+            items with a role and a message. Only if `only_instructions=False`.
+        - instruction (`str`): the generated instructions if `only_instruction=True`.
 
     Categories:
         - instruction-generation
@@ -207,10 +246,6 @@ class Magpie(Task, MagpieBase):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["conversation"]
 
     def format_output(
         self,
