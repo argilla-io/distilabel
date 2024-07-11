@@ -202,6 +202,14 @@ hide:
 
     [:octicons-arrow-right-24: EmbeddingTaskGenerator](embeddingtaskgenerator.md){ .bottom }
 
+-   :material-check-outline:{ .lg .middle } __MagpieGenerator__
+
+    ---
+
+    Generator task the generates instructions or conversations using Magpie.
+
+    [:octicons-arrow-right-24: MagpieGenerator](magpiegenerator.md){ .bottom }
+
 -   :material-poll:{ .lg .middle } __PairRM__
 
     ---

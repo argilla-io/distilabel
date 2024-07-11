@@ -2219,6 +2219,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../magpiegenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pairrm/" class="md-nav__link">
         
   
@@ -4082,6 +4103,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#runtime-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       Runtime Parameters
@@ -4160,10 +4190,22 @@
     an assistant response. This process can be repeated N times allowing to build a multi-turn
     conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.</p>
-<h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
+<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><strong>n_turns</strong>: the number of turns that the generated conversation will have.</p>
+</li>
+<li>
+<p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to generate  content of certain topic, guide the style, etc. If the provided inputs contains  a <code>system_prompt</code> column, then this runtime parameter will be ignored and the  one from the column will be used. Defaults to <code>None</code>.</p>
+</li>
+</ul>
+<h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>n_turns</strong>: the number of turns that the generated conversation will have.  only_instruction: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
 </li>
 <li>
 <p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to  generate content of certain topic, guide the style, etc. If the provided inputs  contains a <code>system_prompt</code> column, then this runtime parameter will be ignored  and the one from the column will be used. Defaults to <code>None</code>.</p>
@@ -4177,16 +4219,18 @@
         end
         subgraph New columns
             OCOL0[conversation]
+            OCOL1[instruction]
         end
     end
 
     subgraph Magpie
         StepInput[Input Columns: system_prompt]
-        StepOutput[Output Columns: conversation]
+        StepOutput[Output Columns: conversation, instruction]
     end
 
     ICOL0 --&gt; StepInput
     StepOutput --&gt; OCOL0
+    StepOutput --&gt; OCOL1
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
@@ -4195,7 +4239,12 @@
 </ul>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
-<li><strong>conversation</strong> (<code>ChatType</code>): the generated conversation which is a list of chat  items with a role and a message.</li>
+<li>
+<p><strong>conversation</strong> (<code>ChatType</code>): the generated conversation which is a list of chat  items with a role and a message. Only if <code>only_instructions=False</code>.</p>
+</li>
+<li>
+<p><strong>instruction</strong> (<code>str</code>): the generated instructions if <code>only_instruction=True</code>.</p>
+</li>
 </ul>
 <h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
 <ul>
