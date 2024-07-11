@@ -38,11 +38,12 @@ class MagpieChatTemplateMixin(BaseModel, validate_assignment=True):
     task.
 
     Attributes:
-        use_magpie_template: a flag used to enable/disable applying the pre-query template.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
         magpie_pre_query_template: the pre-query template to be applied to the prompt or
             sent to the LLM to generate an instruction or a follow up user message. Valid
-            values are "llama3", "qwen2", ...
-            or a pre-query template.
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
 
     References:
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
