@@ -195,7 +195,7 @@ class Magpie(Task, MagpieBase):
 
     Runtime parameters:
         - `n_turns`: the number of turns that the generated conversation will have.
-        only_instruction: whether to generate only the instruction. If this argument is
+        - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
         - `system_prompt`: an optional system prompt that can be used to steer the LLM to
             generate content of certain topic, guide the style, etc. If the provided inputs
