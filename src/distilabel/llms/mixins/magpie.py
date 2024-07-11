@@ -83,6 +83,6 @@ class MagpieChatTemplateMixin(BaseModel, validate_assignment=True):
         Returns:
             The prompt with the pre-query template applied if needed.
         """
-        if not self.use_magpie_template or input[-1]["role"] == "user":
+        if not self.use_magpie_template or (input and input[-1]["role"] == "user"):
             return prompt
         return prompt + self.magpie_pre_query_template  # type: ignore

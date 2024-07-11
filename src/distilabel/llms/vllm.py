@@ -226,10 +226,14 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        prompt = self._tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,  # type: ignore
+        prompt: str = (
+            self._tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+            if input
+            else ""
         )
         return super().apply_magpie_pre_query_template(prompt, input)
 

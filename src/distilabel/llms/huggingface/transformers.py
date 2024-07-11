@@ -167,10 +167,14 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
-        prompt: str = self._pipeline.tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,
+        prompt: str = (
+            self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            if input
+            else ""
         )
         return super().apply_magpie_pre_query_template(prompt, input)
 
