@@ -191,6 +191,8 @@ class Magpie(Task, MagpieBase):
     conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.
 
+    ![magpie](https://magpie-align.github.io/magpie_logo.png)
+
     Attributes:
         n_turns: the number of turns that the generated conversation will have.
         only_instruction: whether to generate only the instruction. If this argument is
