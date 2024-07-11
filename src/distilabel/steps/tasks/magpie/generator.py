@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
@@ -76,6 +76,18 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
         self.llm.use_magpie_template = True
 
+    @property
+    def outputs(self) -> List[str]:
+        return ["conversation"]
+
+    def format_output(
+        self,
+        output: Union[str, None],
+        input: Union[Dict[str, Any], None] = None,
+    ) -> Dict[str, Any]:
+        """Does nothing."""
+        return {}
+
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Generates the desired number of instructions or conversations using Magpie.
 
@@ -88,8 +100,11 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         generated = offset
 
         while generated <= self.num_rows:  # type: ignore
-            conversations = self._generate_with_pre_query_template(
-                inputs=[{} for _ in range(self.batch_size)]  # type: ignore
+            rows_to_generate = (
+                self.num_rows if self.num_rows < self.batch_size else self.batch_size  # type: ignore
             )
-            generated += self.batch_size  # type: ignore
-            yield (conversations, generated == self.num_generations)
+            conversations = self._generate_with_pre_query_template(
+                inputs=[{} for _ in range(rows_to_generate)]  # type: ignore
+            )
+            generated += rows_to_generate  # type: ignore
+            yield (conversations, generated == self.num_rows)
