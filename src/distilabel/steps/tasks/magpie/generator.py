@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
@@ -210,6 +210,13 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
     ) -> Dict[str, Any]:
         """Does nothing."""
         return {}
+
+    @property
+    def outputs(self) -> List[str]:
+        """Either a multi-turn conversation or the instruction generated."""
+        if self.only_instruction:
+            return ["instruction"]
+        return ["conversation"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Generates the desired number of instructions or conversations using Magpie.

@@ -61,13 +61,6 @@ class MagpieBase(RuntimeParametersMixin):
         " content of certain topic, guide the style, etc.",
     )
 
-    @property
-    def outputs(self) -> List[str]:
-        """Either a multi-turn conversation or the instruction generated."""
-        if self.only_instruction:
-            return ["instruction"]
-        return ["conversation"]
-
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
     ) -> List["FormattedInput"]:
@@ -121,7 +114,7 @@ class MagpieBase(RuntimeParametersMixin):
     ) -> List[Dict[str, Any]]:
         conversations = self._prepare_inputs_for_instruction_generation(inputs)
 
-        for _ in range(self.n_turns - 1):  # type: ignore
+        for _ in range(self.n_turns):  # type: ignore
             # Generate instruction or user message
             outputs = self.llm.generate(
                 inputs=conversations,
@@ -354,6 +347,13 @@ class Magpie(Task, MagpieBase):
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
+
+    @property
+    def outputs(self) -> List[str]:
+        """Either a multi-turn conversation or the instruction generated."""
+        if self.only_instruction:
+            return ["instruction"]
+        return ["conversation"]
 
     def format_output(
         self,
