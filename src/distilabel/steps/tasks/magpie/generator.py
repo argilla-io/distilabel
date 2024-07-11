@@ -64,8 +64,8 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         - instruction (`str`): the generated instructions if `only_instruction=True`.
 
     Categories:
-        - instruction-generation
-        - mt-generation
+        - text-generation
+        - instruction
         - generator
 
     References:

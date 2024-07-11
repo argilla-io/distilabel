@@ -220,8 +220,8 @@ class Magpie(Task, MagpieBase):
         - instruction (`str`): the generated instructions if `only_instruction=True`.
 
     Categories:
-        - instruction-generation
-        - mt-generation
+        - text-generation
+        - instruction
 
     References:
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
