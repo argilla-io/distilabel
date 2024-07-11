@@ -20,6 +20,8 @@ Magpie is a neat method that allows generating user instructions with no seed da
     conversation. This method was described in the paper 'Magpie: Alignment Data Synthesis from
     Scratch by Prompting Aligned LLMs with Nothing'.
 
+    ![magpie](https://magpie-align.github.io/magpie_logo.png)
+
 
 
 
