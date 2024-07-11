@@ -70,6 +70,120 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
     References:
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
+
+    Examples:
+
+        Generating instructions with Llama 3 8B Instruct and TransformersLLM:
+
+        ```python
+        from distilabel.llms import TransformersLLM
+        from distilabel.steps.tasks import MagpieGenerator
+
+        generator = MagpieGenerator(
+            llm=TransformersLLM(
+                model="meta-llama/Meta-Llama-3-8B-Instruct",
+                magpie_pre_query_template="llama3",
+                generation_kwargs={
+                    "temperature": 1.0,
+                    "max_new_tokens": 256,
+                },
+                device="mps",
+            ),
+            only_instruction=True,
+            num_rows=5,
+        )
+
+        generator.load()
+
+        result = next(generator.process())
+        # (
+        #       [
+        #           {"instruction": "I've just bought a new phone and I're excited to start using it."},
+        #           {"instruction": "What are the most common types of companies that use digital signage?"}
+        #       ],
+        #       True
+        # )
+        ```
+
+        Generating a conversation with Llama 3 8B Instruct and TransformersLLM:
+
+        ```python
+        from distilabel.llms import TransformersLLM
+        from distilabel.steps.tasks import MagpieGenerator
+
+        generator = MagpieGenerator(
+            llm=TransformersLLM(
+                model="meta-llama/Meta-Llama-3-8B-Instruct",
+                magpie_pre_query_template="llama3",
+                generation_kwargs={
+                    "temperature": 1.0,
+                    "max_new_tokens": 64,
+                },
+                device="mps",
+            ),
+            n_turns=3,
+            num_rows=5,
+        )
+
+        generator.load()
+
+        result = next(generator.process())
+        # (
+        #     [
+        #         {
+        #             'conversation': [
+        #                 {
+        #                     'role': 'system',
+        #                     'content': 'You are a helpful Al assistant. The user will engage in a multi−round conversation with you,asking initial questions and following up with additional related questions. Your goal is to provide thorough, relevant and
+        # insightful responses to help the user with their queries.'
+        #                 },
+        #                 {'role': 'user', 'content': "I'm considering starting a social media campaign for my small business and I're not sure where to start. Can you help?"},
+        #                 {
+        #                     'role': 'assistant',
+        #                     'content': "Exciting endeavor! Creating a social media campaign can be a great way to increase brand awareness, drive website traffic, and ultimately boost sales. I'd be happy to guide you through the process. To get started,
+        # let's break down the basics. First, we need to identify your goals and target audience. What do"
+        #                 },
+        #                 {
+        #                     'role': 'user',
+        #                     'content': "Before I start a social media campaign, what kind of costs ammol should I expect to pay? There are several factors that contribute to the total cost of running a social media campaign. Let me outline some of the main
+        # expenses you might encounter: 1. Time: As the business owner, you'll likely spend time creating"
+        #                 },
+        #                 {
+        #                     'role': 'assistant',
+        #                     'content': 'Time is indeed one of the biggest investments when it comes to running a social media campaign! Besides time, you may also incur costs associated with: 2. Content creation: You might need to hire freelancers or
+        # agencies to create high-quality content (images, videos, captions) for your social media platforms. 3. Advertising'
+        #                 }
+        #             ]
+        #         },
+        #         {
+        #             'conversation': [
+        #                 {
+        #                     'role': 'system',
+        #                     'content': 'You are a helpful Al assistant. The user will engage in a multi−round conversation with you,asking initial questions and following up with additional related questions. Your goal is to provide thorough, relevant and
+        # insightful responses to help the user with their queries.'
+        #                 },
+        #                 {'role': 'user', 'content': "I am thinking of buying a new laptop or computer. What are some important factors I should consider when making your decision? I'll make sure to let you know if any other favorites or needs come up!"},
+        #                 {
+        #                     'role': 'assistant',
+        #                     'content': 'Exciting times ahead! When considering a new laptop or computer, there are several key factors to think about to ensure you find the right one for your needs. Here are some crucial ones to get you started: 1.
+        # **Purpose**: How will you use your laptop or computer? For work, gaming, video editing,'
+        #                 },
+        #                 {
+        #                     'role': 'user',
+        #                     'content': 'Let me stop you there. Let\'s explore this "purpose" factor that you mentioned earlier. Can you elaborate more on what type of devices would be suitable for different purposes? For example, if I\'re primarily using my
+        # laptop for general usage like browsing, email, and word processing, would a budget-friendly laptop be sufficient'
+        #                 },
+        #                 {
+        #                     'role': 'assistant',
+        #                     'content': "Understanding your purpose can greatly impact the type of device you'll need. **General Usage (Browsing, Email, Word Processing)**: For casual users who mainly use their laptop for daily tasks, a budget-friendly
+        # option can be sufficient. Look for laptops with: * Intel Core i3 or i5 processor* "
+        #                 }
+        #             ]
+        #         }
+        #     ],
+        #     True
+        # )
+        ```
     """
 
     # TODO: move this to `GeneratorTask`
