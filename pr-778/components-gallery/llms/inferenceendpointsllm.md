@@ -31,6 +31,10 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 
 - **model_display_name**: the model display name to use for the LLM. Defaults to `None`.
 
+- **use_magpie_template**: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to `False`.
+
+- **magpie_pre_query_template**: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to `None`.
+
 
 
 

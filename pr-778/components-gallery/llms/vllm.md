@@ -45,6 +45,10 @@ hide:
 
 - **_tokenizer**: the tokenizer instance used to format the prompt before passing it to  the `LLM`. This attribute is meant to be used internally and should not be  accessed directly. It will be set in the `load` method.
 
+- **use_magpie_template**: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to `False`.
+
+- **magpie_pre_query_template**: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to `None`.
+
 
 
 
