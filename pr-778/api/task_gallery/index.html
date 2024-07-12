@@ -18628,7 +18628,7 @@ or specific system prompt thanks to the autoregressive capabilities of the instr
 fine-tuned LLMs. As they were fine-tuned using a chat template composed by a user message
 and a desired assistant output, the instruct fine-tuned LLM learns that after the pre-query
 or pre-instruct tokens comes an instruction. If these pre-query tokens are sent to the
-LLM without any user message, then the LLM will continue generating tokens as it was
+LLM without any user message, then the LLM will continue generating tokens as if it was
 the user. This trick allows "extracting" instructions from the instruct fine-tuned LLM.
 After this instruct is generated, it can be sent again to the LLM to generate this time
 an assistant response. This process can be repeated N times allowing to build a multi-turn
@@ -19049,7 +19049,7 @@ result = next(
 </span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">    fine-tuned LLMs. As they were fine-tuned using a chat template composed by a user message</span>
 </span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">    and a desired assistant output, the instruct fine-tuned LLM learns that after the pre-query</span>
 </span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">    or pre-instruct tokens comes an instruction. If these pre-query tokens are sent to the</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">    LLM without any user message, then the LLM will continue generating tokens as it was</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">    LLM without any user message, then the LLM will continue generating tokens as if it was</span>
 </span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a><span class="sd">    the user. This trick allows &quot;extracting&quot; instructions from the instruct fine-tuned LLM.</span>
 </span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="sd">    After this instruct is generated, it can be sent again to the LLM to generate this time</span>
 </span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="sd">    an assistant response. This process can be repeated N times allowing to build a multi-turn</span>
