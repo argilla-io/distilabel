@@ -91,21 +91,20 @@ class _Task(_Step, ABC):
     def _format_outputs(
         self,
         outputs: "GenerateOutput",
-        inputs: Union[List[Dict[str, Any]], None] = None,
+        input: Union[Dict[str, Any], None] = None,
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
         set to `None` as well.
 
         Args:
-            outputs: The outputs of the LLM.
-            inputs: The inputs used to generate the outputs.
+            outputs: The outputs (`n` generations) for the provided `input`.
+            input: The input used to generate the output.
 
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
-        if inputs is None:
-            inputs = [None]  # type: ignore
+        inputs = [None] if input is None else [input]
 
         formatted_outputs = []
         for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
@@ -195,6 +194,7 @@ class Task(_Task, Step):
 
         formatted_inputs = self._format_inputs(inputs)
 
+        # `outputs` is a list containing a list of generations per input
         outputs = self.llm.generate(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
@@ -203,7 +203,7 @@ class Task(_Task, Step):
 
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs, inputs)
+            formatted_outputs = self._format_outputs(input_outputs, input)
 
             if self.group_generations:
                 combined = group_dicts(*formatted_outputs)
