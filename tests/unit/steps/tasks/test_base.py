@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 class DummyTask(Task):
     @property
     def inputs(self) -> List[str]:
-        return ["instruction"]
+        return ["instruction", "additional_info"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [
@@ -39,8 +39,14 @@ class DummyTask(Task):
             {"role": "user", "content": input["instruction"]},
         ]
 
-    def format_output(self, output: Union[str, None], input: Dict[str, Any]) -> dict:
-        return {"output": output}
+    @property
+    def outputs(self) -> List[str]:
+        return ["output", "info_from_input"]
+
+    def format_output(
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
+    ) -> Dict[str, Any]:
+        return {"output": output, "info_from_input": input["additional_info"]}  # type: ignore
 
 
 class DummyRuntimeLLM(DummyLLM):
@@ -85,37 +91,139 @@ class TestTask:
             Task(name="task", llm=DummyLLM())  # type: ignore
 
     @pytest.mark.parametrize(
-        "group_generations, expected",
+        "input, group_generations, expected",
         [
             (
+                [
+                    {"instruction": "test_0", "additional_info": "additional_info_0"},
+                    {"instruction": "test_1", "additional_info": "additional_info_1"},
+                    {"instruction": "test_2", "additional_info": "additional_info_2"},
+                ],
                 False,
                 [
                     {
-                        "instruction": "test",
+                        "instruction": "test_0",
+                        "additional_info": "additional_info_0",
                         "output": "output",
+                        "info_from_input": "additional_info_0",
                         "model_name": "test",
                         "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
-                        "instruction": "test",
+                        "instruction": "test_0",
+                        "additional_info": "additional_info_0",
                         "output": "output",
+                        "info_from_input": "additional_info_0",
                         "model_name": "test",
                         "distilabel_metadata": {"raw_output_task": "output"},
                     },
                     {
-                        "instruction": "test",
+                        "instruction": "test_0",
+                        "additional_info": "additional_info_0",
                         "output": "output",
+                        "info_from_input": "additional_info_0",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_1",
+                        "additional_info": "additional_info_1",
+                        "output": "output",
+                        "info_from_input": "additional_info_1",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_1",
+                        "additional_info": "additional_info_1",
+                        "output": "output",
+                        "info_from_input": "additional_info_1",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_1",
+                        "additional_info": "additional_info_1",
+                        "output": "output",
+                        "info_from_input": "additional_info_1",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_2",
+                        "additional_info": "additional_info_2",
+                        "output": "output",
+                        "info_from_input": "additional_info_2",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_2",
+                        "additional_info": "additional_info_2",
+                        "output": "output",
+                        "info_from_input": "additional_info_2",
+                        "model_name": "test",
+                        "distilabel_metadata": {"raw_output_task": "output"},
+                    },
+                    {
+                        "instruction": "test_2",
+                        "additional_info": "additional_info_2",
+                        "output": "output",
+                        "info_from_input": "additional_info_2",
                         "model_name": "test",
                         "distilabel_metadata": {"raw_output_task": "output"},
                     },
                 ],
             ),
             (
+                [
+                    {"instruction": "test_0", "additional_info": "additional_info_0"},
+                    {"instruction": "test_1", "additional_info": "additional_info_1"},
+                    {"instruction": "test_2", "additional_info": "additional_info_2"},
+                ],
                 True,
                 [
                     {
-                        "instruction": "test",
+                        "instruction": "test_0",
+                        "additional_info": "additional_info_0",
                         "output": ["output", "output", "output"],
+                        "info_from_input": [
+                            "additional_info_0",
+                            "additional_info_0",
+                            "additional_info_0",
+                        ],
+                        "model_name": "test",
+                        "distilabel_metadata": [
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                        ],
+                    },
+                    {
+                        "instruction": "test_1",
+                        "additional_info": "additional_info_1",
+                        "output": ["output", "output", "output"],
+                        "info_from_input": [
+                            "additional_info_1",
+                            "additional_info_1",
+                            "additional_info_1",
+                        ],
+                        "model_name": "test",
+                        "distilabel_metadata": [
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                            {"raw_output_task": "output"},
+                        ],
+                    },
+                    {
+                        "instruction": "test_2",
+                        "additional_info": "additional_info_2",
+                        "output": ["output", "output", "output"],
+                        "info_from_input": [
+                            "additional_info_2",
+                            "additional_info_2",
+                            "additional_info_2",
+                        ],
                         "model_name": "test",
                         "distilabel_metadata": [
                             {"raw_output_task": "output"},
@@ -128,7 +236,10 @@ class TestTask:
         ],
     )
     def test_process(
-        self, group_generations: bool, expected: List[Dict[str, Any]]
+        self,
+        input: List[Dict[str, str]],
+        group_generations: bool,
+        expected: List[Dict[str, Any]],
     ) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
@@ -139,7 +250,7 @@ class TestTask:
             group_generations=group_generations,
             num_generations=3,
         )
-        result = next(task.process([{"instruction": "test"}]))
+        result = next(task.process(input))
         assert result == expected
 
     def test_process_with_runtime_parameters(self) -> None:
