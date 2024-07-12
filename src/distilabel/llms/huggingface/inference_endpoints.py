@@ -26,7 +26,7 @@ from pydantic import (
     model_validator,
     validate_call,
 )
-from typing_extensions import override
+from typing_extensions import Annotated, override
 
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
@@ -300,7 +300,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         )
         return super().apply_magpie_pre_query_template(prompt, input)
 
-    def get_structured_output(
+    def _get_structured_output(
         self, input: FormattedInput
     ) -> Union[Dict[str, Any], None]:
         """Gets the structured output (if any) for the given input.
@@ -318,16 +318,16 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         if isinstance(input, tuple):
             input, structured_output = input
             structured_output = {
-                "type": structured_output["format"],
-                "value": structured_output["schema"],
+                "type": structured_output["format"],  # type: ignore
+                "value": structured_output["schema"],  # type: ignore
             }
 
         # Same structured output for all the inputs
         if structured_output is None and self.structured_output is not None:
             try:
                 structured_output = {
-                    "type": self.structured_output["format"],
-                    "value": self.structured_output["schema"],
+                    "type": self.structured_output["format"],  # type: ignore
+                    "value": self.structured_output["schema"],  # type: ignore
                 }
             except KeyError as e:
                 raise ValueError(
@@ -337,12 +337,125 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         return structured_output
 
+    async def _generate_with_text_generation(
+        self,
+        input: FormattedInput,
+        max_new_tokens: int = 128,
+        repetition_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        temperature: float = 1.0,
+        do_sample: bool = False,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        typical_p: Optional[float] = None,
+        stop_sequences: Union[List[str], None] = None,
+        return_full_text: bool = False,
+        seed: Optional[int] = None,
+        watermark: bool = False,
+    ) -> Union[str, None]:
+        structured_output = self._get_structured_output(input)
+
+        completion = None
+        try:
+            completion = await self._aclient.text_generation(  # type: ignore
+                prompt=self.prepare_input(input),  # type: ignore
+                max_new_tokens=max_new_tokens,
+                do_sample=do_sample,
+                typical_p=typical_p,
+                repetition_penalty=repetition_penalty,
+                frequency_penalty=frequency_penalty,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                stop_sequences=stop_sequences,
+                return_full_text=return_full_text,
+                watermark=watermark,
+                grammar=structured_output,  # type: ignore
+                # NOTE: here to ensure that the cache is not used and a different response is
+                # generated every time
+                seed=seed or random.randint(0, sys.maxsize),
+            )
+        except Exception as e:
+            self._logger.warning(  # type: ignore
+                f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
+                f" Finish reason was: {e}"
+            )
+        return completion
+
+    async def _generate_with_chat_completion(
+        self,
+        input: "StandardInput",
+        max_new_tokens: int = 128,
+        repetition_penalty: Optional[float] = None,
+        frequency_penalty: Optional[float] = None,
+        logit_bias: Optional[List[float]] = None,
+        temperature: float = 1.0,
+        top_k: Optional[int] = None,
+        top_p: Optional[float] = None,
+        typical_p: Optional[float] = None,
+        stop_sequences: Union[List[str], None] = None,
+        return_full_text: bool = False,
+        seed: Optional[int] = None,
+        watermark: bool = False,
+    ) -> Union[str, None]:
+        message = None
+        try:
+            completion = await self._aclient.chat_completion(  # type: ignore
+                messages=input,  # type: ignore
+                max_tokens=max_new_tokens,
+                frequency_penalty=frequency_penalty,
+                logit_bias=logit_bias,
+                temperature=temperature,
+                top_p=top_p,
+                # NOTE: here to ensure that the cache is not used and a different response is
+                # generated every time
+                seed=seed or random.randint(0, sys.maxsize),
+            )
+            choice = completion.choices[0]
+            if (message := choice.message.content) is None:
+                self._logger.warning(  # type: ignore
+                    f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+        except Exception as e:
+            self._logger.warning(  # type: ignore
+                f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
+                f" Finish reason was: {e}"
+            )
+        return message
+
+    def _check_stop_sequences(
+        self,
+        stop_sequences: Optional[Union[str, List[str]]] = None,
+    ) -> Union[List[str], None]:
+        """Checks that no more than 4 stop sequences are provided.
+
+        Args:
+            stop_sequences: the stop sequences to be checked.
+
+        Returns:
+            The stop sequences.
+        """
+        if stop_sequences is not None:
+            if isinstance(stop_sequences, str):
+                stop_sequences = [stop_sequences]
+            if len(stop_sequences) > 4:
+                warnings.warn(
+                    "Only up to 4 stop sequences are allowed, so keeping the first 4 items only.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                stop_sequences = stop_sequences[:4]
+        return stop_sequences
+
     @validate_call
     async def agenerate(  # type: ignore
         self,
         input: FormattedInput,
         max_new_tokens: int = 128,
         repetition_penalty: Optional[float] = None,
+        frequency_penalty: Optional[Annotated[float, Field(ge=-2.0, le=2.0)]] = None,
+        logit_bias: Optional[List[float]] = None,
         temperature: float = 1.0,
         do_sample: bool = False,
         top_k: Optional[int] = None,
@@ -361,6 +474,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 Defaults to `128`.
             repetition_penalty: the repetition penalty to use for the generation. Defaults
                 to `None`.
+            frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
+                new tokens based on their existing frequency in the text so far, decreasing
+                model's likelihood to repeat the same line verbatim. Defauls to `None`.
+            logit_bias: modify the likelihood of specified tokens appearing in the completion.
+                Defaults to `None`.
             temperature: the temperature to use for the generation. Defaults to `1.0`.
             do_sample: whether to use sampling for the generation. Defaults to `False`.
             top_k: the top-k value to use for the generation. Defaults to `0.8`, since neither
@@ -379,42 +497,41 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        if stop_sequences is not None:
-            if isinstance(stop_sequences, str):
-                stop_sequences = [stop_sequences]
-            if len(stop_sequences) > 4:
-                warnings.warn(
-                    "Only up to 4 stop sequences are allowed, so keeping the first 4 items only.",
-                    UserWarning,
-                    stacklevel=2,
+        stop_sequences = self._check_stop_sequences(stop_sequences)
+
+        if self.tokenizer_id is None:
+            return [
+                await self._generate_with_chat_completion(
+                    input=input,  # type: ignore
+                    max_new_tokens=max_new_tokens,
+                    typical_p=typical_p,
+                    repetition_penalty=repetition_penalty,
+                    frequency_penalty=frequency_penalty,
+                    logit_bias=logit_bias,
+                    temperature=temperature,
+                    top_p=top_p,
+                    top_k=top_k,
+                    stop_sequences=stop_sequences,
+                    return_full_text=return_full_text,
+                    seed=seed,
+                    watermark=watermark,
                 )
-                stop_sequences = stop_sequences[:4]
+            ]
 
-        structured_output = self.get_structured_output(input)
-
-        completion = None
-        try:
-            completion = await self._aclient.text_generation(  # type: ignore
-                prompt=self.prepare_input(input),  # type: ignore
+        return [
+            await self._generate_with_text_generation(
+                input=input,
                 max_new_tokens=max_new_tokens,
                 do_sample=do_sample,
                 typical_p=typical_p,
                 repetition_penalty=repetition_penalty,
+                frequency_penalty=frequency_penalty,
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
+                seed=seed,
                 watermark=watermark,
-                grammar=structured_output,  # type: ignore
-                # NOTE: here to ensure that the cache is not used and a different response is
-                # generated every time
-                seed=seed or random.randint(0, sys.maxsize),
             )
-        except Exception as e:
-            self._logger.warning(  # type: ignore
-                f"⚠️ Received no response using Inference Client (model: '{self.model_name}')."
-                f" Finish reason was: {e}"
-            )
-
-        return [completion]
+        ]
