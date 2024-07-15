@@ -138,6 +138,10 @@ class _WriteBuffer:
         self._buffers_last_file[step_name] = next_file_number + 1
 
         parquet_file = step_parquet_dir / f"{str(next_file_number).zfill(5)}.parquet"
+        if parquet_file.exists():
+            # If the file already exists, due to some error in a pipeline that was cached
+            prev_table = pq.read_table(parquet_file)
+            table = pa.concat_tables([prev_table, table])
         pq.write_table(table, parquet_file)
         self._logger.debug(f"Written to file '{parquet_file}'")
 
