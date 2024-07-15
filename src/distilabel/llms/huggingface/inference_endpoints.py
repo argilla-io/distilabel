@@ -16,7 +16,7 @@ import os
 import random
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import (
     Field,
@@ -170,9 +170,6 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 " or overwritten with the one generated from either of those args, for serverless"
                 " or dedicated inference endpoints, respectively."
             )
-
-        if self.model_id and self.tokenizer_id is None:
-            self.tokenizer_id = self.model_id
 
         if self.use_magpie_template and self.tokenizer_id is None:
             raise ValueError(
@@ -392,7 +389,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         seed: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
         temperature: float = 1.0,
-        tool_choice: Optional[Dict[str, str]] = None,
+        tool_choice: Optional[Union[Dict[str, str], Literal["auto"]]] = None,
         tool_prompt: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         top_p: Optional[float] = None,
@@ -463,7 +460,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         seed: Optional[int] = None,
         stop_sequences: Optional[List[str]] = None,
         temperature: float = 1.0,
-        tool_choice: Optional[Dict[str, str]] = None,
+        tool_choice: Optional[Union[Dict[str, str], Literal["auto"]]] = None,
         tool_prompt: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         top_p: Optional[float] = None,
@@ -502,10 +499,9 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 `tokenizer.eos_token` if available.
             temperature: the temperature to use for the generation. Defaults to `1.0`.
             tool_choice: the name of the tool the model should call. It can be a dictionary
-                like `{"function_name": "my_tool"}`. If not provided, then the model will
-                automatically choose which tool to use. This argument is exclusive to the
-                `chat_completion` method and will be used only if `tokenizer_id` is `None`.
-                Defaults to `None`.
+                like `{"function_name": "my_tool"}` or "auto". If not provided, then the
+                model won't use any tool. This argument is exclusive to the `chat_completion`
+                method and will be used only if `tokenizer_id` is `None`. Defaults to `None`.
             tool_prompt: A prompt to be appended before the tools. This argument is exclusive
                 to the `chat_completion` method and will be used only if `tokenizer_id`
                 is `None`. Defauls to `None`.
