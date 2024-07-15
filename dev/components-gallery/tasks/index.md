@@ -90,6 +90,14 @@ hide:
 
     [:octicons-arrow-right-24: InstructionBacktranslation](instructionbacktranslation.md){ .bottom }
 
+-   :material-text-box-edit:{ .lg .middle } __Magpie__
+
+    ---
+
+    Generates conversations using an instruct fine-tuned LLM.
+
+    [:octicons-arrow-right-24: Magpie](magpie.md){ .bottom }
+
 -   :material-comment-edit:{ .lg .middle } __PrometheusEval__
 
     ---
@@ -193,6 +201,14 @@ hide:
     Generate task descriptions for embedding-related tasks using an `LLM`.
 
     [:octicons-arrow-right-24: EmbeddingTaskGenerator](embeddingtaskgenerator.md){ .bottom }
+
+-   :material-text-box-edit:{ .lg .middle } __MagpieGenerator__
+
+    ---
+
+    Generator task the generates instructions or conversations using Magpie.
+
+    [:octicons-arrow-right-24: MagpieGenerator](magpiegenerator.md){ .bottom }
 
 -   :material-poll:{ .lg .middle } __PairRM__
 

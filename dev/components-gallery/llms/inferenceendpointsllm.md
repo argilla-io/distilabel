@@ -9,8 +9,7 @@ InferenceEndpoints LLM implementation running the async API client.
 
 
 
-This LLM will internally use `huggingface_hub.AsyncInferenceClient` or `openai.AsyncOpenAI`
-    depending on the `use_openai_client` attribute.
+This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
 
 
 
@@ -32,7 +31,11 @@ This LLM will internally use `huggingface_hub.AsyncInferenceClient` or `openai.A
 
 - **model_display_name**: the model display name to use for the LLM. Defaults to `None`.
 
-- **use_openai_client**: whether to use the OpenAI client instead of the Hugging Face client.
+- **use_magpie_template**: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to `False`.
+
+- **magpie_pre_query_template**: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to `None`.
+
+- **structured_output**: a dictionary containing the structured output configuration or  if more fine-grained control is needed, an instance of `OutlinesStructuredOutput`.  Defaults to None.
 
 
 
@@ -83,6 +86,28 @@ llm = InferenceEndpointsLLM(
 llm.load()
 
 output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
+```
+
+#### Generate structured data
+```python
+from pydantic import BaseModel
+from distilabel.llms import InferenceEndpointsLLM
+
+class User(BaseModel):
+    name: str
+    last_name: str
+    id: int
+
+llm = InferenceEndpointsLLM(
+    model_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+    api_key="api.key",
+    structured_output={"format": "json", "schema": User.model_json_schema()}
+)
+
+llm.load()
+
+output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
 ```
 
 
