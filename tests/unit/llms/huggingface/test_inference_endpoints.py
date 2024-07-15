@@ -44,11 +44,30 @@ class TestInferenceEndpointsLLM:
                 magpie_pre_query_template="llama3",
             )
 
-    def test_tokenizer_id_set_if_model_id(
+    def test_tokenizer_id_set_if_model_id_and_structured_output(
         self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output={  # type: ignore
+                "title": "MMORPG Character",
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Character's name"},
+                    "level": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "description": "Character's level",
+                    },
+                    "health": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Character's current health",
+                    },
+                },
+                "required": ["name", "level", "health"],
+            },
         )
 
         assert llm.tokenizer_id == llm.model_id
@@ -118,11 +137,12 @@ class TestInferenceEndpointsLLM:
         )
 
     @pytest.mark.asyncio
-    async def test_agenerate_via_inference_client(
+    async def test_agenerate_with_text_generation(
         self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
         llm.load()
 
@@ -140,11 +160,12 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
     @pytest.mark.asyncio
-    async def test_generate_via_inference_client(
+    async def test_generate_with_text_generation(
         self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
         llm.load()
 
@@ -172,6 +193,7 @@ class TestInferenceEndpointsLLM:
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
             structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
         llm.load()
@@ -214,6 +236,7 @@ class TestInferenceEndpointsLLM:
     def test_serialization(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
 
         _dump = {
