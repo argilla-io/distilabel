@@ -21,6 +21,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import nest_asyncio
 import pytest
 from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+from huggingface_hub import (
+    ChatCompletionOutput,
+    ChatCompletionOutputComplete,
+    ChatCompletionOutputMessage,
+    ChatCompletionOutputUsage,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -49,25 +55,7 @@ class TestInferenceEndpointsLLM:
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
-            structured_output={  # type: ignore
-                "title": "MMORPG Character",
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string", "description": "Character's name"},
-                    "level": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 100,
-                        "description": "Character's level",
-                    },
-                    "health": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Character's current health",
-                    },
-                },
-                "required": ["name", "level", "health"],
-            },
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
 
         assert llm.tokenizer_id == llm.model_id
@@ -160,9 +148,89 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
     @pytest.mark.asyncio
-    async def test_generate_with_text_generation(
+    async def test_agenerate_with_chat_completion(
         self, mock_inference_client: MagicMock
     ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+        )
+        llm.load()
+
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="length",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content=" Aenean hendrerit aliquam velit. ...",
+                        ),
+                    )
+                ],
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                object="chat.completion",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
+        )
+
+        assert await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        ) == [" Aenean hendrerit aliquam velit. ..."]
+
+    @pytest.mark.asyncio
+    async def test_agenerate_with_chat_completion_fails(
+        self, mock_inference_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+        )
+        llm.load()
+
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="eos_token",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content=None,
+                        ),
+                    )
+                ],
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                object="chat.completion",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
+        )
+
+        assert await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        ) == [None]
+
+    @pytest.mark.asyncio
+    async def test_generate(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
             tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
@@ -185,7 +253,7 @@ class TestInferenceEndpointsLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
+        ) == [[" Aenean hendrerit aliquam velit. ..."]]
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
