@@ -217,6 +217,7 @@ class Magpie(Task, MagpieBase):
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message. Only if `only_instructions=False`.
         - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
         - text-generation
@@ -358,8 +359,8 @@ class Magpie(Task, MagpieBase):
     def outputs(self) -> List[str]:
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
-            return ["instruction"]
-        return ["conversation"]
+            return ["instruction", "model_name"]
+        return ["conversation", "model_name"]
 
     def format_output(
         self,
