@@ -109,6 +109,17 @@ class MagpieBase(RuntimeParametersMixin):
             conversation.append({"role": role, "content": instruction})
         return conversations
 
+    def _generate_instruction(
+        self, inputs: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        prepared_inputs = self._prepare_inputs_for_instruction_generation(inputs)
+        outputs = self.llm.generate(
+            inputs=prepared_inputs,
+            num_generations=1,
+            **self.llm.generation_kwargs,  # type: ignore
+        )
+        return [{"instruction": output[0]} for output in outputs]
+
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
@@ -143,10 +154,7 @@ class MagpieBase(RuntimeParametersMixin):
                 conversations=conversations,  # type: ignore
             )
 
-        return [
-            {**input, "conversation": conversation}
-            for input, conversation in zip(inputs, conversations)
-        ]
+        return [{"conversation": conversation} for conversation in conversations]
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]
@@ -159,20 +167,16 @@ class MagpieBase(RuntimeParametersMixin):
         Returns:
             The list of generated conversations.
         """
+        outputs = (
+            self._generate_instruction(inputs)
+            if self.only_instruction
+            else self._generate_multi_turn_conversation(inputs)
+        )
 
-        if self.only_instruction:
-            prepared_inputs = self._prepare_inputs_for_instruction_generation(inputs)
-            outputs = self.llm.generate(
-                inputs=prepared_inputs,
-                num_generations=1,
-                **self.llm.generation_kwargs,  # type: ignore
-            )
-            return [
-                {**input, "instruction": output[0]}
-                for input, output in zip(inputs, outputs)
-            ]
-
-        return self._generate_multi_turn_conversation(inputs)
+        return [
+            {**input, **output, "model_name": self.llm.model_name}
+            for input, output in zip(inputs, outputs)
+        ]
 
 
 class Magpie(Task, MagpieBase):
