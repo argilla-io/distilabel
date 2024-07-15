@@ -386,17 +386,16 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         self,
         input: "StandardInput",
         max_new_tokens: int = 128,
-        repetition_penalty: Optional[float] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[List[float]] = None,
-        temperature: float = 1.0,
-        top_k: Optional[int] = None,
-        top_p: Optional[float] = None,
-        typical_p: Optional[float] = None,
-        stop_sequences: Union[List[str], None] = None,
-        return_full_text: bool = False,
+        presence_penalty: Optional[float] = None,
         seed: Optional[int] = None,
-        watermark: bool = False,
+        stop_sequences: Optional[List[str]] = None,
+        temperature: float = 1.0,
+        tool_choice: Optional[Dict[str, str]] = None,
+        tool_prompt: Optional[str] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        top_p: Optional[float] = None,
     ) -> Union[str, None]:
         message = None
         try:
@@ -405,11 +404,16 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 max_tokens=max_new_tokens,
                 frequency_penalty=frequency_penalty,
                 logit_bias=logit_bias,
-                temperature=temperature,
-                top_p=top_p,
+                presence_penalty=presence_penalty,
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, sys.maxsize),
+                stop=stop_sequences,
+                temperature=temperature,
+                tool_choice=tool_choice,  # type: ignore
+                tool_prompt=tool_prompt,
+                tools=tools,  # type: ignore
+                top_p=top_p,
             )
             choice = completion.choices[0]
             if (message := choice.message.content) is None:
@@ -453,46 +457,82 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         self,
         input: FormattedInput,
         max_new_tokens: int = 128,
-        repetition_penalty: Optional[float] = None,
         frequency_penalty: Optional[Annotated[float, Field(ge=-2.0, le=2.0)]] = None,
         logit_bias: Optional[List[float]] = None,
-        temperature: float = 1.0,
-        do_sample: bool = False,
-        top_k: Optional[int] = None,
-        top_p: Optional[float] = None,
-        typical_p: Optional[float] = None,
-        stop_sequences: Optional[Union[str, List[str]]] = None,
-        return_full_text: bool = False,
+        presence_penalty: Optional[Annotated[float, Field(ge=-2.0, le=2.0)]] = None,
         seed: Optional[int] = None,
+        stop_sequences: Optional[List[str]] = None,
+        temperature: float = 1.0,
+        tool_choice: Optional[Dict[str, str]] = None,
+        tool_prompt: Optional[str] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        top_p: Optional[float] = None,
+        do_sample: bool = False,
+        repetition_penalty: Optional[float] = None,
+        return_full_text: bool = False,
+        top_k: Optional[int] = None,
+        typical_p: Optional[float] = None,
         watermark: bool = False,
     ) -> GenerateOutput:
-        """Generates completions for the given input using the async client.
+        """Generates completions for the given input using the async client. This method
+        uses two methods of the `huggingface_hub.AsyncClient`: `chat_completion` and `text_generation`.
+        `chat_completion` method will be used only if no `tokenizer_id` has been specified.
+        Some arguments of this function are specific to the `text_generation` method, while
+        some others are specific to the `chat_completion` method.
 
         Args:
             input: a single input in chat format to generate responses for.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            repetition_penalty: the repetition penalty to use for the generation. Defaults
-                to `None`.
             frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
                 new tokens based on their existing frequency in the text so far, decreasing
                 model's likelihood to repeat the same line verbatim. Defauls to `None`.
             logit_bias: modify the likelihood of specified tokens appearing in the completion.
+                This argument is exclusive to the `chat_completion` method and will be used
+                only if `tokenizer_id` is `None`.
                 Defaults to `None`.
-            temperature: the temperature to use for the generation. Defaults to `1.0`.
-            do_sample: whether to use sampling for the generation. Defaults to `False`.
-            top_k: the top-k value to use for the generation. Defaults to `0.8`, since neither
-                `0.0` nor `1.0` are valid values in TGI.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            typical_p: the typical-p value to use for the generation. Defaults to `0.5`.
+            presence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
+                new tokens based on whether they appear in the text so far, increasing the
+                model likelihood to talk about new topics. This argument is exclusive to
+                the `chat_completion` method and will be used only if `tokenizer_id` is
+                `None`. Defauls to `None`.
+            seed: the seed to use for the generation. Defaults to `None`.
             stop_sequences: either a single string or a list of strings containing the sequences
                 to stop the generation at. Defaults to `None`, but will be set to the
                 `tokenizer.eos_token` if available.
-            return_full_text: whether to return the full text of the completion or just the
-                generated text. Defaults to `False`, meaning that only the generated text will be
-                returned.
-            seed: the seed to use for the generation. Defaults to `None`.
-            watermark: whether to add the watermark to the generated text. Defaults to `None`.
+            temperature: the temperature to use for the generation. Defaults to `1.0`.
+            tool_choice: the name of the tool the model should call. It can be a dictionary
+                like `{"function_name": "my_tool"}`. If not provided, then the model will
+                automatically choose which tool to use. This argument is exclusive to the
+                `chat_completion` method and will be used only if `tokenizer_id` is `None`.
+                Defaults to `None`.
+            tool_prompt: A prompt to be appended before the tools. This argument is exclusive
+                to the `chat_completion` method and will be used only if `tokenizer_id`
+                is `None`. Defauls to `None`.
+            tools: a list of tools definitions that the LLM can use.
+                This argument is exclusive to the `chat_completion` method and will be used
+                only if `tokenizer_id` is `None`. Defaults to `None`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            do_sample: whether to use sampling for the generation. This argument is exclusive
+            of the `text_generation` method and will be only used if `tokenizer_id` is not
+            `None`. Defaults to `False`.
+            repetition_penalty: the repetition penalty to use for the generation. This argument
+                is exclusive of the `text_generation` method and will be only used if `tokenizer_id`
+                is not `None`. Defaults to `None`.
+            return_full_text: whether to return the full text of the completion or just
+                the generated text. Defaults to `False`, meaning that only the generated
+                text will be returned. This argument is exclusive of the `text_generation`
+                method and will be only used if `tokenizer_id` is not `None`.
+            top_k: the top-k value to use for the generation. This argument is exclusive
+                of the `text_generation` method and will be only used if `tokenizer_id`
+                is not `None`. Defaults to `0.8`, since neither `0.0` nor `1.0` are valid
+                values in TGI.
+            typical_p: the typical-p value to use for the generation. This argument is exclusive
+                of the `text_generation` method and will be only used if `tokenizer_id`
+                is not `None`. Defaults to `None`.
+            watermark: whether to add the watermark to the generated text. This argument
+                is exclusive of the `text_generation` method and will be only used if `tokenizer_id`
+                is not `None`. Defaults to `None`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
@@ -504,17 +544,16 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 await self._generate_with_chat_completion(
                     input=input,  # type: ignore
                     max_new_tokens=max_new_tokens,
-                    typical_p=typical_p,
-                    repetition_penalty=repetition_penalty,
                     frequency_penalty=frequency_penalty,
                     logit_bias=logit_bias,
-                    temperature=temperature,
-                    top_p=top_p,
-                    top_k=top_k,
-                    stop_sequences=stop_sequences,
-                    return_full_text=return_full_text,
+                    presence_penalty=presence_penalty,
                     seed=seed,
-                    watermark=watermark,
+                    stop_sequences=stop_sequences,
+                    temperature=temperature,
+                    tool_choice=tool_choice,
+                    tool_prompt=tool_prompt,
+                    tools=tools,
+                    top_p=top_p,
                 )
             ]
 
