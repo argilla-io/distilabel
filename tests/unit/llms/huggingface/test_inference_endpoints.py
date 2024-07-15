@@ -12,21 +12,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import random
+from typing import Generator
 from unittest import mock
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import nest_asyncio
 import pytest
 from distilabel.llms.huggingface.inference_endpoints import InferenceEndpointsLLM
+from huggingface_hub import (
+    ChatCompletionOutput,
+    ChatCompletionOutputComplete,
+    ChatCompletionOutputMessage,
+    ChatCompletionOutputUsage,
+)
+
+
+@pytest.fixture(autouse=True)
+def mock_hf_token_env_variable() -> Generator[None, None, None]:
+    with patch.dict(os.environ, {"HF_TOKEN": "hf_token"}):
+        yield
 
 
 @patch("huggingface_hub.AsyncInferenceClient")
-@patch("openai.AsyncOpenAI")
 class TestInferenceEndpointsLLM:
-    def test_load_no_api_key(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    def test_no_tokenizer_magpie_raise_value_error(
+        self, mock_inference_client: MagicMock
     ) -> None:
+        with pytest.raises(
+            ValueError,
+            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
+        ):
+            InferenceEndpointsLLM(
+                base_url="http://localhost:8000",
+                use_magpie_template=True,
+                magpie_pre_query_template="llama3",
+            )
+
+    def test_tokenizer_id_set_if_model_id_and_structured_output(
+        self, mock_inference_client: MagicMock
+    ) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
+        )
+
+        assert llm.tokenizer_id == llm.model_id
+
+    def test_load_no_api_key(self, mock_inference_client: MagicMock) -> None:
+        del os.environ["HF_TOKEN"]
+
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral"
         )
@@ -40,12 +76,8 @@ class TestInferenceEndpointsLLM:
             ):
                 llm.load()
 
-    def test_load_with_cached_token(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
-    ) -> None:
-        llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
-        )
+    def test_load_with_cached_token(self, mock_inference_client: MagicMock) -> None:
+        llm = InferenceEndpointsLLM(base_url="http://localhost:8000")
 
         # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
         with (
@@ -58,7 +90,7 @@ class TestInferenceEndpointsLLM:
             llm.load()
 
     def test_serverless_inference_endpoints_llm(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral"
@@ -68,7 +100,7 @@ class TestInferenceEndpointsLLM:
         assert llm.model_name == "distilabel-internal-testing/tiny-random-mistral"
 
     def test_dedicated_inference_endpoints_llm(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             endpoint_name="tiny-random-mistral",
@@ -79,11 +111,12 @@ class TestInferenceEndpointsLLM:
         assert llm.model_name == "tiny-random-mistral"
 
     def test_dedicated_inference_endpoints_llm_via_url(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             base_url="https://api-inference.huggingface.co/models/distilabel-internal-testing/tiny-random-mistral"
         )
+        llm.load()
 
         assert isinstance(llm, InferenceEndpointsLLM)
         assert (
@@ -92,13 +125,14 @@ class TestInferenceEndpointsLLM:
         )
 
     @pytest.mark.asyncio
-    async def test_agenerate_via_inference_client(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    async def test_agenerate_with_text_generation(
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
-        llm._aclient = mock_inference_client
+        llm.load()
 
         llm._aclient.text_generation = AsyncMock(
             return_value=" Aenean hendrerit aliquam velit. ..."
@@ -114,23 +148,39 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
     @pytest.mark.asyncio
-    async def test_agenerate_via_openai_client(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    async def test_agenerate_with_chat_completion(
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
-            use_openai_client=True,
         )
-        llm._aclient = mock_openai_client
+        llm.load()
 
-        mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="length",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content=" Aenean hendrerit aliquam velit. ...",
+                        ),
+                    )
+                ],
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                object="chat.completion",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
         )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
 
         assert await llm.agenerate(
             input=[
-                {"role": "system", "content": ""},
                 {
                     "role": "user",
                     "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -139,13 +189,53 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
     @pytest.mark.asyncio
-    async def test_generate_via_inference_client(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
+    async def test_agenerate_with_chat_completion_fails(
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
         )
-        llm._aclient = mock_inference_client
+        llm.load()
+
+        llm._aclient.chat_completion = AsyncMock(  # type: ignore
+            return_value=ChatCompletionOutput(  # type: ignore
+                choices=[
+                    ChatCompletionOutputComplete(
+                        finish_reason="eos_token",
+                        index=0,
+                        message=ChatCompletionOutputMessage(
+                            role="assistant",
+                            content=None,
+                        ),
+                    )
+                ],
+                created=1721045246,
+                id="",
+                model="meta-llama/Meta-Llama-3-70B-Instruct",
+                object="chat.completion",
+                system_fingerprint="2.1.1-dev0-sha-4327210",
+                usage=ChatCompletionOutputUsage(
+                    completion_tokens=66, prompt_tokens=18, total_tokens=84
+                ),
+            )
+        )
+
+        assert await llm.agenerate(
+            input=[
+                {
+                    "role": "user",
+                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                },
+            ]
+        ) == [None]
+
+    @pytest.mark.asyncio
+    async def test_generate(self, mock_inference_client: MagicMock) -> None:
+        llm = InferenceEndpointsLLM(
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
+        )
+        llm.load()
 
         llm._aclient.text_generation = AsyncMock(
             return_value=" Aenean hendrerit aliquam velit. ..."
@@ -163,47 +253,18 @@ class TestInferenceEndpointsLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
-
-    @pytest.mark.asyncio
-    async def test_generate_via_openai_client(
-        self, mock_inference_client: MagicMock, mock_openai_client: MagicMock
-    ) -> None:
-        llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral",
-            use_openai_client=True,
-        )
-        llm._aclient = mock_openai_client
-
-        mocked_completion = Mock(
-            choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
-        )
-        llm._aclient.chat.completions.create = AsyncMock(return_value=mocked_completion)
-
-        ...
-        nest_asyncio.apply()
-
-        assert llm.generate(
-            inputs=[
-                [
-                    {"role": "system", "content": ""},
-                    {
-                        "role": "user",
-                        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                    },
-                ]
-            ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
+        ) == [[" Aenean hendrerit aliquam velit. ..."]]
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
-        self, mock_inference_client: MagicMock, _: MagicMock
+        self, mock_inference_client: MagicMock
     ) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
             structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
-        llm._aclient = mock_inference_client
+        llm.load()
 
         llm._aclient.text_generation = AsyncMock(
             return_value=" Aenean hendrerit aliquam velit. ..."
@@ -223,29 +284,27 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
         kwargs = {
-            "prompt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "prompt": "<s>[INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
             "max_new_tokens": 128,
             "do_sample": False,
             "typical_p": None,
             "repetition_penalty": None,
+            "frequency_penalty": None,
             "temperature": 1.0,
             "top_p": None,
             "top_k": None,
             "stop_sequences": None,
             "return_full_text": False,
+            "seed": 2053695854357871005,  # pre-computed random value with `random.seed(42)`
             "watermark": False,
             "grammar": {"type": "regex", "value": "\\b[A-Z][a-z]*\\b"},
-            "seed": 478163327,  # pre-computed random value with `random.seed(42)`
         }
-        mock_inference_client.text_generation.assert_called_with(**kwargs)
+        llm._aclient.text_generation.assert_called_with(**kwargs)  # type: ignore
 
-    def test_serialization(
-        self,
-        mock_inference_client: MagicMock,
-        mock_openai_client: MagicMock,
-    ) -> None:
+    def test_serialization(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(
             model_id="distilabel-internal-testing/tiny-random-mistral",
+            tokenizer_id="distilabel-internal-testing/tiny-random-mistral",
         )
 
         _dump = {
@@ -253,11 +312,12 @@ class TestInferenceEndpointsLLM:
             "endpoint_name": None,
             "endpoint_namespace": None,
             "base_url": None,
-            "tokenizer_id": None,
+            "tokenizer_id": "distilabel-internal-testing/tiny-random-mistral",
             "generation_kwargs": {},
+            "magpie_pre_query_template": None,
             "structured_output": None,
             "model_display_name": None,
-            "use_openai_client": False,
+            "use_magpie_template": False,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

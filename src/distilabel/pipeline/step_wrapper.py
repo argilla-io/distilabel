@@ -16,7 +16,7 @@ import traceback
 from queue import Queue
 from typing import Any, Dict, List, Optional, Union, cast
 
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.typing import StepLoadStatus

@@ -30,7 +30,8 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
@@ -39,11 +40,13 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
 
+    from distilabel.steps.tasks.typing import StandardInput
+
 
 SamplingParams = None
 
 
-class vLLM(LLM, CudaDevicePlacementMixin):
+class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
 
     Attributes:
@@ -75,6 +78,12 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         _tokenizer: the tokenizer instance used to format the prompt before passing it to
             the `LLM`. This attribute is meant to be used internally and should not be
             accessed directly. It will be set in the `load` method.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
+        magpie_pre_query_template: the pre-query template to be applied to the prompt or
+            sent to the LLM to generate an instruction or a follow up user message. Valid
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
 
     References:
         - https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/llm.py
@@ -213,15 +222,26 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         """Returns the model name used for the LLM."""
         return self.model
 
-    def prepare_input(self, input: "FormattedInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+    def prepare_input(self, input: "StandardInput") -> str:
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        return self._tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,  # type: ignore
+        prompt: str = (
+            self._tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+            if input
+            else ""
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     def _prepare_batches(
         self, inputs: List[FormattedInput]
@@ -304,14 +324,13 @@ class vLLM(LLM, CudaDevicePlacementMixin):
         if extra_sampling_params is None:
             extra_sampling_params = {}
         structured_output = None
-        needs_sorting = False
 
         if isinstance(inputs[0], tuple):
             prepared_batches, sorted_indices = self._prepare_batches(inputs)
-            needs_sorting = True
         else:
             # Simulate a batch without the structured output content
             prepared_batches = [([self.prepare_input(input) for input in inputs], None)]
+            sorted_indices = None
 
         # In case we have a single structured output for the dataset, we can
         logits_processors = None
@@ -348,7 +367,7 @@ class vLLM(LLM, CudaDevicePlacementMixin):
 
         # If logits_processor is set, we need to sort the outputs back to the original order
         # (would be needed only if we have multiple structured outputs in the dataset)
-        if needs_sorting:
+        if sorted_indices is not None:
             batched_outputs = _sort_batches(
                 batched_outputs, sorted_indices, num_generations=num_generations
             )

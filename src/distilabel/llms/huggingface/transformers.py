@@ -19,7 +19,8 @@ from pydantic import Field, PrivateAttr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from distilabel.llms.typing import HiddenState
 
 
-class TransformersLLM(LLM, CudaDevicePlacementMixin):
+class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """Hugging Face `transformers` library LLM implementation using the text generation
     pipeline.
 
@@ -64,6 +65,12 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             local configuration will be used. Defaults to `None`.
         structured_output: a dictionary containing the structured output configuration or if more
             fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
+        magpie_pre_query_template: the pre-query template to be applied to the prompt or
+            sent to the LLM to generate an instruction or a follow up user message. Valid
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
 
     Icon:
         `:hugging:`
@@ -157,14 +164,25 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
         return self.model
 
     def prepare_input(self, input: "StandardInput") -> str:
-        """Prepares the input by applying the chat template to the input, which is formatted
-        as an OpenAI conversation, and adding the generation prompt.
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
         """
-        return self._pipeline.tokenizer.apply_chat_template(  # type: ignore
-            input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,
+        prompt: str = (
+            self._pipeline.tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            if input
+            else ""
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     @validate_call
     def generate(  # type: ignore
@@ -209,6 +227,7 @@ class TransformersLLM(LLM, CudaDevicePlacementMixin):
             do_sample=do_sample,
             num_return_sequences=num_generations,
             prefix_allowed_tokens_fn=self._prefix_allowed_tokens_fn,
+            pad_token_id=self._pipeline.tokenizer.eos_token_id,  # type: ignore
         )
         return [
             [generation["generated_text"] for generation in output]
