@@ -69,7 +69,9 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             sent to the LLM to generate an instruction or a follow up user message. Valid
             values are "llama3", "qwen2" or another pre-query template provided. Defaults
             to `None`.
-        structured_output:
+        structured_output: a dictionary containing the structured output configuration or
+            if more fine-grained control is needed, an instance of `OutlinesStructuredOutput`.
+            Defaults to None.
 
     Icon:
         `:hugging:`
@@ -141,7 +143,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
         llm.load()
 
-        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
+        output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the Tour De France"}]])
         ```
     """
 
