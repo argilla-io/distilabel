@@ -143,7 +143,10 @@ class MagpieBase(RuntimeParametersMixin):
                 conversations=conversations,  # type: ignore
             )
 
-        return [{"conversation": conversation} for conversation in conversations]
+        return [
+            {**input, "conversation": conversation}
+            for input, conversation in zip(inputs, conversations)
+        ]
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]
@@ -164,7 +167,10 @@ class MagpieBase(RuntimeParametersMixin):
                 num_generations=1,
                 **self.llm.generation_kwargs,  # type: ignore
             )
-            return [{"instruction": output[0]} for output in outputs]
+            return [
+                {**input, "instruction": output[0]}
+                for input, output in zip(inputs, outputs)
+            ]
 
         return self._generate_multi_turn_conversation(inputs)
 
