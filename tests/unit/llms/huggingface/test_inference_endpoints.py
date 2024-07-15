@@ -199,16 +199,17 @@ class TestInferenceEndpointsLLM:
             "do_sample": False,
             "typical_p": None,
             "repetition_penalty": None,
+            "frequency_penalty": None,
             "temperature": 1.0,
             "top_p": None,
             "top_k": None,
             "stop_sequences": None,
             "return_full_text": False,
+            "seed": 2053695854357871005,  # pre-computed random value with `random.seed(42)`
             "watermark": False,
             "grammar": {"type": "regex", "value": "\\b[A-Z][a-z]*\\b"},
-            "seed": 2053695854357871005,  # pre-computed random value with `random.seed(42)`
         }
-        llm._aclient.text_generation.assert_called_with(**kwargs)
+        llm._aclient.text_generation.assert_called_with(**kwargs)  # type: ignore
 
     def test_serialization(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(

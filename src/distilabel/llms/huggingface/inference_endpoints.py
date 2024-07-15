@@ -369,11 +369,11 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 top_k=top_k,
                 stop_sequences=stop_sequences,
                 return_full_text=return_full_text,
-                watermark=watermark,
-                grammar=structured_output,  # type: ignore
                 # NOTE: here to ensure that the cache is not used and a different response is
                 # generated every time
                 seed=seed or random.randint(0, sys.maxsize),
+                watermark=watermark,
+                grammar=structured_output,  # type: ignore
             )
         except Exception as e:
             self._logger.warning(  # type: ignore
