@@ -30,14 +30,14 @@ class TestMagpie:
     def test_outputs(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
 
-        assert task.outputs == ["conversation"]
+        assert task.outputs == ["conversation", "model_name"]
 
         task = Magpie(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
             only_instruction=True,
         )
 
-        assert task.outputs == ["instruction"]
+        assert task.outputs == ["instruction", "model_name"]
 
     def test_process(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1)
@@ -50,18 +50,21 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
                 "conversation": [
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
                 "conversation": [
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
         ]
 
@@ -79,6 +82,7 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
                 "conversation": [
@@ -88,6 +92,7 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
                 "conversation": [
@@ -97,6 +102,7 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
         ]
 
@@ -115,6 +121,7 @@ class TestMagpie:
             )
         ) == [
             {
+                "system_prompt": "You're a math expert assistant.",
                 "conversation": [
                     {"role": "system", "content": "You're a math expert assistant."},
                     {"role": "user", "content": "Hello Magpie"},
@@ -122,8 +129,10 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
+                "system_prompt": "You're a florist expert assistant.",
                 "conversation": [
                     {"role": "system", "content": "You're a florist expert assistant."},
                     {"role": "user", "content": "Hello Magpie"},
@@ -131,8 +140,10 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
             {
+                "system_prompt": "You're a plumber expert assistant.",
                 "conversation": [
                     {"role": "system", "content": "You're a plumber expert assistant."},
                     {"role": "user", "content": "Hello Magpie"},
@@ -140,6 +151,7 @@ class TestMagpie:
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
+                "model_name": "test",
             },
         ]
 
@@ -152,9 +164,18 @@ class TestMagpie:
         task.load()
 
         assert next(task.process(inputs=[{}, {}, {}])) == [
-            {"instruction": "Hello Magpie"},
-            {"instruction": "Hello Magpie"},
-            {"instruction": "Hello Magpie"},
+            {
+                "instruction": "Hello Magpie",
+                "model_name": "test",
+            },
+            {
+                "instruction": "Hello Magpie",
+                "model_name": "test",
+            },
+            {
+                "instruction": "Hello Magpie",
+                "model_name": "test",
+            },
         ]
 
     def test_serialization(self) -> None:
