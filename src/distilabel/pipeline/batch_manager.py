@@ -75,6 +75,10 @@ class _BatchManagerStep(_Serializable):
         cached_data_dir: Optional path pointing to where the cached batches are stored.
         use_cache: Flag from the original Step to indicate whether this step should make use of
             the cached data.
+        step_offset: Dictionary with each key the predecessor/s step/s and as value a dict
+            with keys `batch` and `offset`, containing the name of the file for the corresponding
+            batch, and the number of rows that were read from that step, respectively. Used
+            for caching mechanism.
     """
 
     step_name: str
@@ -93,8 +97,7 @@ class _BatchManagerStep(_Serializable):
     step_signature: Optional[str] = None
     cached_data_dir: Optional[str] = None
     use_cache: bool = False
-    data_offset: Dict[str, Any] = None
-    # Guardar identificador (el nombre del paso del cuál es el batch) del batch y un offset de los datos (la longitud de los datos del batch)
+    step_offset: Dict[str, Dict[str, Union[str, int]]] = None
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -134,24 +137,31 @@ class _BatchManagerStep(_Serializable):
         if not self._ready_to_create_batch():
             return None
 
-        # NOTE: Try loading from cache
-        # If the cached data directory exists, corresponds to the one we have currently,
-        # we can load it from the cache:
         seq_no = self._get_seq_no()
-        if self.use_cache and self.cached_data_dir:
-            batch_manager_data_dir = Path(self.cached_data_dir)
-            if batch_manager_data_dir.name == self._create_signature():
-                batch_path = batch_manager_data_dir / f"batch_{seq_no}.json"
-                if batch_path.exists():
-                    print("Step read from cache", batch_path)
-                    batch = _Batch.from_json(batch_path)
-                    return batch
 
         # `_last_batch` must be called before `_get_data`, as `_get_data` will update the
         # list of data which is used to determine if the batch to be created is the last one.
         # TODO: remove `_last_batch` method and integrate logic in `_get_data`
         last_batch = self._last_batch()
         data, created_from, batch_routed_to = self._get_data()
+
+        current_batch_size = len(data[0])
+        # Actualize the step offset:
+        # For the batch sequence number we only need to keep the last one, for the offset we get the size
+        # of the current batch, and from the previous batches it was created from, we compute the difference
+        # from the last of them.
+        for predecessor, seq_no_and_batch in created_from.items():
+            offset = 0
+            last_batch_seq_no = 0
+            for i, (batch_seq_no, batch_size) in enumerate(seq_no_and_batch):  # noqa: B007
+                offset += batch_size
+                last_batch_seq_no = batch_seq_no
+            offset -= current_batch_size
+            self.step_offset[predecessor] = {
+                "batch": f"batch_{last_batch_seq_no - i}",
+                "offset": offset,
+            }
+
         batch = _Batch(
             seq_no=seq_no,
             step_name=self.step_name,
@@ -161,8 +171,6 @@ class _BatchManagerStep(_Serializable):
             created_from=created_from,
             batch_routed_to=batch_routed_to,
         )
-        print("GET_BATCH")
-        print(batch)
 
         return batch
 
@@ -240,7 +248,10 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no={predecessor: (0, 0) for predecessor in predecessors},
             step_signature=step._create_signature(),
             use_cache=step.use_cache,
-            cached_data_dir=step,
+            step_offset={
+                predecessor: {"batch": "batch_0", "offset": 0}
+                for predecessor in predecessors
+            },
         )
 
     def _get_seq_no(self) -> int:
@@ -650,7 +661,7 @@ class _BatchManagerStep(_Serializable):
         return sorted((seq_no, batches) for seq_no, batches in grouped_batches.items())
 
     def _model_dump(self, obj: Any, **kwargs: Any) -> Dict[str, Any]:
-        """Dumps the content of the `_BatchManagerStep` to a dictionary, using the `dataclass` helper function.
+        """Dumps the content of the `_BatchManagerStep` to a dictionary.
 
         Args:
             obj: Unused, just kept to match the signature of the parent method.
@@ -677,7 +688,7 @@ class _BatchManagerStep(_Serializable):
             "step_signature": self.step_signature,
             "cached_data_dir": self.cached_data_dir,
             "use_cache": self.use_cache,
-            "data_offset": self.data_offset,
+            "step_offset": self.step_offset,
         }
 
     def _create_signature(self) -> str:
@@ -836,13 +847,6 @@ class _BatchManager(_Serializable):
         step = self._steps[to_step]
         step.add_batch(batch, prepend)
 
-        # if not filename.exists():
-        # HAbría que guardar la información suficiente para que sepa leer del batch lo que necesite,
-        # es decir si el batch tiene BS=50, pero necesitamos 25, coger solo esos.
-        # Tenemos que guardar en el _BatchManagerStep el punto en el que se quedó, y de ahí saca
-        # la información para saber donde seguir
-        print("ADD_BATCH")
-        print(batch)
         if path:
             step_name_signed = step._create_signature()
 
@@ -993,7 +997,7 @@ class _BatchManager(_Serializable):
 
         return batch_manager_data_dirs
 
-    def cache(self, path: "StrOrPath") -> None:
+    def cache(self, path: "StrOrPath") -> None:  # noqa: C901
         """Cache the `_BatchManager` to a file.
 
         Args:
@@ -1059,7 +1063,12 @@ class _BatchManager(_Serializable):
             # Remove built `_Batch`es that were consumed from cache
             remove_files(step_dump["built_batches"], built_batches_dir)
 
+            # TODO: We don't need this logic anymore, we will write this content as part
+            # of batch_manager_data, so this should be removed, and the same logic should be applied
+            # to that folder (removing already processed batches to not keep all the history of
+            # batches in disk).
             # Store each `_BatchManagerStep` `_Batch`es in a separate file
+            # ---> REMOVE buffered_steps (we will have to read from batch_manager_data)
             for buffered_step_name in step_dump["data"]:
                 step_batches_dir = batch_manager_step_dir / buffered_step_name
                 step_batches_dir.mkdir(parents=True, exist_ok=True)
@@ -1078,6 +1087,29 @@ class _BatchManager(_Serializable):
 
                 # Remove `_Batch`es that were consumed from cache
                 remove_files(step_dump["data"][buffered_step_name], step_batches_dir)
+
+            # TODO: Loop over batch_manager_data and remove the already processed files using
+            # the batch number and the offset.
+            # Use for this the _BatchManagerStep.step_offset, all the batch files whose
+            # number is lower than the one written there, can be removed
+            # TODO: _BatchManagerStep.cached_data_dir must be a list with the different steps?
+            bm_step = self._steps[step_name]
+            keep_files = []
+            cached_data_dir = Path(bm_step.cached_data_dir)
+            if cached_data_dir.exists():
+                # TODO: There's only one cached_data_dir, so we will loop only for a single batch, but there should be more
+                # than one going to the corresponding folder.
+                step_offset_predecessor = list(bm_step.step_offset.keys())[0]
+                for batch_filename in cached_data_dir.iterdir():
+                    # step name to check
+                    if int(batch_filename.stem.split("_")[-1]) >= int(
+                        bm_step.step_offset[step_offset_predecessor]["batch"].split(
+                            "_"
+                        )[-1]
+                    ):
+                        keep_files.append(batch_filename)
+
+                remove_files(keep_files, cached_data_dir)
 
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
@@ -1112,10 +1144,50 @@ class _BatchManager(_Serializable):
                 read_json(batch) for batch in steps[step_name]["built_batches"]
             ]
 
+            # TODO: Remove step_a/step_generator_0 iternal folders, we don't need those anymore:
+            # To remove this, take a look at BatchManager.cache method.
+            # TODO: aquí se tiene que utilizar el offset para volver a poblar los steps.
+            # TODO: REMOVE THIS PIECE.
+            # WE HAVE TO USE THE OFFSET TO PREPARE BACK THE ALREADY PROCESSED STEPS.
             for buffered_step_name, batch_files in steps[step_name]["data"].items():
                 steps[step_name]["data"][buffered_step_name] = [
                     read_json(batch_file) for batch_file in batch_files
                 ]
-
+        # TODO: UNA VEZ QUE HEMOS LEÍDO LOS STEPS, TENEMOS LA INFO DE LOS _BatchManagerStep.
+        # En estos guardamos 'cached_data_dir' (para ir a buscar los datos) y 'step_offset', para
+        # decidir cuanto debemos coger de los batches que haya guardados.
         content["steps"] = steps
-        return cls.from_dict(content)
+        # print("_BatchManager.load_from_cache content")
+        # print(content)
+        bm = cls.from_dict(content)
+
+        # TODO: Aquí tenemos que cargar del punto en el que se quedó.
+        # Es decir, si voy consumiendo batches de 3 en 3, y del último de ellos cojo la mitad
+        # de las filas, tenemos que guardar desde el primero de esos 3, y coger todos ellos hasta
+        # el último con el límite del offset
+        for step_name, bm_step in bm._steps.items():
+            print("BM_STEP", step_name)
+            for predecessor, offset in bm_step.step_offset.items():
+                offset_batch_name = offset["batch"]
+                offset_batch_num = int(offset_batch_name.split("_")[-1])
+                batch_path = Path(bm_step.cached_data_dir) / f"{offset_batch_name}.json"
+                print("READING PATH: ", batch_path)
+                batch = _Batch.from_json(batch_path)
+                # Once the batch is read, keep only the data after the offset
+                batch.data[0] = batch.data[0][offset["offset"] :]
+                bm_step.data[predecessor].append(batch)
+
+                offset_batch_num += 1
+                batch_path = (
+                    Path(bm_step.cached_data_dir) / f"batch_{offset_batch_num}.json"
+                )
+                while batch_path.exists():
+                    print("READING PATH: ", batch_path)
+                    batch = _Batch.from_json(batch_path)
+                    bm_step.data[predecessor].append(batch)
+                    offset_batch_num += 1
+                    batch_path = (
+                        Path(bm_step.cached_data_dir) / f"batch_{offset_batch_num}.json"
+                    )
+
+        return bm
