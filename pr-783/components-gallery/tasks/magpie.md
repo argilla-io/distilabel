@@ -85,7 +85,7 @@ graph TD
 #### Outputs
 
 
-- **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message. Only if `only_instructions=False`.
+- **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message. Only if `only_instruction=False`.
 
 - **instruction** (`str`): the generated instructions if `only_instruction=True`.
 
