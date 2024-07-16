@@ -697,6 +697,13 @@ class _BatchManagerStep(_Serializable):
         """
         return f"{self.step_name}_{self.step_signature}"
 
+    @property
+    def number_of_rows(self) -> Dict[str, int]:
+        num_rows = {}
+        for step_name, batches in self.data.items():
+            num_rows[step_name] = sum([len(batch.data[0]) for batch in batches])
+        return num_rows
+
     def invalidate_cache(self) -> None:
         """Restarts the `_BatchManagerStep` state to recompute the data.
         All the arguments unrelated to the data stay the same.
@@ -708,6 +715,11 @@ class _BatchManagerStep(_Serializable):
             next_expected_seq_no[predecessor] = (0, 0)
         self.data = data
         self.next_expected_seq_no = next_expected_seq_no
+        self.seq_no = 0
+        self.step_offset = {
+            step_name: {"batch": "batch_0", "offset": 0}
+            for step_name in self.step_offset.keys()
+        }
 
 
 class _BatchManager(_Serializable):
@@ -774,33 +786,6 @@ class _BatchManager(_Serializable):
                     return True
 
         return False
-
-    def invalidate_cache_for(self, step_to_invalidate: str) -> None:
-        """Invalidate the step that changed and dependend ones.
-
-        WORK IN PROGRESS:
-            Currently for the step_to_invalidate's _BatchManagerStep, the cache is cleared,
-            and the internal variables are set to None to restart the pipeline after those
-            steps.
-
-        Args:
-            step_name: Name of the `_BatchManagerStep` that changed.
-        """
-        # Loop over the steps sorted, so we can invalidate successor steps
-        invalidate_after = False
-        for step_name in self._steps_order:
-            if (step_name == step_to_invalidate) or invalidate_after:
-                # HAVE TO INVALIDATE THE SUCCESSORS
-                self._steps[step_name].invalidate_cache()
-                # Remove the step from the last batch received to recompute the data.
-                self._last_batch_received[step_name] = None
-                self._last_batch_sent[step_name] = None
-                # NOTE: Do we need the following?
-                if step_name in self._last_batch_flag_sent_to:
-                    self._last_batch_flag_sent_to.remove(step_name)
-                # TODO: We have to insert the batches from the previous steps already finished
-                # in the pending ones, or is this dealt with automatically??
-                invalidate_after = True
 
     def register_batch(self, batch: _Batch) -> None:
         """Method to register a batch received from a step. It will keep track of the
@@ -1088,29 +1073,6 @@ class _BatchManager(_Serializable):
                 # Remove `_Batch`es that were consumed from cache
                 remove_files(step_dump["data"][buffered_step_name], step_batches_dir)
 
-            # TODO: Loop over batch_manager_data and remove the already processed files using
-            # the batch number and the offset.
-            # Use for this the _BatchManagerStep.step_offset, all the batch files whose
-            # number is lower than the one written there, can be removed
-            # TODO: _BatchManagerStep.cached_data_dir must be a list with the different steps?
-            bm_step = self._steps[step_name]
-            keep_files = []
-            cached_data_dir = Path(bm_step.cached_data_dir)
-            if cached_data_dir.exists():
-                # TODO: There's only one cached_data_dir, so we will loop only for a single batch, but there should be more
-                # than one going to the corresponding folder.
-                step_offset_predecessor = list(bm_step.step_offset.keys())[0]
-                for batch_filename in cached_data_dir.iterdir():
-                    # step name to check
-                    if int(batch_filename.stem.split("_")[-1]) >= int(
-                        bm_step.step_offset[step_offset_predecessor]["batch"].split(
-                            "_"
-                        )[-1]
-                    ):
-                        keep_files.append(batch_filename)
-
-                remove_files(keep_files, cached_data_dir)
-
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
                 path.parent / f"batch_manager_steps/{step_name}/batch_manager_step.json"
@@ -1153,41 +1115,49 @@ class _BatchManager(_Serializable):
                 steps[step_name]["data"][buffered_step_name] = [
                     read_json(batch_file) for batch_file in batch_files
                 ]
-        # TODO: UNA VEZ QUE HEMOS LEÍDO LOS STEPS, TENEMOS LA INFO DE LOS _BatchManagerStep.
-        # En estos guardamos 'cached_data_dir' (para ir a buscar los datos) y 'step_offset', para
-        # decidir cuanto debemos coger de los batches que haya guardados.
+
         content["steps"] = steps
-        # print("_BatchManager.load_from_cache content")
-        # print(content)
         bm = cls.from_dict(content)
-
-        # TODO: Aquí tenemos que cargar del punto en el que se quedó.
-        # Es decir, si voy consumiendo batches de 3 en 3, y del último de ellos cojo la mitad
-        # de las filas, tenemos que guardar desde el primero de esos 3, y coger todos ellos hasta
-        # el último con el límite del offset
-        for step_name, bm_step in bm._steps.items():
-            print("BM_STEP", step_name)
-            for predecessor, offset in bm_step.step_offset.items():
-                offset_batch_name = offset["batch"]
-                offset_batch_num = int(offset_batch_name.split("_")[-1])
-                batch_path = Path(bm_step.cached_data_dir) / f"{offset_batch_name}.json"
-                print("READING PATH: ", batch_path)
-                batch = _Batch.from_json(batch_path)
-                # Once the batch is read, keep only the data after the offset
-                batch.data[0] = batch.data[0][offset["offset"] :]
-                bm_step.data[predecessor].append(batch)
-
-                offset_batch_num += 1
-                batch_path = (
-                    Path(bm_step.cached_data_dir) / f"batch_{offset_batch_num}.json"
-                )
-                while batch_path.exists():
-                    print("READING PATH: ", batch_path)
-                    batch = _Batch.from_json(batch_path)
-                    bm_step.data[predecessor].append(batch)
-                    offset_batch_num += 1
-                    batch_path = (
-                        Path(bm_step.cached_data_dir) / f"batch_{offset_batch_num}.json"
-                    )
-
         return bm
+
+    def invalidate_cache_for(self, step_to_invalidate: "_Step") -> None:
+        """Invalidate the step that changed and dependend ones.
+        WORK IN PROGRESS:
+            Currently for the step_to_invalidate's _BatchManagerStep, the cache is cleared,
+            and the internal variables are set to None to restart the pipeline after those
+            steps.
+        Args:
+            step_name: Name of the `_BatchManagerStep` that changed.
+        """
+        # Loop over the steps sorted, so we can invalidate successor steps
+        invalidate_after = False
+        for step_name in self._steps_order:
+            if (step_name == step_to_invalidate.name) or invalidate_after:
+                self._steps[step_name].invalidate_cache()
+                # Remove the step from the last batch received to recompute the data.
+                self._last_batch_received[step_name] = None
+                self._last_batch_sent[step_name] = None
+
+                if step_name in self._last_batch_flag_sent_to:
+                    self._last_batch_flag_sent_to.remove(step_name)
+
+                invalidate_after = True
+
+        bm_step = self._steps[step_to_invalidate.name]
+        cached_data_dir = Path(bm_step.cached_data_dir)
+        batch_files = list_files_in_dir(
+            cached_data_dir, key=lambda x: int(x.stem.split("_")[-1])
+        )
+        predecessor = list(bm_step.data.keys())[0]
+        self._steps[step_to_invalidate.name].data = {
+            predecessor: [_Batch.from_file(file) for file in batch_files]
+        }
+        print("WARNING, UPDATE TO READ CACHE DIR FROM MULTIPLE SUCCESSOR STEPS")
+        print("WE SHOULD CREATE A NEW CACHED DIR, AND REMOVE THE PREVIOUS ONE")
+        # THIS SHOULD WORK, BUT APPARENTLY WE AREN'T CALLING batch_manager.add_batch
+        # AFTER WE REACH THIS POINT, IT SHOULD BE WORKING ONCE WE FIND THE REASON FOR IT
+        self._steps[step_name].step_signature = step_to_invalidate._create_signature()
+        self._steps[step_name].cached_data_dir = (
+            cached_data_dir.parent
+            / f"{step_to_invalidate.name}_{self._steps[step_name].step_signature}"
+        )
