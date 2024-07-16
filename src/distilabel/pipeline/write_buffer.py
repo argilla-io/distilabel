@@ -141,7 +141,10 @@ class _WriteBuffer:
         if parquet_file.exists():
             # If the file already exists, due to some error in a pipeline that was cached
             prev_table = pq.read_table(parquet_file)
-            table = pa.concat_tables([prev_table, table])
+            # If some columns differ, it means some of the step changed, we won't load the previous table
+            if prev_table.column_names == table.column_names:
+                table = pa.concat_tables([prev_table, table])
+
         pq.write_table(table, parquet_file)
         self._logger.debug(f"Written to file '{parquet_file}'")
 
