@@ -53,6 +53,7 @@ class TestMagpieGenerator:
                 },
             },
             "n_turns": 1,
+            "end_with_user": False,
             "only_instruction": False,
             "system_prompt": None,
             "name": "magpie_generator_0",
@@ -85,6 +86,11 @@ class TestMagpieGenerator:
                     "name": "n_turns",
                     "optional": True,
                     "description": "The number of turns to generate for the conversation.",
+                },
+                {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
                 },
                 {
                     "name": "only_instruction",

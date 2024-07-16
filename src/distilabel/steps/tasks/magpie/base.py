@@ -50,6 +50,10 @@ class MagpieBase(RuntimeParametersMixin):
         default=1,
         description="The number of turns to generate for the conversation.",
     )
+    end_with_user: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether the conversation should end with a user message.",
+    )
     only_instruction: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to generate only the instruction. If this argument"
@@ -125,7 +129,7 @@ class MagpieBase(RuntimeParametersMixin):
     ) -> List[Dict[str, Any]]:
         conversations = self._prepare_inputs_for_instruction_generation(inputs)
 
-        for _ in range(self.n_turns):  # type: ignore
+        for i in range(self.n_turns):  # type: ignore
             # Generate instruction or user message
             outputs = self.llm.generate(
                 inputs=conversations,
@@ -138,6 +142,9 @@ class MagpieBase(RuntimeParametersMixin):
                 messages=[output[0] for output in outputs],
                 conversations=conversations,  # type: ignore
             )
+
+            if i == self.n_turns - 1 and self.end_with_user:  # type: ignore
+                break
 
             # TODO: handle potential previous `None`s
 

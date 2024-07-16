@@ -106,6 +106,45 @@ class TestMagpie:
             },
         ]
 
+    def test_process_with_end_with_user(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            end_with_user=True,
+        )
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+        ]
+
     def test_process_with_system_prompt_per_row(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)
 
@@ -195,6 +234,7 @@ class TestMagpie:
                 },
             },
             "n_turns": 1,
+            "end_with_user": False,
             "only_instruction": True,
             "system_prompt": None,
             "name": "magpie_0",
@@ -226,6 +266,11 @@ class TestMagpie:
                     "name": "n_turns",
                     "optional": True,
                     "description": "The number of turns to generate for the conversation.",
+                },
+                {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
                 },
                 {
                     "name": "only_instruction",
