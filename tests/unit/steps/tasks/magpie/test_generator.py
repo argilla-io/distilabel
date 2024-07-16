@@ -30,14 +30,14 @@ class TestMagpieGenerator:
     def test_outputs(self) -> None:
         task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
 
-        assert task.outputs == ["conversation"]
+        assert task.outputs == ["conversation", "model_name"]
 
         task = MagpieGenerator(
             llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
             only_instruction=True,
         )
 
-        assert task.outputs == ["instruction"]
+        assert task.outputs == ["instruction", "model_name"]
 
     def test_serialization(self) -> None:
         task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
