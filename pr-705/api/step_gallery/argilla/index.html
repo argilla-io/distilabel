@@ -4805,7 +4805,7 @@ be read from the <code>ARGILLA_API_KEY</code> environment variable.</p>
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_post_init</span><span class="p">(</span><span class="n">__context</span><span class="p">)</span>
 </span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>
 </span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>            <span class="kn">import</span> <span class="nn">argilla_sdk</span> <span class="k">as</span> <span class="nn">rg</span>  <span class="c1"># noqa</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>            <span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>  <span class="c1"># noqa</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ie</span><span class="p">:</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
 </span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>                <span class="s2">&quot;Argilla is not installed. Please install it using `pip install argilla --upgrade`.&quot;</span>
@@ -4960,7 +4960,7 @@ called. For example, to load an LLM, stablish a connection to a database, etc.</
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_post_init</span><span class="p">(</span><span class="n">__context</span><span class="p">)</span>
 </span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>
 </span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="kn">import</span> <span class="nn">argilla_sdk</span> <span class="k">as</span> <span class="nn">rg</span>  <span class="c1"># noqa</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="kn">import</span> <span class="nn">argilla</span> <span class="k">as</span> <span class="nn">rg</span>  <span class="c1"># noqa</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ie</span><span class="p">:</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
 </span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="s2">&quot;Argilla is not installed. Please install it using `pip install argilla --upgrade`.&quot;</span>
