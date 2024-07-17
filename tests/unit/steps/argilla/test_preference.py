@@ -23,7 +23,6 @@ from distilabel.steps.argilla.preference import PreferenceToArgilla
 def mock_dataset() -> rg.Dataset:  # type: ignore
     return rg.Dataset(
         name="dataset",
-        workspace=rg.Workspace("workspace"),  # type: ignore
         settings=rg.Settings(
             fields=[
                 rg.TextField(name="id", title="id"),  # type: ignore

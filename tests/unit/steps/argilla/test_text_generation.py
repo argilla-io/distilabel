@@ -21,7 +21,6 @@ from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 
 MockDataset = rg.Dataset(
     name="dataset",
-    workspace=rg.Workspace("workspace"),  # type: ignore
     settings=rg.Settings(
         fields=[
             rg.TextField(name="id", title="id"),  # type: ignore
