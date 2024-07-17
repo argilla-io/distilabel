@@ -19,7 +19,7 @@ from pydantic import PrivateAttr
 from typing_extensions import override
 
 try:
-    import argilla_sdk as rg
+    import argilla as rg
 except ImportError:
     pass
 
@@ -27,7 +27,7 @@ from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from argilla_sdk import RatingQuestion, Suggestion, TextField, TextQuestion
+    from argilla import RatingQuestion, Suggestion, TextField, TextQuestion
 
     from distilabel.steps.typing import StepOutput
 
@@ -95,9 +95,7 @@ class PreferenceToArgilla(ArgillaBase):
         if self._dataset_exists_in_workspace:
             _dataset = self._client.datasets(  # type: ignore
                 name=self.dataset_name,  # type: ignore
-                workspace=self._client.workspaces(name=self.dataset_workspace)  # type: ignore
-                if self.dataset_workspace is not None
-                else None,
+                workspace=self.dataset_workspace  # type: ignore
             )
 
             for field in _dataset.fields:

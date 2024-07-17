@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, List, Optional
 from pydantic import Field, PrivateAttr, SecretStr
 
 try:
-    import argilla_sdk as rg
+    import argilla as rg
 except ImportError:
     pass
 
@@ -28,7 +28,7 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
-    from argilla_sdk import Argilla, Dataset
+    from argilla import Argilla, Dataset
 
     from distilabel.steps.typing import StepOutput
 
@@ -95,7 +95,7 @@ class ArgillaBase(Step, ABC):
             import argilla_sdk as rg  # noqa
         except ImportError as ie:
             raise ImportError(
-                "Argilla is not installed. Please install it using `pip install argilla_sdk --upgrade`."
+                "Argilla is not installed. Please install it using `pip install argilla --upgrade`."
             ) from ie
 
         warnings.filterwarnings("ignore")
@@ -118,17 +118,10 @@ class ArgillaBase(Step, ABC):
     @property
     def _dataset_exists_in_workspace(self) -> bool:
         """Checks if the dataset already exists in Argilla in the provided workspace if any."""
-        return (
-            True
-            if self._client.datasets(  # type: ignore
-                name=self.dataset_name,  # type: ignore
-                workspace=self._client.workspaces(name=self.dataset_workspace)  # type: ignore
-                if self.dataset_workspace is not None
-                else None,
-            ).exists()
-            is not None
-            else False
-        )
+        return self._client.datasets(  # type: ignore
+            name=self.dataset_name,  # type: ignore
+            workspace=self.dataset_workspace
+        ) is not None
 
     @property
     def outputs(self) -> List[str]:
