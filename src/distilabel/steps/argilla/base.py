@@ -92,7 +92,7 @@ class ArgillaBase(Step, ABC):
         super().model_post_init(__context)
 
         try:
-            import argilla_sdk as rg  # noqa
+            import argilla as rg  # noqa
         except ImportError as ie:
             raise ImportError(
                 "Argilla is not installed. Please install it using `pip install argilla --upgrade`."

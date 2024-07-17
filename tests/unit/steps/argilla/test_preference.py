@@ -15,7 +15,7 @@
 import os
 from unittest.mock import patch
 
-import argilla_sdk as rg
+import argilla as rg
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 
