@@ -76,7 +76,6 @@ class TestMagpie:
         assert next(task.process(inputs=[{}, {}, {}])) == [
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -86,7 +85,6 @@ class TestMagpie:
             },
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -96,7 +94,6 @@ class TestMagpie:
             },
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -118,7 +115,6 @@ class TestMagpie:
         assert next(task.process(inputs=[{}, {}, {}])) == [
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -127,7 +123,6 @@ class TestMagpie:
             },
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -136,7 +131,6 @@ class TestMagpie:
             },
             {
                 "conversation": [
-                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
@@ -145,8 +139,54 @@ class TestMagpie:
             },
         ]
 
+    def test_process_with_include_system_prompt(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            include_system_prompt=True,
+        )
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+        ]
+
     def test_process_with_system_prompt_per_row(self) -> None:
-        task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            include_system_prompt=True,
+        )
 
         task.load()
 
@@ -235,6 +275,7 @@ class TestMagpie:
             },
             "n_turns": 1,
             "end_with_user": False,
+            "include_system_prompt": False,
             "only_instruction": True,
             "system_prompt": None,
             "name": "magpie_0",
@@ -271,6 +312,11 @@ class TestMagpie:
                     "name": "end_with_user",
                     "optional": True,
                     "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
                 },
                 {
                     "name": "only_instruction",

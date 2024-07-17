@@ -26,7 +26,7 @@ from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
@@ -54,6 +54,10 @@ class MagpieBase(RuntimeParametersMixin):
         default=False,
         description="Whether the conversation should end with a user message.",
     )
+    include_system_prompt: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to include the system prompt used in the generated conversation.",
+    )
     only_instruction: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to generate only the instruction. If this argument"
@@ -67,7 +71,7 @@ class MagpieBase(RuntimeParametersMixin):
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
-    ) -> List["FormattedInput"]:
+    ) -> List["ChatType"]:
         """Prepares the inputs adding the system (if required) prompt provided in each row,
         or if the conversations to generate have more than one turn, then adding the system
         prompt for multi-turn conversation from the paper.
@@ -124,10 +128,30 @@ class MagpieBase(RuntimeParametersMixin):
         )
         return [{"instruction": output[0]} for output in outputs]
 
+    def _prepare_conversation_outputs(
+        self, conversations: List["ChatType"]
+    ) -> List[Dict[str, Any]]:
+        """Prepare the output conversation removing the system prompt if necessary.
+
+        Args:
+            conversations: the list of generated conversations.
+
+        Returns:
+            A list of dictionaries containing a "conversation" key.
+        """
+        outputs = []
+        for conversation in conversations:
+            if not self.include_system_prompt and conversation[0]["role"] == "system":
+                conversation.pop(0)
+            outputs.append({"conversation": conversation})
+        return outputs
+
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        conversations = self._prepare_inputs_for_instruction_generation(inputs)
+        conversations: List["ChatType"] = (
+            self._prepare_inputs_for_instruction_generation(inputs)
+        )
 
         for i in range(self.n_turns):  # type: ignore
             # Generate instruction or user message
@@ -161,7 +185,7 @@ class MagpieBase(RuntimeParametersMixin):
                 conversations=conversations,  # type: ignore
             )
 
-        return [{"conversation": conversation} for conversation in conversations]
+        return self._prepare_conversation_outputs(conversations)
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]

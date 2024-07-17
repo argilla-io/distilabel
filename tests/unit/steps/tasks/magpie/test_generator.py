@@ -54,6 +54,7 @@ class TestMagpieGenerator:
             },
             "n_turns": 1,
             "end_with_user": False,
+            "include_system_prompt": False,
             "only_instruction": False,
             "system_prompt": None,
             "name": "magpie_generator_0",
@@ -91,6 +92,11 @@ class TestMagpieGenerator:
                     "name": "end_with_user",
                     "optional": True,
                     "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
                 },
                 {
                     "name": "only_instruction",
