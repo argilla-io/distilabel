@@ -227,6 +227,11 @@ class Magpie(Task, MagpieBase):
 
     Attributes:
         n_turns: the number of turns that the generated conversation will have.
+            Defaults to `1`.
+        end_with_user: whether the conversation should end with a user message.
+            Defaults to `False`.
+        include_system_prompt: whether to include the system prompt used in the generated
+            conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
         system_prompt: an optional system prompt that can be used to steer the LLM to generate
@@ -235,7 +240,12 @@ class Magpie(Task, MagpieBase):
             one from the column will be used. Defaults to `None`.
 
     Runtime parameters:
-        - `n_turns`: the number of turns that the generated conversation will have.
+        - `n_turns`: the number of turns that the generated conversation will have. Defaults
+            to `1`.
+        - `end_with_user`: whether the conversation should end with a user message.
+            Defaults to `False`.
+        - `include_system_prompt`: whether to include the system prompt used in the generated
+            conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
         - `system_prompt`: an optional system prompt that can be used to steer the LLM to
