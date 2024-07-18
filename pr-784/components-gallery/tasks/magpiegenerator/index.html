@@ -4217,7 +4217,13 @@
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>n_turns</strong>: the number of turns that the generated conversation will have.</p>
+<p><strong>n_turns</strong>: the number of turns that the generated conversation will have.  Defaults to <code>1</code>.</p>
+</li>
+<li>
+<p><strong>end_with_user</strong>: whether the conversation should end with a user message.  Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>include_system_prompt</strong>: whether to include the system prompt used in the generated  conversation. Defaults to <code>False</code>.</p>
 </li>
 <li>
 <p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
@@ -4232,13 +4238,19 @@
 <h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><strong>n_turns</strong>: the number of turns that the generated conversation will have.</p>
+<p><strong>n_turns</strong>: the number of turns that the generated conversation will have. Defaults  to <code>1</code>.</p>
 </li>
 <li>
-<p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument  is <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
+<p><strong>end_with_user</strong>: whether the conversation should end with a user message.  Defaults to <code>False</code>.</p>
 </li>
 <li>
-<p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to  generate content of certain topic, guide the style, etc. Defaults to <code>None</code>.</p>
+<p><strong>include_system_prompt</strong>: whether to include the system prompt used in the generated  conversation. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to  generate content of certain topic, guide the style, etc. If the provided inputs  contains a <code>system_prompt</code> column, then this runtime parameter will be ignored  and the one from the column will be used. Defaults to <code>None</code>.</p>
 </li>
 <li>
 <p><strong>num_rows</strong>: the number of rows to be generated.</p>
