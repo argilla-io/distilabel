@@ -43,7 +43,7 @@ As mentioned before, we will put the previously mentioned building blocks togeth
 ```python
 from distilabel.llms import InferenceEndpointsLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadDataFromHub
+from distilabel.steps import LoadDataFromHub, KeepColumns
 from distilabel.steps.tasks import InstructionBacktranslation, TextGeneration
 
 
