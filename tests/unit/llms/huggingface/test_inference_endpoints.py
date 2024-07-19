@@ -171,7 +171,6 @@ class TestInferenceEndpointsLLM:
                 created=1721045246,
                 id="",
                 model="meta-llama/Meta-Llama-3-70B-Instruct",
-                object="chat.completion",
                 system_fingerprint="2.1.1-dev0-sha-4327210",
                 usage=ChatCompletionOutputUsage(
                     completion_tokens=66, prompt_tokens=18, total_tokens=84
@@ -212,7 +211,6 @@ class TestInferenceEndpointsLLM:
                 created=1721045246,
                 id="",
                 model="meta-llama/Meta-Llama-3-70B-Instruct",
-                object="chat.completion",
                 system_fingerprint="2.1.1-dev0-sha-4327210",
                 usage=ChatCompletionOutputUsage(
                     completion_tokens=66, prompt_tokens=18, total_tokens=84
