@@ -38,7 +38,7 @@ class OutlinesStructuredOutputType(TypedDict, total=False):
     as obtained from `model_to_schema(BaseModel)`, if "regex", it
     should be a regex pattern as a string.
     """
-    whitespace_pattern: Optional[Union[str, List[str]]] = None
+    whitespace_pattern: Optional[Union[str, List[str]]]
     """If "json" corresponds to a string or a list of
     strings with a pattern (doesn't impact string literals).
     For example, to allow only a single space or newline with

@@ -329,7 +329,10 @@ class AsyncLLM(LLM):
             for _ in range(num_generations)
         ]
         outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
-        return list(grouper(outputs, n=num_generations, incomplete="ignore"))
+        return [
+            list(group)
+            for group in grouper(outputs, n=num_generations, incomplete="ignore")
+        ]
 
     def generate(
         self,

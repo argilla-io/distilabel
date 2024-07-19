@@ -45,7 +45,7 @@ class AzureOpenAILLM(OpenAILLM):
             `None` if not set.
 
     Icon:
-        `:simple-microsoftazure:`
+        `:material-microsoft-azure:`
 
     Examples:
 

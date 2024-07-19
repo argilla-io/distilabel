@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from itertools import zip_longest
-from typing import Any, Iterable, List, Literal, TypeVar
+from typing import Any, Iterable, Literal, Tuple, TypeVar
 
 T = TypeVar("T")
 
@@ -26,7 +26,7 @@ def grouper(
     *,
     incomplete: Literal["fill", "strict", "ignore"] = "fill",
     fillvalue: Any = None,
-) -> Iterable[List[T]]:
+) -> Iterable[Tuple[T]]:
     "Collect data into non-overlapping fixed-length chunks or blocks."
     # grouper('ABCDEFG', 3, fillvalue='x') --> ABC DEF Gxx
     # grouper('ABCDEFG', 3, incomplete='strict') --> ABC DEF ValueError
