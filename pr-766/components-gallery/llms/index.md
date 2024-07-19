@@ -34,7 +34,7 @@ hide:
 
     [:octicons-arrow-right-24: AnyscaleLLM](anyscalellm.md){ .bottom }
 
--   :simple-microsoftazure:{ .lg .middle } __AzureOpenAILLM__
+-   :material-microsoft-azure:{ .lg .middle } __AzureOpenAILLM__
 
     ---
 

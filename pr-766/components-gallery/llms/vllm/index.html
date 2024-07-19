@@ -1925,6 +1925,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../tasks/magpie/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tasks/prometheuseval/" class="md-nav__link">
         
   
@@ -2178,6 +2199,27 @@
   
     <li class="md-nav__item">
       <a href="../../tasks/embeddingtaskgenerator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/magpiegenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4174,6 +4216,12 @@
 </li>
 <li>
 <p><strong>_tokenizer</strong>: the tokenizer instance used to format the prompt before passing it to  the <code>LLM</code>. This attribute is meant to be used internally and should not be  accessed directly. It will be set in the <code>load</code> method.</p>
+</li>
+<li>
+<p><strong>use_magpie_template</strong>: a flag used to enable/disable applying the Magpie pre-query  template. Defaults to <code>False</code>.</p>
+</li>
+<li>
+<p><strong>magpie_pre_query_template</strong>: the pre-query template to be applied to the prompt or  sent to the LLM to generate an instruction or a follow up user message. Valid  values are "llama3", "qwen2" or another pre-query template provided. Defaults  to <code>None</code>.</p>
 </li>
 </ul>
 <h3 id="runtime-parameters">Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Permanent link">&para;</a></h3>
