@@ -1216,6 +1216,10 @@ class TestBatchManagerStep:
                 "step1": (0, 0),
                 "step2": (0, 0),
             },
+            "cached_data_dir": None,
+            "step_offset": {},
+            "step_signature": None,
+            "use_cache": False,
             "type_info": {
                 "module": "distilabel.pipeline.batch_manager",
                 "name": "_BatchManagerStep",
@@ -1521,13 +1525,31 @@ class TestBatchManager:
         batch_manager = _BatchManager.from_dag(dag)
 
         assert batch_manager._steps == {
+            "dummy_generator_step": _BatchManagerStep(
+                step_name="dummy_generator_step",
+                accumulate=False,
+                input_batch_size=None,
+                data={},
+                convergence_step=True,
+                next_expected_seq_no={},
+                step_signature="963a16b6081170f39eef011d64d992a0a6e9f0e9",
+                use_cache=True,
+                step_offset={},
+            ),
             "dummy_step_1": _BatchManagerStep(
                 step_name="dummy_step_1",
                 accumulate=False,
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
                 next_expected_seq_no={"dummy_generator_step": (0, 0)},
-                step_signature="6a15f50a6dc37b4825da5ef456cc5cbe75608a02",
+                step_signature="757e51801b4e6d14ed67c1b610e6ab1b4309218d",
+                use_cache=True,
+                step_offset={
+                    "dummy_generator_step": {
+                        "batch": "batch_0",
+                        "offset": 0,
+                    }
+                },
             ),
             "dummy_global_step": _BatchManagerStep(
                 step_name="dummy_global_step",
@@ -1535,7 +1557,14 @@ class TestBatchManager:
                 input_batch_size=50,
                 data={"dummy_generator_step": []},
                 next_expected_seq_no={"dummy_generator_step": (0, 0)},
-                step_signature="a7b6be5e13302409fa19b5c7324c22c6d2846476",
+                step_signature="00be5ed553bb01774ac484d799bf954bdc3ba8ed",
+                use_cache=True,
+                step_offset={
+                    "dummy_generator_step": {
+                        "batch": "batch_0",
+                        "offset": 0,
+                    }
+                },
             ),
             "dummy_step_2": _BatchManagerStep(
                 step_name="dummy_step_2",
@@ -1543,7 +1572,14 @@ class TestBatchManager:
                 input_batch_size=50,
                 data={"dummy_step_1": []},
                 next_expected_seq_no={"dummy_step_1": (0, 0)},
-                step_signature="cc827606a704ded4b9b1010677e5bf0e829f3367",
+                step_signature="54b9b14cd897cff91484c8bd27dd8c7d4ca89511",
+                use_cache=True,
+                step_offset={
+                    "dummy_step_1": {
+                        "batch": "batch_0",
+                        "offset": 0,
+                    }
+                },
             ),
         }
 
@@ -1556,9 +1592,8 @@ class TestBatchManager:
             assert batch_manager_path.exists() and batch_manager_path.is_file()
 
             for step_name, step in dummy_batch_manager._steps.items():
-                step_name_signed = f"{step_name}_{step.step_signature}"
                 batch_manager_step_dir = (
-                    Path(tmp_dir) / "batch_manager_steps" / step_name_signed
+                    Path(tmp_dir) / "batch_manager_steps" / step_name
                 )
                 assert (
                     batch_manager_step_dir.exists() and batch_manager_step_dir.is_dir()
@@ -1709,6 +1744,10 @@ class TestBatchManager:
                         "step1": (1, 1),
                         "step2": (1, 1),
                     },
+                    "cached_data_dir": None,
+                    "step_offset": {},
+                    "step_signature": None,
+                    "use_cache": False,
                     "type_info": {
                         "module": "distilabel.pipeline.batch_manager",
                         "name": "_BatchManagerStep",

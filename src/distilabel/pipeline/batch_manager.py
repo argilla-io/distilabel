@@ -97,7 +97,7 @@ class _BatchManagerStep(_Serializable):
     step_signature: Optional[str] = None
     cached_data_dir: Optional[str] = None
     use_cache: bool = False
-    step_offset: Dict[str, Dict[str, Union[str, int]]] = None
+    step_offset: Dict[str, Dict[str, Union[str, int]]] = field(default_factory=dict)
 
     def add_batch(self, batch: _Batch, prepend: bool = False) -> None:
         """Add a batch of data from `batch.step_name` to the step. It will accumulate the
@@ -1067,7 +1067,11 @@ class _BatchManager(_Serializable):
         steps = {}
         for step_name, step_file in content["steps"].items():
             steps[step_name] = read_json(step_file)
-
+            # When we read back from the json file, the variable is a dict, this solves
+            # the unit test problem
+            steps[step_name]["next_expected_seq_no"] = {
+                k: tuple(v) for k, v in steps[step_name]["next_expected_seq_no"].items()
+            }
             # Read each `_Batch` from file
             steps[step_name]["built_batches"] = [
                 read_json(batch) for batch in steps[step_name]["built_batches"]

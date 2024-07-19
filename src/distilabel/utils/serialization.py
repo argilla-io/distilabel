@@ -362,8 +362,6 @@ class _Serializable:
                 if isinstance(v, dict):
                     items.extend(flatten_dump(v, new_key, sep=sep))
                 elif isinstance(v, list):
-                    print("######")
-                    print(v)
                     if len(v) == 0:
                         items.append((new_key, ""))
                     elif isinstance(v[0], str):
