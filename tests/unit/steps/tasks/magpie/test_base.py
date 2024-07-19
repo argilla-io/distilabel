@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pytest
 from distilabel.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.base import MAGPIE_MULTI_TURN_SYSTEM_PROMPT, Magpie
@@ -68,8 +70,122 @@ class TestMagpie:
             },
         ]
 
+    def test_process_failing_generation_for_some_rows(self) -> None:
+        with mock.patch(
+            "tests.unit.conftest.DummyMagpieLLM.generate",
+            side_effect=[
+                [["Hello Magpie"], [None], ["Hello Magpie"]],
+                [["Hello Magpie"], ["Hello Magpie"]],
+                [["Hello Magpie"], [None]],
+                [["Hello Magpie"]],
+            ],
+        ):
+            task = Magpie(
+                llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
+            )
+
+            task.load()
+
+            assert next(task.process(inputs=[{}, {}, {}])) == [
+                {
+                    "conversation": [
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                    ],
+                    "model_name": "test",
+                },
+                {
+                    "conversation": [],
+                    "model_name": "test",
+                },
+                {
+                    "conversation": [
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                    ],
+                    "model_name": "test",
+                },
+            ]
+
     def test_process_with_n_turns(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+        ]
+
+    def test_process_with_end_with_user(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            end_with_user=True,
+        )
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+        ]
+
+    def test_process_with_include_system_prompt(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            include_system_prompt=True,
+        )
 
         task.load()
 
@@ -107,7 +223,11 @@ class TestMagpie:
         ]
 
     def test_process_with_system_prompt_per_row(self) -> None:
-        task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            include_system_prompt=True,
+        )
 
         task.load()
 
@@ -195,6 +315,8 @@ class TestMagpie:
                 },
             },
             "n_turns": 1,
+            "end_with_user": False,
+            "include_system_prompt": False,
             "only_instruction": True,
             "system_prompt": None,
             "name": "magpie_0",
@@ -226,6 +348,16 @@ class TestMagpie:
                     "name": "n_turns",
                     "optional": True,
                     "description": "The number of turns to generate for the conversation.",
+                },
+                {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
                 },
                 {
                     "name": "only_instruction",
