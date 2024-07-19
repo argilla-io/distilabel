@@ -39,7 +39,7 @@ In addition, the 01.AI API platform also provides detailed documentation and sam
         model: the model name to use for the LLM, e.g., `yi-large`.  
         base_url: the base URL to use for the OneAI API requests. Defaults to `None`, which  
             means that the value set for the environment variable `01AI_BASE_URL` will be used, or  
-            "https://api.01.ai/v1/chat/completions" if not set.  
+            "https://api.01.ai/v1" if not set.  
         api_key: the API key to authenticate the requests to the OneAI API. Defaults to `None` which  
             means that the value set for the environment variable `01AI_API_KEY` will be used, or  
             `None` if not set.  
@@ -91,7 +91,7 @@ In addition, the 01.AI API platform also provides detailed documentation and sam
     model: Optional[str]  = "yi-large"
     base_url: Optional[RuntimeParameter[str]] = Field(  
         default_factory=lambda: os.getenv(  
-            "01AI_BASE_URL", "https://api.01.ai/v1/chat/completions"  
+            "01AI_BASE_URL", "https://api.01.ai/v1"  
         ),  
         description="The base URL to use for the OneAI API requests.",  
     )  
