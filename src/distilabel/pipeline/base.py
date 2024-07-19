@@ -620,6 +620,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def _load_batch_manager(self, use_cache: bool = True) -> None:
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
         it will create one from scratch.
+
+        If the _BatchManager is loaded from cache, we check for invalid steps (those that
+        may have a different signature than the original in the pipeline folder), and
+        restart them, as well as their successors.
         """
         batch_manager_cache_loc = self._cache_location["batch_manager"]
         if use_cache and batch_manager_cache_loc.exists():
@@ -628,20 +632,16 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             )
             self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
 
-            invalidate_following_steps = False
             for step_name in self.dag:
-                # TODO: Update code once `_BatchManager` deals itself with the invalidated cached steps.
                 if self.dag.get_step(step_name)[STEP_ATTR_NAME].is_generator:
                     # GeneratorSteps aren't cached
                     continue
 
                 step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
                 batch_manager_step = self._batch_manager._steps[step_name]
-                if (
-                    step._create_signature() != batch_manager_step.step_signature
-                ) or invalidate_following_steps:
+                if step._create_signature() != batch_manager_step.step_signature:
                     self._batch_manager.invalidate_cache_for(
-                        step_to_invalidate=step,
+                        step_name=step.name, dag=self.dag
                     )
                     self._logger.info(
                         f"♻️ `_BatchManagerStep` for '{step.name}' and successors will be recomputed"
@@ -1010,9 +1010,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             steps:
         """
-        # TODO: The condition to see whether we have to do something with the generator must be written here.
-        # TODO: We need a condition here. If the generator already generated all the batches, we
-        # don't have to do anything else
         for step_name in steps:
             step: "Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             input_queue = self._create_step_input_queue(step_name=step_name)
@@ -1051,7 +1048,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         to_step=step_name,
                         batch=batch,
                         prepend=True,
-                        path=self._cache_location["batch_manager"],
                     )
                     self._logger.debug(
                         f"Adding batch back to the batch manager: {batch}"
@@ -1083,9 +1079,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        self._register_batch(batch)
-
         route_to, do_not_route_to, routed = self._get_successors(batch)
+
+        self._register_batch(batch)
 
         # Keep track of the steps that the batch was routed to
         if routed:
@@ -1104,9 +1100,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             # Copy batch to avoid modifying the same reference in the batch manager
             batch_to_add = batch.copy() if len(route_to) > 1 else batch
 
-            self._batch_manager.add_batch(
-                successor, batch_to_add, path=self._cache_location["batch_manager"]
-            )
+            self._batch_manager.add_batch(successor, batch_to_add)
 
             # Check if the step is a generator and if there are successors that need data
             # from this step. This usually happens when the generator `batch_size` is smaller
@@ -1192,7 +1186,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             batch: The batch to register.
         """
-        self._batch_manager.register_batch(batch)  # type: ignore
+        self._batch_manager.register_batch(
+            batch, path=self._cache_location["batch_manager"]
+        )  # type: ignore
         self._logger.debug(
             f"Batch {batch.seq_no} from step '{batch.step_name}' registered in batch"
             " manager"
@@ -1272,12 +1268,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         assert self._batch_manager, "Batch manager is not set"
 
-        self._batch_manager.register_batch(batch)
         step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
-        for successor in self.dag.get_step_successors(step.name):  # type: ignore
-            self._batch_manager.add_batch(
-                successor, batch, path=self._cache_location["batch_manager"]
-            )
+        self._batch_manager.register_batch(
+            batch, path=self._cache_location["batch_manager"]
+        )
+
+        for successor in self.dag.get_step_successors(step.name):
+            self._batch_manager.add_batch(successor, batch)
 
     def _get_step_from_batch(self, batch: "_Batch") -> "Step":
         """Gets the `Step` instance from a batch.
