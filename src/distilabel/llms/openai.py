@@ -72,11 +72,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate text from a custom endpoint following the OpenAI API:
@@ -91,11 +87,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Hello world!"}])
         ```
 
         Generate structured data:
@@ -117,11 +109,7 @@ class OpenAILLM(AsyncLLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 
@@ -186,7 +174,7 @@ class OpenAILLM(AsyncLLM):
                 client=self._aclient,
                 framework="openai",
             )
-            self._aclient = result.get("client")
+            self._aclient = result.get("client")  # type: ignore
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
@@ -206,7 +194,7 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
-        response_format: str = "text",
+        response_format: Optional[str] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
         client.
@@ -235,12 +223,6 @@ class OpenAILLM(AsyncLLM):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        if response_format == "json":
-            response_format = "json_object"
-        elif response_format != "text":
-            raise ValueError(
-                f"Invalid response format '{response_format}'. Must be either 'text' or 'json'."
-            )
 
         structured_output = None
         if isinstance(input, tuple):
@@ -266,13 +248,25 @@ class OpenAILLM(AsyncLLM):
             "top_p": top_p,
             "stop": stop,
             "timeout": 50,
-            "response_format": {"type": response_format},
         }
+
+        if response_format is not None:
+            if response_format not in ["text", "json", "json_object"]:
+                raise ValueError(
+                    f"Invalid response format '{response_format}'. Must be either 'text'"
+                    " or 'json'."
+                )
+
+            if response_format == "json":
+                response_format = "json_object"
+
+            kwargs["response_format"] = response_format
+
         if structured_output:
             kwargs = self._prepare_kwargs(kwargs, structured_output)
 
         generations = []
-        completion = await self._aclient.chat.completions.create(**kwargs)
+        completion = await self._aclient.chat.completions.create(**kwargs)  # type: ignore
 
         if structured_output:
             generations.append(completion.model_dump_json())

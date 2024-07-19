@@ -8,14 +8,14 @@ We are an open-source community-driven project not only focused on building a gr
 
 <div class="grid cards" markdown>
 
--   __Slack__
+-   __Discord__
 
     ---
 
-    In our Slack you can get direct support from the community.
+    In our Discord channels (#argilla-general and #argilla-help), you can get direct support from the community.
 
 
-    [:octicons-arrow-right-24: Slack ↗](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g)
+    [:octicons-arrow-right-24: Discord ↗](http://hf.co/join/discord)
 
 -   __Community Meetup__
 
@@ -42,3 +42,19 @@ We are an open-source community-driven project not only focused on building a gr
     [:octicons-arrow-right-24: Roadmap ↗](https://github.com/orgs/argilla-io/projects/15)
 
 </div>
+
+## Badges
+
+If you build something cool with `distilabel` consider adding one of these badges to your dataset or model card.
+
+    [<img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-light.png" alt="Built with Distilabel" width="200" height="32"/>](https://github.com/argilla-io/distilabel)
+
+[<img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-light.png" alt="Built with Distilabel" width="200" height="32"/>](https://github.com/argilla-io/distilabel)
+
+    [<img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-dark.png" alt="Built with Distilabel" width="200" height="32"/>](https://github.com/argilla-io/distilabel)
+
+[<img src="https://raw.githubusercontent.com/argilla-io/distilabel/main/docs/assets/distilabel-badge-dark.png" alt="Built with Distilabel" width="200" height="32"/>](https://github.com/argilla-io/distilabel)
+
+## Contribute
+
+To directly contribute with `distilabel`, check our [good first issues](https://github.com/argilla-io/distilabel/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [open a new one](https://github.com/argilla-io/distilabel/issues/new/choose).

@@ -23,7 +23,7 @@ from distilabel.steps.tasks.sentence_transformers import (
     GenerationAction,
 )
 
-from tests.unit.steps.tasks.utils import DummyLLM
+from tests.unit.conftest import DummyLLM
 
 
 class TestGenerateSentencePair:

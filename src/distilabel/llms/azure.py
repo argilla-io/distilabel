@@ -45,7 +45,7 @@ class AzureOpenAILLM(OpenAILLM):
             `None` if not set.
 
     Icon:
-        `:simple-microsoftazure:`
+        `:material-microsoft-azure:`
 
     Examples:
 
@@ -103,11 +103,7 @@ class AzureOpenAILLM(OpenAILLM):
 
         llm.load()
 
-        # Synchronous request
         output = llm.generate(inputs=[[{"role": "user", "content": "Create a user profile for the following marathon"}]])
-
-        # Asynchronous request
-        output = await llm.agenerate(input=[{"role": "user", "content": "Create a user profile for the following marathon"}])
         ```
     """
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from distilabel.steps.tasks.base import GeneratorTask, Task
-from distilabel.steps.tasks.benchmarks.arena_hard import ArenaHard, ArenaHardResults
 from distilabel.steps.tasks.complexity_scorer import ComplexityScorer
 from distilabel.steps.tasks.deepseek_prover import (
     DeepSeekProverAutoFormalization,
@@ -40,6 +39,8 @@ from distilabel.steps.tasks.improving_text_embeddings import (
 from distilabel.steps.tasks.instruction_backtranslation import (
     InstructionBacktranslation,
 )
+from distilabel.steps.tasks.magpie.base import Magpie
+from distilabel.steps.tasks.magpie.generator import MagpieGenerator
 from distilabel.steps.tasks.pair_rm import PairRM
 from distilabel.steps.tasks.prometheus_eval import PrometheusEval
 from distilabel.steps.tasks.quality_scorer import QualityScorer
@@ -51,8 +52,6 @@ from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
 
 __all__ = [
-    "ArenaHard",
-    "ArenaHardResults",
     "GeneratorTask",
     "Task",
     "ComplexityScorer",
@@ -73,6 +72,8 @@ __all__ = [
     "GenerateTextRetrievalData",
     "MonolingualTripletGenerator",
     "InstructionBacktranslation",
+    "Magpie",
+    "MagpieGenerator",
     "PairRM",
     "PrometheusEval",
     "QualityScorer",

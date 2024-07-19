@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 from distilabel.llms.base import LLM
-from distilabel.llms.mixins import CudaDevicePlacementMixin
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType

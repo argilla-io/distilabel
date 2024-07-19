@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+import pytest
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.combine import CombineColumns
+from distilabel.steps.columns.group import CombineColumns, GroupColumns
 
 
-class TestCombineColumns:
+class TestGroupColumns:
     def test_init(self) -> None:
-        task = CombineColumns(
+        task = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
@@ -26,7 +28,7 @@ class TestCombineColumns:
         assert task.inputs == ["a", "b"]
         assert task.outputs == ["merged_a", "merged_b"]
 
-        task = CombineColumns(
+        task = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             output_columns=["c", "d"],
@@ -36,10 +38,22 @@ class TestCombineColumns:
         assert task.outputs == ["c", "d"]
 
     def test_process(self) -> None:
-        combine = CombineColumns(
+        combine = GroupColumns(
             name="combine-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         output = next(combine.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
         assert output == [{"merged_a": [1, 3], "merged_b": [2, 4]}]
+
+
+def test_CombineColumns_deprecation_warning():
+    with pytest.deprecated_call():
+        CombineColumns(
+            name="combine_columns",
+            columns=["generation", "model_name"],
+        )
+    import distilabel
+    from packaging.version import Version
+
+    assert Version(distilabel.__version__) <= Version("1.5.0")

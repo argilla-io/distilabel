@@ -23,8 +23,8 @@
   <a href="https://www.linkedin.com/company/argilla-io">
     <img src="https://img.shields.io/badge/linkedin-blue?logo=linkedin"/>
   </a>
-  <a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g">
-    <img src="https://img.shields.io/badge/slack-purple?logo=slack"/>
+  <a href="http://hf.co/join/discord">
+  <img src="https://img.shields.io/badge/Discord-7289DA?&logo=discord&logoColor=white"/>
   </a>
 </p>
 
@@ -50,13 +50,13 @@ Compute is expensive and output quality is important. We help you **focus on dat
 
 Synthesize and judge data with **latest research papers** while ensuring **flexibility, scalability and fault tolerance**. So you can focus on improving your data and training your models.
 
-## 🏘️ Community
+## Community
 
 We are an open-source community-driven project and we love to hear from you. Here are some ways to get involved:
 
 - [Community Meetup](https://lu.ma/embed-checkout/evt-IQtRiSuXZCIW6FB): listen in or present during one of our bi-weekly events.
 
-- [Slack](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g): get direct support from the community.
+- [Discord](http://hf.co/join/discord): get direct support from the community in #argilla-general and #argilla-help.
 
 - [Roadmap](https://github.com/orgs/argilla-io/projects/10/views/1): plans change but we love to discuss those with our community so feel encouraged to participate.
 
@@ -68,13 +68,13 @@ Distilabel is a tool that can be used to **synthesize data and provide AI feedba
 - Our [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) and the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B),, show how we **improve model performance by filtering out 50%** of the original dataset through **AI feedback**.
 - The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) outlines how anyone can create a **dataset for a specific task** and **the latest research papers** to improve the quality of the dataset.
 
-## 👨🏽‍💻 Installation
+## Installation
 
 ```sh
 pip install distilabel --upgrade
 ```
 
-Requires Python 3.8+
+Requires Python 3.9+
 
 In addition, the following extras are available:
 
@@ -105,18 +105,18 @@ Then run:
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset
+from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(
     name="simple-text-generation-pipeline",
     description="A simple text generation pipeline",
 ) as pipeline:
-    load_dataset = LoadHubDataset(output_mappings={"prompt": "instruction"})
+    load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
 
     generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
 
-    load_dataset.connect(generate_with_openai)
+    load_dataset >> generate_with_openai
 
 if __name__ == "__main__":
     distiset = pipeline.run(

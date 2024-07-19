@@ -25,7 +25,6 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromDisk,
     LoadDataFromFileSystem,
     LoadDataFromHub,
-    LoadHubDataset,
 )
 
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
@@ -183,16 +182,3 @@ class TestLoadDataFromDisk:
             assert isinstance(generator_step_output, tuple)
             assert isinstance(generator_step_output[1], bool)
             assert len(generator_step_output[0]) == 3
-
-
-def test_LoadHubDataset_deprecation_warning():
-    with pytest.deprecated_call():
-        LoadHubDataset(
-            repo_id="distilabel-internal-testing/instruction-dataset-mini",
-            split="test",
-            batch_size=2,
-        )
-    import distilabel
-    from packaging.version import Version
-
-    assert Version(distilabel.__version__) <= Version("1.3.0")
