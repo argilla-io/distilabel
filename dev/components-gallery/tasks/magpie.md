@@ -26,7 +26,11 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 ### Attributes
 
-- **n_turns**: the number of turns that the generated conversation will have.
+- **n_turns**: the number of turns that the generated conversation will have.  Defaults to `1`.
+
+- **end_with_user**: whether the conversation should end with a user message.  Defaults to `False`.
+
+- **include_system_prompt**: whether to include the system prompt used in the generated  conversation. Defaults to `False`.
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
@@ -37,7 +41,11 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 ### Runtime Parameters
 
-- **n_turns**: the number of turns that the generated conversation will have.
+- **n_turns**: the number of turns that the generated conversation will have. Defaults  to `1`.
+
+- **end_with_user**: whether the conversation should end with a user message.  Defaults to `False`.
+
+- **include_system_prompt**: whether to include the system prompt used in the generated  conversation. Defaults to `False`.
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
@@ -56,17 +64,19 @@ graph TD
 		subgraph New columns
 			OCOL0[conversation]
 			OCOL1[instruction]
+			OCOL2[model_name]
 		end
 	end
 
 	subgraph Magpie
 		StepInput[Input Columns: system_prompt]
-		StepOutput[Output Columns: conversation, instruction]
+		StepOutput[Output Columns: conversation, instruction, model_name]
 	end
 
 	ICOL0 --> StepInput
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
+	StepOutput --> OCOL2
 	StepInput --> StepOutput
 
 ```
@@ -83,9 +93,11 @@ graph TD
 #### Outputs
 
 
-- **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message. Only if `only_instructions=False`.
+- **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message. Only if `only_instruction=False`.
 
 - **instruction** (`str`): the generated instructions if `only_instruction=True`.
+
+- **model_name** (`str`): The model name used to generate the `conversation` or `instruction`.
 
 
 
