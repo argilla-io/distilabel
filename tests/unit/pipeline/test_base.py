@@ -593,7 +593,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._register_batch(batch)
 
-        pipeline._batch_manager.register_batch.assert_called_once_with(batch)
+        pipeline._batch_manager.register_batch.assert_called_once_with(
+            batch, path=pipeline._cache_location["batch_manager"]
+        )
 
     def test_send_last_batch_flag_to_step(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -710,7 +712,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._handle_batch_on_stop(batch)
 
-        batch_manager_mock.register_batch.assert_called_once_with(batch)
+        batch_manager_mock.register_batch.assert_called_once_with(
+            batch, path=pipeline._cache_location["batch_manager"]
+        )
         batch_manager_mock.add_batch.assert_has_calls(
             [
                 mock.call(step.name, batch),
