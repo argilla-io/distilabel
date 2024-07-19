@@ -639,7 +639,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
                 step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
                 batch_manager_step = self._batch_manager._steps[step_name]
-                if step._create_signature() != batch_manager_step.step_signature:
+                if (
+                    step._create_signature() != batch_manager_step.step_signature
+                    or not step.use_cache
+                ):
                     self._batch_manager.invalidate_cache_for(
                         step_name=step.name, dag=self.dag
                     )
@@ -657,7 +660,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         buffer_data_path = self._cache_location["data"]
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
-        self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
+        self._write_buffer = _WriteBuffer(
+            buffer_data_path,
+            self.dag.leaf_steps,
+            steps_cached={
+                step_name: self.dag.get_step(step_name)[STEP_ATTR_NAME].use_cache
+                for step_name in self.dag
+            },
+        )
 
     def _print_load_stages_info(self) -> None:
         """Prints the information about the load stages."""
