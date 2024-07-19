@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pytest
 from distilabel.llms.openai import OpenAILLM
 from distilabel.steps.tasks.magpie.base import MAGPIE_MULTI_TURN_SYSTEM_PROMPT, Magpie
@@ -67,6 +69,45 @@ class TestMagpie:
                 "model_name": "test",
             },
         ]
+
+    def test_process_failing_generation_for_some_rows(self) -> None:
+        with mock.patch(
+            "tests.unit.conftest.DummyMagpieLLM.generate",
+            side_effect=[
+                [["Hello Magpie"], [None], ["Hello Magpie"]],
+                [["Hello Magpie"], ["Hello Magpie"]],
+                [["Hello Magpie"], [None]],
+                [["Hello Magpie"]],
+            ],
+        ):
+            task = Magpie(
+                llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
+            )
+
+            task.load()
+
+            assert next(task.process(inputs=[{}, {}, {}])) == [
+                {
+                    "conversation": [
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                    ],
+                    "model_name": "test",
+                },
+                {
+                    "conversation": [],
+                    "model_name": "test",
+                },
+                {
+                    "conversation": [
+                        {"role": "user", "content": "Hello Magpie"},
+                        {"role": "assistant", "content": "Hello Magpie"},
+                    ],
+                    "model_name": "test",
+                },
+            ]
 
     def test_process_with_n_turns(self) -> None:
         task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)

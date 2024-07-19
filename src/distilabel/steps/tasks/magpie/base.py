@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
 
@@ -114,7 +114,8 @@ class MagpieBase(RuntimeParametersMixin):
             The updated conversations.
         """
         for instruction, conversation in zip(messages, conversations):
-            conversation.append({"role": role, "content": instruction})
+            if instruction is not None:
+                conversation.append({"role": role, "content": instruction})
         return conversations
 
     def _generate_instruction(
@@ -146,43 +147,62 @@ class MagpieBase(RuntimeParametersMixin):
             outputs.append({"conversation": conversation})
         return outputs
 
+    def _generate_conversation_turn(
+        self, role: str, conversations: List["ChatType"], active_indices: List[int]
+    ) -> Tuple[List["ChatType"], List[int]]:
+        # Generate an output for the conversations that are still active (no previous `None`s)
+        outputs = self.llm.generate(
+            inputs=[conversations[idx] for idx in active_indices],
+            num_generations=1,
+            **self.llm.generation_kwargs,  # type: ignore
+        )
+
+        active_conversations = [conversations[idx] for idx in active_indices]
+        updated_conversations = self._append_messages_to_conversations(
+            role=role,
+            messages=[output[0] for output in outputs],
+            conversations=active_conversations,
+        )
+
+        for idx, conv in zip(active_indices, updated_conversations):
+            conversations[idx] = conv
+
+        new_active_indices = [
+            idx for idx, output in zip(active_indices, outputs) if output[0] is not None
+        ]
+
+        return conversations, new_active_indices
+
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         conversations: List["ChatType"] = (
             self._prepare_inputs_for_instruction_generation(inputs)
         )
+        # Keep track of the active conversations, as it could happen that for some conversation
+        # we can't generate the next turn because the `LLM` returned `None`.
+        active_indices = list(range(len(conversations)))
 
         for i in range(self.n_turns):  # type: ignore
-            # Generate instruction or user message
-            outputs = self.llm.generate(
-                inputs=conversations,
-                num_generations=1,
-                **self.llm.generation_kwargs,  # type: ignore
-            )
+            if not active_indices:
+                break
 
-            conversations = self._append_messages_to_conversations(
-                role="user",
-                messages=[output[0] for output in outputs],
-                conversations=conversations,  # type: ignore
+            # Generate user message
+            conversations, active_indices = self._generate_conversation_turn(
+                role="user", conversations=conversations, active_indices=active_indices
             )
 
             if i == self.n_turns - 1 and self.end_with_user:  # type: ignore
                 break
 
-            # TODO: handle potential previous `None`s
+            if not active_indices:
+                break
 
-            # Generate response
-            outputs = self.llm.generate(
-                inputs=conversations,
-                num_generations=1,
-                **self.llm.generation_kwargs,  # type: ignore
-            )
-
-            conversations = self._append_messages_to_conversations(
+            # Generate assistant message
+            conversations, active_indices = self._generate_conversation_turn(
                 role="assistant",
-                messages=[output[0] for output in outputs],
-                conversations=conversations,  # type: ignore
+                conversations=conversations,
+                active_indices=active_indices,
             )
 
         return self._prepare_conversation_outputs(conversations)
