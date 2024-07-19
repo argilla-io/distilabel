@@ -29,10 +29,14 @@ _ONEAI_API_KEY_ENV_VAR_NAME = "01AI_API_KEY"
   
   
 class OneAI(AsyncLLM):  
-    """OneAI LLM implementation running the async API client of OpenAI.  
+    """The 01.AI API platform enables developers to integrate advanced natural language processing capabilities into their own applications. Developers can utilize the AI capabilities of the Yi series LLMs to perform a variety of tasks, such as text generation, language translation, content summarization, logical reasoning, mathematical calculation, and code generation.
+
+The 01.AI API platform provides flexible calling methods, supports various programming languages, and can be customized with features to meet the needs of different scenarios. Both individual and enterprise developers can unlock new approaches to innovate, improve user experience and drive business growth.
+
+In addition, the 01.AI API platform also provides detailed documentation and sample code to help developers quickly get started and utilize the capabilities of the Yi series LLMs effectively.  
   
     Attributes:  
-        model: the model name to use for the LLM, e.g., `google/gemma-7b-it`.  
+        model: the model name to use for the LLM, e.g., `yi-large`.  
         base_url: the base URL to use for the OneAI API requests. Defaults to `None`, which  
             means that the value set for the environment variable `01AI_BASE_URL` will be used, or  
             "https://api.01.ai/v1/chat/completions" if not set.  
@@ -46,21 +50,45 @@ class OneAI(AsyncLLM):
             It is meant to be used internally.  
   
     Examples:  
+        Set Your API Key :
+
+        ```sh
+        EXPORT 01AI_BASE_URL "your_01ai_yi-api_key"
+        ```
+
+        Generate Json Outputs you can use in "function call" pipelines:  
   
-        Generate text:  
-  
-        ```python  
-        from distilabel.llms import OneAI  
-  
-        llm = OneAI(model="google/gemma-7b-it", api_key="api.key")  
-  
-        llm.load()  
-  
-        output = llm.generate(inputs=[[{"role": "user", "content": "Hello world!"}]])  
-        ```  
+        ```python
+        from distilabel.steps.tasks import TextGeneration
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        text_gen = TextGeneration(
+            llm = OneAI(api_key="api.key")  # yi-large is the default model
+        )
+
+        text_gen.load()
+
+        wordphrases = "During his presidency, a number of improvements to the campus were made. The Georgetown University Hospital was opened and the first patient was accepted."
+
+        metadata_prompt = "WORD PHRASES:\n\n{wordphrases}\n\n you will recieve a text or a question, produce metadata operator pairs for the text . ONLY PROVIDE THE FINAL JSON , DO NOT PRODUCE ANY ADDITION INSTRUCTION , ONLY PRODUCE ONE METADATA STRING PER OPERATOR:"
+
+        result = next(
+            text_gen.process(
+                [{"instruction": metadata_prompt}]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'your instruction',
+        #         'model_name': 'yi-large',
+        #         'generation': 'generation',
+        #     }
+        # ]
+        ``` 
     """  
   
-    model: str  
+    model: Optional[str]  = "yi-large"
     base_url: Optional[RuntimeParameter[str]] = Field(  
         default_factory=lambda: os.getenv(  
             "01AI_BASE_URL", "https://api.01.ai/v1/chat/completions"  
@@ -94,7 +122,7 @@ class OneAI(AsyncLLM):
             from openai import AsyncOpenAI  
         except ImportError as ie:  
             raise ImportError(  
-                "OpenAI Python client is not installed. Please install it using `pip install openai`."  
+                "01ai in Distillabel relies on the OpenAI Python client which is not installed. Please install it using `pip install openai`."  
             ) from ie  
   
         if self.api_key is None:  
@@ -186,7 +214,7 @@ class OneAI(AsyncLLM):
         for choice in completion.choices:  
             if (content := choice.message.content) is None:  
                 self._logger.warning(  
-                    f"Received no response using OpenAI client (model: '{self.model}')."  
+                    f"Received no response using the 01ai client (model: '{self.model}')."  
                     f" Finish reason was: {choice.finish_reason}"  
                 )  
             generations.append(content)  
