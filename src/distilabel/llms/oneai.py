@@ -1,31 +1,31 @@
-# Copyright 2023-present, Argilla, Inc.  
-#  
-# Licensed under the Apache License, Version 2.0 (the "License");  
-# you may not use this file except in compliance with the License.  
-# You may obtain a copy of the License at  
-#  
-#     http://www.apache.org/licenses/LICENSE-2.0  
-#  
-# Unless required by applicable law or agreed to in writing, software  
-# distributed under the License is distributed on an "AS IS" BASIS,  
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
-# See the License for the specific language governing permissions and  
-# limitations under the License.  
+# Copyright 2023-present, Argilla, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
   
-import os  
-from typing import TYPE_CHECKING, List, Optional, Union  
+import os
+from typing import TYPE_CHECKING, List, Optional, Union
+
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
+
+from distilabel.llms.base import AsyncLLM
+from distilabel.llms.typing import GenerateOutput
+from distilabel.mixins.runtime_parameters import RuntimeParameter
+from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
   
-from pydantic import Field, PrivateAttr, SecretStr, validate_call  
-  
-from distilabel.llms.base import AsyncLLM  
-from distilabel.llms.typing import GenerateOutput  
-from distilabel.mixins.runtime_parameters import RuntimeParameter  
-from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType  
-  
-if TYPE_CHECKING:  
-    from openai import AsyncOpenAI  
-  
-_ONEAI_API_KEY_ENV_VAR_NAME = "01AI_API_KEY"  
+if TYPE_CHECKING:
+    from openai import AsyncOpenAI
+
+_ONEAI_API_KEY_ENV_VAR_NAME = "01AI_API_KEY"
   
   
 class OneAI(AsyncLLM):  
@@ -33,20 +33,20 @@ class OneAI(AsyncLLM):
 
     The 01.AI API platform provides flexible calling methods, supports various programming languages, and can be customized with features to meet the needs of different scenarios. Both individual and enterprise developers can unlock new approaches to innovate, improve user experience and drive business growth.
 
-    In addition, the 01.AI API platform also provides detailed documentation and sample code to help developers quickly get started and utilize the capabilities of the Yi series LLMs effectively.  
+    In addition, the 01.AI API platform also provides detailed documentation and sample code to help developers quickly get started and utilize the capabilities of the Yi series LLMs effectively.
 
-    Attributes:  
-        model: the model name to use for the LLM, e.g., `yi-large`.  
-        base_url: the base URL to use for the OneAI API requests. Defaults to `None`, which  
-            means that the value set for the environment variable `01AI_BASE_URL` will be used, or  
-            "https://api.01.ai/v1" if not set.  
-        api_key: the API key to authenticate the requests to the OneAI API. Defaults to `None` which  
-            means that the value set for the environment variable `01AI_API_KEY` will be used, or  
-            `None` if not set.  
-        max_retries: the maximum number of times to retry the request to the API before failing.  
+    Attributes:
+        model: the model name to use for the LLM, e.g., `yi-large`.
+        base_url: the base URL to use for the OneAI API requests. Defaults to `None`, which
+            means that the value set for the environment variable `01AI_BASE_URL` will be used, or
+            "https://api.01.ai/v1" if not set.
+        api_key: the API key to authenticate the requests to the OneAI API. Defaults to `None` which
+            means that the value set for the environment variable `01AI_API_KEY` will be used, or
+            `None` if not set.
+        max_retries: the maximum number of times to retry the request to the API before failing.
         timeout: the maximum time in seconds to wait for a response from the API.  
         structured_output: the structured output format to use across all the generations.  
-        _api_key_env_var: the name of the environment variable to use for the API key.  
+        _api_key_env_var: the name of the environment variable to use for the API key.
             It is meant to be used internally.  
 
     Examples:  
