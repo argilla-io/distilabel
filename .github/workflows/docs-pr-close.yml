@@ -4,6 +4,8 @@ on:
   pull_request:
     types: [closed]
 
+concurrency: distilabel-docs
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
