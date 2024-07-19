@@ -341,7 +341,7 @@ class TestStepSerialization:
                     "optional": True,
                 },
             ],
-            "use_cache": False,
+            "use_cache": True,
             TYPE_INFO_KEY: {
                 "module": "tests.unit.steps.test_base",
                 "name": "DummyStep",
@@ -383,7 +383,7 @@ class TestStepSerialization:
     def test_equality(self):
         assert (
             DummyStep()._create_signature()
-            == "2834497ec01550292a531d7da294509a9d2cfc66"
+            == "77fb21017fd082a4f1dfb27ada4613cc7db69804"
         )
         assert DummyStep() == DummyStep()
         assert DummyStep(name="dummy") != DummyStep(name="other")

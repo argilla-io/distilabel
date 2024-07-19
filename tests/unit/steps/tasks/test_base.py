@@ -385,6 +385,7 @@ class TestTask:
                     "optional": True,
                 },
             ],
+            "use_cache": True,
             "type_info": {
                 "module": "tests.unit.steps.tasks.test_base",
                 "name": "DummyTask",
