@@ -60,7 +60,7 @@ class OneAI(AsyncLLM):
   
         ```python
         from distilabel.steps.tasks import TextGeneration
-        from distilabel.llms.huggingface import InferenceEndpointsLLM
+        from distilabel.llms.oneai import OneAI
 
         text_gen = TextGeneration(
             llm = OneAI(api_key="api.key")  # yi-large is the default model
