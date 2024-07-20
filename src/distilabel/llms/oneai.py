@@ -53,7 +53,7 @@ class OneAI(AsyncLLM):
         Set Your API Key :
 
         ```sh
-        EXPORT 01AI_BASE_URL "your_01ai_yi-api_key"
+        EXPORT 01AI_API_KEY "your_01ai_yi-api_key"
         ```
 
         Generate Json Outputs you can use in "function call" pipelines:  
