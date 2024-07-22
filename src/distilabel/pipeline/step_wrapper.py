@@ -68,6 +68,7 @@ class _StepWrapper:
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
             self.step.llm._llm_identifier = self.step.name
+            self.step.llm._desired_num_gpus = self.step.resources.gpus
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle
