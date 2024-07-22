@@ -212,8 +212,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
         if self.model_id is not None:
             client = InferenceClient(
-                model=self.model_id,
-                token=self.api_key.get_secret_value()
+                model=self.model_id, token=self.api_key.get_secret_value()
             )
             status = client.get_model_status()
 
