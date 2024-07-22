@@ -69,10 +69,10 @@ class _NoDaemonContext(type(mp.get_context())):
 class _NoDaemonPool(Pool):
     def __init__(
         self,
-        processes: int | None = None,
-        initializer: Callable[..., object] | None = None,
+        processes: Union[int, None] = None,
+        initializer: Union[Callable[..., object], None] = None,
         initargs: Iterable[Any] = ...,  # type: ignore
-        maxtasksperchild: int | None = None,
+        maxtasksperchild: Union[int, None] = None,
     ) -> None:
         super().__init__(
             processes=processes,
