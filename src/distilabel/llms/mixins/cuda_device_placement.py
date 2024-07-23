@@ -15,6 +15,7 @@
 import json
 import logging
 import os
+import socket
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -26,7 +27,11 @@ from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 _CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
-    Path(tempfile.gettempdir()) / "distilabel_cuda_device_placement_mixin.json"
+    Path(tempfile.gettempdir())
+    / "distilabel"
+    / "cuda_device_placement"
+    / socket.gethostname()
+    / "distilabel_cuda_device_placement_mixin.json"
 )
 
 
@@ -105,6 +110,7 @@ class CudaDevicePlacementMixin(BaseModel):
         Yields:
             The content of the device placement file.
         """
+        _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.parent.mkdir(parents=True, exist_ok=True)
         _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.touch()
         with portalocker.Lock(
             _CUDA_DEVICE_PLACEMENT_MIXIN_FILE,
