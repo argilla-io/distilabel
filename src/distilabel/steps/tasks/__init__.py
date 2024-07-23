@@ -56,8 +56,6 @@ __all__ = [
     "EvolComplexityGenerator",
     "EvolInstructGenerator",
     "EvolQuality",
-    "DeepSeekProverAutoFormalization",
-    "DeepSeekProverScorer",
     "GenerateEmbeddings",
     "Genstruct",
     "BitextRetrievalGenerator",
