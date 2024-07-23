@@ -46,6 +46,6 @@ def test_branching_missalignment_because_step_fails_processing_batch() -> None:
     distiset = pipeline.run(use_cache=False)
 
     assert (
-        distiset["default"]["train"]["merged_response"]
+        distiset["default"]["train"]["grouped_response"]
         == [[None, "This step always succeeds"]] * 20
     )
