@@ -29,6 +29,56 @@ with Pipeline("pipe-name", description="My first pipe") as pipeline:
     ...
 ```
 
+!!! Tip "Easily load your datasets"
+
+    If you are already used to work with Hugging Face's `Dataset` via `load_dataset` or `pd.DataFrame`, you can create the `GeneratorStep` directly from the dataset (or dataframe), and create the step with the help of [`make_generator_step`][distilabel.steps.generators.utils.make_generator_step]:
+
+    === "From a list of dicts"
+
+        ```python
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps import make_generator_step
+
+        dataset = [{"instruction": "Tell me a joke."}]
+
+        with Pipeline("pipe-name", description="My first pipe") as pipeline:
+            loader = make_generator_step(dataset, output_mappings={"prompt": "instruction"})
+            ...
+        ```
+
+    === "From `datasets.Dataset`"
+
+        ```python
+        from datasets import load_dataset
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps import make_generator_step
+
+        dataset = load_dataset(
+            "DIBT/10k_prompts_ranked",
+            split="train"
+        ).filter(
+            lambda r: r["avg_rating"]>=4 and r["num_responses"]>=2
+        ).select(range(500))
+
+        with Pipeline("pipe-name", description="My first pipe") as pipeline:
+            loader = make_generator_step(dataset, output_mappings={"prompt": "instruction"})
+            ...
+        ```
+
+    === "From `pd.DataFrame`"
+
+        ```python
+        import pandas as pd
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps import make_generator_step
+
+        dataset = pd.read_csv("path/to/dataset.csv")
+
+        with Pipeline("pipe-name", description="My first pipe") as pipeline:
+            loader = make_generator_step(dataset, output_mappings={"prompt": "instruction"})
+            ...
+        ```
+
 Next, we will use `prompt` column from the dataset obtained through `LoadDataFromHub` and use several `LLM`s to execute a `TextGeneration` task. We will also use the `Task.connect()` method to connect the steps, so the output of one step is the input of the next one.
 
 !!! NOTE
