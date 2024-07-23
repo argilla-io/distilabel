@@ -18,17 +18,24 @@ import pandas as pd
 from datasets import Dataset
 
 from distilabel.steps import GeneratorStep, LoadDataFromDicts, LoadDataFromHub
+from distilabel.steps.base import StepResources
 
 
 def make_generator_step(
     dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
-    batch_size: Optional[int] = 50,
+    batch_size: int = 50,
+    input_mappings: Optional[Dict[str, str]] = None,
+    output_mappings: Optional[Dict[str, str]] = None,
+    resources: StepResources = StepResources(),
 ) -> GeneratorStep:
     """Helper method to create a `GeneratorStep` from a dataset, to simplify
 
     Args:
         dataset: The dataset to use in the `Pipeline`.
         batch_size: The batch_size, will default to the same used by the `GeneratorStep`s.
+        input_mappings: Applies the same as any other step.
+        output_mappings: Applies the same as any other step.
+        resources: Applies the same as any other step.
 
     Raises:
         ValueError: If the format is different from the ones supported.
@@ -38,7 +45,13 @@ def make_generator_step(
         if the input is a `pd.DataFrame` or a `Dataset`.
     """
     if isinstance(dataset, list):
-        return LoadDataFromDicts(data=dataset, batch_size=batch_size)
+        return LoadDataFromDicts(
+            data=dataset,
+            batch_size=batch_size,
+            input_mappings=input_mappings or {},
+            output_mappings=output_mappings or {},
+            resources=resources,
+        )
     if isinstance(dataset, pd.DataFrame):
         dataset = Dataset.from_pandas(dataset, preserve_index=False)
     if not isinstance(dataset, Dataset):
@@ -47,7 +60,13 @@ def make_generator_step(
             "`datasets.Dataset`, `pd.DataFrame`, `List[Dict[str, str]]`"
         )
 
-    loader = LoadDataFromHub(repo_id="placeholder_name", batch_size=batch_size)
+    loader = LoadDataFromHub(
+        repo_id="placeholder_name",
+        batch_size=batch_size,
+        input_mappings=input_mappings or {},
+        output_mappings=output_mappings or {},
+        resources=resources,
+    )
     loader._dataset = dataset
     loader.num_examples = len(dataset)
     loader._dataset_info = {"default": dataset.info}

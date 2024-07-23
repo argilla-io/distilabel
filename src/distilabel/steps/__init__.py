@@ -42,7 +42,7 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
-from distilabel.steps.generators.util import make_generator_step
+from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
