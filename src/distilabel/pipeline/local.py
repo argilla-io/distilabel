@@ -50,7 +50,7 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
 
 
 # We create a custom `Pool` class so the created processes are not daemons, allowing
-# them to created child processes if necessary (for example when using `vLLM` with `tensor_parallel_size`)
+# them to create child processes if necessary (for example when using `vLLM` with `tensor_parallel_size`)
 # https://stackoverflow.com/questions/6974695/python-process-pool-non-daemonic
 class _NoDaemonProcess(mp.Process):
     @property
