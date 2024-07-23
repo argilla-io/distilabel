@@ -5761,7 +5761,7 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-516"><a id="__codelineno-0-516" name="__codelineno-0-516"></a><span class="sd">            input: a single input in chat format to generate responses for.</span>
 </span><span id="__span-0-517"><a id="__codelineno-0-517" name="__codelineno-0-517"></a><span class="sd">            max_new_tokens: the maximum number of new tokens that the model will generate.</span>
 </span><span id="__span-0-518"><a id="__codelineno-0-518" name="__codelineno-0-518"></a><span class="sd">                Defaults to `128`.</span>
-</span><span id="__span-0-519"><a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">            frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize</span>
+</span><span id="__span-0-519"><a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">            frequency_penalty: a value between `-2.0` and `2.0`. Positive values penalize</span>
 </span><span id="__span-0-520"><a id="__codelineno-0-520" name="__codelineno-0-520"></a><span class="sd">                new tokens based on their existing frequency in the text so far, decreasing</span>
 </span><span id="__span-0-521"><a id="__codelineno-0-521" name="__codelineno-0-521"></a><span class="sd">                model&#39;s likelihood to repeat the same line verbatim. Defauls to `None`.</span>
 </span><span id="__span-0-522"><a id="__codelineno-0-522" name="__codelineno-0-522"></a><span class="sd">            logit_bias: modify the likelihood of specified tokens appearing in the completion.</span>
@@ -5790,8 +5790,8 @@ output = llm.generate(inputs=[[{&quot;role&quot;: &quot;user&quot;, &quot;conten
 </span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a><span class="sd">                only if `tokenizer_id` is `None`. Defaults to `None`.</span>
 </span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a><span class="sd">            top_p: the top-p value to use for the generation. Defaults to `1.0`.</span>
 </span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a><span class="sd">            do_sample: whether to use sampling for the generation. This argument is exclusive</span>
-</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a><span class="sd">            of the `text_generation` method and will be only used if `tokenizer_id` is not</span>
-</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a><span class="sd">            `None`. Defaults to `False`.</span>
+</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a><span class="sd">                of the `text_generation` method and will be only used if `tokenizer_id` is not</span>
+</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a><span class="sd">                `None`. Defaults to `False`.</span>
 </span><span id="__span-0-550"><a id="__codelineno-0-550" name="__codelineno-0-550"></a><span class="sd">            repetition_penalty: the repetition penalty to use for the generation. This argument</span>
 </span><span id="__span-0-551"><a id="__codelineno-0-551" name="__codelineno-0-551"></a><span class="sd">                is exclusive of the `text_generation` method and will be only used if `tokenizer_id`</span>
 </span><span id="__span-0-552"><a id="__codelineno-0-552" name="__codelineno-0-552"></a><span class="sd">                is not `None`. Defaults to `None`.</span>
@@ -5949,8 +5949,9 @@ Defaults to <code>128</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>frequence_penalty</code></td>
+            <td><code>frequency_penalty</code></td>
             <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="typing_extensions.Annotated">Annotated</span>[float, <span title="pydantic.Field">Field</span>(ge=-2.0, le=2.0)]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5960,7 +5961,7 @@ model's likelihood to repeat the same line verbatim. Defauls to <code>None</code
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -6112,7 +6113,9 @@ only if <code>tokenizer_id</code> is <code>None</code>. Defaults to <code>None</
             </td>
             <td>
               <div class="doc-md-description">
-                <p>whether to use sampling for the generation. This argument is exclusive</p>
+                <p>whether to use sampling for the generation. This argument is exclusive
+of the <code>text_generation</code> method and will be only used if <code>tokenizer_id</code> is not
+<code>None</code>. Defaults to <code>False</code>.</p>
               </div>
             </td>
             <td>
@@ -6381,7 +6384,7 @@ is not <code>None</code>. Defaults to <code>None</code>.</p>
 </span><span id="__span-0-516"><a id="__codelineno-0-516" name="__codelineno-0-516"></a><span class="sd">        input: a single input in chat format to generate responses for.</span>
 </span><span id="__span-0-517"><a id="__codelineno-0-517" name="__codelineno-0-517"></a><span class="sd">        max_new_tokens: the maximum number of new tokens that the model will generate.</span>
 </span><span id="__span-0-518"><a id="__codelineno-0-518" name="__codelineno-0-518"></a><span class="sd">            Defaults to `128`.</span>
-</span><span id="__span-0-519"><a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">        frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize</span>
+</span><span id="__span-0-519"><a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">        frequency_penalty: a value between `-2.0` and `2.0`. Positive values penalize</span>
 </span><span id="__span-0-520"><a id="__codelineno-0-520" name="__codelineno-0-520"></a><span class="sd">            new tokens based on their existing frequency in the text so far, decreasing</span>
 </span><span id="__span-0-521"><a id="__codelineno-0-521" name="__codelineno-0-521"></a><span class="sd">            model&#39;s likelihood to repeat the same line verbatim. Defauls to `None`.</span>
 </span><span id="__span-0-522"><a id="__codelineno-0-522" name="__codelineno-0-522"></a><span class="sd">        logit_bias: modify the likelihood of specified tokens appearing in the completion.</span>
@@ -6410,8 +6413,8 @@ is not <code>None</code>. Defaults to <code>None</code>.</p>
 </span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a><span class="sd">            only if `tokenizer_id` is `None`. Defaults to `None`.</span>
 </span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a><span class="sd">        top_p: the top-p value to use for the generation. Defaults to `1.0`.</span>
 </span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a><span class="sd">        do_sample: whether to use sampling for the generation. This argument is exclusive</span>
-</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a><span class="sd">        of the `text_generation` method and will be only used if `tokenizer_id` is not</span>
-</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a><span class="sd">        `None`. Defaults to `False`.</span>
+</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a><span class="sd">            of the `text_generation` method and will be only used if `tokenizer_id` is not</span>
+</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a><span class="sd">            `None`. Defaults to `False`.</span>
 </span><span id="__span-0-550"><a id="__codelineno-0-550" name="__codelineno-0-550"></a><span class="sd">        repetition_penalty: the repetition penalty to use for the generation. This argument</span>
 </span><span id="__span-0-551"><a id="__codelineno-0-551" name="__codelineno-0-551"></a><span class="sd">            is exclusive of the `text_generation` method and will be only used if `tokenizer_id`</span>
 </span><span id="__span-0-552"><a id="__codelineno-0-552" name="__codelineno-0-552"></a><span class="sd">            is not `None`. Defaults to `None`.</span>
