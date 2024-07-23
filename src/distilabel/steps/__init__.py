@@ -42,6 +42,7 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
+from distilabel.steps.generators.util import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
@@ -72,4 +73,5 @@ __all__ = [
     "GeneratorStepOutput",
     "StepOutput",
     "step",
+    "make_generator_step",
 ]
