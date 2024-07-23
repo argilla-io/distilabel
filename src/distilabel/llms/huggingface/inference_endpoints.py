@@ -252,8 +252,10 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             self.api_key = SecretStr(get_hf_token(self.__class__.__name__, "api_key"))
 
         if self.model_id is not None:
-            client = InferenceClient()
-            status = client.get_model_status(self.model_id)
+            client = InferenceClient(
+                model=self.model_id, token=self.api_key.get_secret_value()
+            )
+            status = client.get_model_status()
 
             if (
                 status.state not in {"Loadable", "Loaded"}
