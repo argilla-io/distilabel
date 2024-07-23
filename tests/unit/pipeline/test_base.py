@@ -1155,7 +1155,9 @@ class TestBasePipeline:
 
         random.seed(42)
         with DummyPipeline() as pipeline:
-            assert pipeline.name == "pipeline_b4e126e6"
+            name = pipeline.name
+            assert name.startswith("pipeline")
+            assert len(name.split("_")[-1]) == 8
 
 
 class TestPipelineSerialization:

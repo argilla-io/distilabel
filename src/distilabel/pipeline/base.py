@@ -179,7 +179,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
-        self.name = name or str(uuid.uuid4())[:8]
+        self.name = name or f"pipeline_{str(uuid.uuid4())[:8]}"
         self.description = description
         self._enable_metadata = enable_metadata
         self.dag = DAG()
