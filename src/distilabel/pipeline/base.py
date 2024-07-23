@@ -15,11 +15,10 @@
 import hashlib
 import logging
 import os
-import random
 import signal
-import string
 import threading
 import time
+import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -124,17 +123,6 @@ _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
 
-def generate_random_name(num_chars: int = 8) -> str:
-    """Helper function to generate a random name for a pipeline by default.
-
-    Returns:
-        Random name for a pipeline.
-    """
-    return "pipeline_" + "".join(
-        random.choice(string.ascii_letters + string.digits) for _ in range(num_chars)
-    )
-
-
 class BasePipeline(ABC, RequirementsMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
 
@@ -191,7 +179,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
-        self.name = name or generate_random_name()
+        self.name = name or str(uuid.uuid4())[:8]
         self.description = description
         self._enable_metadata = enable_metadata
         self.dag = DAG()

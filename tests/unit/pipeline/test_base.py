@@ -1155,7 +1155,7 @@ class TestBasePipeline:
 
         random.seed(42)
         with DummyPipeline() as pipeline:
-            assert pipeline.name == "pipeline_OhbVrpoi"
+            assert pipeline.name == "pipeline_b4e126e6"
 
 
 class TestPipelineSerialization:
