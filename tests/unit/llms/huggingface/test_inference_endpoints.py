@@ -67,14 +67,12 @@ class TestInferenceEndpointsLLM:
         llm = InferenceEndpointsLLM(base_url="http://localhost:8000")
 
         # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
-        with (
-            mock.patch("pathlib.Path.exists", return_value=True),
-            mock.patch(
+        with mock.patch("pathlib.Path.exists", return_value=True):
+            with mock.patch(
                 "builtins.open", new_callable=mock.mock_open, read_data="hf_token"
-            ),
-        ):
-            # Should not raise any errors
-            llm.load()
+            ):
+                # Should not raise any errors
+                llm.load()
 
     def test_serverless_inference_endpoints_llm(
         self, mock_inference_client: MagicMock
