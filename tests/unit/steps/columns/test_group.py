@@ -21,15 +21,15 @@ from distilabel.steps.columns.group import CombineColumns, GroupColumns
 class TestGroupColumns:
     def test_init(self) -> None:
         task = GroupColumns(
-            name="combine-columns",
+            name="group-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         assert task.inputs == ["a", "b"]
-        assert task.outputs == ["merged_a", "merged_b"]
+        assert task.outputs == ["grouped_a", "grouped_b"]
 
         task = GroupColumns(
-            name="combine-columns",
+            name="group-columns",
             columns=["a", "b"],
             output_columns=["c", "d"],
             pipeline=Pipeline(name="unit-test-pipeline"),
@@ -38,13 +38,13 @@ class TestGroupColumns:
         assert task.outputs == ["c", "d"]
 
     def test_process(self) -> None:
-        combine = GroupColumns(
-            name="combine-columns",
+        group = GroupColumns(
+            name="group-columns",
             columns=["a", "b"],
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
-        output = next(combine.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
-        assert output == [{"merged_a": [1, 3], "merged_b": [2, 4]}]
+        output = next(group.process([{"a": 1, "b": 2}], [{"a": 3, "b": 4}]))
+        assert output == [{"grouped_a": [1, 3], "grouped_b": [2, 4]}]
 
 
 def test_CombineColumns_deprecation_warning():
