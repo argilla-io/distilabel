@@ -516,7 +516,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             input: a single input in chat format to generate responses for.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
+            frequency_penalty: a value between `-2.0` and `2.0`. Positive values penalize
                 new tokens based on their existing frequency in the text so far, decreasing
                 model's likelihood to repeat the same line verbatim. Defauls to `None`.
             logit_bias: modify the likelihood of specified tokens appearing in the completion.
@@ -545,8 +545,8 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 only if `tokenizer_id` is `None`. Defaults to `None`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             do_sample: whether to use sampling for the generation. This argument is exclusive
-            of the `text_generation` method and will be only used if `tokenizer_id` is not
-            `None`. Defaults to `False`.
+                of the `text_generation` method and will be only used if `tokenizer_id` is not
+                `None`. Defaults to `False`.
             repetition_penalty: the repetition penalty to use for the generation. This argument
                 is exclusive of the `text_generation` method and will be only used if `tokenizer_id`
                 is not `None`. Defaults to `None`.
