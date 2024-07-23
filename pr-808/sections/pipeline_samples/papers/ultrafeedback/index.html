@@ -4472,7 +4472,7 @@
 </span><span id="__span-2-64"><a id="__codelineno-2-64" name="__codelineno-2-64" href="#__codelineno-2-64"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>Finally, we can optionally push the generated dataset, named <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>, to the Hugging Face Hub via the <code>push_to_hub</code> method, so that each subset generated in the leaf steps is pushed to the Hub.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">dataset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;ultrafeedback-instruction-dataset&quot;</span><span class="p">,</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">)</span>
