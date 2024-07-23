@@ -238,7 +238,7 @@ class TestInferenceEndpointsLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...")]
+        ) == [(" Aenean hendrerit aliquam velit. ...",)]
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
