@@ -76,14 +76,14 @@ graph TD
 ```python
 from distilabel.steps import GroupColumns
 
-combine_columns = GroupColumns(
-    name="combine_columns",
+group_columns = GroupColumns(
+    name="group_columns",
     columns=["generation", "model_name"],
 )
-combine_columns.load()
+group_columns.load()
 
 result = next(
-    combine_columns.process(
+    group_columns.process(
         [{"generation": "AI generated text"}, {"model_name": "my_model"}],
         [{"generation": "Other generated text", "model_name": "my_model"}]
     )
@@ -96,15 +96,15 @@ result = next(
 ```python
 from distilabel.steps import GroupColumns
 
-combine_columns = GroupColumns(
-    name="combine_columns",
+group_columns = GroupColumns(
+    name="group_columns",
     columns=["generation", "model_name"],
     output_columns=["generations", "generation_models"]
 )
-combine_columns.load()
+group_columns.load()
 
 result = next(
-    combine_columns.process(
+    group_columns.process(
         [{"generation": "AI generated text"}, {"model_name": "my_model"}],
         [{"generation": "Other generated text", "model_name": "my_model"}]
     )

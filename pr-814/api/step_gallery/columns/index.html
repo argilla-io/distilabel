@@ -5966,14 +5966,14 @@ which will override the default value for the properties <code>inputs</code> and
 ```python
 from distilabel.steps import GroupColumns
 
-combine_columns = GroupColumns(
-    name=&quot;combine_columns&quot;,
+group_columns = GroupColumns(
+    name=&quot;group_columns&quot;,
     columns=[&quot;generation&quot;, &quot;model_name&quot;],
 )
-combine_columns.load()
+group_columns.load()
 
 result = next(
-    combine_columns.process(
+    group_columns.process(
         [{&quot;generation&quot;: &quot;AI generated text&quot;}, {&quot;model_name&quot;: &quot;my_model&quot;}],
         [{&quot;generation&quot;: &quot;Other generated text&quot;, &quot;model_name&quot;: &quot;my_model&quot;}]
     )
@@ -5987,15 +5987,15 @@ Specify the name of the output columns:
 ```python
 from distilabel.steps import GroupColumns
 
-combine_columns = GroupColumns(
-    name=&quot;combine_columns&quot;,
+group_columns = GroupColumns(
+    name=&quot;group_columns&quot;,
     columns=[&quot;generation&quot;, &quot;model_name&quot;],
     output_columns=[&quot;generations&quot;, &quot;generation_models&quot;]
 )
-combine_columns.load()
+group_columns.load()
 
 result = next(
-    combine_columns.process(
+    group_columns.process(
         [{&quot;generation&quot;: &quot;AI generated text&quot;}, {&quot;model_name&quot;: &quot;my_model&quot;}],
         [{&quot;generation&quot;: &quot;Other generated text&quot;, &quot;model_name&quot;: &quot;my_model&quot;}]
     )
@@ -6130,14 +6130,14 @@ result = next(
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">        ```python</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">        from distilabel.steps import GroupColumns</span>
 </span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52"></a>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        combine_columns = GroupColumns(</span>
-</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">            name=&quot;combine_columns&quot;,</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        group_columns = GroupColumns(</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">            name=&quot;group_columns&quot;,</span>
 </span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">            columns=[&quot;generation&quot;, &quot;model_name&quot;],</span>
 </span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">        )</span>
-</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        combine_columns.load()</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        group_columns.load()</span>
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>
 </span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        result = next(</span>
-</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">            combine_columns.process(</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">            group_columns.process(</span>
 </span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">                [{&quot;generation&quot;: &quot;AI generated text&quot;}, {&quot;model_name&quot;: &quot;my_model&quot;}],</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">                [{&quot;generation&quot;: &quot;Other generated text&quot;, &quot;model_name&quot;: &quot;my_model&quot;}]</span>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">            )</span>
@@ -6151,15 +6151,15 @@ result = next(
 </span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">        ```python</span>
 </span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">        from distilabel.steps import GroupColumns</span>
 </span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a>
-</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        combine_columns = GroupColumns(</span>
-</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">            name=&quot;combine_columns&quot;,</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        group_columns = GroupColumns(</span>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">            name=&quot;group_columns&quot;,</span>
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">            columns=[&quot;generation&quot;, &quot;model_name&quot;],</span>
 </span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">            output_columns=[&quot;generations&quot;, &quot;generation_models&quot;]</span>
 </span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        )</span>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        combine_columns.load()</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        group_columns.load()</span>
 </span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>
 </span><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">        result = next(</span>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">            combine_columns.process(</span>
+</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">            group_columns.process(</span>
 </span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">                [{&quot;generation&quot;: &quot;AI generated text&quot;}, {&quot;model_name&quot;: &quot;my_model&quot;}],</span>
 </span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">                [{&quot;generation&quot;: &quot;Other generated text&quot;, &quot;model_name&quot;: &quot;my_model&quot;}]</span>
 </span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">            )</span>
@@ -6180,11 +6180,11 @@ result = next(
 </span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a>    <span class="nd">@property</span>
 </span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The outputs for the task are the column names in `output_columns` or</span>
-</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        `merged_{column}` for each column in `columns`.&quot;&quot;&quot;</span>
+</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        `grouped_{column}` for each column in `columns`.&quot;&quot;&quot;</span>
 </span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a>        <span class="k">return</span> <span class="p">(</span>
 </span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span>
 </span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>            <span class="k">else</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;merged_</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>            <span class="k">else</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;grouped_</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
 </span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="p">)</span>
 </span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>
 </span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="nd">@override</span>
@@ -6253,7 +6253,7 @@ result = next(
     <div class="doc doc-contents ">
 
       <p>The outputs for the task are the column names in <code>output_columns</code> or
-<code>merged_{column}</code> for each column in <code>columns</code>.</p>
+<code>grouped_{column}</code> for each column in <code>columns</code>.</p>
     </div>
 
 </div>
