@@ -1220,6 +1220,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#vllm-and-tensor_parallel_size" class="md-nav__link">
+    <span class="md-ellipsis">
+      vLLM and tensor_parallel_size
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4259,6 +4268,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#vllm-and-tensor_parallel_size" class="md-nav__link">
+    <span class="md-ellipsis">
+      vLLM and tensor_parallel_size
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4458,6 +4476,30 @@ that we will submit to the Ray cluster:</p>
 <li>We just want to run a task per node i.e. the Ray command that starts the head/worker node.</li>
 <li>We have selected 1 GPU per node, but we could have selected more depending on the pipeline.</li>
 </ol>
+<h2 id="vllm-and-tensor_parallel_size"><code>vLLM</code> and <code>tensor_parallel_size</code><a class="headerlink" href="#vllm-and-tensor_parallel_size" title="Permanent link">&para;</a></h2>
+<p>In order to use <code>vLLM</code> multi-GPU and multi-node capabilities with <code>ray</code>, we need to do a few changes in the example pipeline from above. The first change needed is to specify a value for <code>tensor_parallel_size</code> aka "In how many GPUs do I want you to load the model", and the second one is to define <code>ray</code> as the <code>distributed_executor_backend</code> as the default one in <code>vLLM</code> is to use <code>multiprocessing</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;text-generation-ray-pipeline&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">load_data_from_hub</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;instruction&quot;</span><span class="p">})</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">vLLM</span><span class="p">(</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>            <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="n">extra_kwargs</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                <span class="s2">&quot;tensor_parallel_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>                <span class="s2">&quot;distributed_executor_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;ray&quot;</span><span class="p">,</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>            <span class="p">}</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="p">)</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="p">)</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="n">load_data_from_hub</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
+</span></code></pre></div>
+<p>Finally, we need to define two environment variables in our <code>runtime_env.yaml</code> file:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">env_vars</span><span class="p">:</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">VLLM_USE_RAY_COMPILED_DAG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">VLLM_USE_RAY_SPMD_WORKER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+</span></code></pre></div>
+<p>More information about distributed inference with <code>vLLM</code> can be found here: <a href="https://docs.vllm.ai/en/latest/serving/distributed_serving.html">vLLM - Distributed Serving</a></p>
 
 
 
