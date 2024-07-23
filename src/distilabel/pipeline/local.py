@@ -15,7 +15,8 @@
 import multiprocessing as mp
 import signal
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union, cast
+from multiprocessing.pool import Pool
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union, cast
 
 import tblib
 
@@ -46,6 +47,40 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
     """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(log_queue)
+
+
+# We create a custom `Pool` class so the created processes are not daemons, allowing
+# them to create child processes if necessary (for example when using `vLLM` with `tensor_parallel_size`)
+# https://stackoverflow.com/questions/6974695/python-process-pool-non-daemonic
+class _NoDaemonProcess(mp.Process):
+    @property
+    def daemon(self) -> bool:
+        return False
+
+    @daemon.setter
+    def daemon(self, value: bool) -> None:  # type: ignore
+        pass
+
+
+class _NoDaemonContext(type(mp.get_context())):
+    Process = _NoDaemonProcess
+
+
+class _NoDaemonPool(Pool):
+    def __init__(
+        self,
+        processes: Union[int, None] = None,
+        initializer: Union[Callable[..., object], None] = None,
+        initargs: Iterable[Any] = ...,  # type: ignore
+        maxtasksperchild: Union[int, None] = None,
+    ) -> None:
+        super().__init__(
+            processes=processes,
+            initializer=initializer,
+            initargs=initargs,
+            maxtasksperchild=maxtasksperchild,
+            context=_NoDaemonContext(),  # type: ignore
+        )
 
 
 class Pipeline(BasePipeline):
@@ -133,10 +168,9 @@ class Pipeline(BasePipeline):
             return distiset
 
         num_processes = self.dag.get_total_replica_count()
-        ctx = mp.get_context()  # type: ignore
         with (
-            ctx.Manager() as manager,
-            ctx.Pool(
+            mp.Manager() as manager,
+            _NoDaemonPool(
                 num_processes,
                 initializer=_init_worker,
                 initargs=(self._log_queue,),
