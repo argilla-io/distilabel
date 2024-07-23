@@ -130,6 +130,9 @@ class LoadDataFromHub(GeneratorStep):
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         super().load()
+        if self._dataset is not None:
+            # Here to simplify the functionality of distilabel.steps.generators.util.make_generator_step
+            return
 
         self._dataset = load_dataset(
             self.repo_id,  # type: ignore
