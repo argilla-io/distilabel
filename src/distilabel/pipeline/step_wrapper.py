@@ -62,13 +62,24 @@ class _StepWrapper:
         self.load_queue = load_queue
         self._dry_run = dry_run
 
+        self._init_cuda_device_placement()
+
+    def _init_cuda_device_placement(self) -> None:
+        """Sets the LLM identifier and the number of desired GPUs of the `CudaDevicePlacementMixin`
+        if the step is a `_Task` that uses an `LLM` with CUDA capabilities."""
         if (
             isinstance(self.step, _Task)
             and hasattr(self.step, "llm")
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
+            desired_num_gpus = self.step.resources.gpus or 1
+            self.step._logger.info(
+                f"Step '{self.step.name}' is a `Task` using an `LLM` with CUDA capabilities."
+                f" Setting identifier to '{self.step.name}' and number of desired GPUs to"
+                f" {desired_num_gpus}."
+            )
             self.step.llm._llm_identifier = self.step.name
-            self.step.llm._desired_num_gpus = self.step.resources.gpus or 1
+            self.step.llm._desired_num_gpus = desired_num_gpus
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle
