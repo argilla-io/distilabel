@@ -35,9 +35,10 @@ def make_generator_step(
     Args:
         dataset: The dataset to use in the `Pipeline`.
         batch_size: The batch_size, will default to the same used by the `GeneratorStep`s.
-        input_mappings: Applies the same as any other step.
-        output_mappings: Applies the same as any other step.
-        resources: Applies the same as any other step.
+            Defaults to `50`.
+        input_mappings: Applies the same as any other step. Defaults to `None`.
+        output_mappings: Applies the same as any other step. Defaults to `None`.
+        resources: Applies the same as any other step. Defaults to `StepResources()`.
 
     Raises:
         ValueError: If the format is different from the ones supported.
