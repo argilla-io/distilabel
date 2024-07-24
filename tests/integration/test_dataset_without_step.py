@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union
 
 import pandas as pd
 import pytest
@@ -21,6 +21,9 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import make_generator_step
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.typing import StepOutput
+
+if TYPE_CHECKING:
+    pass
 
 
 class DummyStep(Step):
@@ -44,7 +47,7 @@ data = [{"instruction": "Tell me a joke."}] * 10
 @pytest.mark.parametrize("dataset", (data, Dataset.from_list(data), pd.DataFrame(data)))
 def test_pipeline_with_dataset_from_function(
     dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
-):
+) -> None:
     with Pipeline(name="pipe-nothing") as pipeline:
         load_dataset = make_generator_step(dataset)
         if isinstance(dataset, (pd.DataFrame, Dataset)):
@@ -55,6 +58,19 @@ def test_pipeline_with_dataset_from_function(
 
     distiset = pipeline.run(use_cache=False)
     assert len(distiset["default"]["train"]) == 10
+
+
+@pytest.mark.parametrize("dataset", (data, Dataset.from_list(data), pd.DataFrame(data)))
+def test_pipeline_run_without_generator_step(
+    dataset: Union[Dataset, pd.DataFrame, List[Dict[str, str]]],
+) -> None:
+    with Pipeline(name="pipe-nothing") as pipeline:
+        DummyStep()
+        assert len(pipeline.dag) == 1
+
+    distiset = pipeline.run(use_cache=False, dataset=dataset)
+    assert len(distiset["default"]["train"]) == 10
+    assert len(pipeline.dag) == 2
 
 
 if __name__ == "__main__":
