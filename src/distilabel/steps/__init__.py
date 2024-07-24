@@ -67,11 +67,11 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "make_generator_step",
     "PushToHub",
     "Step",
     "StepInput",
     "GeneratorStepOutput",
     "StepOutput",
     "step",
-    "make_generator_step",
 ]
