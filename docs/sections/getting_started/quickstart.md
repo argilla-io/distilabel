@@ -73,7 +73,7 @@ if __name__ == "__main__":
 `Distilabel` gives a lot of flexibility to create your pipelines, but to start right away, you can omit a lot of the details and let default values:
 
 ```python
-from distilabel.llms import OpenAILLM
+from distilabel.llms import InferenceEndpointsLLM
 from distilabel.pipeline import Pipeline
 from distilabel.steps.tasks import TextGeneration
 from datasets import load_dataset
@@ -82,7 +82,7 @@ from datasets import load_dataset
 dataset = load_dataset("distilabel-internal-testing/instruction-dataset-mini", split="test")
 
 with Pipeline() as pipeline:  # (1)
-    TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))  # (2)
+    TextGeneration(llm=InferenceEndpointsLLM(model_id="meta-llama/Meta-Llama-3.1-8B-Instruct"))  # (2)
 
 
 if __name__ == "__main__":    
