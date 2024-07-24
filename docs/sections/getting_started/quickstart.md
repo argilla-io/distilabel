@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
 ## Minimal example
 
-`Distilabel` gives a lot of flexibility to create your pipelines, but to start right away, you can omit a lot of the details and let default values:
+`distilabel` gives a lot of flexibility to create your pipelines, but to start right away, you can omit a lot of the details and let default values:
 
 ```python
 from distilabel.llms import InferenceEndpointsLLM
