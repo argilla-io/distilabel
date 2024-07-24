@@ -321,7 +321,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 pass the data. Defaults to `False`.
             dataset: If given, it will be used to create a `GeneratorStep` and put it as the
                 root step. Convenient method when you have already processed the dataset in
-                your script and just want to pass it already processed.
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
