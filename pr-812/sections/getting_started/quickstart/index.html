@@ -536,6 +536,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Quickstart
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -545,6 +556,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimal example
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -4117,6 +4156,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimal example
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -4205,6 +4261,35 @@
 </li>
 <li>
 <p>Optionally, we can push the generated <a class="autorefs autorefs-internal" href="../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> to the Hugging Face Hub repository <code>distilabel-example</code>. This will allow you to share the generated dataset with others and use it in other pipelines.</p>
+</li>
+</ol>
+<h2 id="minimal-example">Minimal example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>
+<p><code>Distilabel</code> gives a lot of flexibility to create your pipelines, but to start right away, you can omit a lot of the details and let default values:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;distilabel-internal-testing/instruction-dataset-mini&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>  <span class="c1"># (1)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">TextGeneration</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAILLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">))</span>  <span class="c1"># (2)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>    
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>  <span class="c1"># (3)</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;distilabel-example&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<ol>
+<li>
+<p>The <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> can take no arguments and generate a default name on it's own that will be tracked internally.</p>
+</li>
+<li>
+<p>Just as with the <a class="autorefs autorefs-internal" href="../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a>, the <a class="autorefs autorefs-internal" href="../../../api/step/#distilabel.steps.base.Step"><code>Step</code></a>s don't explicitly need a name.</p>
+</li>
+<li>
+<p>You can generate the dataset as you would normally do with Hugging Face and pass the dataset to the run method.</p>
 </li>
 </ol>
 
