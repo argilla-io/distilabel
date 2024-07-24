@@ -57,10 +57,10 @@ def make_generator_step(
             output_mappings=output_mappings or {},
             resources=resources,
         )
-        
+
     if isinstance(dataset, pd.DataFrame):
         dataset = Dataset.from_pandas(dataset, preserve_index=False)
-        
+
     if not isinstance(dataset, Dataset):
         raise ValueError(
             f"Dataset type not allowed: {type(dataset)}, must be one of: "
