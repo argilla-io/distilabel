@@ -1234,11 +1234,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         Args:
             step_name: the name of the `GeneratorStep` to which a batch has to be requested.
         """
-
         # Get the last batch that the previous step sent to generate the next batch
         # (next `seq_no`).
         last_batch = self._batch_manager.get_last_batch_sent(step_name)  # type: ignore
-        print("LAST BATCH", last_batch)
         if last_batch is None:
             return
         self._send_batch_to_step(last_batch.next_batch())
