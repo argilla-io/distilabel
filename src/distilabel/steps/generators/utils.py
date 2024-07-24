@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 import pandas as pd
 from datasets import Dataset
 
-from distilabel.steps import GeneratorStep, LoadDataFromDicts, LoadDataFromHub
 from distilabel.steps.base import StepResources
+
+if TYPE_CHECKING:
+    from distilabel.steps import GeneratorStep
 
 
 def make_generator_step(
@@ -27,7 +29,7 @@ def make_generator_step(
     input_mappings: Optional[Dict[str, str]] = None,
     output_mappings: Optional[Dict[str, str]] = None,
     resources: StepResources = StepResources(),
-) -> GeneratorStep:
+) -> "GeneratorStep":
     """Helper method to create a `GeneratorStep` from a dataset, to simplify
 
     Args:
@@ -44,6 +46,8 @@ def make_generator_step(
         A `LoadDataFromDicts` if the input is a list of dicts, or `LoadDataFromHub` instance
         if the input is a `pd.DataFrame` or a `Dataset`.
     """
+    from distilabel.steps import LoadDataFromDicts, LoadDataFromHub
+
     if isinstance(dataset, list):
         return LoadDataFromDicts(
             data=dataset,
