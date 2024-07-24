@@ -73,11 +73,6 @@ class _StepWrapper:
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
             desired_num_gpus = self.step.resources.gpus or 1
-            self.step._logger.info(
-                f"Step '{self.step.name}' is a `Task` using an `LLM` with CUDA capabilities."
-                f" Setting identifier to '{self.step.name}' and number of desired GPUs to"
-                f" {desired_num_gpus}."
-            )
             self.step.llm._llm_identifier = self.step.name
             self.step.llm._desired_num_gpus = desired_num_gpus
 
