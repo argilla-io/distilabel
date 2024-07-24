@@ -337,18 +337,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
+
         if dataset is not None:
-            # If a dataset was passed, create a generator step and add it as root.
-            # It can be done only if there isn't already a GeneratorStep in the DAG.
-            for step_name in self.dag:
-                step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
-                if isinstance(step_name, GeneratorStep):
-                    raise ValueError(
-                        "There is already a `GeneratorStep` in the pipeline, you can either pass a `dataset` to the "
-                        f"run method, or create a `GeneratorStep` explictly. `GeneratorStep`: {step}"
-                    )
-            loader = make_generator_step(dataset)
-            self.dag.add_root_step(loader)
+            self._add_dataset_generator_step(dataset)
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
@@ -432,6 +423,27 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._dry_run = False
         return distiset
+
+    def _add_dataset_generator_step(self, dataset: "InputDataset") -> None:
+        """Create a root step to work as the `GeneratorStep` for the pipeline using a
+        dataset.
+
+        Args:
+            dataset: A dataset that will be used to create a `GeneratorStep` and
+                placed in the DAG as the root step.
+
+        Raises:
+            ValueError: If there's already a `GeneratorStep` in the pipeline.
+        """
+        for step_name in self.dag:
+            step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if isinstance(step_name, GeneratorStep):
+                raise ValueError(
+                    "There is already a `GeneratorStep` in the pipeline, you can either pass a `dataset` to the "
+                    f"run method, or create a `GeneratorStep` explictly. `GeneratorStep`: {step}"
+                )
+        loader = make_generator_step(dataset)
+        self.dag.add_root_step(loader)
 
     def get_runtime_parameters_info(self) -> "PipelineRuntimeParametersInfo":
         """Get the runtime parameters for the steps in the pipeline.
