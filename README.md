@@ -36,7 +36,7 @@ If you just want to get started, we recommend you check the [documentation](http
 
 ## Why use distilabel?
 
-Distilabel can be used for generating synthetic data and AI feedback for a wide variety of projects including traditional predictive NLP (classification, extraction, etc.), or generative and large language model scenarios (instruction following, dialogue generation, judging etc.). Distilabel's programmatic approach allows you to build scalable pipelines data generation and AI feedback. The goal of distilabel is to accelerate your AI development by quickly generating high-quality, diverse datasets based on verified research methodologies for generating and judging with AI feedback.
+Distilabel can be used for generating synthetic data and AI feedback for a wide variety of projects including traditional predictive NLP (classification, extraction, etc.), or generative and large language model scenarios (instruction following, dialogue generation, judging etc.). Distilabel's programmatic approach allows you to build scalable pipelines for data generation and AI feedback. The goal of distilabel is to accelerate your AI development by quickly generating high-quality, diverse datasets based on verified research methodologies for generating and judging with AI feedback.
 
 ### Improve your AI output quality through data quality
 
@@ -62,11 +62,11 @@ We are an open-source community-driven project and we love to hear from you. Her
 
 ## What do people build with Distilabel?
 
-The Argilla community uses distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel). Additonally, Argilla contributed to open-source too:
+The Argilla community uses distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel).
 
-- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences that have been generated using the [teknium/OpenHermes-2.5](https://huggingface.co/datasets/teknium/OpenHermes-2.5) LLM. It is a great example on how you can use distilabel to scale and increase dataset development.
-- [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) used to fine tune the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B). This dataset was built combining Argilla human curation with distilabel, leading to an improved version of the Intel Orca dataset and outperforming models fine tuned on the original dataset.
-- The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) is an example how anyone can create a synthetic dataset for a specific task, which after curation and evaluation can be used for fine-tuning custom LLMs.
+- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences that have been generated using the [teknium/OpenHermes-2.5](https://huggingface.co/datasets/teknium/OpenHermes-2.5) LLM. It is a great example of how you can use distilabel to scale and increase dataset development.
+- [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) used to fine-tune the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B). This dataset was built by combining human curation in Argilla with AI feedback from distilabel, leading to an improved version of the Intel Orca dataset and outperforming models fine-tuned on the original dataset.
+- The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) is an example of how anyone can create a synthetic dataset for a specific task, which after curation and evaluation can be used for fine-tuning custom LLMs.
 
 ## Installation
 
