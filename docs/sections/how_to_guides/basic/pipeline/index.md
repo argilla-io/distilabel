@@ -332,6 +332,54 @@ if __name__ == "__main__":
     distiset.push_to_hub("distilabel-internal-testing/instruction-dataset-mini-with-generations")
 ```
 
+#### Pipeline.run with a dataset
+
+Note that in most cases if you don't need the extra flexibility the [`GeneratorSteps`][distilabel.steps.base.GeneratorStep] bring you, you can create a dataset as you would normally do and pass it to the [Pipeline.run][distilabel.pipeline.base.BasePipeline.run] method directly. Look at the highlighted lines to see the updated lines:
+
+```python hl_lines="11-14 33 38"
+import random
+from distilabel.llms import MistralLLM, OpenAILLM, VertexAILLM
+from distilabel.pipeline import Pipeline, routing_batch_function
+from distilabel.steps import GroupColumns
+from distilabel.steps.tasks import TextGeneration
+
+@routing_batch_function
+def sample_two_steps(steps: list[str]) -> list[str]:
+    return random.sample(steps, 2)
+
+dataset = load_dataset(
+    "distilabel-internal-testing/instruction-dataset-mini",
+    split="test"
+)
+
+with Pipeline("pipe-name", description="My first pipe") as pipeline:
+    tasks = []
+    for llm in (
+        OpenAILLM(model="gpt-4-0125-preview"),
+        MistralLLM(model="mistral-large-2402"),
+        VertexAILLM(model="gemini-1.0-pro"),
+    ):
+        tasks.append(
+            TextGeneration(name=f"text_generation_with_{llm.model_name}", llm=llm)
+        )
+
+    combine_generations = GroupColumns(
+        name="combine_generations",
+        columns=["generation", "model_name"],
+        output_columns=["generations", "model_names"],
+    )
+
+    sample_two_steps >> tasks >> combine_generations
+
+
+if __name__ == "__main__":
+    distiset = pipeline.run(
+        dataset=dataset,
+        parameters=...
+    )
+```
+
+
 ### Stopping the pipeline
 
 In case you want to stop the pipeline while it's running, you can press ++ctrl+c++ or ++cmd+c++ depending on your OS (or send a `SIGINT` to the main process), and the outputs will be stored in the cache. Pressing an additional time will force the pipeline to stop its execution, but this can lead to losing the generated outputs for certain batches.
