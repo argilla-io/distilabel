@@ -21,7 +21,7 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
-from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.base import _Task
 
 
 class _StepWrapper:
@@ -63,7 +63,7 @@ class _StepWrapper:
         self._dry_run = dry_run
 
         if (
-            isinstance(self.step, Task)
+            isinstance(self.step, _Task)
             and hasattr(self.step, "llm")
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
