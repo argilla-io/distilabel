@@ -337,7 +337,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
-        if dataset:
+        if dataset is not None:
             # If a dataset was passed, create a generator step and add it as root.
             # It can be done only if there isn't already a GeneratorStep in the DAG.
             for step_name in self.dag:
