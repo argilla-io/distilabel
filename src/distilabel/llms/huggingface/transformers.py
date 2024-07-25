@@ -44,6 +44,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             (e.g. a branch name or a commit id) to use. Defaults to `"main"`.
         torch_dtype: the torch dtype to use for the model e.g. "float16", "float32", etc.
             Defaults to `"auto"`.
+        trust_remote_code: whether to allow fetching and executing remote code fetched
+            from the repository in the Hub. Defaults to `False`.
         trust_remote_code: whether to trust or not remote (code in the Hugging Face Hub
             repository) code to load the model. Defaults to `False`.
         model_kwargs: additional dictionary of keyword arguments that will be passed to

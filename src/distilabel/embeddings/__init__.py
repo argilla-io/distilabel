@@ -12,3 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distilabel.embeddings.base import Embeddings
+from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+
+__all__ = [
+    "Embeddings",
+    "SentenceTransformerEmbeddings",
+]

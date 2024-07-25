@@ -23,6 +23,19 @@ from distilabel.utils.serialization import _Serializable
 
 
 class Embeddings(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+    """Base class for `Embeddings` models.
+
+    To implement an `Embeddings` subclass, you need to subclass this class and implement:
+        - `load` method to load the `Embeddings` model. Don't forget to call `super().load()`,
+            so the `_logger` attribute is initialized.
+        - `model_name` property to return the model name used for the `Embeddings`.
+        - `encode` method to generate the sentence embeddings.
+
+    Attributes:
+        _logger: the logger to be used for the `Embeddings` model. It will be initialized
+            when the `load` method is called.
+    """
+
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         protected_namespaces=(),
@@ -48,4 +61,12 @@ class Embeddings(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
     @abstractmethod
     def encode(self, inputs: List[str]) -> List[List[Union[int, float]]]:
+        """Generates embeddings for the provided inputs.
+
+        Args:
+            inputs: a list of texts for which an embedding has to be generated.
+
+        Returns:
+            The generated embeddings.
+        """
         pass

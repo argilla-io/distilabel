@@ -27,6 +27,7 @@ from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
+from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -54,6 +55,7 @@ __all__ = [
     "CombineColumns",
     "ConversationTemplate",
     "DeitaFiltering",
+    "EmbeddingGeneration",
     "ExpandColumns",
     "FormatChatGenerationDPO",
     "FormatChatGenerationSFT",
