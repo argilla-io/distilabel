@@ -386,6 +386,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-830/components-gallery/steps/embeddinggeneration/</loc>
+         <lastmod>2024-07-25</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-830/components-gallery/steps/conversationtemplate/</loc>
          <lastmod>2024-07-25</lastmod>
          <changefreq>daily</changefreq>

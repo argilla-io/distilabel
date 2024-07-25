@@ -82,6 +82,14 @@ hide:
 
     [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
+-   :material-step-forward:{ .lg .middle } __EmbeddingGeneration__
+
+    ---
+
+    Generate embeddings using an `Embeddings` model.
+
+    [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
+
 -   :material-step-forward:{ .lg .middle } __ConversationTemplate__
 
     ---
