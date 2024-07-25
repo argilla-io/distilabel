@@ -85,7 +85,8 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Method to be called to initialize the `LLM`, its logger and optionally the structured output generator."""
+        """Method to be called to initialize the `LLM`, its logger and optionally the
+        structured output generator."""
         self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
 
     def unload(self) -> None:
