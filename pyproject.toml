@@ -92,6 +92,9 @@ vllm = [
     "setuptools",
 ]
 
+# minhash
+minhash = ["datasketch >= 1.6.5"]
+
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
 Issues = "https://github.com/argilla/distilabel/issues"
