@@ -50,14 +50,14 @@ class GroupColumns(Step):
         ```python
         from distilabel.steps import GroupColumns
 
-        combine_columns = GroupColumns(
-            name="combine_columns",
+        group_columns = GroupColumns(
+            name="group_columns",
             columns=["generation", "model_name"],
         )
-        combine_columns.load()
+        group_columns.load()
 
         result = next(
-            combine_columns.process(
+            group_columns.process(
                 [{"generation": "AI generated text"}, {"model_name": "my_model"}],
                 [{"generation": "Other generated text", "model_name": "my_model"}]
             )
@@ -71,15 +71,15 @@ class GroupColumns(Step):
         ```python
         from distilabel.steps import GroupColumns
 
-        combine_columns = GroupColumns(
-            name="combine_columns",
+        group_columns = GroupColumns(
+            name="group_columns",
             columns=["generation", "model_name"],
             output_columns=["generations", "generation_models"]
         )
-        combine_columns.load()
+        group_columns.load()
 
         result = next(
-            combine_columns.process(
+            group_columns.process(
                 [{"generation": "AI generated text"}, {"model_name": "my_model"}],
                 [{"generation": "Other generated text", "model_name": "my_model"}]
             )
@@ -100,11 +100,11 @@ class GroupColumns(Step):
     @property
     def outputs(self) -> List[str]:
         """The outputs for the task are the column names in `output_columns` or
-        `merged_{column}` for each column in `columns`."""
+        `grouped_{column}` for each column in `columns`."""
         return (
             self.output_columns
             if self.output_columns is not None
-            else [f"merged_{column}" for column in self.columns]
+            else [f"grouped_{column}" for column in self.columns]
         )
 
     @override
