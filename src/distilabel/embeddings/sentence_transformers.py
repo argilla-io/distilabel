@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import Field, PrivateAttr
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
 
-class SentenceTransformers(Embeddings, CudaDevicePlacementMixin):
+class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
     model: str
     device: Optional[RuntimeParameter[str]] = Field(
         default=None,
@@ -40,6 +40,7 @@ class SentenceTransformers(Embeddings, CudaDevicePlacementMixin):
     model_kwargs: Optional[Dict[str, Any]] = None
     tokenizer_kwargs: Optional[Dict[str, Any]] = None
     config_kwargs: Optional[Dict[str, Any]] = None
+    precision: Optional[Literal["float32", "int8", "uint8", "binary", "ubinary"]] = None
     normalize_embeddings: RuntimeParameter[bool] = Field(
         default=True,
         description="Whether to normalize the embeddings so the generated vectors"
@@ -84,5 +85,6 @@ class SentenceTransformers(Embeddings, CudaDevicePlacementMixin):
             sentences=inputs,
             batch_size=len(inputs),
             convert_to_numpy=True,
+            precision=self.precision,  # type: ignore
             normalize_embeddings=self.normalize_embeddings,  # type: ignore
         ).tolist()  # type: ignore
