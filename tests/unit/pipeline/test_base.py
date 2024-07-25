@@ -1150,6 +1150,15 @@ class TestBasePipeline:
                 gen_step >> step1_0 >> step2
             pipeline.run()
 
+    def test_optional_name(self):
+        import random
+
+        random.seed(42)
+        with DummyPipeline() as pipeline:
+            name = pipeline.name
+            assert name.startswith("pipeline")
+            assert len(name.split("_")[-1]) == 8
+
 
 class TestPipelineSerialization:
     @pytest.mark.parametrize(
