@@ -64,19 +64,21 @@ graph TD
 		subgraph New columns
 			OCOL0[conversation]
 			OCOL1[instruction]
-			OCOL2[model_name]
+			OCOL2[response]
+			OCOL3[model_name]
 		end
 	end
 
 	subgraph Magpie
 		StepInput[Input Columns: system_prompt]
-		StepOutput[Output Columns: conversation, instruction, model_name]
+		StepOutput[Output Columns: conversation, instruction, response, model_name]
 	end
 
 	ICOL0 --> StepInput
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
 	StepOutput --> OCOL2
+	StepOutput --> OCOL3
 	StepInput --> StepOutput
 
 ```
@@ -95,7 +97,9 @@ graph TD
 
 - **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message. Only if `only_instruction=False`.
 
-- **instruction** (`str`): the generated instructions if `only_instruction=True`.
+- **instruction** (`str`): the generated instructions if `only_instruction=True` or `n_turns==1`.
+
+- **response** (`str`): the generated response if `n_turns==1`.
 
 - **model_name** (`str`): The model name used to generate the `conversation` or `instruction`.
 

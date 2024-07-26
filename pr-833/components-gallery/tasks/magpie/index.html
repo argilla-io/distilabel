@@ -4268,19 +4268,21 @@
         subgraph New columns
             OCOL0[conversation]
             OCOL1[instruction]
-            OCOL2[model_name]
+            OCOL2[response]
+            OCOL3[model_name]
         end
     end
 
     subgraph Magpie
         StepInput[Input Columns: system_prompt]
-        StepOutput[Output Columns: conversation, instruction, model_name]
+        StepOutput[Output Columns: conversation, instruction, response, model_name]
     end
 
     ICOL0 --&gt; StepInput
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
     StepOutput --&gt; OCOL2
+    StepOutput --&gt; OCOL3
     StepInput --&gt; StepOutput
 </code></pre>
 <h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
@@ -4293,7 +4295,10 @@
 <p><strong>conversation</strong> (<code>ChatType</code>): the generated conversation which is a list of chat  items with a role and a message. Only if <code>only_instruction=False</code>.</p>
 </li>
 <li>
-<p><strong>instruction</strong> (<code>str</code>): the generated instructions if <code>only_instruction=True</code>.</p>
+<p><strong>instruction</strong> (<code>str</code>): the generated instructions if <code>only_instruction=True</code> or <code>n_turns==1</code>.</p>
+</li>
+<li>
+<p><strong>response</strong> (<code>str</code>): the generated response if <code>n_turns==1</code>.</p>
 </li>
 <li>
 <p><strong>model_name</strong> (<code>str</code>): The model name used to generate the <code>conversation</code> or <code>instruction</code>.</p>
