@@ -74,7 +74,7 @@ _LLM_DETAIL_TEMPLATE = Template(
     ).read()
 )
 
-_TASKS_CATEGORY_TO_ICON = {
+_STEPS_CATEGORY_TO_ICON = {
     "text-generation": ":material-text-box-edit:",
     "evol": ":material-dna:",
     "preference": ":material-poll:",
@@ -82,9 +82,6 @@ _TASKS_CATEGORY_TO_ICON = {
     "scorer": ":octicons-number-16:",
     "embedding": ":material-vector-line:",
     "format": ":material-format-list-bulleted:",
-}
-
-_STEPS_CATEGORY_TO_ICON = {
     "filtering": ":material-filter:",
     "save": ":material-content-save:",
     "load": ":material-file-download:",
@@ -270,7 +267,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             docstring = task["docstring"]
             if docstring["icon"] == "" and docstring["categories"]:
                 first_category = docstring["categories"][0]
-                docstring["icon"] = _TASKS_CATEGORY_TO_ICON.get(first_category, "")
+                docstring["icon"] = _STEPS_CATEGORY_TO_ICON.get(first_category, "")
 
             name = task["name"]
 
