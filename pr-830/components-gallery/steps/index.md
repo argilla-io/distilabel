@@ -18,7 +18,7 @@ hide:
 
     [:octicons-arrow-right-24: DeitaFiltering](deitafiltering.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FaissNearestNeighbour__
+-   :material-vector-line:{ .lg .middle } __FaissNearestNeighbour__
 
     ---
 
@@ -98,7 +98,7 @@ hide:
 
     [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ConversationTemplate__
+-   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 
     ---
 
@@ -106,7 +106,7 @@ hide:
 
     [:octicons-arrow-right-24: ConversationTemplate](conversationtemplate.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatTextGenerationDPO__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatTextGenerationDPO__
 
     ---
 
@@ -114,7 +114,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatTextGenerationDPO](formattextgenerationdpo.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatChatGenerationDPO__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatChatGenerationDPO__
 
     ---
 
@@ -122,7 +122,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatChatGenerationDPO](formatchatgenerationdpo.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatTextGenerationSFT__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatTextGenerationSFT__
 
     ---
 
@@ -130,7 +130,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatTextGenerationSFT](formattextgenerationsft.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatChatGenerationSFT__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatChatGenerationSFT__
 
     ---
 
