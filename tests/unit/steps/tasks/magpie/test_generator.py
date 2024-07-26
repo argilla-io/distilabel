@@ -28,7 +28,15 @@ class TestMagpieGenerator:
             MagpieGenerator(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
     def test_outputs(self) -> None:
-        task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1
+        )
+
+        assert task.outputs == ["instruction", "response", "model_name"]
+
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
+        )
 
         assert task.outputs == ["conversation", "model_name"]
 
@@ -106,7 +114,7 @@ class TestMagpieGenerator:
                 {
                     "name": "system_prompt",
                     "optional": True,
-                    "description": "An optional system prompt that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
+                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
                 },
                 {
                     "name": "resources",
