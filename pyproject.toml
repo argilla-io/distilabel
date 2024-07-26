@@ -91,6 +91,7 @@ vllm = [
     # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
     "setuptools",
 ]
+sentence-transformers = ["sentence-transformers >= 3.0.0"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
