@@ -38,6 +38,7 @@ _SILENT_LOGGERS = [
     "fsspec",
     "asyncio",
     "sentence_transformers.SentenceTransformer",
+    "faiss.loader",
 ]
 
 queue_listener: Union[QueueListener, None] = None
