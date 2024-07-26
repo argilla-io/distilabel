@@ -70,8 +70,45 @@ class FaissNearestNeighbour(GlobalStep):
         - nn_scores (`List[float]`): a list containing the score or distance to each `k`
             nearest neighbour in the inputs.
 
+    Categories:
+        - embedding
+
     References:
         - [`The Faiss library`](https://arxiv.org/abs/2401.08281)
+
+    Examples:
+
+        Generating embeddings and getting the nearest neighbours:
+
+        ```python
+        from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+        from distilabel.pipeline import Pipeline
+        from distilabel.steps import EmbeddingGeneration, FaissNearestNeighbour, LoadDataFromHub
+
+        with Pipeline(name="hello") as pipeline:
+            load_data = LoadDataFromHub(output_mappings={"prompt": "text"})
+
+            embeddings = EmbeddingGeneration(
+                embeddings=SentenceTransformerEmbeddings(
+                    model="mixedbread-ai/mxbai-embed-large-v1"
+                )
+            )
+
+            nearest_neighbours = FaissNearestNeighbour()
+
+            load_data >> embeddings >> nearest_neighbours
+
+        if __name__ == "__main__":
+            distiset = pipeline.run(
+                parameters={
+                    load_data.name: {
+                        "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
+                        "split": "test",
+                    },
+                },
+                use_cache=False,
+            )
+        ```
     """
 
     device: Optional[RuntimeParameter[Union[int, List[int]]]] = Field(
