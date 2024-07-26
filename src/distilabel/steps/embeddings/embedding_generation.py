@@ -66,7 +66,7 @@ class EmbeddingGeneration(Step):
 
     @property
     def outputs(self) -> List[str]:
-        return ["embedding"]
+        return ["embedding", "model_name"]
 
     def load(self) -> None:
         """Loads the `Embeddings` model."""
@@ -78,4 +78,9 @@ class EmbeddingGeneration(Step):
         embeddings = self.embeddings.encode(inputs=[input["text"] for input in inputs])
         for input, embedding in zip(inputs, embeddings):
             input["embedding"] = embedding
+            input["model_name"] = self.embeddings.model_name
         yield inputs
+
+    def unload(self) -> None:
+        super().unload()
+        self.embeddings.unload()

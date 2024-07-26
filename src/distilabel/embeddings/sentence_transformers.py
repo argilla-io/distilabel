@@ -103,6 +103,9 @@ class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
         """Loads the Sentence Transformer model"""
         super().load()
 
+        if self.device == "cuda":
+            CudaDevicePlacementMixin.load(self)
+
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as e:
@@ -146,3 +149,9 @@ class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
             precision=self.precision,  # type: ignore
             normalize_embeddings=self.normalize_embeddings,  # type: ignore
         ).tolist()  # type: ignore
+
+    def unload(self) -> None:
+        del self._model
+        if self.device == "cuda":
+            CudaDevicePlacementMixin.unload(self)
+        super().unload()
