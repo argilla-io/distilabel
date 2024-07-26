@@ -301,7 +301,8 @@ class Magpie(Task, MagpieBase):
     Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message. Only if `only_instruction=False`.
-        - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - instruction (`str`): the generated instructions if `only_instruction=True` or `n_turns==1`.
+        - response (`str`): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:

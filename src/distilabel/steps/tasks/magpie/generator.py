@@ -78,6 +78,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message.
         - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - response (`str`): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
