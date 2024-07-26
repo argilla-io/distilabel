@@ -91,6 +91,9 @@ vllm = [
     # `setuptools` is needed to be installed if installed with `uv pip install distilabel[vllm]`
     "setuptools",
 ]
+sentence-transformers = ["sentence-transformers >= 3.0.0"]
+faiss-cpu = ["faiss-cpu >= 1.8.0"]
+faiss-gpu = ["faiss-cpu >= 1.7.2"]
 
 [project.urls]
 Documentation = "https://distilabel.argilla.io/"
