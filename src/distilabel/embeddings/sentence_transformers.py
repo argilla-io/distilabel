@@ -53,6 +53,24 @@ class SentenceTransformerEmbeddings(Embeddings, CudaDevicePlacementMixin):
         precision: the dtype that will have the resulting embeddings. Defaults to `"float32"`.
         normalize_embeddings: whether to normalize the embeddings so they have a length
             of 1. Defaults to `None`.
+
+    Examples:
+
+        Generating sentence embeddings:
+
+        ```python
+        from distilabel.embeddings import SentenceTransformerEmbeddings
+
+        embeddings = SentenceTransformerEmbeddings(model="mixedbread-ai/mxbai-embed-large-v1")
+
+        embeddings.load()
+
+        results = embeddings.encode(inputs=["distilabel is awesome!", "and Argilla!"])
+        # [
+        #   [-0.05447685346007347, -0.01623094454407692, ...],
+        #   [4.4889533455716446e-05, 0.044016145169734955, ...],
+        # ]
+        ```
     """
 
     model: str
