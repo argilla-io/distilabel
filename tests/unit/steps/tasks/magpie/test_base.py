@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 from unittest import mock
 
 import pytest
@@ -30,7 +31,11 @@ class TestMagpie:
             Magpie(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
     def test_outputs(self) -> None:
-        task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
+        task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1)
+
+        assert task.outputs == ["instruction", "response", "model_name"]
+
+        task = Magpie(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2)
 
         assert task.outputs == ["conversation", "model_name"]
 
@@ -48,7 +53,38 @@ class TestMagpie:
 
         assert next(task.process(inputs=[{}, {}, {}])) == [
             {
+                "instruction": "Hello Magpie",
+                "response": "Hello Magpie",
+                "model_name": "test",
+            },
+            {
+                "instruction": "Hello Magpie",
+                "response": "Hello Magpie",
+                "model_name": "test",
+            },
+            {
+                "instruction": "Hello Magpie",
+                "response": "Hello Magpie",
+                "model_name": "test",
+            },
+        ]
+
+    def test_process_with_system_prompt(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            system_prompt="This is a system prompt.",
+            include_system_prompt=True,
+        )
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
                 "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
@@ -56,6 +92,9 @@ class TestMagpie:
             },
             {
                 "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
@@ -63,6 +102,57 @@ class TestMagpie:
             },
             {
                 "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+        ]
+
+    def test_process_with_several_system_prompts(self) -> None:
+        task = Magpie(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"),
+            n_turns=2,
+            system_prompt=[
+                "This is a system prompt.",
+                "This is another system prompt.",
+            ],
+            include_system_prompt=True,
+        )
+
+        random.seed(42)
+
+        task.load()
+
+        assert next(task.process(inputs=[{}, {}, {}])) == [
+            {
+                "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": "This is a system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
+                ],
+                "model_name": "test",
+            },
+            {
+                "conversation": [
+                    {"role": "system", "content": "This is another system prompt."},
+                    {"role": "user", "content": "Hello Magpie"},
+                    {"role": "assistant", "content": "Hello Magpie"},
                     {"role": "user", "content": "Hello Magpie"},
                     {"role": "assistant", "content": "Hello Magpie"},
                 ],
@@ -367,7 +457,7 @@ class TestMagpie:
                 {
                     "name": "system_prompt",
                     "optional": True,
-                    "description": "An optional system prompt that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
+                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
                 },
                 {
                     "name": "resources",
