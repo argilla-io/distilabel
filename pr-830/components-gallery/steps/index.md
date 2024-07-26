@@ -18,6 +18,14 @@ hide:
 
     [:octicons-arrow-right-24: DeitaFiltering](deitafiltering.md){ .bottom }
 
+-   :material-step-forward:{ .lg .middle } __FaissNearestNeighbour__
+
+    ---
+
+    Create a `faiss` index to get the nearest neighbours.
+
+    [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
+
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
