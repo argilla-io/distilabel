@@ -31,12 +31,4 @@ hide:
 
     [:octicons-arrow-right-24: LLMs](llms/index.md){ .bottom }
 
--   :material-vector-line:{ .lg .middle } __Embeddings__
-
-    ---
-
-    Explore all the available `Embeddings` models integrated with `distilabel`.
-
-    [:octicons-arrow-right-24: Embeddings](embeddings/index.md){ .bottom }
-
 </div>

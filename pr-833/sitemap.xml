@@ -386,11 +386,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-833/components-gallery/steps/embeddinggeneration/</loc>
-         <lastmod>2024-07-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-833/components-gallery/steps/conversationtemplate/</loc>
          <lastmod>2024-07-26</lastmod>
          <changefreq>daily</changefreq>
@@ -657,16 +652,6 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-833/components-gallery/llms/vllm/</loc>
-         <lastmod>2024-07-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-833/components-gallery/embeddings/</loc>
-         <lastmod>2024-07-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-833/components-gallery/embeddings/sentencetransformerembeddings/</loc>
          <lastmod>2024-07-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
