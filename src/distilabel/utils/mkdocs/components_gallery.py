@@ -145,6 +145,9 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
         self.file_paths["llms"] = self._generate_llms_pages(
             src_dir=src_dir, llms=components_info["llms"]
         )
+        self.file_paths["embeddings"] = self._generate_embeddings_pages(
+            src_dir=src_dir, embeddings=components_info["embeddings"]
+        )
 
         # Add the new files to the files collections
         for relative_file_path in [
@@ -152,6 +155,7 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             *self.file_paths["steps"],
             *self.file_paths["tasks"],
             *self.file_paths["llms"],
+            *self.file_paths["embeddings"],
         ]:
             file = File(
                 path=relative_file_path,
@@ -332,6 +336,48 @@ class ComponentsGalleryPlugin(BasePlugin[ComponentsGalleryConfig]):
             components=llms,
             component_group="llms",
             default_icon=":material-brain:",
+        )
+
+        with open(steps_gallery_page_path, "w") as f:
+            f.write(content)
+
+        return paths
+
+    def _generate_embeddings_pages(self, src_dir: Path, embeddings: list) -> List[str]:
+        """Generates the files for the `Embeddings` subsection of the components gallery.
+
+        Args:
+            src_dir: The path to the source directory.
+            embeddings: The list of `Embeddings` components.
+
+        Returns:
+            The relative paths to the generated files.
+        """
+
+        paths = ["components-gallery/embeddings/index.md"]
+        steps_gallery_page_path = src_dir / paths[0]
+        steps_gallery_page_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create detail page for each `LLM`
+        for embeddings_model in embeddings:
+            content = _LLM_DETAIL_TEMPLATE.render(llm=embeddings_model)
+
+            llm_path = (
+                f"components-gallery/embeddings/{embeddings_model['name'].lower()}.md"
+            )
+            path = src_dir / llm_path
+            with open(path, "w") as f:
+                f.write(content)
+
+            paths.append(llm_path)
+
+        # Create the `components-gallery/llms/index.md` file
+        content = _COMPONENTS_LIST_TEMPLATE.render(
+            title="Embeddings Gallery",
+            description="",
+            components=embeddings,
+            component_group="embeddings",
+            default_icon=":material-vector-line:",
         )
 
         with open(steps_gallery_page_path, "w") as f:
