@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
@@ -63,10 +64,10 @@ class MagpieBase(RuntimeParametersMixin):
         description="Whether to generate only the instruction. If this argument"
         " is `True`, then `n_turns` will be ignored.",
     )
-    system_prompt: Optional[RuntimeParameter[str]] = Field(
+    system_prompt: Optional[RuntimeParameter[Union[List[str], str]]] = Field(
         default=None,
-        description="An optional system prompt that can be used to steer the LLM to generate"
-        " content of certain topic, guide the style, etc.",
+        description="An optional system prompt or list of system prompts that can be used"
+        " to steer the LLM to generate content of certain topic, guide the style, etc.",
     )
 
     def _prepare_inputs_for_instruction_generation(
@@ -90,7 +91,11 @@ class MagpieBase(RuntimeParametersMixin):
                     {"role": "system", "content": input["system_prompt"]}
                 )
             elif self.system_prompt is not None:
-                conversation.append({"role": "system", "content": self.system_prompt})
+                if isinstance(self.system_prompt, list):
+                    system_prompt = random.choice(self.system_prompt)
+                else:
+                    system_prompt = self.system_prompt
+                conversation.append({"role": "system", "content": system_prompt})
             elif self.n_turns > 1:  # type: ignore
                 conversation.append(
                     {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT}
@@ -265,10 +270,12 @@ class Magpie(Task, MagpieBase):
             conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt that can be used to steer the LLM to generate
-            content of certain topic, guide the style, etc. If the provided inputs contains
-            a `system_prompt` column, then this runtime parameter will be ignored and the
-            one from the column will be used. Defaults to `None`.
+        system_prompt: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
 
     Runtime parameters:
         - `n_turns`: the number of turns that the generated conversation will have. Defaults
@@ -279,10 +286,12 @@ class Magpie(Task, MagpieBase):
             conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        - `system_prompt`: an optional system prompt that can be used to steer the LLM to
-            generate content of certain topic, guide the style, etc. If the provided inputs
-            contains a `system_prompt` column, then this runtime parameter will be ignored
-            and the one from the column will be used. Defaults to `None`.
+        - `system_prompt`: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
 
     Input columns:
         - system_prompt (`str`, optional): an optional system prompt that can be provided
