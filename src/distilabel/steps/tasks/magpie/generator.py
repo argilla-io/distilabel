@@ -229,6 +229,8 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]
+        if self.n_turns == 1:
+            return ["instruction", "response", "model_name"]
         return ["conversation", "model_name"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":

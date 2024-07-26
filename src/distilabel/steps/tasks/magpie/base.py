@@ -132,19 +132,30 @@ class MagpieBase(RuntimeParametersMixin):
     def _prepare_conversation_outputs(
         self, conversations: List["ChatType"]
     ) -> List[Dict[str, Any]]:
-        """Prepare the output conversation removing the system prompt if necessary.
+        """Prepare the output conversation removing the system prompt if necessary. If
+        `n_turns==1`, then it will return a dictionary with "instruction" and "response"
+        keys. Otherwise, it will return a dictionary with a "conversation" key.
 
         Args:
             conversations: the list of generated conversations.
 
         Returns:
-            A list of dictionaries containing a "conversation" key.
+            A list of dictionaries containing a "conversation" key or "instruction" and
+            "responses" key.
         """
         outputs = []
         for conversation in conversations:
             if not self.include_system_prompt and conversation[0]["role"] == "system":
                 conversation.pop(0)
-            outputs.append({"conversation": conversation})
+            if self.n_turns == 1 and len(conversation) == 2:
+                outputs.append(
+                    {
+                        "instruction": conversation[0]["content"],
+                        "response": conversation[1]["content"],
+                    }
+                )
+            else:
+                outputs.append({"conversation": conversation})
         return outputs
 
     def _generate_conversation_turn(
@@ -425,6 +436,8 @@ class Magpie(Task, MagpieBase):
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]
+        if self.n_turns == 1:
+            return ["instruction", "response", "model_name"]
         return ["conversation", "model_name"]
 
     def format_output(
