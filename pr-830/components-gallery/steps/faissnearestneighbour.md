@@ -91,6 +91,41 @@ graph TD
 
 
 
+### Examples
+
+
+#### Generating embeddings and getting the nearest neighbours
+```python
+from distilabel.embeddings.sentence_transformers import SentenceTransformerEmbeddings
+from distilabel.pipeline import Pipeline
+from distilabel.steps import EmbeddingGeneration, FaissNearestNeighbour, LoadDataFromHub
+
+with Pipeline(name="hello") as pipeline:
+    load_data = LoadDataFromHub(output_mappings={"prompt": "text"})
+
+    embeddings = EmbeddingGeneration(
+        embeddings=SentenceTransformerEmbeddings(
+            model="mixedbread-ai/mxbai-embed-large-v1"
+        )
+    )
+
+    nearest_neighbours = FaissNearestNeighbour()
+
+    load_data >> embeddings >> nearest_neighbours
+
+if __name__ == "__main__":
+    distiset = pipeline.run(
+        parameters={
+            load_data.name: {
+                "repo_id": "distilabel-internal-testing/instruction-dataset-mini",
+                "split": "test",
+            },
+        },
+        use_cache=False,
+    )
+```
+
+
 
 
 ### References
