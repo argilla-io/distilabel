@@ -15,6 +15,7 @@
 import json
 import logging
 import os
+import socket
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -26,7 +27,11 @@ from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 
 _CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
-    Path(tempfile.gettempdir()) / "distilabel_cuda_device_placement_mixin.json"
+    Path(tempfile.gettempdir())
+    / "distilabel"
+    / "cuda_device_placement"
+    / socket.gethostname()
+    / "distilabel_cuda_device_placement_mixin.json"
 )
 
 
@@ -43,6 +48,8 @@ class CudaDevicePlacementMixin(BaseModel):
             placement information provided in `_device_llm_placement_map`. If set to a list
             of devices, it will be checked if the devices are available to be used by the
             `LLM`. If not, a warning will be logged.
+        disable_cuda_device_placement: Whether to disable the CUDA device placement logic
+            or not. Defaults to `False`.
         _llm_identifier: the identifier of the `LLM` to be used as key in `_device_llm_placement_map`.
         _device_llm_placement_map: a dictionary with the device placement information for each
             `LLM`.
@@ -50,6 +57,10 @@ class CudaDevicePlacementMixin(BaseModel):
 
     cuda_devices: RuntimeParameter[Union[List[int], Literal["auto"]]] = Field(
         default="auto", description="A list with the ID of the CUDA devices to be used."
+    )
+    disable_cuda_device_placement: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to disable the CUDA device placement logic or not.",
     )
 
     _llm_identifier: Union[str, None] = PrivateAttr(default=None)
@@ -62,6 +73,9 @@ class CudaDevicePlacementMixin(BaseModel):
     def load(self) -> None:
         """Assign CUDA devices to the LLM based on the device placement information provided
         in `_device_llm_placement_map`."""
+
+        if self.disable_cuda_device_placement:
+            return
 
         try:
             import pynvml
@@ -88,6 +102,9 @@ class CudaDevicePlacementMixin(BaseModel):
     def unload(self) -> None:
         """Unloads the LLM and removes the CUDA devices assigned to it from the device
         placement information provided in `_device_llm_placement_map`."""
+        if self.disable_cuda_device_placement:
+            return
+
         with self._device_llm_placement_map() as device_map:
             if self._llm_identifier in device_map:
                 self._logger.debug(  # type: ignore
@@ -105,6 +122,7 @@ class CudaDevicePlacementMixin(BaseModel):
         Yields:
             The content of the device placement file.
         """
+        _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.parent.mkdir(parents=True, exist_ok=True)
         _CUDA_DEVICE_PLACEMENT_MIXIN_FILE.touch()
         with portalocker.Lock(
             _CUDA_DEVICE_PLACEMENT_MIXIN_FILE,
