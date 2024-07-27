@@ -34,7 +34,7 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
-- **system_prompt**: an optional system prompt that can be used to steer the LLM to generate  content of certain topic, guide the style, etc. If the provided inputs contains  a `system_prompt` column, then this runtime parameter will be ignored and the  one from the column will be used. Defaults to `None`.
+- **system_prompt**: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a `system_prompt` column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to `None`.
 
 - **num_rows**: the number of rows to be generated.
 
@@ -51,7 +51,7 @@ Magpie is a neat method that allows generating user instructions with no seed da
 
 - **only_instruction**: whether to generate only the instruction. If this argument is  `True`, then `n_turns` will be ignored. Defaults to `False`.
 
-- **system_prompt**: an optional system prompt that can be used to steer the LLM to  generate content of certain topic, guide the style, etc. If the provided inputs  contains a `system_prompt` column, then this runtime parameter will be ignored  and the one from the column will be used. Defaults to `None`.
+- **system_prompt**: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a `system_prompt` column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to `None`.
 
 - **num_rows**: the number of rows to be generated.
 
@@ -65,17 +65,19 @@ graph TD
 		subgraph New columns
 			OCOL0[conversation]
 			OCOL1[instruction]
-			OCOL2[model_name]
+			OCOL2[response]
+			OCOL3[model_name]
 		end
 	end
 
 	subgraph MagpieGenerator
-		StepOutput[Output Columns: conversation, instruction, model_name]
+		StepOutput[Output Columns: conversation, instruction, response, model_name]
 	end
 
 	StepOutput --> OCOL0
 	StepOutput --> OCOL1
 	StepOutput --> OCOL2
+	StepOutput --> OCOL3
 
 ```
 
@@ -88,6 +90,8 @@ graph TD
 - **conversation** (`ChatType`): the generated conversation which is a list of chat  items with a role and a message.
 
 - **instruction** (`str`): the generated instructions if `only_instruction=True`.
+
+- **response** (`str`): the generated response if `n_turns==1`.
 
 - **model_name** (`str`): The model name used to generate the `conversation` or `instruction`.
 

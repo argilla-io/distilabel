@@ -1281,6 +1281,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../steps/faissnearestneighbour/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../steps/pushtohub/" class="md-nav__link">
         
   
@@ -1429,6 +1450,27 @@
   
     <li class="md-nav__item">
       <a href="../../steps/mergecolumns/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../steps/embeddinggeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4229,7 +4271,7 @@
 <p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
 </li>
 <li>
-<p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to generate  content of certain topic, guide the style, etc. If the provided inputs contains  a <code>system_prompt</code> column, then this runtime parameter will be ignored and the  one from the column will be used. Defaults to <code>None</code>.</p>
+<p><strong>system_prompt</strong>: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a <code>system_prompt</code> column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to <code>None</code>.</p>
 </li>
 <li>
 <p><strong>num_rows</strong>: the number of rows to be generated.</p>
@@ -4250,7 +4292,7 @@
 <p><strong>only_instruction</strong>: whether to generate only the instruction. If this argument is  <code>True</code>, then <code>n_turns</code> will be ignored. Defaults to <code>False</code>.</p>
 </li>
 <li>
-<p><strong>system_prompt</strong>: an optional system prompt that can be used to steer the LLM to  generate content of certain topic, guide the style, etc. If the provided inputs  contains a <code>system_prompt</code> column, then this runtime parameter will be ignored  and the one from the column will be used. Defaults to <code>None</code>.</p>
+<p><strong>system_prompt</strong>: an optional system prompt or list of system prompts that can  be used to steer the LLM to generate content of certain topic, guide the style,  etc. If it's a list of system prompts, then a random system prompt will be chosen  per input/output batch. If the provided inputs contains a <code>system_prompt</code> column,  then this runtime parameter will be ignored and the one from the column will  be used. Defaults to <code>None</code>.</p>
 </li>
 <li>
 <p><strong>num_rows</strong>: the number of rows to be generated.</p>
@@ -4262,17 +4304,19 @@
         subgraph New columns
             OCOL0[conversation]
             OCOL1[instruction]
-            OCOL2[model_name]
+            OCOL2[response]
+            OCOL3[model_name]
         end
     end
 
     subgraph MagpieGenerator
-        StepOutput[Output Columns: conversation, instruction, model_name]
+        StepOutput[Output Columns: conversation, instruction, response, model_name]
     end
 
     StepOutput --&gt; OCOL0
     StepOutput --&gt; OCOL1
     StepOutput --&gt; OCOL2
+    StepOutput --&gt; OCOL3
 </code></pre>
 <h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
 <ul>
@@ -4281,6 +4325,9 @@
 </li>
 <li>
 <p><strong>instruction</strong> (<code>str</code>): the generated instructions if <code>only_instruction=True</code>.</p>
+</li>
+<li>
+<p><strong>response</strong> (<code>str</code>): the generated response if <code>n_turns==1</code>.</p>
 </li>
 <li>
 <p><strong>model_name</strong> (<code>str</code>): The model name used to generate the <code>conversation</code> or <code>instruction</code>.</p>
