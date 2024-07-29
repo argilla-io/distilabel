@@ -15,7 +15,7 @@
 import hashlib
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 try:
@@ -61,6 +61,8 @@ class PreferenceToArgilla(Argilla):
             the `ARGILLA_API_URL` environment variable.
         api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
             be read from the `ARGILLA_API_KEY` environment variable.
+        inputs: The inputs for the step. Defaults to `["instruction", "generations"].
+            Optionally, one could also provide the "ratings" and the "rationales" for the generations.
 
     Runtime parameters:
         - `api_url`: The base URL to use for the Argilla API requests.
@@ -132,6 +134,15 @@ class PreferenceToArgilla(Argilla):
     """
 
     num_generations: int
+
+    inputs: List[str] = Field(
+        default=["instruction", "generations"],
+        frozen=False,
+        description=(
+            "The inputs for the step are the 'instruction' and the 'generations'. "
+            + "Optionally, one could also provide the 'ratings' and the 'rationales' for the generations."
+        ),
+    )
 
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
@@ -229,12 +240,6 @@ class PreferenceToArgilla(Argilla):
                 ]
             )
         return questions
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generations`. Optionally, one could also
-        provide the `ratings` and the `rationales` for the generations."""
-        return ["instruction", "generations"]
 
     def _add_suggestions_if_any(
         self, input: Dict[str, Any]
