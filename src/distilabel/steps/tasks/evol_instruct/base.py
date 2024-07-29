@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -162,35 +162,32 @@ class EvolInstruct(Task):
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["instruction"]
+    inputs: List[str] = Field(
+        default=["instruction"],
+        frozen=True,
+        description="The inputs for the task are the 'instruction'.",
+    )
+    outputs: List[str] = Field(
+        default=["instruction", "evolved_instruction", "model_name"],
+        frozen=True,
+        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer/s' is added.",
+    )
+
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        generate_answers = values.get("store_evolutions")
+        store_evolutions = values.get("store_evolutions")
+        if store_evolutions:
+            values["output"][1] = "evolved_instructions"
+        if generate_answers:
+            values["output"].insert(-1, "answers" if store_evolutions else "answer")
+        return values
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation. And the
         `system_prompt` is added as the first message if it exists."""
         return [{"role": "user", "content": input}]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `evolved_instruction/s`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
-        # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
-        # this could be handled always and the value could be included within the DAG validation when
-        # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
-        _outputs = [
-            (
-                "evolved_instruction"
-                if not self.store_evolutions
-                else "evolved_instructions"
-            ),
-            "model_name",
-        ]
-        if self.generate_answers:
-            _outputs.append("answer" if not self.store_evolutions else "answers")
-        return _outputs
 
     @override
     def format_output(  # type: ignore

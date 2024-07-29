@@ -23,7 +23,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import numpy as np
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, model_validator
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -112,13 +112,24 @@ class EvolInstructGenerator(GeneratorTask):
         default=1024,
         description="Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.",
     )
-
     seed: RuntimeParameter[int] = Field(
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
+
+    outputs: List[str] = Field(
+        default=["instruction", "model_name"],
+        frozen=True,
+        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer' is added.",
+    )
+
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        if values.get("generate_answers"):
+            values["outputs"].insert(1, "answer")
+        return values
 
     def _generate_seed_texts(self) -> List[str]:
         """Generates a list of seed texts to be used as part of the starting prompts for the task.
@@ -173,15 +184,6 @@ class EvolInstructGenerator(GeneratorTask):
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
-        _outputs = ["instruction", "model_name"]
-        if self.generate_answers:
-            _outputs.append("answer")
-        return _outputs
 
     def format_output(  # type: ignore
         self, instruction: str, answer: Optional[str] = None
