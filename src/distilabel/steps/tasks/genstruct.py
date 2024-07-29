@@ -23,7 +23,7 @@ else:
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 
@@ -107,6 +107,17 @@ class Genstruct(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
+    inputs: List[str] = Field(
+        default=["title", "content"],
+        frozen=True,
+        description="The inputs for the task are the 'title' and the 'content'.",
+    )
+    outputs: List[str] = Field(
+        default=["user", "assistant", "model_name"],
+        frozen=True,
+        description="The output for the task are the 'user' instruction based on the provided document and the 'assistant' response based on the user's instruction.",
+    )
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -121,11 +132,6 @@ class Genstruct(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the `title` and the `content`."""
-        return ["title", "content"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -137,12 +143,6 @@ class Genstruct(Task):
                 ),
             }
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `user` instruction based on the provided document
-        and the `assistant` response based on the user's instruction."""
-        return ["user", "assistant", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
