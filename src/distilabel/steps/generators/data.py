@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List
 
+from pydantic import model_validator
 from typing_extensions import override
 
 from distilabel.steps.base import GeneratorStep
@@ -62,6 +63,13 @@ class LoadDataFromDicts(GeneratorStep):
 
     data: List[Dict[str, Any]]
 
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        data = values.get("data", [])
+        if data:
+            values["outputs"] += list(data[0].keys())
+        return values
+
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Yields batches from a list of dictionaries.
@@ -83,8 +91,3 @@ class LoadDataFromDicts(GeneratorStep):
                 batch,
                 True if len(self.data) == 0 else False,
             )
-
-    @property
-    def outputs(self) -> List[str]:
-        """Returns a list of strings with the names of the columns that the step will generate."""
-        return list(self.data[0].keys())
