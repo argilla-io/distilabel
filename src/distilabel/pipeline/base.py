@@ -53,6 +53,8 @@ from distilabel.pipeline.constants import (
     STEP_ATTR_NAME,
 )
 from distilabel.pipeline.write_buffer import _WriteBuffer
+from distilabel.steps.base import GeneratorStep
+from distilabel.steps.generators.utils import make_generator_step
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
@@ -66,7 +68,11 @@ if TYPE_CHECKING:
 
     from distilabel.distiset import Distiset
     from distilabel.pipeline.routing_batch_function import RoutingBatchFunction
-    from distilabel.pipeline.typing import PipelineRuntimeParametersInfo, StepLoadStatus
+    from distilabel.pipeline.typing import (
+        InputDataset,
+        PipelineRuntimeParametersInfo,
+        StepLoadStatus,
+    )
     from distilabel.steps.base import Step, _Step
 
     class _CacheLocation(TypedDict):
@@ -290,6 +296,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":  # type: ignore
         """Run the pipeline. It will set the runtime parameters for the steps and validate
         the pipeline.
@@ -313,6 +320,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -328,6 +338,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
+
+        if dataset is not None:
+            self._add_dataset_generator_step(dataset)
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
@@ -411,6 +424,27 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
         self._dry_run = False
         return distiset
+
+    def _add_dataset_generator_step(self, dataset: "InputDataset") -> None:
+        """Create a root step to work as the `GeneratorStep` for the pipeline using a
+        dataset.
+
+        Args:
+            dataset: A dataset that will be used to create a `GeneratorStep` and
+                placed in the DAG as the root step.
+
+        Raises:
+            ValueError: If there's already a `GeneratorStep` in the pipeline.
+        """
+        for step_name in self.dag:
+            step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            if isinstance(step_name, GeneratorStep):
+                raise ValueError(
+                    "There is already a `GeneratorStep` in the pipeline, you can either pass a `dataset` to the "
+                    f"run method, or create a `GeneratorStep` explictly. `GeneratorStep`: {step}"
+                )
+        loader = make_generator_step(dataset)
+        self.dag.add_root_step(loader)
 
     def get_runtime_parameters_info(self) -> "PipelineRuntimeParametersInfo":
         """Get the runtime parameters for the steps in the pipeline.
