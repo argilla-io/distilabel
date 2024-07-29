@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -113,6 +113,25 @@ class EvolQuality(Task):
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
     )
 
+    inputs: List[str] = Field(
+        default=["instruction", "response"],
+        frozen=True,
+        description="The inputs for the task are the 'instructions' and 'response'.",
+    )
+    outputs: List[str] = Field(
+        default=["model_name"],
+        frozen=True,
+        description="The output for the task are 'model_name'. Optionally, if `store_evolutions=True` 'evolved_response' else 'evolved_responses'.",
+    )
+
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        if values.get("store_evolutions"):
+            values["outputs"].insert(0, "evolved_responses")
+        else:
+            values["outputs"].insert(0, "evolved_response")
+        return values
+
     @override
     def model_post_init(self, __context: Any) -> None:
         """Override this method to perform additional initialization after `__init__` and `model_construct`.
@@ -120,29 +139,11 @@ class EvolQuality(Task):
         """
         super().model_post_init(__context)
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `instruction` and `response`."""
-        return ["instruction", "response"]
-
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation. And the
         `system_prompt` is added as the first message if it exists."""
         return [{"role": "user", "content": input}]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `evolved_response/s` and the `model_name`."""
-        # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
-        # this could be handled always and the value could be included within the DAG validation when
-        # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
-        _outputs = [
-            ("evolved_response" if not self.store_evolutions else "evolved_responses"),
-            "model_name",
-        ]
-
-        return _outputs
 
     def format_output(self, responses: Union[str, List[str]]) -> Dict[str, Any]:  # type: ignore
         """The output for the task is a dict with: `evolved_response` or `evolved_responses`,

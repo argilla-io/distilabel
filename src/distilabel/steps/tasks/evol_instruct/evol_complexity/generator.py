@@ -46,9 +46,13 @@ class EvolComplexityGenerator(EvolInstructGenerator):
         - `seed`: The number of evolutions to be run.
 
     Output columns:
-        - instruction (`str`): The evolved instruction.
-        - answer (`str`, optional): The answer to the instruction if `generate_answers=True`.
+        - evolved_instruction (`str`): The evolved instruction if `store_evolutions=False`.
+        - evolved_instructions (`List[str]`): The evolved instructions if `store_evolutions=True`.
         - model_name (`str`): The name of the LLM used to evolve the instructions.
+        - answer (`str`): The answer to the evolved instruction if `generate_answers=True`
+            and `store_evolutions=False`.
+        - answers (`List[str]`): The answers to the evolved instructions if `generate_answers=True`
+            and `store_evolutions=True`.
 
     Categories:
         - evol
