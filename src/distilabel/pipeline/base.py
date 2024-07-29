@@ -254,7 +254,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 if isinstance(value, dict):
                     # input_mappings/output_mappings
                     step_info += "-".join(
-                        [f"{str(k)}-{str(v)}" for k, v in value.items()]
+                        [
+                            f"{str(k)}={str(v)}"
+                            for k, v in value.items()
+                            if k not in ("disable_cuda_device_placement",)
+                        ]
                     )
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
