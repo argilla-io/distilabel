@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.typing import InputDataset
     from distilabel.steps.base import _Step
 
 
@@ -75,6 +76,7 @@ class RayPipeline(BasePipeline):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":
         """Runs the pipeline in the Ray cluster.
 
@@ -94,6 +96,9 @@ class RayPipeline(BasePipeline):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -108,7 +113,11 @@ class RayPipeline(BasePipeline):
         )
 
         if distiset := super().run(
-            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+            parameters,
+            use_cache,
+            storage_parameters,
+            use_fs_to_pass_data,
+            dataset=dataset,
         ):
             return distiset
 
