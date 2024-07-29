@@ -14,6 +14,8 @@
 
 from typing import TYPE_CHECKING, List
 
+from pydantic import Field
+
 from distilabel.steps.base import Step, StepInput
 
 if TYPE_CHECKING:
@@ -60,15 +62,8 @@ class ConversationTemplate(Step):
         ```
     """
 
-    @property
-    def inputs(self) -> List[str]:
-        """The instruction and response."""
-        return ["instruction", "response"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The conversation template."""
-        return ["conversation"]
+    inputs: List[str] = Field(default=["instruction", "response"], frozen=True)
+    outputs: List[str] = Field(default=["conversation"], frozen=True)
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Generate a conversation template from an instruction and a response.
