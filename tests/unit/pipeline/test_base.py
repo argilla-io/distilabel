@@ -1174,7 +1174,6 @@ class TestBasePipeline:
             assert len(name.split("_")[-1]) == 8
 
 
-
 class TestPipelineSerialization:
     @pytest.mark.parametrize(
         "requirements, expected",
