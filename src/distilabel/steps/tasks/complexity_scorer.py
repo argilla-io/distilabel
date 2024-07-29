@@ -23,7 +23,7 @@ else:
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 
@@ -89,6 +89,17 @@ class ComplexityScorer(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
+    inputs: List[str] = Field(
+        default=["instructions"],
+        frozen=True,
+        description="The inputs for the task are the 'instructions'.",
+    )
+    outputs: List[str] = Field(
+        default=["scores", "model_name"],
+        frozen=True,
+        description="The output for the task are: a list of 'scores' containing the complexity score for each instruction in 'instructions', and the 'model_name'.",
+    )
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -103,11 +114,6 @@ class ComplexityScorer(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the `instructions`."""
-        return ["instructions"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -117,12 +123,6 @@ class ComplexityScorer(Task):
                 "content": self._template.render(instructions=input["instructions"]),  # type: ignore
             }
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are: a list of `scores` containing the complexity score for each
-        instruction in `instructions`, and the `model_name`."""
-        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
