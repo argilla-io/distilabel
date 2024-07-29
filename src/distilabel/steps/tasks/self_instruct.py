@@ -22,7 +22,7 @@ else:
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 
@@ -101,6 +101,17 @@ class SelfInstruct(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
+    inputs: List[str] = Field(
+        default=["input"],
+        frozen=True,
+        description="The input for the task is the 'input' i.e. seed text.",
+    )
+    outputs: List[str] = Field(
+        default=["instructions", "model_name"],
+        frozen=True,
+        description="The output for the task is a list of 'instructions' containing the generated instructions and their corresponding 'model_name'.",
+    )
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -114,11 +125,6 @@ class SelfInstruct(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `input` i.e. seed text."""
-        return ["input"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -134,11 +140,6 @@ class SelfInstruct(Task):
                 ),
             }
         ]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `instructions` containing the generated instructions."""
-        return ["instructions", "model_name"]
 
     def format_output(
         self,
