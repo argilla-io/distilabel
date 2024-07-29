@@ -14,6 +14,8 @@
 
 from typing import TYPE_CHECKING, List
 
+from pydantic import Field
+
 from distilabel.embeddings.base import Embeddings
 from distilabel.steps.base import Step, StepInput
 
@@ -60,13 +62,8 @@ class EmbeddingGeneration(Step):
 
     embeddings: Embeddings
 
-    @property
-    def inputs(self) -> List[str]:
-        return ["text"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["embedding", "model_name"]
+    inputs: List[str] = Field(default=["text"], frozen=True)
+    outputs: List[str] = Field(default=["embedding", "model_name"], frozen=True)
 
     def load(self) -> None:
         """Loads the `Embeddings` model."""
