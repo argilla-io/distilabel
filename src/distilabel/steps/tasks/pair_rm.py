@@ -15,6 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import numpy as np
+from pydantic import Field
 
 from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Step
@@ -85,6 +86,17 @@ class PairRM(Step):
     model: str = "llm-blender/PairRM"
     instructions: Optional[str] = None
 
+    inputs: List[str] = Field(
+        default=["input", "candidates"],
+        frozen=True,
+        description="The input columns correspond to the two required arguments from `Blender.rank`: 'inputs' and 'candidates'.",
+    )
+    outputs: List[str] = Field(
+        default=["ranks", "ranked_candidates", "model_name"],
+        frozen=True,
+        description="The output for the task are the 'ranks', 'ranked_candidates' and the 'model_name'.",
+    )
+
     def load(self) -> None:
         """Loads the PairRM model provided via `model` with `llm_blender.Blender`, which is the
         custom library for running the inference for the PairRM models."""
@@ -98,17 +110,6 @@ class PairRM(Step):
 
         self._blender = llm_blender.Blender()
         self._blender.loadranker(self.model)
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input columns correspond to the two required arguments from `Blender.rank`:
-        `inputs` and `candidates`."""
-        return ["input", "candidates"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs will include the `ranks` and the `ranked_candidates`."""
-        return ["ranks", "ranked_candidates", "model_name"]
 
     def format_input(self, input: Dict[str, Any]) -> Dict[str, Any]:
         """The input is expected to be a dictionary with the keys `input` and `candidates`,
