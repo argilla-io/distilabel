@@ -15,7 +15,7 @@
 import hashlib
 from typing import TYPE_CHECKING, List
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 try:
@@ -90,6 +90,11 @@ class TextGenerationToArgilla(Argilla):
         ```
     """
 
+    inputs: List[str] = Field(
+        default=["instruction", "generation"],
+        frozen=True,
+        description="The inputs for the step are the 'instruction' and the 'generations'. ",
+    )
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
     _generation: str = PrivateAttr(...)
