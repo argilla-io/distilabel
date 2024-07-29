@@ -48,6 +48,88 @@ class RewardModelScore(Step):
         token: the Hugging Face Hub token that will be used to authenticate to the Hugging
             Face Hub. If not provided, the `HF_TOKEN` environment or `huggingface_hub` package
             local configuration will be used. Defaults to `None`.
+        truncation: whether to truncate sequences at the maximum length. Defaults to `False`.
+        max_length: maximun length to use for padding or truncation. Defaults to `None`.
+
+    Input columns:
+        - instruction (`str`, optional): the instruction used to generate a `response`.
+            If provided, then `response` must be provided too.
+        - response (`str`, optional): the response generated for `instruction`. If provided,
+            then `instruction` must be provide too.
+        - conversation (`ChatType`, optional): a multi-turn conversation. If not provided,
+            then `instruction` and `response` columns must be provided.
+
+    Output columns:
+        - score (`float`): the score given by the reward model for the instruction-response
+            pair or the conversation.
+
+    Categories:
+        - scorer
+
+    Examples:
+
+        Assigning an score for an instruction-response pair:
+
+        ```python
+        from distilabel.steps import RewardModelScore
+
+        step = RewardModelScore(
+            model="RLHFlow/ArmoRM-Llama3-8B-v0.1", device_map="auto", trust_remote_code=True
+        )
+
+        step.load()
+
+        result = next(
+            step.process(
+                inputs=[
+                    {
+                        "instruction": "How much is 2+2?",
+                        "response": "The output of 2+2 is 4",
+                    },
+                    {"instruction": "How much is 2+2?", "response": "4"},
+                ]
+            )
+        )
+        # [
+        #   {'instruction': 'How much is 2+2?', 'response': 'The output of 2+2 is 4', 'score': 0.11690367758274078},
+        #   {'instruction': 'How much is 2+2?', 'response': '4', 'score': 0.10300665348768234}
+        # ]
+        ```
+
+        Assigning an score for a multi-turn conversation:
+
+        ```python
+        from distilabel.steps import RewardModelScore
+
+        step = RewardModelScore(
+            model="RLHFlow/ArmoRM-Llama3-8B-v0.1", device_map="auto", trust_remote_code=True
+        )
+
+        step.load()
+
+        result = next(
+            step.process(
+                inputs=[
+                    {
+                        "conversation": [
+                            {"role": "user", "content": "How much is 2+2?"},
+                            {"role": "assistant", "content": "The output of 2+2 is 4"},
+                        ],
+                    },
+                    {
+                        "conversation": [
+                            {"role": "user", "content": "How much is 2+2?"},
+                            {"role": "assistant", "content": "4"},
+                        ],
+                    },
+                ]
+            )
+        )
+        # [
+        #   {'conversation': [{'role': 'user', 'content': 'How much is 2+2?'}, {'role': 'assistant', 'content': 'The output of 2+2 is 4'}], 'score': 0.11690367758274078},
+        #   {'conversation': [{'role': 'user', 'content': 'How much is 2+2?'}, {'role': 'assistant', 'content': '4'}], 'score': 0.10300665348768234}
+        # ]
+        ```
     """
 
     model: str
@@ -56,7 +138,7 @@ class RewardModelScore(Step):
     trust_remote_code: bool = False
     device_map: Union[str, Dict[str, Any], None] = None
     token: Union[SecretStr, None] = Field(
-        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR)
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR), description=""
     )
     truncation: bool = False
     max_length: Union[int, None] = None
