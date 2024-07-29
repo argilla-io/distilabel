@@ -15,7 +15,7 @@
 import os
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
@@ -120,13 +120,6 @@ class Argilla(Step, ABC):
             for dataset in rg.FeedbackDataset.list(workspace=self.dataset_workspace)  # type: ignore
         ]
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs of the step is an empty list, since the steps subclassing from this one, will
-        always be leaf nodes and won't propagate the inputs neither generate any outputs.
-        """
-        return []
-
     def load(self) -> None:
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
@@ -134,10 +127,6 @@ class Argilla(Step, ABC):
         super().load()
 
         self._rg_init()
-
-    @property
-    @abstractmethod
-    def inputs(self) -> List[str]: ...
 
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput": ...
