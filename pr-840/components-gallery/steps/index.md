@@ -138,7 +138,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __RewardModelScore__
+-   :octicons-number-16:{ .lg .middle } __RewardModelScore__
 
     ---
 
