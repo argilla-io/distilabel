@@ -17,6 +17,7 @@ import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
 from jinja2 import Template
+from pydantic import Field, model_validator
 
 from distilabel.steps.tasks.base import Task
 
@@ -198,6 +199,23 @@ class GenerateSentencePair(Task):
     action: GenerationAction
     context: str = ""
 
+    inputs: List[str] = Field(
+        default=["anchor"],
+        frozen=True,
+        description="The inputs for the task is the 'anchor' sentence.",
+    )
+    outputs: List[str] = Field(
+        default=["positive", "model_name"],
+        frozen=True,
+        description="The outputs for the task are the 'positive', as well as the `model_name`, optionally when dealing with `triplet=False` 'negative' sentences are added.",
+    )
+
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        if values.get("triplet"):
+            values["outputs"].insert(1, "negative")
+        return values
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -211,11 +229,6 @@ class GenerateSentencePair(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task is the `anchor` sentence."""
-        return ["anchor"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The inputs are formatted as a `ChatType`, with a system prompt describing the
@@ -246,14 +259,6 @@ class GenerateSentencePair(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the `positive` and `negative` sentences, as well
-        as the `model_name` used to generate the sentences."""
-        columns = ["positive", "negative"] if self.triplet else ["positive"]
-        columns += ["model_name"]
-        return columns
 
     def format_output(
         self, output: Union[str, None], input: Optional[Dict[str, Any]] = None
