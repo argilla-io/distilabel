@@ -137,6 +137,9 @@ class FaissNearestNeighbour(GlobalStep):
         " to maximize the resources usage or to avoid OOM issues.",
     )
 
+    inputs: List[str] = Field(default=["embedding"], frozen=True)
+    outputs: List[str] = Field(default=["nn_indices", "nn_scores"], frozen=True)
+
     def load(self) -> None:
         super().load()
 
@@ -145,14 +148,6 @@ class FaissNearestNeighbour(GlobalStep):
                 "`faiss` package is not installed. Please install it using `pip install"
                 " faiss-cpu` or `pip install faiss-gpu`."
             )
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["embedding"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["nn_indices", "nn_scores"]
 
     def _build_index(self, inputs: List[Dict[str, Any]]) -> Dataset:
         """Builds a `faiss` index using `datasets` integration.
