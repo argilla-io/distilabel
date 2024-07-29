@@ -182,6 +182,9 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
+    inputs: List[str] = Field(default=[], frozen=True)
+    outputs: List[str] = Field(default=[], frozen=True)
+
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: "Logger" = PrivateAttr(None)
 
@@ -367,26 +370,6 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
             `True` if the step is a normal step, `False` otherwise.
         """
         return not self.is_generator and not self.is_global
-
-    @property
-    def inputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step needs as input.
-
-        Returns:
-            List of strings with the names of the columns that the step needs as input.
-        """
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step will produce as
-        output.
-
-        Returns:
-            List of strings with the names of the columns that the step will produce as
-            output.
-        """
-        return []
 
     @cached_property
     def process_parameters(self) -> List[inspect.Parameter]:
@@ -657,10 +640,4 @@ class GlobalStep(Step, ABC):
     to train a model, to perform a global aggregation, etc.
     """
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
+    pass
