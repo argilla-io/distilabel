@@ -111,7 +111,7 @@ class RewardModelScore(Step):
 
         return input["conversation"]
 
-    def _prepare_inputs(self, inputs: List[Dict[str, Any]]) -> "torch.tensor":
+    def _prepare_inputs(self, inputs: List[Dict[str, Any]]) -> "torch.Tensor":
         return self._tokenizer.apply_chat_template(  # type: ignore
             [self._prepare_conversation(input) for input in inputs],  # type: ignore
             return_tensors="pt",
@@ -120,15 +120,19 @@ class RewardModelScore(Step):
             max_length=self.max_length,
         ).to(self._model.device)  # type: ignore
 
-    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+    def _inference(self, inputs: List[Dict[str, Any]]) -> List[float]:
         import torch
 
         input_ids = self._prepare_inputs(inputs)
         with torch.no_grad():
             output = self._model(input_ids)  # type: ignore
-            scores = output.score.tolist()
+            logits = output.logits
+            if logits.shape == (2, 1):
+                logits = logits.squeeze(-1)
+            return logits.tolist()
 
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        scores = self._inference(inputs)
         for input, score in zip(inputs, scores):
             input["score"] = score
-
         yield inputs
