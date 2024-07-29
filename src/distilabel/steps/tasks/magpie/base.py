@@ -15,9 +15,8 @@
 import random
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-from pydantic import Field, PositiveInt
+from pydantic import Field, PositiveInt, model_validator
 
-from distilabel.llms.base import LLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -45,8 +44,6 @@ class MagpieBase(RuntimeParametersMixin):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
     """
 
-    llm: LLM
-
     n_turns: RuntimeParameter[PositiveInt] = Field(
         default=1,
         description="The number of turns to generate for the conversation.",
@@ -69,6 +66,23 @@ class MagpieBase(RuntimeParametersMixin):
         description="An optional system prompt or list of system prompts that can be used"
         " to steer the LLM to generate content of certain topic, guide the style, etc.",
     )
+
+    outputs: List[str] = Field(
+        default=["model_name"],
+        frozen=True,
+        description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
+    )
+
+    @model_validator(pre=True)
+    def set_outputs(cls, values):
+        if values.get("only_instruction"):
+            values["outputs"].insert(0, "instruction")
+        elif values.get("n_turns"):
+            values["outputs"].insert(0, "response")
+            values["outputs"].insert(0, "instruction")
+        else:
+            values["outputs"].insert(0, "conversation")
+        return values
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
@@ -299,10 +313,10 @@ class Magpie(Task, MagpieBase):
             of certain topic.
 
     Output columns:
-        - conversation (`ChatType`): the generated conversation which is a list of chat
+        - conversation (`ChatType`, optional): the generated conversation which is a list of chat
             items with a role and a message. Only if `only_instruction=False`.
-        - instruction (`str`): the generated instructions if `only_instruction=True` or `n_turns==1`.
-        - response (`str`): the generated response if `n_turns==1`.
+        - instruction (`str`, optional): the generated instructions if `only_instruction=True` or `n_turns==1`.
+        - response (`str`, optional): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -433,22 +447,9 @@ class Magpie(Task, MagpieBase):
 
         self.llm.use_magpie_template = True
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """Either a multi-turn conversation or the instruction generated."""
-        if self.only_instruction:
-            return ["instruction", "model_name"]
-        if self.n_turns == 1:
-            return ["instruction", "response", "model_name"]
-        return ["conversation", "model_name"]
 
     def format_output(
         self,

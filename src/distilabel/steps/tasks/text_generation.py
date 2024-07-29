@@ -15,12 +15,22 @@
 import warnings
 from typing import Any, Dict, List, Union
 
+from pydantic import Field
+
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.chat import is_openai_format
 
 
-class TextGeneration(Task):
+class _AnyGeneration(Task):
+    outputs: List[str] = Field(
+        default=["generation", "model_name"],
+        frozen=True,
+        description="The output for the task is the 'generation' and the 'model_name'.",
+    )
+
+
+class TextGeneration(_AnyGeneration):
     """Simple text generation with an `LLM` given an instruction.
 
     `TextGeneration` is a pre-defined task that defines the `instruction` as the input
@@ -77,10 +87,11 @@ class TextGeneration(Task):
 
     use_system_prompt: bool = True
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["instruction"]
+    inputs: List[str] = Field(
+        default=["instruction"],
+        frozen=True,
+        description="The input for the task are the 'instruction'.",
+    )
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -111,11 +122,6 @@ class TextGeneration(Task):
                 )
         return messages  # type: ignore
 
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
-
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
@@ -124,7 +130,7 @@ class TextGeneration(Task):
         return {"generation": output}
 
 
-class ChatGeneration(Task):
+class ChatGeneration(_AnyGeneration):
     """Generates text based on a conversation.
 
     `ChatGeneration` is a pre-defined task that defines the `messages` as the input
@@ -184,10 +190,11 @@ class ChatGeneration(Task):
         ```
     """
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `messages`."""
-        return ["messages"]
+    inputs: List[str] = Field(
+        default=["messages"],
+        frozen=True,
+        description="The input for the task are the 'messages'.",
+    )
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the messages provided
@@ -206,11 +213,6 @@ class ChatGeneration(Task):
             )
 
         return input["messages"]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
