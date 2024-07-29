@@ -243,6 +243,7 @@ class Pipeline(BasePipeline):
             output_queue=self._output_queue,
             load_queue=self._load_queue,
             dry_run=self._dry_run,
+            ray_pipeline=False,
         )
 
         self._pool.apply_async(step_wrapper.run, error_callback=self._error_callback)

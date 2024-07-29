@@ -244,6 +244,7 @@ class RayPipeline(BasePipeline):
                 output_queue=self._output_queue,
                 load_queue=self._load_queue,
                 dry_run=self._dry_run,
+                ray_pipeline=True,
             ),
             log_queue=self._log_queue,
         )

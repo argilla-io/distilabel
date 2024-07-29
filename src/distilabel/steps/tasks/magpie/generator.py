@@ -49,10 +49,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt that can be used to steer the LLM to generate
-            content of certain topic, guide the style, etc. If the provided inputs contains
-            a `system_prompt` column, then this runtime parameter will be ignored and the
-            one from the column will be used. Defaults to `None`.
+        system_prompt: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
         num_rows: the number of rows to be generated.
 
     Runtime parameters:
@@ -64,16 +66,19 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        - `system_prompt`: an optional system prompt that can be used to steer the LLM to
-            generate content of certain topic, guide the style, etc. If the provided inputs
-            contains a `system_prompt` column, then this runtime parameter will be ignored
-            and the one from the column will be used. Defaults to `None`.
+        - `system_prompt`: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
         - `num_rows`: the number of rows to be generated.
 
     Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message.
         - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - response (`str`): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -229,6 +234,8 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]
+        if self.n_turns == 1:
+            return ["instruction", "response", "model_name"]
         return ["conversation", "model_name"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
