@@ -71,11 +71,7 @@ tests = [
 
 # Optional LLMs, integrations, etc
 anthropic = ["anthropic >= 0.20.0"]
-argilla = [
-    # TODO(alvarobartt): update before the `argilla_sdk` or `argilla` release
-    "argilla~=2.0.0rc",
-    "ipython",
-]
+argilla = ["argilla >= 2.0.0", "ipython"]
 cohere = ["cohere >= 5.2.0"]
 groq = ["groq >= 0.4.1"]
 hf-inference-endpoints = ["huggingface_hub >= 0.22.0"]
