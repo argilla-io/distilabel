@@ -16,6 +16,7 @@ import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from distilabel.distiset import create_distiset
+from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
@@ -69,6 +70,7 @@ class RayPipeline(BasePipeline):
 
         self._ray_head_node_url = ray_head_node_url
         self._ray_init_kwargs = ray_init_kwargs or {}
+        self._ray_node_ids = {}
 
     def run(
         self,
@@ -171,6 +173,8 @@ class RayPipeline(BasePipeline):
         else:
             ray.init(**self._ray_init_kwargs)
 
+        self._ray_node_ids = {node["NodeID"]: False for node in ray.nodes()}
+
     @property
     def QueueClass(self) -> Callable:
         from ray.util.queue import Queue
@@ -218,17 +222,49 @@ class RayPipeline(BasePipeline):
             "name": f"distilabel-{self.name}-{step.name}-{replica}"
         }
 
-        if step.resources.cpus is not None:
-            resources["num_cpus"] = step.resources.cpus
+        if hasattr(step, "llm") and isinstance(step.llm, vLLM):  # type: ignore
+            self._logger.info(
+                f"Step '{step.name}' uses `vLLM`. Creating a Ray placement group..."
+            )
+            llm = step.llm  # type: ignore
+            tensor_parallel_size = llm.generation_kwargs.get("tensor_parallel_size", 1)  # type: ignore
+            pipeline_parallel_size = llm.generation_kwargs.get("pipeline_parallel_size")  # type: ignore
 
-        if step.resources.gpus is not None:
-            resources["num_gpus"] = step.resources.gpus
+            node_id = next(
+                node_id for node_id, used in self._ray_node_ids.items() if not used
+            )
 
-        if step.resources.memory is not None:
-            resources["memory"] = step.resources.memory
+            self._ray_node_ids[node_id] = True
 
-        if step.resources.resources is not None:
-            resources["resources"] = step.resources.resources
+            # Create a placement group
+            pg = ray.util.placement_group(
+                # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
+                # so the actors can be executed:
+                # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
+                bundles=[{"GPU": 1} * tensor_parallel_size] + [{"CPU": 1}],
+                strategy="STRICT_PACK" if pipeline_parallel_size is None else "PACK",
+                _soft_target_node_id=node_id
+                if pipeline_parallel_size is None
+                else None,
+            )
+
+            resources["scheduling_strategy"] = (
+                ray.util.scheduling_strategies.PlacementGroupSchedulingStrategy(  # type: ignore
+                    placement_group=pg,
+                )
+            )
+        else:
+            if step.resources.cpus is not None:
+                resources["num_cpus"] = step.resources.cpus
+
+            if step.resources.gpus is not None:
+                resources["num_gpus"] = step.resources.gpus
+
+            if step.resources.memory is not None:
+                resources["memory"] = step.resources.memory
+
+            if step.resources.resources is not None:
+                resources["resources"] = step.resources.resources
 
         _StepWrapperRay = _StepWrapperRay.options(**resources)  # type: ignore
 
