@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 from distilabel.steps.reward_model import RewardModelScore
 
 
@@ -39,12 +40,12 @@ class TestRewardModelScore:
             {
                 "instruction": "How much is 2+2?",
                 "response": "The output of 2+2 is 4",
-                "score": -0.5738837122917175,
+                "score": pytest.approx(-0.5738837122917175),
             },
             {
                 "instruction": "How much is 2+2?",
                 "response": "4",
-                "score": -0.6376492977142334,
+                "score": pytest.approx(-0.6376492977142334),
             },
         ]
 
@@ -80,13 +81,13 @@ class TestRewardModelScore:
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "The output of 2+2 is 4"},
                 ],
-                "score": -0.5738837122917175,
+                "score": pytest.approx(-0.5738837122917175),
             },
             {
                 "conversation": [
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "4"},
                 ],
-                "score": -0.6376492977142334,
+                "score": pytest.approx(-0.6376492977142334),
             },
         ]
