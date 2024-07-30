@@ -118,9 +118,10 @@ class TextGenerationToArgilla(ArgillaBase):
                     and field.required
                 ):
                     raise ValueError(
-                        f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                        f" but contains at least a required field that is neither `{self._id}`, `{self._instruction}`"
-                        f", nor `{self._generation}`, so it cannot be reused for this dataset."
+                        f"The dataset '{self.dataset_name}' in the workspace '{self.dataset_workspace}'"
+                        f" already exists, but contains at least a required field that is"
+                        f" neither `{self._id}`, `{self._instruction}`, nor `{self._generation}`,"
+                        " so it cannot be reused for this dataset."
                     )
 
             self._dataset = _dataset

@@ -16,11 +16,14 @@ import os
 from unittest.mock import patch
 
 import argilla as rg
+import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.preference import PreferenceToArgilla
 
 
+@pytest.fixture
 def mock_dataset() -> rg.Dataset:  # type: ignore
+    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
     return rg.Dataset(
         name="dataset",
         settings=rg.Settings(
@@ -59,11 +62,12 @@ def mock_dataset() -> rg.Dataset:  # type: ignore
                 ),
             ],
         ),
+        client=client,
     )
 
 
 class TestPreferenceToArgilla:
-    def test_process(self) -> None:
+    def test_process(self, mock_dataset) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         step = PreferenceToArgilla(
             name="step",
@@ -78,7 +82,7 @@ class TestPreferenceToArgilla:
             step.load()
         step._instruction = "instruction"
         step._generations = "generations"
-        step._dataset = mock_dataset()  # type: ignore
+        step._dataset = mock_dataset  # type: ignore
 
         step._dataset.records.log = lambda x: x  # type: ignore
         assert list(

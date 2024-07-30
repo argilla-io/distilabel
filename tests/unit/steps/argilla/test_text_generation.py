@@ -16,30 +16,36 @@ import os
 from unittest.mock import patch
 
 import argilla as rg
+import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.text_generation import TextGenerationToArgilla
 
-MockDataset = rg.Dataset(
-    name="dataset",
-    settings=rg.Settings(
-        fields=[
-            rg.TextField(name="id", title="id"),  # type: ignore
-            rg.TextField(name="instruction", title="instruction"),  # type: ignore
-            rg.TextField(name="generation", title="generation"),  # type: ignore
-        ],
-        questions=[
-            rg.LabelQuestion(  # type: ignore
-                name="quality",
-                title="What's the quality of the generation for the given instruction?",
-                labels={"bad": "👎", "good": "👍"},  # type: ignore
-            )
-        ],
-    ),
-)
+
+@pytest.fixture
+def mock_dataset() -> rg.Dataset:
+    client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
+    return rg.Dataset(
+        name="dataset",
+        settings=rg.Settings(
+            fields=[
+                rg.TextField(name="id", title="id"),  # type: ignore
+                rg.TextField(name="instruction", title="instruction"),  # type: ignore
+                rg.TextField(name="generation", title="generation"),  # type: ignore
+            ],
+            questions=[
+                rg.LabelQuestion(  # type: ignore
+                    name="quality",
+                    title="What's the quality of the generation for the given instruction?",
+                    labels={"bad": "👎", "good": "👍"},  # type: ignore
+                )
+            ],
+        ),
+        client=client,
+    )
 
 
 class TestTextGenerationToArgilla:
-    def test_process(self) -> None:
+    def test_process(self, mock_dataset: rg.Dataset) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         step = TextGenerationToArgilla(
             name="step",
@@ -53,7 +59,7 @@ class TestTextGenerationToArgilla:
             step.load()
         step._instruction = "instruction"
         step._generation = "generation"
-        step._dataset = MockDataset  # type: ignore
+        step._dataset = mock_dataset  # type: ignore
 
         step._dataset.records.log = lambda x: x
         assert list(step.process([{"instruction": "test", "generation": "test"}])) == [
