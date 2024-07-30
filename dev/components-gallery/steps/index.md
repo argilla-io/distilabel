@@ -138,6 +138,14 @@ hide:
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
 
+-   :octicons-number-16:{ .lg .middle } __RewardModelScore__
+
+    ---
+
+    Assign a score to a response using a Reward Model.
+
+    [:octicons-arrow-right-24: RewardModelScore](rewardmodelscore.md){ .bottom }
+
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 
     ---
