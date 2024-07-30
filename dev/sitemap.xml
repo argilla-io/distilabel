@@ -656,17 +656,17 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
+         <lastmod>2024-07-30</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/transformersllm/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/llamacppllm/</loc>
-         <lastmod>2024-07-30</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/llms/vllm/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
