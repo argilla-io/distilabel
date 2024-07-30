@@ -140,6 +140,13 @@ class ArgillaBase(Step, ABC):
         """
         super().load()
 
+        if self.api_url is None or self.api_key is None:
+            raise ValueError(
+                "`Argilla` step requires the `api_url` and `api_key` to be provided. Please,"
+                " provide those at step instantiation, via environment variables `ARGILLA_API_URL`"
+                " and `ARGILLA_API_KEY`, or as `Step` runtime parameters via `pipeline.run(parameters={...})`."
+            )
+
         self._client_init()
 
     @property
