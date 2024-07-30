@@ -227,8 +227,8 @@ class RayPipeline(BasePipeline):
                 f"Step '{step.name}' uses `vLLM`. Creating a Ray placement group..."
             )
             llm = step.llm  # type: ignore
-            tensor_parallel_size = llm.generation_kwargs.get("tensor_parallel_size", 1)  # type: ignore
-            pipeline_parallel_size = llm.generation_kwargs.get(  # type: ignore
+            tensor_parallel_size = llm.extra_kwargs.get("tensor_parallel_size", 1)  # type: ignore
+            pipeline_parallel_size = llm.extra_kwargs.get(  # type: ignore
                 "pipeline_parallel_size", 1
             )
 
