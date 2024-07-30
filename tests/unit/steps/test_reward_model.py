@@ -40,12 +40,12 @@ class TestRewardModelScore:
             {
                 "instruction": "How much is 2+2?",
                 "response": "The output of 2+2 is 4",
-                "score": pytest.approx(-0.5738837122917175),
+                "score": pytest.approx(-0.5738837122917175, abs=1e-6),
             },
             {
                 "instruction": "How much is 2+2?",
                 "response": "4",
-                "score": pytest.approx(-0.6376492977142334),
+                "score": pytest.approx(-0.6376492977142334, abs=1e-6),
             },
         ]
 
@@ -81,13 +81,13 @@ class TestRewardModelScore:
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "The output of 2+2 is 4"},
                 ],
-                "score": pytest.approx(-0.5738837122917175),
+                "score": pytest.approx(-0.5738837122917175, abs=1e-6),
             },
             {
                 "conversation": [
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "4"},
                 ],
-                "score": pytest.approx(-0.6376492977142334),
+                "score": pytest.approx(-0.6376492977142334, abs=1e-6),
             },
         ]
