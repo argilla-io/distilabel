@@ -243,7 +243,7 @@ class RayPipeline(BasePipeline):
                 # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
                 # so the actors can be executed:
                 # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
-                bundles=[{"GPU": 1} * tensor_parallel_size] + [{"CPU": 1}],
+                bundles=[{"CPU": 1}] + [{"GPU": 1}] * tensor_parallel_size,
                 strategy="SPREAD" if pipeline_parallel_size > 1 else "STRICT_PACK",
                 _soft_target_node_id=node_id
                 if pipeline_parallel_size is None
