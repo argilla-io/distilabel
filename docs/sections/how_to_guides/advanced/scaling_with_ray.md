@@ -232,12 +232,4 @@ with Pipeline(name="text-generation-ray-pipeline") as pipeline:
     load_data_from_hub >> text_generation
 ```
 
-Finally, we need to define two environment variables in our `runtime_env.yaml` file:
-
-```yaml
-env_vars:
-  VLLM_USE_RAY_COMPILED_DAG: "1"
-  VLLM_USE_RAY_SPMD_WORKER: "1"
-```
-
 More information about distributed inference with `vLLM` can be found here: [vLLM - Distributed Serving](https://docs.vllm.ai/en/latest/serving/distributed_serving.html)
