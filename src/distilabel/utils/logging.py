@@ -39,6 +39,7 @@ _SILENT_LOGGERS = [
     "asyncio",
     "sentence_transformers.SentenceTransformer",
     "faiss.loader",
+    "argilla.sdk",
 ]
 
 queue_listener: Union[QueueListener, None] = None
