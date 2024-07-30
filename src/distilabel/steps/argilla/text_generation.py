@@ -107,7 +107,7 @@ class TextGenerationToArgilla(ArgillaBase):
         if self._dataset_exists_in_workspace:
             _dataset = self._client.datasets(  # type: ignore
                 name=self.dataset_name,  # type: ignore
-                workspace=self.dataset_workspace  # type: ignore
+                workspace=self.dataset_workspace,  # type: ignore
             )
 
             for field in _dataset.fields:
