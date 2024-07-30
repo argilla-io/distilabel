@@ -27,7 +27,7 @@ pipeline:
               only needed if the dataset has multiple configurations.
         type_info:
           module: distilabel.steps.generators.huggingface
-          name: LoadHubDataset
+          name: LoadDataFromHub
       name: load_hub_dataset
     - step:
         name: text_generation_gpt

@@ -43,10 +43,35 @@ class TextGeneration(Task):
         - text-generation
 
     Examples:
+
+        Generate text from an instruction:
+
         ```python
         from distilabel.steps.tasks import TextGeneration
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
 
-        task = TextGeneration(llm=LLM(...))
+        # Consider this as a placeholder for your actual LLM.
+        text_gen = TextGeneration(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            )
+        )
+
+        text_gen.load()
+
+        result = next(
+            text_gen.process(
+                [{"instruction": "your instruction"}]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'your instruction',
+        #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+        #         'generation': 'generation',
+        #     }
+        # ]
         ```
     """
 
@@ -92,7 +117,7 @@ class TextGeneration(Task):
         return ["generation", "model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
@@ -119,6 +144,44 @@ class ChatGeneration(Task):
 
     Icon:
         `:material-chat:`
+
+    Examples:
+
+        Generate text from a conversation in OpenAI chat format:
+
+        ```python
+        from distilabel.steps.tasks import ChatGeneration
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        chat = ChatGeneration(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            )
+        )
+
+        chat.load()
+
+        result = next(
+            chat.process(
+                [
+                    {
+                        "messages": [
+                            {"role": "user", "content": "How much is 2+2?"},
+                        ]
+                    }
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'messages': [{'role': 'user', 'content': 'How much is 2+2?'}],
+        #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+        #         'generation': '4',
+        #     }
+        # ]
+        ```
     """
 
     @property
@@ -132,7 +195,7 @@ class ChatGeneration(Task):
 
         if not is_openai_format(input["messages"]):
             raise ValueError(
-                "Input `instruction` must be a string or an OpenAI chat-like format. "
+                "Input `messages` must be an OpenAI chat-like format conversation. "
                 f"Got: {input['messages']}. Please check: 'https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models'."
             )
 

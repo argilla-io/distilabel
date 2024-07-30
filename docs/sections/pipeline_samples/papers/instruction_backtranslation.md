@@ -30,7 +30,7 @@ And since we will be using [`InferenceEndpointsLLM`][distilabel.llms.InferenceEn
 
 #### Building blocks
 
-- [`LoadHubDataset`][distilabel.steps.LoadHubDataset]: Generator Step to load a dataset from the Hugging Face Hub.
+- [`LoadDataFromHub`][distilabel.steps.LoadDataFromHub]: Generator Step to load a dataset from the Hugging Face Hub.
 - [`TextGeneration`][distilabel.steps.tasks.TextGeneration]: Task to generate responses for a given instruction using an LLM.
     - [`InferenceEndpointsLLM`][distilabel.llms.InferenceEndpointsLLM]: LLM that runs a model from an Inference Endpoint in the Hugging Face Hub.
 - [`InstructionBacktranslation`][distilabel.steps.tasks.InstructionBacktranslation]: Task that generates a score and a reason for a response for a given instruction using the Self Alignment with Instruction Backtranslation prompt.
@@ -43,12 +43,12 @@ As mentioned before, we will put the previously mentioned building blocks togeth
 ```python
 from distilabel.llms import InferenceEndpointsLLM, OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset
+from distilabel.steps import LoadDataFromHub, KeepColumns
 from distilabel.steps.tasks import InstructionBacktranslation, TextGeneration
 
 
 with Pipeline(name="self-alignment-with-instruction-backtranslation") as pipeline:
-    load_hub_dataset = LoadHubDataset(
+    load_hub_dataset = LoadDataFromHub(
         name="load_dataset",
         output_mappings={"prompt": "instruction"},
     )

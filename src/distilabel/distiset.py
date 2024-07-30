@@ -15,6 +15,7 @@
 import logging
 import os.path as posixpath
 import re
+import sys
 from os import PathLike
 from pathlib import Path
 from typing import Any, Dict, Final, Optional, Union
@@ -23,7 +24,7 @@ import fsspec
 import yaml
 from datasets import Dataset, load_dataset, load_from_disk
 from datasets.filesystems import is_remote_filesystem
-from huggingface_hub import DatasetCardData, HfApi
+from huggingface_hub import DatasetCardData, HfApi, upload_file
 from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
@@ -61,6 +62,7 @@ class Distiset(dict):
         private: bool = False,
         token: Optional[str] = None,
         generate_card: bool = True,
+        include_script: bool = False,
         **kwargs: Any,
     ) -> None:
         """Pushes the `Distiset` to the Hugging Face Hub, each dataset will be pushed as a different configuration
@@ -80,12 +82,26 @@ class Distiset(dict):
                 if no token is passed and the user is not logged-in.
             generate_card:
                 Whether to generate a dataset card or not. Defaults to True.
+            include_script:
+                Whether you want to push the pipeline script to the hugging face hub to share it.
+                If set to True, the name of the script that was run to create the distiset will be
+                automatically determined, and that will be the name of the file uploaded to your
+                repository. Take into account, this operation only makes sense for a distiset obtained
+                from calling `Pipeline.run()` method. Defaults to False.
             **kwargs:
                 Additional keyword arguments to pass to the `push_to_hub` method of the `datasets.Dataset` object.
 
         Raises:
             ValueError: If no token is provided and couldn't be retrieved automatically.
         """
+        script_filename = sys.argv[0]
+        filename_py = (
+            script_filename.split("/")[-1]
+            if "/" in script_filename
+            else script_filename
+        )
+        script_path = Path.cwd() / script_filename
+
         if token is None:
             token = get_hf_token(self.__class__.__name__, "token")
 
@@ -98,11 +114,27 @@ class Distiset(dict):
                 **kwargs,
             )
 
+        if include_script and script_path.exists():
+            upload_file(
+                path_or_fileobj=script_path,
+                path_in_repo=filename_py,
+                repo_id=repo_id,
+                repo_type="dataset",
+                token=token,
+                commit_message="Include pipeline script.",
+            )
+
         if generate_card:
-            self._generate_card(repo_id, token)
+            self._generate_card(
+                repo_id, token, include_script=include_script, filename_py=filename_py
+            )
 
     def _get_card(
-        self, repo_id: str, token: Optional[str] = None
+        self,
+        repo_id: str,
+        token: Optional[str] = None,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
     ) -> DistilabelDatasetCard:
         """Generates the dataset card for the `Distiset`.
 
@@ -115,6 +147,9 @@ class Distiset(dict):
             token: The token to authenticate with the Hugging Face Hub.
                 We assume that if it's provided, the dataset will be in the Hugging Face Hub,
                 so the README metadata will be extracted from there.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
 
         Returns:
             The dataset card for the `Distiset`.
@@ -141,6 +176,8 @@ class Distiset(dict):
             card_data=DatasetCardData(**metadata),
             repo_id=repo_id,
             sample_records=sample_records,
+            include_script=include_script,
+            filename_py=filename_py,
         )
 
         return card
@@ -168,7 +205,13 @@ class Distiset(dict):
         metadata = yaml.safe_load(metadata)
         return metadata
 
-    def _generate_card(self, repo_id: str, token: str) -> None:
+    def _generate_card(
+        self,
+        repo_id: str,
+        token: str,
+        include_script: bool = False,
+        filename_py: Optional[str] = None,
+    ) -> None:
         """Generates a dataset card and pushes it to the Hugging Face Hub, and
         if the `pipeline.yaml` path is available in the `Distiset`, uploads that
         to the same repository.
@@ -176,8 +219,16 @@ class Distiset(dict):
         Args:
             repo_id: The ID of the repository to push to, from the `push_to_hub` method.
             token: The token to authenticate with the Hugging Face Hub, from the `push_to_hub` method.
+            include_script: Whether to upload the script to the hugging face repository.
+            filename_py: The name of the script. If `include_script` is True, the script will
+                be uploaded to the repository using this name, otherwise it won't be used.
         """
-        card = self._get_card(repo_id=repo_id, token=token)
+        card = self._get_card(
+            repo_id=repo_id,
+            token=token,
+            include_script=include_script,
+            filename_py=filename_py,
+        )
 
         card.push_to_hub(
             repo_id,
@@ -270,7 +321,7 @@ class Distiset(dict):
         Examples:
             ```python
             # Save your distiset in a local folder:
-            >>> distiset.save_to_disk(dataset_path="my-distiset")
+            >>> distiset.save_to_disk(distiset_path="my-distiset")
             # Save your distiset in a remote storage:
             >>> storage_options = {
             ...     "key": os.environ["S3_ACCESS_KEY"],
@@ -280,7 +331,7 @@ class Distiset(dict):
             ...         "region_name": os.environ["S3_REGION"],
             ...     },
             ... }
-            >>> distiset.save_to_disk(dataset_path="my-distiset", storage_options=storage_options)
+            >>> distiset.save_to_disk(distiset_path="my-distiset", storage_options=storage_options)
             ```
         """
         distiset_path = str(distiset_path)

@@ -23,24 +23,24 @@
   <a href="https://www.linkedin.com/company/argilla-io">
     <img src="https://img.shields.io/badge/linkedin-blue?logo=linkedin"/>
   </a>
-  <a href="https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g">
-    <img src="https://img.shields.io/badge/slack-purple?logo=slack"/>
+  <a href="http://hf.co/join/discord">
+  <img src="https://img.shields.io/badge/Discord-7289DA?&logo=discord&logoColor=white"/>
   </a>
 </p>
 
 
-Distilabel is the **framework for synthetic data and AI feedback for AI engineers** that require **high-quality outputs, full data ownership, and overall efficiency**.
+Distilabel is the framework for synthetic data and AI feedback for engineers who need fast, reliable and scalable pipelines based on verified research papers.
 
 If you just want to get started, we recommend you check the [documentation](http://distilabel.argilla.io/). Curious, and want to know more? Keep reading!
 <!-- ![overview](https://github.com/argilla-io/distilabel/assets/36760800/360110da-809d-4e24-a29b-1a1a8bc4f9b7)  -->
 
-## Why use Distilabel?
+## Why use distilabel?
 
-Whether you are working on **a predictive model** that computes semantic similarity or the next **generative model** that is going to beat the LLM benchmarks. Our framework ensures that the **hard data work pays off**. Distilabel is the missing piece that helps you **synthesize data** and provide **AI feedback**.
+Distilabel can be used for generating synthetic data and AI feedback for a wide variety of projects including traditional predictive NLP (classification, extraction, etc.), or generative and large language model scenarios (instruction following, dialogue generation, judging etc.). Distilabel's programmatic approach allows you to build scalable pipelines for data generation and AI feedback. The goal of distilabel is to accelerate your AI development by quickly generating high-quality, diverse datasets based on verified research methodologies for generating and judging with AI feedback.
 
 ### Improve your AI output quality through data quality
 
-Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time on **achieveing and keeping high-quality standards for your data**.
+Compute is expensive and output quality is important. We help you **focus on data quality**, which tackles the root cause of both of these problems at once. Distilabel helps you to synthesize and judge data to let you spend your valuable time **achieving and keeping high-quality standards for your data**.
 
 ### Take control of your data and models
 
@@ -50,31 +50,31 @@ Compute is expensive and output quality is important. We help you **focus on dat
 
 Synthesize and judge data with **latest research papers** while ensuring **flexibility, scalability and fault tolerance**. So you can focus on improving your data and training your models.
 
-## 🏘️ Community
+## Community
 
 We are an open-source community-driven project and we love to hear from you. Here are some ways to get involved:
 
 - [Community Meetup](https://lu.ma/embed-checkout/evt-IQtRiSuXZCIW6FB): listen in or present during one of our bi-weekly events.
 
-- [Slack](https://join.slack.com/t/rubrixworkspace/shared_invite/zt-whigkyjn-a3IUJLD7gDbTZ0rKlvcJ5g): get direct support from the community.
+- [Discord](http://hf.co/join/discord): get direct support from the community in #argilla-general and #argilla-help.
 
 - [Roadmap](https://github.com/orgs/argilla-io/projects/10/views/1): plans change but we love to discuss those with our community so feel encouraged to participate.
 
 ## What do people build with Distilabel?
 
-Distilabel is a tool that can be used to **synthesize data and provide AI feedback**. Our community uses Distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel), and **we love contributions to open-source** ourselves too.
+The Argilla community uses distilabel to create amazing [datasets](https://huggingface.co/datasets?other=distilabel) and [models](https://huggingface.co/models?other=distilabel).
 
-- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences derived from teknium/OpenHermes-2.5. It shows how we can use Distilabel to **synthesize data on an immense scale**.
-- Our [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) and the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B),, show how we **improve model performance by filtering out 50%** of the original dataset through **AI feedback**.
-- The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) outlines how anyone can create a **dataset for a specific task** and **the latest research papers** to improve the quality of the dataset.
+- The [1M OpenHermesPreference](https://huggingface.co/datasets/argilla/OpenHermesPreferences) is a dataset of ~1 million AI preferences that have been generated using the [teknium/OpenHermes-2.5](https://huggingface.co/datasets/teknium/OpenHermes-2.5) LLM. It is a great example of how you can use distilabel to scale and increase dataset development.
+- [distilabeled Intel Orca DPO dataset](https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs) used to fine-tune the [improved OpenHermes model](https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B). This dataset was built by combining human curation in Argilla with AI feedback from distilabel, leading to an improved version of the Intel Orca dataset and outperforming models fine-tuned on the original dataset.
+- The [haiku DPO data](https://github.com/davanstrien/haiku-dpo) is an example of how anyone can create a synthetic dataset for a specific task, which after curation and evaluation can be used for fine-tuning custom LLMs.
 
-## 👨🏽‍💻 Installation
+## Installation
 
 ```sh
 pip install distilabel --upgrade
 ```
 
-Requires Python 3.8+
+Requires Python 3.9+
 
 In addition, the following extras are available:
 
@@ -105,18 +105,18 @@ Then run:
 ```python
 from distilabel.llms import OpenAILLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadHubDataset
+from distilabel.steps import LoadDataFromHub
 from distilabel.steps.tasks import TextGeneration
 
 with Pipeline(
     name="simple-text-generation-pipeline",
     description="A simple text generation pipeline",
 ) as pipeline:
-    load_dataset = LoadHubDataset(output_mappings={"prompt": "instruction"})
+    load_dataset = LoadDataFromHub(output_mappings={"prompt": "instruction"})
 
     generate_with_openai = TextGeneration(llm=OpenAILLM(model="gpt-3.5-turbo"))
 
-    load_dataset.connect(generate_with_openai)
+    load_dataset >> generate_with_openai
 
 if __name__ == "__main__":
     distiset = pipeline.run(

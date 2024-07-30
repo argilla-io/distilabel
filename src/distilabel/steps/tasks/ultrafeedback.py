@@ -27,7 +27,7 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 
 class UltraFeedback(Task):
@@ -60,6 +60,45 @@ class UltraFeedback(Task):
     References:
         - [`UltraFeedback: Boosting Language Models with High-quality Feedback`](https://arxiv.org/abs/2310.01377)
         - [`UltraFeedback - GitHub Repository`](https://github.com/OpenBMB/UltraFeedback)
+
+    Examples:
+
+        Rate generations from different LLMs based on the selected aspect:
+
+        ```python
+        from distilabel.steps.tasks import UltraFeedback
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        ultrafeedback = UltraFeedback(
+            llm=InferenceEndpointsLLM(
+                model_id="mistralai/Mistral-7B-Instruct-v0.2",
+            )
+        )
+
+        ultrafeedback.load()
+
+        result = next(
+            chat.process(
+                [
+                    {
+                        "instruction": "How much is 2+2?",
+                        "generations": ["4", "and a car"],
+                    }
+                ]
+            )
+        )
+        # result
+        # [
+        #     {
+        #         'instruction': 'How much is 2+2?',
+        #         'generations': ['4', 'and a car'],
+        #         'ratings': [1, 2],
+        #         'rationales': ['explanation for 4', 'explanation for and a car'],
+        #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
+        #     }
+        # ]
+        ```
     """
 
     aspect: Literal[
@@ -186,7 +225,7 @@ class UltraFeedback(Task):
                     "rationales": matches.group(2),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)
 
     def _format_types_ratings_rationales_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -232,4 +271,4 @@ class UltraFeedback(Task):
                     "rationales-for-ratings": matches.group(4),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)

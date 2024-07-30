@@ -19,14 +19,10 @@ from typing import (
     Literal,
     Optional,
     Tuple,
-    Type,
     TypeAlias,
-    TypedDict,
     Union,
     get_args,
 )
-
-from pydantic import BaseModel
 
 if TYPE_CHECKING:
     import instructor
@@ -51,18 +47,6 @@ InstructorAvailableClients: TypeAlias = Union[
     "MistralAsyncClient",
 ]
 """Available clients that can be wrapped with `instructor`. """
-
-
-class InstructorStructuredOutputType(TypedDict):
-    """TypedDict to represent the structured output configuration from `instructor`."""
-
-    schema: Type[BaseModel]
-    """The schema to use for the structured output, a `pydantic.BaseModel` class. """
-    mode: Optional["instructor.Mode"]
-    """Generation mode. Take a look at `instructor.Mode` for more information, if not informed it will
-    be determined automatically. """
-    max_retries: int
-    """Number of times to reask the model in case of error, if not set will default to the model's default. """
 
 
 def _client_patcher(framework: InstructorFrameworks) -> Tuple[Callable, str]:

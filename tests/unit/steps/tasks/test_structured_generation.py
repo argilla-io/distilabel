@@ -52,11 +52,11 @@ class TestStructuredGeneration:
             {
                 "instruction": "test",
                 "system_prompt": "test",
-                "grammar": {"type": "regex", "value": r"[a-zA-Z]+"},
+                "structured_output": {"format": "regex", "schema": r"[a-zA-Z]+"},
             }
         ) == (
             [{"role": "user", "content": "test"}],
-            {"type": "regex", "value": r"[a-zA-Z]+"},
+            {"format": "regex", "schema": r"[a-zA-Z]+"},
         )
 
         # 2. Not including the `grammar` field within the input
@@ -92,9 +92,9 @@ class TestStructuredGeneration:
                 [
                     {
                         "instruction": "test",
-                        "grammar": {
-                            "type": "json",
-                            "value": {
+                        "structured_output": {
+                            "format": "json",
+                            "schema": {
                                 "properties": {
                                     "test": {"title": "Test", "type": "string"}
                                 },
@@ -109,9 +109,9 @@ class TestStructuredGeneration:
         ) == [
             {
                 "instruction": "test",
-                "grammar": {
-                    "type": "json",
-                    "value": {
+                "structured_output": {
+                    "format": "json",
+                    "schema": {
                         "properties": {"test": {"title": "Test", "type": "string"}},
                         "required": ["test"],
                         "title": "Test",

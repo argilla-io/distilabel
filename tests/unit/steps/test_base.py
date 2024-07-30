@@ -120,6 +120,13 @@ class TestStep:
 
         assert step.runtime_parameters_names == {
             "input_batch_size": True,
+            "resources": {
+                "cpus": True,
+                "gpus": True,
+                "replicas": True,
+                "memory": True,
+                "resources": True,
+            },
             "runtime_param1": False,
             "runtime_param2": True,
             "runtime_param3": True,
@@ -290,7 +297,44 @@ class TestStepSerialization:
             "input_batch_size": 50,
             "input_mappings": {},
             "output_mappings": {},
+            "resources": {
+                "cpus": None,
+                "gpus": None,
+                "memory": None,
+                "replicas": 1,
+                "resources": None,
+            },
             "runtime_parameters_info": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the step.",
                     "name": "input_batch_size",
@@ -310,7 +354,7 @@ class TestStepSerialization:
                     **{
                         "name": "dummy",
                         TYPE_INFO_KEY: {
-                            "module": "tests.unit.pipeline.step.test_base",
+                            "module": "tests.unit.steps.test_base",
                             "name": "DummyStep",
                         },
                     }
@@ -327,7 +371,7 @@ class TestStepSerialization:
                 **{
                     "name": "dummy",
                     TYPE_INFO_KEY: {
-                        "module": "tests.pipeline.step.test_base",
+                        "module": "tests.unit.steps.test_base",
                         "name": "DummyStep",
                     },
                 }

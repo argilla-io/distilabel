@@ -98,7 +98,7 @@ class TestCohereLLM:
                 },
             ]
         )
-        assert generation == sample_user.model_dump_json()
+        assert generation == [sample_user.model_dump_json()]
 
     @pytest.mark.asyncio
     async def test_generate(self, mock_async_client: mock.MagicMock) -> None:

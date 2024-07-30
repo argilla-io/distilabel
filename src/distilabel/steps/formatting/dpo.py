@@ -63,6 +63,43 @@ class FormatTextGenerationDPO(Step):
         - preference
         - instruction
         - generations
+
+    Examples:
+
+        Format your dataset for DPO fine tuning:
+
+        ```python
+        from distilabel.steps import FormatTextGenerationDPO
+
+        format_dpo = FormatTextGenerationDPO()
+        format_dpo.load()
+
+        # NOTE: Both "system_prompt" and "generation_models" can be added optionally.
+        result = next(
+            format_dpo.process(
+                [
+                    {
+                        "instruction": "What's 2+2?",
+                        "generations": ["4", "5", "6"],
+                        "ratings": [1, 0, -1],
+                    }
+                ]
+            )
+        )
+        # >>> result
+        # [
+        #    {   'instruction': "What's 2+2?",
+        #        'generations': ['4', '5', '6'],
+        #        'ratings': [1, 0, -1],
+        #        'prompt': "What's 2+2?",
+        #        'prompt_id': '7762ecf17ad41479767061a8f4a7bfa3b63d371672af5180872f9b82b4cd4e29',
+        #        'chosen': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '4'}],
+        #        'chosen_rating': 1,
+        #        'rejected': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '6'}],
+        #        'rejected_rating': -1
+        #    }
+        # ]
+        ```
     """
 
     @property
@@ -194,6 +231,44 @@ class FormatChatGenerationDPO(Step):
         - preference
         - messages
         - generations
+
+    Examples:
+
+        Format your dataset for DPO fine tuning:
+
+        ```python
+        from distilabel.steps import FormatChatGenerationDPO
+
+        format_dpo = FormatChatGenerationDPO()
+        format_dpo.load()
+
+        # NOTE: "generation_models" can be added optionally.
+        result = next(
+            format_dpo.process(
+                [
+                    {
+                        "messages": [{"role": "user", "content": "What's 2+2?"}],
+                        "generations": ["4", "5", "6"],
+                        "ratings": [1, 0, -1],
+                    }
+                ]
+            )
+        )
+        # >>> result
+        # [
+        #     {
+        #         'messages': [{'role': 'user', 'content': "What's 2+2?"}],
+        #         'generations': ['4', '5', '6'],
+        #         'ratings': [1, 0, -1],
+        #         'prompt': "What's 2+2?",
+        #         'prompt_id': '7762ecf17ad41479767061a8f4a7bfa3b63d371672af5180872f9b82b4cd4e29',
+        #         'chosen': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '4'}],
+        #         'chosen_rating': 1,
+        #         'rejected': [{'role': 'user', 'content': "What's 2+2?"}, {'role': 'assistant', 'content': '6'}],
+        #         'rejected_rating': -1
+        #     }
+        # ]
+        ```
     """
 
     @property

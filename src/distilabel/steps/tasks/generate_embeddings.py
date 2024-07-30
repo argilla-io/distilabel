@@ -47,6 +47,33 @@ class GenerateEmbeddings(Step):
 
     References:
         - [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)
+
+    Examples:
+
+        Rank LLM candidates:
+
+        ```python
+        from distilabel.steps.tasks import GenerateEmbeddings
+        from distilabel.llms.huggingface import TransformersLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        embedder = GenerateEmbeddings(
+            llm=TransformersLLM(
+                model="TaylorAI/bge-micro-v2",
+                model_kwargs={"is_decoder": True},
+                cuda_devices=[],
+            )
+        )
+        embedder.load()
+
+        result = next(
+            embedder.process(
+                [
+                    {"text": "Hello, how are you?"},
+                ]
+            )
+        )
+        ```
     """
 
     llm: LLM

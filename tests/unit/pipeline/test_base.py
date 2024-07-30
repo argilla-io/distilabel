@@ -12,27 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from queue import Queue
+from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
-from distilabel.distiset import Distiset, create_distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.base import (
+    _STEP_LOAD_FAILED_CODE,
+    _STEP_NOT_LOADED_CODE,
     BasePipeline,
-    _Batch,
-    _BatchManager,
-    _BatchManagerStep,
     _GlobalPipelineManager,
-    _WriteBuffer,
 )
-from distilabel.pipeline.local import Pipeline
-from distilabel.steps.base import GlobalStep, Step, StepInput
+from distilabel.pipeline.batch import _Batch
+from distilabel.pipeline.batch_manager import _BatchManager
+from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
+from distilabel.pipeline.routing_batch_function import (
+    routing_batch_function,
+    sample_n_steps,
+)
+from distilabel.pipeline.write_buffer import _WriteBuffer
+from distilabel.steps.base import Step, StepInput, StepResources, _Step
 from distilabel.steps.typing import StepOutput
+from distilabel.utils.requirements import requirements
 from distilabel.utils.serialization import TYPE_INFO_KEY
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
@@ -43,11 +49,25 @@ from .utils import (
     DummyGlobalStep,
     DummyStep1,
     DummyStep2,
-    batch_gen,
 )
 
-if TYPE_CHECKING:
-    from distilabel.steps.base import GeneratorStep
+
+class DummyPipeline(BasePipeline):
+    @property
+    def QueueClass(self) -> Callable:
+        return Queue
+
+    def _run_step(self, step: "_Step", input_queue: "Queue[Any]", replica: int) -> None:
+        pass
+
+    def _teardown(self) -> None:
+        pass
+
+    def _set_steps_not_loaded_exception(self) -> None:
+        pass
+
+    def _stop(self) -> None:
+        pass
 
 
 class TestGlobalPipelineManager:
@@ -55,7 +75,7 @@ class TestGlobalPipelineManager:
         _GlobalPipelineManager.set_pipeline(None)
 
     def test_set_pipeline(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -64,7 +84,7 @@ class TestGlobalPipelineManager:
         assert _GlobalPipelineManager.get_pipeline() is None
 
     def test_get_pipeline(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         _GlobalPipelineManager.set_pipeline(pipeline)
         assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -73,7 +93,7 @@ class TestBasePipeline:
     def test_context_manager(self) -> None:
         assert _GlobalPipelineManager.get_pipeline() is None
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             assert pipeline is not None
             assert _GlobalPipelineManager.get_pipeline() == pipeline
 
@@ -81,15 +101,18 @@ class TestBasePipeline:
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         pipeline._load_batch_manager(use_cache=True)
         pipeline._cache()
 
-        with mock.patch(
-            "distilabel.pipeline.base._BatchManager.load_from_cache"
-        ) as mock_load_from_cache, mock.patch(
-            "distilabel.pipeline.base._BatchManager.from_dag"
-        ) as mock_from_dag:
+        with (
+            mock.patch(
+                "distilabel.pipeline.base._BatchManager.load_from_cache"
+            ) as mock_load_from_cache,
+            mock.patch(
+                "distilabel.pipeline.base._BatchManager.from_dag"
+            ) as mock_from_dag,
+        ):
             pipeline._load_batch_manager(use_cache=use_cache)
 
         if use_cache:
@@ -102,19 +125,13 @@ class TestBasePipeline:
             mock_from_dag.assert_called_once_with(pipeline.dag)
 
     def test_setup_write_buffer(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         pipeline._setup_write_buffer()
         assert isinstance(pipeline._write_buffer, _WriteBuffer)
 
-    def test_set_logging_parameters(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
-        pipeline._set_logging_parameters({"unit-test": "yes"})
-
-        assert pipeline._logging_parameters == {"unit-test": "yes"}
-
     def test_setup_fsspec(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with mock.patch("fsspec.filesystem") as mock_filesystem:
             pipeline._setup_fsspec({"path": "gcs://my-bucket", "extra": "stuff"})
@@ -122,7 +139,7 @@ class TestBasePipeline:
         mock_filesystem.assert_called_once_with("gcs", **{"extra": "stuff"})
 
     def test_setup_fsspec_default(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         pipeline._setup_fsspec()
 
         assert isinstance(pipeline._fs, LocalFileSystem)
@@ -132,13 +149,364 @@ class TestBasePipeline:
         )
 
     def test_setup_fsspec_raises_value_error(self) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
 
+    def test_init_steps_load_status(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._init_steps_load_status()
+        assert pipeline._steps_load_status == {
+            generator.name: _STEP_NOT_LOADED_CODE,
+            step.name: _STEP_NOT_LOADED_CODE,
+            step2.name: _STEP_NOT_LOADED_CODE,
+            step3.name: _STEP_NOT_LOADED_CODE,
+        }
+
+    def test_initialize_pipeline_execution(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._current_stage = 0
+        pipeline._run_stage_steps_and_wait = mock.MagicMock(return_value=True)
+        pipeline._set_steps_not_loaded_exception = mock.MagicMock()
+        pipeline._request_initial_batches = mock.MagicMock()
+
+        pipeline._initialize_pipeline_execution()
+
+        pipeline._run_stage_steps_and_wait.assert_called_once_with(
+            stage=pipeline._current_stage
+        )
+        pipeline._set_steps_not_loaded_exception.assert_not_called()
+        pipeline._request_initial_batches.assert_called_once()
+
+    def test_should_continue_processing(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            pass
+
+        pipeline._batch_manager = mock.MagicMock()
+        pipeline._stop_called = False
+        pipeline._batch_manager.can_generate.return_value = True
+
+        assert pipeline._should_continue_processing()
+
+        pipeline._batch_manager.can_generate.return_value = False
+
+        assert not pipeline._should_continue_processing()
+
+    def test_should_load_next_stage(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+            global_step = DummyGlobalStep()
+
+            generator >> [step, step2] >> step3 >> global_step
+
+        pipeline._current_stage = 0
+        pipeline._stages_last_batch = [[], []]
+
+        assert not pipeline._should_load_next_stage()
+
+        pipeline._stages_last_batch = [[step3.name], []]  # type: ignore
+
+        assert pipeline._should_load_next_stage()
+
+        pipeline._current_stage = 1
+        pipeline._stages_last_batch = [  # type: ignore
+            [step3.name],
+            [global_step.name],
+        ]
+
+        assert not pipeline._should_load_next_stage()
+
+    def test_update_stage(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            pass
+
+        pipeline._current_stage = 0
+        pipeline._should_load_next_stage = mock.MagicMock(return_value=True)
+        pipeline._run_stage_steps_and_wait = mock.MagicMock(return_value=True)
+
+        pipeline._update_stage()
+
+        assert pipeline._current_stage == 1
+        pipeline._run_stage_steps_and_wait.assert_called_once_with(
+            stage=pipeline._current_stage
+        )
+
+    def test_run_load_queue_loop(self) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+
+        pipeline._load_queue = Queue()
+        pipeline._steps_load_status = {"dummy": 0}
+        pipeline._load_queue.put({"name": "dummy", "status": "loaded"})
+
+        thread = pipeline._run_load_queue_loop_in_thread()
+        pipeline._load_queue.put(None)
+        thread.join()
+
+        assert pipeline._steps_load_status["dummy"] == 1
+
+    def test_run_load_queue_loop_receiving_none(self) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+
+        pipeline._load_queue = Queue()
+        pipeline._load_queue.put(None)
+
+        thread = pipeline._run_load_queue_loop_in_thread()
+        thread.join()
+
+        assert not thread.is_alive()
+
+    def test_is_step_running(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 0,
+        }
+
+        assert pipeline._is_step_running(generator.name)  # type: ignore
+        assert not pipeline._is_step_running(step.name)  # type: ignore
+
+    def test_run_stage_steps_and_wait(self, caplog) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+            step4 = DummyGlobalStep()
+
+            generator >> [step, step2] >> step3 >> step4
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            step2.name: 1,
+            step3.name: 1,
+            step4.name: -999,
+        }
+        caplog.set_level(logging.INFO)
+
+        assert pipeline._run_stage_steps_and_wait(stage=0) is True
+        assert "All the steps from stage 0 have been loaded!" in caplog.text
+
+    def test_run_stage_steps_and_wait_with_failing_step(self, caplog) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+            step4 = DummyGlobalStep()
+
+            generator >> [step, step2] >> step3 >> step4
+
+        pipeline._init_steps_load_status()
+        pipeline._steps_load_status[generator.name] = _STEP_LOAD_FAILED_CODE  # type: ignore
+        caplog.set_level(logging.INFO)
+
+        assert pipeline._run_stage_steps_and_wait(stage=0) is False
+        assert "Failed to load all the steps of stage 0" in caplog.text
+
+    def test_run_stage_steps_and_wait_stop_called(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+            step4 = DummyGlobalStep()
+
+            generator >> [step, step2] >> step3 >> step4
+
+        pipeline._init_steps_load_status()
+        pipeline._stop_called = True
+
+        assert pipeline._run_stage_steps_and_wait(stage=0) is False
+
+    def test_handle_stop(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._add_batches_back_to_batch_manager = mock.MagicMock()
+        pipeline._wait_step_input_queue_empty = mock.MagicMock()
+        pipeline._consume_output_queue = mock.MagicMock()
+
+        pipeline._handle_stop()
+
+        pipeline._add_batches_back_to_batch_manager.assert_called_once()
+        pipeline._wait_step_input_queue_empty.assert_has_calls(
+            [
+                mock.call(generator.name),
+                mock.call(step.name),
+                mock.call(step2.name),
+                mock.call(step3.name),
+            ],
+            any_order=True,
+        )
+        pipeline._consume_output_queue.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "num_workers,expected", [(0, True), (_STEP_LOAD_FAILED_CODE, True), (1, False)]
+    )
+    def test_check_step_not_loaded_or_finished(
+        self, num_workers: int, expected: bool
+    ) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
+        pipeline._steps_load_status = {"dummy": num_workers}
+
+        assert pipeline._check_step_not_loaded_or_finished("dummy") is expected
+
+    def test_is_convergence_step(self) -> None:
+        sample_two_steps = sample_n_steps(2)
+
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> sample_two_steps >> [step, step2] >> step3
+
+        pipeline.dag.validate()
+
+        assert not pipeline._is_convergence_step(generator.name)  # type: ignore
+        assert not pipeline._is_convergence_step(step.name)  # type: ignore
+        assert not pipeline._is_convergence_step(step2.name)  # type: ignore
+        assert pipeline._is_convergence_step(step3.name)  # type: ignore
+
+    def test_create_step_input_queue(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        generator_name: str = generator.name  # type: ignore
+        input_queue = pipeline._create_step_input_queue(generator_name)
+        assert isinstance(input_queue, Queue)
+        assert isinstance(
+            pipeline.dag.get_step(generator_name)[INPUT_QUEUE_ATTR_NAME], Queue
+        )
+
+    def test_run_steps(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(resources=StepResources(replicas=2))
+            global_step = DummyGlobalStep()
+
+            generator >> step >> global_step
+
+        pipeline._create_step_input_queue = mock.MagicMock()
+        pipeline._run_step = mock.MagicMock()
+        pipeline._run_steps(steps=[generator.name, step.name])  # type: ignore
+
+        pipeline._create_step_input_queue.assert_has_calls(
+            [
+                mock.call(step_name=step.name),
+                mock.call(step_name=generator.name),
+            ],
+            any_order=True,
+        )
+
+        pipeline._run_step.assert_has_calls(
+            [
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=0),
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=0),
+                mock.call(step=mock.ANY, input_queue=mock.ANY, replica=1),
+            ]
+        )
+
+    def test_add_batches_back_to_batch_manager(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        generator_name: str = generator.name  # type: ignore
+        step_name: str = step.name  # type: ignore
+
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        generator_queue = Queue()
+        pipeline.dag.set_step_attr(
+            generator_name, INPUT_QUEUE_ATTR_NAME, generator_queue
+        )
+        step_queue = Queue()
+        pipeline.dag.set_step_attr(step_name, INPUT_QUEUE_ATTR_NAME, step_queue)
+
+        generator_queue.put(
+            _Batch(seq_no=0, step_name=generator_name, last_batch=False)
+        )
+        generator_queue.put(
+            _Batch(seq_no=1, step_name=generator_name, last_batch=False)
+        )
+
+        step_batch_0 = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+        step_batch_1 = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+        step_queue.put(step_batch_0)
+        step_queue.put(step_batch_1)
+
+        pipeline._add_batches_back_to_batch_manager()
+
+        assert pipeline._batch_manager._steps[step_name].built_batches == [
+            step_batch_0,
+            step_batch_1,
+        ]
+
+    def test_consume_output_queue(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        pipeline._output_queue = Queue()
+        pipeline._write_buffer = mock.MagicMock()
+        pipeline._handle_batch_on_stop = mock.MagicMock()
+
+        generator_name: str = generator.name  # type: ignore
+        step_name: str = step.name  # type: ignore
+
+        generator_batch = _Batch(seq_no=0, step_name=generator_name, last_batch=False)
+        step_batch = _Batch(seq_no=0, step_name=step_name, last_batch=False)
+
+        pipeline._output_queue.put(generator_batch)
+        pipeline._output_queue.put(step_batch)
+
+        pipeline._consume_output_queue()
+
+        pipeline._write_buffer.add_batch.assert_called_once_with(step_batch)
+        pipeline._handle_batch_on_stop.assert_has_calls(
+            [
+                mock.call(generator_batch),
+                mock.call(step_batch),
+            ]
+        )
+
     def test_send_batch_to_step(self) -> None:
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             generator = DummyGeneratorStep()
             step = DummyStep1()
             global_step = DummyGlobalStep()
@@ -146,6 +514,7 @@ class TestBasePipeline:
             generator >> [step, global_step]
 
         pipeline._batch_manager = mock.MagicMock()
+        pipeline._send_to_step = mock.MagicMock()
         pipeline._setup_fsspec()
 
         with mock.patch(
@@ -159,6 +528,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` shouldn't have been called because last batch sent with
+        # `_send_batch_to_step` is from a non-global step.
         mock_write.assert_not_called()
 
         with mock.patch(
@@ -168,6 +539,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=global_step.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` should have been called because last batch sent with
+        # `_send_batch_to_step` is from a global step.
         mock_write.assert_called_once_with(
             pipeline._fs,
             UPath(pipeline._storage_base_path) / global_step.name,
@@ -182,6 +555,8 @@ class TestBasePipeline:
                 _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
             )
 
+        # `write_batch_data_to_fs` shouldn't have been called because generator receives
+        # empty batches, so there's no data to write.
         mock_write.assert_not_called()
 
         with mock.patch(
@@ -207,6 +582,259 @@ class TestBasePipeline:
             ]
         )
 
+    def test_register_batch(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        pipeline._batch_manager = mock.MagicMock()
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        pipeline._register_batch(batch)
+
+        pipeline._batch_manager.register_batch.assert_called_once_with(batch)
+
+    def test_send_last_batch_flag_to_step(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        step_name: str = step.name  # type: ignore
+
+        pipeline._batch_manager = _BatchManager(
+            steps={},
+            last_batch_received={step_name: None},
+            last_batch_sent={step_name: None},
+            last_batch_flag_sent_to=[],
+        )
+
+        with mock.patch.object(pipeline, "_send_to_step") as mock_sent_to_step:
+            pipeline._send_last_batch_flag_to_step(step_name)
+
+        mock_sent_to_step.assert_called_once_with(step_name, LAST_BATCH_SENT_FLAG)
+
+    def test_request_initial_batches(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+
+            generator >> step
+
+            generator2 = DummyGeneratorStep()
+            step2 = DummyStep1(input_batch_size=5)
+
+            generator2 >> step2
+
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            generator2.name: 1,
+            step2.name: 1,
+        }
+
+        # Simulate there were batches from the cache for the steps
+        batch_0 = _Batch(
+            seq_no=0,
+            step_name=generator.name,  # type: ignore
+            last_batch=False,
+            data=[[{"a": i} for i in range(5)]],
+        )
+        pipeline._batch_manager._steps[step.name].data[generator.name] = [  # type: ignore
+            batch_0
+        ]
+
+        batch_1 = _Batch(
+            seq_no=0,
+            step_name=generator2.name,  # type: ignore
+            last_batch=False,
+            data=[[{"b": i} for i in range(5)]],
+        )  # type: ignore
+        pipeline._batch_manager._steps[step2.name].data[generator2.name] = [  # type: ignore
+            batch_1
+        ]
+
+        with mock.patch.object(
+            pipeline, "_send_batch_to_step"
+        ) as mock_send_batch_to_step:
+            pipeline._request_initial_batches()
+
+        mock_send_batch_to_step.assert_has_calls(
+            [
+                mock.call(mock.ANY),
+                mock.call(mock.ANY),
+                mock.call(_Batch(seq_no=0, step_name=generator.name, last_batch=False)),  # type: ignore
+                mock.call(
+                    _Batch(seq_no=0, step_name=generator2.name, last_batch=False)  # type: ignore
+                ),
+            ],
+            any_order=True,
+        )
+
+    def test_request_more_batches_if_needed(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        generator_name: str = generator.name  # type: ignore
+
+        pipeline._batch_manager = _BatchManager.from_dag(pipeline.dag)
+
+        batch = _Batch(seq_no=0, step_name=generator_name, last_batch=False)
+        pipeline._batch_manager._last_batch_sent[generator_name] = batch
+
+        with mock.patch.object(
+            pipeline, "_send_batch_to_step"
+        ) as mock_send_batch_to_step:
+            pipeline._request_more_batches_if_needed(step)
+
+        mock_send_batch_to_step.assert_called_once_with(batch.next_batch())
+
+    def test_handle_batch_on_stop(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+            step2 = DummyStep1(input_batch_size=5)
+            step3 = DummyStep1(input_batch_size=5)
+
+            generator >> [step, step2, step3]
+
+        batch_manager_mock = mock.MagicMock()
+        pipeline._batch_manager = batch_manager_mock
+
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        pipeline._handle_batch_on_stop(batch)
+
+        batch_manager_mock.register_batch.assert_called_once_with(batch)
+        batch_manager_mock.add_batch.assert_has_calls(
+            [
+                mock.call(step.name, batch),
+                mock.call(step2.name, batch),
+                mock.call(step3.name, batch),
+            ]
+        )
+
+    def test_get_step_from_batch(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+
+            generator >> step
+
+        batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        assert pipeline._get_step_from_batch(batch) == generator
+
+        batch = _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        assert pipeline._get_step_from_batch(batch) == step
+
+    def test_notify_steps_to_stop(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(input_batch_size=5)
+            global_step = DummyGlobalStep()
+
+            generator >> step >> global_step
+
+        pipeline._steps_load_status = {  # type: ignore
+            generator.name: 1,
+            step.name: 1,
+            global_step.name: -999,
+        }
+
+        with mock.patch.object(pipeline, "_send_to_step") as mock_send_to_step:
+            pipeline._notify_steps_to_stop()
+
+        mock_send_to_step.assert_has_calls(
+            [
+                mock.call(generator.name, None),
+                mock.call(step.name, None),
+            ]
+        )
+
+    def test_get_successors(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        ) == ([step.name, step2.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        ) == ([step3.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
+        ) == ([step3.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
+        ) == ([], [], False)
+
+    def test_get_successors_with_routing_batch_function(self) -> None:
+        @routing_batch_function()
+        def fixed_routing_batch_function(steps: List[str]) -> List[str]:
+            return ["step_2", "step_3"]
+
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+            step3 = DummyStep1(name="step_3")
+            step4 = DummyStep2(name="step_4")
+
+            generator >> fixed_routing_batch_function >> [step, step2, step3] >> step4
+
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
+        ) == (["step_2", "step_3"], ["step_1"], True)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step2.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step3.name, last_batch=False)  # type: ignore
+        ) == ([step4.name], [], False)
+        assert pipeline._get_successors(
+            _Batch(seq_no=0, step_name=step4.name, last_batch=False)  # type: ignore
+        ) == ([], [], False)
+
+    def test_set_next_expected_seq_no(self) -> None:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
+            generator = DummyGeneratorStep(name="generator")
+            step = DummyStep1(name="step_1")
+            step2 = DummyStep1(name="step_2")
+            step3 = DummyStep1(name="step_3")
+            step4 = DummyStep2(name="step_4")
+
+            generator >> [step, step2, step3] >> step4
+
+        pipeline._batch_manager = mock.MagicMock()
+
+        pipeline._set_next_expected_seq_no(
+            steps=["step_1", "step_2"], from_step="generator", next_expected_seq_no=666
+        )
+
+        pipeline._batch_manager.set_next_expected_seq_no.assert_has_calls(
+            [
+                mock.call(
+                    step_name="step_1", from_step="generator", next_expected_seq_no=666
+                ),
+                mock.call(
+                    step_name="step_2", from_step="generator", next_expected_seq_no=666
+                ),
+            ]
+        )
+
     def test_get_runtime_parameters_info(self) -> None:
         class DummyStep1(Step):
             runtime_param1: RuntimeParameter[str] = Field(
@@ -216,7 +844,7 @@ class TestBasePipeline:
                 default=None, description="runtime_param2 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
         class DummyStep2(Step):
@@ -227,15 +855,45 @@ class TestBasePipeline:
                 default=None, description="runtime_param4 description"
             )
 
-            def process(self, inputs: StepInput) -> None:
+            def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
                 pass
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             DummyStep1(name="dummy_step_1")
             DummyStep2(name="dummy_step_2")
 
         assert pipeline.get_runtime_parameters_info() == {
             "dummy_step_1": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the "
                     "step.",
@@ -254,6 +912,36 @@ class TestBasePipeline:
                 },
             ],
             "dummy_step_2": [
+                {
+                    "name": "resources",
+                    "runtime_parameters_info": [
+                        {
+                            "description": "The number of replicas for the step.",
+                            "name": "replicas",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of CPUs assigned to each step replica.",
+                            "name": "cpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The number of GPUs assigned to each step replica.",
+                            "name": "gpus",
+                            "optional": True,
+                        },
+                        {
+                            "description": "The memory in bytes required for each step replica.",
+                            "name": "memory",
+                            "optional": True,
+                        },
+                        {
+                            "description": "A dictionary containing names of custom resources and the number of those resources required for each step replica.",
+                            "name": "resources",
+                            "optional": True,
+                        },
+                    ],
+                },
                 {
                     "description": "The number of rows that will contain the batches processed by the "
                     "step.",
@@ -331,7 +1019,7 @@ class TestBasePipeline:
             def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
                 yield [{}]
 
-        with BasePipeline(name="unit-test-pipeline") as pipeline:
+        with DummyPipeline(name="unit-test-pipeline") as pipeline:
             gen_step = DummyGeneratorStep(name="dummy_generator_step")
             step1 = DummyStep1(name="dummy_step_1")
             step2 = DummyStep2(name="dummy_step_2")
@@ -348,7 +1036,7 @@ class TestBasePipeline:
     def test_cache_dir_env_variable(self) -> None:
         with mock.patch.dict(os.environ, clear=True):
             os.environ["DISTILABEL_CACHE_DIR"] = "/tmp/unit-test"
-            pipeline = BasePipeline(name="unit-test-pipeline")
+            pipeline = DummyPipeline(name="unit-test-pipeline")
             assert pipeline._cache_dir == Path("/tmp/unit-test")
 
     @pytest.mark.parametrize(
@@ -371,7 +1059,7 @@ class TestBasePipeline:
     )
     def test_step_names_inferred(self, in_pipeline: bool, names: List[str]) -> None:
         if in_pipeline:
-            with BasePipeline(name="unit-test-pipeline"):
+            with DummyPipeline(name="unit-test-pipeline"):
                 gen_step = DummyGeneratorStep()
                 step1_0 = DummyStep1()
                 step2 = DummyStep2()
@@ -391,2394 +1079,165 @@ class TestBasePipeline:
 
     def test_infer_step_names_big_pipeline(self) -> None:
         # Tests that the name of the steps are inferred correctly when the pipeline is big (say 50 steps).
-        with BasePipeline(name="unit-test-pipeline") as pipe:
+        with DummyPipeline(name="unit-test-pipeline") as pipe:
             gen_step = DummyGeneratorStep()
             for _ in range(50):
                 gen_step.connect(DummyStep1())
         assert list(pipe.dag.G)[-1] == "dummy_step1_49"
 
-
-class TestBatch:
-    def test_get_data(self) -> None:
-        batch = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[
-                [
-                    {"a": 0},
-                    {"a": 1},
-                    {"a": 2},
-                    {"a": 3},
-                    {"a": 4},
-                    {"a": 5},
-                    {"a": 6},
-                ]
-            ],
-        )
-
-        batch.set_data(
-            [
-                [
-                    {"a": 0},
-                    {"a": 1},
-                    {"a": 2},
-                    {"a": 3},
-                    {"a": 4},
-                    {"a": 5},
-                    {"a": 6},
-                ]
-            ]
-        )
-
-        old_hash = batch.data_hash
-
-        data = batch.get_data(5)
-        assert data == [{"a": 0}, {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]
-        assert batch.data == [[{"a": 5}, {"a": 6}]]
-        assert batch.data_hash != old_hash
-
-    def test_set_data(self) -> None:
-        batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
-        data = [[{"i": i} for i in range(5000)]]
-        batch.set_data(data)
-
-        assert batch.data == data
-        assert batch.size == 5000
-
-    def test_next_batch(self) -> None:
-        batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
-        next_batch = batch.next_batch()
-
-        assert next_batch == _Batch(seq_no=1, step_name="step1", last_batch=False)
-
-    def test_accumulate(self) -> None:
-        batches = [
-            [
-                _Batch(
-                    seq_no=0,
-                    step_name="step1",
-                    last_batch=False,
-                    data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-                ),
-                _Batch(
-                    seq_no=1,
-                    step_name="step1",
-                    last_batch=True,
-                    data=[[{"a": 4}, {"a": 5}, {"a": 6}]],
-                ),
-            ],
-            [
-                _Batch(
-                    seq_no=0,
-                    step_name="step2",
-                    last_batch=False,
-                    data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
-                ),
-                _Batch(
-                    seq_no=1,
-                    step_name="step2",
-                    last_batch=True,
-                    data=[[{"b": 4}, {"b": 5}, {"b": 6}]],
-                ),
-            ],
-        ]
-
-        batch = _Batch.accumulate("step3", batches)
-
-        assert batch.seq_no == 0
-        assert batch.step_name == "step3"
-        assert batch.last_batch is True
-        assert batch.data == [
-            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
-            [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}],
-        ]
-
-    def test_dump(self) -> None:
-        batch = _Batch(seq_no=0, step_name="step1", last_batch=False)
-        assert batch.dump() == {
-            "seq_no": 0,
-            "size": 0,
-            "step_name": "step1",
-            "last_batch": False,
-            "data": [],
-            "data_hash": None,
-            "accumulated": False,
-            "created_from": {},
-            "batch_routed_to": [],
-            "type_info": {"module": "distilabel.pipeline.base", "name": "_Batch"},
-        }
-
-        batch = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-            data_hash="hash",
-            accumulated=False,
-            created_from={"step0": [(0, 5), (1, 5)]},
-            batch_routed_to=["step2", "step3"],
-        )
-        assert batch.dump() == {
-            "seq_no": 0,
-            "size": 0,
-            "step_name": "step1",
-            "last_batch": False,
-            "data": [[{"a": 1}, {"a": 2}, {"a": 3}]],
-            "data_hash": "hash",
-            "accumulated": False,
-            "created_from": {"step0": [(0, 5), (1, 5)]},
-            "batch_routed_to": ["step2", "step3"],
-            "type_info": {"module": "distilabel.pipeline.base", "name": "_Batch"},
-        }
-
-    def test_from_dict(self) -> None:
-        batch = _Batch.from_dict(
-            {
-                "seq_no": 0,
-                "step_name": "step1",
-                "last_batch": False,
-                "data": [[{"a": 1}, {"a": 2}, {"a": 3}]],
-                "accumulated": False,
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_Batch",
-                },
-            }
-        )
-
-        assert isinstance(batch, _Batch)
-        assert batch.seq_no == 0
-        assert batch.step_name == "step1"
-        assert batch.last_batch is False
-        assert batch.data == [[{"a": 1}, {"a": 2}, {"a": 3}]]
-        assert batch.accumulated is False
-
-
-class TestBatchManagerStep:
-    def test_add_batch(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2", accumulate=False, input_batch_size=10, data={"step1": []}
-        )
-
-        batch = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-        )
-
-        batch_manager_step.add_batch(batch)
-
-        assert batch_manager_step.data["step1"] == [batch]
-        assert batch_manager_step.last_batch_received == []
-
-    def test_add_batch_with_prepend(self) -> None:
-        batch_1 = _Batch(
-            seq_no=1,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 6}, {"a": 7}, {"a": 8}, {"a": 9}, {"a": 10}]],
-        )
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2",
-            accumulate=False,
-            input_batch_size=10,
-            data={"step1": [batch_1]},
-        )
-
-        batch_0 = _Batch(
-            seq_no=0,
-            step_name="step2",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-        )
-        batch_manager_step.add_batch(batch_0, prepend=True)
-
-        assert batch_manager_step.built_batches == [batch_0]
-        assert batch_manager_step.data["step1"] == [batch_1]
-        assert batch_manager_step.last_batch_received == []
-
-    def test_add_batch_last_batch(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2", accumulate=False, input_batch_size=10, data={"step1": []}
-        )
-
-        batch = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=True,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-        )
-
-        batch_manager_step.add_batch(batch)
-
-        assert batch_manager_step.data["step1"] == [batch]
-        assert batch_manager_step.last_batch_received == ["step1"]
-
-    def test_get_batch(self) -> None:
-        previously_built_batch = _Batch(
-            seq_no=0,
-            step_name="step3",
-            last_batch=False,
-            data=[
-                [
-                    {"a": -1},
-                    {"a": 0},
-                ],
-                [
-                    {"b": -1},
-                    {"b": 0},
-                ],
-            ],
-        )
-
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=False,
-            input_batch_size=2,
-            seq_no=1,
-            data={
-                "step1": [
-                    _Batch(
-                        seq_no=1,
-                        step_name="step1",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"a": 1},
-                                {"a": 2},
-                                {"a": 3},
-                                {"a": 4},
-                                {"a": 5},
-                            ]
-                        ],
-                        size=5,
-                    )
-                ],
-                "step2": [
-                    _Batch(
-                        seq_no=1,
-                        step_name="step2",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                                {"b": 3},
-                                {"b": 4},
-                                {"b": 5},
-                                {"b": 6},
-                            ]
-                        ],
-                        size=5,
-                    )
-                ],
-            },
-            built_batches=[previously_built_batch],
-        )
-
-        batch = batch_manager_step.get_batch()
-
-        assert batch == previously_built_batch
-
-        batch = batch_manager_step.get_batch()
-
-        assert batch == _Batch(
-            step_name="step3",
-            seq_no=1,
-            last_batch=False,
-            data=[
-                [
-                    {"a": 1},
-                    {"a": 2},
-                ],
-                [
-                    {"b": 1},
-                    {"b": 2},
-                ],
-            ],
-            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
-        )
-
-        batch = batch_manager_step.get_batch()
-
-        assert batch == _Batch(
-            step_name="step3",
-            seq_no=2,
-            last_batch=False,
-            data=[
-                [
-                    {"a": 3},
-                    {"a": 4},
-                ],
-                [
-                    {"b": 3},
-                    {"b": 4},
-                ],
-            ],
-            created_from={"step1": [(1, 5)], "step2": [(1, 5)]},
-        )
-
-    def test_get_batches_accumulate(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=True,
-            data={
-                "step1": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step1",
-                        last_batch=True,
-                        data=[
-                            [
-                                {"a": 1},
-                                {"a": 2},
-                                {"a": 3},
-                                {"a": 4},
-                                {"a": 5},
-                            ]
-                        ],
-                        size=5,
-                    )
-                ],
-                "step2": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step2",
-                        last_batch=True,
-                        data=[
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                                {"b": 3},
-                                {"b": 4},
-                                {"b": 5},
-                                {"b": 6},
-                            ]
-                        ],
-                        size=6,
-                    )
-                ],
-            },
-            last_batch_received=["step1", "step2"],
-        )
-
-        batch = batch_manager_step.get_batch()
-
-        assert batch == _Batch(
-            step_name="step3",
-            seq_no=0,
-            last_batch=True,
-            accumulated=True,
-            data=[
-                [
-                    {"a": 1},
-                    {"a": 2},
-                    {"a": 3},
-                    {"a": 4},
-                    {"a": 5},
-                ],
-                [
-                    {"b": 1},
-                    {"b": 2},
-                    {"b": 3},
-                    {"b": 4},
-                    {"b": 5},
-                    {"b": 6},
-                ],
-            ],
-            created_from={"step1": [(0, 5)], "step2": [(0, 6)]},
-        )
-
-    def test_get_batches_not_enough_data(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=False,
-            input_batch_size=2,
-            data={
-                "step1": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step1",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"a": 1},
-                            ]
-                        ],
-                    )
-                ],
-                "step2": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step2",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                            ]
-                        ],
-                    )
-                ],
-            },
-        )
-
-        assert batch_manager_step.get_batch() is None
-
-    def test_from_step(self, dummy_step_1: "Step") -> None:
-        batch_manager_step = _BatchManagerStep.from_step(
-            step=dummy_step_1, predecessors=["step1", "step2"]
-        )
-
-        assert batch_manager_step.step_name == "dummy_step_1"
-        assert batch_manager_step.accumulate is False
-        assert batch_manager_step.input_batch_size == 50
-        assert batch_manager_step.data == {"step1": [], "step2": []}
-        assert batch_manager_step.seq_no == 0
-        assert batch_manager_step.last_batch_received == []
-
-    def test_from_step_with_global_step(self, dummy_global_step: "GlobalStep") -> None:
-        batch_manager_step = _BatchManagerStep.from_step(
-            step=dummy_global_step, predecessors=["step1", "step2"]
-        )
-
-        assert batch_manager_step.step_name == "dummy_global_step"
-        assert batch_manager_step.accumulate is True
-        assert batch_manager_step.input_batch_size == 50
-        assert batch_manager_step.data == {"step1": [], "step2": []}
-        assert batch_manager_step.seq_no == 0
-        assert batch_manager_step.last_batch_received == []
-
-    def test_get_seq_no(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2", accumulate=False, input_batch_size=5, data={"step1": []}
-        )
-
-        seq_no = batch_manager_step._get_seq_no()
-
-        assert seq_no == 0
-        assert batch_manager_step.seq_no == 1
-
-    def test_get_data(self) -> None:
-        batch_step_1 = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]],
-            size=6,
-            batch_routed_to=["step1", "step2"],
-        )
-        batch_step_2 = _Batch(
-            seq_no=0,
-            step_name="step2",
-            last_batch=False,
-            data=[
-                [
-                    {"b": 1},
-                    {"b": 2},
-                    {"b": 3},
-                    {"b": 4},
-                    {"b": 5},
-                    {"b": 6},
-                    {"b": 7},
-                ]
-            ],
-            size=7,
-            batch_routed_to=["step1", "step2"],
-        )
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=False,
-            input_batch_size=5,
-            data={
-                "step1": [batch_step_1],
-                "step2": [batch_step_2],
-            },
-        )
-
-        data, created_from, routed_to = batch_manager_step._get_data()
-        assert data == [
-            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}],
-            [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}],
-        ]
-        assert created_from == {"step1": [(0, 6)], "step2": [(0, 7)]}
-        assert routed_to == ["step1", "step2"]
-
-        assert batch_manager_step.data == {
-            "step1": [
-                _Batch(
-                    seq_no=0,
-                    step_name="step1",
-                    last_batch=False,
-                    data=[[{"a": 6}]],
-                    data_hash=batch_step_1.data_hash,
-                    size=6,
-                    batch_routed_to=["step1", "step2"],
-                )
-            ],
-            "step2": [
-                _Batch(
-                    seq_no=0,
-                    step_name="step2",
-                    last_batch=False,
-                    data=[[{"b": 6}, {"b": 7}]],
-                    data_hash=batch_step_2.data_hash,
-                    size=7,
-                    batch_routed_to=["step1", "step2"],
-                )
-            ],
-        }
-
-    def test_get_data_accumulate(self) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=True,
-            data={
-                "step1": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step1",
-                        last_batch=False,
-                        data=[
-                            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]
-                        ],
-                        size=6,
-                    )
-                ],
-                "step2": [
-                    _Batch(
-                        seq_no=0,
-                        step_name="step2",
-                        last_batch=False,
-                        data=[
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                                {"b": 3},
-                                {"b": 4},
-                                {"b": 5},
-                                {"b": 6},
-                                {"b": 7},
-                            ]
-                        ],
-                        size=7,
-                    )
-                ],
-            },
-        )
-
-        data, created_from, routed_to = batch_manager_step._get_data()
-
-        assert data == [
-            [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}],
-            [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}, {"b": 7}],
-        ]
-        assert created_from == {"step1": [(0, 6)], "step2": [(0, 7)]}
-        assert routed_to == []
-
-        assert batch_manager_step.data == {"step1": [], "step2": []}
-
-    def test_get_data_convergence_step(self) -> None:
-        batch_a_0 = _Batch(
-            seq_no=0,
-            step_name="A",
-            last_batch=False,
-            data=[
-                [
-                    {"generation": "Hello, I'm A 0"},
-                    {"generation": "Hello, I'm A 0"},
-                    {"generation": "Hello, I'm A 0"},
-                ]
-            ],
-            size=3,
-            created_from={"Z": [(0, 3)]},
-        )
-
-        batch_a_1 = _Batch(
-            seq_no=1,
-            step_name="A",
-            last_batch=False,
-            data=[
-                [
-                    {"generation": "Hello, I'm A 1"},
-                    {"generation": "Hello, I'm A 1"},
-                    {"generation": "Hello, I'm A 1"},
-                ]
-            ],
-            size=3,
-            created_from={"Z": [(1, 3)]},
-        )
-
-        batch_b_0 = _Batch(
-            seq_no=0,
-            step_name="B",
-            last_batch=False,
-            data=[
-                [
-                    {"generation": "Hello, I'm B 0"},
-                    {"generation": "Hello, I'm B 0"},
-                    {"generation": "Hello, I'm B 0"},
-                ]
-            ],
-            size=3,
-            created_from={"Z": [(0, 3)]},
-        )
-
-        batch_c_0 = _Batch(
-            seq_no=0,
-            step_name="C",
-            last_batch=False,
-            data=[
-                [
-                    {"generation": "Hello, I'm C 0"},
-                    {"generation": "Hello, I'm C 0"},
-                    {"generation": "Hello, I'm C 0"},
-                ]
-            ],
-            size=3,
-            created_from={"Z": [(1, 3)]},
-        )
-
-        batch_manager_step = _BatchManagerStep(
-            step_name="D",
-            input_batch_size=3,
-            convergence_step=True,
-            accumulate=False,
-            data={"A": [batch_a_0, batch_a_1], "B": [batch_b_0], "C": [batch_c_0]},
-        )
-
-        data, created_from, routed_to = batch_manager_step._get_data()
-
-        assert data == [
-            [
-                {"generation": "Hello, I'm A 0"},
-                {"generation": "Hello, I'm A 0"},
-                {"generation": "Hello, I'm A 0"},
-            ],
-            [
-                {"generation": "Hello, I'm B 0"},
-                {"generation": "Hello, I'm B 0"},
-                {"generation": "Hello, I'm B 0"},
-            ],
-        ]
-        assert created_from == {"A": [(0, 3)], "B": [(0, 3)]}
-        assert routed_to == []
-        assert batch_manager_step.next_expected_created_from_batch_seq_no == 1
-
-        data, created_from, routed_to = batch_manager_step._get_data()
-
-        assert data == [
-            [
-                {"generation": "Hello, I'm A 1"},
-                {"generation": "Hello, I'm A 1"},
-                {"generation": "Hello, I'm A 1"},
-            ],
-            [
-                {"generation": "Hello, I'm C 0"},
-                {"generation": "Hello, I'm C 0"},
-                {"generation": "Hello, I'm C 0"},
-            ],
-        ]
-        assert created_from == {"A": [(1, 3)], "C": [(0, 3)]}
-        assert routed_to == []
-        assert batch_manager_step.next_expected_created_from_batch_seq_no == 2
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["pandas", "numpy"], ["numpy", "pandas"]),
+            (["*`wrong", "pandas>1.0"], ["pandas>1.0"]),
+            (["pandas", "pandas", "pandas"], ["pandas"]),
+        ],
+    )
+    def test_requirements(self, requirements: List[str], expected: List[str]) -> None:
+        with DummyPipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements == expected
 
     @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
+        "requirements, expected",
         [
+            (None, []),
+            (["distilabel"], []),
+            (["distilabel", "yfinance"], ["yfinance"]),
             (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ]
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[
-                                [
-                                    {"a": 1},
-                                    {"a": 2},
-                                    {"a": 3},
-                                    {"a": 4},
-                                    {"a": 5},
-                                    {"a": 6},
-                                ]
-                            ],
-                        )
-                    ]
-                },
-                ["step1"],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ]
-                },
-                ["step1"],
-                True,
+                ["distilabel>=3000", "yfinance==1.0.0"],
+                ["distilabel>=3000", "yfinance==1.0.0"],
             ),
         ],
     )
-    def test_last_batch(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
+    def test_requirements_to_install(
+        self, requirements: List[str], expected: List[str]
     ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2",
-            accumulate=False,
-            input_batch_size=5,
-            data=data,
-            last_batch_received=last_batch_received,
-        )
+        with DummyPipeline(
+            name="unit-test-pipeline", requirements=requirements
+        ) as pipeline:
+            assert pipeline.requirements_to_install() == expected
 
-        assert batch_manager_step._last_batch() is expected
+    def test_pipeline_error_from_requirements(self):
+        @requirements(["distilabel>=0.0.1"])
+        class CustomStep(Step):
+            @property
+            def inputs(self) -> List[str]:
+                return ["instruction"]
 
-    @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
-        [
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                ["step1"],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                ["step1", "step2"],
-                True,
-            ),
-        ],
-    )
-    def test_last_batch_accumulate(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
-    ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=True,
-            data=data,
-            last_batch_received=last_batch_received,
-        )
+            @property
+            def outputs(self) -> List[str]:
+                return ["response"]
 
-        assert batch_manager_step._last_batch() is expected
+            def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
+                for input in inputs:
+                    input["response"] = "unit test"
+                yield inputs
 
-    @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
-        [
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}]],
-                            created_from={"step0": [(0, 3)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}]],
-                            created_from={"step0": [(0, 3)]},
-                        )
-                    ],
-                },
-                [],
-                True,
-            ),
-        ],
-    )
-    def test_last_batch_convergence_step(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
-    ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=False,
-            data=data,
-            last_batch_received=last_batch_received,
-            input_batch_size=3,
-            convergence_step=True,
-        )
+        with pytest.raises(
+            ModuleNotFoundError,
+            match=r"Please install the following requirements to run the pipeline: \ndistilabel>=0.0.1\nrandom_requirement",
+        ):
+            with DummyPipeline(
+                name="unit-test-pipeline", requirements=["random_requirement"]
+            ) as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                step2 = CustomStep()
 
-        assert batch_manager_step._last_batch() is expected
+                gen_step >> step1_0 >> step2
+            pipeline.run()
 
-    @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
-        [
-            (
-                {
-                    "step1": [],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                ["step1", "step2"],
-                True,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
-                        )
-                    ],
-                },
-                ["step1", "step2"],
-                True,
-            ),
-        ],
-    )
-    def test_ready_to_create_batch(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
-    ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step2",
-            accumulate=False,
-            input_batch_size=5,
-            data=data,
-            last_batch_received=last_batch_received,
-        )
+    def test_pipeline_with_dataset_and_generator_step(self):
+        with pytest.raises(ValueError) as exc_info:
+            with DummyPipeline(name="unit-test-pipeline") as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                gen_step >> step1_0
 
-        assert batch_manager_step._ready_to_create_batch() is expected
+            pipeline.run(
+                use_cache=False, dataset=[{"instruction": "Tell me a joke."}] * 10
+            )
+            exc_info.value.args[0].startswith(
+                "There is already a `GeneratorStep` in the pipeline"
+            )
 
-    @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
-        [
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                ["step1", "step2"],
-                True,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                        )
-                    ],
-                },
-                ["step1"],
-                False,
-            ),
-        ],
-    )
-    def test_ready_to_create_batch_accumulate(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
-    ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=True,
-            data=data,
-            last_batch_received=last_batch_received,
-        )
+    def test_optional_name(self):
+        import random
 
-        assert batch_manager_step._ready_to_create_batch() is expected
-
-    def test_dump(self) -> None:
-        batch_step_1 = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=True,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}, {"a": 6}]],
-            data_hash="hash0",
-            size=6,
-        )
-        batch_step_2 = _Batch(
-            seq_no=0,
-            step_name="step2",
-            last_batch=True,
-            data=[
-                [{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}, {"b": 6}, {"b": 7}]
-            ],
-            data_hash="hash1",
-            size=7,
-        )
-        batch_step_3 = _Batch(
-            seq_no=0,
-            step_name="step3",
-            last_batch=True,
-            data=[[{"c": 1}, {"c": 2}, {"c": 3}, {"c": 4}, {"c": 5}]],
-            data_hash="hash2",
-            size=5,
-        )
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=True,
-            data={
-                "step1": [batch_step_1],
-                "step2": [batch_step_2],
-            },
-            built_batches=[batch_step_3],
-        )
-        assert batch_manager_step.dump() == {
-            "step_name": "step3",
-            "accumulate": True,
-            "convergence_step": False,
-            "convergence_step_batches_consumed": {},
-            "input_batch_size": None,
-            "data": {
-                "step1": [
-                    {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": True,
-                        "data": [
-                            [
-                                {"a": 1},
-                                {"a": 2},
-                                {"a": 3},
-                                {"a": 4},
-                                {"a": 5},
-                                {"a": 6},
-                            ]
-                        ],
-                        "data_hash": "hash0",
-                        "size": 6,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    }
-                ],
-                "step2": [
-                    {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": True,
-                        "data": [
-                            [
-                                {"b": 1},
-                                {"b": 2},
-                                {"b": 3},
-                                {"b": 4},
-                                {"b": 5},
-                                {"b": 6},
-                                {"b": 7},
-                            ]
-                        ],
-                        "data_hash": "hash1",
-                        "size": 7,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    }
-                ],
-            },
-            "built_batches": [
-                {
-                    "seq_no": 0,
-                    "step_name": "step3",
-                    "last_batch": True,
-                    "data": [[{"c": 1}, {"c": 2}, {"c": 3}, {"c": 4}, {"c": 5}]],
-                    "data_hash": "hash2",
-                    "size": 5,
-                    "accumulated": False,
-                    "batch_routed_to": [],
-                    "created_from": {},
-                    "type_info": {
-                        "module": "distilabel.pipeline.base",
-                        "name": "_Batch",
-                    },
-                }
-            ],
-            "seq_no": 0,
-            "last_batch_received": [],
-            "next_expected_created_from_batch_seq_no": 0,
-            "type_info": {
-                "module": "distilabel.pipeline.base",
-                "name": "_BatchManagerStep",
-            },
-        }
-
-    @pytest.mark.parametrize(
-        "data, last_batch_received, expected",
-        [
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                    "step2": [],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                },
-                [],
-                True,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=True,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=True,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
-                        )
-                    ],
-                },
-                ["step1", "step2"],
-                True,
-            ),
-            (
-                {
-                    "step1": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step1",
-                            last_batch=False,
-                            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 4)]},
-                        )
-                    ],
-                    "step2": [
-                        _Batch(
-                            seq_no=0,
-                            step_name="step2",
-                            last_batch=False,
-                            data=[[{"b": 1}, {"b": 2}, {"b": 3}, {"b": 4}, {"b": 5}]],
-                            batch_routed_to=["step1", "step2"],
-                            created_from={"step0": [(0, 5)]},
-                        )
-                    ],
-                },
-                [],
-                False,
-            ),
-        ],
-    )
-    def test_ready_to_create_batch_convergence_step(
-        self,
-        data: Dict[str, List[_Batch]],
-        last_batch_received: List[str],
-        expected: bool,
-    ) -> None:
-        batch_manager_step = _BatchManagerStep(
-            step_name="step3",
-            accumulate=False,
-            input_batch_size=5,
-            data=data,
-            last_batch_received=last_batch_received,
-            convergence_step=True,
-        )
-
-        assert batch_manager_step._ready_to_create_batch() is expected
-
-    def test_from_dict(self) -> None:
-        batch_manager_step = _BatchManagerStep.from_dict(
-            {
-                "step_name": "step3",
-                "accumulate": True,
-                "convergence_step": False,
-                "convergence_step_batches_consumed": {0: {"Z": 1234}},
-                "input_batch_size": None,
-                "data": {
-                    "step1": [
-                        {
-                            "seq_no": 0,
-                            "step_name": "step1",
-                            "last_batch": True,
-                            "data": [
-                                [
-                                    {"a": 1},
-                                    {"a": 2},
-                                    {"a": 3},
-                                    {"a": 4},
-                                    {"a": 5},
-                                    {"a": 6},
-                                ]
-                            ],
-                            "size": 6,
-                            "accumulated": False,
-                            "created_from": {},
-                            "batch_routed_to": [],
-                        }
-                    ],
-                    "step2": [
-                        {
-                            "seq_no": 0,
-                            "step_name": "step2",
-                            "last_batch": True,
-                            "data": [
-                                [
-                                    {"b": 1},
-                                    {"b": 2},
-                                    {"b": 3},
-                                    {"b": 4},
-                                    {"b": 5},
-                                    {"b": 6},
-                                    {"b": 7},
-                                ]
-                            ],
-                            "size": 7,
-                            "accumulated": False,
-                            "created_from": {},
-                            "batch_routed_to": [],
-                        }
-                    ],
-                },
-                "seq_no": 0,
-                "last_batch_received": [],
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_BatchManagerStep",
-                },
-            }
-        )
-
-        assert isinstance(batch_manager_step, _BatchManagerStep)
-        assert batch_manager_step.step_name == "step3"
-        assert batch_manager_step.accumulate is True
-        assert batch_manager_step.convergence_step is False
-        assert batch_manager_step.convergence_step_batches_consumed == {0: {"Z": 1234}}
-        assert batch_manager_step.input_batch_size is None
-        assert batch_manager_step.seq_no == 0
-        assert batch_manager_step.last_batch_received == []
-
-
-class TestBatchManager:
-    def test_add_batch(self) -> None:
-        batch_manager = _BatchManager(
-            steps={
-                "step3": _BatchManagerStep(
-                    step_name="step3",
-                    accumulate=False,
-                    input_batch_size=5,
-                    data={"step1": [], "step2": []},
-                )
-            },
-            last_batch_received={"step3": None},
-            last_batch_sent={"step3": None},
-            last_batch_flag_sent_to=[],
-        )
-
-        batch_from_step_1 = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-        )
-        batch_manager.add_batch(to_step="step3", batch=batch_from_step_1)
-
-        assert batch_manager._steps["step3"].data == {
-            "step1": [batch_from_step_1],
-            "step2": [],
-        }
-
-    def test_add_batch_with_prepend(self) -> None:
-        batch_1 = _Batch(
-            seq_no=1,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 6}, {"a": 7}, {"a": 8}, {"a": 9}, {"a": 10}]],
-        )
-        batch_manager = _BatchManager(
-            steps={
-                "step3": _BatchManagerStep(
-                    step_name="step3",
-                    accumulate=False,
-                    input_batch_size=5,
-                    data={
-                        "step1": [batch_1],
-                        "step2": [],
-                    },
-                )
-            },
-            last_batch_received={"step3": None},
-            last_batch_sent={"step3": None},
-            last_batch_flag_sent_to=[],
-        )
-        batch_0 = _Batch(
-            seq_no=0,
-            step_name="step1",
-            last_batch=False,
-            data=[[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}, {"a": 5}]],
-        )
-        batch_manager.add_batch(to_step="step3", batch=batch_0, prepend=True)
-        assert batch_manager._steps["step3"].built_batches == [batch_0]
-        assert batch_manager._steps["step3"].data == {
-            "step1": [batch_1],
-            "step2": [],
-        }
-
-    def test_from_dag(
-        self,
-        dummy_generator_step: "GeneratorStep",
-        dummy_step_1: "Step",
-        dummy_step_2: "Step",
-        dummy_global_step: "GlobalStep",
-    ) -> None:
-        dag = DAG()
-        dag.add_step(dummy_generator_step)
-        dag.add_step(dummy_step_1)
-        dag.add_step(dummy_step_2)
-        dag.add_step(dummy_global_step)
-        dag.add_edge("dummy_generator_step", "dummy_step_1")
-        dag.add_edge("dummy_generator_step", "dummy_global_step")
-        dag.add_edge("dummy_step_1", "dummy_step_2")
-
-        batch_manager = _BatchManager.from_dag(dag)
-
-        assert batch_manager._steps == {
-            "dummy_step_1": _BatchManagerStep(
-                step_name="dummy_step_1",
-                accumulate=False,
-                input_batch_size=50,
-                data={"dummy_generator_step": []},
-            ),
-            "dummy_global_step": _BatchManagerStep(
-                step_name="dummy_global_step",
-                accumulate=True,
-                input_batch_size=50,
-                data={"dummy_generator_step": []},
-            ),
-            "dummy_step_2": _BatchManagerStep(
-                step_name="dummy_step_2",
-                accumulate=False,
-                input_batch_size=50,
-                data={"dummy_step_1": []},
-            ),
-        }
-
-    def test_can_generate(self) -> None:
-        batch_manager = _BatchManager(
-            steps={},
-            last_batch_received={
-                "step_1": _Batch(seq_no=0, step_name="step_1", last_batch=False),
-                "step_2": _Batch(seq_no=0, step_name="step_2", last_batch=False),
-                "step_3": _Batch(seq_no=0, step_name="step_3", last_batch=False),
-            },
-            last_batch_sent={"step_1": None, "step_2": None, "step_3": None},
-            last_batch_flag_sent_to=[],
-        )
-
-        assert batch_manager.can_generate()
-
-        batch_1 = _Batch(seq_no=0, step_name="step_1", last_batch=True)
-        batch_2 = _Batch(seq_no=0, step_name="step_2", last_batch=True)
-        batch_3 = _Batch(seq_no=0, step_name="step_3", last_batch=True)
-
-        batch_manager = _BatchManager(
-            steps={},
-            last_batch_received={
-                "step_1": batch_1,
-                "step_2": batch_2,
-                "step_3": batch_3,
-            },
-            last_batch_sent={"step_1": batch_1, "step_2": batch_2, "step_3": batch_3},
-            last_batch_flag_sent_to=[],
-        )
-
-        assert not batch_manager.can_generate()
-
-    def test_dump(self) -> None:
-        built_batch = _Batch(
-            seq_no=0,
-            last_batch=False,
-            step_name="step3",
-            data=[[]],
-            data_hash="hash",
-        )
-
-        batch_manager = _BatchManager(
-            steps={
-                "step3": _BatchManagerStep(
-                    step_name="step3",
-                    accumulate=False,
-                    input_batch_size=5,
-                    data={"step1": [], "step2": []},
-                    built_batches=[built_batch],
-                    seq_no=1,
-                )
-            },
-            last_batch_received={
-                "step3": _Batch(
-                    seq_no=0,
-                    step_name="step3",
-                    last_batch=False,
-                )
-            },
-            last_batch_sent={
-                "step3": _Batch(
-                    seq_no=1,
-                    step_name="step3",
-                    last_batch=False,
-                )
-            },
-            last_batch_flag_sent_to=["step99"],
-        )
-        assert batch_manager.dump() == {
-            "steps": {
-                "step3": {
-                    "step_name": "step3",
-                    "accumulate": False,
-                    "convergence_step": False,
-                    "convergence_step_batches_consumed": {},
-                    "input_batch_size": 5,
-                    "data": {"step1": [], "step2": []},
-                    "built_batches": [
-                        {
-                            "seq_no": 0,
-                            "step_name": "step3",
-                            "last_batch": False,
-                            "data": [[]],
-                            "data_hash": "hash",
-                            "size": 0,
-                            "accumulated": False,
-                            "batch_routed_to": [],
-                            "created_from": {},
-                            "type_info": {
-                                "module": "distilabel.pipeline.base",
-                                "name": "_Batch",
-                            },
-                        }
-                    ],
-                    "seq_no": 1,
-                    "last_batch_received": [],
-                    "next_expected_created_from_batch_seq_no": 0,
-                    "type_info": {
-                        "module": "distilabel.pipeline.base",
-                        "name": "_BatchManagerStep",
-                    },
-                },
-            },
-            "last_batch_received": {
-                "step3": {
-                    "seq_no": 0,
-                    "step_name": "step3",
-                    "batch_routed_to": [],
-                    "created_from": {},
-                    "last_batch": False,
-                    "data": [],
-                    "data_hash": None,
-                    "size": 0,
-                    "accumulated": False,
-                    "type_info": {
-                        "module": "distilabel.pipeline.base",
-                        "name": "_Batch",
-                    },
-                }
-            },
-            "last_batch_sent": {
-                "step3": {
-                    "seq_no": 1,
-                    "step_name": "step3",
-                    "batch_routed_to": [],
-                    "created_from": {},
-                    "last_batch": False,
-                    "data": [],
-                    "data_hash": None,
-                    "size": 0,
-                    "accumulated": False,
-                    "type_info": {
-                        "module": "distilabel.pipeline.base",
-                        "name": "_Batch",
-                    },
-                }
-            },
-            "last_batch_flag_sent_to": ["step99"],
-            "type_info": {
-                "module": "distilabel.pipeline.base",
-                "name": "_BatchManager",
-            },
-        }
-
-    def test_from_dict(self) -> None:
-        batch_manager = _BatchManager.from_dict(
-            {
-                "steps": {
-                    "step1": {
-                        "step_name": "step1",
-                        "accumulate": True,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {0: {"Z": 1234}},
-                        "input_batch_size": None,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                    "step2": {
-                        "step_name": "step2",
-                        "accumulate": False,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {0: {"Z": 1234}},
-                        "input_batch_size": 50,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                },
-                "last_batch_received": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_sent": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_flag_sent_to": ["step3"],
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_BatchManager",
-                },
-            }
-        )
-
-        assert isinstance(batch_manager, _BatchManager)
-
-        assert len(batch_manager._steps) == 2
-        for step in batch_manager._steps.values():
-            assert isinstance(step, _BatchManagerStep)
-
-        assert len(batch_manager._last_batch_received) == 2
-        for step in batch_manager._last_batch_received.values():
-            assert isinstance(step, _Batch)
-
-        assert len(batch_manager._last_batch_sent) == 2
-        for step in batch_manager._last_batch_sent.values():
-            assert isinstance(step, _Batch)
-
-        assert batch_manager._last_batch_flag_sent_to == ["step3"]
-
-    def test_cache(self) -> None:
-        batch_manager = _BatchManager.from_dict(
-            {
-                "steps": {
-                    "step1": {
-                        "step_name": "step1",
-                        "accumulate": True,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
-                        "input_batch_size": None,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "data_hash": "1234",
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "built_batches": [
-                            {
-                                "seq_no": 0,
-                                "step_name": "step1",
-                                "last_batch": False,
-                                "data": [
-                                    [
-                                        {"a": 1},
-                                        {"a": 2},
-                                        {"a": 3},
-                                        {"a": 4},
-                                        {"a": 5},
-                                    ]
-                                ],
-                                "data_hash": "1234",
-                                "size": 5,
-                                "accumulated": False,
-                                "batch_routed_to": [],
-                                "created_from": {},
-                                "type_info": {
-                                    "module": "distilabel.pipeline.base",
-                                    "name": "_Batch",
-                                },
-                            }
-                        ],
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                    "step2": {
-                        "step_name": "step2",
-                        "accumulate": False,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
-                        "input_batch_size": 50,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "data_hash": "1234",
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "built_batches": [
-                            {
-                                "seq_no": 0,
-                                "step_name": "step1",
-                                "last_batch": False,
-                                "data": [
-                                    [
-                                        {"a": 1},
-                                        {"a": 2},
-                                        {"a": 3},
-                                        {"a": 4},
-                                        {"a": 5},
-                                    ]
-                                ],
-                                "data_hash": "1234",
-                                "size": 5,
-                                "accumulated": False,
-                                "batch_routed_to": [],
-                                "created_from": {},
-                                "type_info": {
-                                    "module": "distilabel.pipeline.base",
-                                    "name": "_Batch",
-                                },
-                            }
-                        ],
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                },
-                "last_batch_received": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_sent": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_flag_sent_to": ["step3"],
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_BatchManager",
-                },
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            batch_manager_path = Path(tmp_dir) / "batch_manager.json"
-            batch_manager.cache(batch_manager_path)
-
-            assert batch_manager_path.exists() and batch_manager_path.is_file()
-
-            for step_name, step in batch_manager._steps.items():
-                batch_manager_step_dir = (
-                    Path(tmp_dir) / "batch_manager_steps" / step_name
-                )
-                assert (
-                    batch_manager_step_dir.exists() and batch_manager_step_dir.is_dir()
-                )
-
-                batch_manager_step_path = (
-                    batch_manager_step_dir / "batch_manager_step.json"
-                )
-                assert (
-                    batch_manager_step_path.exists()
-                    and batch_manager_step_path.is_file()
-                )
-
-                built_batches_dir = batch_manager_step_dir / "built_batches"
-                assert built_batches_dir.exists()
-
-                for batch in step.built_batches:
-                    batch_path = (
-                        built_batches_dir
-                        / f"batch_{batch.seq_no}_{batch.data_hash}.json"
-                    )
-                    assert batch_path.exists() and batch_path.is_file()
-
-                for buffered_step_name in step.data:
-                    buffered_step_dir = batch_manager_step_dir / buffered_step_name
-                    assert buffered_step_dir.exists() and buffered_step_dir.is_dir()
-
-                    for batch in step.data[buffered_step_name]:
-                        batch_path = (
-                            buffered_step_dir
-                            / f"batch_{batch.seq_no}_{batch.data_hash}.json"
-                        )
-                        assert batch_path.exists() and batch_path.is_file()
-
-    def test_load_from_cache(self) -> None:
-        batch_manager = _BatchManager.from_dict(
-            {
-                "steps": {
-                    "step1": {
-                        "step_name": "step1",
-                        "accumulate": True,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
-                        "input_batch_size": None,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "data_hash": "1234",
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "built_batches": [
-                            {
-                                "seq_no": 0,
-                                "step_name": "step1",
-                                "last_batch": False,
-                                "data": [
-                                    [
-                                        {"a": 1},
-                                        {"a": 2},
-                                        {"a": 3},
-                                        {"a": 4},
-                                        {"a": 5},
-                                    ]
-                                ],
-                                "data_hash": "1234",
-                                "size": 5,
-                                "accumulated": False,
-                                "batch_routed_to": [],
-                                "created_from": {},
-                                "type_info": {
-                                    "module": "distilabel.pipeline.base",
-                                    "name": "_Batch",
-                                },
-                            }
-                        ],
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                    "step2": {
-                        "step_name": "step2",
-                        "accumulate": False,
-                        "convergence_step": False,
-                        "convergence_step_batches_consumed": {"0": {"Z": 1234}},
-                        "input_batch_size": 50,
-                        "data": {
-                            "step2": [
-                                {
-                                    "seq_no": 0,
-                                    "step_name": "step2",
-                                    "last_batch": True,
-                                    "data": [
-                                        [
-                                            {"b": 1},
-                                            {"b": 2},
-                                            {"b": 3},
-                                            {"b": 4},
-                                            {"b": 5},
-                                            {"b": 6},
-                                            {"b": 7},
-                                        ]
-                                    ],
-                                    "data_hash": "1234",
-                                    "size": 7,
-                                    "accumulated": False,
-                                    "created_from": {},
-                                    "batch_routed_to": [],
-                                    "type_info": {
-                                        "module": "distilabel.pipeline.base",
-                                        "name": "_Batch",
-                                    },
-                                }
-                            ],
-                        },
-                        "built_batches": [
-                            {
-                                "seq_no": 0,
-                                "step_name": "step1",
-                                "last_batch": False,
-                                "data": [
-                                    [
-                                        {"a": 1},
-                                        {"a": 2},
-                                        {"a": 3},
-                                        {"a": 4},
-                                        {"a": 5},
-                                    ]
-                                ],
-                                "data_hash": "1234",
-                                "size": 5,
-                                "accumulated": False,
-                                "batch_routed_to": [],
-                                "created_from": {},
-                                "type_info": {
-                                    "module": "distilabel.pipeline.base",
-                                    "name": "_Batch",
-                                },
-                            }
-                        ],
-                        "seq_no": 0,
-                        "last_batch_received": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_BatchManagerStep",
-                        },
-                    },
-                },
-                "last_batch_received": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_sent": {
-                    "step1": {
-                        "seq_no": 0,
-                        "step_name": "step1",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                    "step2": {
-                        "seq_no": 0,
-                        "step_name": "step2",
-                        "last_batch": False,
-                        "data": [],
-                        "size": 0,
-                        "accumulated": False,
-                        "created_from": {},
-                        "batch_routed_to": [],
-                        "type_info": {
-                            "module": "distilabel.pipeline.base",
-                            "name": "_Batch",
-                        },
-                    },
-                },
-                "last_batch_flag_sent_to": ["step3"],
-                "type_info": {
-                    "module": "distilabel.pipeline.base",
-                    "name": "_BatchManager",
-                },
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            batch_manager_path = Path(tmp_dir) / "batch_manager.json"
-            batch_manager.cache(batch_manager_path)
-            loaded_batch_manager = _BatchManager.load_from_cache(batch_manager_path)
-
-        assert batch_manager.dump() == loaded_batch_manager.dump()
+        random.seed(42)
+        with DummyPipeline() as pipeline:
+            name = pipeline.name
+            assert name.startswith("pipeline")
+            assert len(name.split("_")[-1]) == 8
 
 
 class TestPipelineSerialization:
-    def test_base_pipeline_dump(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel>=0.0.1"], ["distilabel>=0.0.1"]),
+        ],
+    )
+    def test_base_pipeline_dump(
+        self, requirements: Optional[List[str]], expected: List[str]
+    ):
+        pipeline = DummyPipeline(name="unit-test-pipeline", requirements=requirements)
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "requirements" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
-        assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.base"
-        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "BasePipeline"
+        assert (
+            dump["pipeline"][TYPE_INFO_KEY]["module"] == "tests.unit.pipeline.test_base"
+        )
+        assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "DummyPipeline"
+        assert dump["requirements"] == expected
 
-    def test_base_pipeline_from_dict(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
-        pipe = BasePipeline.from_dict(pipeline.dump())
-        assert isinstance(pipe, BasePipeline)
+    @pytest.mark.parametrize(
+        "requirements",
+        [
+            None,
+            ["distilabel>=0.0.1"],
+        ],
+    )
+    def test_base_pipeline_from_dict(self, requirements: Optional[List[str]]):
+        pipeline = DummyPipeline(name="unit-test-pipeline", requirements=requirements)
+        pipe = DummyPipeline.from_dict(pipeline.dump())
+        assert isinstance(pipe, DummyPipeline)
 
-    def test_pipeline_dump(self):
+    @pytest.mark.parametrize(
+        "requirements, expected",
+        [
+            (None, []),
+            (["distilabel>=0.0.1"], ["distilabel>=0.0.1"]),
+        ],
+    )
+    def test_pipeline_dump(
+        self, requirements: Optional[List[str]], expected: List[str]
+    ):
         from distilabel.pipeline.local import Pipeline
 
-        pipeline = Pipeline(name="unit-test-pipeline")
+        pipeline = Pipeline(name="unit-test-pipeline", requirements=requirements)
         dump = pipeline.dump()
-        assert len(dump.keys()) == 2
+        assert len(dump.keys()) == 3
         assert "pipeline" in dump
         assert "distilabel" in dump
+        assert "requirements" in dump
         assert TYPE_INFO_KEY in dump["pipeline"]
         assert dump["pipeline"][TYPE_INFO_KEY]["module"] == "distilabel.pipeline.local"
         assert dump["pipeline"][TYPE_INFO_KEY]["name"] == "Pipeline"
+        assert dump["requirements"] == expected
 
     @pytest.mark.parametrize(
         "format, name, loader",
         [
-            ("yaml", "pipe.yaml", BasePipeline.from_yaml),
-            ("json", "pipe.json", BasePipeline.from_json),
+            ("yaml", "pipe.yaml", DummyPipeline.from_yaml),
+            ("json", "pipe.json", DummyPipeline.from_json),
             ("invalid", "pipe.invalid", None),
         ],
     )
@@ -2788,7 +1247,7 @@ class TestPipelineSerialization:
         name: str,
         loader: Callable,
     ) -> None:
-        pipeline = BasePipeline(name="unit-test-pipeline")
+        pipeline = DummyPipeline(name="unit-test-pipeline")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             filename = Path(tmpdirname) / name
@@ -2799,10 +1258,10 @@ class TestPipelineSerialization:
                 pipeline.save(filename, format=format)
                 assert filename.exists()
                 pipe_from_file = loader(filename)
-                assert isinstance(pipe_from_file, BasePipeline)
+                assert isinstance(pipe_from_file, DummyPipeline)
 
-    def test_base_pipeline_signature(self):
-        pipeline = BasePipeline(name="unit-test-pipeline")
+    def test_base_pipeline_signature(self) -> None:
+        pipeline = DummyPipeline(name="unit-test-pipeline")
         # Doesn't matter if it's exactly this or not, the test should fail if we change the
         # way this is created.
         signature = pipeline._create_signature()
@@ -2831,7 +1290,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "a11ac46253598e6fe126420b23b9ad31c6422c92"
+        assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
@@ -2951,126 +1410,3 @@ class TestPipelineSerialization:
             signature_2 = pipeline_2._create_signature()
 
         assert signature_1 == signature_2
-
-
-class TestWriteBuffer:
-    def test_create(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "data"
-            with Pipeline(name="unit-test-pipeline") as pipeline:
-                dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
-                dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
-                dummy_step_3 = DummyStep2(name="dummy_step_3")
-
-                dummy_generator_1.connect(dummy_step_1)
-                dummy_generator_2.connect(dummy_step_2)
-                dummy_step_1.connect(dummy_step_2)
-                dummy_step_1.connect(dummy_step_3)
-
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
-
-            assert write_buffer._buffers == {"dummy_step_2": [], "dummy_step_3": []}
-            assert write_buffer._buffers_dump_batch_size == {
-                "dummy_step_2": 50,
-                "dummy_step_3": 50,
-            }
-            assert write_buffer._buffer_last_schema == {}
-            assert write_buffer._buffers_last_file == {
-                "dummy_step_2": 1,
-                "dummy_step_3": 1,
-            }
-
-    def test_write_buffer_one_leaf_step_and_create_dataset(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "data"
-            with Pipeline(name="unit-test-pipeline") as pipeline:
-                dummy_generator = DummyGeneratorStep(name="dummy_generator_step")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
-
-                dummy_generator.connect(dummy_step_1)
-                dummy_step_1.connect(dummy_step_2)
-
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
-
-            # Add one batch with 5 rows, shouldn't write anything 5 < 50
-            batch = batch_gen(dummy_step_2.name)
-            write_buffer.add_batch(batch)
-
-            # Add 45 more rows, should write now
-            for _ in range(9):
-                batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch)
-
-            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
-
-            # Add 50 more rows, we should have a new file
-            for _ in range(10):
-                batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch)
-
-            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
-
-            # Add more rows and close the write buffer, we should have a new file
-            for _ in range(5):
-                batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch)
-
-            write_buffer.close()
-
-            assert Path(folder, "dummy_step_2", "00003.parquet").exists()
-
-            ds = create_distiset(write_buffer._path)
-            assert isinstance(ds, Distiset)
-            assert len(ds.keys()) == 1
-            assert len(ds["default"]["train"]) == 125
-
-    def test_write_buffer_multiple_leaf_steps_and_create_dataset(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            folder = Path(tmpdirname) / "data"
-            with Pipeline(name="unit-test-pipeline") as pipeline:
-                dummy_generator_1 = DummyGeneratorStep(name="dummy_generator_step_1")
-                dummy_generator_2 = DummyGeneratorStep(name="dummy_generator_step_2")
-                dummy_step_1 = DummyStep1(name="dummy_step_1")
-                dummy_step_2 = DummyStep2(name="dummy_step_2")
-                dummy_step_3 = DummyStep2(name="dummy_step_3")
-
-                dummy_generator_1.connect(dummy_step_1)
-                dummy_generator_2.connect(dummy_step_2)
-                dummy_step_1.connect(dummy_step_2)
-                dummy_step_1.connect(dummy_step_3)
-
-            write_buffer = _WriteBuffer(path=folder, leaf_steps=pipeline.dag.leaf_steps)
-
-            for _ in range(10):
-                batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch)
-
-            assert Path(folder, "dummy_step_2", "00001.parquet").exists()
-
-            for _ in range(10):
-                batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch)
-
-            assert Path(folder, "dummy_step_3", "00001.parquet").exists()
-
-            for _ in range(5):
-                batch = batch_gen(dummy_step_2.name)
-                write_buffer.add_batch(batch)
-
-            for _ in range(5):
-                batch = batch_gen(dummy_step_3.name)
-                write_buffer.add_batch(batch)
-
-            write_buffer.close()
-
-            assert Path(folder, "dummy_step_2", "00002.parquet").exists()
-            assert Path(folder, "dummy_step_3", "00002.parquet").exists()
-
-            ds = create_distiset(write_buffer._path)
-            assert isinstance(ds, Distiset)
-            assert len(ds.keys()) == 2
-            assert len(ds["dummy_step_2"]["train"]) == 75
-            assert len(ds["dummy_step_3"]["train"]) == 75

@@ -14,7 +14,7 @@
 
 from typing import List
 
-from distilabel.pipeline.base import _Batch
+from distilabel.pipeline.batch import _Batch
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
@@ -73,7 +73,7 @@ def batch_gen(
     last_batch: bool = False,
     col_name: str = "a",
     num_rows: int = 5,
-):
+) -> _Batch:
     return _Batch(
         seq_no=seq_no,
         step_name=step_name,

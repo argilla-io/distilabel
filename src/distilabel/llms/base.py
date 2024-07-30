@@ -14,6 +14,7 @@
 
 import asyncio
 import inspect
+import json
 import logging
 import sys
 from abc import ABC, abstractmethod
@@ -27,17 +28,22 @@ from distilabel.mixins.runtime_parameters import (
     RuntimeParametersMixin,
 )
 from distilabel.utils.docstring import parse_google_docstring
+from distilabel.utils.itertools import grouper
 from distilabel.utils.notebook import in_notebook
 from distilabel.utils.serialization import _Serializable
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput, HiddenState
-    from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.tasks.structured_outputs.instructor import (
-        InstructorStructuredOutputType,
+    from distilabel.mixins.runtime_parameters import (
+        RuntimeParameterInfo,
+        RuntimeParametersNames,
     )
     from distilabel.steps.tasks.structured_outputs.outlines import StructuredOutputType
-    from distilabel.steps.tasks.typing import FormattedInput, StandardInput
+    from distilabel.steps.tasks.typing import (
+        FormattedInput,
+        InstructorStructuredOutputType,
+        StandardInput,
+    )
     from distilabel.utils.docstring import Docstring
 
 if in_notebook():
@@ -58,8 +64,6 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     Attributes:
         generation_kwargs: the kwargs to be propagated to either `generate` or `agenerate`
             methods within each `LLM`.
-        structured_output: a dictionary containing the structured output configuration or if more
-            fine-grained control is needed, an instance of `OutlinesStructuredOutput`. Defaults to None.
         _logger: the logger to be used for the `LLM`. It will be initialized when the `load`
             method is called.
     """
@@ -77,19 +81,32 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         description="The kwargs to be propagated to either `generate` or `agenerate`"
         " methods within each `LLM`.",
     )
-    structured_output: Optional[Any] = None
 
     _logger: Union[logging.Logger, None] = PrivateAttr(...)
 
     def load(self) -> None:
-        """Method to be called to initialize the `LLM`, its logger and optionally the structured output generator."""
+        """Method to be called to initialize the `LLM`, its logger and optionally the
+        structured output generator."""
         self._logger = logging.getLogger(f"distilabel.llm.{self.model_name}")
+
+    def unload(self) -> None:
+        """Method to be called to unload the `LLM` and release any resources."""
+        pass
 
     @property
     @abstractmethod
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""
         pass
+
+    def get_generation_kwargs(self) -> Dict[str, Any]:
+        """Returns the generation kwargs to be used for the generation. This method can
+        be overridden to provide a more complex logic for the generation kwargs.
+
+        Returns:
+            The kwargs to be used for the generation.
+        """
+        return self.generation_kwargs  # type: ignore
 
     @abstractmethod
     def generate(
@@ -149,7 +166,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
 
         return runtime_parameters
 
-    def get_runtime_parameters_info(self) -> List[Dict[str, Any]]:
+    def get_runtime_parameters_info(self) -> List["RuntimeParameterInfo"]:
         """Gets the information of the runtime parameters of the `LLM` such as the name
         and the description. This function is meant to include the information of the runtime
         parameters in the serialized data of the `LLM`.
@@ -160,21 +177,27 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         runtime_parameters_info = super().get_runtime_parameters_info()
 
         generation_kwargs_info = next(
-            runtime_parameter_info
-            for runtime_parameter_info in runtime_parameters_info
-            if runtime_parameter_info["name"] == "generation_kwargs"
+            (
+                runtime_parameter_info
+                for runtime_parameter_info in runtime_parameters_info
+                if runtime_parameter_info["name"] == "generation_kwargs"
+            ),
+            None,
         )
 
-        generate_docstring_args = self.generate_parsed_docstring["args"]
+        # If `generation_kwargs` attribute is present, we need to include the `generate`
+        # method arguments as the information for this attribute.
+        if generation_kwargs_info:
+            generate_docstring_args = self.generate_parsed_docstring["args"]
 
-        generation_kwargs_info["keys"] = []
-        for key, value in generation_kwargs_info["optional"].items():
-            info = {"name": key, "optional": value}
-            if description := generate_docstring_args.get(key):
-                info["description"] = description
-            generation_kwargs_info["keys"].append(info)
+            generation_kwargs_info["keys"] = []
+            for key, value in generation_kwargs_info["optional"].items():
+                info = {"name": key, "optional": value}
+                if description := generate_docstring_args.get(key):
+                    info["description"] = description
+                generation_kwargs_info["keys"].append(info)
 
-        generation_kwargs_info.pop("optional")
+            generation_kwargs_info.pop("optional")
 
         return runtime_parameters_info
 
@@ -232,6 +255,7 @@ class AsyncLLM(LLM):
         _event_loop: the event loop to be used for the asynchronous generation of responses.
     """
 
+    _num_generations_param_supported = True
     _event_loop: "asyncio.AbstractEventLoop" = PrivateAttr(default=None)
     _new_event_loop: bool = PrivateAttr(default=False)
 
@@ -276,20 +300,20 @@ class AsyncLLM(LLM):
         """
         pass
 
-    def generate(
-        self,
-        inputs: List["FormattedInput"],
-        num_generations: int = 1,
-        **kwargs: Any,
+    async def _agenerate(
+        self, inputs: List["FormattedInput"], num_generations: int = 1, **kwargs: Any
     ) -> List["GenerateOutput"]:
-        """Method to generate a list of responses asynchronously, returning the output
-        synchronously awaiting for the response of each input sent to `agenerate`.
-        """
+        """Internal function to concurrently generate responses for a list of inputs.
 
-        async def agenerate(
-            inputs: List["FormattedInput"], **kwargs: Any
-        ) -> List[List[Union[str, None]]]:
-            """Internal function to parallelize the asynchronous generation of responses."""
+        Args:
+            inputs: the list of inputs to generate responses for.
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+
+        Returns:
+            A list containing the generations for each input.
+        """
+        if self._num_generations_param_supported:
             tasks = [
                 asyncio.create_task(
                     self.agenerate(
@@ -300,7 +324,37 @@ class AsyncLLM(LLM):
             ]
             return await asyncio.gather(*tasks)
 
-        return self.event_loop.run_until_complete(agenerate(inputs, **kwargs))
+        tasks = [
+            asyncio.create_task(self.agenerate(input=input, **kwargs))
+            for input in inputs
+            for _ in range(num_generations)
+        ]
+        outputs = [outputs[0] for outputs in await asyncio.gather(*tasks)]
+        return [
+            list(group)
+            for group in grouper(outputs, n=num_generations, incomplete="ignore")
+        ]
+
+    def generate(
+        self,
+        inputs: List["FormattedInput"],
+        num_generations: int = 1,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Method to generate a list of responses asynchronously, returning the output
+        synchronously awaiting for the response of each input sent to `agenerate`.
+
+        Args:
+            inputs: the list of inputs to generate responses for.
+            num_generations: the number of generations to generate per input.
+            **kwargs: the additional kwargs to be used for the generation.
+
+        Returns:
+            A list containing the generations for each input.
+        """
+        return self.event_loop.run_until_complete(
+            self._agenerate(inputs=inputs, num_generations=num_generations, **kwargs)
+        )
 
     def __del__(self) -> None:
         """Closes the event loop when the object is deleted."""
@@ -313,7 +367,7 @@ class AsyncLLM(LLM):
             self._event_loop.close()
 
     @staticmethod
-    def _prepare_structured_output(
+    def _prepare_structured_output(  # type: ignore
         structured_output: "InstructorStructuredOutputType",
         client: Any = None,
         framework: Optional[str] = None,
@@ -338,7 +392,7 @@ class AsyncLLM(LLM):
         client = prepare_instructor(
             client,
             mode=structured_output.get("mode"),
-            framework=framework,
+            framework=framework,  # type: ignore
         )
         result["client"] = client
 
@@ -347,9 +401,9 @@ class AsyncLLM(LLM):
             raise ValueError(
                 f"The `structured_output` argument must contain a schema: {structured_output}"
             )
-        if issubclass(schema, BaseModel):
+        if inspect.isclass(schema) and issubclass(schema, BaseModel):
             # We want a json schema for the serialization, but instructor wants a pydantic BaseModel.
-            structured_output["schema"] = schema.model_json_schema()
+            structured_output["schema"] = schema.model_json_schema()  # type: ignore
             result["structured_output"] = structured_output
 
         return result
@@ -371,11 +425,15 @@ class AsyncLLM(LLM):
         """
         # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
         # for the Instructor client.
-        schema = structured_output.get("schema")
+        schema = structured_output.get("schema", {})
         if not issubclass(schema, BaseModel):
             from distilabel.steps.tasks.structured_outputs.utils import (
                 json_schema_to_model,
             )
+
+            if isinstance(schema, str):
+                # In case it was saved in the dataset as a string.
+                schema = json.loads(schema)
 
             try:
                 schema = json_schema_to_model(schema)

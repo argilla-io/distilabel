@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
+from typing_extensions import override
 
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -26,7 +27,7 @@ from distilabel.steps.base import (
     _Step,
 )
 from distilabel.steps.constants import DISTILABEL_METADATA_KEY
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
     from distilabel.llms.typing import GenerateOutput
@@ -64,9 +65,15 @@ class _Task(_Step, ABC):
     )
 
     def load(self) -> None:
-        """Loads the LLM via the `LLM.load()` method (done for safer serialization)."""
+        """Loads the LLM via the `LLM.load()` method."""
         super().load()
         self.llm.load()
+
+    @override
+    def unload(self) -> None:
+        """Unloads the LLM."""
+        self._logger.debug("Executing task unload logic.")
+        self.llm.unload()
 
     @abstractmethod
     def format_output(
@@ -84,28 +91,29 @@ class _Task(_Step, ABC):
     def _format_outputs(
         self,
         outputs: "GenerateOutput",
-        inputs: Union[List[Dict[str, Any]], None] = None,
+        input: Union[Dict[str, Any], None] = None,
     ) -> List[Dict[str, Any]]:
         """Formats the outputs of the task using the `format_output` method. If the output
         is `None` (i.e. the LLM failed to generate a response), then the outputs will be
         set to `None` as well.
 
         Args:
-            outputs: The outputs of the LLM.
-            inputs: The inputs used to generate the outputs.
+            outputs: The outputs (`n` generations) for the provided `input`.
+            input: The input used to generate the output.
 
         Returns:
             A list containing a dictionary with the outputs of the task for each input.
         """
-        if inputs is None:
-            inputs = [None]  # type: ignore
+        inputs = [None] if input is None else [input]
 
         formatted_outputs = []
         for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 formatted_output = self.format_output(output, input)
                 formatted_output = self._maybe_add_raw_output(
-                    formatted_output, output, add_raw_output=self.add_raw_output
+                    formatted_output,
+                    output,
+                    add_raw_output=self.add_raw_output,  # type: ignore
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
@@ -125,7 +133,9 @@ class _Task(_Step, ABC):
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name  # type: ignore
         outputs = self._maybe_add_raw_output(
-            outputs, output, add_raw_output=self.add_raw_output
+            outputs,
+            output,
+            add_raw_output=self.add_raw_output,  # type: ignore
         )
         return outputs
 
@@ -183,18 +193,20 @@ class Task(_Task, Step):
         """
 
         formatted_inputs = self._format_inputs(inputs)
+
+        # `outputs` is a list containing a list of generations per input
         outputs = self.llm.generate(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
-            **self.llm.generation_kwargs,  # type: ignore
+            **self.llm.get_generation_kwargs(),  # type: ignore
         )
 
         task_outputs = []
         for input, input_outputs in zip(inputs, outputs):
-            formatted_outputs = self._format_outputs(input_outputs, inputs)
+            formatted_outputs = self._format_outputs(input_outputs, input)
 
             if self.group_generations:
-                combined = combine_dicts(*formatted_outputs)
+                combined = group_dicts(*formatted_outputs)
                 task_outputs.append(
                     {**input, **combined, "model_name": self.llm.model_name}
                 )

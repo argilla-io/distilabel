@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING
 
 from distilabel.pipeline import Pipeline
-from distilabel.steps import CombineColumns, LoadDataFromDicts, StepInput, step
+from distilabel.steps import GroupColumns, LoadDataFromDicts, StepInput, step
 
 if TYPE_CHECKING:
     from distilabel.steps import StepOutput
@@ -39,13 +39,13 @@ def test_branching_missalignment_because_step_fails_processing_batch() -> None:
 
         fail = FailAlways()
         succeed = SucceedAlways()
-        combine = CombineColumns(columns=["response"])
+        combine = GroupColumns(columns=["response"])
 
         load_data >> [fail, succeed] >> combine
 
     distiset = pipeline.run(use_cache=False)
 
     assert (
-        distiset["default"]["train"]["merged_response"]
+        distiset["default"]["train"]["grouped_response"]
         == [[None, "This step always succeeds"]] * 20
     )
