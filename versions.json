@@ -56,14 +56,6 @@
     }
   },
   {
-    "version": "pr-705",
-    "title": "pr-705",
-    "aliases": [],
-    "properties": {
-      "hidden": true
-    }
-  },
-  {
     "version": "dev",
     "title": "dev",
     "aliases": []
