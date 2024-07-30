@@ -228,7 +228,9 @@ class RayPipeline(BasePipeline):
             )
             llm = step.llm  # type: ignore
             tensor_parallel_size = llm.generation_kwargs.get("tensor_parallel_size", 1)  # type: ignore
-            pipeline_parallel_size = llm.generation_kwargs.get("pipeline_parallel_size")  # type: ignore
+            pipeline_parallel_size = llm.generation_kwargs.get(  # type: ignore
+                "pipeline_parallel_size", 1
+            )
 
             node_id = next(
                 node_id for node_id, used in self._ray_node_ids.items() if not used
@@ -242,7 +244,7 @@ class RayPipeline(BasePipeline):
                 # so the actors can be executed:
                 # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
                 bundles=[{"GPU": 1} * tensor_parallel_size] + [{"CPU": 1}],
-                strategy="STRICT_PACK" if pipeline_parallel_size is None else "PACK",
+                strategy="SPREAD" if pipeline_parallel_size > 1 else "STRICT_PACK",
                 _soft_target_node_id=node_id
                 if pipeline_parallel_size is None
                 else None,
