@@ -4557,11 +4557,6 @@ that we will submit to the Ray cluster:</p>
 </span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
 </span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="n">load_data_from_hub</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
 </span></code></pre></div>
-<p>Finally, we need to define two environment variables in our <code>runtime_env.yaml</code> file:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">env_vars</span><span class="p">:</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">VLLM_USE_RAY_COMPILED_DAG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">VLLM_USE_RAY_SPMD_WORKER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
-</span></code></pre></div>
 <p>More information about distributed inference with <code>vLLM</code> can be found here: <a href="https://docs.vllm.ai/en/latest/serving/distributed_serving.html">vLLM - Distributed Serving</a></p>
 
 
