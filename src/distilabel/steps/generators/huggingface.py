@@ -125,11 +125,12 @@ class LoadDataFromHub(GeneratorStep):
         description="The storage options to use when loading the dataset.",
     )
 
-    _dataset: Union[IterableDataset, Dataset, None] = PrivateAttr(...)
+    _dataset: Union[IterableDataset, Dataset, None] = PrivateAttr(None)
 
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         super().load()
+
         if self._dataset is not None:
             # Here to simplify the functionality of distilabel.steps.generators.util.make_generator_step
             return
