@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.util
 import os
-import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, List, Optional
 
@@ -91,14 +91,11 @@ class ArgillaBase(Step, ABC):
         """Checks that the Argilla Python SDK is installed, and then filters the Argilla warnings."""
         super().model_post_init(__context)
 
-        try:
-            import argilla as rg  # noqa
-        except ImportError as ie:
+        if importlib.util.find_spec("argilla") is None:
             raise ImportError(
-                "Argilla is not installed. Please install it using `pip install argilla --upgrade`."
-            ) from ie
-
-        warnings.filterwarnings("ignore")
+                "Argilla is not installed. Please install it using `pip install argilla"
+                " --upgrade`."
+            )
 
     def _client_init(self) -> None:
         """Initializes the Argilla API client with the provided `api_url` and `api_key`."""
@@ -117,11 +114,18 @@ class ArgillaBase(Step, ABC):
 
     @property
     def _dataset_exists_in_workspace(self) -> bool:
-        """Checks if the dataset already exists in Argilla in the provided workspace if any."""
-        return self._client.datasets(  # type: ignore
-            name=self.dataset_name,  # type: ignore
-            workspace=self.dataset_workspace
-        ) is not None
+        """Checks if the dataset already exists in Argilla in the provided workspace if any.
+
+        Returns:
+            `True` if the dataset exists, `False` otherwise.
+        """
+        return (
+            self._client.datasets(  # type: ignore
+                name=self.dataset_name,  # type: ignore
+                workspace=self.dataset_workspace,
+            )
+            is not None
+        )
 
     @property
     def outputs(self) -> List[str]:

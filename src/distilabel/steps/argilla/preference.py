@@ -151,7 +151,7 @@ class PreferenceToArgilla(ArgillaBase):
         if self._dataset_exists_in_workspace:
             _dataset = self._client.datasets(  # type: ignore
                 name=self.dataset_name,  # type: ignore
-                workspace=self.dataset_workspace  # type: ignore
+                workspace=self.dataset_workspace,  # type: ignore
             )
 
             for field in _dataset.fields:
@@ -167,9 +167,10 @@ class PreferenceToArgilla(ArgillaBase):
                     and field.required
                 ):
                     raise ValueError(
-                        f"The dataset {self.dataset_name} in the workspace {self.dataset_workspace} already exists,"
-                        f" but contains at least a required field that is neither `{self._id}`, `{self._instruction}`,"
-                        f" nor `{self._generations}` (one per generation starting from 0 up to {self.num_generations - 1})."
+                        f"The dataset '{self.dataset_name}' in the workspace '{self.dataset_workspace}'"
+                        f" already exists, but contains at least a required field that is"
+                        f" neither `{self._id}`, `{self._instruction}`, nor `{self._generations}`"
+                        f" (one per generation starting from 0 up to {self.num_generations - 1})."
                     )
 
             self._dataset = _dataset
@@ -191,7 +192,11 @@ class PreferenceToArgilla(ArgillaBase):
             self._dataset = _dataset.create()
 
     def _generation_fields(self) -> List["TextField"]:
-        """Method to generate the fields for each of the generations."""
+        """Method to generate the fields for each of the generations.
+
+        Returns:
+            A list containing `TextField`s for each text generation.
+        """
         return [
             rg.TextField(  # type: ignore
                 name=f"{self._generations}-{idx}",
@@ -204,7 +209,12 @@ class PreferenceToArgilla(ArgillaBase):
     def _rating_rationale_pairs(
         self,
     ) -> List[Union["RatingQuestion", "TextQuestion"]]:
-        """Method to generate the rating and rationale questions for each of the generations."""
+        """Method to generate the rating and rationale questions for each of the generations.
+
+        Returns:
+            A list of questions containing a `RatingQuestion` and `TextQuestion` pair for
+            each text generation.
+        """
         questions = []
         for idx in range(self.num_generations):
             questions.extend(
@@ -242,7 +252,11 @@ class PreferenceToArgilla(ArgillaBase):
         return ["ratings", "rationales"]
 
     def _add_suggestions_if_any(self, input: Dict[str, Any]) -> List["Suggestion"]:
-        """Method to generate the suggestions for the `rg.Record` based on the input."""
+        """Method to generate the suggestions for the `rg.Record` based on the input.
+
+        Returns:
+            A list of `Suggestion`s for the rating and rationales questions.
+        """
         # Since the `suggestions` i.e. answers to the `questions` are optional, will default to {}
         suggestions = []
         # If `ratings` is in `input`, then add those as suggestions
