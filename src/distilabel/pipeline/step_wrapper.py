@@ -68,15 +68,22 @@ class _StepWrapper:
 
     def _init_cuda_device_placement(self) -> None:
         """Sets the LLM identifier and the number of desired GPUs of the `CudaDevicePlacementMixin`"""
+
+        def _init_cuda_device_placement_mixin(attr: CudaDevicePlacementMixin) -> None:
+            if self.ray_pipeline:
+                attr.disable_cuda_device_placement = True
+            else:
+                desired_num_gpus = self.step.resources.gpus or 1
+                attr._llm_identifier = self.step.name
+                attr._desired_num_gpus = desired_num_gpus
+
         for field_name in self.step.model_fields_set:
             attr = getattr(self.step, field_name)
             if isinstance(attr, CudaDevicePlacementMixin):
-                if self.ray_pipeline:
-                    attr.disable_cuda_device_placement = True
-                else:
-                    desired_num_gpus = self.step.resources.gpus or 1
-                    attr._llm_identifier = self.step.name
-                    attr._desired_num_gpus = desired_num_gpus
+                _init_cuda_device_placement_mixin(attr)
+
+        if isinstance(self.step, CudaDevicePlacementMixin):
+            _init_cuda_device_placement_mixin(self.step)
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle
