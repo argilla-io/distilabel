@@ -55,6 +55,7 @@ class TestPipeline:
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
                     dry_run=False,
+                    ray_pipeline=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
@@ -63,6 +64,7 @@ class TestPipeline:
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
                     dry_run=False,
+                    ray_pipeline=False,
                 ),
                 mock.call(
                     step=dummy_step_1,
@@ -71,6 +73,7 @@ class TestPipeline:
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
                     dry_run=False,
+                    ray_pipeline=False,
                 ),
                 mock.call(
                     step=dummy_step_2,
@@ -79,6 +82,7 @@ class TestPipeline:
                     output_queue=pipeline._output_queue,
                     load_queue=pipeline._load_queue,
                     dry_run=False,
+                    ray_pipeline=False,
                 ),
             ],
         )

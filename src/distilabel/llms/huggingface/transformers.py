@@ -15,7 +15,7 @@
 import os
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
@@ -24,6 +24,7 @@ from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import OutlinesStructuredOutputType, StandardInput
+from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
 if TYPE_CHECKING:
     from transformers import Pipeline
@@ -44,8 +45,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             (e.g. a branch name or a commit id) to use. Defaults to `"main"`.
         torch_dtype: the torch dtype to use for the model e.g. "float16", "float32", etc.
             Defaults to `"auto"`.
-        trust_remote_code: whether to trust or not remote (code in the Hugging Face Hub
-            repository) code to load the model. Defaults to `False`.
+        trust_remote_code: whether to allow fetching and executing remote code fetched
+            from the repository in the Hub. Defaults to `False`.
         model_kwargs: additional dictionary of keyword arguments that will be passed to
             the `from_pretrained` method of the model.
         tokenizer: the tokenizer Hugging Face Hub repo id or a path to a directory containing
@@ -101,7 +102,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     chat_template: Optional[str] = None
     device: Optional[Union[str, int]] = None
     device_map: Optional[Union[str, Dict[str, Any]]] = None
-    token: Optional[str] = None
+    token: Optional[SecretStr] = Field(
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR)
+    )
     structured_output: Optional[RuntimeParameter[OutlinesStructuredOutputType]] = Field(
         default=None,
         description="The structured output format to use across all the generations.",
@@ -123,6 +126,8 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 "Transformers is not installed. Please install it using `pip install transformers`."
             ) from ie
 
+        token = self.token.get_secret_value() if self.token is not None else self.token
+
         self._pipeline = pipeline(
             "text-generation",
             model=self.model,
@@ -134,7 +139,7 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             use_fast=self.use_fast,
             device=self.device,
             device_map=self.device_map,
-            token=self.token or os.getenv("HF_TOKEN"),
+            token=token,
             return_full_text=False,
         )
 

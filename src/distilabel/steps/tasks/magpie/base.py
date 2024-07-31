@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+import random
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
 
@@ -26,7 +27,7 @@ from distilabel.steps.base import StepInput
 from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
-    from distilabel.steps.tasks.typing import ChatType, FormattedInput
+    from distilabel.steps.tasks.typing import ChatType
     from distilabel.steps.typing import StepOutput
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
@@ -50,20 +51,28 @@ class MagpieBase(RuntimeParametersMixin):
         default=1,
         description="The number of turns to generate for the conversation.",
     )
+    end_with_user: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether the conversation should end with a user message.",
+    )
+    include_system_prompt: RuntimeParameter[bool] = Field(
+        default=False,
+        description="Whether to include the system prompt used in the generated conversation.",
+    )
     only_instruction: RuntimeParameter[bool] = Field(
         default=False,
         description="Whether to generate only the instruction. If this argument"
         " is `True`, then `n_turns` will be ignored.",
     )
-    system_prompt: Optional[RuntimeParameter[str]] = Field(
+    system_prompt: Optional[RuntimeParameter[Union[List[str], str]]] = Field(
         default=None,
-        description="An optional system prompt that can be used to steer the LLM to generate"
-        " content of certain topic, guide the style, etc.",
+        description="An optional system prompt or list of system prompts that can be used"
+        " to steer the LLM to generate content of certain topic, guide the style, etc.",
     )
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
-    ) -> List["FormattedInput"]:
+    ) -> List["ChatType"]:
         """Prepares the inputs adding the system (if required) prompt provided in each row,
         or if the conversations to generate have more than one turn, then adding the system
         prompt for multi-turn conversation from the paper.
@@ -82,7 +91,11 @@ class MagpieBase(RuntimeParametersMixin):
                     {"role": "system", "content": input["system_prompt"]}
                 )
             elif self.system_prompt is not None:
-                conversation.append({"role": "system", "content": self.system_prompt})
+                if isinstance(self.system_prompt, list):
+                    system_prompt = random.choice(self.system_prompt)
+                else:
+                    system_prompt = self.system_prompt
+                conversation.append({"role": "system", "content": system_prompt})
             elif self.n_turns > 1:  # type: ignore
                 conversation.append(
                     {"role": "system", "content": MAGPIE_MULTI_TURN_SYSTEM_PROMPT}
@@ -106,7 +119,8 @@ class MagpieBase(RuntimeParametersMixin):
             The updated conversations.
         """
         for instruction, conversation in zip(messages, conversations):
-            conversation.append({"role": role, "content": instruction})
+            if instruction is not None:
+                conversation.append({"role": role, "content": instruction})
         return conversations
 
     def _generate_instruction(
@@ -120,41 +134,94 @@ class MagpieBase(RuntimeParametersMixin):
         )
         return [{"instruction": output[0]} for output in outputs]
 
+    def _prepare_conversation_outputs(
+        self, conversations: List["ChatType"]
+    ) -> List[Dict[str, Any]]:
+        """Prepare the output conversation removing the system prompt if necessary. If
+        `n_turns==1`, then it will return a dictionary with "instruction" and "response"
+        keys. Otherwise, it will return a dictionary with a "conversation" key.
+
+        Args:
+            conversations: the list of generated conversations.
+
+        Returns:
+            A list of dictionaries containing a "conversation" key or "instruction" and
+            "responses" key.
+        """
+        outputs = []
+        for conversation in conversations:
+            if not self.include_system_prompt and conversation[0]["role"] == "system":
+                conversation.pop(0)
+            if self.n_turns == 1 and len(conversation) == 2:
+                outputs.append(
+                    {
+                        "instruction": conversation[0]["content"],
+                        "response": conversation[1]["content"],
+                    }
+                )
+            else:
+                outputs.append({"conversation": conversation})
+        return outputs
+
+    def _generate_conversation_turn(
+        self, role: str, conversations: List["ChatType"], active_indices: List[int]
+    ) -> Tuple[List["ChatType"], List[int]]:
+        # Generate an output for the conversations that are still active (no previous `None`s)
+        outputs = self.llm.generate(
+            inputs=[conversations[idx] for idx in active_indices],
+            num_generations=1,
+            **self.llm.generation_kwargs,  # type: ignore
+        )
+
+        active_conversations = [conversations[idx] for idx in active_indices]
+        updated_conversations = self._append_messages_to_conversations(
+            role=role,
+            messages=[output[0] for output in outputs],
+            conversations=active_conversations,
+        )
+
+        for idx, conv in zip(active_indices, updated_conversations):
+            conversations[idx] = conv
+
+        new_active_indices = [
+            idx for idx, output in zip(active_indices, outputs) if output[0] is not None
+        ]
+
+        return conversations, new_active_indices
+
     def _generate_multi_turn_conversation(
         self, inputs: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        conversations = self._prepare_inputs_for_instruction_generation(inputs)
+        conversations: List["ChatType"] = (
+            self._prepare_inputs_for_instruction_generation(inputs)
+        )
+        # Keep track of the active conversations, as it could happen that for some conversation
+        # we can't generate the next turn because the `LLM` returned `None`.
+        active_indices = list(range(len(conversations)))
 
-        for _ in range(self.n_turns):  # type: ignore
-            # Generate instruction or user message
-            outputs = self.llm.generate(
-                inputs=conversations,
-                num_generations=1,
-                **self.llm.generation_kwargs,  # type: ignore
+        for i in range(self.n_turns):  # type: ignore
+            if not active_indices:
+                break
+
+            # Generate user message
+            conversations, active_indices = self._generate_conversation_turn(
+                role="user", conversations=conversations, active_indices=active_indices
             )
 
-            conversations = self._append_messages_to_conversations(
-                role="user",
-                messages=[output[0] for output in outputs],
-                conversations=conversations,  # type: ignore
-            )
+            if i == self.n_turns - 1 and self.end_with_user:  # type: ignore
+                break
 
-            # TODO: handle potential previous `None`s
+            if not active_indices:
+                break
 
-            # Generate response
-            outputs = self.llm.generate(
-                inputs=conversations,
-                num_generations=1,
-                **self.llm.generation_kwargs,  # type: ignore
-            )
-
-            conversations = self._append_messages_to_conversations(
+            # Generate assistant message
+            conversations, active_indices = self._generate_conversation_turn(
                 role="assistant",
-                messages=[output[0] for output in outputs],
-                conversations=conversations,  # type: ignore
+                conversations=conversations,
+                active_indices=active_indices,
             )
 
-        return [{"conversation": conversation} for conversation in conversations]
+        return self._prepare_conversation_outputs(conversations)
 
     def _generate_with_pre_query_template(
         self, inputs: List[Dict[str, Any]]
@@ -196,21 +263,35 @@ class Magpie(Task, MagpieBase):
 
     Attributes:
         n_turns: the number of turns that the generated conversation will have.
+            Defaults to `1`.
+        end_with_user: whether the conversation should end with a user message.
+            Defaults to `False`.
+        include_system_prompt: whether to include the system prompt used in the generated
+            conversation. Defaults to `False`.
         only_instruction: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        system_prompt: an optional system prompt that can be used to steer the LLM to generate
-            content of certain topic, guide the style, etc. If the provided inputs contains
-            a `system_prompt` column, then this runtime parameter will be ignored and the
-            one from the column will be used. Defaults to `None`.
+        system_prompt: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
 
     Runtime parameters:
-        - `n_turns`: the number of turns that the generated conversation will have.
+        - `n_turns`: the number of turns that the generated conversation will have. Defaults
+            to `1`.
+        - `end_with_user`: whether the conversation should end with a user message.
+            Defaults to `False`.
+        - `include_system_prompt`: whether to include the system prompt used in the generated
+            conversation. Defaults to `False`.
         - `only_instruction`: whether to generate only the instruction. If this argument is
             `True`, then `n_turns` will be ignored. Defaults to `False`.
-        - `system_prompt`: an optional system prompt that can be used to steer the LLM to
-            generate content of certain topic, guide the style, etc. If the provided inputs
-            contains a `system_prompt` column, then this runtime parameter will be ignored
-            and the one from the column will be used. Defaults to `None`.
+        - `system_prompt`: an optional system prompt or list of system prompts that can
+            be used to steer the LLM to generate content of certain topic, guide the style,
+            etc. If it's a list of system prompts, then a random system prompt will be chosen
+            per input/output batch. If the provided inputs contains a `system_prompt` column,
+            then this runtime parameter will be ignored and the one from the column will
+            be used. Defaults to `None`.
 
     Input columns:
         - system_prompt (`str`, optional): an optional system prompt that can be provided
@@ -220,7 +301,8 @@ class Magpie(Task, MagpieBase):
     Output columns:
         - conversation (`ChatType`): the generated conversation which is a list of chat
             items with a role and a message. Only if `only_instruction=False`.
-        - instruction (`str`): the generated instructions if `only_instruction=True`.
+        - instruction (`str`): the generated instructions if `only_instruction=True` or `n_turns==1`.
+        - response (`str`): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -364,6 +446,8 @@ class Magpie(Task, MagpieBase):
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]
+        if self.n_turns == 1:
+            return ["instruction", "response", "model_name"]
         return ["conversation", "model_name"]
 
     def format_output(

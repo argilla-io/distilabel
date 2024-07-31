@@ -27,6 +27,8 @@ from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
+from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
+from distilabel.steps.embeddings.nearest_neighbour import FaissNearestNeighbour
 from distilabel.steps.formatting.conversation import ConversationTemplate
 from distilabel.steps.formatting.dpo import (
     FormatChatGenerationDPO,
@@ -42,7 +44,9 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
+from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
+from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
@@ -54,6 +58,8 @@ __all__ = [
     "CombineColumns",
     "ConversationTemplate",
     "DeitaFiltering",
+    "EmbeddingGeneration",
+    "FaissNearestNeighbour",
     "ExpandColumns",
     "FormatChatGenerationDPO",
     "FormatChatGenerationSFT",
@@ -66,9 +72,11 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "make_generator_step",
     "PushToHub",
     "Step",
     "StepInput",
+    "RewardModelScore",
     "GeneratorStepOutput",
     "StepOutput",
     "step",

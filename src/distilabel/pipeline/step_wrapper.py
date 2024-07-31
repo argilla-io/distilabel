@@ -21,7 +21,7 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
-from distilabel.steps.tasks.base import Task
+from distilabel.steps.tasks.base import _Task
 
 
 class _StepWrapper:
@@ -44,6 +44,7 @@ class _StepWrapper:
         output_queue: "Queue[_Batch]",
         load_queue: "Queue[Union[StepLoadStatus, None]]",
         dry_run: bool = False,
+        ray_pipeline: bool = False,
     ) -> None:
         """Initializes the `_ProcessWrapper`.
 
@@ -54,20 +55,32 @@ class _StepWrapper:
             load_queue: The queue used to notify the main process that the step has been
                 loaded, has been unloaded or has failed to load.
             dry_run: Flag to ensure we are forcing to run the last batch.
+            ray_pipeline: Whether the step is running a `RayPipeline` or not.
         """
         self.step = step
         self.replica = replica
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.load_queue = load_queue
-        self._dry_run = dry_run
+        self.dry_run = dry_run
+        self.ray_pipeline = ray_pipeline
 
+        self._init_cuda_device_placement()
+
+    def _init_cuda_device_placement(self) -> None:
+        """Sets the LLM identifier and the number of desired GPUs of the `CudaDevicePlacementMixin`
+        if the step is a `_Task` that uses an `LLM` with CUDA capabilities."""
         if (
-            isinstance(self.step, Task)
+            isinstance(self.step, _Task)
             and hasattr(self.step, "llm")
             and isinstance(self.step.llm, CudaDevicePlacementMixin)
         ):
-            self.step.llm._llm_identifier = self.step.name
+            if self.ray_pipeline:
+                self.step.llm.disable_cuda_device_placement = True
+            else:
+                desired_num_gpus = self.step.resources.gpus or 1
+                self.step.llm._llm_identifier = self.step.name
+                self.step.llm._desired_num_gpus = desired_num_gpus
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle
@@ -157,7 +170,7 @@ class _StepWrapper:
 
             for data, last_batch in step.process_applying_mappings(offset=offset):
                 batch.set_data([data])
-                batch.last_batch = self._dry_run or last_batch
+                batch.last_batch = self.dry_run or last_batch
                 self._send_batch(batch)
 
                 if batch.last_batch:
