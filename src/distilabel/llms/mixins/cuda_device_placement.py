@@ -13,18 +13,20 @@
 # limitations under the License.
 
 import json
-import logging
 import os
 import socket
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, Generator, List, Literal, Union
+from typing import TYPE_CHECKING, Dict, Generator, List, Literal, Union
 
 import portalocker
 from pydantic import BaseModel, Field, PositiveInt, PrivateAttr
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 _CUDA_DEVICE_PLACEMENT_MIXIN_FILE = (
     Path(tempfile.gettempdir())
@@ -68,7 +70,7 @@ class CudaDevicePlacementMixin(BaseModel):
     _available_cuda_devices: List[int] = PrivateAttr(default_factory=list)
     _can_check_cuda_devices: bool = PrivateAttr(default=False)
 
-    _logger: Union[logging.Logger, None] = PrivateAttr(...)
+    _logger: "Logger" = PrivateAttr(None)
 
     def load(self) -> None:
         """Assign CUDA devices to the LLM based on the device placement information provided
