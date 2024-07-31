@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field, PrivateAttr, SecretStr
 
+from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR
 
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class RewardModelScore(Step):
+class RewardModelScore(Step, CudaDevicePlacementMixin):
     """Assign a score to a response using a Reward Model.
 
     `RewardModelScore` is a `Step` that using a Reward Model (RM) loaded using `transformers`,
@@ -149,6 +150,9 @@ class RewardModelScore(Step):
     def load(self) -> None:
         super().load()
 
+        if self.device_map in ["cuda", "auto"]:
+            CudaDevicePlacementMixin.load(self)
+
         try:
             from transformers import AutoModelForSequenceClassification, AutoTokenizer
         except ImportError as e:
@@ -218,3 +222,8 @@ class RewardModelScore(Step):
         for input, score in zip(inputs, scores):
             input["score"] = score
         yield inputs
+
+    def unload(self) -> None:
+        if self.device_map in ["cuda", "auto"]:
+            CudaDevicePlacementMixin.unload(self)
+        super().unload()
