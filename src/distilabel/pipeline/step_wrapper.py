@@ -155,8 +155,10 @@ class _StepWrapper:
                 `process` method.
         """
         step = cast("GeneratorStep", self.step)
+        batch = self.input_queue.get()
         try:
-            if (batch := self.input_queue.get()) is None:
+            if batch is None:
+                # if (batch := self.input_queue.get()) is None:
                 self.step._logger.info(
                     f"🛑 Stopping yielding batches from step '{self.step.name}'"
                 )

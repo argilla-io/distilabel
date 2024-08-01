@@ -593,7 +593,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._register_batch(batch)
 
-        pipeline._batch_manager.register_batch.assert_called_once_with(batch)
+        pipeline._batch_manager.register_batch.assert_called_once_with(
+            batch, path=pipeline._cache_location["batch_manager"]
+        )
 
     def test_send_last_batch_flag_to_step(self) -> None:
         with DummyPipeline(name="unit-test-pipeline") as pipeline:
@@ -710,7 +712,9 @@ class TestBasePipeline:
         batch = _Batch(seq_no=0, step_name=generator.name, last_batch=False)  # type: ignore
         pipeline._handle_batch_on_stop(batch)
 
-        batch_manager_mock.register_batch.assert_called_once_with(batch)
+        batch_manager_mock.register_batch.assert_called_once_with(
+            batch, path=pipeline._cache_location["batch_manager"]
+        )
         batch_manager_mock.add_batch.assert_has_calls(
             [
                 mock.call(step.name, batch),
@@ -1289,8 +1293,26 @@ class TestPipelineSerialization:
                 >> dummy_step_2
             )
 
-        signature = pipeline._create_signature()
-        assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
+        assert (
+            pipeline._create_signature() == "4d4c0fc6e0c8dcf6e7453fddd6639858a1937a1d"
+        )
+
+        # Update just the names to check the signature stays the same
+        with Pipeline(name="unit-test-pipeline") as pipe:
+            dummy_generator = DummyGeneratorStep()
+            dummy_step_1_0 = DummyStep1(input_batch_size=100)
+            dummy_step_1_1 = DummyStep1(input_batch_size=100)
+            dummy_step_1_2 = DummyStep1(input_batch_size=100)
+            dummy_step_2 = DummyStep2(input_batch_size=100)
+
+            (
+                dummy_generator
+                >> sample_two_steps
+                >> [dummy_step_1_0, dummy_step_1_1, dummy_step_1_2]
+                >> dummy_step_2
+            )
+
+        assert pipe._create_signature() == "4d4c0fc6e0c8dcf6e7453fddd6639858a1937a1d"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
