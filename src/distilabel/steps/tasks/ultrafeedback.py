@@ -44,6 +44,7 @@ class UltraFeedback(Task):
             Additionally, a custom aspect has been defined by Argilla, so as to evaluate the overall
             assessment of the text outputs within a single prompt. The custom aspect is:
             - `overall-rating`: Evaluate text outputs based on an overall assessment.
+            Defaults to `"overall-rating"`.
 
     Input columns:
         - instruction (`str`): The reference instruction to evaluate the text outputs.
@@ -110,7 +111,7 @@ class UltraFeedback(Task):
         "truthfulness",
         # Custom aspects
         "overall-rating",
-    ]
+    ] = "overall-rating"
 
     _system_prompt: str = PrivateAttr(
         default=(

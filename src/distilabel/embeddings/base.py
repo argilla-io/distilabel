@@ -14,12 +14,15 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import TYPE_CHECKING, List, Union
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from distilabel.mixins.runtime_parameters import RuntimeParametersMixin
 from distilabel.utils.serialization import _Serializable
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 
 class Embeddings(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
@@ -43,7 +46,7 @@ class Embeddings(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         validate_assignment=True,
         extra="forbid",
     )
-    _logger: Union[logging.Logger, None] = PrivateAttr(...)
+    _logger: "Logger" = PrivateAttr(None)
 
     def load(self) -> None:
         """Method to be called to initialize the `Embeddings`"""

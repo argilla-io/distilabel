@@ -44,7 +44,9 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromFileSystem,
     LoadDataFromHub,
 )
+from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
+from distilabel.steps.reward_model import RewardModelScore
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
@@ -70,9 +72,11 @@ __all__ = [
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
+    "make_generator_step",
     "PushToHub",
     "Step",
     "StepInput",
+    "RewardModelScore",
     "GeneratorStepOutput",
     "StepOutput",
     "step",

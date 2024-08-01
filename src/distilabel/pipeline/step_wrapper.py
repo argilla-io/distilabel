@@ -21,7 +21,6 @@ from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.constants import LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.typing import StepLoadStatus
 from distilabel.steps.base import GeneratorStep, Step, _Step
-from distilabel.steps.tasks.base import _Task
 
 
 class _StepWrapper:
@@ -68,19 +67,23 @@ class _StepWrapper:
         self._init_cuda_device_placement()
 
     def _init_cuda_device_placement(self) -> None:
-        """Sets the LLM identifier and the number of desired GPUs of the `CudaDevicePlacementMixin`
-        if the step is a `_Task` that uses an `LLM` with CUDA capabilities."""
-        if (
-            isinstance(self.step, _Task)
-            and hasattr(self.step, "llm")
-            and isinstance(self.step.llm, CudaDevicePlacementMixin)
-        ):
+        """Sets the LLM identifier and the number of desired GPUs of the `CudaDevicePlacementMixin`"""
+
+        def _init_cuda_device_placement_mixin(attr: CudaDevicePlacementMixin) -> None:
             if self.ray_pipeline:
-                self.step.llm.disable_cuda_device_placement = True
+                attr.disable_cuda_device_placement = True
             else:
                 desired_num_gpus = self.step.resources.gpus or 1
-                self.step.llm._llm_identifier = self.step.name
-                self.step.llm._desired_num_gpus = desired_num_gpus
+                attr._llm_identifier = self.step.name
+                attr._desired_num_gpus = desired_num_gpus
+
+        for field_name in self.step.model_fields_set:
+            attr = getattr(self.step, field_name)
+            if isinstance(attr, CudaDevicePlacementMixin):
+                _init_cuda_device_placement_mixin(attr)
+
+        if isinstance(self.step, CudaDevicePlacementMixin):
+            _init_cuda_device_placement_mixin(self.step)
 
     def run(self) -> str:
         """The target function executed by the process. This function will also handle

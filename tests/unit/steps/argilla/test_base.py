@@ -16,14 +16,14 @@ import os
 from typing import TYPE_CHECKING
 
 from distilabel.pipeline.local import Pipeline
-from distilabel.steps.argilla.base import Argilla
+from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
 
 
-class CustomArgilla(Argilla):
+class CustomArgilla(ArgillaBase):
     def load(self) -> None:
         pass
 
@@ -75,6 +75,14 @@ class TestArgilla:
             dataset_workspace="argilla",
         )
         assert "Step 'step' hasn't received a pipeline" in caplog.text
+
+        with pytest.raises(
+            TypeError,
+            match="Can't instantiate abstract class ArgillaBase with abstract methods inputs, process"
+            if sys.version_info < (3, 12)
+            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
+        ):
+            ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
@@ -157,7 +165,7 @@ class TestArgilla:
                 },
                 {
                     "description": "The workspace where the dataset will be created in Argilla. "
-                    "Defaultsto `None` which means it will be created in the default "
+                    "Defaults to `None` which means it will be created in the default "
                     "workspace.",
                     "name": "dataset_workspace",
                     "optional": True,

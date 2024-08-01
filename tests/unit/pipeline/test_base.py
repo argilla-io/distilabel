@@ -1150,6 +1150,20 @@ class TestBasePipeline:
                 gen_step >> step1_0 >> step2
             pipeline.run()
 
+    def test_pipeline_with_dataset_and_generator_step(self):
+        with pytest.raises(ValueError) as exc_info:
+            with DummyPipeline(name="unit-test-pipeline") as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                gen_step >> step1_0
+
+            pipeline.run(
+                use_cache=False, dataset=[{"instruction": "Tell me a joke."}] * 10
+            )
+            exc_info.value.args[0].startswith(
+                "There is already a `GeneratorStep` in the pipeline"
+            )
+
     def test_optional_name(self):
         import random
 
@@ -1276,7 +1290,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "f291da215cd42085c538e4897e4355f614932547"
+        assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

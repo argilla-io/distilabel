@@ -16,6 +16,7 @@ import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 from distilabel.distiset import create_distiset
+from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
@@ -26,7 +27,10 @@ if TYPE_CHECKING:
     from os import PathLike
     from queue import Queue
 
+    from ray.util.scheduling_strategies import PlacementGroupSchedulingStrategy
+
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.typing import InputDataset
     from distilabel.steps.base import _Step
 
 
@@ -68,6 +72,7 @@ class RayPipeline(BasePipeline):
 
         self._ray_head_node_url = ray_head_node_url
         self._ray_init_kwargs = ray_init_kwargs or {}
+        self._ray_node_ids = {}
 
     def run(
         self,
@@ -75,6 +80,7 @@ class RayPipeline(BasePipeline):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":
         """Runs the pipeline in the Ray cluster.
 
@@ -94,6 +100,9 @@ class RayPipeline(BasePipeline):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -108,7 +117,11 @@ class RayPipeline(BasePipeline):
         )
 
         if distiset := super().run(
-            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+            parameters,
+            use_cache,
+            storage_parameters,
+            use_fs_to_pass_data,
+            dataset=dataset,
         ):
             return distiset
 
@@ -162,6 +175,14 @@ class RayPipeline(BasePipeline):
         else:
             ray.init(**self._ray_init_kwargs)
 
+        # Get the number of GPUs per Ray node
+        for node in ray.nodes():
+            node_id = node["NodeID"]
+            gpus = node["Resources"].get("GPU", 0)
+            self._ray_node_ids[node_id] = gpus
+
+        self._logger.info(f"Ray nodes GPUs: {self._ray_node_ids}")
+
     @property
     def QueueClass(self) -> Callable:
         from ray.util.queue import Queue
@@ -209,17 +230,20 @@ class RayPipeline(BasePipeline):
             "name": f"distilabel-{self.name}-{step.name}-{replica}"
         }
 
-        if step.resources.cpus is not None:
-            resources["num_cpus"] = step.resources.cpus
+        if hasattr(step, "llm") and isinstance(step.llm, vLLM):  # type: ignore
+            resources["scheduling_strategy"] = self._create_vllm_placement_group(step)
+        else:
+            if step.resources.cpus is not None:
+                resources["num_cpus"] = step.resources.cpus
 
-        if step.resources.gpus is not None:
-            resources["num_gpus"] = step.resources.gpus
+            if step.resources.gpus is not None:
+                resources["num_gpus"] = step.resources.gpus
 
-        if step.resources.memory is not None:
-            resources["memory"] = step.resources.memory
+            if step.resources.memory is not None:
+                resources["memory"] = step.resources.memory
 
-        if step.resources.resources is not None:
-            resources["resources"] = step.resources.resources
+            if step.resources.resources is not None:
+                resources["resources"] = step.resources.resources
 
         _StepWrapperRay = _StepWrapperRay.options(**resources)  # type: ignore
 
@@ -245,6 +269,67 @@ class RayPipeline(BasePipeline):
             f" {replica})..."
         )
         step_wrapper.run.remote()
+
+    def _create_vllm_placement_group(
+        self, step: "_Step"
+    ) -> "PlacementGroupSchedulingStrategy":
+        """Creates a Ray placement group with as many GPU bundles as `tensor_parallel_size`
+        specified in the `vLLM` initialisation. The created placement group uses the `STRICT_PACK`
+        strategy if the `pipeline_parallel_size` is less or equal to 1, otherwise it uses
+        `SPREAD` (placement group with GPU bundles in several nodes). In addition, the created
+        placement group is targeted to be created in a specific node. This avoids having
+        `vLLM` raising the exception `Ray does not allocate any GPUs on the driver node...`,
+        as it assures that the driver `_StepWrapperRay` actor created resides in the same
+        node as the ray actors created by `vLLM` for the distributed inference.
+
+        Args:
+            step: the step which uses `vLLM`.
+
+        Returns:
+            A `PlacementGroupSchedulingStrategy` using the created `PlacementGroup`.
+        """
+        import ray
+
+        llm = step.llm  # type: ignore
+        tensor_parallel_size = llm.extra_kwargs.get("tensor_parallel_size", 1)  # type: ignore
+        pipeline_parallel_size = llm.extra_kwargs.get(  # type: ignore
+            "pipeline_parallel_size", 1
+        )
+
+        # TODO: this is suboptimal as placement groups can get distributed in a suboptimal
+        # way (some GPUs are not used and some LLMs cannot be loaded because they need 2
+        # GPUs but there is 1 GPU in one node and 1 GPU in another node)
+        selected_node_id = None
+        for node_id, gpus in self._ray_node_ids.items():
+            if gpus >= tensor_parallel_size:
+                self._logger.info(
+                    f"Ray node with ID '{node_id}' has enough GPUs (needed: {tensor_parallel_size},"
+                    f" available: {gpus}) for allocating `vLLM` used by '{step.name}' step."
+                )
+                self._ray_node_ids[node_id] -= tensor_parallel_size
+                selected_node_id = node_id
+                break
+
+        # Create a placement group
+        pg = ray.util.placement_group(
+            # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
+            # so the actors can be scheduled and executed (1 CPU bundle can have infinite actors):
+            # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
+            bundles=[{"CPU": 1}] + [{"GPU": 1}] * tensor_parallel_size,
+            strategy="SPREAD" if pipeline_parallel_size > 1 else "STRICT_PACK",
+            _soft_target_node_id=selected_node_id
+            if pipeline_parallel_size is None
+            else None,
+        )
+
+        self._logger.info(
+            f"Step '{step.name}' uses `vLLM`. Created a Ray placement group with bundle"
+            f" specs: {pg.bundle_specs}"
+        )
+
+        return ray.util.scheduling_strategies.PlacementGroupSchedulingStrategy(  # type: ignore
+            placement_group=pg,
+        )
 
     def _teardown(self) -> None:
         """Clean/release/stop resources reserved to run the pipeline."""
