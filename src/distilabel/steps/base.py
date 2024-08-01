@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         DownstreamConnectableSteps,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -369,8 +369,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return not self.is_generator and not self.is_global
 
     @property
-    def inputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step needs as input.
+    def inputs(self) -> "StepColumns":
+        """List of strings with the names of the mandatory columns that the step needs as
+        input or dictionary in which the keys are the input columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step needs as input.
@@ -378,9 +380,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """List of strings with the names of the columns that the step will produce as
-        output.
+        output or dictionary in which the keys are the output columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step will produce as
@@ -658,9 +661,9 @@ class GlobalStep(Step, ABC):
     """
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return []

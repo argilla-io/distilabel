@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Tuple, Union
 
 StepOutput = Iterator[List[Dict[str, Any]]]
-"""StepOutput is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
+"""`StepOutput` is an alias of the typing `Iterator[List[Dict[str, Any]]]`"""
 
 GeneratorStepOutput = Iterator[Tuple[List[Dict[str, Any]], bool]]
-"""GeneratorStepOutput is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+"""`GeneratorStepOutput` is an alias of the typing `Iterator[Tuple[List[Dict[str, Any]], bool]]`"""
+
+StepColumns = Union[List[str], Dict[str, bool]]
+"""`StepColumns` is an alias of the typing `Union[List[str], Dict[str, bool]]` used by the
+`inputs` and `outputs` properties of an `Step`.
+"""
