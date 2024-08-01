@@ -18,6 +18,14 @@ hide:
 
     [:octicons-arrow-right-24: DeitaFiltering](deitafiltering.md){ .bottom }
 
+-   :material-vector-line:{ .lg .middle } __FaissNearestNeighbour__
+
+    ---
+
+    Create a `faiss` index to get the nearest neighbours.
+
+    [:octicons-arrow-right-24: FaissNearestNeighbour](faissnearestneighbour.md){ .bottom }
+
 -   :material-content-save:{ .lg .middle } __PushToHub__
 
     ---
@@ -82,7 +90,15 @@ hide:
 
     [:octicons-arrow-right-24: MergeColumns](mergecolumns.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __ConversationTemplate__
+-   :material-step-forward:{ .lg .middle } __EmbeddingGeneration__
+
+    ---
+
+    Generate embeddings using an `Embeddings` model.
+
+    [:octicons-arrow-right-24: EmbeddingGeneration](embeddinggeneration.md){ .bottom }
+
+-   :material-format-list-bulleted:{ .lg .middle } __ConversationTemplate__
 
     ---
 
@@ -90,7 +106,7 @@ hide:
 
     [:octicons-arrow-right-24: ConversationTemplate](conversationtemplate.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatTextGenerationDPO__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatTextGenerationDPO__
 
     ---
 
@@ -98,7 +114,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatTextGenerationDPO](formattextgenerationdpo.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatChatGenerationDPO__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatChatGenerationDPO__
 
     ---
 
@@ -106,7 +122,7 @@ hide:
 
     [:octicons-arrow-right-24: FormatChatGenerationDPO](formatchatgenerationdpo.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatTextGenerationSFT__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatTextGenerationSFT__
 
     ---
 
@@ -114,13 +130,21 @@ hide:
 
     [:octicons-arrow-right-24: FormatTextGenerationSFT](formattextgenerationsft.md){ .bottom }
 
--   :material-step-forward:{ .lg .middle } __FormatChatGenerationSFT__
+-   :material-format-list-bulleted:{ .lg .middle } __FormatChatGenerationSFT__
 
     ---
 
     Format the output of a `ChatGeneration` task for Supervised Fine-Tuning (SFT) following the
 
     [:octicons-arrow-right-24: FormatChatGenerationSFT](formatchatgenerationsft.md){ .bottom }
+
+-   :octicons-number-16:{ .lg .middle } __RewardModelScore__
+
+    ---
+
+    Assign a score to a response using a Reward Model.
+
+    [:octicons-arrow-right-24: RewardModelScore](rewardmodelscore.md){ .bottom }
 
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 

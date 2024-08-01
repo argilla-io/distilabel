@@ -114,6 +114,14 @@ hide:
 
     [:octicons-arrow-right-24: VertexAILLM](vertexaillm.md){ .bottom }
 
+-   :material-brain:{ .lg .middle } __vLLM__
+
+    ---
+
+    `vLLM` library LLM implementation.
+
+    [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
+
 -   :hugging:{ .lg .middle } __TransformersLLM__
 
     ---
@@ -129,14 +137,6 @@ hide:
     llama.cpp LLM implementation running the Python bindings for the C++ code.
 
     [:octicons-arrow-right-24: LlamaCppLLM](llamacppllm.md){ .bottom }
-
--   :material-brain:{ .lg .middle } __vLLM__
-
-    ---
-
-    `vLLM` library LLM implementation.
-
-    [:octicons-arrow-right-24: vLLM](vllm.md){ .bottom }
 
 
 </div>
