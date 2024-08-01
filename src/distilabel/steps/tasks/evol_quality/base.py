@@ -124,7 +124,7 @@ class EvolQuality(Task):
         description="The output for the task are 'model_name'. Optionally, if `store_evolutions=True` 'evolved_response' else 'evolved_responses'.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         if values.get("store_evolutions"):
             values["outputs"].insert(0, "evolved_responses")

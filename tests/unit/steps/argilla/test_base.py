@@ -13,10 +13,8 @@
 # limitations under the License.
 
 import os
-import sys
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import Argilla
 from distilabel.steps.base import StepInput
@@ -28,10 +26,6 @@ if TYPE_CHECKING:
 class CustomArgilla(Argilla):
     def load(self) -> None:
         pass
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
 
     def process(self, *inputs: StepInput) -> "StepOutput":
         yield [{}]
@@ -81,14 +75,6 @@ class TestArgilla:
             dataset_workspace="argilla",
         )
         assert "Step 'step' hasn't received a pipeline" in caplog.text
-
-        with pytest.raises(
-            TypeError,
-            match="Can't instantiate abstract class Argilla with abstract methods inputs, process"
-            if sys.version_info < (3, 12)
-            else "Can't instantiate abstract class Argilla without an implementation for abstract methods 'inputs', 'process'",
-        ):
-            Argilla(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")

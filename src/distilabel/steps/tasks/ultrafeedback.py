@@ -134,7 +134,7 @@ class UltraFeedback(Task):
         description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         aspect = values.get("aspect")
         if aspect in ["helpfulness", "truthfulness"]:

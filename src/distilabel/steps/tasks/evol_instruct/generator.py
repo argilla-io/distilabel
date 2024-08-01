@@ -125,7 +125,7 @@ class EvolInstructGenerator(GeneratorTask):
         description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer' is added.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         if values.get("generate_answers"):
             values["outputs"].insert(1, "answer")

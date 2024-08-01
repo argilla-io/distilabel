@@ -147,11 +147,6 @@ class TextGenerationToArgilla(Argilla):
                 workspace=self.dataset_workspace,
             )
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generation`."""
-        return ["instruction", "generation"]
-
     @override
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Creates and pushes the records as FeedbackRecords to the Argilla dataset.

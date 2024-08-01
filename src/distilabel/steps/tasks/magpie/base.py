@@ -73,7 +73,7 @@ class MagpieBase(RuntimeParametersMixin):
         description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         if values.get("only_instruction"):
             values["outputs"].insert(0, "instruction")

@@ -173,7 +173,7 @@ class EvolInstruct(Task):
         description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer/s' is added.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         generate_answers = values.get("store_evolutions")
         store_evolutions = values.get("store_evolutions")

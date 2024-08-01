@@ -152,7 +152,7 @@ class StructuredGeneration(Task):
         description="The output for the task is the 'generation' and the 'model_name'.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_inputs(cls, values):
         if values.get("use_system_prompt"):
             values["inputs"].insert(0, "system_prompt")

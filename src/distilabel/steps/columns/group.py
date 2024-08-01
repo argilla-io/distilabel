@@ -15,6 +15,7 @@
 import warnings
 from typing import TYPE_CHECKING, Any, List, Optional
 
+from pydantic import Field, model_validator
 from typing_extensions import override
 
 from distilabel.pipeline.utils import group_columns
@@ -92,10 +93,28 @@ class GroupColumns(Step):
     columns: List[str]
     output_columns: Optional[List[str]] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the column names in `columns`."""
-        return self.columns
+    inputs: List[str] = Field(
+        frozen=True,
+        description="The inputs for the task are the column names in 'columns'.",
+    )
+    outputs: List[str] = Field(
+        frozen=True,
+        description="The outputs for the task are the column names in 'output_columns' or 'grouped_{column}' for each column in 'columns'.",
+    )
+
+    @model_validator(mode="before")
+    def set_inputs(cls, values):
+        values["inputs"] = values["columns"]
+        return values
+
+    @model_validator(mode="before")
+    def set_outputs(cls, values):
+        values["outputs"] = (
+            values.get("output_columns")
+            if values.get("output_columns") is not None
+            else [f"grouped_{column}" for column in values["columns"]]
+        )
+        return values
 
     @property
     def outputs(self) -> List[str]:

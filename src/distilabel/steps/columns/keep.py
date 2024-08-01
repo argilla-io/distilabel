@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, List
 
+from pydantic import Field, model_validator
 from typing_extensions import override
 
 from distilabel.steps.base import Step, StepInput
@@ -68,15 +69,24 @@ class KeepColumns(Step):
 
     columns: List[str]
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the column names in `columns`."""
-        return self.columns
+    inputs: List[str] = Field(
+        frozen=True,
+        description="The inputs for the task are the column names in 'columns'.",
+    )
+    outputs: List[str] = Field(
+        frozen=True,
+        description="The outputs for the task are the column names in 'columns'.",
+    )
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the column names in `columns`."""
-        return self.columns
+    @model_validator(mode="before")
+    def set_inputs(cls, values):
+        values["inputs"] = values["columns"]
+        return values
+
+    @model_validator(mode="before")
+    def set_outputs(cls, values):
+        values["outputs"] = values["columns"]
+        return values
 
     @override
     def process(self, *inputs: StepInput) -> "StepOutput":

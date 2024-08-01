@@ -15,7 +15,7 @@
 from itertools import zip_longest
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import field_validator
+from pydantic import Field, field_validator, model_validator
 
 from distilabel.steps.base import Step, StepInput
 
@@ -70,6 +70,23 @@ class ExpandColumns(Step):
 
     columns: Union[Dict[str, str], List[str]]
 
+    inputs: List[str] = Field(frozen=True, description=["The columns to be expanded."])
+    outputs: List[str] = Field(frozen=True, description=["The expanded columns."])
+
+    @model_validator(mode="before")
+    def set_inputs(cls, values):
+        values["inputs"] = list(values["columns"].keys())
+        return values
+
+    @model_validator(mode="before")
+    def set_outputs(cls, values):
+        values["columns"] = cls.always_dict(value=values["columns"])
+        values["outputs"] = [
+            new_column if new_column else expand_column
+            for expand_column, new_column in values["columns"].items()
+        ]
+        return values
+
     @field_validator("columns")
     @classmethod
     def always_dict(cls, value: Union[Dict[str, str], List[str]]) -> Dict[str, str]:
@@ -85,19 +102,6 @@ class ExpandColumns(Step):
             return {col: col for col in value}
 
         return value
-
-    @property
-    def inputs(self) -> List[str]:
-        """The columns to be expanded."""
-        return list(self.columns.keys())
-
-    @property
-    def outputs(self) -> List[str]:
-        """The expanded columns."""
-        return [
-            new_column if new_column else expand_column
-            for expand_column, new_column in self.columns.items()
-        ]
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Expand the columns in the input data.

@@ -63,7 +63,7 @@ class LoadDataFromDicts(GeneratorStep):
 
     data: List[Dict[str, Any]]
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         data = values.get("data", [])
         if data:

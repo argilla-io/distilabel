@@ -14,6 +14,7 @@
 
 from typing import TYPE_CHECKING, List, Optional
 
+from pydantic import Field, model_validator
 from typing_extensions import override
 
 from distilabel.pipeline.utils import merge_columns
@@ -78,13 +79,28 @@ class MergeColumns(Step):
     columns: List[str]
     output_column: Optional[str] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        return self.columns
+    inputs: List[str] = Field(
+        frozen=True,
+        description="The inputs for the task are the column names in 'columns'.",
+    )
+    outputs: List[str] = Field(
+        frozen=True,
+        description="The outputs for the task are the column names in 'columns'.",
+    )
 
-    @property
-    def outputs(self) -> List[str]:
-        return [self.output_column] if self.output_column else ["merged_column"]
+    @model_validator(mode="before")
+    def set_inputs(cls, values):
+        values["inputs"] = values["columns"]
+        return values
+
+    @model_validator(mode="before")
+    def set_outputs(cls, values):
+        values["outputs"] = (
+            [values.get("output_column")]
+            if values.get("output_column")
+            else ["merged_column"]
+        )
+        return values
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":

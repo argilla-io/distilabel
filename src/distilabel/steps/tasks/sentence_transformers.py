@@ -210,7 +210,7 @@ class GenerateSentencePair(Task):
         description="The outputs for the task are the 'positive', as well as the `model_name`, optionally when dealing with `triplet=False` 'negative' sentences are added.",
     )
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def set_outputs(cls, values):
         if values.get("triplet"):
             values["outputs"].insert(1, "negative")
