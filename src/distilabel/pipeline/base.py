@@ -263,9 +263,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
                     step_info += "-".join([str(v) for v in value])
-                elif isinstance(value, (int, str, float)):
-                    # batch_size/name
-                    step_info += str(value)
+                elif isinstance(value, (int, str, float, bool)):
+                    if argument != "disable_cuda_device_placement":
+                        # batch_size/name
+                        step_info += str(value)
                 else:
                     raise ValueError(
                         f"Field '{argument}' in step '{step['name']}' has type {type(value)}, explicitly cast the type to 'str'."
