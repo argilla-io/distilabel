@@ -656,9 +656,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """Will try to load the `_BatchManager` from the cache dir if found. Otherwise,
         it will create one from scratch.
 
-        If the _BatchManager is loaded from cache, we check for invalid steps (those that
+        If the `_BatchManager` is loaded from cache, we check for invalid steps (those that
         may have a different signature than the original in the pipeline folder), and
         restart them, as well as their successors.
+
+        Args:
+            use_cache: whether the cache should be used or not.
         """
         batch_manager_cache_loc = self._cache_location["batch_manager"]
         if use_cache and batch_manager_cache_loc.exists():
@@ -666,28 +669,36 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 f"💾 Loading `_BatchManager` from cache: '{batch_manager_cache_loc}'"
             )
             self._batch_manager = _BatchManager.load_from_cache(batch_manager_cache_loc)
-
-            for step_name in self.dag:
-                if self.dag.get_step(step_name)[STEP_ATTR_NAME].is_generator:
-                    # GeneratorSteps aren't cached
-                    continue
-
-                step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
-                batch_manager_step = self._batch_manager._steps[step_name]
-                if (
-                    step._create_signature() != batch_manager_step.step_signature
-                    or not step.use_cache
-                ):
-                    self._batch_manager.invalidate_cache_for(
-                        step_name=step.name, dag=self.dag
-                    )
-                    self._logger.info(
-                        f"♻️ `_BatchManagerStep` for '{step.name}' and successors will be recomputed"
-                    )
-                    break
-
+            self._invalidate_steps_cache_if_required()
         else:
             self._batch_manager = _BatchManager.from_dag(self.dag)
+
+    def _invalidate_steps_cache_if_required(self) -> None:
+        """Iterates over the steps of the pipeline and invalidates their cache if required."""
+        for step_name in self.dag:
+            # `GeneratorStep`s doesn't receive input data so no need to check their
+            # `_BatchManagerStep`
+            if self.dag.get_step(step_name)[STEP_ATTR_NAME].is_generator:
+                continue
+
+            step: "_Step" = self.dag.get_step(step_name)[STEP_ATTR_NAME]
+            batch_manager_step = self._batch_manager._steps[step_name]  # type: ignore
+            step_signature_changed = (
+                step._create_signature() != batch_manager_step.step_signature
+            )
+            if step_signature_changed or not step.use_cache:
+                self._batch_manager.invalidate_cache_for(step.name, self.dag)  # type: ignore
+                if step_signature_changed:
+                    prefix_msg = f"Step '{step.name}' has changed."
+                else:
+                    prefix_msg = (
+                        f"Step '{step.name}' won't use cache (`use_cache=False`)."
+                    )
+                self._logger.info(
+                    f"♻️ {prefix_msg} The cache of this step and their successors won't be"
+                    " reused and the results will have to be recomputed."
+                )
+                break
 
     def _setup_write_buffer(self) -> None:
         """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
