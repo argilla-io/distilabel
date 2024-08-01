@@ -1019,27 +1019,6 @@ class _BatchManager(_Serializable):
             # Remove built `_Batch`es that were consumed from cache
             remove_files(step_dump["built_batches"], built_batches_dir)
 
-            # TODO: We don't need this logic anymore, we will write this content as part
-            # of batch_manager_data, so this should be removed.
-            for buffered_step_name in step_dump["data"]:
-                step_batches_dir = batch_manager_step_dir / buffered_step_name
-                step_batches_dir.mkdir(parents=True, exist_ok=True)
-
-                # Store each `_Batch` in a separate file
-                step_dump["data"][buffered_step_name] = [
-                    str(
-                        save_batch(
-                            batches_dir=step_batches_dir,
-                            batch_dump=batch_dump,
-                            batch_list=self._steps[step_name].data[buffered_step_name],
-                        )
-                    )
-                    for batch_dump in step_dump["data"][buffered_step_name]
-                ]
-
-                # Remove `_Batch`es that were consumed from cache
-                remove_files(step_dump["data"][buffered_step_name], step_batches_dir)
-
             # Store the `_BatchManagerStep` info
             batch_manager_step_file = str(
                 path.parent / f"batch_manager_steps/{step_name}/batch_manager_step.json"
@@ -1061,28 +1040,32 @@ class _BatchManager(_Serializable):
             path: The path to the cache file.
         """
         _check_is_dir(path)
+        steps_data_dir = Path(path).parent / "batch_manager_data"
         content = read_json(path)
 
         # Read each `_BatchManagerStep` from file
         steps = {}
         for step_name, step_file in content["steps"].items():
             steps[step_name] = read_json(step_file)
-            # When we read back from the json file, the variable is a dict, this solves
-            # the unit test problem
+            # When reading back from JSON, `next_expected_seq_no` is a list (because JSON
+            # files do not have tuples).
             steps[step_name]["next_expected_seq_no"] = {
                 k: tuple(v) for k, v in steps[step_name]["next_expected_seq_no"].items()
             }
+
             # Read each `_Batch` from file
             steps[step_name]["built_batches"] = [
                 read_json(batch) for batch in steps[step_name]["built_batches"]
             ]
 
-            # TODO: Remove step_a/step_generator_0 iternal folders, we don't need those anymore:
-            # To remove this, take a look at BatchManager.cache method and the info from _model_dump.
-            for buffered_step_name, batch_files in steps[step_name]["data"].items():
-                steps[step_name]["data"][buffered_step_name] = [
-                    read_json(batch_file) for batch_file in batch_files
-                ]
+            # TODO: need to load the batch manager step
+            step_offset = steps[step_name]["step_offset"]
+            for successor_step_name, _offset in step_offset.items():
+                # TODO: load batches of the step from `batch_manager_data` directory
+                # TODO: which ones? depending on the successor parameters we have a hash
+                # or the other.
+                _step_data_dir = steps_data_dir / "something"
+                steps[step_name]["data"][successor_step_name] = []
 
         content["steps"] = steps
         return cls.from_dict(content)
