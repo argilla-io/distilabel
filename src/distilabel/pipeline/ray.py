@@ -299,6 +299,10 @@ class RayPipeline(BasePipeline):
 
         # Count available GPUs across all nodes
         total_available_gpus = sum(self._ray_node_ids.values())
+        self._logger.info(
+            f"`vLLM` placement group for '{step.name}' step requires {total_gpus_needed}"
+            f" GPUs. Total available GPUs: {total_available_gpus}."
+        )
 
         if total_available_gpus < total_gpus_needed:
             raise ValueError(
@@ -309,11 +313,12 @@ class RayPipeline(BasePipeline):
 
         # Update the available GPU count
         selected_node_id = None
+        gpus_left = total_gpus_needed
         for node_id in self._ray_node_ids:
             gpus_to_allocate = min(self._ray_node_ids[node_id], total_gpus_needed)
             self._ray_node_ids[node_id] -= gpus_to_allocate
-            total_gpus_needed -= gpus_to_allocate
-            if total_gpus_needed == 0:
+            gpus_left -= gpus_to_allocate
+            if gpus_left == 0:
                 if pipeline_parallel_size == 1:
                     selected_node_id = node_id
                 break
