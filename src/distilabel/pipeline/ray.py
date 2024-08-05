@@ -125,6 +125,8 @@ class RayPipeline(BasePipeline):
         ):
             return distiset
 
+        self._logger.info(f"Ray nodes GPUs: {self._ray_node_ids}")
+
         self._output_queue = self.QueueClass(
             actor_options={"name": f"distilabel-{self.name}-output-queue"}
         )
@@ -178,10 +180,8 @@ class RayPipeline(BasePipeline):
         # Get the number of GPUs per Ray node
         for node in ray.nodes():
             node_id = node["NodeID"]
-            gpus = node["Resources"].get("GPU", 0)
+            gpus = int(node["Resources"].get("GPU", 0))
             self._ray_node_ids[node_id] = gpus
-
-        self._logger.info(f"Ray nodes GPUs: {self._ray_node_ids}")
 
     @property
     def QueueClass(self) -> Callable:
