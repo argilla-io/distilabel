@@ -1016,6 +1016,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Push to Hugging Face Hub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Docstrings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4316,6 +4331,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Push to Hugging Face Hub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Docstrings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -4445,35 +4475,58 @@
 </span></code></pre></div>
 <p>After running the command, you could visit the repository and the file <code>sample_pipe.py</code> will be stored to simplify sharing your pipeline with the community.</p>
 </div>
+<h4 id="custom-docstrings">Custom Docstrings<a class="headerlink" href="#custom-docstrings" title="Permanent link">&para;</a></h4>
+<p><code>Distilabel</code> contains a custom plugin to automatically generates a gallery for the different components. The information is extracted by parsing the <code>Step</code>'s docstrings. You can take a look at the docstrings in the source code of the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.UltraFeedback">UltraFeedback</a>, and take a look at the corresponding entry in the components gallery to see an example of how the docstrings are rendered.</p>
+<p>If you create your own components and want the <code>Citations</code> automatically rendered in the README card (in case you are sharing your final distiset in the Hugging Face Hub), you may want to add the citation section. This is an example for the <a class="autorefs autorefs-internal" href="../../../../api/task_gallery/#distilabel.steps.tasks.MagpieGenerator">MagpieGenerator</a> Task:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span> <span class="nc">MagpieGenerator</span><span class="p">(</span><span class="n">GeneratorTask</span><span class="p">,</span> <span class="n">MagpieBase</span><span class="p">):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Generator task the generates instructions or conversations using Magpie.</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="sd">    ...</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="sd">    Citations:</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="sd">        ```</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="sd">        @misc{xu2024magpiealignmentdatasynthesis,</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="sd">            title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="sd">            author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="sd">            year={2024},</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="sd">            eprint={2406.08464},</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="sd">            archivePrefix={arXiv},</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="sd">            primaryClass={cs.CL},</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="sd">            url={https://arxiv.org/abs/2406.08464},</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="sd">        }</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="sd">        ```</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span></code></pre></div>
+<p>The <code>Citations</code> section can include any number of bibtex references. To define them, you can add as much elements as needed just like in the example: each citation will be a block of the form: <code>```@misc{...}```</code>. This information will be automatically used in the README of your <code>Distiset</code> if you decide to call <code>distiset.push_to_hub</code>. Alternatively, if the <code>Citations</code> is not found, but in the <code>References</code> there are found any urls pointing to <code>https://arxiv.org/</code>, we will try to obtain the <code>Bibtex</code> equivalent automatically. This way, Hugging Face can automatically track the paper for you and it's easier to find other datasets citing the same paper, or directly visiting the paper page.</p>
 <h3 id="save-and-load-from-disk">Save and load from disk<a class="headerlink" href="#save-and-load-from-disk" title="Permanent link">&para;</a></h3>
 <p>Take into account that these methods work as <code>datasets.load_from_disk</code> and <code>datasets.Dataset.save_to_disk</code> so the arguments are directly passed to those methods. This means you can also make use of <code>storage_options</code> argument to save your <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> in your cloud provider, including the distilabel artifacts (<code>pipeline.yaml</code>, <code>pipeline.log</code> and the <code>README.md</code> with the dataset card). You can read more in <code>datasets</code> documentation <a href="https://huggingface.co/docs/datasets/filesystems#saving-serialized-datasets">here</a>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Save to disk</label><label for="__tabbed_1_2">Load from disk (local)</label><label for="__tabbed_1_3">Load from disk (cloud)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Save the <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> to disk, and optionally (will be done by default) saves the dataset card, the pipeline config file and logs:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;my-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">save_card</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">save_pipeline_config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">save_pipeline_log</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;my-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">save_card</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">save_pipeline_config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">save_pipeline_log</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
 <p>Load a <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> that was saved using <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset.save_to_disk"><code>Distiset.save_to_disk</code></a> just the same way:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">Distiset</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="s2">&quot;my-dataset&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">Distiset</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="s2">&quot;my-dataset&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
 <p>Load a <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a> from a remote location, like S3, GCS. You can pass the <code>storage_options</code> argument to authenticate with the cloud provider:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">Distiset</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="s2">&quot;s3://path/to/my_dataset&quot;</span><span class="p">,</span>  <span class="c1"># gcs:// or any filesystem tolerated by fsspec</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;S3_ACCESS_KEY&quot;</span><span class="p">],</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="s2">&quot;secret&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;S3_SECRET_KEY&quot;</span><span class="p">],</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="o">...</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="p">}</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">Distiset</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="s2">&quot;s3://path/to/my_dataset&quot;</span><span class="p">,</span>  <span class="c1"># gcs:// or any filesystem tolerated by fsspec</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;S3_ACCESS_KEY&quot;</span><span class="p">],</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="s2">&quot;secret&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;S3_SECRET_KEY&quot;</span><span class="p">],</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="o">...</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="p">}</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">)</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -4481,7 +4534,7 @@
 <p>Take a look at the remaining arguments at <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset.save_to_disk"><code>Distiset.save_to_disk</code></a> and <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset.load_from_disk"><code>Distiset.load_from_disk</code></a>.</p>
 <h2 id="dataset-card">Dataset card<a class="headerlink" href="#dataset-card" title="Permanent link">&para;</a></h2>
 <p>Having this special type of dataset comes with an added advantage when calling <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset.push_to_hub</code></a>, which is the automatically generated dataset card in the Hugging Face Hub. Note that it is enabled by default, but can be disabled by setting <code>generate_card=False</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;my-org/my-dataset&quot;</span><span class="p">,</span> <span class="n">generate_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;my-org/my-dataset&quot;</span><span class="p">,</span> <span class="n">generate_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></code></pre></div>
 <p>We will have an automatic dataset card (an example can be seen <a href="https://huggingface.co/datasets/distilabel-internal-testing/deita">here</a>) with some handy information like reproducing the <a class="autorefs autorefs-internal" href="../../../../api/pipeline/#distilabel.pipeline.local.Pipeline"><code>Pipeline</code></a> with the <code>CLI</code>, or examples of the records from the different subsets.</p>
 <h2 id="create_distiset-helper">create_distiset helper<a class="headerlink" href="#create_distiset-helper" title="Permanent link">&para;</a></h2>
