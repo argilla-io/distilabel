@@ -18,7 +18,7 @@ import re
 import sys
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Final, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 import fsspec
 import yaml
@@ -29,12 +29,18 @@ from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
+from distilabel.pipeline.constants import STEP_ATTR_NAME
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
 )
+from distilabel.utils.docstring import get_bibtex, parse_google_docstring
 from distilabel.utils.files import list_files_in_dir
 from distilabel.utils.huggingface import get_hf_token
+
+if TYPE_CHECKING:
+    from distilabel.pipeline._dag import DAG
+
 
 DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
@@ -55,6 +61,7 @@ class Distiset(dict):
 
     _pipeline_path: Optional[Path] = None
     _log_filename_path: Optional[Path] = None
+    _citations: Optional[List[str]] = None
 
     def push_to_hub(
         self,
@@ -178,6 +185,7 @@ class Distiset(dict):
             sample_records=sample_records,
             include_script=include_script,
             filename_py=filename_py,
+            references=self.citations,
         )
 
         return card
@@ -475,6 +483,15 @@ class Distiset(dict):
     def log_filename_path(self, path: PathLike) -> None:
         self._log_filename_path = Path(path)
 
+    @property
+    def citations(self) -> Union[List[str], None]:
+        """Bibtex references to be included in the README."""
+        return self._citations
+
+    @citations.setter
+    def citations(self, citations_: List[str]) -> None:
+        self._citations = sorted(set(citations_))
+
     def __repr__(self):
         # Copy from `datasets.DatasetDict.__repr__`.
         repr = "\n".join([f"{k}: {v}" for k, v in self.items()])
@@ -487,6 +504,7 @@ def create_distiset(  # noqa: C901
     pipeline_path: Optional[Path] = None,
     log_filename_path: Optional[Path] = None,
     enable_metadata: bool = False,
+    dag: Optional["DAG"] = None,
 ) -> Distiset:
     """Creates a `Distiset` from the buffer folder.
 
@@ -504,6 +522,8 @@ def create_distiset(  # noqa: C901
             uploading the `pipeline.log` file to the repo upon `Distiset.push_to_hub`.
         enable_metadata: Whether to include the distilabel metadata column in the dataset or not.
             Defaults to `False`.
+        dag: DAG contained in a `Pipeline`. If informed, will be used to extract the references/
+            citations from it.
 
     Returns:
         The dataset created from the buffer folder, where the different leaf steps will
@@ -564,5 +584,31 @@ def create_distiset(  # noqa: C901
         log_filename_path = data_dir.parent / "pipeline.log"
         if log_filename_path.exists():
             distiset.log_filename_path = log_filename_path
+
+    if dag:
+        citations = []
+        for step_name in dag:
+            step_info = parse_google_docstring(dag.get_step(step_name)[STEP_ATTR_NAME])
+            if cites := step_info["citations"]:
+                citations.extend(cites)
+                continue
+            # If there were no citations but we have references with arxiv URLs, try to extract
+            # the bixtex citations from those
+            if references := step_info["references"]:
+                bibtex_refs = []
+                for ref in references.values():
+                    try:
+                        bibtex_refs.append(get_bibtex(ref))
+                    except ValueError as e:
+                        print(f"Error: {e}")
+                    except AttributeError as e:
+                        print(
+                            f"Coulnd't obtain the bibtex format for the ref: '{ref}', error: {e}"
+                        )
+                    except Exception as e:
+                        print(f"Untracked error: {e}")
+                citations.extend(bibtex_refs)
+
+        distiset._citations = citations
 
     return distiset
