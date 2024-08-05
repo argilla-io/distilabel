@@ -313,12 +313,12 @@ class RayPipeline(BasePipeline):
 
         # Update the available GPU count
         selected_node_id = None
-        gpus_left = total_gpus_needed
+        gpus_left_needed = total_gpus_needed
         for node_id in self._ray_node_ids:
             gpus_to_allocate = min(self._ray_node_ids[node_id], total_gpus_needed)
             self._ray_node_ids[node_id] -= gpus_to_allocate
-            gpus_left -= gpus_to_allocate
-            if gpus_left == 0:
+            gpus_left_needed -= gpus_to_allocate
+            if gpus_left_needed == 0:
                 if pipeline_parallel_size == 1:
                     selected_node_id = node_id
                 break
