@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import json
 from typing import (
     TYPE_CHECKING,
@@ -28,7 +29,7 @@ from typing import (
 import numpy as np
 from pydantic import Field, PrivateAttr, validate_call
 
-from distilabel.llms.base import LLM
+from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
@@ -39,6 +40,7 @@ from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutp
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
+    from httpx import AsyncClient
 
     from distilabel.steps.tasks.typing import StandardInput
 
@@ -159,8 +161,8 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         description="The structured output format to use across all the generations.",
     )
 
-    _model: Optional["_vLLM"] = PrivateAttr(...)
-    _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(...)
+    _model: "_vLLM" = PrivateAttr(None)
+    _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
     _logits_processor: Optional[Callable] = PrivateAttr(default=None)
 
     def load(self) -> None:
@@ -195,7 +197,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             tokenizer_revision=self.tokenizer_revision,
             skip_tokenizer_init=self.skip_tokenizer_init,
             seed=self.seed,
-            **self.extra_kwargs,
+            **self.extra_kwargs,  # type: ignore
         )
 
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
@@ -233,7 +235,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
             The prompt to send to the LLM.
         """
         prompt: str = (
-            self._tokenizer.apply_chat_template(  # type: ignore
+            self._tokenizer.apply_chat_template(
                 input,  # type: ignore
                 tokenize=False,
                 add_generation_prompt=True,  # type: ignore
@@ -298,8 +300,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         top_k: int = -1,
         extra_sampling_params: Optional[Dict[str, Any]] = None,
     ) -> List[GenerateOutput]:
-        """Generates `num_generations` responses for each input using the text generation
-        pipeline.
+        """Generates `num_generations` responses for each input.
 
         Args:
             inputs: a list of inputs in chat format to generate responses for.
@@ -355,7 +356,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
                 **extra_sampling_params,
             )
 
-            batch_outputs = self._model.generate(  # type: ignore
+            batch_outputs = self._model.generate(
                 prepared_inputs,
                 sampling_params,
                 use_tqdm=False,  # type: ignore
@@ -392,6 +393,189 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if (schema := result.get("schema")) and self.structured_output:
             self.structured_output["schema"] = schema
         return result["processor"]
+
+
+class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
+    """A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
+
+    Attributes:
+        base_url: the base URL of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        max_retries: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        timeout: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        httpx_client_kwargs: extra kwargs that will be passed to the `httpx.AsyncClient`
+            created to comunicate with the `vLLM` server. Defaults to `None`.
+        tokenizer: the Hugging Face Hub repo id or path of the tokenizer that will be used
+            to apply the chat template and tokenize the inputs before sending it to the
+            server. Defaults to `None`.
+        tokenizer_revision: the revision of the tokenizer to load. Defaults to `None`.
+        _aclient: the `httpx.AsyncClient` used to comunicate with the `vLLM` server. Defaults
+            to `None`.
+
+    Runtime parameters:
+        - `base_url`: the base url of the `vLLM` server. Defaults to `"http://localhost:8000"`.
+        - `max_retries`: the maximum number of times to retry the request to the API before
+            failing. Defaults to `6`.
+        - `timeout`: the maximum time in seconds to wait for a response from the API. Defaults
+            to `120`.
+        - `httpx_client_kwargs`: extra kwargs that will be passed to the `httpx.AsyncClient`
+            created to comunicate with the `vLLM` server. Defaults to `None`.
+
+    Examples:
+
+        Generate text:
+
+        ```python
+        from distilabel.llms import ClientvLLM
+
+        llm = ClientvLLM(tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct")
+
+        llm.load()
+
+        results = llm.generate(
+            inputs=[[{"role": "user", "content": "Hello, how are you?"}]],
+            temperature=0.7,
+            top_p=1.0,
+            max_new_tokens=256,
+        )
+        #
+        ```
+    """
+
+    base_url: Optional[RuntimeParameter[str]] = Field(
+        default_factory=lambda: os.getenv(
+            "VLLM_SERVER_BASE_URL", "http://localhost:8000"
+        ),
+        description="The base URL of the vLLM server (executed with `python -m vllm.entrypoints.api_server`)",
+    )
+    max_retries: RuntimeParameter[int] = Field(
+        default=6,
+        description="The maximum number of times to retry the request to the API before"
+        " failing.",
+    )
+    timeout: RuntimeParameter[int] = Field(
+        default=120,
+        description="The maximum time in seconds to wait for a response from the API.",
+    )
+    httpx_client_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
+        default_factory=dict,
+        description="Additional kwargs that will be passed to the `httpx.AsyncClient`.",
+    )
+    tokenizer: Optional[str] = None
+    tokenizer_revision: Optional[str] = None
+
+    _aclient: "AsyncClient" = PrivateAttr(None)
+    _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
+
+    def load(self) -> None:
+        """Creates an `httpx.AsyncClient` to connect to the vLLM server and a tokenizer
+        optionally."""
+        super().load()
+
+        try:
+            from httpx import AsyncClient, AsyncHTTPTransport
+        except ImportError as ie:
+            raise ImportError(
+                "To use `ClientvLLM` you need to install `httpx`. Please install it using"
+                " `pip install httpx`."
+            ) from ie
+
+        self._aclient = AsyncClient(
+            base_url=self.base_url,
+            timeout=self.timeout,
+            transport=AsyncHTTPTransport(retries=self.max_retries),  # type: ignore
+            **self.httpx_client_kwargs,  # type: ignore
+        )
+
+        try:
+            from transformers import AutoTokenizer
+        except ImportError as ie:
+            raise ImportError(
+                "To use `ClientvLLM` with `tokenizer` you need to install `transformers`."
+                "Please install it using `pip install transformers`."
+            ) from ie
+
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            self.tokenizer, revision=self.tokenizer_revision
+        )
+
+    @property
+    def model_name(self) -> str:
+        return ""
+
+    def _prepare_input(self, input: "StandardInput") -> str:
+        """Prepares the input (applying the chat template and tokenization) for the provided
+        input.
+
+        Args:
+            input: the input list containing chat items.
+
+        Returns:
+            The prompt to send to the LLM.
+        """
+        prompt: str = (
+            self._tokenizer.apply_chat_template(  # type: ignore
+                input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,  # type: ignore
+            )
+            if input
+            else ""
+        )
+        return super().apply_magpie_pre_query_template(prompt, input)
+
+    @validate_call
+    async def agenerate(  # type: ignore
+        self,
+        input: FormattedInput,
+        num_generations: int = 1,
+        max_new_tokens: int = 128,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        top_k: int = -1,
+    ) -> GenerateOutput:
+        """Generates `num_generations` responses for each input.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            top_k: the top-k value to use for the generation. Defaults to `0`.
+            extra_sampling_params: dictionary with additional arguments to be passed to
+                the `SamplingParams` class from `vllm`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input.
+        """
+        response = await self._aclient.post(
+            f"{self.base_url}/generate",
+            json={
+                "prompt": self._prepare_input(input),  # type: ignore
+                "max_tokens": max_new_tokens,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "temperature": temperature,
+                "top_p": top_p,
+                "top_k": top_k,
+            },
+        )
+
+        if response.status_code != 200:
+            self._logger.warning(f"Received no response from vLLM server.")
+            return [None] * num_generations
+
+        return response.json()["text"]
 
 
 def _sort_batches(
