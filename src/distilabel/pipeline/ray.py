@@ -292,34 +292,40 @@ class RayPipeline(BasePipeline):
 
         llm = step.llm  # type: ignore
         tensor_parallel_size = llm.extra_kwargs.get("tensor_parallel_size", 1)  # type: ignore
-        pipeline_parallel_size = llm.extra_kwargs.get(  # type: ignore
-            "pipeline_parallel_size", 1
-        )
+        pipeline_parallel_size = llm.extra_kwargs.get("pipeline_parallel_size", 1)  # type: ignore
 
-        # TODO: this is suboptimal as placement groups can get distributed in a suboptimal
-        # way (some GPUs are not used and some LLMs cannot be loaded because they need 2
-        # GPUs but there is 1 GPU in one node and 1 GPU in another node)
+        # Calculate total GPUs needed
+        total_gpus_needed = tensor_parallel_size * pipeline_parallel_size
+
+        # Count available GPUs across all nodes
+        total_available_gpus = sum(self._ray_node_ids.values())
+
+        if total_available_gpus < total_gpus_needed:
+            raise ValueError(
+                f"Ray cluster does not allocate enough GPUs to create the placement group"
+                f" required by the `vLLM` instance of the step '{step.name}'."
+                f" Needed: {total_gpus_needed}, Available: {total_available_gpus}"
+            )
+
+        # Update the available GPU count
         selected_node_id = None
-        for node_id, gpus in self._ray_node_ids.items():
-            if gpus >= tensor_parallel_size:
-                self._logger.info(
-                    f"Ray node with ID '{node_id}' has enough GPUs (needed: {tensor_parallel_size},"
-                    f" available: {gpus}) for allocating `vLLM` used by '{step.name}' step."
-                )
-                self._ray_node_ids[node_id] -= tensor_parallel_size
-                selected_node_id = node_id
+        for node_id in self._ray_node_ids:
+            gpus_to_allocate = min(self._ray_node_ids[node_id], total_gpus_needed)
+            self._ray_node_ids[node_id] -= gpus_to_allocate
+            total_gpus_needed -= gpus_to_allocate
+            if total_gpus_needed == 0:
+                if pipeline_parallel_size == 1:
+                    selected_node_id = node_id
                 break
 
         # Create a placement group
         pg = ray.util.placement_group(
-            # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
+            #  # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
             # so the actors can be scheduled and executed (1 CPU bundle can have infinite actors):
             # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
-            bundles=[{"CPU": 1}] + [{"GPU": 1}] * tensor_parallel_size,
+            bundles=[{"CPU": 1.0}] + [{"GPU": 1.0}] * total_gpus_needed,
             strategy="SPREAD" if pipeline_parallel_size > 1 else "STRICT_PACK",
-            _soft_target_node_id=selected_node_id
-            if pipeline_parallel_size is None
-            else None,
+            _soft_target_node_id=selected_node_id,
         )
 
         self._logger.info(
