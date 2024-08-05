@@ -100,6 +100,20 @@ class UltraFeedback(Task):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{cui2024ultrafeedbackboostinglanguagemodels,
+            title={UltraFeedback: Boosting Language Models with Scaled AI Feedback},
+            author={Ganqu Cui and Lifan Yuan and Ning Ding and Guanming Yao and Bingxiang He and Wei Zhu and Yuan Ni and Guotong Xie and Ruobing Xie and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+            year={2024},
+            eprint={2310.01377},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2310.01377},
+        }
+        ```
     """
 
     aspect: Literal[

@@ -202,6 +202,20 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         #     True
         # )
         ```
+
+    Citations:
+
+        ```
+        @misc{xu2024magpiealignmentdatasynthesis,
+            title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+            author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+            year={2024},
+            eprint={2406.08464},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2406.08464},
+        }
+        ```
     """
 
     # TODO: move this to `GeneratorTask`

@@ -85,6 +85,20 @@ class ComplexityScorer(Task):
         # result
         # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 5], 'distilabel_metadata': {'raw_output_complexity_scorer_0': 'output'}}]
         ```
+
+    Citations:
+
+        ```
+        @misc{liu2024makesgooddataalignment,
+            title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
+            author={Wei Liu and Weihao Zeng and Keqing He and Yong Jiang and Junxian He},
+            year={2024},
+            eprint={2312.15685},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2312.15685},
+        }
+        ```
     """
 
     _template: Union[Template, None] = PrivateAttr(...)
