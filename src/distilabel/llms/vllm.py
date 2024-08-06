@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
 from typing import (
     TYPE_CHECKING,
@@ -29,22 +28,21 @@ from typing import (
 import numpy as np
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
-from distilabel.llms.base import LLM, AsyncLLM
+from distilabel.llms.base import LLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
-from distilabel.llms.typing import GenerateOutput
 from distilabel.llms.openai import OpenAILLM
+from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
 if TYPE_CHECKING:
+    from openai import OpenAI
     from transformers import PreTrainedTokenizer
     from vllm import LLM as _vLLM
-    from httpx import AsyncClient
 
     from distilabel.steps.tasks.typing import StandardInput
-    from openai import OpenAI
 
 
 SamplingParams = None
