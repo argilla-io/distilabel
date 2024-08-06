@@ -5,7 +5,7 @@ hide:
 # ClientvLLM
 
 
-A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
+A client for the `vLLM` server implementing the OpenAI API specification.
 
 
 

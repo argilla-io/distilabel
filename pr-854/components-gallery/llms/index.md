@@ -22,7 +22,7 @@ hide:
 
     ---
 
-    A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
+    A client for the `vLLM` server implementing the OpenAI API specification.
 
     [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 

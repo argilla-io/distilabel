@@ -4544,7 +4544,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="distilabel.llms.openai.OpenAILLM" href="../openai/#distilabel.llms.openai.OpenAILLM">OpenAILLM</a></code>, <code><span title="distilabel.llms.mixins.magpie.MagpieChatTemplateMixin">MagpieChatTemplateMixin</span></code></p>
 
 
-      <p>A client for the <code>vLLM</code> server served with <code>python -m vllm.entrypoints.api_server</code>.</p>
+      <p>A client for the <code>vLLM</code> server implementing the OpenAI API specification.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -4866,7 +4866,7 @@ results = llm.generate(
 <span class="normal"><a href="#__codelineno-0-579">579</a></span>
 <span class="normal"><a href="#__codelineno-0-580">580</a></span>
 <span class="normal"><a href="#__codelineno-0-581">581</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-398"><a id="__codelineno-0-398" name="__codelineno-0-398"></a><span class="k">class</span> <span class="nc">ClientvLLM</span><span class="p">(</span><span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">MagpieChatTemplateMixin</span><span class="p">):</span>
-</span><span id="__span-0-399"><a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.</span>
+</span><span id="__span-0-399"><a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A client for the `vLLM` server implementing the OpenAI API specification.</span>
 </span><span id="__span-0-400"><a id="__codelineno-0-400" name="__codelineno-0-400"></a>
 </span><span id="__span-0-401"><a id="__codelineno-0-401" name="__codelineno-0-401"></a><span class="sd">    Attributes:</span>
 </span><span id="__span-0-402"><a id="__codelineno-0-402" name="__codelineno-0-402"></a><span class="sd">        base_url: the base URL of the `vLLM` server. Defaults to `&quot;http://localhost:8000&quot;`.</span>
