@@ -396,7 +396,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
 
 class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
-    """A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
+    """A client for the `vLLM` server implementing the OpenAI API specification.
 
     Attributes:
         base_url: the base URL of the `vLLM` server. Defaults to `"http://localhost:8000"`.
