@@ -1159,18 +1159,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" class="md-nav__link">
+  <a href="#serving-llms-using-text-generation-inference" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using text-generation-inference
+      Serving LLMs using text-generation-inference
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" class="md-nav__link">
+  <a href="#serving-llms-using-vllm" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using vLLM
+      Serving LLMs using vLLM
     </span>
   </a>
   
@@ -4270,18 +4270,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" class="md-nav__link">
+  <a href="#serving-llms-using-text-generation-inference" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using text-generation-inference
+      Serving LLMs using text-generation-inference
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" class="md-nav__link">
+  <a href="#serving-llms-using-vllm" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using vLLM
+      Serving LLMs using vLLM
     </span>
   </a>
   
@@ -4312,7 +4312,7 @@
 
 <h1 id="serving-an-llm-for-sharing-it-between-several-tasks">Serving an <code>LLM</code> for sharing it between several <code>Task</code>s<a class="headerlink" href="#serving-an-llm-for-sharing-it-between-several-tasks" title="Permanent link">&para;</a></h1>
 <p>It's very common to want to use the same <code>LLM</code> for several <code>Task</code>s in a pipeline. To avoid loading the <code>LLM</code> as many times as the number of <code>Task</code>s and avoid wasting resources, it's recommended to serve the model using solutions like <a href="https://huggingface.co/docs/text-generation-inference/quicktour#launching-tgi"><code>text-generation-inference</code></a> or <a href="https://docs.vllm.ai/en/stable/serving/deploying_with_docker.html"><code>vLLM</code></a>, and then use an <code>AsyncLLM</code> compatible client like <code>InferenceEndpointsLLM</code> or <code>OpenAILLM</code> to communicate with the server respectively.</p>
-<h2 id="serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference">Serving <code>meta-llama/Meta-Llama-3-8B-Instruct</code> using <code>text-generation-inference</code><a class="headerlink" href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" title="Permanent link">&para;</a></h2>
+<h2 id="serving-llms-using-text-generation-inference">Serving LLMs using <code>text-generation-inference</code><a class="headerlink" href="#serving-llms-using-text-generation-inference" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">model</span><span class="o">=</span>meta-llama/Meta-Llama-3-8B-Instruct
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">volume</span><span class="o">=</span><span class="nv">$PWD</span>/data<span class="w"> </span><span class="c1"># share a volume with the Docker container to avoid downloading weights every run</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -4350,7 +4350,7 @@
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span> <span class="o">&gt;&gt;</span> <span class="n">ultrafeedback</span>
 </span></code></pre></div>
-<h2 id="serving-meta-llamameta-llama-3-8b-instruct-using-vllm">Serving <code>meta-llama/Meta-Llama-3-8B-Instruct</code> using <code>vLLM</code><a class="headerlink" href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" title="Permanent link">&para;</a></h2>
+<h2 id="serving-llms-using-vllm">Serving LLMs using <code>vLLM</code><a class="headerlink" href="#serving-llms-using-vllm" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>-v<span class="w"> </span>~/.cache/huggingface:/root/.cache/huggingface<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--env<span class="w"> </span><span class="s2">&quot;HUGGING_FACE_HUB_TOKEN=&lt;secret&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
