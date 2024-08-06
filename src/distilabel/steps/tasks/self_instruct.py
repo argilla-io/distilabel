@@ -99,18 +99,18 @@ class SelfInstruct(Task):
     )
     application_description: str = "AI assistant"
 
-    _template: Union[Template, None] = PrivateAttr(...)
-
     inputs: List[str] = Field(
         default=["input"],
-        frozen=True,
         description="The input for the task is the 'input' i.e. seed text.",
     )
     outputs: List[str] = Field(
         default=["instructions", "model_name"],
-        frozen=True,
         description="The output for the task is a list of 'instructions' containing the generated instructions and their corresponding 'model_name'.",
     )
+
+    _template: Union[Template, None] = PrivateAttr(...)
+
+
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

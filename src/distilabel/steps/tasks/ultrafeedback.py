@@ -15,6 +15,8 @@
 import re
 import sys
 
+from typing_extensions import override
+
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
@@ -23,7 +25,7 @@ else:
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jinja2 import Template
-from pydantic import Field, PrivateAttr, model_validator
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -113,6 +115,15 @@ class UltraFeedback(Task):
         "overall-rating",
     ] = "overall-rating"
 
+    inputs: List[str] = Field(
+        default=["instruction", "generations"],
+        description="The input for the task is the 'instruction', and the 'generations' for it.",
+    )
+    outputs: List[str] = Field(
+        default=["rationales", "ratings", "model_name", "types", "rationales-for-ratings"],
+        description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
+    )
+
     _system_prompt: str = PrivateAttr(
         default=(
             "Your role is to evaluate text quality based on given criteria.\n"
@@ -124,22 +135,14 @@ class UltraFeedback(Task):
     )
     _template: Optional["Template"] = PrivateAttr(default=...)
 
-    inputs: List[str] = Field(
-        default=["instruction", "generations"],
-        frozen=True,
-        description="The input for the task is the 'instruction', and the 'generations' for it.",
-    )
-    outputs: List[str] = Field(
-        default=["rationales", "ratings", "model_name", "types", "rationales-for-ratings"],
-        frozen=True,
-        description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
-    )
 
-    @model_validator(mode="after")
-    def set_outputs(cls, values):
-        if not values.aspect in ["helpfulness", "truthfulness"]:
-            values.outputs = ["rationales", "ratings", "model_name"]
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+        self.outputs = self.outputs if self.aspect in ["helpfulness", "truthfulness"] else ["rationales", "ratings", "model_name"]
 
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""

@@ -182,8 +182,8 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
-    inputs: List[str] = Field(default_factory=list, frozen=True)
-    outputs: List[str] = Field(default_factory=list, frozen=True)
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
 
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: "Logger" = PrivateAttr(None)

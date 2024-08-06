@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import re
 import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
 from jinja2 import Template
-from pydantic import Field, model_validator
+from pydantic import Field
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -201,20 +201,21 @@ class GenerateSentencePair(Task):
 
     inputs: List[str] = Field(
         default=["anchor"],
-        frozen=True,
         description="The inputs for the task is the 'anchor' sentence.",
     )
     outputs: List[str] = Field(
         default=["positive", "model_name", "negative"],
-        frozen=True,
         description="The outputs for the task are the 'positive', as well as the `model_name`, optionally when dealing with `triplet=False` 'negative' sentences are added.",
     )
 
-    @model_validator(mode="after")
-    def set_outputs(cls, values):
-        if values.triplet:
-            values.outputs = ["positive", "model_name"]
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.outputs = self.outputs if self.triplet else ["positive", "model_name"]
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

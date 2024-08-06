@@ -29,19 +29,12 @@ if TYPE_CHECKING:
 
 
 class DummyTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction", "additional_info"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         return [
             {"role": "system", "content": ""},
             {"role": "user", "content": input["instruction"]},
         ]
 
-    @property
-    def outputs(self) -> List[str]:
-        return ["output", "info_from_input"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None

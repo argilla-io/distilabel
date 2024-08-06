@@ -105,18 +105,16 @@ class Genstruct(Task):
         ```
     """
 
-    _template: Union[Template, None] = PrivateAttr(...)
-
     inputs: List[str] = Field(
         default=["title", "content"],
-        frozen=True,
         description="The inputs for the task are the 'title' and the 'content'.",
     )
     outputs: List[str] = Field(
         default=["user", "assistant", "model_name"],
-        frozen=True,
         description="The output for the task are the 'user' instruction based on the provided document and the 'assistant' response based on the user's instruction.",
     )
+
+    _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

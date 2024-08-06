@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import Field
 
+from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
 from distilabel.utils.chat import is_openai_format
 
@@ -77,14 +78,14 @@ class GenerateEmbeddings(Step):
         ```
     """
 
+    llm: LLM
+
     inputs: List[str] = Field(
         default=["text"],
-        frozen=True,
         description="The inputs for the task is a 'text' column containing either a string or a list of dictionaries in OpenAI chat-like format.",
     )
     outputs: List[str] = Field(
         default=["embedding", "model_name"],
-        frozen=True,
         description="The outputs for the task is an 'embedding' column containing the embedding of the 'text' input.",
     )
 

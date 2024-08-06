@@ -15,7 +15,8 @@
 from itertools import zip_longest
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator
+from typing_extensions import override
 
 from distilabel.steps.base import Step, StepInput
 
@@ -73,19 +74,18 @@ class ExpandColumns(Step):
     inputs: List[str] = Field(frozen=True, description=["The columns to be expanded."])
     outputs: List[str] = Field(frozen=True, description=["The expanded columns."])
 
-    @model_validator(mode="before")
-    def set_inputs(cls, values):
-        values["inputs"] = list(values["columns"].keys())
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
 
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        values["columns"] = cls.always_dict(value=values["columns"])
-        values["outputs"] = [
+        self.inputs = list(self.columns.keys())
+        self.outputs = [
             new_column if new_column else expand_column
-            for expand_column, new_column in values["columns"].items()
+            for expand_column, new_column in self.columns.items()
         ]
-        return values
 
     @field_validator("columns")
     @classmethod

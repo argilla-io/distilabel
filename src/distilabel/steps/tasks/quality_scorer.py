@@ -98,18 +98,16 @@ class QualityScorer(Task):
         ```
     """
 
-    _template: Union[Template, None] = PrivateAttr(...)
-
     inputs: List[str] = Field(
         default=["instruction", "responses"],
-        frozen=True,
         description="The inputs for the task are 'instruction' and 'responses'.",
     )
     outputs: List[str] = Field(
         default=["scores", "model_name"],
-        frozen=True,
         description="The output for the task is a list of 'scores' and their 'model_name' containing the quality score for each response in 'responses'.",
     )
+
+    _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

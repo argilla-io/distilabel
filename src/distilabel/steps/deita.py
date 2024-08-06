@@ -120,16 +120,14 @@ class DeitaFiltering(GlobalStep):
     )
 
     inputs: List[str] = Field(
-        default=["evol_instruction_score", "evol_response_score", "embedding"],
-        frozen=True,
+        default=["evol_instruction_score", "evol_response_score", "embedding"]
     )
     outputs: List[str] = Field(
         default=[
             "deita_score",
             "nearest_neighbor_distance",
             "deita_score_computed_with",
-        ],
-        frozen=True,
+        ]
     )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore

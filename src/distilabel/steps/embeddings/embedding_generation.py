@@ -62,8 +62,8 @@ class EmbeddingGeneration(Step):
 
     embeddings: Embeddings
 
-    inputs: List[str] = Field(default=["text"], frozen=True)
-    outputs: List[str] = Field(default=["embedding", "model_name"], frozen=True)
+    inputs: List[str] = Field(default=["text"])
+    outputs: List[str] = Field(default=["embedding", "model_name"])
 
     def load(self) -> None:
         """Loads the `Embeddings` model."""

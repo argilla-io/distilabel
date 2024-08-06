@@ -34,8 +34,7 @@ class _FormatAnyGenerationDPO(Step):
             "rejected",
             "rejected_model",
             "rejected_rating",
-        ],
-        frozen=True,
+        ]
     )
 
 
@@ -122,7 +121,6 @@ class FormatTextGenerationDPO(_FormatAnyGenerationDPO):
 
     inputs: List[str] = Field(
         default=["instruction", "generations", "ratings"],
-        frozen=True,
         description=(
             "The inputs for the step are the 'instruction', 'generations' and 'ratings'. "
             + "Optionally, one could also provide the 'system_prompt' and the 'generation_models' for the generations."

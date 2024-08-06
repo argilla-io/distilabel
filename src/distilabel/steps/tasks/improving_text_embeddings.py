@@ -52,12 +52,14 @@ class _JSONFormatter(ABC):
         """Contains the `keys` that will be parsed from the `LLM` output into a Python dict."""
         ...
 
-    @property
-    def outputs(self) -> List[str]:
-        """Contains the output columns produced by the `process` method of the task. In this
-        case, it consists of the `keys` (i.e. the JSON keys) and the `model_name`.
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
         """
-        return self.keys + ["model_name"]
+        super().model_post_init(__context)
+
+        self.outputs = self.keys + ["model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
@@ -128,6 +130,8 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
 
     seed: int = 42
 
+    inputs: List[str] = Field(default=["tasks"])
+
     _template: Union[Template, None] = PrivateAttr(...)
     _template_name: str = PrivateAttr(...)
 
@@ -148,12 +152,6 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """Contains the input columns expected by the `process` method of the task. In this
-        case, it consists of the `task`; ideally produced in a previous task which should be
-        preferrably `EmbeddingTaskGenerator` (as per the original implementation)."""
-        return ["task"]
 
 
 class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
@@ -288,6 +286,11 @@ class EmbeddingTaskGenerator(GeneratorTask):
     ]
     flatten_tasks: bool = False
 
+    outputs: List[str] = Field(
+        default=["tasks", "model_name"],
+        description="The input for the task is the 'instruction', and the 'generation' for it.",
+    )
+
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -342,7 +345,7 @@ class EmbeddingTaskGenerator(GeneratorTask):
                     task_outputs.extend(
                         [
                             {
-                                "task": task,
+                                "tasks": task,
                                 **formatted_output,
                                 "model_name": self.llm.model_name,
                             }
@@ -350,20 +353,11 @@ class EmbeddingTaskGenerator(GeneratorTask):
                         ]
                     )
                 else:
-                    if self.flatten_tasks:
-                        formatted_output["task"] = formatted_output.pop("tasks")
                     task_outputs.append(
                         {**formatted_output, "model_name": self.llm.model_name}
                     )
         yield task_outputs, True
 
-    @property
-    def outputs(self) -> List[str]:
-        """Contains the output columns produced by the `process` method of the task. In this
-        case, it consists of the `tasks` or `task` (depending on the `flatten_tasks` attribute)
-        and the `model_name`.
-        """
-        return ["tasks" if not self.flatten_tasks else "task", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
@@ -478,7 +472,7 @@ class GenerateTextRetrievalData(_EmbeddingDataGeneration):
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
-                    task=input["task"],
+                    task=input["tasks"],
                     language=self.language,
                     query_type=self.query_type
                     or random.choice(["extremely long-tail", "long-tail", "common"]),
@@ -577,7 +571,7 @@ class GenerateShortTextMatchingData(_EmbeddingDataGeneration):
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
-                    task=input["task"],
+                    task=input["tasks"],
                     language=self.language,
                 ).strip(),
             }
@@ -658,7 +652,7 @@ class GenerateLongTextMatchingData(_EmbeddingDataGeneration):
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
-                    task=input["task"],
+                    task=input["tasks"],
                     language=self.language,
                 ).strip(),
             }
@@ -749,7 +743,7 @@ class GenerateTextClassificationData(_EmbeddingDataGeneration):
             {
                 "role": "user",
                 "content": self._template.render(  # type: ignore
-                    task=input["task"],
+                    task=input["tasks"],
                     language=self.language,
                     difficulty=self.difficulty
                     or random.choice(["high school", "college", "PhD"]),

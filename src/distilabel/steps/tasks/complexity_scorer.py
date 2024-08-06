@@ -87,18 +87,16 @@ class ComplexityScorer(Task):
         ```
     """
 
-    _template: Union[Template, None] = PrivateAttr(...)
-
     inputs: List[str] = Field(
         default=["instructions"],
-        frozen=True,
         description="The inputs for the task are the 'instructions'.",
     )
     outputs: List[str] = Field(
         default=["scores", "model_name"],
-        frozen=True,
         description="The output for the task are: a list of 'scores' containing the complexity score for each instruction in 'instructions', and the 'model_name'.",
     )
+
+    _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

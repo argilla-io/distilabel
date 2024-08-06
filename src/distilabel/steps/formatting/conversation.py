@@ -62,8 +62,8 @@ class ConversationTemplate(Step):
         ```
     """
 
-    inputs: List[str] = Field(default=["instruction", "response"], frozen=True)
-    outputs: List[str] = Field(default=["conversation"], frozen=True)
+    inputs: List[str] = Field(default=["instruction", "response"])
+    outputs: List[str] = Field(default=["conversation"])
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Generate a conversation template from an instruction and a response.

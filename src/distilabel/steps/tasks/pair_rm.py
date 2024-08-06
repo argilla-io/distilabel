@@ -88,12 +88,10 @@ class PairRM(Step):
 
     inputs: List[str] = Field(
         default=["input", "candidates"],
-        frozen=True,
         description="The input columns correspond to the two required arguments from `Blender.rank`: 'inputs' and 'candidates'.",
     )
     outputs: List[str] = Field(
         default=["ranks", "ranked_candidates", "model_name"],
-        frozen=True,
         description="The output for the task are the 'ranks', 'ranked_candidates' and the 'model_name'.",
     )
 

@@ -144,19 +144,17 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
     truncation: bool = False
     max_length: Union[int, None] = None
 
-    _model: Union["PreTrainedModel", None] = PrivateAttr(None)
-    _tokenizer: Union["PreTrainedTokenizer", None] = PrivateAttr(None)
-
     inputs: List[str] = Field(
         default=["response", "instruction", "conversation"],
-        frozen=True,
         description="Either `response` and `instruction`, or a `conversation` columns."
     )
     outputs: List[str] = Field(
         default=["score"],
-        frozen=True,
         description="The `score` given by the reward model."
     )
+
+    _model: Union["PreTrainedModel", None] = PrivateAttr(None)
+    _tokenizer: Union["PreTrainedTokenizer", None] = PrivateAttr(None)
 
     def load(self) -> None:
         super().load()

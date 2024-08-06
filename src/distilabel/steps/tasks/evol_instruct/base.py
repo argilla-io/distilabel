@@ -15,7 +15,7 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
-from pydantic import Field, model_validator
+from pydantic import Field
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -164,20 +164,21 @@ class EvolInstruct(Task):
 
     inputs: List[str] = Field(
         default=["instruction"],
-        frozen=True,
         description="The inputs for the task are the 'instruction'.",
     )
     outputs: List[str] = Field(
         default=["instruction", "model_name", "evolved_instructions", "answers"],
-        frozen=True,
         description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answers' is added.",
     )
 
-    @model_validator(mode="after")
-    def set_outputs(cls, values):
-        if  values.generate_answers:
-            values.outputs.append("answers")
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.outputs = self.outputs if self.generate_answers else ["instruction", "model_name", "evolved_instructions"]
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction

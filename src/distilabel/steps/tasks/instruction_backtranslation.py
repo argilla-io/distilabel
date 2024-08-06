@@ -51,18 +51,16 @@ class InstructionBacktranslation(Task):
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
     """
 
-    _template: Optional["Template"] = PrivateAttr(default=...)
-
     inputs: List[str] = Field(
         default=["instruction", "generation"],
-        frozen=True,
         description="The input for the task is the 'instruction', and the 'generation' for it.",
     )
     outputs: List[str] = Field(
         default=["score", "reason", "model_name"],
-        frozen=True,
         description="The output for the task is the 'score', 'reason' and the 'model_name'.",
     )
+
+    _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
         """Loads the Jinja2 template."""

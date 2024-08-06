@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class _FormatAnyGenerationSFT(Step):
-    outputs: List[str] = Field(default=["prompt", "prompt_id", "messages"], frozen=True)
+    outputs: List[str] = Field(default=["prompt", "prompt_id", "messages"])
 
 
 class FormatTextGenerationSFT(_FormatAnyGenerationSFT):
@@ -91,7 +91,6 @@ class FormatTextGenerationSFT(_FormatAnyGenerationSFT):
 
     inputs: List[str] = Field(
         default=["instruction", "generation"],
-        frozen=True,
         description=(
             "The inputs for the step are the 'instruction' and 'generation'. "
             + "Optionally, one could also provide the 'system_prompt' for the generations."
@@ -194,7 +193,6 @@ class FormatChatGenerationSFT(_FormatAnyGenerationSFT):
 
     inputs: List[str] = Field(
         default=["messages", "generation"],
-        frozen=True,
         description=("The inputs for the step are the 'messages' and 'generation'."),
     )
 

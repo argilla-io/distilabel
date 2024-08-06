@@ -15,7 +15,8 @@
 import warnings
 from typing import Any, Dict, List, Union
 
-from pydantic import Field, model_validator
+from pydantic import Field
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
@@ -143,20 +144,21 @@ class StructuredGeneration(Task):
 
     inputs: List[str] = Field(
         default=["instruction", "structured_output", "system_prompt"],
-        frozen=True,
         description="The input for the task are the 'instruction' and the 'structured_output'. Optionally, if the `use_system_prompt=True`, then 'system_prompt' will be used too.",
     )
     outputs: List[str] = Field(
         default=["generation", "model_name"],
-        frozen=True,
         description="The output for the task is the 'generation' and the 'model_name'.",
     )
 
-    @model_validator(mode="after")
-    def set_inputs(cls, values):
-        if values.use_system_prompt:
-            values.inputs = ["instruction", "structured_output"]
-        return values
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+        self.inputs = self.inputs if self.use_system_prompt else ["instruction", "structured_output"]
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:
         """The input is formatted as a `ChatType` assuming that the instruction

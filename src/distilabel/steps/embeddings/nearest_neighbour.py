@@ -137,8 +137,8 @@ class FaissNearestNeighbour(GlobalStep):
         " to maximize the resources usage or to avoid OOM issues.",
     )
 
-    inputs: List[str] = Field(default=["embedding"], frozen=True)
-    outputs: List[str] = Field(default=["nn_indices", "nn_scores"], frozen=True)
+    inputs: List[str] = Field(default=["embedding"])
+    outputs: List[str] = Field(default=["nn_indices", "nn_scores"])
 
     def load(self) -> None:
         super().load()

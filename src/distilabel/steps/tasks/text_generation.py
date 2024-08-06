@@ -25,7 +25,6 @@ from distilabel.utils.chat import is_openai_format
 class _AnyGeneration(Task):
     outputs: List[str] = Field(
         default=["generation", "model_name"],
-        frozen=True,
         description="The output for the task is the 'generation' and the 'model_name'.",
     )
 
@@ -89,7 +88,6 @@ class TextGeneration(_AnyGeneration):
 
     inputs: List[str] = Field(
         default=["instruction"],
-        frozen=True,
         description="The input for the task are the 'instruction'.",
     )
 
@@ -192,7 +190,6 @@ class ChatGeneration(_AnyGeneration):
 
     inputs: List[str] = Field(
         default=["messages"],
-        frozen=True,
         description="The input for the task are the 'messages'.",
     )
 

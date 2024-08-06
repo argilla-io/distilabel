@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
-from pydantic import Field, model_validator
+from pydantic import Field
 from typing_extensions import override
 
 from distilabel.pipeline.utils import merge_columns
@@ -88,19 +88,19 @@ class MergeColumns(Step):
         description="The outputs for the task are the column names in 'columns'.",
     )
 
-    @model_validator(mode="before")
-    def set_inputs(cls, values):
-        values["inputs"] = values["columns"]
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
 
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        values["outputs"] = (
-            [values.get("output_column")]
-            if values.get("output_column")
+        self.inputs = self.columns
+        self.outputs = (
+            [self.output_column]
+            if self.output_column
             else ["merged_column"]
         )
-        return values
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":

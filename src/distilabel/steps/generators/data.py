@@ -14,7 +14,6 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from pydantic import model_validator
 from typing_extensions import override
 
 from distilabel.steps.base import GeneratorStep
@@ -63,12 +62,15 @@ class LoadDataFromDicts(GeneratorStep):
 
     data: List[Dict[str, Any]]
 
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        data = values.get("data", [])
-        if data:
-            values["outputs"] = list(data[0].keys())
-        return values
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        if self.data:
+            self.outputs = list(self.data[0].keys())
 
     @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore

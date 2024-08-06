@@ -92,9 +92,9 @@ class TextGenerationToArgilla(ArgillaBase):
 
     inputs: List[str] = Field(
         default=["instruction", "generation"],
-        frozen=True,
         description="The inputs for the step are the 'instruction' and the 'generations'. ",
     )
+
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
     _generation: str = PrivateAttr(...)
