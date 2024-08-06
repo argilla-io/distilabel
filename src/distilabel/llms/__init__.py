@@ -29,7 +29,7 @@ from distilabel.llms.openai import OpenAILLM
 from distilabel.llms.together import TogetherLLM
 from distilabel.llms.typing import GenerateOutput, HiddenState
 from distilabel.llms.vertexai import VertexAILLM
-from distilabel.llms.vllm import vLLM
+from distilabel.llms.vllm import ClientvLLM, vLLM
 
 __all__ = [
     "AnthropicLLM",
@@ -52,5 +52,6 @@ __all__ = [
     "GenerateOutput",
     "HiddenState",
     "VertexAILLM",
+    "ClientvLLM",
     "vLLM",
 ]
