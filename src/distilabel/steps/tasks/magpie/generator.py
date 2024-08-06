@@ -211,7 +211,6 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
 
     outputs: List[str] = Field(
         default=["model_name", "instruction", "response", "conversation"],
-        frozen=False,
         description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
     )
 

@@ -27,7 +27,7 @@ from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from argilla import RatingQuestion, Suggestion, TextField, TextQuestion
+    from argilla import RatingQuestion, TextField, TextQuestion
 
     from distilabel.steps.typing import StepOutput
 
@@ -132,7 +132,6 @@ class PreferenceToArgilla(ArgillaBase):
 
     inputs: List[str] = Field(
         default=["instruction", "generations"],
-        frozen=False,
         description=(
             "The inputs for the step are the 'instruction' and the 'generations'. "
             + "Optionally, one could also provide the 'ratings' and the 'rationales' for the generations."

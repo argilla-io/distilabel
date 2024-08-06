@@ -265,7 +265,6 @@ class FormatChatGenerationDPO(_FormatAnyGenerationDPO):
 
     inputs: List[str] = Field(
         default=["messages", "generations", "ratings"],
-        frozen=False,
         description=(
             "The inputs for the step are the 'messages', 'generations' and 'ratings'. "
             + "Optionally, one could also provide the 'generation_models' for the generations."

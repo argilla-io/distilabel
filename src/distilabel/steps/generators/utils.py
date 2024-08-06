@@ -44,37 +44,27 @@ def make_generator_step(
         ValueError: If the format is different from the ones supported.
 
     Returns:
-        A `LoadDataFromDicts` if the input is a list of dicts, or `LoadDataFromHub` instance
-        if the input is a `pd.DataFrame` or a `Dataset`.
+        A `LoadDataFromDicts`
     """
-    from distilabel.steps import LoadDataFromDicts, LoadDataFromHub
+    from distilabel.steps import LoadDataFromDicts
 
-    if isinstance(dataset, list):
-        return LoadDataFromDicts(
-            data=dataset,
-            batch_size=batch_size,
-            input_mappings=input_mappings or {},
-            output_mappings=output_mappings or {},
-            resources=resources,
-        )
 
     if isinstance(dataset, pd.DataFrame):
-        dataset = Dataset.from_pandas(dataset, preserve_index=False)
-
-    if not isinstance(dataset, Dataset):
+        dataset = dataset.to_dict(orient='records')
+    elif isinstance(dataset, Dataset):
+        dataset = dataset.to_list()
+    elif isinstance(dataset, list):
+        pass
+    else:
         raise ValueError(
             f"Dataset type not allowed: {type(dataset)}, must be one of: "
             "`datasets.Dataset`, `pd.DataFrame`, `List[Dict[str, str]]`"
         )
 
-    loader = LoadDataFromHub(
-        repo_id="placeholder_name",
+    return LoadDataFromDicts(
+        data=dataset,
         batch_size=batch_size,
         input_mappings=input_mappings or {},
         output_mappings=output_mappings or {},
         resources=resources,
     )
-    loader._dataset = dataset
-    loader.num_examples = len(dataset)
-    loader._dataset_info = {"default": dataset.info}
-    return loader

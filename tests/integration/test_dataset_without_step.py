@@ -21,20 +21,15 @@ from distilabel.pipeline import Pipeline
 from distilabel.steps import make_generator_step
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.typing import StepOutput
+from pydantic import Field
 
 if TYPE_CHECKING:
     pass
 
 
 class DummyStep(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
-
+    inputs: List[str] = Field(default=["instruction"])
+    outputs: List[str] = Field(default=["response"])
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:
             input["response"] = "unit test"
@@ -50,8 +45,6 @@ def test_pipeline_with_dataset_from_function(
 ) -> None:
     with Pipeline(name="pipe-nothing") as pipeline:
         load_dataset = make_generator_step(dataset)
-        if isinstance(dataset, (pd.DataFrame, Dataset)):
-            assert isinstance(load_dataset._dataset, Dataset)
 
         dummy = DummyStep()
         load_dataset >> dummy
@@ -82,4 +75,3 @@ if __name__ == "__main__":
         load_dataset >> dummy
 
     distiset = pipeline.run(use_cache=False)
-    print(distiset)

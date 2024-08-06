@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict
 
 from distilabel.distiset import Distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -110,14 +110,6 @@ DATA = [
 class RenameColumns(Step):
     rename_mappings: RuntimeParameter[Dict[str, str]] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return list(self.rename_mappings.values())  # type: ignore
-
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         outputs = []
         for input in inputs:
@@ -128,10 +120,6 @@ class RenameColumns(Step):
 
 
 class GenerateResponse(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         import time
 
@@ -141,11 +129,6 @@ class GenerateResponse(Step):
             input["response"] = "I don't know"
 
         yield inputs
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
-
 
 def run_pipeline():
     with Pipeline(name="unit-test-pipeline") as pipeline:

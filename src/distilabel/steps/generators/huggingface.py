@@ -35,7 +35,8 @@ from datasets import (
     load_dataset,
     load_from_disk,
 )
-from pydantic import Field, PrivateAttr, model_validator
+from pydantic import Field, PrivateAttr
+from typing_extensions import override
 from upath import UPath
 
 from distilabel.distiset import Distiset
@@ -125,15 +126,23 @@ class LoadDataFromHub(GeneratorStep):
         description="The storage options to use when loading the dataset.",
     )
 
+    outputs: List[str] = Field(default_factory=list)
+
     _dataset: Union[IterableDataset, Dataset, None] = PrivateAttr(None)
-    inputs: List[str] = Field(default_factory=list, frozen=False)
-    outputs: List[str] = Field(default_factory=list, frozen=False)
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
 
     def load(self) -> None:
         """Load the dataset from the Hugging Face Hub"""
         super().load()
 
         if self._dataset is not None:
+            self.outputs = self._get_dataset_columns()
             # Here to simplify the functionality of distilabel.steps.generators.util.make_generator_step
             return
 
@@ -151,6 +160,7 @@ class LoadDataFromHub(GeneratorStep):
         if not self.streaming:
             self._dataset = self._dataset.select(range(self.num_examples))
         self.outputs = self._get_dataset_columns()
+
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
