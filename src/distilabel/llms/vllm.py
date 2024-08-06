@@ -27,13 +27,14 @@ from typing import (
 )
 
 import numpy as np
-from pydantic import Field, PrivateAttr, validate_call
+from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM, AsyncLLM
 from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
+from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, OutlinesStructuredOutputType
 
@@ -43,6 +44,7 @@ if TYPE_CHECKING:
     from httpx import AsyncClient
 
     from distilabel.steps.tasks.typing import StandardInput
+    from openai import OpenAI
 
 
 SamplingParams = None
@@ -395,7 +397,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         return result["processor"]
 
 
-class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
+class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
     """A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
 
     Attributes:
@@ -429,7 +431,10 @@ class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
         ```python
         from distilabel.llms import ClientvLLM
 
-        llm = ClientvLLM(tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct")
+        llm = ClientvLLM(
+            base_url="http://localhost:8000/v1",
+            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
+        )
 
         llm.load()
 
@@ -439,60 +444,54 @@ class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
             top_p=1.0,
             max_new_tokens=256,
         )
-        #
+        # [
+        #     [
+        #         "I'm functioning properly, thank you for asking. How can I assist you today?",
+        #         "I'm doing well, thank you for asking. I'm a large language model, so I don't have feelings or emotions like humans do, but I'm here to help answer any questions or provide information you might need. How can I assist you today?",
+        #         "I'm just a computer program, so I don't have feelings like humans do, but I'm functioning properly and ready to help you with any questions or tasks you have. What's on your mind?"
+        #     ]
+        # ]
         ```
     """
 
-    base_url: Optional[RuntimeParameter[str]] = Field(
-        default_factory=lambda: os.getenv(
-            "VLLM_SERVER_BASE_URL", "http://localhost:8000"
-        ),
-        description="The base URL of the vLLM server (executed with `python -m vllm.entrypoints.api_server`)",
-    )
-    max_retries: RuntimeParameter[int] = Field(
-        default=6,
-        description="The maximum number of times to retry the request to the API before"
-        " failing.",
-    )
-    timeout: RuntimeParameter[int] = Field(
-        default=120,
-        description="The maximum time in seconds to wait for a response from the API.",
-    )
-    httpx_client_kwargs: Optional[RuntimeParameter[Dict[str, Any]]] = Field(
-        default_factory=dict,
-        description="Additional kwargs that will be passed to the `httpx.AsyncClient`.",
-    )
+    model: str = ""  # Default value so it's not needed to `ClientvLLM(model="...")`
     tokenizer: Optional[str] = None
     tokenizer_revision: Optional[str] = None
 
-    _aclient: "AsyncClient" = PrivateAttr(None)
+    # We need the sync client to get the list of models
+    _client: "OpenAI" = PrivateAttr(None)
     _tokenizer: "PreTrainedTokenizer" = PrivateAttr(None)
 
     def load(self) -> None:
         """Creates an `httpx.AsyncClient` to connect to the vLLM server and a tokenizer
         optionally."""
-        super().load()
 
+        self.api_key = SecretStr("EMPTY")
+
+        # We need to first create the sync client to get the model name that will be used
+        # in the `super().load()` when creating the logger.
         try:
-            from httpx import AsyncClient, AsyncHTTPTransport
+            from openai import OpenAI
         except ImportError as ie:
             raise ImportError(
-                "To use `ClientvLLM` you need to install `httpx`. Please install it using"
-                " `pip install httpx`."
+                "OpenAI Python client is not installed. Please install it using"
+                " `pip install openai`."
             ) from ie
 
-        self._aclient = AsyncClient(
+        self._client = OpenAI(
             base_url=self.base_url,
+            api_key=self.api_key.get_secret_value(),  # type: ignore
+            max_retries=self.max_retries,  # type: ignore
             timeout=self.timeout,
-            transport=AsyncHTTPTransport(retries=self.max_retries),  # type: ignore
-            **self.httpx_client_kwargs,  # type: ignore
         )
+
+        super().load()
 
         try:
             from transformers import AutoTokenizer
         except ImportError as ie:
             raise ImportError(
-                "To use `ClientvLLM` with `tokenizer` you need to install `transformers`."
+                "To use `ClientvLLM` you need to install `transformers`."
                 "Please install it using `pip install transformers`."
             ) from ie
 
@@ -502,7 +501,9 @@ class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
 
     @property
     def model_name(self) -> str:
-        return ""
+        """Returns the name of the model served with vLLM server."""
+        models = self._client.models.list()
+        return models.data[0].id
 
     def _prepare_input(self, input: "StandardInput") -> str:
         """Prepares the input (applying the chat template and tokenization) for the provided
@@ -532,10 +533,10 @@ class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
         num_generations: int = 1,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
+        logit_bias: Optional[Dict[str, int]] = None,
         presence_penalty: float = 0.0,
         temperature: float = 1.0,
         top_p: float = 1.0,
-        top_k: int = -1,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for each input.
 
@@ -547,35 +548,39 @@ class ClientvLLM(AsyncLLM, MagpieChatTemplateMixin):
                 Defaults to `128`.
             frequency_penalty: the repetition penalty to use for the generation. Defaults
                 to `0.0`.
+            logit_bias: modify the likelihood of specified tokens appearing in the completion.
+                Defaults to ``
             presence_penalty: the presence penalty to use for the generation. Defaults to
                 `0.0`.
             temperature: the temperature to use for the generation. Defaults to `0.1`.
-            top_p: the top-p value to use for the generation. Defaults to `1.0`.
-            top_k: the top-k value to use for the generation. Defaults to `0`.
-            extra_sampling_params: dictionary with additional arguments to be passed to
-                the `SamplingParams` class from `vllm`.
+            top_p: nucleus sampling. The value refers to the top-p tokens that should be
+                considered for sampling. Defaults to `1.0`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
-        response = await self._aclient.post(
-            f"{self.base_url}/generate",
-            json={
-                "prompt": self._prepare_input(input),  # type: ignore
-                "max_tokens": max_new_tokens,
-                "frequency_penalty": frequency_penalty,
-                "presence_penalty": presence_penalty,
-                "temperature": temperature,
-                "top_p": top_p,
-                "top_k": top_k,
-            },
+
+        completion = await self._aclient.completions.create(
+            model=self.model_name,
+            prompt=self._prepare_input(input),  # type: ignore
+            n=num_generations,
+            max_tokens=max_new_tokens,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
+            presence_penalty=presence_penalty,
+            temperature=temperature,
+            top_p=top_p,
         )
 
-        if response.status_code != 200:
-            self._logger.warning(f"Received no response from vLLM server.")
-            return [None] * num_generations
-
-        return response.json()["text"]
+        generations = []
+        for choice in completion.choices:
+            if (text := choice.text) == "":
+                self._logger.warning(  # type: ignore
+                    f"Received no response from vLLM server (model: '{self.model_name}')."
+                    f" Finish reason was: {choice.finish_reason}"
+                )
+            generations.append(text)
+        return generations
 
 
 def _sort_batches(
