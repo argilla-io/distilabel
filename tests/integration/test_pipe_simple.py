@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Generator, List
+from typing import TYPE_CHECKING, Dict, List
 
 from distilabel.distiset import Distiset
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import Step, StepInput
 from distilabel.steps.generators.data import LoadDataFromDicts
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepOutput
 
 DATA = [
     {"prompt": "Tell me a joke"},
@@ -105,7 +108,7 @@ DATA = [
 
 
 class RenameColumns(Step):
-    rename_mappings: RuntimeParameter[Dict[str, str]]
+    rename_mappings: RuntimeParameter[Dict[str, str]] = None
 
     @property
     def inputs(self) -> List[str]:
@@ -115,7 +118,7 @@ class RenameColumns(Step):
     def outputs(self) -> List[str]:
         return list(self.rename_mappings.values())  # type: ignore
 
-    def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         outputs = []
         for input in inputs:
             outputs.append(
@@ -129,7 +132,7 @@ class GenerateResponse(Step):
     def inputs(self) -> List[str]:
         return ["instruction"]
 
-    def process(self, inputs: StepInput) -> Generator[List[Dict[str, Any]], None, None]:
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         import time
 
         time.sleep(1)

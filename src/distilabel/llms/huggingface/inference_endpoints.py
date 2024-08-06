@@ -29,6 +29,7 @@ from pydantic import (
 from typing_extensions import Annotated, override
 
 from distilabel.llms.base import AsyncLLM
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import (
@@ -36,17 +37,14 @@ from distilabel.steps.tasks.typing import (
     StandardInput,
     StructuredOutputType,
 )
-from distilabel.utils.huggingface import (
-    _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
-    get_hf_token,
-)
+from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
     from transformers import PreTrainedTokenizer
 
 
-class InferenceEndpointsLLM(AsyncLLM):
+class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
     """InferenceEndpoints LLM implementation running the async API client.
 
     This LLM will internally use `huggingface_hub.AsyncInferenceClient`.
@@ -62,6 +60,12 @@ class InferenceEndpointsLLM(AsyncLLM):
         tokenizer_id: the tokenizer ID to use for the LLM as available in the Hugging Face Hub.
             Defaults to `None`, but defining one is recommended to properly format the prompt.
         model_display_name: the model display name to use for the LLM. Defaults to `None`.
+        use_magpie_template: a flag used to enable/disable applying the Magpie pre-query
+            template. Defaults to `False`.
+        magpie_pre_query_template: the pre-query template to be applied to the prompt or
+            sent to the LLM to generate an instruction or a follow up user message. Valid
+            values are "llama3", "qwen2" or another pre-query template provided. Defaults
+            to `None`.
         structured_output: a dictionary containing the structured output configuration or
             if more fine-grained control is needed, an instance of `OutlinesStructuredOutput`.
             Defaults to None.
@@ -155,7 +159,7 @@ class InferenceEndpointsLLM(AsyncLLM):
         description="The base URL to use for the Inference Endpoints API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR),
         description="The API key to authenticate the requests to the Inference Endpoints API.",
     )
 
@@ -171,7 +175,7 @@ class InferenceEndpointsLLM(AsyncLLM):
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _api_key_env_var: str = PrivateAttr(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
+    _api_key_env_var: str = PrivateAttr(HF_TOKEN_ENV_VAR)
     _aclient: Optional["AsyncInferenceClient"] = PrivateAttr(...)
 
     @model_validator(mode="after")  # type: ignore
@@ -188,6 +192,12 @@ class InferenceEndpointsLLM(AsyncLLM):
                 " or `endpoint_name` is also provided, the `base_url` will either be ignored"
                 " or overwritten with the one generated from either of those args, for serverless"
                 " or dedicated inference endpoints, respectively."
+            )
+
+        if self.use_magpie_template and self.tokenizer_id is None:
+            raise ValueError(
+                "`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`. Please,"
+                " set a `tokenizer_id` and try again."
             )
 
         if (
@@ -308,12 +318,16 @@ class InferenceEndpointsLLM(AsyncLLM):
         Returns:
             The prompt to send to the LLM.
         """
-
-        return self._tokenizer.apply_chat_template(  # type: ignore
-            conversation=input,  # type: ignore
-            tokenize=False,
-            add_generation_prompt=True,
+        prompt: str = (
+            self._tokenizer.apply_chat_template(  # type: ignore
+                conversation=input,  # type: ignore
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            if input
+            else ""
         )
+        return super().apply_magpie_pre_query_template(prompt, input)
 
     def _get_structured_output(
         self, input: FormattedInput

@@ -104,7 +104,7 @@ class TestGroqLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
+        ) == [[" Aenean hendrerit aliquam velit. ..."]]
 
     @pytest.mark.parametrize(
         "structured_output, dump",

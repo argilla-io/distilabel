@@ -88,6 +88,20 @@ class SelfInstruct(Task):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{wang2023selfinstructaligninglanguagemodels,
+            title={Self-Instruct: Aligning Language Models with Self-Generated Instructions},
+            author={Yizhong Wang and Yeganeh Kordi and Swaroop Mishra and Alisa Liu and Noah A. Smith and Daniel Khashabi and Hannaneh Hajishirzi},
+            year={2023},
+            eprint={2212.10560},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2212.10560},
+        }
+        ```
     """
 
     num_instructions: int = 5

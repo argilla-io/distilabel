@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, overl
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
+from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
     RuntimeParametersMixin,
@@ -89,7 +90,38 @@ def _infer_step_name(
     return name
 
 
-class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
+class StepResources(RuntimeParametersMixin, BaseModel):
+    """A class to define the resources assigned to a `_Step`.
+
+    Attributes:
+        replicas: The number of replicas for the step.
+        cpus: The number of CPUs assigned to each step replica.
+        gpus: The number of GPUs assigned to each step replica.
+        memory: The memory in bytes required for each step replica.
+        resources: A dictionary containing the number of custom resources required for
+            each step replica.
+    """
+
+    replicas: RuntimeParameter[PositiveInt] = Field(
+        default=1, description="The number of replicas for the step."
+    )
+    cpus: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The number of CPUs assigned to each step replica."
+    )
+    gpus: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The number of GPUs assigned to each step replica."
+    )
+    memory: Optional[RuntimeParameter[PositiveInt]] = Field(
+        default=None, description="The memory in bytes required for each step replica."
+    )
+    resources: Optional[RuntimeParameter[Dict[str, int]]] = Field(
+        default=None,
+        description="A dictionary containing names of custom resources and the"
+        " number of those resources required for each step replica.",
+    )
+
+
+class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable, ABC):
     """Base class for the steps that can be included in a `Pipeline`.
 
     A `Step` is a class defining some processing logic. The input and outputs for this
@@ -145,6 +177,7 @@ class _Step(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
     )
 
     name: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9_-]+$")
+    resources: StepResources = StepResources()
     pipeline: Any = Field(default=None, exclude=True, repr=False)
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}

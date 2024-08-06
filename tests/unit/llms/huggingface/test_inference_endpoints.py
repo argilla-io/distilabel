@@ -37,6 +37,19 @@ def mock_hf_token_env_variable() -> Generator[None, None, None]:
 
 @patch("huggingface_hub.AsyncInferenceClient")
 class TestInferenceEndpointsLLM:
+    def test_no_tokenizer_magpie_raise_value_error(
+        self, mock_inference_client: MagicMock
+    ) -> None:
+        with pytest.raises(
+            ValueError,
+            match="`use_magpie_template` cannot be `True` if `tokenizer_id` is `None`",
+        ):
+            InferenceEndpointsLLM(
+                base_url="http://localhost:8000",
+                use_magpie_template=True,
+                magpie_pre_query_template="llama3",
+            )
+
     def test_tokenizer_id_set_if_model_id_and_structured_output(
         self, mock_inference_client: MagicMock
     ) -> None:
@@ -51,28 +64,24 @@ class TestInferenceEndpointsLLM:
         del os.environ["HF_TOKEN"]
 
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
 
-        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to not exist
-        with mock.patch("pathlib.Path.exists") as mock_exists:
-            mock_exists.return_value = False
-            with pytest.raises(
-                ValueError,
-                match="To use `InferenceEndpointsLLM` an API key must be provided",
-            ):
-                llm.load()
+        assert llm.tokenizer_id == llm.model_id
 
     def test_load_with_cached_token(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(base_url="http://localhost:8000")
 
         # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to exist
-        with mock.patch("pathlib.Path.exists", return_value=True):
-            with mock.patch(
+        with (
+            mock.patch("pathlib.Path.exists", return_value=True),
+            mock.patch(
                 "builtins.open", new_callable=mock.mock_open, read_data="hf_token"
-            ):
-                # Should not raise any errors
-                llm.load()
+            ),
+        ):
+            # Should not raise any errors
+            llm.load()
 
     def test_serverless_inference_endpoints_llm(
         self, mock_inference_client: MagicMock
@@ -236,7 +245,7 @@ class TestInferenceEndpointsLLM:
                     },
                 ]
             ]
-        ) == [(" Aenean hendrerit aliquam velit. ...",)]
+        ) == [[" Aenean hendrerit aliquam velit. ..."]]
 
     @pytest.mark.asyncio
     async def test_agenerate_with_structured_output(
@@ -297,8 +306,10 @@ class TestInferenceEndpointsLLM:
             "base_url": None,
             "tokenizer_id": "distilabel-internal-testing/tiny-random-mistral",
             "generation_kwargs": {},
+            "magpie_pre_query_template": None,
             "structured_output": None,
             "model_display_name": None,
+            "use_magpie_template": False,
             "type_info": {
                 "module": "distilabel.llms.huggingface.inference_endpoints",
                 "name": "InferenceEndpointsLLM",

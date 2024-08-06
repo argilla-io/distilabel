@@ -27,7 +27,7 @@ from pydantic import PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
-from distilabel.utils.dicts import combine_dicts
+from distilabel.utils.dicts import group_dicts
 
 
 class UltraFeedback(Task):
@@ -44,6 +44,7 @@ class UltraFeedback(Task):
             Additionally, a custom aspect has been defined by Argilla, so as to evaluate the overall
             assessment of the text outputs within a single prompt. The custom aspect is:
             - `overall-rating`: Evaluate text outputs based on an overall assessment.
+            Defaults to `"overall-rating"`.
 
     Input columns:
         - instruction (`str`): The reference instruction to evaluate the text outputs.
@@ -99,6 +100,20 @@ class UltraFeedback(Task):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{cui2024ultrafeedbackboostinglanguagemodels,
+            title={UltraFeedback: Boosting Language Models with Scaled AI Feedback},
+            author={Ganqu Cui and Lifan Yuan and Ning Ding and Guanming Yao and Bingxiang He and Wei Zhu and Yuan Ni and Guotong Xie and Ruobing Xie and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+            year={2024},
+            eprint={2310.01377},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2310.01377},
+        }
+        ```
     """
 
     aspect: Literal[
@@ -108,7 +123,7 @@ class UltraFeedback(Task):
         "truthfulness",
         # Custom aspects
         "overall-rating",
-    ]
+    ] = "overall-rating"
 
     _system_prompt: str = PrivateAttr(
         default=(
@@ -225,7 +240,7 @@ class UltraFeedback(Task):
                     "rationales": matches.group(2),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)
 
     def _format_types_ratings_rationales_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -271,4 +286,4 @@ class UltraFeedback(Task):
                     "rationales-for-ratings": matches.group(4),
                 }
             )
-        return combine_dicts(*formatted_outputs)
+        return group_dicts(*formatted_outputs)
