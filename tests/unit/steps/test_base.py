@@ -22,12 +22,13 @@ from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 from distilabel.utils.serialization import TYPE_INFO_KEY
-from pydantic import ValidationError, Field
+from pydantic import Field, ValidationError
 
 
 class DummyStep(Step):
     inputs: List[str] = Field(default=["instruction"])
     outputs: List[str] = Field(default=["response"])
+
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:
             input["response"] = "unit test"

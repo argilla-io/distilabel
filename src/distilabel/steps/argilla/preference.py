@@ -232,18 +232,22 @@ class PreferenceToArgilla(ArgillaBase):
                     rg.RatingQuestion(  # type: ignore
                         name=f"{self._generations}-{idx}-rating",
                         title=f"Rate {self._generations}-{idx} given {self._instruction}.",
-                        description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
-                        if idx != 0
-                        else None,
+                        description=(
+                            f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                            if idx != 0
+                            else None
+                        ),
                         values=[1, 2, 3, 4, 5],
                         required=True if idx == 0 else False,
                     ),
                     rg.TextQuestion(  # type: ignore
                         name=f"{self._generations}-{idx}-rationale",
                         title=f"Specify the rationale for {self._generations}-{idx}'s rating.",
-                        description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
-                        if idx != 0
-                        else None,
+                        description=(
+                            f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                            if idx != 0
+                            else None
+                        ),
                         required=False,
                     ),
                 ]

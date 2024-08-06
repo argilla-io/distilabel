@@ -33,9 +33,6 @@ def test_make_generator_step(
     load_dataset.load()
     result = next(load_dataset.process())
     assert len(result[0]) == batch_size
-    if isinstance(dataset, (pd.DataFrame, Dataset)):
-        assert isinstance(load_dataset._dataset, Dataset)
-    else:
-        assert isinstance(load_dataset.data, list)
+    assert isinstance(load_dataset.data, list)
 
     assert load_dataset.output_mappings == {"instruction": "other"}

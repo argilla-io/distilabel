@@ -22,10 +22,9 @@ from typing import (
     Type,
     Union,
     overload,
-    ClassVar
 )
 
-from pydantic import create_model, Field, BaseModel, AfterValidator
+from pydantic import Field, create_model
 
 from distilabel.mixins.runtime_parameters import _RUNTIME_PARAMETER_ANNOTATION
 from distilabel.steps.base import (
