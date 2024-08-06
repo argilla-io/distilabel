@@ -10,22 +10,6 @@ hide:
 <div class="grid cards" markdown>
 
 
--   :material-brain:{ .lg .middle } __ClientvLLM__
-
-    ---
-
-    A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
-
-    [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
-
--   :material-brain:{ .lg .middle } __AnthropicLLM__
-
-    ---
-
-    Anthropic LLM implementation running the Async API client.
-
-    [:octicons-arrow-right-24: AnthropicLLM](anthropicllm.md){ .bottom }
-
 -   :simple-openai:{ .lg .middle } __OpenAILLM__
 
     ---
@@ -33,6 +17,14 @@ hide:
     OpenAI LLM implementation running the async API client.
 
     [:octicons-arrow-right-24: OpenAILLM](openaillm.md){ .bottom }
+
+-   :material-brain:{ .lg .middle } __ClientvLLM__
+
+    ---
+
+    A client for the `vLLM` server served with `python -m vllm.entrypoints.api_server`.
+
+    [:octicons-arrow-right-24: ClientvLLM](clientvllm.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __AnyscaleLLM__
 
@@ -57,6 +49,14 @@ hide:
     TogetherLLM LLM implementation running the async API client of OpenAI.
 
     [:octicons-arrow-right-24: TogetherLLM](togetherllm.md){ .bottom }
+
+-   :material-brain:{ .lg .middle } __AnthropicLLM__
+
+    ---
+
+    Anthropic LLM implementation running the Async API client.
+
+    [:octicons-arrow-right-24: AnthropicLLM](anthropicllm.md){ .bottom }
 
 -   :material-brain:{ .lg .middle } __CohereLLM__
 

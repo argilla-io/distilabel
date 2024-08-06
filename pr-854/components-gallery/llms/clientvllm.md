@@ -53,7 +53,10 @@ A client for the `vLLM` server served with `python -m vllm.entrypoints.api_serve
 ```python
 from distilabel.llms import ClientvLLM
 
-llm = ClientvLLM(tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct")
+llm = ClientvLLM(
+    base_url="http://localhost:8000/v1",
+    tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct"
+)
 
 llm.load()
 
@@ -63,7 +66,13 @@ results = llm.generate(
     top_p=1.0,
     max_new_tokens=256,
 )
-#
+# [
+#     [
+#         "I'm functioning properly, thank you for asking. How can I assist you today?",
+#         "I'm doing well, thank you for asking. I'm a large language model, so I don't have feelings or emotions like humans do, but I'm here to help answer any questions or provide information you might need. How can I assist you today?",
+#         "I'm just a computer program, so I don't have feelings like humans do, but I'm functioning properly and ready to help you with any questions or tasks you have. What's on your mind?"
+#     ]
+# ]
 ```
 
 
