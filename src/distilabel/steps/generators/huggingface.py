@@ -366,7 +366,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 )
             else:
                 self.num_examples = len(self._dataset)
-        self.outputs = self._dataset.column_names
+        self.outputs = self._get_dataset_columns()
 
     @staticmethod
     def _prepare_data_files(
@@ -545,4 +545,4 @@ class LoadDataFromDisk(LoadDataFromHub):
             self._dataset = self._dataset.select(range(self.num_examples))
         else:
             self.num_examples = len(self._dataset)
-        self.outputs = self._dataset.column_names
+        self.outputs = self._get_dataset_columns()
