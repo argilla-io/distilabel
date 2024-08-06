@@ -25,6 +25,7 @@ from distilabel.steps.columns.expand import ExpandColumns
 from distilabel.steps.columns.group import CombineColumns, GroupColumns
 from distilabel.steps.columns.keep import KeepColumns
 from distilabel.steps.columns.merge import MergeColumns
+from distilabel.steps.combine import CombineOutputs
 from distilabel.steps.decorator import step
 from distilabel.steps.deita import DeitaFiltering
 from distilabel.steps.embeddings.embedding_generation import EmbeddingGeneration
@@ -52,32 +53,33 @@ from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 __all__ = [
     "PreferenceToArgilla",
     "TextGenerationToArgilla",
+    "GeneratorStep",
+    "GlobalStep",
+    "Step",
+    "StepInput",
     "StepResources",
-    "GroupColumns",
-    "MergeColumns",
+    "ExpandColumns",
     "CombineColumns",
-    "ConversationTemplate",
+    "GroupColumns",
+    "KeepColumns",
+    "MergeColumns",
+    "CombineOutputs",
+    "step",
     "DeitaFiltering",
     "EmbeddingGeneration",
     "FaissNearestNeighbour",
-    "ExpandColumns",
+    "ConversationTemplate",
     "FormatChatGenerationDPO",
-    "FormatChatGenerationSFT",
     "FormatTextGenerationDPO",
+    "FormatChatGenerationSFT",
     "FormatTextGenerationSFT",
-    "GeneratorStep",
-    "GlobalStep",
-    "KeepColumns",
     "LoadDataFromDicts",
     "LoadDataFromDisk",
     "LoadDataFromFileSystem",
     "LoadDataFromHub",
     "make_generator_step",
     "PushToHub",
-    "Step",
-    "StepInput",
     "RewardModelScore",
     "GeneratorStepOutput",
     "StepOutput",
-    "step",
 ]
