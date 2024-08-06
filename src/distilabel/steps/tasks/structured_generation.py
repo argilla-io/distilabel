@@ -142,7 +142,7 @@ class StructuredGeneration(Task):
     use_system_prompt: bool = False
 
     inputs: List[str] = Field(
-        default=["instruction", "structured_output"],
+        default=["instruction", "structured_output", "system_prompt"],
         frozen=True,
         description="The input for the task are the 'instruction' and the 'structured_output'. Optionally, if the `use_system_prompt=True`, then 'system_prompt' will be used too.",
     )
@@ -152,10 +152,10 @@ class StructuredGeneration(Task):
         description="The output for the task is the 'generation' and the 'model_name'.",
     )
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def set_inputs(cls, values):
-        if values.get("use_system_prompt"):
-            values["inputs"].insert(0, "system_prompt")
+        if values.use_system_prompt:
+            values.inputs = ["instruction", "structured_output"]
         return values
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:

@@ -116,16 +116,6 @@ class GroupColumns(Step):
         )
         return values
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the column names in `output_columns` or
-        `grouped_{column}` for each column in `columns`."""
-        return (
-            self.output_columns
-            if self.output_columns is not None
-            else [f"grouped_{column}" for column in self.columns]
-        )
-
     @override
     def process(self, *inputs: StepInput) -> "StepOutput":
         """The `process` method calls the `group_dicts` function to handle and combine a list of `StepInput`.

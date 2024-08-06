@@ -147,6 +147,17 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
     _model: Union["PreTrainedModel", None] = PrivateAttr(None)
     _tokenizer: Union["PreTrainedTokenizer", None] = PrivateAttr(None)
 
+    inputs: List[str] = Field(
+        default=["response", "instruction", "conversation"],
+        frozen=True,
+        description="Either `response` and `instruction`, or a `conversation` columns."
+    )
+    outputs: List[str] = Field(
+        default=["score"],
+        frozen=True,
+        description="The `score` given by the reward model."
+    )
+
     def load(self) -> None:
         super().load()
 
@@ -178,15 +189,6 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
             token=token,
         )
 
-    @property
-    def inputs(self) -> List[str]:
-        """Either `response` and `instruction`, or a `conversation` columns."""
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """The `score` given by the reward model."""
-        return ["score"]
 
     def _prepare_conversation(self, input: Dict[str, Any]) -> "ChatType":
         if "instruction" in input and "response" in input:

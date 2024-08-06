@@ -130,17 +130,15 @@ class UltraFeedback(Task):
         description="The input for the task is the 'instruction', and the 'generations' for it.",
     )
     outputs: List[str] = Field(
-        default=["rationales", "ratings", "model_name"],
+        default=["rationales", "ratings", "model_name", "types", "rationales-for-ratings"],
         frozen=True,
         description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
     )
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def set_outputs(cls, values):
-        aspect = values.get("aspect")
-        if aspect in ["helpfulness", "truthfulness"]:
-            values["outputs"].insert(0, "types")
-            values["outputs"].insert(-1, "rationales-for-ratings")
+        if not values.aspect in ["helpfulness", "truthfulness"]:
+            values.outputs = ["rationales", "ratings", "model_name"]
         return values
 
     def load(self) -> None:

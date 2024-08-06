@@ -119,18 +119,10 @@ class EvolQuality(Task):
         description="The inputs for the task are the 'instructions' and 'response'.",
     )
     outputs: List[str] = Field(
-        default=["model_name"],
+        default=["model_name", "evolved_responses"],
         frozen=True,
         description="The output for the task are 'model_name'. Optionally, if `store_evolutions=True` 'evolved_response' else 'evolved_responses'.",
     )
-
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        if values.get("store_evolutions"):
-            values["outputs"].insert(0, "evolved_responses")
-        else:
-            values["outputs"].insert(0, "evolved_response")
-        return values
 
     @override
     def model_post_init(self, __context: Any) -> None:
@@ -146,21 +138,18 @@ class EvolQuality(Task):
         return [{"role": "user", "content": input}]
 
     def format_output(self, responses: Union[str, List[str]]) -> Dict[str, Any]:  # type: ignore
-        """The output for the task is a dict with: `evolved_response` or `evolved_responses`,
-        depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
-        and, finally, the `model_name`.
+        """The output for the task is a dict with: `evolved_responses` and, finally, the `model_name`.
 
         Args:
             responses: The responses to be included within the output.
 
         Returns:
-            if `store_evolutions=False` return {"evolved_response": ..., "model_name": ...};
-            if `store_evolutions=True` return {"evolved_responses": ..., "model_name": ...}.
+            {"evolved_responses": ..., "model_name": ...};
         """
         _output = {}
 
         if not self.store_evolutions:
-            _output["evolved_response"] = responses[-1]
+            _output["evolved_responses"] = responses[-1]
         else:
             _output["evolved_responses"] = responses
 

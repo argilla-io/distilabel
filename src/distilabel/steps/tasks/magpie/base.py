@@ -15,8 +15,9 @@
 import random
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-from pydantic import Field, PositiveInt, model_validator
+from pydantic import Field, PositiveInt
 
+from distilabel.llms.base import LLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -44,6 +45,8 @@ class MagpieBase(RuntimeParametersMixin):
         - [Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing](https://arxiv.org/abs/2406.08464)
     """
 
+    llm: LLM
+
     n_turns: RuntimeParameter[PositiveInt] = Field(
         default=1,
         description="The number of turns to generate for the conversation.",
@@ -67,22 +70,13 @@ class MagpieBase(RuntimeParametersMixin):
         " to steer the LLM to generate content of certain topic, guide the style, etc.",
     )
 
-    outputs: List[str] = Field(
-        default=["model_name"],
-        frozen=True,
-        description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
-    )
-
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        if values.get("only_instruction"):
-            values["outputs"].insert(0, "instruction")
-        elif values.get("n_turns"):
-            values["outputs"].insert(0, "response")
-            values["outputs"].insert(0, "instruction")
+    def _set_outputs(self):
+        if self.only_instruction:
+            self.outputs = ["instruction", "model_name"]
+        elif self.n_turns == 1:
+            self.outputs = ["instruction", "response", "model_name"]
         else:
-            values["outputs"].insert(0, "conversation")
-        return values
+            self.outputs = ["conversation", "model_name"]
 
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
@@ -435,6 +429,12 @@ class Magpie(Task, MagpieBase):
         ```
     """
 
+    outputs: List[str] = Field(
+        default=["model_name", "instruction", "response", "conversation"],
+        frozen=False,
+        description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
+    )
+
     def model_post_init(self, __context: Any) -> None:
         """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
         super().model_post_init(__context)
@@ -446,6 +446,10 @@ class Magpie(Task, MagpieBase):
             )
 
         self.llm.use_magpie_template = True
+
+        self._set_outputs()
+
+
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""

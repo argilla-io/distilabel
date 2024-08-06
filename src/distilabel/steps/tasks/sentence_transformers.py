@@ -205,15 +205,15 @@ class GenerateSentencePair(Task):
         description="The inputs for the task is the 'anchor' sentence.",
     )
     outputs: List[str] = Field(
-        default=["positive", "model_name"],
+        default=["positive", "model_name", "negative"],
         frozen=True,
         description="The outputs for the task are the 'positive', as well as the `model_name`, optionally when dealing with `triplet=False` 'negative' sentences are added.",
     )
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def set_outputs(cls, values):
-        if values.get("triplet"):
-            values["outputs"].insert(1, "negative")
+        if values.triplet:
+            values.outputs = ["positive", "model_name"]
         return values
 
     def load(self) -> None:

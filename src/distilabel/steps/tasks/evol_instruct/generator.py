@@ -23,7 +23,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import numpy as np
-from pydantic import Field, PrivateAttr, model_validator
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -120,16 +120,9 @@ class EvolInstructGenerator(GeneratorTask):
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
 
     outputs: List[str] = Field(
-        default=["instruction", "model_name"],
-        frozen=True,
+        default=["instruction", "model_name", "answer"],
         description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer' is added.",
     )
-
-    @model_validator(mode="before")
-    def set_outputs(cls, values):
-        if values.get("generate_answers"):
-            values["outputs"].insert(1, "answer")
-        return values
 
     def _generate_seed_texts(self) -> List[str]:
         """Generates a list of seed texts to be used as part of the starting prompts for the task.
@@ -170,6 +163,8 @@ class EvolInstructGenerator(GeneratorTask):
         self._prompts = [
             np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
         ]
+        if not self.generate_answers:
+            self.outputs  = ["instruction", "model_name"]
 
     @cached_property
     def _english_nouns(self) -> List[str]:

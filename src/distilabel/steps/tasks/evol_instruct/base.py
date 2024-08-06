@@ -168,19 +168,15 @@ class EvolInstruct(Task):
         description="The inputs for the task are the 'instruction'.",
     )
     outputs: List[str] = Field(
-        default=["instruction", "evolved_instruction", "model_name"],
+        default=["instruction", "model_name", "evolved_instructions", "answers"],
         frozen=True,
-        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer/s' is added.",
+        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answers' is added.",
     )
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def set_outputs(cls, values):
-        generate_answers = values.get("store_evolutions")
-        store_evolutions = values.get("store_evolutions")
-        if store_evolutions:
-            values["output"][1] = "evolved_instructions"
-        if generate_answers:
-            values["output"].insert(-1, "answers" if store_evolutions else "answer")
+        if  values.generate_answers:
+            values.outputs.append("answers")
         return values
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
@@ -193,29 +189,25 @@ class EvolInstruct(Task):
     def format_output(  # type: ignore
         self, instructions: Union[str, List[str]], answers: Optional[List[str]] = None
     ) -> Dict[str, Any]:  # type: ignore
-        """The output for the task is a dict with: `evolved_instruction` or `evolved_instructions`,
-        depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
-        `answer` if `generate_answers=True`; and, finally, the `model_name`.
+        """The output for the task is a dict with `evolved_instructions`, `answers` if `generate_answers=True`; and, finally, the `model_name`.
 
         Args:
             instructions: The instructions to be included within the output.
             answers: The answers to be included within the output if `generate_answers=True`.
 
         Returns:
-            If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ..., "answer": ...};
-            if `store_evolutions=True` and `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answer": ...};
-            if `store_evolutions=False` and `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
-            if `store_evolutions=True` and `generate_answers=False` return {"evolved_instructions": ..., "model_name": ...}.
+            if `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answers": ...};
+            if `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
         """
         _output = {}
         if not self.store_evolutions:
-            _output["evolved_instruction"] = instructions[-1]
+            _output["evolved_instructions"] = instructions[-1]
         else:
             _output["evolved_instructions"] = instructions
 
         if self.generate_answers and answers:
             if not self.store_evolutions:
-                _output["answer"] = answers[-1]
+                _output["answers"] = answers[-1]
             else:
                 _output["answers"] = answers
 

@@ -67,7 +67,7 @@ class LoadDataFromDicts(GeneratorStep):
     def set_outputs(cls, values):
         data = values.get("data", [])
         if data:
-            values["outputs"] += list(data[0].keys())
+            values["outputs"] = list(data[0].keys())
         return values
 
     @override

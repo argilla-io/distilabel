@@ -11,10 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 
 import os
 from typing import TYPE_CHECKING
-
+import pytest
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
@@ -78,9 +79,9 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class ArgillaBase with abstract methods inputs, process"
+            match="Can't instantiate abstract class ArgillaBase with abstract method process"
             if sys.version_info < (3, 12)
-            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
+            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract method 'process'",
         ):
             ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 

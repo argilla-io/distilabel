@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from pydantic import Field
 
+from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
@@ -208,6 +209,12 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         default=None, description="The number of rows to generate."
     )
 
+    outputs: List[str] = Field(
+        default=["model_name", "instruction", "response", "conversation"],
+        frozen=False,
+        description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
+    )
+
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Generates the desired number of instructions or conversations using Magpie.
 
@@ -228,3 +235,26 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
             )
             generated += rows_to_generate  # type: ignore
             yield (conversations, generated == self.num_rows)
+
+    def model_post_init(self, __context: Any) -> None:
+        """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
+        super().model_post_init(__context)
+
+        if not isinstance(self.llm, MagpieChatTemplateMixin):
+            raise ValueError(
+                f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+            )
+
+        self.llm.use_magpie_template = True
+
+        self._set_outputs()
+
+    def format_output(
+        self,
+        output: Union[str, None],
+        input: Union[Dict[str, Any], None] = None,
+    ) -> Dict[str, Any]:
+        """Does nothing."""
+        return {}
+

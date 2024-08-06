@@ -143,8 +143,7 @@ class TestLoadDataFromFileSystem:
             loader.load()
             assert loader.outputs == ["type", "function"]
         else:
-            with pytest.raises(ValueError):
-                loader.outputs  # noqa: B018
+            assert loader.outputs == []
 
 
 class TestLoadDataFromDisk:

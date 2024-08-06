@@ -254,10 +254,6 @@ class PreferenceToArgilla(ArgillaBase):
     def _add_suggestions_if_any(
         self, input: Dict[str, Any]
     ) -> List["SuggestionSchema"]:
-    
-        Returns:
-            A list of `Suggestion`s for the rating and rationales questions.
-        """
         # Since the `suggestions` i.e. answers to the `questions` are optional, will default to {}
         suggestions = []
         # If `ratings` is in `input`, then add those as suggestions

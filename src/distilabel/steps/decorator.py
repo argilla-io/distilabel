@@ -22,9 +22,10 @@ from typing import (
     Type,
     Union,
     overload,
+    ClassVar
 )
 
-from pydantic import create_model
+from pydantic import create_model, Field, BaseModel, AfterValidator
 
 from distilabel.mixins.runtime_parameters import _RUNTIME_PARAMETER_ANNOTATION
 from distilabel.steps.base import (
@@ -123,8 +124,8 @@ def step(
     ```
     """
 
-    inputs = inputs or []
-    outputs = outputs or []
+    _inputs: List[str] = inputs or []
+    _outputs: List[str] = outputs or []
 
     def decorator(func: ProcessingFunc) -> Type["_Step"]:
         if step_type not in _STEP_MAPPING:
@@ -172,11 +173,15 @@ def step(
             **runtime_parameters,  # type: ignore
         )
 
-        def inputs_property(self) -> List[str]:
-            return inputs
+        def inputs_field() -> List[str]:
+            return _inputs
 
-        def outputs_property(self) -> List[str]:
-            return outputs
+        def outputs_field() -> List[str]:
+            return _outputs
+
+        class InputOutputsBaseClass(BaseClass):
+            inputs: List[str] = Field(default_factory=inputs_field)
+            outputs: List[str] = Field(default_factory=outputs_field)
 
         def process(
             self, *args: Any, **kwargs: Any
@@ -186,13 +191,11 @@ def step(
         return type(  # type: ignore
             func.__name__,
             (
-                BaseClass,
+                InputOutputsBaseClass,
                 RuntimeParametersModel,
             ),
             {
                 "process": process,
-                "inputs": property(inputs_property),
-                "outputs": property(outputs_property),
                 "__module__": func.__module__,
                 "__doc__": func.__doc__,
                 "_built_from_decorator": True,
