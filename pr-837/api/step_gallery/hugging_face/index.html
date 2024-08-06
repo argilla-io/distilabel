@@ -4849,7 +4849,7 @@ result = next(loader.process())
 </span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span><span class="p">))</span>
 </span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
-</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">column_names</span>
+</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset_columns</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
@@ -4936,7 +4936,7 @@ result = next(loader.process())
 </span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span><span class="p">))</span>
 </span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a>    <span class="k">else</span><span class="p">:</span>
 </span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
-</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">column_names</span>
+</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset_columns</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5363,7 +5363,7 @@ result = next(loader.process())
 </span><span id="__span-0-366"><a id="__codelineno-0-366" name="__codelineno-0-366"></a>                <span class="p">)</span>
 </span><span id="__span-0-367"><a id="__codelineno-0-367" name="__codelineno-0-367"></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="__span-0-368"><a id="__codelineno-0-368" name="__codelineno-0-368"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
-</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">column_names</span>
+</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset_columns</span><span class="p">()</span>
 </span><span id="__span-0-370"><a id="__codelineno-0-370" name="__codelineno-0-370"></a>
 </span><span id="__span-0-371"><a id="__codelineno-0-371" name="__codelineno-0-371"></a>    <span class="nd">@staticmethod</span>
 </span><span id="__span-0-372"><a id="__codelineno-0-372" name="__codelineno-0-372"></a>    <span class="k">def</span> <span class="nf">_prepare_data_files</span><span class="p">(</span>
@@ -5493,7 +5493,7 @@ result = next(loader.process())
 </span><span id="__span-0-366"><a id="__codelineno-0-366" name="__codelineno-0-366"></a>            <span class="p">)</span>
 </span><span id="__span-0-367"><a id="__codelineno-0-367" name="__codelineno-0-367"></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="__span-0-368"><a id="__codelineno-0-368" name="__codelineno-0-368"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">num_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
-</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">column_names</span>
+</span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset_columns</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
