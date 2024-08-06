@@ -209,7 +209,7 @@ class GenerateSentencePair(Task):
         result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
         ```
 
-        Generating Hard-negatives (**applies to every acction**):
+        Generating Hard-negatives (**applies to every action**):
 
         ```python
         from distilabel.steps.tasks import GenerateSentencePair
