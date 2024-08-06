@@ -110,8 +110,6 @@ class SelfInstruct(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
-
-
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()

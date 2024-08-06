@@ -48,9 +48,8 @@ def make_generator_step(
     """
     from distilabel.steps import LoadDataFromDicts
 
-
     if isinstance(dataset, pd.DataFrame):
-        dataset = dataset.to_dict(orient='records')
+        dataset = dataset.to_dict(orient="records")
     elif isinstance(dataset, Dataset):
         dataset = dataset.to_list()
     elif isinstance(dataset, list):

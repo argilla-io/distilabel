@@ -121,7 +121,6 @@ class RenameColumns(Step):
 
 
 class GenerateResponse(Step):
-
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         import time
 
@@ -131,6 +130,7 @@ class GenerateResponse(Step):
             input["response"] = "I don't know"
 
         yield inputs
+
 
 @pytest.mark.skipif(
     sys.version_info >= (3, 12), reason="`ray` is not compatible with `python>=3.12`"

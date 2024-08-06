@@ -153,7 +153,6 @@ class _EmbeddingDataGeneration(_JSONFormatter, Task, ABC):
         self._template = Template(open(_path).read())
 
 
-
 class _EmbeddingDataGenerator(_JSONFormatter, GeneratorTask, ABC):
     """Base class for the subtasks related to embedding data generation as presented in the
     paper "Improving Text Embeddings with Large Language Models" that generate data without
@@ -357,7 +356,6 @@ class EmbeddingTaskGenerator(GeneratorTask):
                         {**formatted_output, "model_name": self.llm.model_name}
                     )
         yield task_outputs, True
-
 
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None

@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 class DummyStep(Step):
     inputs: List[str] = Field(default=["instruction"])
     outputs: List[str] = Field(default=["response"])
+
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:
             input["response"] = "unit test"

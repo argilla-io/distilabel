@@ -71,8 +71,12 @@ class ExpandColumns(Step):
 
     columns: Union[Dict[str, str], List[str]]
 
-    inputs: List[str] = Field(default_factory=list, description=["The columns to be expanded."])
-    outputs: List[str] = Field(default_factory=list, description=["The expanded columns."])
+    inputs: List[str] = Field(
+        default_factory=list, description=["The columns to be expanded."]
+    )
+    outputs: List[str] = Field(
+        default_factory=list, description=["The expanded columns."]
+    )
 
     @override
     def model_post_init(self, __context: Any) -> None:

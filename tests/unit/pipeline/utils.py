@@ -23,11 +23,14 @@ from pydantic import Field
 
 class DummyGeneratorStep(GeneratorStep):
     outputs: List[str] = Field(default=["instruction"])
+
     def process(self, offset: int = 0) -> GeneratorStepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}], False
 
+
 class DummyGlobalStep(GlobalStep):
     inputs: List[str] = Field(default=["instruction"])
+
     def process(self) -> StepOutput:  # type: ignore
         yield [{"instruction": "Generate an email..."}]
 
@@ -35,12 +38,15 @@ class DummyGlobalStep(GlobalStep):
 class DummyStep1(Step):
     inputs: List[str] = Field(default=["instruction"])
     outputs: List[str] = Field(default=["response"])
+
     def process(self, input: StepInput) -> StepOutput:  # type: ignore
         yield [{"response": "response1"}]
+
 
 class DummyStep2(Step):
     inputs: List[str] = Field(default=["response"])
     outputs: List[str] = Field(default=["evol_response"])
+
     def process(self, *inputs: StepInput) -> StepOutput:  # type: ignore
         yield [{"response": "response1"}]
 

@@ -130,6 +130,7 @@ class GenerateResponse(Step):
 
         yield inputs
 
+
 def run_pipeline():
     with Pipeline(name="unit-test-pipeline") as pipeline:
         load_dataset = LoadDataFromDicts(name="load_dataset", data=DATA, batch_size=8)

@@ -88,7 +88,6 @@ class KeepColumns(Step):
         self.inputs = self.columns
         self.outputs = self.columns
 
-
     @override
     def process(self, *inputs: StepInput) -> "StepOutput":
         """The `process` method keeps only the columns specified in the `columns` attribute.

@@ -120,7 +120,13 @@ class UltraFeedback(Task):
         description="The input for the task is the 'instruction', and the 'generations' for it.",
     )
     outputs: List[str] = Field(
-        default=["rationales", "ratings", "model_name", "types", "rationales-for-ratings"],
+        default=[
+            "rationales",
+            "ratings",
+            "model_name",
+            "types",
+            "rationales-for-ratings",
+        ],
         description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
     )
 
@@ -135,14 +141,17 @@ class UltraFeedback(Task):
     )
     _template: Optional["Template"] = PrivateAttr(default=...)
 
-
     @override
     def model_post_init(self, __context: Any) -> None:
         """Override this method to perform additional initialization after `__init__` and `model_construct`.
         This is useful if you want to do some validation that requires the entire model to be initialized.
         """
         super().model_post_init(__context)
-        self.outputs = self.outputs if self.aspect in ["helpfulness", "truthfulness"] else ["rationales", "ratings", "model_name"]
+        self.outputs = (
+            self.outputs
+            if self.aspect in ["helpfulness", "truthfulness"]
+            else ["rationales", "ratings", "model_name"]
+        )
 
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""

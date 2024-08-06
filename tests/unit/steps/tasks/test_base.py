@@ -35,7 +35,6 @@ class DummyTask(Task):
             {"role": "user", "content": input["instruction"]},
         ]
 
-
     def format_output(
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:

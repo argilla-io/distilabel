@@ -122,7 +122,6 @@ class EvolQuality(Task):
         description="The output for the task are 'model_name'. Optionally, if `store_evolutions=True` 'evolved_response' else 'evolved_responses'.",
     )
 
-
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation. And the

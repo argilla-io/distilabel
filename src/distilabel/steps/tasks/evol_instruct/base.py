@@ -178,7 +178,11 @@ class EvolInstruct(Task):
         """
         super().model_post_init(__context)
 
-        self.outputs = self.outputs if self.generate_answers else ["instruction", "model_name", "evolved_instructions"]
+        self.outputs = (
+            self.outputs
+            if self.generate_answers
+            else ["instruction", "model_name", "evolved_instructions"]
+        )
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction

@@ -314,8 +314,6 @@ class PrometheusEval(Task):
 
     _template: Union[Template, None] = PrivateAttr(...)
 
-
-
     @override
     def model_post_init(self, __context: Any) -> None:
         """Override this method to perform additional initialization after `__init__` and `model_construct`.

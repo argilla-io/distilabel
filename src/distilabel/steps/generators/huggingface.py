@@ -161,7 +161,6 @@ class LoadDataFromHub(GeneratorStep):
             self._dataset = self._dataset.select(range(self.num_examples))
         self.outputs = self._get_dataset_columns()
 
-
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         """Yields batches from the loaded dataset from the Hugging Face Hub.
 
@@ -183,7 +182,6 @@ class LoadDataFromHub(GeneratorStep):
             batch_size = len(transformed_batch)
             num_returned_rows += batch_size
             yield transformed_batch, num_returned_rows >= self.num_examples
-
 
     def _transform_batch(self, batch: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Transform a batch of data from the Hugging Face Hub into a list of rows.
@@ -548,5 +546,3 @@ class LoadDataFromDisk(LoadDataFromHub):
         else:
             self.num_examples = len(self._dataset)
         self.outputs = self._dataset.column_names
-
-

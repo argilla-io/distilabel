@@ -448,8 +448,6 @@ class Magpie(Task, MagpieBase):
 
         self._set_outputs()
 
-
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []

@@ -96,11 +96,7 @@ class MergeColumns(Step):
         super().model_post_init(__context)
 
         self.inputs = self.columns
-        self.outputs = (
-            [self.output_column]
-            if self.output_column
-            else ["merged_column"]
-        )
+        self.outputs = [self.output_column] if self.output_column else ["merged_column"]
 
     @override
     def process(self, inputs: StepInput) -> "StepOutput":

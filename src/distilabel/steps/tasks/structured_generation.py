@@ -151,14 +151,17 @@ class StructuredGeneration(Task):
         description="The output for the task is the 'generation' and the 'model_name'.",
     )
 
-
     @override
     def model_post_init(self, __context: Any) -> None:
         """Override this method to perform additional initialization after `__init__` and `model_construct`.
         This is useful if you want to do some validation that requires the entire model to be initialized.
         """
         super().model_post_init(__context)
-        self.inputs = self.inputs if self.use_system_prompt else ["instruction", "structured_output"]
+        self.inputs = (
+            self.inputs
+            if self.use_system_prompt
+            else ["instruction", "structured_output"]
+        )
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:
         """The input is formatted as a `ChatType` assuming that the instruction

@@ -256,4 +256,3 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
     ) -> Dict[str, Any]:
         """Does nothing."""
         return {}
-
