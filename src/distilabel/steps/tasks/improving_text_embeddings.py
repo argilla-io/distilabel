@@ -278,6 +278,20 @@ class EmbeddingTaskGenerator(GeneratorTask):
 
             task >> ...
         ```
+
+    Citations:
+
+        ```
+        @misc{wang2024improvingtextembeddingslarge,
+            title={Improving Text Embeddings with Large Language Models},
+            author={Liang Wang and Nan Yang and Xiaolong Huang and Linjun Yang and Rangan Majumder and Furu Wei},
+            year={2024},
+            eprint={2401.00368},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2401.00368},
+        }
+        ```
     """
 
     category: Literal[

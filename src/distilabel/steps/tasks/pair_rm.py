@@ -80,6 +80,20 @@ class PairRM(Step):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{jiang2023llmblenderensemblinglargelanguage,
+            title={LLM-Blender: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion},
+            author={Dongfu Jiang and Xiang Ren and Bill Yuchen Lin},
+            year={2023},
+            eprint={2306.02561},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2306.02561},
+        }
+        ```
     """
 
     model: str = "llm-blender/PairRM"

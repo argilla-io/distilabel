@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, Literal, Type, Union
 
 import pytest
 from distilabel.llms.huggingface.transformers import TransformersLLM
@@ -33,6 +33,7 @@ class DummyUserTest(BaseModel):
 DUMP_JSON = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
+    "magpie_pre_query_template": None,
     "structured_output": {
         "format": "json",
         "schema": {
@@ -57,6 +58,8 @@ DUMP_JSON = {
     "device": None,
     "device_map": None,
     "token": None,
+    "use_magpie_template": False,
+    "disable_cuda_device_placement": False,
     "type_info": {
         "module": "distilabel.llms.huggingface.transformers",
         "name": "TransformersLLM",
@@ -66,6 +69,7 @@ DUMP_JSON = {
 DUMP_REGEX = {
     "cuda_devices": "auto",
     "generation_kwargs": {},
+    "magpie_pre_query_template": None,
     "structured_output": {
         "format": "regex",
         "schema": "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)",
@@ -81,6 +85,8 @@ DUMP_REGEX = {
     "device": None,
     "device_map": None,
     "token": None,
+    "use_magpie_template": False,
+    "disable_cuda_device_placement": False,
     "type_info": {
         "module": "distilabel.llms.huggingface.transformers",
         "name": "TransformersLLM",
@@ -149,7 +155,10 @@ class TestOutlinesIntegration:
         ],
     )
     def test_serialization(
-        self, format: str, schema: Union[str, Type[BaseModel]], dump: Dict[str, Any]
+        self,
+        format: Literal["json", "regex"],
+        schema: Union[str, Type[BaseModel]],
+        dump: Dict[str, Any],
     ) -> None:
         llm = TransformersLLM(
             model="openaccess-ai-collective/tiny-mistral",
