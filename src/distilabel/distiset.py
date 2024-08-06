@@ -603,7 +603,7 @@ def create_distiset(  # noqa: C901
                         print(f"Error: {e}")
                     except AttributeError as e:
                         print(
-                            f"Coulnd't obtain the bibtex format for the ref: '{ref}', error: {e}"
+                            f"Couldn't obtain the bibtex format for the ref: '{ref}', error: {e}"
                         )
                     except Exception as e:
                         print(f"Untracked error: {e}")
