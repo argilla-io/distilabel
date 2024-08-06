@@ -37,13 +37,9 @@ def requirements(requirements: Union[List[str]]) -> Callable[[S], S]:
         ```python
         @requirements(["my_library>=1.0.1"])
         class CustomStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
+            inputs: List[str] = Field(default=["instruction"])
+            outputs: List[str] = Field(default=["response"])
 
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
 
             def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
                 for input in inputs:

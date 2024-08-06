@@ -13,17 +13,13 @@ from distilabel.steps.typing import StepOutput
 from distilabel.steps import LoadDataFromDicts
 from distilabel.utils.requirements import requirements
 from distilabel.pipeline import Pipeline
+from pydantic import Field
 
 
 @requirements(["nltk"])
 class CustomStep(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["response"]
+    inputs: List[str] = Field(default=["instruction"])
+    outputs: List[str] = Field(default=["response"])
 
     def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
         for input in inputs:

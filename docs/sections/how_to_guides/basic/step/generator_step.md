@@ -8,9 +8,11 @@ from typing_extensions import override
 
 from distilabel.steps import GeneratorStep
 from distilabel.steps.typing import GeneratorStepOutput
+from pydantic import Field
 
 class MyGeneratorStep(GeneratorStep):
     instructions: List[str]
+    outputs: List[str] = Field(default=["instruction"])
 
     @override
     def process(self, offset: int = 0) -> GeneratorStepOutput:
@@ -28,10 +30,6 @@ class MyGeneratorStep(GeneratorStep):
                 batch,
                 True if len(self.instructions) == 0 else False,
             )
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["instruction"]
 ```
 
 Then we can use it as follows:
@@ -78,17 +76,16 @@ We can define a custom generator step by creating a new subclass of the [`Genera
 
     from distilabel.steps import GeneratorStep
     from distilabel.steps.typing import GeneratorStepOutput
+    from pydantic import Field
 
     class MyGeneratorStep(GeneratorStep):
         instructions: List[str]
+        outputs: List[str] = Field(default=...)
 
         @override
         def process(self, offset: int = 0) -> GeneratorStepOutput:
             ...
 
-        @property
-        def outputs(self) -> List[str]:
-            ...
     ```
 
 === "Using the `@step` decorator"

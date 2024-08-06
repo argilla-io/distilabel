@@ -25,15 +25,11 @@ We can define a custom step by creating a new subclass of the [`GlobalStep`][dis
     ```python
     from distilabel.steps import GlobalStep, StepInput
     from distilabel.steps.typing import StepOutput
+    from pydantic import Field
 
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            ...
-
-        @property
-        def outputs(self) -> List[str]:
-            ...
+        inputs: List[str] = Field(default=...)
+        outputs: List[str] = Field(default=...)
 
         def process(self, *inputs: StepInput) -> StepOutput:
             for input in inputs:
