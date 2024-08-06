@@ -183,7 +183,7 @@ class TestClientvLLM:
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
-            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            tokenizer="google-bert/bert-base-uncased",
         )
 
         llm.load()
@@ -201,7 +201,7 @@ class TestClientvLLM:
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
-            tokenizer="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            tokenizer="google-bert/bert-base-uncased",
         )
 
         llm.load()
