@@ -586,29 +586,40 @@ def create_distiset(  # noqa: C901
             distiset.log_filename_path = log_filename_path
 
     if dag:
-        citations = []
-        for step_name in dag:
-            step_info = parse_google_docstring(dag.get_step(step_name)[STEP_ATTR_NAME])
-            if cites := step_info["citations"]:
-                citations.extend(cites)
-                continue
-            # If there were no citations but we have references with arxiv URLs, try to extract
-            # the bixtex citations from those
-            if references := step_info["references"]:
-                bibtex_refs = []
-                for ref in references.values():
-                    try:
-                        bibtex_refs.append(get_bibtex(ref))
-                    except ValueError as e:
-                        print(f"Error: {e}")
-                    except AttributeError as e:
-                        print(
-                            f"Couldn't obtain the bibtex format for the ref: '{ref}', error: {e}"
-                        )
-                    except Exception as e:
-                        print(f"Untracked error: {e}")
-                citations.extend(bibtex_refs)
-
-        distiset._citations = citations
+        distiset._citations = _grab_citations(dag)
 
     return distiset
+
+
+def _grab_citations(dag: "DAG") -> List[str]:
+    """Extracts the citations from the steps that form the DAG.
+
+    Args:
+        dag: `DAG` contained in the pipeline that created the `Distiset`.
+
+    Returns:
+        List of citations to add to the `Distiset`.
+    """
+    citations = []
+    for step_name in dag:
+        step_info = parse_google_docstring(dag.get_step(step_name)[STEP_ATTR_NAME])
+        if cites := step_info["citations"]:
+            citations.extend(cites)
+            continue
+        # If there were no citations but we have references with arxiv URLs, try to extract
+        # the bixtex citations from those
+        if references := step_info["references"]:
+            bibtex_refs = []
+            for ref in references.values():
+                try:
+                    bibtex_refs.append(get_bibtex(ref))
+                except ValueError as e:
+                    print(f"Error: {e}")
+                except AttributeError as e:
+                    print(
+                        f"Couldn't obtain the bibtex format for the ref: '{ref}', error: {e}"
+                    )
+                except Exception as e:
+                    print(f"Untracked error: {e}")
+            citations.extend(bibtex_refs)
+    return citations
