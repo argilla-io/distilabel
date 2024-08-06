@@ -91,7 +91,7 @@ distiset.push_to_hub(
 
 #### Custom Docstrings
 
-`Distilabel` contains a custom plugin to automatically generates a gallery for the different components. The information is extracted by parsing the `Step`'s docstrings. You can take a look at the docstrings in the source code of the [UltraFeedback][distilabel.steps.tasks.ultrafeedback.UltraFeedback], and take a look at the corresponding entry in the components gallery to see an example of how the docstrings are rendered.
+`distilabel` contains a custom plugin to automatically generates a gallery for the different components. The information is extracted by parsing the `Step`'s docstrings. You can take a look at the docstrings in the source code of the [UltraFeedback][distilabel.steps.tasks.ultrafeedback.UltraFeedback], and take a look at the corresponding entry in the components gallery to see an example of how the docstrings are rendered.
 
 If you create your own components and want the `Citations` automatically rendered in the README card (in case you are sharing your final distiset in the Hugging Face Hub), you may want to add the citation section. This is an example for the [MagpieGenerator][distilabel.steps.tasks.magpie.generator.MagpieGenerator] Task:
 
