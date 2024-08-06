@@ -27,7 +27,7 @@ from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from argilla import RatingQuestion, TextField, TextQuestion
+    from argilla import RatingQuestion, SuggestionSchema, TextField, TextQuestion
 
     from distilabel.steps.typing import StepOutput
 
