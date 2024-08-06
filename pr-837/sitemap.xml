@@ -591,12 +591,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/anthropicllm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/openaillm/</loc>
          <lastmod>2024-08-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/openaillm/</loc>
+         <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/clientvllm/</loc>
          <lastmod>2024-08-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -612,6 +612,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/togetherllm/</loc>
+         <lastmod>2024-08-06</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-837/components-gallery/llms/anthropicllm/</loc>
          <lastmod>2024-08-06</lastmod>
          <changefreq>daily</changefreq>
     </url>

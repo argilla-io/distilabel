@@ -2523,7 +2523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="components-gallery/llms/anthropicllm/" class="md-nav__link">
+      <a href="components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2544,7 +2544,7 @@
   
   
     <li class="md-nav__item">
-      <a href="components-gallery/llms/openaillm/" class="md-nav__link">
+      <a href="components-gallery/llms/clientvllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2608,6 +2608,27 @@
   
     <li class="md-nav__item">
       <a href="components-gallery/llms/togetherllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4385,9 +4406,9 @@
 <h2 id="what-do-people-build-with-distilabel">What do people build with distilabel?<a class="headerlink" href="#what-do-people-build-with-distilabel" title="Permanent link">&para;</a></h2>
 <p>The Argilla community uses distilabel to create amazing <a href="https://huggingface.co/datasets?other=distilabel">datasets</a> and <a href="https://huggingface.co/models?other=distilabel">models</a>.</p>
 <ul>
-<li>The <a href="https://huggingface.co/datasets/argilla/OpenHermesPreferences">1M OpenHermesPreference</a> is a dataset of ~1 million AI preferences that have been generated using the <a href="https://huggingface.co/datasets/teknium/OpenHermes-2.5">teknium/OpenHermes-2.5</a> LLM. It is a great example of how you can use distilabel to scale and increase dataset development.</li>
-<li><a href="https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs">distilabeled Intel Orca DPO dataset</a> used to fine-tune the <a href="https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B">improved OpenHermes model</a>. This dataset was built by combining human curation in Argilla with AI feedback from distilabel, leading to an improved version of the Intel Orca dataset and outperforming models fine-tuned on the original dataset.</li>
-<li>The <a href="https://github.com/davanstrien/haiku-dpo">haiku DPO data</a> is an example of how anyone can create a synthetic dataset for a specific task, which after curation and evaluation can be used for fine-tuning custom LLMs.</li>
+<li>The <a href="https://huggingface.co/datasets/argilla/OpenHermesPreferences">1M OpenHermesPreference</a> is a dataset of ~1 million AI preferences derived from teknium/OpenHermes-2.5. It shows how we can use Distilabel to <strong>synthesize data on an immense scale</strong>.</li>
+<li>Our <a href="https://huggingface.co/datasets/argilla/distilabel-intel-orca-dpo-pairs">distilabeled Intel Orca DPO dataset</a> and the <a href="https://huggingface.co/argilla/distilabeled-OpenHermes-2.5-Mistral-7B">improved OpenHermes model</a>, show how we <strong>improve model performance by filtering out 50%</strong> of the original dataset through <strong>AI feedback</strong>.</li>
+<li>The <a href="https://github.com/davanstrien/haiku-dpo">haiku DPO data</a> outlines how anyone can create a <strong>dataset for a specific task</strong> and <strong>the latest research papers</strong> to improve the quality of the dataset.</li>
 </ul>
 
 
