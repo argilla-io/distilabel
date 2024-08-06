@@ -24,6 +24,14 @@
     }
   },
   {
+    "version": "pr-837",
+    "title": "pr-837",
+    "aliases": [],
+    "properties": {
+      "hidden": true
+    }
+  },
+  {
     "version": "pr-833",
     "title": "pr-833",
     "aliases": [],
