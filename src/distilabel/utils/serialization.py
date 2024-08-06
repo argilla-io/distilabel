@@ -192,7 +192,7 @@ class _Serializable:
         """
         # Any parameter named api_key will be excluded from the dump (those are supposed to be SecretStr anyway,
         # and will remove them afterwards)
-        dump = obj.model_dump(exclude={"api_key", "outputs", "inputs"}, **kwargs)
+        dump = obj.model_dump(exclude={"api_key", "outputs", "inputs", "token"}, **kwargs)
 
         # Check if any attribute in value within the `dump` is an `EnumType`,
         # as it needs a specific serialization.

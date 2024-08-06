@@ -80,11 +80,11 @@ class MergeColumns(Step):
     output_column: Optional[str] = None
 
     inputs: List[str] = Field(
-        frozen=True,
+        default_factory=list,
         description="The inputs for the task are the column names in 'columns'.",
     )
     outputs: List[str] = Field(
-        frozen=True,
+        default_factory=list,
         description="The outputs for the task are the column names in 'columns'.",
     )
 

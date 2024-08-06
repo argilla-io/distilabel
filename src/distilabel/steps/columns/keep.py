@@ -70,9 +70,11 @@ class KeepColumns(Step):
     columns: List[str]
 
     inputs: List[str] = Field(
+        default_factory=list,
         description="The inputs for the task are the column names in 'columns'.",
     )
     outputs: List[str] = Field(
+        default_factory=list,
         description="The outputs for the task are the column names in 'columns'.",
     )
 
