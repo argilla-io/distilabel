@@ -33,6 +33,7 @@ class Docstring(TypedDict):
     references: Dict[str, str]
     examples: Dict[str, str]
     note: str
+    citations: List[str]
 
 
 def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
@@ -60,6 +61,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         "references": {},
         "examples": {},
         "note": "",
+        "citations": [],
     }
 
     if not func.__doc__:
@@ -81,6 +83,7 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
         "References",
         "Examples",
         "Note",
+        "Citations",
     ]
 
     # Match section headers
@@ -172,6 +175,14 @@ def parse_google_docstring(func: Callable) -> Docstring:  # noqa: C901
             }
         elif section_name == "note":
             sections[section_name] = remove_leading_whitespaces(section_content.strip())
+        elif section_name == "citations":
+            pattern_citations = r"```(.*?)```"
+            citations = re.findall(
+                pattern_citations, section_content.strip(), re.DOTALL
+            )
+            sections[section_name] = [
+                remove_leading_whitespaces(citation).strip() for citation in citations
+            ]
         else:
             sections[section_name] = section_content
 
@@ -194,3 +205,44 @@ def remove_leading_whitespaces(text: str, num_spaces: int = 8) -> str:
         for line in lines
     ]
     return "\n".join(trimmed_lines)
+
+
+def get_bibtex(ref: str) -> str:
+    r"""Get the bibtex citation from an arxiv url.
+
+    Args:
+        ref: Url from the arxiv paper.
+
+    Returns:
+        The bibtex style citation.
+
+    Examples:
+
+        ```python
+        cite = get_bibtex(r"https://arxiv.org/abs/2406.18518")
+        @misc{other,
+            title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+            author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+            year={2024},
+            eprint={2406.08464},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL}
+        }
+        ```
+    """
+    from urllib.parse import quote_plus
+
+    import requests
+    from bs4 import BeautifulSoup
+
+    if not ref.startswith("https://arxiv.org"):
+        raise ValueError(
+            f"The url must start with of `https://arxiv.org`, but got: {ref}"
+        )
+    response: bytes = requests.get(
+        rf"https://arxiv2bibtex.org/?q={quote_plus(ref)}&format=bibtex"
+    )
+    soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
+    textarea = soup.find("div", id="bibtex").find("textarea", class_="wikiinfo")
+    bibtex_citation = textarea.get_text().lstrip()
+    return bibtex_citation

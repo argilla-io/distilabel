@@ -153,6 +153,7 @@ class RayPipeline(BasePipeline):
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
+            dag=self.dag,
         )
 
         stop_logging()
