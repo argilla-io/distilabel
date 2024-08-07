@@ -15,10 +15,10 @@
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.distiset import create_distiset
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY

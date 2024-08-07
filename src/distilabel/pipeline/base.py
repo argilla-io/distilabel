@@ -39,12 +39,7 @@ from typing_extensions import Self
 from upath import UPath
 
 from distilabel import __version__
-from distilabel.distiset import create_distiset
-from distilabel.mixins.requirements import RequirementsMixin
-from distilabel.pipeline._dag import DAG
-from distilabel.pipeline.batch import _Batch
-from distilabel.pipeline.batch_manager import _BatchManager
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     INPUT_QUEUE_ATTR_NAME,
     LAST_BATCH_SENT_FLAG,
@@ -52,6 +47,11 @@ from distilabel.pipeline.constants import (
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
 )
+from distilabel.distiset import create_distiset
+from distilabel.mixins.requirements import RequirementsMixin
+from distilabel.pipeline._dag import DAG
+from distilabel.pipeline.batch import _Batch
+from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
