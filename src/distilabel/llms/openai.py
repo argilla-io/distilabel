@@ -194,7 +194,6 @@ class OpenAILLM(AsyncLLM):
         temperature: float = 1.0,
         top_p: float = 1.0,
         stop: Optional[Union[str, List[str]]] = None,
-        timeout: int = 120,
         response_format: Optional[str] = None,
     ) -> GenerateOutput:
         """Generates `num_generations` responses for the given input using the OpenAI async
@@ -214,8 +213,6 @@ class OpenAILLM(AsyncLLM):
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             stop: a string or a list of strings to use as a stop sequence for the generation.
                 Defaults to `None`.
-            timeout: the maximum time in seconds to wait for a response from the API. Defaults
-                to `120`.
             response_format: the format of the response to return. Must be one of
                 "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
                 for more information on how to use the JSON model from OpenAI. Defaults to `text`.
@@ -250,7 +247,6 @@ class OpenAILLM(AsyncLLM):
             "temperature": temperature,
             "top_p": top_p,
             "stop": stop,
-            "timeout": timeout,
         }
 
         if response_format is not None:
