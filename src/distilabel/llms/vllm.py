@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -497,8 +498,8 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
             self.tokenizer, revision=self.tokenizer_revision
         )
 
-    @property
-    def model_name(self) -> str:
+    @cached_property
+    def model_name(self) -> str:  # type: ignore
         """Returns the name of the model served with vLLM server."""
         models = self._client.models.list()
         return models.data[0].id
