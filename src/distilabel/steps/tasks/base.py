@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from pydantic import Field
 from typing_extensions import override
 
+from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
@@ -26,7 +27,6 @@ from distilabel.steps.base import (
     StepInput,
     _Step,
 )
-from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:

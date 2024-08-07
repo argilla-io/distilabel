@@ -29,7 +29,7 @@ from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
-from distilabel.pipeline.constants import STEP_ATTR_NAME
+from distilabel.constants import STEP_ATTR_NAME
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
@@ -536,7 +536,7 @@ def create_distiset(  # noqa: C901
         >>> distiset = create_distiset(Path.home() / ".cache/distilabel/pipelines/path-to-pipe-hashname")
         ```
     """
-    from distilabel.steps.constants import DISTILABEL_METADATA_KEY
+    from distilabel.constants import DISTILABEL_METADATA_KEY
 
     logger = logging.getLogger("distilabel.distiset")
 
