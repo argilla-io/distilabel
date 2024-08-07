@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import hashlib
+import json
+import random
+import string
 from typing import TYPE_CHECKING, List
 
 from distilabel.steps.base import Step, StepInput
@@ -83,6 +86,8 @@ class FormatTextGenerationSFT(Step):
         ```
     """
 
+    function_calling: bool = False
+
     @property
     def inputs(self) -> List[str]:
         """List of inputs required by the `Step`, which in this case are: `instruction`, and `generation`."""
@@ -92,7 +97,7 @@ class FormatTextGenerationSFT(Step):
     def optional_inputs(self) -> List[str]:
         """List of optional inputs, which are not required by the `Step` but used if available,
         which in this case is: `system_prompt`."""
-        return ["system_prompt"]
+        return ["system_prompt", "structured_output"]
 
     @property
     def outputs(self) -> List[str]:
@@ -123,8 +128,41 @@ class FormatTextGenerationSFT(Step):
 
                 item["messages"] = [
                     {"role": "user", "content": item["instruction"]},  # type: ignore
-                    {"role": "assistant", "content": item["generation"]},  # type: ignore
                 ]
+                if self.function_calling:
+                    # TODO: Review the case for glaive style datasets to transform those
+                    # directly even if we aren't creating that directly. In which case,
+                    # we would need to transform those to json schemas and use the helper functions.
+                    tool_call_id = "".join(
+                        random.choices(string.ascii_letters + string.digits, k=9)
+                    )
+
+                    function_name = item["structured_output"]["schema"].get("title", "")
+                    tool_calls = {
+                        "id": tool_call_id,
+                        "type": "function",
+                        "function": {
+                            "name": function_name,
+                            # TODO: This must be a json string, we need to check if we need to do json.dumps
+                            "arguments": json.dumps(item["generation"]),
+                        },
+                    }
+                    item["messages"].append(
+                        {"role": "assistant", "tool_calls": [tool_calls]}
+                    )
+                    # TODO: To this content applies the same as the previous TODO.
+                    item["messages"].append(
+                        {
+                            "role": "tool",
+                            "content": json.dumps(item["generation"]),
+                            "tool_call_id": tool_call_id,
+                        }
+                    )
+                else:
+                    item["messages"].append(
+                        {"role": "assistant", "content": item["generation"]}
+                    )
+
                 if (
                     "system_prompt" in item
                     and isinstance(item["system_prompt"], str)  # type: ignore
