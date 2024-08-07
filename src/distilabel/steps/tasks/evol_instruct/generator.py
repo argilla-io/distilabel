@@ -126,13 +126,35 @@ class EvolInstructGenerator(GeneratorTask):
         default=1024,
         description="Defines the length (in bytes) that the generated instruction needs to be lower than, to be considered valid.",
     )
-
     seed: RuntimeParameter[int] = Field(
         default=42,
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
+
+    outputs: List[str] = Field(
+        default=["instruction", "model_name", "answers"],
+        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answer' is added.",
+    )
+
     _seed_texts: Optional[List[str]] = PrivateAttr(default_factory=list)
     _prompts: Optional[List[str]] = PrivateAttr(default_factory=list)
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        np.random.seed(self.seed)
+
+        self._seed_texts = self._generate_seed_texts()
+        self._prompts = [
+            np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
+        ]
+        self.outputs = (
+            self.outputs if self.generate_answers else ["instruction", "model_name"]
+        )
 
     def _generate_seed_texts(self) -> List[str]:
         """Generates a list of seed texts to be used as part of the starting prompts for the task.
@@ -160,20 +182,6 @@ class EvolInstructGenerator(GeneratorTask):
             )
         return seed_texts
 
-    @override
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
-        """
-        super().model_post_init(__context)
-
-        np.random.seed(self.seed)
-
-        self._seed_texts = self._generate_seed_texts()
-        self._prompts = [
-            np.random.choice(self._seed_texts) for _ in range(self.num_instructions)
-        ]
-
     @cached_property
     def _english_nouns(self) -> List[str]:
         """A list of English nouns to be used as part of the starting prompts for the task.
@@ -187,15 +195,6 @@ class EvolInstructGenerator(GeneratorTask):
         )
         with open(_path, mode="r") as f:
             return [line.strip() for line in f.readlines()]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `instruction`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
-        _outputs = ["instruction", "model_name"]
-        if self.generate_answers:
-            _outputs.append("answer")
-        return _outputs
 
     def format_output(  # type: ignore
         self, instruction: str, answer: Optional[str] = None

@@ -133,13 +133,16 @@ class DeitaFiltering(GlobalStep):
         description="The distance metric to use. Currently only 'cosine' is supported.",
     )
 
-    @property
-    def inputs(self) -> List[str]:
-        return ["evol_instruction_score", "evol_response_score", "embedding"]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["deita_score", "nearest_neighbor_distance", "deita_score_computed_with"]
+    inputs: List[str] = Field(
+        default=["evol_instruction_score", "evol_response_score", "embedding"]
+    )
+    outputs: List[str] = Field(
+        default=[
+            "deita_score",
+            "nearest_neighbor_distance",
+            "deita_score_computed_with",
+        ]
+    )
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         """Filter the dataset based on the DEITA score and the cosine distance between the

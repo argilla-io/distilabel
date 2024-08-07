@@ -15,6 +15,9 @@
 import warnings
 from typing import Any, Dict, List, Union
 
+from pydantic import Field
+from typing_extensions import override
+
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
 
@@ -139,15 +142,26 @@ class StructuredGeneration(Task):
 
     use_system_prompt: bool = False
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `instruction` and the `structured_output`.
-        Optionally, if the `use_system_prompt` flag is set to True, then the
-        `system_prompt` will be used too."""
-        columns = ["instruction", "structured_output"]
-        if self.use_system_prompt:
-            columns = ["system_prompt"] + columns
-        return columns
+    inputs: List[str] = Field(
+        default=["instruction", "structured_output", "system_prompt"],
+        description="The input for the task are the 'instruction' and the 'structured_output'. Optionally, if the `use_system_prompt=True`, then 'system_prompt' will be used too.",
+    )
+    outputs: List[str] = Field(
+        default=["generation", "model_name"],
+        description="The output for the task is the 'generation' and the 'model_name'.",
+    )
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+        self.inputs = (
+            self.inputs
+            if self.use_system_prompt
+            else ["instruction", "structured_output"]
+        )
 
     def format_input(self, input: Dict[str, Any]) -> StructuredInput:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -171,11 +185,6 @@ class StructuredGeneration(Task):
                 )
 
         return (messages, input.get("structured_output", None))  # type: ignore
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        return ["generation", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

@@ -1123,14 +1123,6 @@ class TestBasePipeline:
     def test_pipeline_error_from_requirements(self):
         @requirements(["distilabel>=0.0.1"])
         class CustomStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
                 for input in inputs:
                     input["response"] = "unit test"

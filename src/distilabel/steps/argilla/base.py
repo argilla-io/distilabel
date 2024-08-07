@@ -15,7 +15,7 @@
 import importlib.util
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
@@ -127,13 +127,6 @@ class ArgillaBase(Step, ABC):
             is not None
         )
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs of the step is an empty list, since the steps subclassing from this one, will
-        always be leaf nodes and won't propagate the inputs neither generate any outputs.
-        """
-        return []
-
     def load(self) -> None:
         """Method to perform any initialization logic before the `process` method is
         called. For example, to load an LLM, stablish a connection to a database, etc.
@@ -148,10 +141,6 @@ class ArgillaBase(Step, ABC):
             )
 
         self._client_init()
-
-    @property
-    @abstractmethod
-    def inputs(self) -> List[str]: ...
 
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput": ...

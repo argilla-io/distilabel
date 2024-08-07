@@ -57,7 +57,7 @@ class TestEvolQuality:
                 {
                     "instruction": "test",
                     "response": "mock",
-                    "evolved_response": "output",
+                    "evolved_responses": "output",
                     "model_name": "test",
                 }
             ]

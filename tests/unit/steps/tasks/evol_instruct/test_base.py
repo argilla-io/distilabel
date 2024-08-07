@@ -66,7 +66,7 @@ class TestEvolInstruct:
             [
                 {
                     "instruction": "test",
-                    "evolved_instruction": "output",
+                    "evolved_instructions": "output",
                     "model_name": "test",
                 }
             ]
@@ -106,8 +106,8 @@ class TestEvolInstruct:
             [
                 {
                     "instruction": "test",
-                    "evolved_instruction": "output",
-                    "answer": "output",
+                    "evolved_instructions": "output",
+                    "answers": "output",
                     "model_name": "test",
                 }
             ]

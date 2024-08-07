@@ -182,6 +182,9 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
     input_mappings: Dict[str, str] = {}
     output_mappings: Dict[str, str] = {}
 
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
+
     _built_from_decorator: bool = PrivateAttr(default=False)
     _logger: "Logger" = PrivateAttr(None)
 
@@ -194,8 +197,8 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
             self.pipeline = _GlobalPipelineManager.get_pipeline()
 
         if self.pipeline is None:
-            _logger = logging.getLogger(f"distilabel.step.{self.name}")
-            _logger.warning(
+            self._logger = logging.getLogger(f"distilabel.step.{self.name}")
+            self._logger.warning(
                 f"Step '{self.name}' hasn't received a pipeline, and it hasn't been"
                 " created within a `Pipeline` context. Please, use"
                 " `with Pipeline() as pipeline:` and create the step within the context."
@@ -367,26 +370,6 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
             `True` if the step is a normal step, `False` otherwise.
         """
         return not self.is_generator and not self.is_global
-
-    @property
-    def inputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step needs as input.
-
-        Returns:
-            List of strings with the names of the columns that the step needs as input.
-        """
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step will produce as
-        output.
-
-        Returns:
-            List of strings with the names of the columns that the step will produce as
-            output.
-        """
-        return []
 
     @cached_property
     def process_parameters(self) -> List[inspect.Parameter]:
@@ -657,10 +640,4 @@ class GlobalStep(Step, ABC):
     to train a model, to perform a global aggregation, etc.
     """
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        return []
+    pass

@@ -127,17 +127,14 @@ class EvolQuality(Task):
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to set a random seed.",
     )
 
-    @override
-    def model_post_init(self, __context: Any) -> None:
-        """Override this method to perform additional initialization after `__init__` and `model_construct`.
-        This is useful if you want to do some validation that requires the entire model to be initialized.
-        """
-        super().model_post_init(__context)
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task are the `instruction` and `response`."""
-        return ["instruction", "response"]
+    inputs: List[str] = Field(
+        default=["instruction", "response"],
+        description="The inputs for the task are the 'instructions' and 'response'.",
+    )
+    outputs: List[str] = Field(
+        default=["model_name", "evolved_responses"],
+        description="The output for the task are 'model_name'. Optionally, if `store_evolutions=True` 'evolved_response' else 'evolved_responses'.",
+    )
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -145,35 +142,19 @@ class EvolQuality(Task):
         `system_prompt` is added as the first message if it exists."""
         return [{"role": "user", "content": input}]
 
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `evolved_response/s` and the `model_name`."""
-        # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
-        # this could be handled always and the value could be included within the DAG validation when
-        # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
-        _outputs = [
-            ("evolved_response" if not self.store_evolutions else "evolved_responses"),
-            "model_name",
-        ]
-
-        return _outputs
-
     def format_output(self, responses: Union[str, List[str]]) -> Dict[str, Any]:  # type: ignore
-        """The output for the task is a dict with: `evolved_response` or `evolved_responses`,
-        depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
-        and, finally, the `model_name`.
+        """The output for the task is a dict with: `evolved_responses` and, finally, the `model_name`.
 
         Args:
             responses: The responses to be included within the output.
 
         Returns:
-            if `store_evolutions=False` return {"evolved_response": ..., "model_name": ...};
-            if `store_evolutions=True` return {"evolved_responses": ..., "model_name": ...}.
+            {"evolved_responses": ..., "model_name": ...};
         """
         _output = {}
 
         if not self.store_evolutions:
-            _output["evolved_response"] = responses[-1]
+            _output["evolved_responses"] = responses[-1]
         else:
             _output["evolved_responses"] = responses
 

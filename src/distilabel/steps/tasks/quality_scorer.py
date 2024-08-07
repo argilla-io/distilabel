@@ -23,7 +23,7 @@ else:
 from typing import Any, Dict, List, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -112,6 +112,15 @@ class QualityScorer(Task):
         ```
     """
 
+    inputs: List[str] = Field(
+        default=["instruction", "responses"],
+        description="The inputs for the task are 'instruction' and 'responses'.",
+    )
+    outputs: List[str] = Field(
+        default=["scores", "model_name"],
+        description="The output for the task is a list of 'scores' and their 'model_name' containing the quality score for each response in 'responses'.",
+    )
+
     _template: Union[Template, None] = PrivateAttr(...)
 
     def load(self) -> None:
@@ -128,11 +137,6 @@ class QualityScorer(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are `instruction` and `responses`."""
-        return ["instruction", "responses"]
-
     def format_input(self, input: Dict[str, Any]) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -144,12 +148,6 @@ class QualityScorer(Task):
                 ),
             }
         ]
-
-    @property
-    def outputs(self):
-        """The output for the task is a list of `scores` containing the quality score for each
-        response in `responses`."""
-        return ["scores", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

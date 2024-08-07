@@ -23,7 +23,7 @@ else:
 from typing import Any, Dict, List, Optional, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -65,6 +65,15 @@ class InstructionBacktranslation(Task):
         ```
     """
 
+    inputs: List[str] = Field(
+        default=["instruction", "generation"],
+        description="The input for the task is the 'instruction', and the 'generation' for it.",
+    )
+    outputs: List[str] = Field(
+        default=["score", "reason", "model_name"],
+        description="The output for the task is the 'score', 'reason' and the 'model_name'.",
+    )
+
     _template: Optional["Template"] = PrivateAttr(default=...)
 
     def load(self) -> None:
@@ -81,11 +90,6 @@ class InstructionBacktranslation(Task):
 
         self._template = Template(open(_path).read())
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`, and the `generation` for it."""
-        return ["instruction", "generation"]
-
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
@@ -97,11 +101,6 @@ class InstructionBacktranslation(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `score`, `reason` and the `model_name`."""
-        return ["score", "reason", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

@@ -144,6 +144,14 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
     truncation: bool = False
     max_length: Union[int, None] = None
 
+    inputs: List[str] = Field(
+        default=["response", "instruction", "conversation"],
+        description="Either `response` and `instruction`, or a `conversation` columns.",
+    )
+    outputs: List[str] = Field(
+        default=["score"], description="The `score` given by the reward model."
+    )
+
     _model: Union["PreTrainedModel", None] = PrivateAttr(None)
     _tokenizer: Union["PreTrainedTokenizer", None] = PrivateAttr(None)
 
@@ -177,16 +185,6 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
             trust_remote_code=self.trust_remote_code,
             token=token,
         )
-
-    @property
-    def inputs(self) -> List[str]:
-        """Either `response` and `instruction`, or a `conversation` columns."""
-        return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """The `score` given by the reward model."""
-        return ["score"]
 
     def _prepare_conversation(self, input: Dict[str, Any]) -> "ChatType":
         if "instruction" in input and "response" in input:

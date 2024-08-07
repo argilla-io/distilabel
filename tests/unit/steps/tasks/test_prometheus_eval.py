@@ -51,35 +51,35 @@ class TestPrometheusAbsEval:
                 "helpfulness",
                 True,
                 "absolute_with_reference.jinja2",
-                {"instruction": "A", "generation": "B", "reference": "C"},
+                {"instruction": "A", "generations": "B", "reference": "C"},
             ),
             (
                 "absolute",
                 "harmlessness",
                 False,
                 "absolute_without_reference.jinja2",
-                {"instruction": "A", "generation": "B"},
+                {"instruction": "A", "generations": "B"},
             ),
             (
                 "absolute",
                 "honesty",
                 True,
                 "absolute_with_reference.jinja2",
-                {"instruction": "A", "generation": "B", "reference": "C"},
+                {"instruction": "A", "generations": "B", "reference": "C"},
             ),
             (
                 "absolute",
                 "factual-validity",
                 False,
                 "absolute_without_reference.jinja2",
-                {"instruction": "A", "generation": "B"},
+                {"instruction": "A", "generations": "B"},
             ),
             (
                 "absolute",
                 "reasoning",
                 True,
                 "absolute_with_reference.jinja2",
-                {"instruction": "A", "generation": "B", "reference": "C"},
+                {"instruction": "A", "generations": "B", "reference": "C"},
             ),
             (
                 "relative",
@@ -156,7 +156,7 @@ class TestPrometheusAbsEval:
         task.load()
 
         with pytest.raises(KeyError, match="reference"):
-            task.format_input(input={"instruction": "A", "generation": "B"})
+            task.format_input(input={"instruction": "A", "generations": "B"})
 
         # `mode=absolute` and `generation` is not a string
         task = PrometheusEval(
@@ -171,9 +171,9 @@ class TestPrometheusAbsEval:
 
         with pytest.raises(
             ValueError,
-            match=r"Provided \`generation\` is of type \<class 'int'\> but a string should be provided instead.",
+            match=r"Provided \`generations\` is of type \<class 'int'\> but a string should be provided instead.",
         ):
-            task.format_input(input={"instruction": "A", "generation": 1})
+            task.format_input(input={"instruction": "A", "generations": 1})
 
         # `mode=relative` and `generations` is not a list with exactly 2 elements
         task = PrometheusEval(

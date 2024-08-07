@@ -7,14 +7,13 @@ The [`Step`][distilabel.steps.Step] is intended to be used within the scope of a
 Assuming that we have a [`Step`][distilabel.steps.Step] already defined as it follows:
 
 ```python
-class MyStep(Step):
-    @property
-    def inputs(self) -> List[str]:
-        return ["input_field"]
+from distilabel.steps import Step, StepInput
+from distilabel.steps.typing import StepOutput
+from pydantic import Field
 
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field"]
+class MyStep(Step):
+    inputs: List[str] = Field(default=["input_field"])
+    outputs: List[str] = Field(default=["output_field"])
 
     def process(self, inputs: StepInput) -> "StepOutput":
         for input in inputs:
@@ -90,15 +89,12 @@ We can define a custom step by creating a new subclass of the [`Step`][distilabe
     ```python
     from distilabel.steps import Step, StepInput
     from distilabel.steps.typing import StepOutput
+    from pydantic import Field
 
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            ...
+        inputs: List[str] = Field(default=...)
+        outputs: List[str] = Field(default=...)
 
-        @property
-        def outputs(self) -> List[str]:
-            ...
 
         def process(self, *inputs: StepInput) -> StepOutput:
             for input in inputs:

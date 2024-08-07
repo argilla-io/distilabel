@@ -11,12 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import re
 import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
 from jinja2 import Template
+from pydantic import Field
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -239,6 +240,24 @@ class GenerateSentencePair(Task):
     hard_negative: bool = False
     context: str = ""
 
+    inputs: List[str] = Field(
+        default=["anchor"],
+        description="The inputs for the task is the 'anchor' sentence.",
+    )
+    outputs: List[str] = Field(
+        default=["positive", "model_name", "negative"],
+        description="The outputs for the task are the 'positive', as well as the `model_name`, optionally when dealing with `triplet=False` 'negative' sentences are added.",
+    )
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.outputs = self.outputs if self.triplet else ["positive", "model_name"]
+
     def load(self) -> None:
         """Loads the Jinja2 template."""
         super().load()
@@ -252,11 +271,6 @@ class GenerateSentencePair(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task is the `anchor` sentence."""
-        return ["anchor"]
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The inputs are formatted as a `ChatType`, with a system prompt describing the
@@ -294,14 +308,6 @@ class GenerateSentencePair(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the `positive` and `negative` sentences, as well
-        as the `model_name` used to generate the sentences."""
-        columns = ["positive", "negative"] if self.triplet else ["positive"]
-        columns += ["model_name"]
-        return columns
 
     def format_output(
         self, output: Union[str, None], input: Optional[Dict[str, Any]] = None

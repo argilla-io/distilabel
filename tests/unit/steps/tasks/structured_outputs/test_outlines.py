@@ -57,7 +57,6 @@ DUMP_JSON = {
     "chat_template": None,
     "device": None,
     "device_map": None,
-    "token": None,
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {
@@ -84,7 +83,6 @@ DUMP_REGEX = {
     "chat_template": None,
     "device": None,
     "device_map": None,
-    "token": None,
     "use_magpie_template": False,
     "disable_cuda_device_placement": False,
     "type_info": {

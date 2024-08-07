@@ -63,6 +63,16 @@ class LoadDataFromDicts(GeneratorStep):
     data: List[Dict[str, Any]]
 
     @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        if self.data:
+            self.outputs = list(self.data[0].keys())
+
+    @override
     def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
         """Yields batches from a list of dictionaries.
 
@@ -83,8 +93,3 @@ class LoadDataFromDicts(GeneratorStep):
                 batch,
                 True if len(self.data) == 0 else False,
             )
-
-    @property
-    def outputs(self) -> List[str]:
-        """Returns a list of strings with the names of the columns that the step will generate."""
-        return list(self.data[0].keys())

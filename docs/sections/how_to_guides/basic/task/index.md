@@ -125,12 +125,12 @@ from typing import Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
+from pydantic import Field
 
 
 class MyCustomTask(Task):
-    @property
-    def inputs(self) -> List[str]:
-        return ["input_field"]
+    inputs: List[str] = Field(default=["input_field"])
+    outputs: List[str] = Field(default=["output_field", "model_name"])
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         return [
@@ -139,10 +139,6 @@ class MyCustomTask(Task):
                 "content": input["input_field"],
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

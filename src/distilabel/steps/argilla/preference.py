@@ -15,7 +15,7 @@
 import hashlib
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 try:
@@ -27,7 +27,7 @@ from distilabel.steps.argilla.base import ArgillaBase
 from distilabel.steps.base import StepInput
 
 if TYPE_CHECKING:
-    from argilla import RatingQuestion, Suggestion, TextField, TextQuestion
+    from argilla import RatingQuestion, SuggestionSchema, TextField, TextQuestion
 
     from distilabel.steps.typing import StepOutput
 
@@ -56,6 +56,8 @@ class PreferenceToArgilla(ArgillaBase):
             the `ARGILLA_API_URL` environment variable.
         api_key: The API key to authenticate with Argilla. Defaults to `None`, which means it will
             be read from the `ARGILLA_API_KEY` environment variable.
+        inputs: The inputs for the step. Defaults to `["instruction", "generations"].
+            Optionally, one could also provide the "ratings" and the "rationales" for the generations.
 
     Runtime parameters:
         - `api_url`: The base URL to use for the Argilla API requests.
@@ -127,6 +129,14 @@ class PreferenceToArgilla(ArgillaBase):
     """
 
     num_generations: int
+
+    inputs: List[str] = Field(
+        default=["instruction", "generations"],
+        description=(
+            "The inputs for the step are the 'instruction' and the 'generations'. "
+            + "Optionally, one could also provide the 'ratings' and the 'rationales' for the generations."
+        ),
+    )
 
     _id: str = PrivateAttr(default="id")
     _instruction: str = PrivateAttr(...)
@@ -222,41 +232,31 @@ class PreferenceToArgilla(ArgillaBase):
                     rg.RatingQuestion(  # type: ignore
                         name=f"{self._generations}-{idx}-rating",
                         title=f"Rate {self._generations}-{idx} given {self._instruction}.",
-                        description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
-                        if idx != 0
-                        else None,
+                        description=(
+                            f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                            if idx != 0
+                            else None
+                        ),
                         values=[1, 2, 3, 4, 5],
                         required=True if idx == 0 else False,
                     ),
                     rg.TextQuestion(  # type: ignore
                         name=f"{self._generations}-{idx}-rationale",
                         title=f"Specify the rationale for {self._generations}-{idx}'s rating.",
-                        description=f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
-                        if idx != 0
-                        else None,
+                        description=(
+                            f"Ignore this question if the corresponding `{self._generations}-{idx}` field is not available."
+                            if idx != 0
+                            else None
+                        ),
                         required=False,
                     ),
                 ]
             )
         return questions
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the step are the `instruction` and the `generations`. Optionally, one could also
-        provide the `ratings` and the `rationales` for the generations."""
-        return ["instruction", "generations"]
-
-    @property
-    def optional_inputs(self) -> List[str]:
-        """The optional inputs for the step are the `ratings` and the `rationales` for the generations."""
-        return ["ratings", "rationales"]
-
-    def _add_suggestions_if_any(self, input: Dict[str, Any]) -> List["Suggestion"]:
-        """Method to generate the suggestions for the `rg.Record` based on the input.
-
-        Returns:
-            A list of `Suggestion`s for the rating and rationales questions.
-        """
+    def _add_suggestions_if_any(
+        self, input: Dict[str, Any]
+    ) -> List["SuggestionSchema"]:
         # Since the `suggestions` i.e. answers to the `questions` are optional, will default to {}
         suggestions = []
         # If `ratings` is in `input`, then add those as suggestions

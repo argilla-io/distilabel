@@ -332,14 +332,6 @@ class TestDAG:
         self, dummy_generator_step: "GeneratorStep", pipeline: "Pipeline"
     ) -> None:
         class DummyStep3(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self) -> "StepOutput":  # type: ignore
                 yield [{"response": "response1"}]
 
@@ -358,14 +350,6 @@ class TestDAG:
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyStep3(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return []
-
-            @property
-            def outputs(self) -> List[str]:
-                return []
-
             def process(self) -> List[Dict[str, Any]]:
                 return []
 
@@ -392,14 +376,6 @@ class TestDAG:
             runtime_param1: RuntimeParameter[int]
             runtime_param2: RuntimeParameter[int] = 5
 
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self, offset: int = 0) -> "GeneratorStepOutput":
                 yield [{"response": "response1"}], False
 
@@ -422,14 +398,6 @@ class TestDAG:
             runtime_param1: RuntimeParameter[int]
             runtime_param2: RuntimeParameter[int] = 5
 
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self, offset: int = 0) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
 
@@ -445,14 +413,6 @@ class TestDAG:
 
     def test_validate_step_invalid_input_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
 
@@ -473,14 +433,6 @@ class TestDAG:
 
     def test_validate_step_invalid_output_mappings(self, pipeline: "Pipeline") -> None:
         class DummyStep(Step):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self, *inputs: StepInput) -> "StepOutput":
                 yield []
 
@@ -503,14 +455,6 @@ class TestDAG:
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyGeneratorStep(GeneratorStep):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(
                 self, *inputs: StepInput, offset: int = 0
             ) -> "GeneratorStepOutput":  # type: ignore
@@ -531,14 +475,6 @@ class TestDAG:
         self, pipeline: "Pipeline"
     ) -> None:
         class DummyGeneratorStep(GeneratorStep):
-            @property
-            def inputs(self) -> List[str]:
-                return ["instruction"]
-
-            @property
-            def outputs(self) -> List[str]:
-                return ["response"]
-
             def process(self) -> "GeneratorStepOutput":  # type: ignore
                 yield [{"response": "response1"}], False
 

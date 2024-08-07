@@ -84,6 +84,14 @@ class MagpieBase(RuntimeParametersMixin):
         " to steer the LLM to generate content of certain topic, guide the style, etc.",
     )
 
+    def _set_outputs(self):
+        if self.only_instruction:
+            self.outputs = ["instruction", "model_name"]
+        elif self.n_turns == 1:
+            self.outputs = ["instruction", "response", "model_name"]
+        else:
+            self.outputs = ["conversation", "model_name"]
+
     def _prepare_inputs_for_instruction_generation(
         self, inputs: List[Dict[str, Any]]
     ) -> List["ChatType"]:
@@ -313,10 +321,10 @@ class Magpie(Task, MagpieBase):
             of certain topic.
 
     Output columns:
-        - conversation (`ChatType`): the generated conversation which is a list of chat
+        - conversation (`ChatType`, optional): the generated conversation which is a list of chat
             items with a role and a message. Only if `only_instruction=False`.
-        - instruction (`str`): the generated instructions if `only_instruction=True` or `n_turns==1`.
-        - response (`str`): the generated response if `n_turns==1`.
+        - instruction (`str`, optional): the generated instructions if `only_instruction=True` or `n_turns==1`.
+        - response (`str`, optional): the generated response if `n_turns==1`.
         - model_name (`str`): The model name used to generate the `conversation` or `instruction`.
 
     Categories:
@@ -435,6 +443,11 @@ class Magpie(Task, MagpieBase):
         ```
     """
 
+    outputs: List[str] = Field(
+        default=["model_name", "instruction", "response", "conversation"],
+        description="The output for the task is 'model_name'. Optionally 'instructions', and the 'model_name'.",
+    )
+
     def model_post_init(self, __context: Any) -> None:
         """Checks that the provided `LLM` uses the `MagpieChatTemplateMixin`."""
         super().model_post_init(__context)
@@ -447,22 +460,11 @@ class Magpie(Task, MagpieBase):
 
         self.llm.use_magpie_template = True
 
-    @property
-    def inputs(self) -> List[str]:
-        return []
+        self._set_outputs()
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
-
-    @property
-    def outputs(self) -> List[str]:
-        """Either a multi-turn conversation or the instruction generated."""
-        if self.only_instruction:
-            return ["instruction", "model_name"]
-        if self.n_turns == 1:
-            return ["instruction", "response", "model_name"]
-        return ["conversation", "model_name"]
 
     def format_output(
         self,

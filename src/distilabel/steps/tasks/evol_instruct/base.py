@@ -176,10 +176,27 @@ class EvolInstruct(Task):
         description="As `numpy` is being used in order to randomly pick a mutation method, then is nice to seed a random seed.",
     )
 
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`."""
-        return ["instruction"]
+    inputs: List[str] = Field(
+        default=["instruction"],
+        description="The inputs for the task are the 'instruction'.",
+    )
+    outputs: List[str] = Field(
+        default=["instruction", "model_name", "evolved_instructions", "answers"],
+        description="The output for the task are 'instruction', and 'model_name'. Optionally, if `generate_answers=True` 'answers' is added.",
+    )
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.outputs = (
+            self.outputs
+            if self.generate_answers
+            else ["instruction", "model_name", "evolved_instructions"]
+        )
 
     def format_input(self, input: str) -> ChatType:  # type: ignore
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -187,52 +204,29 @@ class EvolInstruct(Task):
         `system_prompt` is added as the first message if it exists."""
         return [{"role": "user", "content": input}]
 
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task are the `evolved_instruction/s`, the `answer` if `generate_answers=True`
-        and the `model_name`."""
-        # TODO: having to define a `model_name` column every time as the `Task.outputs` is not ideal,
-        # this could be handled always and the value could be included within the DAG validation when
-        # a `Task` is used, since all the `Task` subclasses will have an `llm` with a `model_name` attr.
-        _outputs = [
-            (
-                "evolved_instruction"
-                if not self.store_evolutions
-                else "evolved_instructions"
-            ),
-            "model_name",
-        ]
-        if self.generate_answers:
-            _outputs.append("answer" if not self.store_evolutions else "answers")
-        return _outputs
-
     @override
     def format_output(  # type: ignore
         self, instructions: Union[str, List[str]], answers: Optional[List[str]] = None
     ) -> Dict[str, Any]:  # type: ignore
-        """The output for the task is a dict with: `evolved_instruction` or `evolved_instructions`,
-        depending whether the value is either `False` or `True` for `store_evolutions`, respectively;
-        `answer` if `generate_answers=True`; and, finally, the `model_name`.
+        """The output for the task is a dict with `evolved_instructions`, `answers` if `generate_answers=True`; and, finally, the `model_name`.
 
         Args:
             instructions: The instructions to be included within the output.
             answers: The answers to be included within the output if `generate_answers=True`.
 
         Returns:
-            If `store_evolutions=False` and `generate_answers=True` return {"evolved_instruction": ..., "model_name": ..., "answer": ...};
-            if `store_evolutions=True` and `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answer": ...};
-            if `store_evolutions=False` and `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
-            if `store_evolutions=True` and `generate_answers=False` return {"evolved_instructions": ..., "model_name": ...}.
+            if `generate_answers=True` return {"evolved_instructions": ..., "model_name": ..., "answers": ...};
+            if `generate_answers=False` return {"evolved_instruction": ..., "model_name": ...};
         """
         _output = {}
         if not self.store_evolutions:
-            _output["evolved_instruction"] = instructions[-1]
+            _output["evolved_instructions"] = instructions[-1]
         else:
             _output["evolved_instructions"] = instructions
 
         if self.generate_answers and answers:
             if not self.store_evolutions:
-                _output["answer"] = answers[-1]
+                _output["answers"] = answers[-1]
             else:
                 _output["answers"] = answers
 

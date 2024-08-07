@@ -15,6 +15,7 @@
 import warnings
 from typing import TYPE_CHECKING, Any, List, Optional
 
+from pydantic import Field
 from typing_extensions import override
 
 from distilabel.pipeline.utils import group_columns
@@ -92,16 +93,24 @@ class GroupColumns(Step):
     columns: List[str]
     output_columns: Optional[List[str]] = None
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the column names in `columns`."""
-        return self.columns
+    inputs: List[str] = Field(
+        default_factory=list,
+        description="The inputs for the task are the column names in 'columns'.",
+    )
+    outputs: List[str] = Field(
+        default_factory=list,
+        description="The outputs for the task are the column names in 'output_columns' or 'grouped_{column}' for each column in 'columns'.",
+    )
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the column names in `output_columns` or
-        `grouped_{column}` for each column in `columns`."""
-        return (
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.inputs = self.columns
+        self.outputs = (
             self.output_columns
             if self.output_columns is not None
             else [f"grouped_{column}" for column in self.columns]

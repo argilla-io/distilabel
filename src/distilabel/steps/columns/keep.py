@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List
 
+from pydantic import Field
 from typing_extensions import override
 
 from distilabel.steps.base import Step, StepInput
@@ -68,15 +69,24 @@ class KeepColumns(Step):
 
     columns: List[str]
 
-    @property
-    def inputs(self) -> List[str]:
-        """The inputs for the task are the column names in `columns`."""
-        return self.columns
+    inputs: List[str] = Field(
+        default_factory=list,
+        description="The inputs for the task are the column names in 'columns'.",
+    )
+    outputs: List[str] = Field(
+        default_factory=list,
+        description="The outputs for the task are the column names in 'columns'.",
+    )
 
-    @property
-    def outputs(self) -> List[str]:
-        """The outputs for the task are the column names in `columns`."""
-        return self.columns
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+
+        self.inputs = self.columns
+        self.outputs = self.columns
 
     @override
     def process(self, *inputs: StepInput) -> "StepOutput":

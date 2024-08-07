@@ -74,7 +74,11 @@ class RuntimeParametersMixin(BaseModel):
                 runtime_parameters[name] = attr.runtime_parameters_names
 
             # `field: List[RuntiemParametersMixin]`
-            if isinstance(attr, list) and isinstance(attr[0], RuntimeParametersMixin):
+            if (
+                isinstance(attr, list)
+                and len(attr)
+                and isinstance(attr[0], RuntimeParametersMixin)
+            ):
                 runtime_parameters[name] = {
                     str(i): item.runtime_parameters_names for i, item in enumerate(attr)
                 }

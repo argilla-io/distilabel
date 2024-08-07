@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import numpy as np
 from distilabel.pipeline import Pipeline
@@ -24,10 +24,6 @@ if TYPE_CHECKING:
 
 class NumpyBigArrayGenerator(GeneratorStep):
     num_batches: int
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["array"]
 
     def process(self, offset: int = 0) -> "GeneratorStepOutput":
         for i in range(self.num_batches):

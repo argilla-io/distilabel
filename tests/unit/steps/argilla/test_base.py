@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import sys
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import pytest
 from distilabel.pipeline.local import Pipeline
@@ -28,10 +27,6 @@ if TYPE_CHECKING:
 class CustomArgilla(ArgillaBase):
     def load(self) -> None:
         pass
-
-    @property
-    def inputs(self) -> List[str]:
-        return ["instruction"]
 
     def process(self, *inputs: StepInput) -> "StepOutput":
         yield [{}]
@@ -84,9 +79,11 @@ class TestArgilla:
 
         with pytest.raises(
             TypeError,
-            match="Can't instantiate abstract class ArgillaBase with abstract methods inputs, process"
-            if sys.version_info < (3, 12)
-            else "Can't instantiate abstract class ArgillaBase without an implementation for abstract methods 'inputs', 'process'",
+            match=(
+                "Can't instantiate abstract class ArgillaBase with abstract method process"
+                if sys.version_info < (3, 12)
+                else "Can't instantiate abstract class ArgillaBase without an implementation for abstract method 'process'"
+            ),
         ):
             ArgillaBase(name="step", pipeline=Pipeline(name="unit-test-pipeline"))  # type: ignore
 

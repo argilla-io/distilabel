@@ -69,16 +69,16 @@ class TestEmbeddingTaskGenerator:
         )
         task.load()
 
-        assert task.outputs == ["tasks" if not flatten_tasks else "task", "model_name"]
+        assert task.outputs == ["tasks", "model_name"]
 
         result = (
             ([{"tasks": ["A", "B", "C"], "model_name": "test"}], True)
             if not flatten_tasks
             else (
                 [
-                    {"task": "A", "model_name": "test"},
-                    {"task": "B", "model_name": "test"},
-                    {"task": "C", "model_name": "test"},
+                    {"tasks": "A", "model_name": "test"},
+                    {"tasks": "B", "model_name": "test"},
+                    {"tasks": "C", "model_name": "test"},
                 ],
                 True,
             )
@@ -219,7 +219,7 @@ class TestGenerateLongTextMatchingData:
         )
         task.load()
 
-        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+        assert task.format_input({"tasks": "A"})[-1]["content"].startswith(
             "You have been assigned a text matching task: A"
         )
 
@@ -235,8 +235,8 @@ class TestGenerateLongTextMatchingData:
 
         assert task.outputs == ["input", "positive_document", "model_name"]
 
-        assert next(task.process(inputs=[{"task": "A"}])) == [
-            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+        assert next(task.process(inputs=[{"tasks": "A"}])) == [
+            {"tasks": "A", "input": "A", "positive_document": "B", "model_name": "test"}
         ]
 
 
@@ -250,7 +250,7 @@ class TestGenerateShortTextMatchingData:
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
-        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+        assert task.format_input({"tasks": "A"})[-1]["content"].startswith(
             "You have been assigned a text matching task: A"
         )
 
@@ -264,8 +264,8 @@ class TestGenerateShortTextMatchingData:
         )
         task.load()
         assert task.outputs == ["input", "positive_document", "model_name"]
-        assert next(task.process(inputs=[{"task": "A"}])) == [
-            {"task": "A", "input": "A", "positive_document": "B", "model_name": "test"}
+        assert next(task.process(inputs=[{"tasks": "A"}])) == [
+            {"tasks": "A", "input": "A", "positive_document": "B", "model_name": "test"}
         ]
 
     def test_reproducibility(self) -> None:
@@ -282,7 +282,7 @@ class TestGenerateShortTextMatchingData:
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
             task.load()
-            unique_prompts.add(task.format_input({"task": "A"})[-1]["content"])
+            unique_prompts.add(task.format_input({"tasks": "A"})[-1]["content"])
 
         assert len(unique_prompts) == 1
 
@@ -301,7 +301,7 @@ class TestGenerateTextClassificationData:
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
-        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+        assert task.format_input({"tasks": "A"})[-1]["content"].startswith(
             "You have been assigned a text classification task: A"
         )
 
@@ -319,9 +319,9 @@ class TestGenerateTextClassificationData:
         )
         task.load()
         assert task.outputs == ["input_text", "label", "misleading_label", "model_name"]
-        assert next(task.process(inputs=[{"task": "A"}])) == [
+        assert next(task.process(inputs=[{"tasks": "A"}])) == [
             {
-                "task": "A",
+                "tasks": "A",
                 "input_text": "A",
                 "label": "B",
                 "misleading_label": "C",
@@ -345,7 +345,7 @@ class TestGenerateTextClassificationData:
                 pipeline=Pipeline(name="unit-test-pipeline"),
             )
             task.load()
-            unique_prompts.add(task.format_input({"task": "A"})[-1]["content"])
+            unique_prompts.add(task.format_input({"tasks": "A"})[-1]["content"])
 
         assert len(unique_prompts) == 1
 
@@ -368,7 +368,7 @@ class TestGenerateTextRetrievalData:
             pipeline=Pipeline(name="unit-test-pipeline"),
         )
         task.load()
-        assert task.format_input({"task": "A"})[-1]["content"].startswith(
+        assert task.format_input({"tasks": "A"})[-1]["content"].startswith(
             "You have been assigned a retrieval task: A"
         )
 
@@ -395,9 +395,9 @@ class TestGenerateTextRetrievalData:
             "hard_negative_document",
             "model_name",
         ]
-        assert next(task.process(inputs=[{"task": "A"}])) == [
+        assert next(task.process(inputs=[{"tasks": "A"}])) == [
             {
-                "task": "A",
+                "tasks": "A",
                 "user_query": "A",
                 "positive_document": "B",
                 "hard_negative_document": "C",

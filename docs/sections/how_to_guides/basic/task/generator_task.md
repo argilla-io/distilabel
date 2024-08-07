@@ -14,10 +14,12 @@ from typing_extensions import override
 from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.typing import ChatType
 from distilabel.steps.typing import GeneratorOutput
+from pydantic import Field
 
 
 class MyCustomTask(GeneratorTask):
     instruction: str
+    outputs: List[str] = Field(default=["output_field", "model_name"])
 
     @override
     def process(self, offset: int = 0) -> GeneratorOutput:
@@ -33,10 +35,6 @@ class MyCustomTask(GeneratorTask):
             self.format_output(output=output, input=None)
         )
         yield output
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]
@@ -82,6 +80,7 @@ from distilabel.steps.tasks.typing import ChatType
 
 
 class MyCustomTask(GeneratorTask):
+    outputs: List[str] = Field(default=["output_field", "model_name"])
     @override
     def process(self, offset: int = 0) -> GeneratorOutput:
         output = self.llm.generate(
@@ -94,10 +93,6 @@ class MyCustomTask(GeneratorTask):
             self.format_output(output=output, input=None)
         )
         yield output
-
-    @property
-    def outputs(self) -> List[str]:
-        return ["output_field", "model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

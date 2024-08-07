@@ -15,6 +15,8 @@
 import re
 import sys
 
+from typing_extensions import override
+
 if sys.version_info < (3, 9):
     import importlib_resources
 else:
@@ -23,7 +25,7 @@ else:
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jinja2 import Template
-from pydantic import PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -51,9 +53,11 @@ class UltraFeedback(Task):
         - generations (`List[str]`): The text outputs to evaluate for the given instruction.
 
     Output columns:
-        - ratings (`List[float]`): The ratings for each of the provided text outputs.
         - rationales (`List[str]`): The rationales for each of the provided text outputs.
+        - ratings (`List[float]`): The ratings for each of the provided text outputs.
         - model_name (`str`): The name of the model used to generate the ratings and rationales.
+        - rationales (`List[str]`, optional): The rationales for ratings.
+        - types (`List[str]`, optional): The types for ratings.
 
     Categories:
         - preference
@@ -125,6 +129,21 @@ class UltraFeedback(Task):
         "overall-rating",
     ] = "overall-rating"
 
+    inputs: List[str] = Field(
+        default=["instruction", "generations"],
+        description="The input for the task is the 'instruction', and the 'generations' for it.",
+    )
+    outputs: List[str] = Field(
+        default=[
+            "rationales",
+            "ratings",
+            "model_name",
+            "types",
+            "rationales-for-ratings",
+        ],
+        description="The output for the task is the 'rationales', 'ratings' and 'model_name'. Optionally, 'types' and 'rationales-for-ratings' in case `aspect in ['helpfulness', 'truthfulness']´.",
+    )
+
     _system_prompt: str = PrivateAttr(
         default=(
             "Your role is to evaluate text quality based on given criteria.\n"
@@ -135,6 +154,18 @@ class UltraFeedback(Task):
         )
     )
     _template: Optional["Template"] = PrivateAttr(default=...)
+
+    @override
+    def model_post_init(self, __context: Any) -> None:
+        """Override this method to perform additional initialization after `__init__` and `model_construct`.
+        This is useful if you want to do some validation that requires the entire model to be initialized.
+        """
+        super().model_post_init(__context)
+        self.outputs = (
+            self.outputs
+            if self.aspect in ["helpfulness", "truthfulness"]
+            else ["rationales", "ratings", "model_name"]
+        )
 
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""
@@ -150,11 +181,6 @@ class UltraFeedback(Task):
         )
 
         self._template = Template(open(_path).read())
-
-    @property
-    def inputs(self) -> List[str]:
-        """The input for the task is the `instruction`, and the `generations` for it."""
-        return ["instruction", "generations"]
 
     def format_input(self, input: Dict[str, Any]) -> ChatType:
         """The input is formatted as a `ChatType` assuming that the instruction
@@ -173,16 +199,6 @@ class UltraFeedback(Task):
                 ),
             },
         ]
-
-    @property
-    def outputs(self) -> List[str]:
-        """The output for the task is the `generation` and the `model_name`."""
-        columns = []
-        if self.aspect in ["honesty", "instruction-following", "overall-rating"]:
-            columns = ["ratings", "rationales"]
-        elif self.aspect in ["helpfulness", "truthfulness"]:
-            columns = ["types", "rationales", "ratings", "rationales-for-ratings"]
-        return columns + ["model_name"]
 
     def format_output(
         self, output: Union[str, None], input: Dict[str, Any]

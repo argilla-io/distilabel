@@ -27,14 +27,6 @@ from ..pipeline.utils import DummyGeneratorStep
 def test_add_requirements_decorator():
     @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
-
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
                 input["response"] = "unit test"
@@ -57,14 +49,6 @@ def test_add_requirements_to_pipeline(
 
     @requirements(["distilabel>=0.0.1"])
     class CustomStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
-
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
                 input["response"] = "unit test"
@@ -72,14 +56,6 @@ def test_add_requirements_to_pipeline(
 
     @requirements(["numpy"])
     class OtherStep(Step):
-        @property
-        def inputs(self) -> List[str]:
-            return ["instruction"]
-
-        @property
-        def outputs(self) -> List[str]:
-            return ["response"]
-
         def process(self, inputs: StepInput) -> StepOutput:  # type: ignore
             for input in inputs:
                 input["response"] = "unit test"
