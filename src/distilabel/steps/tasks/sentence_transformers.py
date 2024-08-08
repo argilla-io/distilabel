@@ -234,6 +234,28 @@ class GenerateSentencePair(Task):
         result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
         ```
 
+        Generating structured data with default schema (**applies to every action**):
+
+        ```python
+        from distilabel.steps.tasks import GenerateSentencePair
+        from distilabel.llms import InferenceEndpointsLLM
+
+        generate_sentence_pair = GenerateSentencePair(
+            triplet=True, # `False` to generate only positive
+            action="query",
+            context="Argilla is an open-source data curation platform for LLMs.",
+            hard_negative=True,
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            input_batch_size=10,
+            use_default_structured_output=True
+        )
+
+        generate_sentence_pair.load()
+
+        result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
+        ```
     """
 
     triplet: bool = False
@@ -351,6 +373,7 @@ class GenerateSentencePair(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
+        from distilabel.llms import InferenceEndpointsLLM
         from distilabel.llms.base import AsyncLLM
 
         if self.triplet:
@@ -372,7 +395,9 @@ class GenerateSentencePair(Task):
             }
 
         # To determine instructor or outlines format
-        if isinstance(self.llm, AsyncLLM):
+        if isinstance(self.llm, AsyncLLM) and not isinstance(
+            self.llm, InferenceEndpointsLLM
+        ):
             return {"schema": schema}
 
         return {"format": "json", "schema": schema}
@@ -387,4 +412,9 @@ class GenerateSentencePair(Task):
         Returns:
             Formatted output.
         """
-        return orjson.loads(output)
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            if self.triplet:
+                return {"positive": None, "negative": None}
+            return {"positive": None}
