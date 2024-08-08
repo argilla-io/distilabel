@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Uni
 
 import orjson
 from jinja2 import Template
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -68,23 +69,6 @@ POSITIVE_NEGATIVE_SYSTEM_PROMPT: str = (
 )
 
 CONTEXT_INTRO: Final[str] = " Take into account the context given."
-
-DEFAULT_SO_POSITIVE: Final[Dict[str, Any]] = {
-    "properties": {"positive": {"title": "Positive", "type": "string"}},
-    "required": ["positive"],
-    "title": "Schema",
-    "type": "object",
-}
-
-DEFAULT_SO_POSITIVE_NEGATIVE: Final[Dict[str, Any]] = {
-    "properties": {
-        "positive": {"title": "Positive", "type": "string"},
-        "negative": {"title": "Negative", "type": "string"},
-    },
-    "required": ["positive", "negative"],
-    "title": "Schema",
-    "type": "object",
-}
 
 
 class GenerateSentencePair(Task):
@@ -256,15 +240,9 @@ class GenerateSentencePair(Task):
     action: GenerationAction
     hard_negative: bool = False
     context: str = ""
-    use_default_structured_output: bool = False
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
-        if self.use_default_structured_output and not self.llm.structured_output:
-            # In case the default structured output is required, we have to set it before
-            # the LLM is loaded
-            self.llm.structured_output = self.get_structured_output()
-
         super().load()
 
         _path = str(
@@ -365,10 +343,34 @@ class GenerateSentencePair(Task):
 
         return {"positive": groups[0].strip()}
 
+    @override
     def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
         from distilabel.llms.base import AsyncLLM
 
-        schema = DEFAULT_SO_POSITIVE_NEGATIVE if self.triplet else DEFAULT_SO_POSITIVE
+        if self.triplet:
+            schema = {
+                "properties": {
+                    "positive": {"title": "Positive", "type": "string"},
+                    "negative": {"title": "Negative", "type": "string"},
+                },
+                "required": ["positive", "negative"],
+                "title": "Schema",
+                "type": "object",
+            }
+        else:
+            schema = {
+                "properties": {"positive": {"title": "Positive", "type": "string"}},
+                "required": ["positive"],
+                "title": "Schema",
+                "type": "object",
+            }
+
         # To determine instructor or outlines format
         if isinstance(self.llm, AsyncLLM):
             return {"schema": schema}
@@ -376,4 +378,13 @@ class GenerateSentencePair(Task):
         return {"format": "json", "schema": schema}
 
     def _format_structured_output(self, output: str) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with either `positive`, or `positive` and `negative` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
         return orjson.loads(output)
