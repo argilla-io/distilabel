@@ -29,7 +29,7 @@ from huggingface_hub.file_download import hf_hub_download
 from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
-from distilabel.constants import STEP_ATTR_NAME
+from distilabel.constants import STEP_ATTR_NAME, STEPS_OUTPUTS_PATH
 from distilabel.utils.card.dataset_card import (
     DistilabelDatasetCard,
     size_categories_parser,
@@ -540,7 +540,7 @@ def create_distiset(  # noqa: C901
 
     logger = logging.getLogger("distilabel.distiset")
 
-    data_dir = Path(data_dir)
+    data_dir = Path(data_dir) / STEPS_OUTPUTS_PATH
 
     distiset = Distiset()
     for file in data_dir.iterdir():

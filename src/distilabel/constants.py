@@ -25,6 +25,10 @@ ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
 CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
 LAST_BATCH_SENT_FLAG: Final[str] = "last_batch_sent"
 
+# Data paths constants
+STEPS_OUTPUTS_PATH = "steps_outputs"
+STEPS_ARTIFACTS_PATH = "steps_artifacts"
+
 
 __all__ = [
     "STEP_ATTR_NAME",

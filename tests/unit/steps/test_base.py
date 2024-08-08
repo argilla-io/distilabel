@@ -15,8 +15,8 @@
 from typing import List, Optional
 
 import pytest
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step

@@ -46,6 +46,8 @@ from distilabel.constants import (
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,
+    STEPS_ARTIFACTS_PATH,
+    STEPS_OUTPUTS_PATH,
 )
 from distilabel.distiset import create_distiset
 from distilabel.mixins.requirements import RequirementsMixin
@@ -351,6 +353,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # no missing runtime parameters, batch sizes are correct, etc.
         self.dag.validate()
 
+        self._set_pipeline_artifacts_path_in_steps()
+
         # Set the initial load status for all the steps
         self._init_steps_load_status()
 
@@ -360,12 +364,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # Load the `_BatchManager` from cache or create one from scratch
         self._load_batch_manager(use_cache)
 
-        if to_install := self.requirements_to_install():
-            # Print the list of requirements like they would appear in a requirements.txt
-            to_install_list = "\n" + "\n".join(to_install)
-            msg = f"Please install the following requirements to run the pipeline: {to_install_list}"
-            self._logger.error(msg)
-            raise ModuleNotFoundError(msg)
+        # Check pipeline requirements are installed
+        self._check_requirements()
 
         # Setup the filesystem that will be used to pass the data of the `_Batch`es
         self._setup_fsspec(storage_parameters)
@@ -383,7 +383,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 " Returning `Distiset` from cache data..."
             )
             distiset = create_distiset(
-                self._cache_location["data"],
+                data_dir=self._cache_location["data"],
                 pipeline_path=self._cache_location["pipeline"],
                 log_filename_path=self._cache_location["log_file"],
                 enable_metadata=self._enable_metadata,
@@ -446,8 +446,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             if isinstance(step_name, GeneratorStep):
                 raise ValueError(
-                    "There is already a `GeneratorStep` in the pipeline, you can either pass a `dataset` to the "
-                    f"run method, or create a `GeneratorStep` explictly. `GeneratorStep`: {step}"
+                    "There is already a `GeneratorStep` in the pipeline, you can either"
+                    " pass a `dataset` to the run method, or create a `GeneratorStep` explictly."
+                    f" `GeneratorStep`: {step}"
                 )
         loader = make_generator_step(dataset)
         self.dag.add_root_step(loader)
@@ -470,6 +471,27 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         the pipeline."""
         for step_name in self.dag:
             self._steps_load_status[step_name] = _STEP_NOT_LOADED_CODE
+
+    def _set_pipeline_artifacts_path_in_steps(self) -> None:
+        """Sets the attribute `_pipeline_artifacts_path` in all the `Step`s of the pipeline,
+        so steps can use it to get the path to save the generated artifacts."""
+        artifacts_path = self._cache_location["data"] / STEPS_ARTIFACTS_PATH
+        for name in self.dag:
+            step: "_Step" = self.dag.get_step(name)[STEP_ATTR_NAME]
+            step.set_pipeline_artifacts_path(path=artifacts_path)
+
+    def _check_requirements(self) -> None:
+        """Checks if the dependencies required to run the pipeline are installed.
+
+        Raises:
+            ModuleNotFoundError: if one or more requirements are missing.
+        """
+        if to_install := self.requirements_to_install():
+            # Print the list of requirements like they would appear in a requirements.txt
+            to_install_list = "\n" + "\n".join(to_install)
+            msg = f"Please install the following requirements to run the pipeline: {to_install_list}"
+            self._logger.error(msg)
+            raise ModuleNotFoundError(msg)
 
     def _setup_fsspec(
         self, storage_parameters: Optional[Dict[str, Any]] = None
@@ -692,7 +714,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """Setups the `_WriteBuffer` that will store the data of the leaf steps of the
         pipeline while running, so the `Distiset` can be created at the end.
         """
-        buffer_data_path = self._cache_location["data"]
+        buffer_data_path = self._cache_location["data"] / STEPS_OUTPUTS_PATH
         self._logger.info(f"📝 Pipeline data will be written to '{buffer_data_path}'")
         self._write_buffer = _WriteBuffer(buffer_data_path, self.dag.leaf_steps)
 

@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
     _STEP_LOAD_FAILED_CODE,
@@ -30,7 +31,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
