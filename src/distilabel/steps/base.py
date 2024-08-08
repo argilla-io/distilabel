@@ -543,9 +543,7 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         artifact_directory_path = self.artifacts_directory / name
         artifact_directory_path.mkdir(parents=True, exist_ok=True)
 
-        self._logger.info(
-            f"🏺 Storing '{name}' generated artifact in '{artifact_directory_path}'..."
-        )
+        self._logger.info(f"🏺 Storing '{name}' generated artifact...")
 
         self._logger.debug(
             f"Calling `write_function` to write artifact in '{artifact_directory_path}'..."

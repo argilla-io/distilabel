@@ -130,6 +130,8 @@ class _GlobalPipelineManager:
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
+_ATTRIBUTES_IGNORED_CACHE = ("disable_cuda_device_placement",)
+
 
 class BasePipeline(ABC, RequirementsMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
@@ -259,14 +261,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                         [
                             f"{str(k)}={str(v)}"
                             for k, v in value.items()
-                            if k not in ("disable_cuda_device_placement",)
+                            if k not in _ATTRIBUTES_IGNORED_CACHE
                         ]
                     )
                 elif isinstance(value, (list, tuple)):
                     # runtime_parameters_info
                     step_info += "-".join([str(v) for v in value])
                 elif isinstance(value, (int, str, float, bool)):
-                    if argument != "disable_cuda_device_placement":
+                    if argument not in _ATTRIBUTES_IGNORED_CACHE:
                         # batch_size/name
                         step_info += str(value)
                 else:
@@ -342,12 +344,12 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # cache when the pipeline is run, so it's important to do it first.
         self._set_runtime_parameters(parameters or {})
 
+        if dataset is not None:
+            self._add_dataset_generator_step(dataset)
+
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
-
-        if dataset is not None:
-            self._add_dataset_generator_step(dataset)
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
