@@ -16,6 +16,7 @@ import re
 import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
+import orjson
 from jinja2 import Template
 
 from distilabel.steps.tasks.base import Task
@@ -67,6 +68,23 @@ POSITIVE_NEGATIVE_SYSTEM_PROMPT: str = (
 )
 
 CONTEXT_INTRO: Final[str] = " Take into account the context given."
+
+DEFAULT_SO_POSITIVE: Final[Dict[str, Any]] = {
+    "properties": {"positive": {"title": "Positive", "type": "string"}},
+    "required": ["positive"],
+    "title": "Schema",
+    "type": "object",
+}
+
+DEFAULT_SO_POSITIVE_NEGATIVE: Final[Dict[str, Any]] = {
+    "properties": {
+        "positive": {"title": "Positive", "type": "string"},
+        "negative": {"title": "Negative", "type": "string"},
+    },
+    "required": ["positive", "negative"],
+    "title": "Schema",
+    "type": "object",
+}
 
 
 class GenerateSentencePair(Task):
@@ -238,9 +256,15 @@ class GenerateSentencePair(Task):
     action: GenerationAction
     hard_negative: bool = False
     context: str = ""
+    use_default_structured_output: bool = False
 
     def load(self) -> None:
         """Loads the Jinja2 template."""
+        if self.use_default_structured_output and not self.llm.structured_output:
+            # In case the default structured output is required, we have to set it before
+            # the LLM is loaded
+            self.llm.structured_output = self.get_structured_output()
+
         super().load()
 
         _path = str(
@@ -320,6 +344,9 @@ class GenerateSentencePair(Task):
         if output is None:
             return {"positive": None, "negative": None}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output)
+
         match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
         if match is None:
             formatted_output = {"positive": None}
@@ -337,3 +364,16 @@ class GenerateSentencePair(Task):
             }
 
         return {"positive": groups[0].strip()}
+
+    def get_structured_output(self) -> Dict[str, Any]:
+        from distilabel.llms.base import AsyncLLM
+
+        schema = DEFAULT_SO_POSITIVE_NEGATIVE if self.triplet else DEFAULT_SO_POSITIVE
+        # To determine instructor or outlines format
+        if isinstance(self.llm, AsyncLLM):
+            return {"schema": schema}
+
+        return {"format": "json", "schema": schema}
+
+    def _format_structured_output(self, output: str) -> Dict[str, str]:
+        return orjson.loads(output)
