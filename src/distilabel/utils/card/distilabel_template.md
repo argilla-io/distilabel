@@ -70,6 +70,21 @@ ds = load_dataset("{{ repo_id }}")
 </details>
 {% endfor %}
 
+{% if artifacts %}
+## Artifacts
+
+{% for step_name, artifacts in artifacts.items() %}
+* **Step**: `{{ step_name }}`
+  {% for artifact in artifacts %}
+    * **Artifact name**: `{{ artifact.name }}`
+      {% for name, value in artifact.metadata.items() %}
+        * `{{ name }}`: {{ value }}
+      {% endfor %}
+  {% endfor %}
+{% endfor %}
+
+{% endif %}
+
 {% if references %}
 ## References
 
