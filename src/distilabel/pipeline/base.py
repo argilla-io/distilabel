@@ -18,7 +18,6 @@ import os
 import signal
 import threading
 import time
-import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -128,6 +127,8 @@ class _GlobalPipelineManager:
 _STEP_LOAD_FAILED_CODE = -666
 _STEP_NOT_LOADED_CODE = -999
 
+_PIPELINE_DEFAULT_NAME = "__default_pipeline_name__"
+
 
 class BasePipeline(ABC, RequirementsMixin, _Serializable):
     """Base class for a `distilabel` pipeline.
@@ -185,7 +186,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 Defaults to `None`, but can be helpful to inform in a pipeline to be shared
                 that this requirements must be installed.
         """
-        self.name = name or f"pipeline_{str(uuid.uuid4())[:8]}"
+        self.name = name or _PIPELINE_DEFAULT_NAME
         self.description = description
         self._enable_metadata = enable_metadata
         self.dag = DAG()
@@ -231,6 +232,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+        if self.name == _PIPELINE_DEFAULT_NAME:
+            self.name = f"pipeline_{self._create_signature()[:8]}"
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
