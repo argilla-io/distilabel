@@ -22,8 +22,10 @@ else:
 
 from typing import Any, Dict, List, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PrivateAttr
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -166,6 +168,9 @@ class QualityScorer(Task):
         if output is None:
             return {"scores": [None] * len(input["responses"])}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output, input)
+
         scores = []
         score_lines = output.split("\n")
 
@@ -176,3 +181,52 @@ class QualityScorer(Task):
             if i == len(input["responses"]) - 1:
                 break
         return {"scores": scores}
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        from distilabel.llms import InferenceEndpointsLLM
+        from distilabel.llms.base import AsyncLLM
+
+        schema = {
+            "properties": {
+                "scores": {
+                    "items": {"type": "integer"},
+                    "title": "Scores",
+                    "type": "array",
+                }
+            },
+            "required": ["scores"],
+            "title": "SchemaComplexityScorer",
+            "type": "object",
+        }
+
+        # To determine instructor or outlines format
+        if isinstance(self.llm, AsyncLLM) and not isinstance(
+            self.llm, InferenceEndpointsLLM
+        ):
+            return {"schema": schema}
+
+        return {"format": "json", "schema": schema}
+
+    def _format_structured_output(
+        self, output: str, input: Dict[str, Any]
+    ) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with the scores, and a list with them.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            return {"scores": [None] * len(input["responses"])}
