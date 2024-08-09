@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import glob
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
@@ -324,6 +325,23 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         # >>> result
         # ([{'type': 'function', 'function':...', False)
         ```
+
+        Load data passing a glob pattern:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(
+            data_files="path/to/dataset/*.jsonl",
+            streaming=True
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     data_files: RuntimeParameter[Union[str, Path]] = Field(
@@ -366,7 +384,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 self.num_examples = len(self._dataset)
 
     @staticmethod
-    def _prepare_data_files(
+    def _prepare_data_files(  # noqa: C901
         data_path: UPath,
     ) -> Tuple[Union[str, Sequence[str], Mapping[str, Union[str, Sequence[str]]]], str]:
         """Prepare the loading process by setting the `data_files` attribute.
@@ -387,6 +405,11 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         if data_path.is_file():
             filetype = get_filetype(data_path)
             data_files = str(data_path)
+
+        elif len(glob.glob(str(data_path))) >= 1:
+            filetype = get_filetype(data_path)
+            data_files = str(data_path)
+
         elif data_path.is_dir():
             file_sequence = []
             file_map = defaultdict(list)
