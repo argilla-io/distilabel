@@ -373,11 +373,8 @@ class GenerateSentencePair(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
-        from distilabel.llms import InferenceEndpointsLLM
-        from distilabel.llms.base import AsyncLLM
-
         if self.triplet:
-            schema = {
+            return {
                 "properties": {
                     "positive": {"title": "Positive", "type": "string"},
                     "negative": {"title": "Negative", "type": "string"},
@@ -386,21 +383,12 @@ class GenerateSentencePair(Task):
                 "title": "Schema",
                 "type": "object",
             }
-        else:
-            schema = {
-                "properties": {"positive": {"title": "Positive", "type": "string"}},
-                "required": ["positive"],
-                "title": "Schema",
-                "type": "object",
-            }
-
-        # To determine instructor or outlines format
-        if isinstance(self.llm, AsyncLLM) and not isinstance(
-            self.llm, InferenceEndpointsLLM
-        ):
-            return {"schema": schema}
-
-        return {"format": "json", "schema": schema}
+        return {
+            "properties": {"positive": {"title": "Positive", "type": "string"}},
+            "required": ["positive"],
+            "title": "Schema",
+            "type": "object",
+        }
 
     def _format_structured_output(self, output: str) -> Dict[str, str]:
         """Parses the structured response, which should correspond to a dictionary
