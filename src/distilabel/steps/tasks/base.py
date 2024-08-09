@@ -155,14 +155,25 @@ class _Task(_Step, ABC):
         return output
 
     def _set_default_structured_output(self) -> None:
-        """Prepares the structured output to be set in the selected `LLM`."""
+        """Prepares the structured output to be set in the selected `LLM`.
+
+        If the method `get_structured_output` returns None (the default), there's no need
+        to set anything, as it doesn't apply.
+        If the `use_default_structured_output` and there's no previous structured output
+        set by hand, then decide the type of structured output to select depending on the
+        `LLM` provider.
+        """
+        schema = self.get_structured_output()
+        if not schema:
+            return
+
         if self.use_default_structured_output and not self.llm.structured_output:
             # In case the default structured output is required, we have to set it before
             # the LLM is loaded
             from distilabel.llms import InferenceEndpointsLLM
             from distilabel.llms.base import AsyncLLM
 
-            structured_output = {"schema": self.get_structured_output()}
+            structured_output = {"schema": schema}
             # To determine instructor or outlines format
             if not (
                 isinstance(self.llm, AsyncLLM)
