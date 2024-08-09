@@ -97,6 +97,35 @@ result = next(
 # [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 5], 'distilabel_metadata': {'raw_output_complexity_scorer_0': 'output'}}]
 ```
 
+#### Generate structured output with default schema
+```python
+from distilabel.steps.tasks import ComplexityScorer
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+scorer = ComplexityScorer(
+    llm=InferenceEndpointsLLM(
+        model_id="mistralai/Mistral-7B-Instruct-v0.2",
+    ),
+    use_default_structured_output=use_default_structured_output
+)
+
+scorer.load()
+
+result = next(
+    scorer.process(
+        [{"instructions": ["plain instruction", "highly complex instruction"]}]
+    )
+)
+# result
+# [{'instructions': ['plain instruction', 'highly complex instruction'], 'model_name': 'test', 'scores': [1, 2], 'distilabel_metadata': {'raw_output_complexity_scorer_0': '{ 
+  "scores": [
+    1, 
+    2
+  ]
+}'}}]
+```
+
 
 
 
