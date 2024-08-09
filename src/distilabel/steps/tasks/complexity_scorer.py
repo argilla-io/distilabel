@@ -198,6 +198,16 @@ class ComplexityScorer(Task):
         """Creates the json schema to be passed to the LLM, to enforce generating
         a dictionary with the output which can be directly parsed as a python dictionary.
 
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+        from typing import List
+
+        class SchemaComplexityScorer(BaseModel):
+            scores: List[int]
+        ```
+
         Returns:
             JSON Schema of the response to enforce.
         """
