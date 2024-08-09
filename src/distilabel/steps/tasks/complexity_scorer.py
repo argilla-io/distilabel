@@ -201,10 +201,7 @@ class ComplexityScorer(Task):
         Returns:
             JSON Schema of the response to enforce.
         """
-        from distilabel.llms import InferenceEndpointsLLM
-        from distilabel.llms.base import AsyncLLM
-
-        schema = {
+        return {
             "properties": {
                 "scores": {
                     "items": {"type": "integer"},
@@ -216,14 +213,6 @@ class ComplexityScorer(Task):
             "title": "SchemaComplexityScorer",
             "type": "object",
         }
-
-        # To determine instructor or outlines format
-        if isinstance(self.llm, AsyncLLM) and not isinstance(
-            self.llm, InferenceEndpointsLLM
-        ):
-            return {"schema": schema}
-
-        return {"format": "json", "schema": schema}
 
     def _format_structured_output(
         self, output: str, input: Dict[str, Any]
