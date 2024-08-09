@@ -18,7 +18,7 @@ import re
 import sys
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import fsspec
 import yaml
@@ -30,6 +30,10 @@ from pyarrow.lib import ArrowInvalid
 from typing_extensions import Self
 
 from distilabel.constants import (
+    DISTISET_ARTIFACTS_FOLDER,
+    DISTISET_CONFIG_FOLDER,
+    PIPELINE_CONFIG_FILENAME,
+    PIPELINE_LOG_FILENAME,
     STEP_ATTR_NAME,
     STEPS_ARTIFACTS_PATH,
     STEPS_OUTPUTS_PATH,
@@ -44,11 +48,6 @@ from distilabel.utils.huggingface import get_hf_token
 
 if TYPE_CHECKING:
     from distilabel.pipeline._dag import DAG
-
-
-DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
-PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
-PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 
 
 class Distiset(dict):
@@ -131,10 +130,10 @@ class Distiset(dict):
                 **kwargs,
             )
 
-        if self.artifacts_paths:
+        if self.artifacts_path:
             upload_folder(
                 repo_id=repo_id,
-                folder_path=self.artifacts_paths,
+                folder_path=self.artifacts_path,
                 path_in_repo="artifacts",
                 token=token,
                 repo_type="dataset",
@@ -263,6 +262,7 @@ class Distiset(dict):
             repo_type="dataset",
             token=token,
         )
+
         if self.pipeline_path:
             # If the pipeline.yaml is available, upload it to the Hugging Face Hub as well.
             HfApi().upload_file(
@@ -272,6 +272,7 @@ class Distiset(dict):
                 repo_type="dataset",
                 token=token,
             )
+
         if self.log_filename_path:
             # The same we had with "pipeline.yaml" but with the log file.
             HfApi().upload_file(
@@ -380,6 +381,12 @@ class Distiset(dict):
         )
         fs.makedirs(distiset_config_folder, exist_ok=True)
 
+        if self.artifacts_path:
+            distiset_artifacts_folder = posixpath.join(
+                distiset_path, DISTISET_ARTIFACTS_FOLDER
+            )
+            fs.copy(str(self.artifacts_path), distiset_artifacts_folder, recursive=True)
+
         if save_card:
             # NOTE: Currently the card is not the same if we write to disk or push to the HF hub,
             # as we aren't generating the README copying/updating the data from the dataset repo.
@@ -435,7 +442,7 @@ class Distiset(dict):
         original_distiset_path = str(distiset_path)
 
         fs: fsspec.AbstractFileSystem
-        fs, _, [distiset_path] = fsspec.get_fs_token_paths(
+        fs, _, [distiset_path] = fsspec.get_fs_token_paths(  # type: ignore
             original_distiset_path, storage_options=storage_options
         )
         dest_distiset_path = distiset_path
@@ -445,6 +452,7 @@ class Distiset(dict):
         ), "`distiset_path` must be a `PathLike` object pointing to a folder or a URI of a remote filesystem."
 
         has_config = False
+        has_artifacts = False
         distiset = cls()
 
         if is_remote_filesystem(fs):
@@ -452,19 +460,23 @@ class Distiset(dict):
             if download_dir:
                 dest_distiset_path = download_dir
             else:
-                dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)
-            fs.download(src_dataset_path, dest_distiset_path.as_posix(), recursive=True)
+                dest_distiset_path = Dataset._build_local_temp_path(src_dataset_path)  # type: ignore
+            fs.download(src_dataset_path, dest_distiset_path.as_posix(), recursive=True)  # type: ignore
 
         # Now we should have the distiset locally, so we can read those files
         for folder in Path(dest_distiset_path).iterdir():
             if folder.stem == DISTISET_CONFIG_FOLDER:
                 has_config = True
                 continue
+            elif folder.stem == DISTISET_ARTIFACTS_FOLDER:
+                has_artifacts = True
+                continue
             distiset[folder.stem] = load_from_disk(
                 str(folder),
                 keep_in_memory=keep_in_memory,
             )
-        # From the config folder we just need to point to the files. Once downloaded we set the path
+
+        # From the config folder we just need to point to the files. Once downloaded we set the pathto pointto point to the files. Once downloaded we set the path
         # to wherever they are.
         if has_config:
             distiset_config_folder = posixpath.join(
@@ -483,6 +495,11 @@ class Distiset(dict):
             if Path(log_filename_path).exists():
                 distiset.log_filename_path = Path(log_filename_path)
 
+        if has_artifacts:
+            distiset.artifacts_path = Path(
+                posixpath.join(dest_distiset_path, DISTISET_ARTIFACTS_FOLDER)
+            )
+
         return distiset
 
     @property
@@ -495,13 +512,13 @@ class Distiset(dict):
         self._pipeline_path = Path(path)
 
     @property
-    def artifacts_paths(self) -> Union[Path, None]:
+    def artifacts_path(self) -> Union[Path, None]:
         """Returns the path to the directory containing the artifacts generated by the steps
         of the pipeline."""
         return self._artifacts_path
 
-    @artifacts_paths.setter
-    def artifacts_paths(self, path: PathLike) -> None:
+    @artifacts_path.setter
+    def artifacts_path(self, path: PathLike) -> None:
         self._artifacts_path = Path(path)
 
     @property
@@ -602,7 +619,7 @@ def create_distiset(  # noqa: C901
     # If there's any artifact set the `artifacts_path` so they can be uploaded
     steps_artifacts_dir = data_dir / STEPS_ARTIFACTS_PATH
     if any(steps_artifacts_dir.rglob("*")):
-        distiset.artifacts_paths = steps_artifacts_dir
+        distiset.artifacts_path = steps_artifacts_dir
 
     # Include `pipeline.yaml` if exists
     if pipeline_path:
