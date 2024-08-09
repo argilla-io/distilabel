@@ -63,16 +63,12 @@ class _Task(_Step, ABC):
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
-    use_default_structured_output: bool = False
+    use_default_structured_output: bool = True
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
         super().load()
-        if self.use_default_structured_output and not self.llm.structured_output:
-            # In case the default structured output is required, we have to set it before
-            # the LLM is loaded
-            self.llm.structured_output = self.get_structured_output()
-
+        self._set_default_structured_output()
         self.llm.load()
 
     @override
@@ -157,6 +153,24 @@ class _Task(_Step, ABC):
             meta[f"raw_output_{self.name}"] = raw_output
             output[DISTILABEL_METADATA_KEY] = meta
         return output
+
+    def _set_default_structured_output(self) -> None:
+        """Prepares the structured output to be set in the selected `LLM`."""
+        if self.use_default_structured_output and not self.llm.structured_output:
+            # In case the default structured output is required, we have to set it before
+            # the LLM is loaded
+            from distilabel.llms import InferenceEndpointsLLM
+            from distilabel.llms.base import AsyncLLM
+
+            structured_output = {"schema": self.get_structured_output()}
+            # To determine instructor or outlines format
+            if not (
+                isinstance(self.llm, AsyncLLM)
+                and not isinstance(self.llm, InferenceEndpointsLLM)
+            ):
+                structured_output.update({"format": "json"})
+
+            self.llm.structured_output = structured_output
 
     def get_structured_output(self) -> Union[Dict[str, Any], None]:
         """Returns the structured output for a task that implements one by default,
