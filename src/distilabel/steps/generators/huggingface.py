@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob
 from collections import defaultdict
 from functools import cached_property
 from pathlib import Path
@@ -406,7 +405,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
             filetype = get_filetype(data_path)
             data_files = str(data_path)
 
-        elif len(glob.glob(str(data_path))) >= 1:
+        elif len(str(data_path.parent.glob(data_path.name))) >= 1:
             filetype = get_filetype(data_path)
             data_files = str(data_path)
 
