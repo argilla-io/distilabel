@@ -16,7 +16,9 @@ import re
 import sys
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Literal, Optional, Union
 
+import orjson
 from jinja2 import Template
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 
@@ -48,11 +50,22 @@ POSITIVE_SYSTEM_PROMPT: str = (
     " section: `## Positive`."
 )
 
+NEGATIVE_STYLE: Dict[str, str] = {
+    "negative": "can use similar words but must not be related to the anchor sentence",
+    "hard-negative": (
+        "is a 'hard negative' that meets the following criteria:\n"
+        "- Uses similar keywords or phrases as the anchor sentence\n"
+        "- Has a similar grammatical structure or syntax\n"
+        "- Is not related to the anchor sentence, but could be mistaken for it\n"
+        "Try to create a negative sentence that would be challenging for a model to distinguish "
+        "from the positive sentence"
+    ),
+}
+
 POSITIVE_NEGATIVE_SYSTEM_PROMPT: str = (
     "Your task is to generate a positive and a negative sentence given an anchor sentence.{context}"
     " The positive sentence has to {action_sentence} the anchor sentence, while the negative"
-    " sentence can use similar words but must not be related to the anchor sentence. You"
-    " must output only two new sections: `## Positive` and `## Negative`."
+    " sentence {negative_style}. You must output only two new sections: `## Positive` and `## Negative`."
 )
 
 CONTEXT_INTRO: Final[str] = " Take into account the context given."
@@ -63,9 +76,9 @@ class GenerateSentencePair(Task):
 
     `GenerateSentencePair` is a pre-defined task that given an anchor sentence generates
     a positive sentence related to the anchor and optionally a negative sentence unrelated
-    to the anchor. Optionally, you can give a context to guide the LLM towards more specific
-    behavior. This task is useful to generate training datasets for training embeddings
-    models.
+    to the anchor or similar to it. Optionally, you can give a context to guide the LLM
+    towards more specific behavior. This task is useful to generate training datasets for
+    training embeddings models.
 
     Attributes:
         triplet: a flag to indicate if the task should generate a triplet of sentences
@@ -73,13 +86,18 @@ class GenerateSentencePair(Task):
         action: the action to perform to generate the positive sentence.
         context: the context to use for the generation. Can be helpful to guide the LLM
             towards more specific context. Not used by default.
+        hard_negative: A flag to indicate if the negative should be a hard-negative or not.
+            Hard negatives make it hard for the model to distinguish against the positive,
+            with a higher degree of semantic similarity.
 
     Input columns:
         - anchor (`str`): The anchor sentence to generate the positive and negative sentences.
 
     Output columns:
         - positive (`str`): The positive sentence related to the `anchor`.
-        - negative (`str`): The negative sentence unrelated to the `anchor` if `triplet=True`.
+        - negative (`str`): The negative sentence unrelated to the `anchor` if `triplet=True`,
+            or more similar to the positive to make it more challenging for a model to distinguish
+            in case `hard_negative=True`.
         - model_name (`str`): The name of the model that was used to generate the sentences.
 
     Categories:
@@ -97,8 +115,8 @@ class GenerateSentencePair(Task):
             triplet=True, # `False` to generate only positive
             action="paraphrase",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             input_batch_size=10,
         )
@@ -118,8 +136,8 @@ class GenerateSentencePair(Task):
             triplet=True, # `False` to generate only positive
             action="semantically-similar",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             input_batch_size=10,
         )
@@ -139,8 +157,8 @@ class GenerateSentencePair(Task):
             triplet=True, # `False` to generate only positive
             action="query",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             input_batch_size=10,
         )
@@ -160,8 +178,8 @@ class GenerateSentencePair(Task):
             triplet=True, # `False` to generate only positive
             action="answer",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             input_batch_size=10,
         )
@@ -182,10 +200,56 @@ class GenerateSentencePair(Task):
             action="query",
             context="Argilla is an open-source data curation platform for LLMs.",
             llm=InferenceEndpointsLLM(
-                model_id="meta-llama/Meta-Llama-3-70B-Instruct",
-                tokenizer_id="meta-llama/Meta-Llama-3-70B-Instruct",
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
             ),
             input_batch_size=10,
+        )
+
+        generate_sentence_pair.load()
+
+        result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
+        ```
+
+        Generating Hard-negatives (**applies to every action**):
+
+        ```python
+        from distilabel.steps.tasks import GenerateSentencePair
+        from distilabel.llms import InferenceEndpointsLLM
+
+        generate_sentence_pair = GenerateSentencePair(
+            triplet=True, # `False` to generate only positive
+            action="query",
+            context="Argilla is an open-source data curation platform for LLMs.",
+            hard_negative=True,
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            input_batch_size=10,
+        )
+
+        generate_sentence_pair.load()
+
+        result = generate_sentence_pair.process([{"anchor": "I want to generate queries for my LLM."}])
+        ```
+
+        Generating structured data with default schema (**applies to every action**):
+
+        ```python
+        from distilabel.steps.tasks import GenerateSentencePair
+        from distilabel.llms import InferenceEndpointsLLM
+
+        generate_sentence_pair = GenerateSentencePair(
+            triplet=True, # `False` to generate only positive
+            action="query",
+            context="Argilla is an open-source data curation platform for LLMs.",
+            hard_negative=True,
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            input_batch_size=10,
+            use_default_structured_output=True
         )
 
         generate_sentence_pair.load()
@@ -196,6 +260,7 @@ class GenerateSentencePair(Task):
 
     triplet: bool = False
     action: GenerationAction
+    hard_negative: bool = False
     context: str = ""
 
     def load(self) -> None:
@@ -229,12 +294,19 @@ class GenerateSentencePair(Task):
             A list of dictionaries containing the system and user interactions.
         """
         action_sentence = GENERATION_ACTION_SENTENCES[self.action]
+
+        format_system_prompt = {
+            "action_sentence": action_sentence,
+            "context": CONTEXT_INTRO if self.context else "",
+        }
+        if self.triplet:
+            format_system_prompt["negative_style"] = NEGATIVE_STYLE[
+                "hard-negative" if self.hard_negative else "negative"
+            ]
+
         system_prompt = (
             POSITIVE_NEGATIVE_SYSTEM_PROMPT if self.triplet else POSITIVE_SYSTEM_PROMPT
-        ).format(
-            action_sentence=action_sentence,
-            context=CONTEXT_INTRO if self.context else "",
-        )
+        ).format(**format_system_prompt)
 
         return [
             {"role": "system", "content": system_prompt},
@@ -272,6 +344,9 @@ class GenerateSentencePair(Task):
         if output is None:
             return {"positive": None, "negative": None}
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output)
+
         match = POSITIVE_NEGATIVE_PAIR_REGEX.match(output)
         if match is None:
             formatted_output = {"positive": None}
@@ -289,3 +364,45 @@ class GenerateSentencePair(Task):
             }
 
         return {"positive": groups[0].strip()}
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        if self.triplet:
+            return {
+                "properties": {
+                    "positive": {"title": "Positive", "type": "string"},
+                    "negative": {"title": "Negative", "type": "string"},
+                },
+                "required": ["positive", "negative"],
+                "title": "Schema",
+                "type": "object",
+            }
+        return {
+            "properties": {"positive": {"title": "Positive", "type": "string"}},
+            "required": ["positive"],
+            "title": "Schema",
+            "type": "object",
+        }
+
+    def _format_structured_output(self, output: str) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with either `positive`, or `positive` and `negative` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            if self.triplet:
+                return {"positive": None, "negative": None}
+            return {"positive": None}

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from pydantic import Field
 from typing_extensions import override
 
+from distilabel.constants import DISTILABEL_METADATA_KEY
 from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
@@ -26,7 +27,6 @@ from distilabel.steps.base import (
     StepInput,
     _Step,
 )
-from distilabel.steps.constants import DISTILABEL_METADATA_KEY
 from distilabel.utils.dicts import group_dicts
 
 if TYPE_CHECKING:
@@ -63,10 +63,12 @@ class _Task(_Step, ABC):
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
+    use_default_structured_output: bool = True
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
         super().load()
+        self._set_default_structured_output()
         self.llm.load()
 
     @override
@@ -151,6 +153,42 @@ class _Task(_Step, ABC):
             meta[f"raw_output_{self.name}"] = raw_output
             output[DISTILABEL_METADATA_KEY] = meta
         return output
+
+    def _set_default_structured_output(self) -> None:
+        """Prepares the structured output to be set in the selected `LLM`.
+
+        If the method `get_structured_output` returns None (the default), there's no need
+        to set anything, as it doesn't apply.
+        If the `use_default_structured_output` and there's no previous structured output
+        set by hand, then decide the type of structured output to select depending on the
+        `LLM` provider.
+        """
+        schema = self.get_structured_output()
+        if not schema:
+            return
+
+        if self.use_default_structured_output and not self.llm.structured_output:
+            # In case the default structured output is required, we have to set it before
+            # the LLM is loaded
+            from distilabel.llms import InferenceEndpointsLLM
+            from distilabel.llms.base import AsyncLLM
+
+            structured_output = {"schema": schema}
+            # To determine instructor or outlines format
+            if not (
+                isinstance(self.llm, AsyncLLM)
+                and not isinstance(self.llm, InferenceEndpointsLLM)
+            ):
+                structured_output.update({"format": "json"})
+
+            self.llm.structured_output = structured_output
+
+    def get_structured_output(self) -> Union[Dict[str, Any], None]:
+        """Returns the structured output for a task that implements one by default,
+        must be overriden by subclasses of `Task`. When implemented, should be a json
+        schema that enforces the response from the LLM so that it's easier to parse.
+        """
+        return None
 
 
 class Task(_Task, Step):

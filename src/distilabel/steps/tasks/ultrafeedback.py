@@ -22,8 +22,10 @@ else:
 
 from typing import Any, Dict, List, Literal, Optional, Union
 
+import orjson
 from jinja2 import Template
 from pydantic import PrivateAttr
+from typing_extensions import override
 
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import ChatType
@@ -74,13 +76,14 @@ class UltraFeedback(Task):
         ultrafeedback = UltraFeedback(
             llm=InferenceEndpointsLLM(
                 model_id="mistralai/Mistral-7B-Instruct-v0.2",
-            )
+            ),
+            use_default_structured_output=False
         )
 
         ultrafeedback.load()
 
         result = next(
-            chat.process(
+            ultrafeedback.process(
                 [
                     {
                         "instruction": "How much is 2+2?",
@@ -99,6 +102,96 @@ class UltraFeedback(Task):
         #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
         #     }
         # ]
+        ```
+
+        Rate generations from different LLMs based on the honesty, using the default structured output:
+
+        ```python
+        from distilabel.steps.tasks import UltraFeedback
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        ultrafeedback = UltraFeedback(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            ),
+            aspect="honesty"
+        )
+
+        ultrafeedback.load()
+
+        result = next(
+            ultrafeedback.process(
+                [
+                    {
+                        "instruction": "How much is 2+2?",
+                        "generations": ["4", "and a car"],
+                    }
+                ]
+            )
+        )
+        # result
+        # [{'instruction': 'How much is 2+2?',
+        # 'generations': ['4', 'and a car'],
+        # 'ratings': [5, 1],
+        # 'rationales': ['The response is correct and confident, as it directly answers the question without expressing any uncertainty or doubt.',
+        # "The response is confidently incorrect, as it provides unrelated information ('a car') and does not address the question. The model shows no uncertainty or indication that it does not know the answer."],
+        # 'distilabel_metadata': {'raw_output_ultra_feedback_0': '{"ratings": [\n    5,\n    1\n] \n\n,"rationales": [\n    "The response is correct and confident, as it directly answers the question without expressing any uncertainty or doubt.",\n    "The response is confidently incorrect, as it provides unrelated information (\'a car\') and does not address the question. The model shows no uncertainty or indication that it does not know the answer."\n] }'},
+        # 'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
+        ```
+
+        Rate generations from different LLMs based on the helpfulness, using the default structured output:
+
+        ```python
+        from distilabel.steps.tasks import UltraFeedback
+        from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+        # Consider this as a placeholder for your actual LLM.
+        ultrafeedback = UltraFeedback(
+            llm=InferenceEndpointsLLM(
+                model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                generation_kwargs={"max_new_tokens": 512},
+            ),
+            aspect="helpfulness"
+        )
+
+        ultrafeedback.load()
+
+        result = next(
+            ultrafeedback.process(
+                [
+                    {
+                        "instruction": "How much is 2+2?",
+                        "generations": ["4", "and a car"],
+                    }
+                ]
+            )
+        )
+        # result
+        # [{'instruction': 'How much is 2+2?',
+        #   'generations': ['4', 'and a car'],
+        #   'ratings': [1, 5],
+        #   'rationales': ['Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.',
+        #    'Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question.'],
+        #   'rationales_for_rating': ['Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.',
+        #    'Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question.'],
+        #   'types': [1, 3, 1],
+        #   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ \n  "ratings": [\n    1,\n    5\n  ]\n ,\n  "rationales": [\n    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",\n    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."\n  ]\n ,\n  "rationales_for_rating": [\n    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",\n    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."\n  ]\n ,\n  "types": [\n    1, 3,\n    1\n  ]\n  }'},
+        #   'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
+        ```
+
+    Citations:
+
+        ```
+        @misc{cui2024ultrafeedbackboostinglanguagemodels,
+            title={UltraFeedback: Boosting Language Models with Scaled AI Feedback},
+            author={Ganqu Cui and Lifan Yuan and Ning Ding and Guanming Yao and Bingxiang He and Wei Zhu and Yuan Ni and Guotong Xie and Ruobing Xie and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+            year={2024},
+            eprint={2310.01377},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2310.01377},
+        }
         ```
     """
 
@@ -206,6 +299,9 @@ class UltraFeedback(Task):
                 "rationales": [None] * len(input["generations"]),
             }
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output, input)
+
         pattern = r"Rating: (.+?)\nRationale: (.+)"
         sections = output.split("\n\n")
 
@@ -240,6 +336,9 @@ class UltraFeedback(Task):
                 "rationales-for-ratings": [None] * len(input["generations"]),
             }
 
+        if self.use_default_structured_output:
+            return self._format_structured_output(output, input)
+
         pattern = r"Type: (.+?)\nRationale: (.+?)\nRating: (.+?)\nRationale: (.+)"
 
         sections = output.split("\n\n")
@@ -273,3 +372,109 @@ class UltraFeedback(Task):
                 }
             )
         return group_dicts(*formatted_outputs)
+
+    @override
+    def get_structured_output(self) -> Dict[str, Any]:
+        """Creates the json schema to be passed to the LLM, to enforce generating
+        a dictionary with the output which can be directly parsed as a python dictionary.
+
+        The schema corresponds to the following:
+
+        ```python
+        from pydantic import BaseModel
+        from typing import List
+
+        class SchemaUltraFeedback(BaseModel):
+            ratings: List[int]
+            rationales: List[str]
+
+        class SchemaUltraFeedbackWithType(BaseModel):
+            types: List[Optional[int]]
+            ratings: List[int]
+            rationales: List[str]
+            rationales_for_rating: List[str]
+        ```
+
+        Returns:
+            JSON Schema of the response to enforce.
+        """
+        if self.aspect in [
+            "honesty",
+            "instruction-following",
+            "overall-rating",
+        ]:
+            return {
+                "properties": {
+                    "ratings": {
+                        "items": {"type": "integer"},
+                        "title": "Ratings",
+                        "type": "array",
+                    },
+                    "rationales": {
+                        "items": {"type": "string"},
+                        "title": "Rationales",
+                        "type": "array",
+                    },
+                },
+                "required": ["ratings", "rationales"],
+                "title": "SchemaUltraFeedback",
+                "type": "object",
+            }
+        return {
+            "properties": {
+                "types": {
+                    "items": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
+                    "title": "Types",
+                    "type": "array",
+                },
+                "ratings": {
+                    "items": {"type": "integer"},
+                    "title": "Ratings",
+                    "type": "array",
+                },
+                "rationales": {
+                    "items": {"type": "string"},
+                    "title": "Rationales",
+                    "type": "array",
+                },
+                "rationales_for_rating": {
+                    "items": {"type": "string"},
+                    "title": "Rationales For Rating",
+                    "type": "array",
+                },
+            },
+            "required": ["types", "ratings", "rationales", "rationales_for_rating"],
+            "title": "SchemaUltraFeedbackWithType",
+            "type": "object",
+        }
+
+    def _format_structured_output(
+        self, output: str, input: Dict[str, Any]
+    ) -> Dict[str, str]:
+        """Parses the structured response, which should correspond to a dictionary
+        with either `positive`, or `positive` and `negative` keys.
+
+        Args:
+            output: The output from the `LLM`.
+
+        Returns:
+            Formatted output.
+        """
+        try:
+            return orjson.loads(output)
+        except orjson.JSONDecodeError:
+            if self.aspect in [
+                "honesty",
+                "instruction-following",
+                "overall-rating",
+            ]:
+                return {
+                    "ratings": [None] * len(input["generations"]),
+                    "rationales": [None] * len(input["generations"]),
+                }
+            return {
+                "ratings": [None] * len(input["generations"]),
+                "rationales": [None] * len(input["generations"]),
+                "types": [None] * len(input["generations"]),
+                "rationales-for-ratings": [None] * len(input["generations"]),
+            }

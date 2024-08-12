@@ -69,3 +69,14 @@ ds = load_dataset("{{ repo_id }}")
 
 </details>
 {% endfor %}
+
+{% if references %}
+## References
+
+{% for reference in references %}
+```
+{{ reference }}
+```
+
+{% endfor %}
+{% endif %}

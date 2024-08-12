@@ -210,7 +210,7 @@ distiset = pipeline.run(
                 }
             },
         },
-        ultrafeedback_openai.name: {
+        ultrafeedback.name: {
             "llm": {
                 "generation_kwargs": {
                     "max_new_tokens": 2048,

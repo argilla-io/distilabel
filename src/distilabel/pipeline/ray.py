@@ -15,10 +15,10 @@
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
+from distilabel.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.distiset import create_distiset
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME
 from distilabel.pipeline.step_wrapper import _StepWrapper
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY
@@ -125,6 +125,8 @@ class RayPipeline(BasePipeline):
         ):
             return distiset
 
+        self._logger.info(f"Ray nodes GPUs: {self._ray_node_ids}")
+
         self._output_queue = self.QueueClass(
             actor_options={"name": f"distilabel-{self.name}-output-queue"}
         )
@@ -151,6 +153,7 @@ class RayPipeline(BasePipeline):
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
+            dag=self.dag,
         )
 
         stop_logging()
@@ -175,7 +178,11 @@ class RayPipeline(BasePipeline):
         else:
             ray.init(**self._ray_init_kwargs)
 
-        self._ray_node_ids = {node["NodeID"]: False for node in ray.nodes()}
+        # Get the number of GPUs per Ray node
+        for node in ray.nodes():
+            node_id = node["NodeID"]
+            gpus = int(node["Resources"].get("GPU", 0))
+            self._ray_node_ids[node_id] = gpus
 
     @property
     def QueueClass(self) -> Callable:
@@ -286,24 +293,45 @@ class RayPipeline(BasePipeline):
 
         llm = step.llm  # type: ignore
         tensor_parallel_size = llm.extra_kwargs.get("tensor_parallel_size", 1)  # type: ignore
-        pipeline_parallel_size = llm.extra_kwargs.get(  # type: ignore
-            "pipeline_parallel_size", 1
+        pipeline_parallel_size = llm.extra_kwargs.get("pipeline_parallel_size", 1)  # type: ignore
+
+        # Calculate total GPUs needed
+        total_gpus_needed = tensor_parallel_size * pipeline_parallel_size
+
+        # Count available GPUs across all nodes
+        total_available_gpus = sum(self._ray_node_ids.values())
+        self._logger.info(
+            f"`vLLM` placement group for '{step.name}' step requires {total_gpus_needed}"
+            f" GPUs. Total available GPUs: {total_available_gpus}."
         )
 
-        node_id = next(
-            node_id for node_id, used in self._ray_node_ids.items() if not used
-        )
+        if total_available_gpus < total_gpus_needed:
+            raise ValueError(
+                f"Ray cluster does not allocate enough GPUs to create the placement group"
+                f" required by the `vLLM` instance of the step '{step.name}'."
+                f" Needed: {total_gpus_needed}, Available: {total_available_gpus}"
+            )
 
-        self._ray_node_ids[node_id] = True
+        # Update the available GPU count
+        selected_node_id = None
+        gpus_left_needed = total_gpus_needed
+        for node_id in self._ray_node_ids:
+            gpus_to_allocate = min(self._ray_node_ids[node_id], total_gpus_needed)
+            self._ray_node_ids[node_id] -= gpus_to_allocate
+            gpus_left_needed -= gpus_to_allocate
+            if gpus_left_needed == 0:
+                if pipeline_parallel_size == 1:
+                    selected_node_id = node_id
+                break
 
         # Create a placement group
         pg = ray.util.placement_group(
-            # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
+            #  # Create `tensor_parallel_size` GPU bundles and at least one CPU bundle
             # so the actors can be scheduled and executed (1 CPU bundle can have infinite actors):
             # https://docs.ray.io/en/latest/ray-core/scheduling/placement-group.html#schedule-tasks-and-actors-to-placement-groups-use-reserved-resources
-            bundles=[{"CPU": 1}] + [{"GPU": 1}] * tensor_parallel_size,
+            bundles=[{"CPU": 1.0}] + [{"GPU": 1.0}] * total_gpus_needed,
             strategy="SPREAD" if pipeline_parallel_size > 1 else "STRICT_PACK",
-            _soft_target_node_id=node_id if pipeline_parallel_size is None else None,
+            _soft_target_node_id=selected_node_id,
         )
 
         self._logger.info(

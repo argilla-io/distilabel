@@ -109,6 +109,20 @@ class FaissNearestNeighbour(GlobalStep):
                 use_cache=False,
             )
         ```
+
+    Citations:
+
+        ```
+        @misc{douze2024faisslibrary,
+            title={The Faiss library},
+            author={Matthijs Douze and Alexandr Guzhva and Chengqi Deng and Jeff Johnson and Gergely Szilvasy and Pierre-Emmanuel Mazaré and Maria Lomeli and Lucas Hosseini and Hervé Jégou},
+            year={2024},
+            eprint={2401.08281},
+            archivePrefix={arXiv},
+            primaryClass={cs.LG},
+            url={https://arxiv.org/abs/2401.08281},
+        }
+        ```
     """
 
     device: Optional[RuntimeParameter[Union[int, List[int]]]] = Field(

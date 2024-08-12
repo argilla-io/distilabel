@@ -13,11 +13,16 @@
 # limitations under the License.
 
 from typing import List
+from unittest import mock
 
 import numpy as np
 import pytest
 from distilabel.llms import vLLM
-from distilabel.llms.vllm import _sort_batches
+from distilabel.llms.vllm import ClientvLLM, _sort_batches
+from openai.pagination import SyncPage
+from openai.types import Model
+from openai.types.completion import Completion
+from openai.types.completion_choice import CompletionChoice
 from pydantic import BaseModel
 
 
@@ -168,3 +173,63 @@ class TestvLLM:
                 num_generations,
             ).tolist(),
         ]
+
+
+@mock.patch("openai.OpenAI")
+@mock.patch("openai.AsyncOpenAI")
+class TestClientvLLM:
+    def test_clientvllm_model_name(
+        self, _: mock.MagicMock, openai_mock: mock.MagicMock
+    ) -> None:
+        llm = ClientvLLM(
+            base_url="http://localhost:8000/v1",
+            tokenizer="google-bert/bert-base-uncased",
+        )
+
+        llm._client = mock.MagicMock()
+        llm._client.models.list.return_value = SyncPage[Model](  # type: ignore
+            data=[Model(id="llama", created=1234, object="model", owned_by="")],
+            object="model",
+        )
+
+        assert llm.model_name == "llama"
+
+    @pytest.mark.asyncio
+    async def test_agenerate(
+        self, _openai_mock: mock.MagicMock, _async_openai_mock: mock.MagicMock
+    ) -> None:
+        llm = ClientvLLM(
+            base_url="http://localhost:8000/v1",
+            tokenizer="google-bert/bert-base-uncased",
+        )
+
+        llm.load()
+
+        llm._aclient.completions.create = mock.AsyncMock(
+            return_value=Completion(
+                id="1234",
+                created=1234,
+                model="llama",
+                object="text_completion",
+                choices=[
+                    CompletionChoice(
+                        finish_reason="stop",
+                        index=0,
+                        logprobs=None,
+                        text="I'm fine thank you",
+                    ),
+                    CompletionChoice(
+                        finish_reason="stop",
+                        index=0,
+                        logprobs=None,
+                        text="I'm fine thank you sir",
+                    ),
+                ],
+            )
+        )
+
+        generations = await llm.agenerate(
+            input=[{"role": "user", "content": "Hi, how are you?"}]
+        )
+
+        assert generations == ["I'm fine thank you", "I'm fine thank you sir"]
