@@ -505,7 +505,7 @@ class Distiset(dict):
                 keep_in_memory=keep_in_memory,
             )
 
-        # From the config folder we just need to point to the files. Once downloaded we set the pathto pointto point to the files. Once downloaded we set the path
+        # From the config folder we just need to point to the files. Once downloaded we set the path to point to point to the files. Once downloaded we set the path
         # to wherever they are.
         if has_config:
             distiset_config_folder = posixpath.join(
