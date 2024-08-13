@@ -343,7 +343,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         default=None,
         description="The expected filetype. If not provided, it will be inferred from the file extension.",
     )
-    repo_id: ExcludedField[str | None] = None
+    repo_id: ExcludedField[Union[str, None]] = None
 
     def load(self) -> None:
         """Load the dataset from the file/s in disk."""
