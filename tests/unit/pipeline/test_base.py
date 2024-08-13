@@ -101,28 +101,29 @@ class TestBasePipeline:
 
     @pytest.mark.parametrize("use_cache", [False, True])
     def test_load_batch_manager(self, use_cache: bool) -> None:
-        pipeline = DummyPipeline(name="unit-test-pipeline")
-        pipeline._load_batch_manager(use_cache=True)
-        pipeline._cache()
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            pipeline = DummyPipeline(name="unit-test-pipeline", cache_dir=tmpdirname)
+            pipeline._load_batch_manager(use_cache=True)
+            pipeline._cache()
 
-        with (
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.load_from_cache"
-            ) as mock_load_from_cache,
-            mock.patch(
-                "distilabel.pipeline.base._BatchManager.from_dag"
-            ) as mock_from_dag,
-        ):
-            pipeline._load_batch_manager(use_cache=use_cache)
+            with (
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.load_from_cache"
+                ) as mock_load_from_cache,
+                mock.patch(
+                    "distilabel.pipeline.base._BatchManager.from_dag"
+                ) as mock_from_dag,
+            ):
+                pipeline._load_batch_manager(use_cache=use_cache)
 
-        if use_cache:
-            mock_load_from_cache.assert_called_once_with(
-                pipeline._cache_location["batch_manager"]
-            )
-            mock_from_dag.assert_not_called()
-        else:
-            mock_load_from_cache.assert_not_called()
-            mock_from_dag.assert_called_once_with(pipeline.dag)
+            if use_cache:
+                mock_load_from_cache.assert_called_once_with(
+                    pipeline._cache_location["batch_manager"]
+                )
+                mock_from_dag.assert_not_called()
+            else:
+                mock_load_from_cache.assert_not_called()
+                mock_from_dag.assert_called_once_with(pipeline.dag)
 
     def test_setup_write_buffer(self) -> None:
         pipeline = DummyPipeline(name="unit-test-pipeline")
@@ -1290,7 +1291,7 @@ class TestPipelineSerialization:
             )
 
         signature = pipeline._create_signature()
-        assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
+        assert signature == "d8abf6102eee15a25275b8ace0e774c87d100ea0"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
