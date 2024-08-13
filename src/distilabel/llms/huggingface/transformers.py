@@ -145,6 +145,9 @@ class TransformersLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         if self.chat_template is not None:
             self._pipeline.tokenizer.chat_template = self.chat_template  # type: ignore
 
+        if self._pipeline.tokenizer.pad_token is None:  # type: ignore
+            self._pipeline.tokenizer.pad_token = self._pipeline.tokenizer.eos_token  # type: ignore
+
         if self.structured_output:
             self._prefix_allowed_tokens_fn = self._prepare_structured_output(
                 self.structured_output
