@@ -14,18 +14,13 @@
 
 import random
 import time
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from distilabel.pipeline import Pipeline, routing_batch_function
+from distilabel.pipeline import Pipeline
 from distilabel.steps import LoadDataFromDicts, StepInput, StepResources, step
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
-
-
-@routing_batch_function()
-def random_routing_batch(steps: List[str]) -> List[str]:
-    return random.sample(steps, 2)
 
 
 @step(outputs=["generation"])
