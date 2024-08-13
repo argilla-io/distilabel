@@ -56,6 +56,12 @@
     
       <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
+      <link rel="stylesheet" href="../../../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../../../css/pandas-dataframe.css">
+    
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -2903,7 +2909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/GenerateSentencePair.ipynb" class="md-nav__link">
+      <a href="../../tutorials/GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3127,6 +3133,120 @@
   
   <span class="md-ellipsis">
     UltraFeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/benchmarking_with_distilabel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Benchmarking with distilabel
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/llama_cpp_with_outlines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Llama cpp with outlines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/mistralai_with_instructor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MistralAI with instructor
   </span>
   
 
@@ -4406,19 +4526,19 @@
 
 
 <h1 id="instruction-backtranslation">Instruction Backtranslation<a class="headerlink" href="#instruction-backtranslation" title="Permanent link">&para;</a></h1>
-<p><a href="https://arxiv.org/abs/2308.06259">"Self Alignment with Instruction Backtranslation"</a> presents a scalable method to build a high quality instruction following language model by automatically labelling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.</p>
-<p>Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents which includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.</p>
-<p>A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high quality example pairs to train an instruction following model.</p>
-<p>Their overall process, called instruction backtranslation performs two core steps:</p>
+<p><a href="https://arxiv.org/abs/2308.06259">"Self Alignment with Instruction Backtranslation"</a> presents a scalable method to build high-quality instruction following a language model by automatically labeling human-written text with corresponding instructions. Their approach, named instruction backtranslation, starts with a language model finetuned on a small amount of seed data, and a given web corpus. The seed model is used to construct training examples by generating instruction prompts for web documents (self-augmentation), and then selecting high-quality examples from among these candidates (self-curation). This data is then used to finetune a stronger model.</p>
+<p>Their self-training approach assumes access to a base language model, a small amount of seed data, and a collection of unlabelled examples, e.g. a web corpus. The unlabelled data is a large, diverse set of human-written documents that includes writing about all manner of topics humans are interested in – but crucially is not paired with instructions.</p>
+<p>A first key assumption is that there exists some subset of this very large human-written text that would be suitable as gold generations for some user instructions. A second key assumption is that they can predict instructions for these candidate gold answers that can be used as high-quality example pairs to train an instruction-following model.</p>
+<p>Their overall process, called instruction back translation performs two core steps:</p>
 <ol>
 <li>
 <p>Self-augment: Generate instructions for unlabelled data, i.e. the web corpus, to produce candidate training data of (instruction, output) pairs for instruction tuning.</p>
 </li>
 <li>
-<p>Self-curate: Self-select high quality demonstration examples as training data to finetune the base model to follow instructions. This approach is done iteratively where a better intermediate instruction-following model can improve on selecting data for finetuning in the next iteration.</p>
+<p>Self-curate: Self-select high-quality demonstration examples as training data to finetune the base model to follow instructions. This approach is done iteratively where a better intermediate instruction-following model can improve on selecting data for finetuning in the next iteration.</p>
 </li>
 </ol>
-<p>This replication covers the self-curation step i.e. the second / latter step as mentioned above, so as to be able to use the proposed prompting approach to rate the quality of the generated text, which can either be synthetically generated or real human-written text.</p>
+<p>This replication covers the self-curation step i.e. the second/latter step as mentioned above, so as to be able to use the proposed prompting approach to rate the quality of the generated text, which can either be synthetically generated or real human-written text.</p>
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <p>To replicate the paper we will be using <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://huggingface.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
 <h4 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h4>

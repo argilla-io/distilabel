@@ -306,6 +306,21 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/examples/benchmarking_with_distilabel/</loc>
+         <lastmod>2024-08-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/examples/llama_cpp_with_outlines/</loc>
+         <lastmod>2024-08-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/examples/mistralai_with_instructor/</loc>
+         <lastmod>2024-08-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/papers/deita/</loc>
          <lastmod>2024-08-13</lastmod>
          <changefreq>daily</changefreq>
@@ -322,6 +337,11 @@
     </url>
     <url>
          <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/papers/ultrafeedback/</loc>
+         <lastmod>2024-08-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/tutorials/GenerateSentencePair/</loc>
          <lastmod>2024-08-13</lastmod>
          <changefreq>daily</changefreq>
     </url>
