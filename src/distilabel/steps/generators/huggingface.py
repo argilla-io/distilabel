@@ -17,6 +17,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Dict,
     List,
@@ -24,6 +25,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -44,6 +46,13 @@ from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
+
+
+T = TypeVar("T")
+
+# To avoid using repo_id in LoadDataFromFileSystem:
+# https://github.com/pydantic/pydantic/discussions/7076#discussioncomment-6699138
+ExcludedField = Annotated[T, Field(exclude=True)]
 
 
 class LoadDataFromHub(GeneratorStep):
@@ -334,6 +343,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         default=None,
         description="The expected filetype. If not provided, it will be inferred from the file extension.",
     )
+    repo_id: ExcludedField[str | None] = None
 
     def load(self) -> None:
         """Load the dataset from the file/s in disk."""
@@ -416,9 +426,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         """
         # We assume there are Dataset/IterableDataset, not it's ...Dict counterparts
         if self._dataset is None:
-            raise ValueError(
-                "Dataset not loaded yet, you must call `load` method first."
-            )
+            self.load()
 
         return self._dataset.column_names
 
