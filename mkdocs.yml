@@ -149,6 +149,7 @@ plugins:
             members_order: source # order methods according to their order of definition in the source code, not alphabetical order
             heading_level: 4
   - social
+  - mknotebooks
   - distilabel/components-gallery:
       add_after_page: How-to guides
 
@@ -190,6 +191,10 @@ nav:
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+      - Examples:
+          - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
+          - Llama cpp with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
+          - MistralAI with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
