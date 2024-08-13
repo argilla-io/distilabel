@@ -276,7 +276,7 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
         kwargs = {
-            "prompt": "<s>[INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
+            "prompt": "<s> [INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
             "max_new_tokens": 128,
             "do_sample": False,
             "typical_p": None,
