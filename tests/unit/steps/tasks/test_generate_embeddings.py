@@ -23,8 +23,7 @@ from distilabel.steps.tasks.generate_embeddings import GenerateEmbeddings
 @pytest.fixture(scope="module")
 def transformers_llm() -> Generator[TransformersLLM, None, None]:
     llm = TransformersLLM(
-        model="TaylorAI/bge-micro-v2",
-        model_kwargs={"is_decoder": True},
+        model="distilabel-internal-testing/tiny-random-mistral",
         cuda_devices=[],
     )
     llm.load()
@@ -42,4 +41,4 @@ class TestGenerateEmbeddings:
         result = next(task.process([{"text": "Hello, how are you?"}]))
 
         assert "embedding" in result[0]
-        assert len(result[0]["embedding"]) == 384
+        assert len(result[0]["embedding"]) == 128

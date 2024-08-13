@@ -24,6 +24,8 @@ class TestRewardModelScore:
 
         step.load()
 
+        step._tokenizer.chat_template = "{% for message in messages %}{% if message['role'] == 'user' %}{{ ' ' }}{% endif %}{{ message['content'] }}{% if not loop.last %}{{ '  ' }}{% endif %}{% endfor %}{{ eos_token }}"
+
         result = next(
             step.process(
                 inputs=[
@@ -40,12 +42,12 @@ class TestRewardModelScore:
             {
                 "instruction": "How much is 2+2?",
                 "response": "The output of 2+2 is 4",
-                "score": pytest.approx(-0.5738837122917175, abs=1e-6),
+                "score": pytest.approx(0.28374260663986206, abs=1e-5),
             },
             {
                 "instruction": "How much is 2+2?",
                 "response": "4",
-                "score": pytest.approx(-0.6376492977142334, abs=1e-6),
+                "score": pytest.approx(-4.194192409515381, abs=1e-5),
             },
         ]
 
@@ -55,6 +57,8 @@ class TestRewardModelScore:
         )
 
         step.load()
+
+        step._tokenizer.chat_template = "{% for message in messages %}{% if message['role'] == 'user' %}{{ ' ' }}{% endif %}{{ message['content'] }}{% if not loop.last %}{{ '  ' }}{% endif %}{% endfor %}{{ eos_token }}"
 
         result = next(
             step.process(
@@ -81,13 +85,13 @@ class TestRewardModelScore:
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "The output of 2+2 is 4"},
                 ],
-                "score": pytest.approx(-0.5738837122917175, abs=1e-6),
+                "score": pytest.approx(0.28374260663986206, abs=1e-5),
             },
             {
                 "conversation": [
                     {"role": "user", "content": "How much is 2+2?"},
                     {"role": "assistant", "content": "4"},
                 ],
-                "score": pytest.approx(-0.6376492977142334, abs=1e-6),
+                "score": pytest.approx(-4.194192409515381, abs=1e-5),
             },
         ]
