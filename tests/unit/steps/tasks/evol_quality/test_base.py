@@ -105,6 +105,7 @@ class TestEvolQuality:
             "input_batch_size": task.input_batch_size,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__module__,
                     "name": task.llm.__class__.__name__,
@@ -117,6 +118,7 @@ class TestEvolQuality:
             "group_generations": task.group_generations,
             "include_original_response": task.include_original_response,
             "seed": task.seed,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "resources",
