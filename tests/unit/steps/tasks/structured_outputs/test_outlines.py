@@ -119,7 +119,7 @@ class TestOutlinesIntegration:
         self, format: str, schema: Union[str, Type[BaseModel]], prompt: str
     ) -> None:
         llm = TransformersLLM(
-            model="openaccess-ai-collective/tiny-mistral",
+            model="distilabel-internal-testing/tiny-random-mistral",
             structured_output=OutlinesStructuredOutputType(
                 format=format, schema=schema
             ),
