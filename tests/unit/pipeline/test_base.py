@@ -352,6 +352,7 @@ class TestBasePipeline:
         pipeline._add_batches_back_to_batch_manager = mock.MagicMock()
         pipeline._wait_step_input_queue_empty = mock.MagicMock()
         pipeline._consume_output_queue = mock.MagicMock()
+        pipeline._stages_last_batch = [[]]
 
         pipeline._handle_stop()
 
