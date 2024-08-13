@@ -1,7 +1,7 @@
 ---
 hide: toc
 ---
-# Pipeline Sample
+# Pipeline Samples
 
 This section contains different example pipelines that showcase different tasks, maybe you can take inspiration from them.
 
