@@ -320,6 +320,7 @@ class TestTask:
             "input_batch_size": 50,
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": "tests.unit.conftest",
                     "name": "DummyLLM",
@@ -389,6 +390,7 @@ class TestTask:
                 "module": "tests.unit.steps.tasks.test_base",
                 "name": "DummyTask",
             },
+            "use_default_structured_output": False,
         }
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
