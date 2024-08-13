@@ -306,11 +306,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/papers/</loc>
-         <lastmod>2024-08-13</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-893/sections/pipeline_samples/papers/deita/</loc>
          <lastmod>2024-08-13</lastmod>
          <changefreq>daily</changefreq>

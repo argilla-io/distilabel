@@ -347,17 +347,16 @@
   
   
   
+    <li class="md-tabs__item">
+      <a href="../../../sections/pipeline_samples/examples/" class="md-tabs__link">
+        
+  
     
-    
-      <li class="md-tabs__item">
-        <a href="../../../sections/pipeline_samples/examples/" class="md-tabs__link">
-          
   
   Pipeline Samples
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -2823,16 +2822,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../sections/pipeline_samples/examples/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     Pipeline Samples
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
@@ -2847,16 +2854,64 @@
   
   
   
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/examples/" class="md-nav__link">
+      <a href="../../../sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Examples
+    Synthetic data generation for fine-tuning custom retrieval and reranking models
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2884,24 +2939,16 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/pipeline_samples/papers/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
     Papers
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_2">
@@ -5009,7 +5056,7 @@ results = llm.generate(
 </span><span id="__span-0-537"><a id="__codelineno-0-537" name="__codelineno-0-537"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates `num_generations` responses for each input.</span>
 </span><span id="__span-0-538"><a id="__codelineno-0-538" name="__codelineno-0-538"></a>
 </span><span id="__span-0-539"><a id="__codelineno-0-539" name="__codelineno-0-539"></a><span class="sd">        Args:</span>
-</span><span id="__span-0-540"><a id="__codelineno-0-540" name="__codelineno-0-540"></a><span class="sd">            inputs: a list of inputs in chat format to generate responses for.</span>
+</span><span id="__span-0-540"><a id="__codelineno-0-540" name="__codelineno-0-540"></a><span class="sd">            input: a single input in chat format to generate responses for.</span>
 </span><span id="__span-0-541"><a id="__codelineno-0-541" name="__codelineno-0-541"></a><span class="sd">            num_generations: the number of generations to create per input. Defaults to</span>
 </span><span id="__span-0-542"><a id="__codelineno-0-542" name="__codelineno-0-542"></a><span class="sd">                `1`.</span>
 </span><span id="__span-0-543"><a id="__codelineno-0-543" name="__codelineno-0-543"></a><span class="sd">            max_new_tokens: the maximum number of new tokens that the model will generate.</span>
@@ -5116,12 +5163,13 @@ results = llm.generate(
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>inputs</code></td>
+            <td><code>input</code></td>
             <td>
+                  <code><a class="autorefs autorefs-internal" title="distilabel.steps.tasks.typing.FormattedInput" href="../../task/typing/#distilabel.steps.tasks.typing.FormattedInput">FormattedInput</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>a list of inputs in chat format to generate responses for.</p>
+                <p>a single input in chat format to generate responses for.</p>
               </div>
             </td>
             <td>
@@ -5329,7 +5377,7 @@ considered for sampling. Defaults to <code>1.0</code>.</p>
 </span><span id="__span-0-537"><a id="__codelineno-0-537" name="__codelineno-0-537"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates `num_generations` responses for each input.</span>
 </span><span id="__span-0-538"><a id="__codelineno-0-538" name="__codelineno-0-538"></a>
 </span><span id="__span-0-539"><a id="__codelineno-0-539" name="__codelineno-0-539"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-540"><a id="__codelineno-0-540" name="__codelineno-0-540"></a><span class="sd">        inputs: a list of inputs in chat format to generate responses for.</span>
+</span><span id="__span-0-540"><a id="__codelineno-0-540" name="__codelineno-0-540"></a><span class="sd">        input: a single input in chat format to generate responses for.</span>
 </span><span id="__span-0-541"><a id="__codelineno-0-541" name="__codelineno-0-541"></a><span class="sd">        num_generations: the number of generations to create per input. Defaults to</span>
 </span><span id="__span-0-542"><a id="__codelineno-0-542" name="__codelineno-0-542"></a><span class="sd">            `1`.</span>
 </span><span id="__span-0-543"><a id="__codelineno-0-543" name="__codelineno-0-543"></a><span class="sd">        max_new_tokens: the maximum number of new tokens that the model will generate.</span>
