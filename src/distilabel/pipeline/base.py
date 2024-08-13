@@ -1153,13 +1153,14 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
             # If successor step has enough data in its buffer to create a new batch, then
             # send the batch to the step.
-            if new_batch := self._batch_manager.get_batch(successor):
+            while new_batch := self._batch_manager.get_batch(successor):
                 self._send_batch_to_step(new_batch)
 
         if not step.is_generator:
             # Step ("this", the one from which the batch was received) has enough data on its
             # buffers to create a new batch
-            if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
+            while new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
+                # if new_batch := self._batch_manager.get_batch(step.name):  # type: ignore
                 self._send_batch_to_step(new_batch)
             else:
                 self._request_more_batches_if_needed(step)
