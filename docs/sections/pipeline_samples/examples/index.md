@@ -3,9 +3,9 @@ hide: toc
 ---
 # Pipeline Samples
 
-- **Tutorials** offer a detailed explanation of the process and the code used for end-to-end workflows.
-- **Paper implementations** provide `distilabel` pipelines as reproductions of fundamental papers in the synthetic data domain.
-- **Examples** don't contain any context but provide code for pipelines for different tasks.
+- **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
+- **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
+- **Examples** don't provide explenations but simply show code for different tasks.
 
 ## Tutorials
 
