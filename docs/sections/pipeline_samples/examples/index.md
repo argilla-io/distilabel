@@ -3,11 +3,9 @@ hide: toc
 ---
 # Pipeline Samples
 
-This section contains different example pipelines that showcase different tasks, maybe you can take inspiration from them.
-
-- Tutorials offer a detailed explanation of the process and the code used for end-to-end workflows.
-- Paper implementations provide reproducible `distilabel` pipelines for synthetic data generation papers.
-- Examples don't contain any specific content but provide a general idea of how to use `distilabel` for different tasks.
+- **Tutorials** offer a detailed explanation of the process and the code used for end-to-end workflows.
+- **Paper implementations** provide `distilabel` pipelines as reproductions of fundamental papers in the synthetic data domain.
+- **Examples** don't contain any context but provide code for pipelines for different tasks.
 
 ## Tutorials
 
