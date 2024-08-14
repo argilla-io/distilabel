@@ -233,7 +233,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
         if self.name == _PIPELINE_DEFAULT_NAME:
-            self.name = f"pipeline_{self._create_signature()[:8]}"
+            self.name = f"pipeline_{'_'.join(self.dag)}"
 
     def _create_signature(self) -> str:
         """Makes a signature (hash) of a pipeline, using the step ids and the adjacency between them.
