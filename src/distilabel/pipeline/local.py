@@ -15,7 +15,8 @@
 import multiprocessing as mp
 import signal
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union, cast
+from multiprocessing.pool import Pool
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union, cast
 
 import tblib
 
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
     from queue import Queue
 
     from distilabel.distiset import Distiset
+    from distilabel.pipeline.typing import InputDataset
     from distilabel.steps.base import _Step
 
 
@@ -46,6 +48,40 @@ def _init_worker(log_queue: "Queue[Any]") -> None:
     """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     setup_logging(log_queue)
+
+
+# We create a custom `Pool` class so the created processes are not daemons, allowing
+# them to create child processes if necessary (for example when using `vLLM` with `tensor_parallel_size`)
+# https://stackoverflow.com/questions/6974695/python-process-pool-non-daemonic
+class _NoDaemonProcess(mp.Process):
+    @property
+    def daemon(self) -> bool:
+        return False
+
+    @daemon.setter
+    def daemon(self, value: bool) -> None:  # type: ignore
+        pass
+
+
+class _NoDaemonContext(type(mp.get_context())):
+    Process = _NoDaemonProcess
+
+
+class _NoDaemonPool(Pool):
+    def __init__(
+        self,
+        processes: Union[int, None] = None,
+        initializer: Union[Callable[..., object], None] = None,
+        initargs: Iterable[Any] = ...,  # type: ignore
+        maxtasksperchild: Union[int, None] = None,
+    ) -> None:
+        super().__init__(
+            processes=processes,
+            initializer=initializer,
+            initargs=initargs,
+            maxtasksperchild=maxtasksperchild,
+            context=_NoDaemonContext(),  # type: ignore
+        )
 
 
 class Pipeline(BasePipeline):
@@ -90,6 +126,7 @@ class Pipeline(BasePipeline):
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,
+        dataset: Optional["InputDataset"] = None,
     ) -> "Distiset":
         """Runs the pipeline.
 
@@ -109,6 +146,9 @@ class Pipeline(BasePipeline):
                 the `_Batch`es between the steps. Even if this parameter is `False`, the
                 `Batch`es received by `GlobalStep`s will always use the file system to
                 pass the data. Defaults to `False`.
+            dataset: If given, it will be used to create a `GeneratorStep` and put it as the
+                root step. Convenient method when you have already processed the dataset in
+                your script and just want to pass it already processed. Defaults to `None`.
 
         Returns:
             The `Distiset` created by the pipeline.
@@ -123,20 +163,24 @@ class Pipeline(BasePipeline):
                 use_cache=use_cache,
                 storage_parameters=storage_parameters,
                 use_fs_to_pass_data=use_fs_to_pass_data,
+                dataset=dataset,
             )
 
         self._log_queue = cast("Queue[Any]", mp.Queue())
 
         if distiset := super().run(
-            parameters, use_cache, storage_parameters, use_fs_to_pass_data
+            parameters,
+            use_cache,
+            storage_parameters,
+            use_fs_to_pass_data,
+            dataset=dataset,
         ):
             return distiset
 
         num_processes = self.dag.get_total_replica_count()
-        ctx = mp.get_context()  # type: ignore
         with (
-            ctx.Manager() as manager,
-            ctx.Pool(
+            mp.Manager() as manager,
+            _NoDaemonPool(
                 num_processes,
                 initializer=_init_worker,
                 initargs=(self._log_queue,),
@@ -165,6 +209,7 @@ class Pipeline(BasePipeline):
             pipeline_path=self._cache_location["pipeline"],
             log_filename_path=self._cache_location["log_file"],
             enable_metadata=self._enable_metadata,
+            dag=self.dag,
         )
 
         stop_logging()
@@ -199,6 +244,7 @@ class Pipeline(BasePipeline):
             output_queue=self._output_queue,
             load_queue=self._load_queue,
             dry_run=self._dry_run,
+            ray_pipeline=False,
         )
 
         self._pool.apply_async(step_wrapper.run, error_callback=self._error_callback)

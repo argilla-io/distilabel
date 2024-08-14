@@ -208,3 +208,28 @@ ray job submit --address http://localhost:8265 --working-dir ray-pipeline -- pyt
 1. In this case, we just want two nodes: one to run the Ray head node and one to run a worker. 
 2. We just want to run a task per node i.e. the Ray command that starts the head/worker node.
 3. We have selected 1 GPU per node, but we could have selected more depending on the pipeline.
+
+## `vLLM` and `tensor_parallel_size`
+
+In order to use `vLLM` multi-GPU and multi-node capabilities with `ray`, we need to do a few changes in the example pipeline from above. The first change needed is to specify a value for `tensor_parallel_size` aka "In how many GPUs do I want you to load the model", and the second one is to define `ray` as the `distributed_executor_backend` as the default one in `vLLM` is to use `multiprocessing`:
+
+
+```python
+with Pipeline(name="text-generation-ray-pipeline") as pipeline:
+    load_data_from_hub = LoadDataFromHub(output_mappings={"prompt": "instruction"})
+
+    text_generation = TextGeneration(
+        llm=vLLM(
+            model="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            tokenizer="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            extra_kwargs={
+                "tensor_parallel_size": 8,
+                "distributed_executor_backend": "ray",
+            }
+        )
+    )
+
+    load_data_from_hub >> text_generation
+```
+
+More information about distributed inference with `vLLM` can be found here: [vLLM - Distributed Serving](https://docs.vllm.ai/en/latest/serving/distributed_serving.html)

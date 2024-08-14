@@ -30,7 +30,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     RECEIVES_ROUTED_BATCHES_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
@@ -46,7 +46,7 @@ from distilabel.utils.serialization import (
 
 if TYPE_CHECKING:
     from distilabel.mixins.runtime_parameters import RuntimeParametersNames
-    from distilabel.steps.base import Step, _Step
+    from distilabel.steps.base import GeneratorStep, Step, _Step
 
 
 class DAG(_Serializable):
@@ -146,6 +146,16 @@ class DAG(_Serializable):
             )
 
         self.G.add_edge(from_step, to_step)
+
+    def add_root_step(self, step: "GeneratorStep") -> None:
+        """Adds a root step, helper method used when a pipeline receives a dataset in the run
+        method.
+
+        Args:
+            step: The generator step that will be set as the new root.
+        """
+        self.add_step(step)
+        self.add_edge(step.name, next(iter(self)))
 
     @cached_property
     def root_steps(self) -> Set[str]:

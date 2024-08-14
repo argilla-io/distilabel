@@ -15,6 +15,7 @@
 import inspect
 from typing import Generator, List, Type, TypedDict, TypeVar
 
+from distilabel.embeddings.base import Embeddings
 from distilabel.llms.base import LLM
 from distilabel.steps.base import _Step
 from distilabel.steps.tasks.base import _Task
@@ -29,6 +30,7 @@ class ComponentsInfo(TypedDict):
     llms: List
     steps: List
     tasks: List
+    embeddings: List
 
 
 def export_components_info() -> ComponentsInfo:
@@ -40,34 +42,27 @@ def export_components_info() -> ComponentsInfo:
         A dictionary containing `distilabel` components information
     """
 
-    steps = []
-    for step_type in _get_steps():
-        steps.append(
+    return {
+        "steps": [
+            {"name": step_type.__name__, "docstring": parse_google_docstring(step_type)}
+            for step_type in _get_steps()
+        ],
+        "tasks": [
+            {"name": task_type.__name__, "docstring": parse_google_docstring(task_type)}
+            for task_type in _get_tasks()
+        ],
+        "llms": [
+            {"name": llm_type.__name__, "docstring": parse_google_docstring(llm_type)}
+            for llm_type in _get_llms()
+        ],
+        "embeddings": [
             {
-                "name": step_type.__name__,
-                "docstring": parse_google_docstring(step_type),
+                "name": embeddings_type.__name__,
+                "docstring": parse_google_docstring(embeddings_type),
             }
-        )
-
-    tasks = []
-    for task_type in _get_tasks():
-        tasks.append(
-            {
-                "name": task_type.__name__,
-                "docstring": parse_google_docstring(task_type),
-            }
-        )
-
-    llms = []
-    for llm_type in _get_llms():
-        llms.append(
-            {
-                "name": llm_type.__name__,
-                "docstring": parse_google_docstring(llm_type),
-            }
-        )
-
-    return {"steps": steps, "tasks": tasks, "llms": llms}
+            for embeddings_type in _get_embeddings()
+        ],
+    }
 
 
 T = TypeVar("T", covariant=True)
@@ -115,6 +110,19 @@ def _get_llms() -> List[Type["LLM"]]:
         llm_type
         for llm_type in _recursive_subclasses(LLM)
         if not inspect.isabstract(llm_type)
+    ]
+
+
+def _get_embeddings() -> List[Type["Embeddings"]]:
+    """Get all `Embeddings` subclasses, that are not abstract classes.
+
+    Returns:
+        A list of `Embeddings` subclasses, except `AsyncLLM` subclass
+    """
+    return [
+        embeddings_type
+        for embeddings_type in _recursive_subclasses(Embeddings)
+        if not inspect.isabstract(embeddings_type)
     ]
 
 

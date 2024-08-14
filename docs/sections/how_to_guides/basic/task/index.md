@@ -24,7 +24,12 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
 #     {
 #         'instruction': "What's the capital of Spain?",
 #         'generation': 'The capital of Spain is Madrid.',
-#         'distilabel_metadata': {'raw_output_text-generation': 'The capital of Spain is Madrid.'},
+#         'distilabel_metadata': {
+#               'raw_output_text-generation': 'The capital of Spain is Madrid.',
+#               'raw_input_text-generation': [
+#                   {'role': 'user', 'content': "What's the capital of Spain?"}
+#               ]
+#         },
 #         'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'
 #     }
 # ]
@@ -33,7 +38,24 @@ next(task.process([{"instruction": "What's the capital of Spain?"}]))
 !!! NOTE
     The `Step.load()` always needs to be executed when being used as a standalone. Within a pipeline, this will be done automatically during pipeline execution.
 
-As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task adds a `generation` based on the `instruction`. Additionally, it provides some metadata about the LLM call through `distilabel_metadata`. This can be disabled by setting the `add_raw_output` attribute to `False` when creating the task.
+As shown above, the [`TextGeneration`][distilabel.steps.tasks.TextGeneration] task adds a `generation` based on the `instruction`.
+
+!!! Tip
+    Since version `1.2.0`, we provide some metadata about the LLM call through `distilabel_metadata`. This can be disabled by setting the `add_raw_output` attribute to `False` when creating the task.
+
+    Additionally, since version `1.4.0`, the formatted input can also be included, which can be helpful when testing
+    custom templates (testing the pipeline using the [`dry_run`][distilabel.pipeline.local.Pipeline.dry_run] method).
+
+    ```python title="disable raw input and output"
+    task = TextGeneration(
+        llm=InferenceEndpointsLLM(
+            model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+            tokenizer_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+        ),
+        add_raw_output=False,
+        add_raw_input=False
+    )
+    ```
 
 ## Specifying the number of generations and grouping generations
 

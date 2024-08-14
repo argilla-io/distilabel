@@ -49,6 +49,20 @@ class InstructionBacktranslation(Task):
 
     References:
         - [`Self-Alignment with Instruction Backtranslation`](https://arxiv.org/abs/2308.06259)
+
+    Citations:
+
+        ```
+        @misc{li2024selfalignmentinstructionbacktranslation,
+            title={Self-Alignment with Instruction Backtranslation},
+            author={Xian Li and Ping Yu and Chunting Zhou and Timo Schick and Omer Levy and Luke Zettlemoyer and Jason Weston and Mike Lewis},
+            year={2024},
+            eprint={2308.06259},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2308.06259},
+        }
+        ```
     """
 
     _template: Optional["Template"] = PrivateAttr(default=...)

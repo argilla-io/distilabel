@@ -64,17 +64,11 @@ class TestInferenceEndpointsLLM:
         del os.environ["HF_TOKEN"]
 
         llm = InferenceEndpointsLLM(
-            model_id="distilabel-internal-testing/tiny-random-mistral"
+            model_id="distilabel-internal-testing/tiny-random-mistral",
+            structured_output={"format": "regex", "schema": r"\b[A-Z][a-z]*\b"},
         )
 
-        # Mock `huggingface_hub.constants.HF_TOKEN_PATH` to not exist
-        with mock.patch("pathlib.Path.exists") as mock_exists:
-            mock_exists.return_value = False
-            with pytest.raises(
-                ValueError,
-                match="To use `InferenceEndpointsLLM` an API key must be provided",
-            ):
-                llm.load()
+        assert llm.tokenizer_id == llm.model_id
 
     def test_load_with_cached_token(self, mock_inference_client: MagicMock) -> None:
         llm = InferenceEndpointsLLM(base_url="http://localhost:8000")
@@ -282,7 +276,7 @@ class TestInferenceEndpointsLLM:
         ) == [" Aenean hendrerit aliquam velit. ..."]
 
         kwargs = {
-            "prompt": "<s>[INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
+            "prompt": "<s> [INST] Lorem ipsum dolor sit amet, consectetur adipiscing elit. [/INST]",
             "max_new_tokens": 128,
             "do_sample": False,
             "typical_p": None,

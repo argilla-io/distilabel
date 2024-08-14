@@ -21,6 +21,11 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from distilabel.constants import (
+    INPUT_QUEUE_ATTR_NAME,
+    LAST_BATCH_SENT_FLAG,
+    STEPS_ARTIFACTS_PATH,
+)
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
     _STEP_LOAD_FAILED_CODE,
@@ -30,7 +35,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
@@ -153,6 +157,23 @@ class TestBasePipeline:
 
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
+
+    def test_set_pipeline_artifacts_path_in_steps(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._set_pipeline_artifacts_path_in_steps()
+
+        artifacts_directory = pipeline._cache_location["data"] / STEPS_ARTIFACTS_PATH
+        assert generator.artifacts_directory == artifacts_directory / generator.name  # type: ignore
+        assert step.artifacts_directory == artifacts_directory / step.name  # type: ignore
+        assert step2.artifacts_directory == artifacts_directory / step2.name  # type: ignore
+        assert step3.artifacts_directory == artifacts_directory / step3.name  # type: ignore
 
     def test_init_steps_load_status(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
@@ -352,6 +373,7 @@ class TestBasePipeline:
         pipeline._add_batches_back_to_batch_manager = mock.MagicMock()
         pipeline._wait_step_input_queue_empty = mock.MagicMock()
         pipeline._consume_output_queue = mock.MagicMock()
+        pipeline._stages_last_batch = [[]]
 
         pipeline._handle_stop()
 
@@ -1154,6 +1176,29 @@ class TestBasePipeline:
                 gen_step >> step1_0 >> step2
             pipeline.run()
 
+    def test_pipeline_with_dataset_and_generator_step(self):
+        with pytest.raises(ValueError) as exc_info:
+            with DummyPipeline(name="unit-test-pipeline") as pipeline:
+                gen_step = DummyGeneratorStep()
+                step1_0 = DummyStep1()
+                gen_step >> step1_0
+
+            pipeline.run(
+                use_cache=False, dataset=[{"instruction": "Tell me a joke."}] * 10
+            )
+            exc_info.value.args[0].startswith(
+                "There is already a `GeneratorStep` in the pipeline"
+            )
+
+    def test_optional_name(self):
+        import random
+
+        random.seed(42)
+        with DummyPipeline() as pipeline:
+            name = pipeline.name
+            assert name.startswith("pipeline")
+            assert len(name.split("_")[-1]) == 8
+
 
 class TestPipelineSerialization:
     @pytest.mark.parametrize(
@@ -1271,7 +1316,7 @@ class TestPipelineSerialization:
             )
 
         assert (
-            pipeline._create_signature() == "4d4c0fc6e0c8dcf6e7453fddd6639858a1937a1d"
+            pipeline._create_signature() == "20fa5838debf739de3277fbdb59209cc23617402"
         )
 
         # Update just the names to check the signature stays the same
@@ -1289,7 +1334,9 @@ class TestPipelineSerialization:
                 >> dummy_step_2
             )
 
-        assert pipe._create_signature() == "4d4c0fc6e0c8dcf6e7453fddd6639858a1937a1d"
+        assert pipe._create_signature() == "62ee5fb7002bb84e4e459e615d4f818a017c0ab2"
+        # signature = pipeline._create_signature()
+        # assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.

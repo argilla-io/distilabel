@@ -210,7 +210,7 @@ distiset = pipeline.run(
                 }
             },
         },
-        ultrafeedback_openai.name: {
+        ultrafeedback.name: {
             "llm": {
                 "generation_kwargs": {
                     "max_new_tokens": 2048,
@@ -225,7 +225,7 @@ distiset = pipeline.run(
 Finally, we can optionally push the generated dataset, named [`Distiset`][distilabel.distiset.Distiset], to the Hugging Face Hub via the `push_to_hub` method, so that each subset generated in the leaf steps is pushed to the Hub.
 
 ```python
-dataset.push_to_hub(
+distiset.push_to_hub(
     "ultrafeedback-instruction-dataset",
     private=True,
 )

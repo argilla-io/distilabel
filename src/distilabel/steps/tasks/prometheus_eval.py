@@ -294,6 +294,20 @@ class PrometheusEval(Task):
         #     }
         # ]
         ```
+
+    Citations:
+
+        ```
+        @misc{kim2024prometheus2opensource,
+            title={Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models},
+            author={Seungone Kim and Juyoung Suk and Shayne Longpre and Bill Yuchen Lin and Jamin Shin and Sean Welleck and Graham Neubig and Moontae Lee and Kyungjae Lee and Minjoon Seo},
+            year={2024},
+            eprint={2405.01535},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2405.01535},
+        }
+        ```
     """
 
     mode: Literal["absolute", "relative"]

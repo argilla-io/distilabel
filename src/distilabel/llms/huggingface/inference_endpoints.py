@@ -37,10 +37,7 @@ from distilabel.steps.tasks.typing import (
     StandardInput,
     StructuredOutputType,
 )
-from distilabel.utils.huggingface import (
-    _INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME,
-    get_hf_token,
-)
+from distilabel.utils.huggingface import HF_TOKEN_ENV_VAR, get_hf_token
 
 if TYPE_CHECKING:
     from huggingface_hub import AsyncInferenceClient
@@ -162,7 +159,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
         description="The base URL to use for the Inference Endpoints API requests.",
     )
     api_key: Optional[RuntimeParameter[SecretStr]] = Field(
-        default=os.getenv(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME),
+        default_factory=lambda: os.getenv(HF_TOKEN_ENV_VAR),
         description="The API key to authenticate the requests to the Inference Endpoints API.",
     )
 
@@ -178,7 +175,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
 
     _model_name: Optional[str] = PrivateAttr(default=None)
     _tokenizer: Optional["PreTrainedTokenizer"] = PrivateAttr(default=None)
-    _api_key_env_var: str = PrivateAttr(_INFERENCE_ENDPOINTS_API_KEY_ENV_VAR_NAME)
+    _api_key_env_var: str = PrivateAttr(HF_TOKEN_ENV_VAR)
     _aclient: Optional["AsyncInferenceClient"] = PrivateAttr(...)
 
     @model_validator(mode="after")  # type: ignore
@@ -252,8 +249,10 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             self.api_key = SecretStr(get_hf_token(self.__class__.__name__, "api_key"))
 
         if self.model_id is not None:
-            client = InferenceClient()
-            status = client.get_model_status(self.model_id)
+            client = InferenceClient(
+                model=self.model_id, token=self.api_key.get_secret_value()
+            )
+            status = client.get_model_status()
 
             if (
                 status.state not in {"Loadable", "Loaded"}
@@ -514,7 +513,7 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
             input: a single input in chat format to generate responses for.
             max_new_tokens: the maximum number of new tokens that the model will generate.
                 Defaults to `128`.
-            frequence_penalty: a value between `-2.0` and `2.0`. Positive values penalize
+            frequency_penalty: a value between `-2.0` and `2.0`. Positive values penalize
                 new tokens based on their existing frequency in the text so far, decreasing
                 model's likelihood to repeat the same line verbatim. Defauls to `None`.
             logit_bias: modify the likelihood of specified tokens appearing in the completion.
@@ -543,8 +542,8 @@ class InferenceEndpointsLLM(AsyncLLM, MagpieChatTemplateMixin):
                 only if `tokenizer_id` is `None`. Defaults to `None`.
             top_p: the top-p value to use for the generation. Defaults to `1.0`.
             do_sample: whether to use sampling for the generation. This argument is exclusive
-            of the `text_generation` method and will be only used if `tokenizer_id` is not
-            `None`. Defaults to `False`.
+                of the `text_generation` method and will be only used if `tokenizer_id` is not
+                `None`. Defaults to `False`.
             repetition_penalty: the repetition penalty to use for the generation. This argument
                 is exclusive of the `text_generation` method and will be only used if `tokenizer_id`
                 is not `None`. Defaults to `None`.

@@ -28,7 +28,15 @@ class TestMagpieGenerator:
             MagpieGenerator(llm=OpenAILLM(model="gpt-4", api_key="fake"))  # type: ignore
 
     def test_outputs(self) -> None:
-        task = MagpieGenerator(llm=DummyMagpieLLM(magpie_pre_query_template="llama3"))
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=1
+        )
+
+        assert task.outputs == ["instruction", "response", "model_name"]
+
+        task = MagpieGenerator(
+            llm=DummyMagpieLLM(magpie_pre_query_template="llama3"), n_turns=2
+        )
 
         assert task.outputs == ["conversation", "model_name"]
 
@@ -53,6 +61,8 @@ class TestMagpieGenerator:
                 },
             },
             "n_turns": 1,
+            "end_with_user": False,
+            "include_system_prompt": False,
             "only_instruction": False,
             "system_prompt": None,
             "name": "magpie_generator_0",
@@ -68,8 +78,10 @@ class TestMagpieGenerator:
             "batch_size": 50,
             "group_generations": False,
             "add_raw_output": True,
+            "add_raw_input": True,
             "num_generations": 1,
             "num_rows": None,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "llm",
@@ -87,6 +99,16 @@ class TestMagpieGenerator:
                     "description": "The number of turns to generate for the conversation.",
                 },
                 {
+                    "name": "end_with_user",
+                    "optional": True,
+                    "description": "Whether the conversation should end with a user message.",
+                },
+                {
+                    "name": "include_system_prompt",
+                    "optional": True,
+                    "description": "Whether to include the system prompt used in the generated conversation.",
+                },
+                {
                     "name": "only_instruction",
                     "optional": True,
                     "description": "Whether to generate only the instruction. If this argument is `True`, then `n_turns` will be ignored.",
@@ -94,7 +116,7 @@ class TestMagpieGenerator:
                 {
                     "name": "system_prompt",
                     "optional": True,
-                    "description": "An optional system prompt that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
+                    "description": "An optional system prompt or list of system prompts that can be used to steer the LLM to generate content of certain topic, guide the style, etc.",
                 },
                 {
                     "name": "resources",
@@ -135,6 +157,11 @@ class TestMagpieGenerator:
                     "name": "add_raw_output",
                     "optional": True,
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
+                    "optional": True,
                 },
                 {
                     "name": "num_generations",

@@ -7,6 +7,7 @@ site_description: Distilabel is an AI Feedback (AIF) framework for building data
 # Repository
 repo_name: argilla-io/distilabel
 repo_url: https://github.com/argilla-io/distilabel
+edit_uri: edit/main/docs/
 
 extra:
   version:
@@ -20,6 +21,23 @@ extra:
       link: https://www.youtube.com/channel/UCAIz8TmvQQrLqbD7sd-5S2A
     - icon: fontawesome/brands/discord
       link: http://hf.co/join/discord
+  analytics:
+    provider: google
+    property: G-PPKL7LMWCE
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/thumb-up-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/thumb-down-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">opening a GitHub issue</a>.
 extra_css:
   - stylesheets/extra.css
 
@@ -162,6 +180,7 @@ nav:
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
           - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
+          - Saving step generated artifacts: "sections/how_to_guides/advanced/saving_step_generated_artifacts.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
           - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
   - Pipeline Samples:
