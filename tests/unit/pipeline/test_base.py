@@ -1176,7 +1176,7 @@ class TestBasePipeline:
             step1_0 = DummyStep1()
             gen_step >> step1_0
 
-        assert pipeline.name == "pipeline_8333149b"
+        assert pipeline.name == "pipeline_dummy_generator_step_0_dummy_step1_0"
 
 
 class TestPipelineSerialization:
