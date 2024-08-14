@@ -1335,8 +1335,6 @@ class TestPipelineSerialization:
             )
 
         assert pipe._create_signature() == "62ee5fb7002bb84e4e459e615d4f818a017c0ab2"
-        # signature = pipeline._create_signature()
-        # assert signature == "d3c7c572fe31233aa1198174c6c793b67ef3744b"
 
     def test_binary_rshift_operator(self) -> None:
         # Tests the steps can be connected using the >> operator.
