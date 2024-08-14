@@ -431,6 +431,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/truncatetextcolumn/</loc>
+         <lastmod>2024-08-14</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/components-gallery/steps/loaddatafromdicts/</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
