@@ -15,7 +15,7 @@
 import importlib.util
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import Field, PrivateAttr, SecretStr
 
@@ -30,7 +30,7 @@ from distilabel.steps.base import Step, StepInput
 if TYPE_CHECKING:
     from argilla import Argilla, Dataset
 
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 _ARGILLA_API_URL_ENV_VAR_NAME = "ARGILLA_API_URL"
@@ -128,7 +128,7 @@ class ArgillaBase(Step, ABC):
         )
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs of the step is an empty list, since the steps subclassing from this one, will
         always be leaf nodes and won't propagate the inputs neither generate any outputs.
         """
@@ -151,7 +151,7 @@ class ArgillaBase(Step, ABC):
 
     @property
     @abstractmethod
-    def inputs(self) -> List[str]: ...
+    def inputs(self) -> "StepColumns": ...
 
     @abstractmethod
     def process(self, *inputs: StepInput) -> "StepOutput": ...

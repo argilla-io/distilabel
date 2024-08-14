@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict
 
 from distilabel.llms.base import LLM
 from distilabel.steps.base import Step, StepInput
@@ -20,7 +20,7 @@ from distilabel.utils.chat import is_openai_format
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 
 class GenerateEmbeddings(Step):
@@ -99,13 +99,13 @@ class GenerateEmbeddings(Step):
         self.llm.load()
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The inputs for the task is a `text` column containing either a string or a
         list of dictionaries in OpenAI chat-like format."""
         return ["text"]
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """The outputs for the task is an `embedding` column containing the embedding of
         the `text` input."""
         return ["embedding", "model_name"]
