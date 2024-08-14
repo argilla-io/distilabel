@@ -108,7 +108,7 @@ class TruncateRow(Step):
         if self.tokenizer_name:
             if not importlib.util.find_spec("transformers"):
                 raise ImportError(
-                    "transformers is needed to tokenize, but is not installed. "
+                    "`transformers` is needed to tokenize, but is not installed. "
                     "Please install it using `pip install transformers`."
                 )
 
