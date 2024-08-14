@@ -12,7 +12,7 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncaterow/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncatetextcolumn/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>TruncateRow - Distilabel Docs</title>
+        <title>TruncateTextColumn - Distilabel Docs</title>
       
     
     
@@ -71,11 +71,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="TruncateRow - Distilabel Docs" >
+        <meta  property="og:title"  content="TruncateTextColumn - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/steps/truncaterow.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/steps/truncatetextcolumn.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -83,15 +83,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncaterow/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncatetextcolumn/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="TruncateRow - Distilabel Docs" >
+        <meta  name="twitter:title"  content="TruncateTextColumn - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/steps/truncaterow.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/steps/truncatetextcolumn.png" >
       
     
     
@@ -114,7 +114,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#truncaterow" class="md-skip">
+        <a href="#truncatetextcolumn" class="md-skip">
           Skip to content
         </a>
       
@@ -151,7 +151,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TruncateRow
+              TruncateTextColumn
             
           </span>
         </div>
@@ -4328,12 +4328,12 @@
                   
 
 
-<h1 id="truncaterow">TruncateRow<a class="headerlink" href="#truncaterow" title="Permanent link">&para;</a></h1>
+<h1 id="truncatetextcolumn">TruncateTextColumn<a class="headerlink" href="#truncatetextcolumn" title="Permanent link">&para;</a></h1>
 <p>Truncate a row using a tokenizer or the number of characters.</p>
-<p><code>TruncateRow</code> is a <code>Step</code> that truncates a row according to the max length. If
+<p><code>TruncateTextColumn</code> is a <code>Step</code> that truncates a row according to the max length. If
     the <code>tokenizer</code> is provided, then the row will be truncated using the tokenizer,
     and the <code>max_length</code> will be used as the maximum number of tokens, otherwise it will
-    be used as the maximum number of characters. The <code>TruncateRow</code> step is useful when one
+    be used as the maximum number of characters. The <code>TruncateTextColumn</code> step is useful when one
     wants to truncate a row to a certain length, to avoid posterior errors in the model due
     to the length.</p>
 <h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
@@ -4359,7 +4359,7 @@
         end
     end
 
-    subgraph TruncateRow
+    subgraph TruncateTextColumn
         StepInput[Input Columns: dynamic]
         StepOutput[Output Columns: dynamic]
     end
@@ -4378,9 +4378,9 @@
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <h4 id="truncating-a-row-to-a-given-number-of-tokens">Truncating a row to a given number of tokens<a class="headerlink" href="#truncating-a-row-to-a-given-number-of-tokens" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">TruncateRow</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">TruncateTextColumn</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">TruncateRow</span><span class="p">(</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">TruncateTextColumn</span><span class="p">(</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;text&quot;</span>
@@ -4399,9 +4399,9 @@
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># [{&#39;text&#39;: &#39;This is a sample&#39;}]</span>
 </span></code></pre></div>
 <h4 id="truncating-a-row-to-a-given-number-of-characters">Truncating a row to a given number of characters<a class="headerlink" href="#truncating-a-row-to-a-given-number-of-characters" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">TruncateRow</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">TruncateTextColumn</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">TruncateRow</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">TruncateTextColumn</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">trunc</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
@@ -4465,7 +4465,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+TruncateRow+-+/components-gallery/steps/truncaterow/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+TruncateTextColumn+-+/components-gallery/steps/truncatetextcolumn/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>

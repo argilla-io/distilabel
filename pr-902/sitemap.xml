@@ -431,7 +431,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncaterow/</loc>
+         <loc>https://argilla-io.github.io/distilabel/pr-902/components-gallery/steps/truncatetextcolumn/</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
     </url>

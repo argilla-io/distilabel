@@ -2,16 +2,16 @@
 hide:
   - navigation
 ---
-# TruncateRow
+# TruncateTextColumn
 
 Truncate a row using a tokenizer or the number of characters.
 
 
 
-`TruncateRow` is a `Step` that truncates a row according to the max length. If
+`TruncateTextColumn` is a `Step` that truncates a row according to the max length. If
     the `tokenizer` is provided, then the row will be truncated using the tokenizer,
     and the `max_length` will be used as the maximum number of tokens, otherwise it will
-    be used as the maximum number of characters. The `TruncateRow` step is useful when one
+    be used as the maximum number of characters. The `TruncateTextColumn` step is useful when one
     wants to truncate a row to a certain length, to avoid posterior errors in the model due
     to the length.
 
@@ -44,7 +44,7 @@ graph TD
 		end
 	end
 
-	subgraph TruncateRow
+	subgraph TruncateTextColumn
 		StepInput[Input Columns: dynamic]
 		StepOutput[Output Columns: dynamic]
 	end
@@ -78,9 +78,9 @@ graph TD
 
 #### Truncating a row to a given number of tokens
 ```python
-from distilabel.steps import TruncateRow
+from distilabel.steps import TruncateTextColumn
 
-trunc = TruncateRow(
+trunc = TruncateTextColumn(
     tokenizer="meta-llama/Meta-Llama-3.1-70B-Instruct",
     max_length=4,
     column="text"
@@ -101,9 +101,9 @@ result = next(
 
 #### Truncating a row to a given number of characters
 ```python
-from distilabel.steps import TruncateRow
+from distilabel.steps import TruncateTextColumn
 
-trunc = TruncateRow(max_length=10)
+trunc = TruncateTextColumn(max_length=10)
 
 trunc.load()
 
