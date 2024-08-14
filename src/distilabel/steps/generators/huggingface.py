@@ -333,6 +333,23 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         # >>> result
         # ([{'type': 'function', 'function':...', False)
         ```
+
+        Load data passing a glob pattern:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(
+            data_files="path/to/dataset/*.jsonl",
+            streaming=True
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     data_files: RuntimeParameter[Union[str, Path]] = Field(
@@ -376,7 +393,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 self.num_examples = len(self._dataset)
 
     @staticmethod
-    def _prepare_data_files(
+    def _prepare_data_files(  # noqa: C901
         data_path: UPath,
     ) -> Tuple[Union[str, Sequence[str], Mapping[str, Union[str, Sequence[str]]]], str]:
         """Prepare the loading process by setting the `data_files` attribute.
@@ -394,9 +411,12 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 filetype = "json"
             return filetype
 
-        if data_path.is_file():
+        if data_path.is_file() or (
+            len(str(data_path.parent.glob(data_path.name))) >= 1
+        ):
             filetype = get_filetype(data_path)
             data_files = str(data_path)
+
         elif data_path.is_dir():
             file_sequence = []
             file_map = defaultdict(list)
