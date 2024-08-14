@@ -47,7 +47,7 @@ from distilabel.steps.generators.huggingface import (
 from distilabel.steps.generators.utils import make_generator_step
 from distilabel.steps.globals.huggingface import PushToHub
 from distilabel.steps.reward_model import RewardModelScore
-from distilabel.steps.truncate import TruncateRow
+from distilabel.steps.truncate import TruncateTextColumn
 from distilabel.steps.typing import GeneratorStepOutput, StepOutput
 
 __all__ = [
@@ -78,7 +78,7 @@ __all__ = [
     "Step",
     "StepInput",
     "RewardModelScore",
-    "TruncateRow",
+    "TruncateTextColumn",
     "GeneratorStepOutput",
     "StepOutput",
     "step",

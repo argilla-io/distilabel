@@ -15,7 +15,7 @@
 from typing import Optional
 
 import pytest
-from distilabel.steps.truncate import TruncateRow
+from distilabel.steps.truncate import TruncateTextColumn
 
 
 @pytest.mark.parametrize(
@@ -38,7 +38,9 @@ from distilabel.steps.truncate import TruncateRow
 def test_truncate_row(
     max_length: int, text: str, tokenizer: Optional[str], expected: str
 ) -> None:
-    trunc = TruncateRow(column="text", max_length=max_length, tokenizer=tokenizer)
+    trunc = TruncateTextColumn(
+        column="text", max_length=max_length, tokenizer=tokenizer
+    )
     trunc.load()
 
     assert next(trunc.process([{"text": text}])) == [{"text": expected}]
