@@ -18,6 +18,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about synthetic data generation for fine-tuning custom retrieval and reranking models.
+
     [:octicons-arrow-right-24: Tutorial](../tutorials/GenerateSentencePair.ipynb)
 
 </div>
@@ -31,6 +32,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about prompt, response tuning for complexity and quality and LLMs as judges for automatic data selection.
+
     [:octicons-arrow-right-24: Paper](../papers/deita.md)
 
 -   __Instruction Backtranslation__
@@ -38,6 +40,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about automatically labeling human-written text with corresponding instructions.
+
     [:octicons-arrow-right-24: Paper](../papers/instruction_backtranslation.md)
 
 -   __Prometheus 2__
@@ -45,6 +48,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about using open-source models as judges for direct assessment and pair-wise ranking.
+
     [:octicons-arrow-right-24: Paper](../papers/prometheus.md)
 
 -   __UltraFeedback__
@@ -52,6 +56,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about a large-scale, fine-grained, diverse preference dataset, used for training powerful reward and critic models.
+
     [:octicons-arrow-right-24: Paper](../papers/ultrafeedback.md)
 
 </div>
@@ -81,6 +86,7 @@ This section contains different example pipelines that showcase different tasks,
     ---
 
     Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
+
     [:octicons-arrow-right-24: Example](../papers/prometheus.md)
 
 
