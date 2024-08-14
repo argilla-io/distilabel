@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -63,7 +64,7 @@ class _Task(_Step, ABC):
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
-    use_default_structured_output: bool = True
+    use_default_structured_output: bool = False
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
@@ -173,14 +174,24 @@ class _Task(_Step, ABC):
             from distilabel.llms import InferenceEndpointsLLM
             from distilabel.llms.base import AsyncLLM
 
+            def check_dependency(module_name: str) -> None:
+                if not importlib.util.find_spec(module_name):
+                    raise ImportError(
+                        f"`{module_name}` is not installed and is needed for the structured generation with this LLM."
+                        f" Please install it using `pip install {module_name}`."
+                    )
+
+            dependency = "outlines"
             structured_output = {"schema": schema}
             # To determine instructor or outlines format
             if not (
                 isinstance(self.llm, AsyncLLM)
                 and not isinstance(self.llm, InferenceEndpointsLLM)
             ):
+                dependency = "instructor"
                 structured_output.update({"format": "json"})
 
+            check_dependency(dependency)
             self.llm.structured_output = structured_output
 
     def get_structured_output(self) -> Union[Dict[str, Any], None]:
