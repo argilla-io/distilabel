@@ -7,6 +7,7 @@ site_description: Distilabel is an AI Feedback (AIF) framework for building data
 # Repository
 repo_name: argilla-io/distilabel
 repo_url: https://github.com/argilla-io/distilabel
+edit_uri: edit/main/docs/
 
 extra:
   version:
