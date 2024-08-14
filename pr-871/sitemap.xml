@@ -246,6 +246,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/pr-871/sections/how_to_guides/advanced/saving_step_generated_artifacts/</loc>
+         <lastmod>2024-08-14</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/pr-871/sections/how_to_guides/advanced/scaling_with_ray/</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
