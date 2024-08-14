@@ -411,11 +411,9 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 filetype = "json"
             return filetype
 
-        if data_path.is_file():
-            filetype = get_filetype(data_path)
-            data_files = str(data_path)
-
-        elif len(str(data_path.parent.glob(data_path.name))) >= 1:
+        if data_path.is_file() or (
+            len(str(data_path.parent.glob(data_path.name))) >= 1
+        ):
             filetype = get_filetype(data_path)
             data_files = str(data_path)
 

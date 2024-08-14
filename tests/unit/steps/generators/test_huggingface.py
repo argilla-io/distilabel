@@ -128,7 +128,6 @@ class TestLoadDataFromFileSystem:
             loader = LoadDataFromFileSystem(
                 filetype=filetype,
                 data_files=str(Path(tmpdir) / "**/*.jsonl"),
-                # data_files=tmpdir,
             )
             loader.load()
             generator_step_output = next(loader.process())
