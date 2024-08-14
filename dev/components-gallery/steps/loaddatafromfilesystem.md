@@ -118,6 +118,22 @@ result = next(loader.process())
 # ([{'type': 'function', 'function':...', False)
 ```
 
+#### Load data passing a glob pattern
+```python
+from distilabel.steps import LoadDataFromFileSystem
+
+loader = LoadDataFromFileSystem(
+    data_files="path/to/dataset/*.jsonl",
+    streaming=True
+)
+loader.load()
+
+# Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+result = next(loader.process())
+# >>> result
+# ([{'type': 'function', 'function':...', False)
+```
+
 
 
 
