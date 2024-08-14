@@ -482,23 +482,42 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
                     " Please, review the `outputs_mappings` argument of the step."
                 )
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> Dict[str, bool]:
         """Gets the inputs of the step after the `input_mappings`. This method is meant
         to be used to run validations on the inputs of the step.
 
         Returns:
-            The inputs of the step after the `input_mappings`.
+            The inputs of the step after the `input_mappings` and if they are required or
+            not.
         """
-        return [self.input_mappings.get(input, input) for input in self.inputs]
+        if isinstance(self.inputs, list):
+            return {
+                self.input_mappings.get(input, input): True for input in self.inputs
+            }
 
-    def get_outputs(self) -> List[str]:
+        return {
+            self.input_mappings.get(input, input): required
+            for input, required in self.inputs.items()
+        }
+
+    def get_outputs(self) -> Dict[str, bool]:
         """Gets the outputs of the step after the `outputs_mappings`. This method is
         meant to be used to run validations on the outputs of the step.
 
         Returns:
-            The outputs of the step after the `outputs_mappings`.
+            The outputs of the step after the `outputs_mappings` and if they are required
+            or not.
         """
-        return [self.output_mappings.get(output, output) for output in self.outputs]
+        if isinstance(self.outputs, list):
+            return {
+                self.output_mappings.get(output, output): True
+                for output in self.outputs
+            }
+
+        return {
+            self.output_mappings.get(output, output): required
+            for output, required in self.outputs.items()
+        }
 
     def set_pipeline_artifacts_path(self, path: Path) -> None:
         """Sets the `_pipeline_artifacts_path` attribute. This method is meant to be used

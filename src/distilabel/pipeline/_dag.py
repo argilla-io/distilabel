@@ -374,7 +374,11 @@ class DAG(_Serializable):
             for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
-        if not all(input in inputs_available_for_step for input in step_inputs):
+        if not all(
+            input in inputs_available_for_step
+            for input, required in step_inputs.items()
+            if required
+        ):
             raise ValueError(
                 f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
                 f"={inputs_available_for_step} are available, which means that the inputs"
