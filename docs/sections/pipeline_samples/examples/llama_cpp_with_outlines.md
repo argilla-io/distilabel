@@ -1,3 +1,6 @@
+---
+hide: toc
+---
 # [llama.cpp with `outlines`](#llamacpp-with-outlines)
 
 Generate RPG characters following a `pydantic.BaseModel` with `outlines` in `distilabel`.
