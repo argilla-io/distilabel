@@ -114,6 +114,39 @@ result = next(
 ]
 ```
 
+#### Generate structured output with default schema
+```python
+from distilabel.steps.tasks import QualityScorer
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+scorer = QualityScorer(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+    ),
+    use_default_structured_output=True
+)
+
+scorer.load()
+
+result = next(
+    scorer.process(
+        [
+            {
+                "instruction": "instruction",
+                "responses": ["good response", "weird response", "bad response"]
+            }
+        ]
+    )
+)
+
+# result
+[{'instruction': 'instruction',
+'responses': ['good response', 'weird response', 'bad response'],
+'scores': [1, 2, 3],
+'distilabel_metadata': {'raw_output_quality_scorer_0': '{  "scores": [1, 2, 3] }'},
+'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
+```
+
 
 
 

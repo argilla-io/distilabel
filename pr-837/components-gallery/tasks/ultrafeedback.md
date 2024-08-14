@@ -92,13 +92,14 @@ from distilabel.llms.huggingface import InferenceEndpointsLLM
 ultrafeedback = UltraFeedback(
     llm=InferenceEndpointsLLM(
         model_id="mistralai/Mistral-7B-Instruct-v0.2",
-    )
+    ),
+    use_default_structured_output=False
 )
 
 ultrafeedback.load()
 
 result = next(
-    chat.process(
+    ultrafeedback.process(
         [
             {
                 "instruction": "How much is 2+2?",
@@ -117,6 +118,65 @@ result = next(
 #         'model_name': 'mistralai/Mistral-7B-Instruct-v0.2',
 #     }
 # ]
+```
+
+#### using the default structured output
+```python
+from distilabel.steps.tasks import UltraFeedback
+from distilabel.llms.huggingface import InferenceEndpointsLLM
+
+# Consider this as a placeholder for your actual LLM.
+ultrafeedback = UltraFeedback(
+    llm=InferenceEndpointsLLM(
+        model_id="meta-llama/Meta-Llama-3.1-70B-Instruct",
+        generation_kwargs={"max_new_tokens": 512},
+    ),
+    aspect="helpfulness"
+)
+
+ultrafeedback.load()
+
+result = next(
+    ultrafeedback.process(
+        [
+            {
+                "instruction": "How much is 2+2?",
+                "generations": ["4", "and a car"],
+            }
+        ]
+    )
+)
+# result
+# [{'instruction': 'How much is 2+2?',
+#   'generations': ['4', 'and a car'],
+#   'ratings': [1, 5],
+#   'rationales': ['Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.',
+#    'Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question.'],
+#   'rationales_for_rating': ['Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.',
+#    'Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question.'],
+#   'types': [1, 3, 1],
+#   'distilabel_metadata': {'raw_output_ultra_feedback_0': '{ 
+  "ratings": [
+    1,
+    5
+  ]
+ ,
+  "rationales": [
+    "Text 1 is clear and relevant, providing the correct answer to the question. It is also not lengthy and does not contain repetition. However, it lacks comprehensive information or detailed description.",
+    "Text 2 is neither clear nor relevant to the task. It does not provide any useful information and seems unrelated to the question."
+  ]
+ ,
+  "rationales_for_rating": [
+    "Text 1 is rated as Correct (3) because it provides the accurate answer to the question, but lacks comprehensive information or detailed description.",
+    "Text 2 is rated as Severely Incorrect (1) because it does not provide any relevant information and seems unrelated to the question."
+  ]
+ ,
+  "types": [
+    1, 3,
+    1
+  ]
+  }'},
+#   'model_name': 'meta-llama/Meta-Llama-3.1-70B-Instruct'}]
 ```
 
 
