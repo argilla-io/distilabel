@@ -19,7 +19,7 @@ from distilabel.steps.truncate import TruncateRow
 
 
 @pytest.mark.parametrize(
-    "max_length, text, tokenizer_name, expected",
+    "max_length, text, tokenizer, expected",
     [
         (
             10,
@@ -36,11 +36,9 @@ from distilabel.steps.truncate import TruncateRow
     ],
 )
 def test_truncate_row(
-    max_length: int, text: str, tokenizer_name: Optional[str], expected: str
+    max_length: int, text: str, tokenizer: Optional[str], expected: str
 ) -> None:
-    trunc = TruncateRow(
-        column="text", max_length=max_length, tokenizer_name=tokenizer_name
-    )
+    trunc = TruncateRow(column="text", max_length=max_length, tokenizer=tokenizer)
     trunc.load()
 
     assert next(trunc.process([{"text": text}])) == [{"text": expected}]
