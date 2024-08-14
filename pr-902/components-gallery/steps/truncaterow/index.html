@@ -4331,7 +4331,7 @@
 <h1 id="truncaterow">TruncateRow<a class="headerlink" href="#truncaterow" title="Permanent link">&para;</a></h1>
 <p>Truncate a row using a tokenizer or the number of characters.</p>
 <p><code>TruncateRow</code> is a <code>Step</code> that truncates a row according to the max length. If
-    the <code>tokenizer_name</code> is provided, then the row will be truncated using the tokenizer,
+    the <code>tokenizer</code> is provided, then the row will be truncated using the tokenizer,
     and the <code>max_length</code> will be used as the maximum number of tokens, otherwise it will
     be used as the maximum number of characters. The <code>TruncateRow</code> step is useful when one
     wants to truncate a row to a certain length, to avoid posterior errors in the model due
@@ -4342,10 +4342,10 @@
 <p><strong>column</strong>: the column to truncate. Defaults to <code>"text"</code>.</p>
 </li>
 <li>
-<p><strong>max_length</strong>: the maximum length to use for truncation.  If a <code>tokenizer_name</code> is given, corresponds to the number of tokens,  otherwise corresponds to the number of characters. Defaults to <code>8192</code>.</p>
+<p><strong>max_length</strong>: the maximum length to use for truncation.  If a <code>tokenizer</code> is given, corresponds to the number of tokens,  otherwise corresponds to the number of characters. Defaults to <code>8192</code>.</p>
 </li>
 <li>
-<p><strong>tokenizer_name</strong>: the name of the tokenizer to use. If provided, the row will be  truncated using the tokenizer. Defaults to <code>None</code>.</p>
+<p><strong>tokenizer</strong>: the name of the tokenizer to use. If provided, the row will be  truncated using the tokenizer. Defaults to <code>None</code>.</p>
 </li>
 </ul>
 <h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
@@ -4381,7 +4381,7 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">TruncateRow</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">TruncateRow</span><span class="p">(</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">tokenizer_name</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">tokenizer</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;text&quot;</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
