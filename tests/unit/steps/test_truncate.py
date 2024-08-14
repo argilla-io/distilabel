@@ -30,7 +30,7 @@ from distilabel.steps.truncate import TruncateRow
         (
             4,
             "This is a sample text that is longer than 10 characters",
-            "meta-llama/Meta-Llama-3.1-70B-Instruct",
+            "teknium/OpenHermes-2.5-Mistral-7B",
             "This is a sample",
         ),
     ],
