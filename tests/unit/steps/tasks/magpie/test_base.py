@@ -423,6 +423,7 @@ class TestMagpie:
             "group_generations": False,
             "add_raw_output": True,
             "num_generations": 1,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "llm",

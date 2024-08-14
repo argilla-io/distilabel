@@ -30,7 +30,6 @@ import numpy as np
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import LLM
-from distilabel.llms.chat_templates import CHATML_TEMPLATE
 from distilabel.llms.mixins.cuda_device_placement import CudaDevicePlacementMixin
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.llms.openai import OpenAILLM
@@ -204,11 +203,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         self._tokenizer = self._model.get_tokenizer()  # type: ignore
         if self.chat_template is not None:
             self._tokenizer.chat_template = self.chat_template  # type: ignore
-        elif (
-            self._tokenizer.chat_template is None  # type: ignore
-            and self._tokenizer.default_chat_template is None  # type: ignore
-        ):
-            self._tokenizer.chat_template = CHATML_TEMPLATE
 
         if self.structured_output:
             self._logits_processor = self._prepare_structured_output(
@@ -235,6 +229,9 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             The prompt to send to the LLM.
         """
+        if self._tokenizer.chat_template is None:
+            return input[0]["content"]
+
         prompt: str = (
             self._tokenizer.apply_chat_template(
                 input,  # type: ignore

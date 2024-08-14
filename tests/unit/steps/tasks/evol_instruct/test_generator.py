@@ -117,6 +117,7 @@ class TestEvolInstructGenerator:
             "name": "task",
             "llm": {
                 "generation_kwargs": {},
+                "structured_output": None,
                 "type_info": {
                     "module": task.llm.__class__.__module__,
                     "name": task.llm.__class__.__name__,
@@ -148,6 +149,7 @@ class TestEvolInstructGenerator:
             "min_length": task.min_length,
             "max_length": task.max_length,
             "seed": task.seed,
+            "use_default_structured_output": False,
             "runtime_parameters_info": [
                 {
                     "name": "resources",
