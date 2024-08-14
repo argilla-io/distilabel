@@ -15,14 +15,14 @@
         <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-766/sections/how_to_guides/advanced/serving_an_llm_for_reuse/">
       
       
-        <link rel="prev" href="../assigning_resources_to_step/">
+        <link rel="prev" href="../saving_step_generated_artifacts/">
       
       
         <link rel="next" href="../scaling_with_ray/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.30">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
@@ -59,6 +59,16 @@
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-PPKL7LMWCE"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-PPKL7LMWCE",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-PPKL7LMWCE",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -1100,6 +1110,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../saving_step_generated_artifacts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Saving step generated artifacts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1149,18 +1180,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" class="md-nav__link">
+  <a href="#serving-llms-using-text-generation-inference" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using text-generation-inference
+      Serving LLMs using text-generation-inference
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" class="md-nav__link">
+  <a href="#serving-llms-using-vllm" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using vLLM
+      Serving LLMs using vLLM
     </span>
   </a>
   
@@ -1672,6 +1703,27 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2497,7 +2549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2518,7 +2570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../components-gallery/llms/openaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/clientvllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2582,6 +2634,27 @@
   
     <li class="md-nav__item">
       <a href="../../../../components-gallery/llms/togetherllm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3025,6 +3098,27 @@
   
   <span class="md-ellipsis">
     UltraFeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pipeline_samples/papers/deepseek_prover/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DeepSeek Prover
   </span>
   
 
@@ -4239,18 +4333,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" class="md-nav__link">
+  <a href="#serving-llms-using-text-generation-inference" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using text-generation-inference
+      Serving LLMs using text-generation-inference
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" class="md-nav__link">
+  <a href="#serving-llms-using-vllm" class="md-nav__link">
     <span class="md-ellipsis">
-      Serving meta-llama/Meta-Llama-3-8B-Instruct using vLLM
+      Serving LLMs using vLLM
     </span>
   </a>
   
@@ -4271,7 +4365,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/master/docs/sections/how_to_guides/advanced/serving_an_llm_for_reuse.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/how_to_guides/advanced/serving_an_llm_for_reuse.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -4281,7 +4375,7 @@
 
 <h1 id="serving-an-llm-for-sharing-it-between-several-tasks">Serving an <code>LLM</code> for sharing it between several <code>Task</code>s<a class="headerlink" href="#serving-an-llm-for-sharing-it-between-several-tasks" title="Permanent link">&para;</a></h1>
 <p>It's very common to want to use the same <code>LLM</code> for several <code>Task</code>s in a pipeline. To avoid loading the <code>LLM</code> as many times as the number of <code>Task</code>s and avoid wasting resources, it's recommended to serve the model using solutions like <a href="https://huggingface.co/docs/text-generation-inference/quicktour#launching-tgi"><code>text-generation-inference</code></a> or <a href="https://docs.vllm.ai/en/stable/serving/deploying_with_docker.html"><code>vLLM</code></a>, and then use an <code>AsyncLLM</code> compatible client like <code>InferenceEndpointsLLM</code> or <code>OpenAILLM</code> to communicate with the server respectively.</p>
-<h2 id="serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference">Serving <code>meta-llama/Meta-Llama-3-8B-Instruct</code> using <code>text-generation-inference</code><a class="headerlink" href="#serving-meta-llamameta-llama-3-8b-instruct-using-text-generation-inference" title="Permanent link">&para;</a></h2>
+<h2 id="serving-llms-using-text-generation-inference">Serving LLMs using <code>text-generation-inference</code><a class="headerlink" href="#serving-llms-using-text-generation-inference" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">model</span><span class="o">=</span>meta-llama/Meta-Llama-3-8B-Instruct
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">volume</span><span class="o">=</span><span class="nv">$PWD</span>/data<span class="w"> </span><span class="c1"># share a volume with the Docker container to avoid downloading weights every run</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -4319,7 +4413,7 @@
 </span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">load_data</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span> <span class="o">&gt;&gt;</span> <span class="n">ultrafeedback</span>
 </span></code></pre></div>
-<h2 id="serving-meta-llamameta-llama-3-8b-instruct-using-vllm">Serving <code>meta-llama/Meta-Llama-3-8B-Instruct</code> using <code>vLLM</code><a class="headerlink" href="#serving-meta-llamameta-llama-3-8b-instruct-using-vllm" title="Permanent link">&para;</a></h2>
+<h2 id="serving-llms-using-vllm">Serving LLMs using <code>vLLM</code><a class="headerlink" href="#serving-llms-using-vllm" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>-v<span class="w"> </span>~/.cache/huggingface:/root/.cache/huggingface<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--env<span class="w"> </span><span class="s2">&quot;HUGGING_FACE_HUB_TOKEN=&lt;secret&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
@@ -4369,7 +4463,49 @@
 
 
 
+  
 
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 9v12H1V9h4m4 12a2 2 0 0 1-2-2V9c0-.55.22-1.05.59-1.41L14.17 1l1.06 1.06c.27.27.44.64.44 1.05l-.03.32L14.69 8H21a2 2 0 0 1 2 2v2c0 .26-.05.5-.14.73l-3.02 7.05C19.54 20.5 18.83 21 18 21H9m0-2h9.03L21 12v-2h-8.79l1.13-5.32L9 9.03V19Z"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 15V3h4v12h-4M15 3a2 2 0 0 1 2 2v10c0 .55-.22 1.05-.59 1.41L9.83 23l-1.06-1.06c-.27-.27-.44-.64-.44-1.06l.03-.31.95-4.57H3a2 2 0 0 1-2-2v-2c0-.26.05-.5.14-.73l3.02-7.05C4.46 3.5 5.17 3 6 3h9m0 2H5.97L3 12v2h8.78l-1.13 5.32L15 14.97V5Z"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Serving%20an%20LLM%20for%20sharing%20it%20between%20several%20tasks+-+/sections/how_to_guides/advanced/serving_an_llm_for_reuse/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
 
 
                 
@@ -4397,7 +4533,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../assigning_resources_to_step/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Assigning resources to a step">
+          <a href="../saving_step_generated_artifacts/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Saving step generated artifacts">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -4407,7 +4543,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Assigning resources to a step
+                Saving step generated artifacts
               </div>
             </div>
           </a>

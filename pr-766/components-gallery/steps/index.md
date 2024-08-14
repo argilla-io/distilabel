@@ -146,6 +146,14 @@ hide:
 
     [:octicons-arrow-right-24: RewardModelScore](rewardmodelscore.md){ .bottom }
 
+-   :material-receipt-text-edit:{ .lg .middle } __TruncateTextColumn__
+
+    ---
+
+    Truncate a row using a tokenizer or the number of characters.
+
+    [:octicons-arrow-right-24: TruncateTextColumn](truncatetextcolumn.md){ .bottom }
+
 -   :material-file-download:{ .lg .middle } __LoadDataFromDicts__
 
     ---
