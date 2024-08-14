@@ -106,7 +106,13 @@ class FormatTextGenerationDPO(Step):
     def inputs(self) -> "StepColumns":
         """List of inputs required by the `Step`, which in this case are: `instruction`, `generations`,
         and `ratings`."""
-        return ["instruction", "generations", "ratings"]
+        return {
+            "system_prompt": False,
+            "instruction": True,
+            "generations": True,
+            "generation_models": False,
+            "ratings": True,
+        }
 
     @property
     def optional_inputs(self) -> List[str]:

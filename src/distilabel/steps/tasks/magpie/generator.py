@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from pydantic import Field
 
@@ -22,7 +22,7 @@ from distilabel.steps.tasks.base import GeneratorTask
 from distilabel.steps.tasks.magpie.base import MagpieBase
 
 if TYPE_CHECKING:
-    from distilabel.steps.typing import GeneratorStepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns
 
 
 class MagpieGenerator(GeneratorTask, MagpieBase):
@@ -244,7 +244,7 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         return {}
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]

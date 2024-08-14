@@ -86,7 +86,11 @@ class FormatTextGenerationSFT(Step):
     @property
     def inputs(self) -> "StepColumns":
         """List of inputs required by the `Step`, which in this case are: `instruction`, and `generation`."""
-        return ["instruction", "generation"]
+        return {
+            "system_prompt": False,
+            "instruction": True,
+            "generation": True,
+        }
 
     @property
     def optional_inputs(self) -> List[str]:
