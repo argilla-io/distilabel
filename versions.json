@@ -136,14 +136,6 @@
     }
   },
   {
-    "version": "pr-733",
-    "title": "pr-733",
-    "aliases": [],
-    "properties": {
-      "hidden": true
-    }
-  },
-  {
     "version": "dev",
     "title": "dev",
     "aliases": []
