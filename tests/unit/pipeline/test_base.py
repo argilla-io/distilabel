@@ -21,6 +21,11 @@ from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
+from distilabel.constants import (
+    INPUT_QUEUE_ATTR_NAME,
+    LAST_BATCH_SENT_FLAG,
+    STEPS_ARTIFACTS_PATH,
+)
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.base import (
     _STEP_LOAD_FAILED_CODE,
@@ -30,7 +35,6 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.batch import _Batch
 from distilabel.pipeline.batch_manager import _BatchManager
-from distilabel.pipeline.constants import INPUT_QUEUE_ATTR_NAME, LAST_BATCH_SENT_FLAG
 from distilabel.pipeline.routing_batch_function import (
     routing_batch_function,
     sample_n_steps,
@@ -154,6 +158,23 @@ class TestBasePipeline:
 
         with pytest.raises(ValueError, match="The 'path' key must be present"):
             pipeline._setup_fsspec({"key": "random"})
+
+    def test_set_pipeline_artifacts_path_in_steps(self) -> None:
+        with DummyPipeline(name="dummy") as pipeline:
+            generator = DummyGeneratorStep()
+            step = DummyStep1()
+            step2 = DummyStep1()
+            step3 = DummyStep2()
+
+            generator >> [step, step2] >> step3
+
+        pipeline._set_pipeline_artifacts_path_in_steps()
+
+        artifacts_directory = pipeline._cache_location["data"] / STEPS_ARTIFACTS_PATH
+        assert generator.artifacts_directory == artifacts_directory / generator.name  # type: ignore
+        assert step.artifacts_directory == artifacts_directory / step.name  # type: ignore
+        assert step2.artifacts_directory == artifacts_directory / step2.name  # type: ignore
+        assert step3.artifacts_directory == artifacts_directory / step3.name  # type: ignore
 
     def test_init_steps_load_status(self) -> None:
         with DummyPipeline(name="dummy") as pipeline:
