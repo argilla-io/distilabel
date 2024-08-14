@@ -12,24 +12,28 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-902/components-gallery/tasks/textgeneration/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/pr-902/sections/how_to_guides/advanced/saving_step_generated_artifacts/">
       
       
+        <link rel="prev" href="../assigning_resources_to_step/">
       
       
-      <link rel="icon" href="../../../assets/logo.svg">
+        <link rel="next" href="../serving_an_llm_for_reuse/">
+      
+      
+      <link rel="icon" href="../../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
-        <title>TextGeneration - Distilabel Docs</title>
+        <title>Saving step generated artifacts - Distilabel Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.3cba04c6.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -71,11 +75,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="TextGeneration - Distilabel Docs" >
+        <meta  property="og:title"  content="Saving step generated artifacts - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/tasks/textgeneration.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/sections/how_to_guides/advanced/saving_step_generated_artifacts.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -83,15 +87,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-902/components-gallery/tasks/textgeneration/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/pr-902/sections/how_to_guides/advanced/saving_step_generated_artifacts/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="TextGeneration - Distilabel Docs" >
+        <meta  name="twitter:title"  content="Saving step generated artifacts - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/components-gallery/tasks/textgeneration.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/pr-902/assets/images/social/sections/how_to_guides/advanced/saving_step_generated_artifacts.png" >
       
     
     
@@ -114,7 +118,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#textgeneration" class="md-skip">
+        <a href="#saving-step-generated-artifacts" class="md-skip">
           Skip to content
         </a>
       
@@ -132,9 +136,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -151,7 +155,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TextGeneration
+              Saving step generated artifacts
             
           </span>
         </div>
@@ -275,7 +279,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -294,7 +298,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../sections/getting_started/installation/" class="md-tabs__link">
+        <a href="../../../getting_started/installation/" class="md-tabs__link">
           
   
   Getting started
@@ -308,9 +312,11 @@
         
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../../sections/how_to_guides/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../" class="md-tabs__link">
         
   
     
@@ -327,7 +333,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../" class="md-tabs__link">
+      <a href="../../../../components-gallery/" class="md-tabs__link">
         
   
     
@@ -346,7 +352,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../sections/pipeline_samples/examples/" class="md-tabs__link">
+        <a href="../../../pipeline_samples/examples/" class="md-tabs__link">
           
   
   Pipeline Samples
@@ -364,7 +370,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../api/step/" class="md-tabs__link">
+        <a href="../../../../api/step/" class="md-tabs__link">
           
   
   API Reference
@@ -380,7 +386,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../sections/community/" class="md-tabs__link">
+      <a href="../../../community/" class="md-tabs__link">
         
   
     
@@ -403,9 +409,7 @@
           
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -416,9 +420,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     Distilabel Docs
@@ -445,7 +449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -505,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/installation/" class="md-nav__link">
+      <a href="../../../getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -526,7 +530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/quickstart/" class="md-nav__link">
+      <a href="../../../getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -547,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/getting_started/faq/" class="md-nav__link">
+      <a href="../../../getting_started/faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -572,27 +576,32 @@
       
   
   
+    
   
   
+  
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -603,13 +612,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             How-to guides
@@ -628,17 +637,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -680,7 +692,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/basic/step/" class="md-nav__link ">
+            <a href="../../basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -711,7 +723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/step/generator_step/" class="md-nav__link">
+      <a href="../../basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -732,7 +744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/step/global_step/" class="md-nav__link">
+      <a href="../../basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -778,7 +790,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/how_to_guides/basic/task/" class="md-nav__link ">
+            <a href="../../basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -809,7 +821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/task/generator_task/" class="md-nav__link">
+      <a href="../../basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -838,7 +850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/llm/" class="md-nav__link">
+      <a href="../../basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -859,7 +871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/basic/pipeline/" class="md-nav__link">
+      <a href="../../basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -885,25 +897,30 @@
                 
   
   
+    
   
   
+  
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -914,7 +931,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Advanced
@@ -928,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/distiset/" class="md-nav__link">
+      <a href="../distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -949,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/caching/" class="md-nav__link">
+      <a href="../caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -970,7 +987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/argilla/" class="md-nav__link">
+      <a href="../argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -991,7 +1008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/structured_generation/" class="md-nav__link">
+      <a href="../structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1012,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../pipeline_requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1033,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1054,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1075,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../assigning_resources_to_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1093,10 +1110,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1105,6 +1131,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1117,7 +1144,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+      <a href="../serving_an_llm_for_reuse/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1138,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
+      <a href="../scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1191,7 +1218,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../../../components-gallery/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1239,7 +1266,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../steps/" class="md-nav__link ">
+            <a href="../../../../components-gallery/steps/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1270,7 +1297,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1291,7 +1318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/deitafiltering/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1312,7 +1339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/faissnearestneighbour/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/faissnearestneighbour/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1333,7 +1360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/pushtohub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1354,7 +1381,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/preferencetoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1375,7 +1402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/textgenerationtoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1396,7 +1423,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/expandcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1417,7 +1444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/groupcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1438,7 +1465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/combinecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1459,7 +1486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/keepcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1480,7 +1507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/mergecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1501,7 +1528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/embeddinggeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1522,7 +1549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/conversationtemplate/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1543,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formattextgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1564,7 +1591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formatchatgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1585,7 +1612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formattextgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1606,7 +1633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/formatchatgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1627,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/rewardmodelscore/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1648,7 +1675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/truncaterow/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/truncaterow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1669,7 +1696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromdicts/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1690,7 +1717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromhub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1711,7 +1738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromfilesystem/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1732,7 +1759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../steps/loaddatafromdisk/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1778,7 +1805,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../../../components-gallery/tasks/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1809,7 +1836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1830,7 +1857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../complexityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1851,7 +1878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1872,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolcomplexity/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1893,7 +1920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolquality/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolquality/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1914,7 +1941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../genstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/genstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1935,7 +1962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatetextretrievaldata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1956,7 +1983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generateshorttextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1977,7 +2004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatelongtextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1998,7 +2025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatetextclassificationdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2019,7 +2046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instructionbacktranslation/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2040,7 +2067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../magpie/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/magpie/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2061,7 +2088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prometheuseval/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2082,7 +2109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qualityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2103,7 +2130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../selfinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2124,7 +2151,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generatesentencepair/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2145,7 +2172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../structuredgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2166,7 +2193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/textgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2187,7 +2214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../chatgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2208,7 +2235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ultrafeedback/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2229,7 +2256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolinstructgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2250,7 +2277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evolcomplexitygenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2271,7 +2298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monolingualtripletgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2292,7 +2319,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bitextretrievalgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2313,7 +2340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../embeddingtaskgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2334,7 +2361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../magpiegenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/magpiegenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2355,7 +2382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pairrm/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/pairrm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2376,7 +2403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generateembeddings/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2422,7 +2449,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../llms/" class="md-nav__link ">
+            <a href="../../../../components-gallery/llms/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2453,7 +2480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2474,7 +2501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/openaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2495,7 +2522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/clientvllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/clientvllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2516,7 +2543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/anyscalellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anyscalellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2537,7 +2564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/azureopenaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2558,7 +2585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/togetherllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/togetherllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2579,7 +2606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/anthropicllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2600,7 +2627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/coherellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/coherellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2621,7 +2648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/groqllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/groqllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2642,7 +2669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/inferenceendpointsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2663,7 +2690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/litellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2684,7 +2711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/mistralllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mistralllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2705,7 +2732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/mixtureofagentsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2726,7 +2753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/ollamallm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/ollamallm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2747,7 +2774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/vertexaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vertexaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2768,7 +2795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/vllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2789,7 +2816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/transformersllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/transformersllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2810,7 +2837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../llms/llamacppllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/llamacppllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2886,7 +2913,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/examples/" class="md-nav__link">
+      <a href="../../../pipeline_samples/examples/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2924,7 +2951,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/pipeline_samples/papers/" class="md-nav__link ">
+            <a href="../../../pipeline_samples/papers/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2955,7 +2982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/deita/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/deita/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2976,7 +3003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/instruction_backtranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2997,7 +3024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/prometheus/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/prometheus/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3018,7 +3045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
+      <a href="../../../pipeline_samples/papers/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3111,7 +3138,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/step/" class="md-nav__link ">
+            <a href="../../../../api/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3142,7 +3169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/generator_step/" class="md-nav__link">
+      <a href="../../../../api/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3163,7 +3190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/global_step/" class="md-nav__link">
+      <a href="../../../../api/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3184,7 +3211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/decorator/" class="md-nav__link">
+      <a href="../../../../api/step/decorator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3205,7 +3232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/resources/" class="md-nav__link">
+      <a href="../../../../api/step/resources/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3266,7 +3293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/argilla/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3287,7 +3314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/hugging_face/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/hugging_face/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3308,7 +3335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/columns/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/columns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3329,7 +3356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/extra/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/extra/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3383,7 +3410,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/task/" class="md-nav__link ">
+            <a href="../../../../api/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3414,7 +3441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/generator_task/" class="md-nav__link">
+      <a href="../../../../api/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3435,7 +3462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_gallery/" class="md-nav__link">
+      <a href="../../../../api/task_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3456,7 +3483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/typing/" class="md-nav__link">
+      <a href="../../../../api/task/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3502,7 +3529,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3573,7 +3600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anthropic/" class="md-nav__link">
+      <a href="../../../../api/llm/anthropic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3594,7 +3621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anyscale/" class="md-nav__link">
+      <a href="../../../../api/llm/anyscale/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3615,7 +3642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/azure/" class="md-nav__link">
+      <a href="../../../../api/llm/azure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3636,7 +3663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/cohere/" class="md-nav__link">
+      <a href="../../../../api/llm/cohere/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3657,7 +3684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/groq/" class="md-nav__link">
+      <a href="../../../../api/llm/groq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3678,7 +3705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/huggingface/" class="md-nav__link">
+      <a href="../../../../api/llm/huggingface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3699,7 +3726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/litellm/" class="md-nav__link">
+      <a href="../../../../api/llm/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3720,7 +3747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llamacpp/" class="md-nav__link">
+      <a href="../../../../api/llm/llamacpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3741,7 +3768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/mistral/" class="md-nav__link">
+      <a href="../../../../api/llm/mistral/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3762,7 +3789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/ollama/" class="md-nav__link">
+      <a href="../../../../api/llm/ollama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3783,7 +3810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/openai/" class="md-nav__link">
+      <a href="../../../../api/llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3804,7 +3831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/together/" class="md-nav__link">
+      <a href="../../../../api/llm/together/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3825,7 +3852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vertexai/" class="md-nav__link">
+      <a href="../../../../api/llm/vertexai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3846,7 +3873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vllm/" class="md-nav__link">
+      <a href="../../../../api/llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3900,7 +3927,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/pipeline/" class="md-nav__link ">
+            <a href="../../../../api/pipeline/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3931,7 +3958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/routing_batch_function/" class="md-nav__link">
+      <a href="../../../../api/pipeline/routing_batch_function/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3952,7 +3979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/typing/" class="md-nav__link">
+      <a href="../../../../api/pipeline/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3973,7 +4000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/utils/" class="md-nav__link">
+      <a href="../../../../api/pipeline/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4042,7 +4069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/runtime_parameters/" class="md-nav__link">
+      <a href="../../../../api/mixins/runtime_parameters/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4063,7 +4090,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/requirements/" class="md-nav__link">
+      <a href="../../../../api/mixins/requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4092,7 +4119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/distiset/" class="md-nav__link">
+      <a href="../../../../api/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4113,7 +4140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/cli/" class="md-nav__link">
+      <a href="../../../../api/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4158,7 +4185,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../sections/community/" class="md-nav__link ">
+            <a href="../../../community/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4189,7 +4216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../sections/community/popular_issues/" class="md-nav__link">
+      <a href="../../../community/popular_issues/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4218,8 +4245,6 @@
             
             
               
-                
-              
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -4231,80 +4256,6 @@
   
     
   
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Attributes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#input-output-columns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Input &amp; Output Columns
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Input & Output Columns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#inputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Inputs
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#outputs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Outputs
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#generate-text-from-an-instruction" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate text from an instruction
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -4318,79 +4269,131 @@
                 
                   
 
+  
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/how_to_guides/advanced/saving_step_generated_artifacts.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
 
-<h1 id="textgeneration">TextGeneration<a class="headerlink" href="#textgeneration" title="Permanent link">&para;</a></h1>
-<p>Simple text generation with an <code>LLM</code> given an instruction.</p>
-<p><code>TextGeneration</code> is a pre-defined task that defines the <code>instruction</code> as the input
-    and <code>generation</code> as the output. This task is used to generate text based on the input
-    instruction. The model_name is also returned as part of the output in order to enhance it.</p>
-<h3 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>use_system_prompt</strong>: Whether to use the system prompt in the generation. Defaults to <code>True</code>,  which means that if the column <code>system_prompt</code> is defined within the input batch, then  the <code>system_prompt</code> will be used, otherwise, it will be ignored.</li>
-</ul>
-<h3 id="input-output-columns">Input &amp; Output Columns<a class="headerlink" href="#input-output-columns" title="Permanent link">&para;</a></h3>
-<pre class="mermaid"><code>graph TD
-    subgraph Dataset
-        subgraph Columns
-            ICOL0[instruction]
-        end
-        subgraph New columns
-            OCOL0[generation]
-            OCOL1[model_name]
-        end
-    end
 
-    subgraph TextGeneration
-        StepInput[Input Columns: instruction]
-        StepOutput[Output Columns: generation, model_name]
-    end
-
-    ICOL0 --&gt; StepInput
-    StepOutput --&gt; OCOL0
-    StepOutput --&gt; OCOL1
-    StepInput --&gt; StepOutput
-</code></pre>
-<h4 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">&para;</a></h4>
-<ul>
-<li><strong>instruction</strong> (<code>str</code>): The instruction to generate text from.</li>
-</ul>
-<h4 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p><strong>generation</strong> (<code>str</code>): The generated text.</p>
-</li>
-<li>
-<p><strong>model_name</strong> (<code>str</code>): The name of the model used to generate the text.</p>
-</li>
-</ul>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<h4 id="generate-text-from-an-instruction">Generate text from an instruction<a class="headerlink" href="#generate-text-from-an-instruction" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms.huggingface</span> <span class="kn">import</span> <span class="n">InferenceEndpointsLLM</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Consider this as a placeholder for your actual LLM.</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">text_gen</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mistral-7B-Instruct-v0.2&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">text_gen</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">text_gen</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="p">[{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;your instruction&quot;</span><span class="p">}]</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="p">)</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="p">)</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># result</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># [</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1">#     {</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1">#         &#39;instruction&#39;: &#39;your instruction&#39;,</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1">#         &#39;model_name&#39;: &#39;mistralai/Mistral-7B-Instruct-v0.2&#39;,</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="c1">#         &#39;generation&#39;: &#39;generation&#39;,</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="c1">#     }</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># ]</span>
+<h1 id="saving-step-generated-artifacts">Saving step generated artifacts<a class="headerlink" href="#saving-step-generated-artifacts" title="Permanent link">&para;</a></h1>
+<p>Some <code>Step</code>s might need to produce an auxiliary artifact that is not a result of the computation, but is needed for the computation. For example, the <a href="/distilabel/components-gallery/steps/faissnearestneighbour/"><code>FaissNearestNeighbour</code></a> needs to create a Faiss index to compute the output of the step which are the top <code>k</code> nearest neighbours for each input. Generating the Faiss index takes time and it could potentially be reused outside of the <code>distilabel</code> pipeline, so it would be a shame not saving it.</p>
+<p>For this reason, <code>Step</code>s have a method called <code>save_artifact</code> that allows saving artifacts that will be included along the outputs of the pipeline in the generated <a class="autorefs autorefs-internal" href="../../../../api/distiset/#distilabel.distiset.Distiset"><code>Distiset</code></a>. The generated artifacts will be uploaded and saved when using <code>Distiset.push_to_hub</code> or <code>Distiset.save_to_disk</code> respectively. Let's see how to use it with a simple example.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GlobalStep</span><span class="p">,</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">StepOutput</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">class</span> <span class="nc">CountTextCharacters</span><span class="p">(</span><span class="n">GlobalStep</span><span class="p">):</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="nd">@property</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;text_character_count&quot;</span><span class="p">]</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="n">character_counts</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>            <span class="n">text_character_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>            <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;text_character_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text_character_count</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>            <span class="n">character_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_character_count</span><span class="p">)</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="c1"># Generate plot with the distribution of text character counts</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">character_counts</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of Text Character Counts&quot;</span><span class="p">)</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Character Count&quot;</span><span class="p">)</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="c1"># Save the plot as an artifact of the step</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">save_artifact</span><span class="p">(</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;text_character_count_distribution&quot;</span><span class="p">,</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>            <span class="n">write_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">path</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;figure.png&quot;</span><span class="p">),</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="s2">&quot;matplotlib&quot;</span><span class="p">},</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>        <span class="p">)</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>        <span class="k">yield</span> <span class="n">inputs</span>
 </span></code></pre></div>
+<p>As it can be seen in the example above, we have created a simple step that counts the number of characters in each input text and generates a histogram with the distribution of the character counts. We save the histogram as an artifact of the step using the <code>save_artifact</code> method. The method takes three arguments:</p>
+<ul>
+<li><code>name</code>: The name we want to give to the artifact.</li>
+<li><code>write_function</code>: A function that writes the artifact to the desired path. The function will receive a <code>path</code> argument which is a <code>pathlib.Path</code> object pointing to the directory where the artifact should be saved.</li>
+<li><code>metadata</code>: A dictionary with metadata about the artifact. This metadata will be saved along with the artifact.</li>
+</ul>
+<p>Let's execute the step with a simple pipeline and push the resulting <code>Distiset</code> to the Hugging Face Hub:</p>
+<details>
+<summary>Example full code</summary>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">GlobalStep</span><span class="p">,</span> <span class="n">StepInput</span><span class="p">,</span> <span class="n">StepOutput</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">StepOutput</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">class</span> <span class="nc">CountTextCharacters</span><span class="p">(</span><span class="n">GlobalStep</span><span class="p">):</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="nd">@property</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="nd">@property</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;text_character_count&quot;</span><span class="p">]</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">StepInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StepOutput&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="n">character_counts</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="n">text_character_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>            <span class="nb">input</span><span class="p">[</span><span class="s2">&quot;text_character_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text_character_count</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>            <span class="n">character_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_character_count</span><span class="p">)</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="c1"># Generate plot with the distribution of text character counts</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">character_counts</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of Text Character Counts&quot;</span><span class="p">)</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Character Count&quot;</span><span class="p">)</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>        <span class="c1"># Save the plot as an artifact of the step</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">save_artifact</span><span class="p">(</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;text_character_count_distribution&quot;</span><span class="p">,</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>            <span class="n">write_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">path</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;figure.png&quot;</span><span class="p">),</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="s2">&quot;matplotlib&quot;</span><span class="p">},</span>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>        <span class="p">)</span>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        <span class="k">yield</span> <span class="n">inputs</span>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>    <span class="n">count_text_characters</span> <span class="o">=</span> <span class="n">CountTextCharacters</span><span class="p">()</span>
+</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>
+</span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-52"><a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-1-53"><a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>        <span class="n">dataset</span><span class="o">=</span><span class="n">load_dataset</span><span class="p">(</span>
+</span><span id="__span-1-54"><a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>            <span class="s2">&quot;HuggingFaceH4/instruction-dataset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span>
+</span><span id="__span-1-55"><a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>        <span class="p">)</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">),</span>
+</span><span id="__span-1-56"><a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>    <span class="p">)</span>
+</span><span id="__span-1-57"><a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>
+</span><span id="__span-1-58"><a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;distilabel-internal-testing/distilabel-artifacts-example&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+</details>
+<p>The generated <a href="https://huggingface.co/datasets/distilabel-internal-testing/distilabel-artifacts-example">distilabel-internal-testing/distilabel-artifacts-example</a> dataset repository has a section in its card <a href="https://huggingface.co/datasets/distilabel-internal-testing/distilabel-artifacts-example#artifacts">describing the artifacts generated by the pipeline</a> and the generated plot can be seen <a href="https://huggingface.co/datasets/distilabel-internal-testing/distilabel-artifacts-example/blob/main/artifacts/count_text_characters_0/text_character_count_distribution/figure.png">here</a>.</p>
 
 
 
@@ -4405,8 +4408,6 @@
 
   
 
-
-  
 
 
   <form class="md-feedback" name="feedback" hidden>
@@ -4441,7 +4442,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+TextGeneration+-+/components-gallery/tasks/textgeneration/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Saving%20step%20generated%20artifacts+-+/sections/how_to_guides/advanced/saving_step_generated_artifacts/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -4470,6 +4471,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../assigning_resources_to_step/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Assigning resources to a step">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Assigning resources to a step
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../serving_an_llm_for_reuse/" class="md-footer__link md-footer__link--next" aria-label="Next: Serving an LLM for sharing it between several tasks">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Serving an LLM for sharing it between several tasks
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -4542,12 +4581,12 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../../javascripts/mathjax.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       
