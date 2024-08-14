@@ -23,10 +23,7 @@ import yaml
 from pydantic import HttpUrl, ValidationError
 from pydantic.type_adapter import TypeAdapter
 
-from distilabel.pipeline.constants import (
-    ROUTING_BATCH_FUNCTION_ATTR_NAME,
-    STEP_ATTR_NAME,
-)
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME, STEP_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:

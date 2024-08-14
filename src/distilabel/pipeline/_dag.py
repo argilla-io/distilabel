@@ -30,7 +30,7 @@ from typing import (
 
 import networkx as nx
 
-from distilabel.pipeline.constants import (
+from distilabel.constants import (
     CONVERGENCE_STEP_ATTR_NAME,
     ROUTING_BATCH_FUNCTION_ATTR_NAME,
     STEP_ATTR_NAME,

@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
+from pathlib import Path
 from typing import List, Optional
 
 import pytest
+from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.mixins.runtime_parameters import RuntimeParameter
-from distilabel.pipeline.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME
 from distilabel.pipeline.local import Pipeline
 from distilabel.steps.base import GeneratorStep, GlobalStep, Step, StepInput
 from distilabel.steps.decorator import step
@@ -241,6 +243,48 @@ class TestStep:
             pipeline.dag.get_step("dummy_generator")[ROUTING_BATCH_FUNCTION_ATTR_NAME]
             == routing_batch_function
         )
+
+    def test_set_pipeline_artifacts_path(self) -> None:
+        step = DummyStep()
+        step.set_pipeline_artifacts_path(Path("/tmp"))
+        assert step.artifacts_directory == Path(f"/tmp/{step.name}")
+
+    def test_save_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.set_pipeline_artifacts_path(pipeline_artifacts_path)
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert artifact_path.is_dir()
+            assert (artifact_path / "file.txt").read_text() == "unit test"
+            assert (artifact_path / "metadata.json").read_text() == '{"unit-test":true}'
+
+    def test_save_artifact_without_setting_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            pipeline_artifacts_path = Path(tempdir)
+            step = DummyStep()
+            step.load()
+            step.save_artifact(
+                name="unit-test",
+                write_function=lambda path: Path(path / "file.txt").write_text(
+                    "unit test"
+                ),
+                metadata={"unit-test": True},
+            )
+
+            artifact_path = pipeline_artifacts_path / step.name / "unit-test"  # type: ignore
+
+            assert not artifact_path.exists()
 
 
 class TestGeneratorStep:

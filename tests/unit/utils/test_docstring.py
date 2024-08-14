@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import textwrap
+
 from distilabel.utils.docstring import parse_google_docstring
 
 
@@ -58,6 +60,7 @@ def test_parse_google_docstring() -> None:
             "NotImplementedError": "If something goes wrong.",
         },
         "note": "Some note.",
+        "citations": [],
     }
 
 
@@ -110,6 +113,41 @@ def test_parse_google_docstring_with_distilabel_peculiarities() -> None:
 
         References:
             - [Argilla](https://argilla.io)
+
+        Citations:
+
+            ```
+            @misc{xu2024magpie,
+                title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                year={2024},
+                eprint={2406.08464},
+                archivePrefix={arXiv},
+                primaryClass={cs.CL}
+            }
+            ```
+
+            ```
+            @misc{new,
+                title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                year={2024},
+                eprint={2406.08464},
+                archivePrefix={arXiv},
+                primaryClass={cs.CL}
+            }
+            ```
+
+            ```
+            @misc{other,
+                title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                year={2024},
+                eprint={2406.08464},
+                archivePrefix={arXiv},
+                primaryClass={cs.CL}
+            }
+            ```
         """
 
         pass
@@ -148,4 +186,42 @@ def test_parse_google_docstring_with_distilabel_peculiarities() -> None:
             "Example 2": "dummy_function()",
         },
         "note": "Some note.",
+        "citations": [
+            textwrap.dedent(
+                """\
+                @misc{xu2024magpie,
+                        title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                        author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                        year={2024},
+                        eprint={2406.08464},
+                        archivePrefix={arXiv},
+                        primaryClass={cs.CL}
+                    }
+                """.rstrip()
+            ),
+            textwrap.dedent(
+                """\
+                @misc{new,
+                        title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                        author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                        year={2024},
+                        eprint={2406.08464},
+                        archivePrefix={arXiv},
+                        primaryClass={cs.CL}
+                    }
+                """.rstrip()
+            ),
+            textwrap.dedent(
+                """\
+                @misc{other,
+                        title={Magpie: Alignment Data Synthesis from Scratch by Prompting Aligned LLMs with Nothing},
+                        author={Zhangchen Xu and Fengqing Jiang and Luyao Niu and Yuntian Deng and Radha Poovendran and Yejin Choi and Bill Yuchen Lin},
+                        year={2024},
+                        eprint={2406.08464},
+                        archivePrefix={arXiv},
+                        primaryClass={cs.CL}
+                    }
+                """.rstrip()
+            ),
+        ],
     }

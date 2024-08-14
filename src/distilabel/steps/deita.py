@@ -100,6 +100,20 @@ class DeitaFiltering(GlobalStep):
         # >>> result
         # [{'evol_instruction_score': 0.5, 'evol_response_score': 0.5, 'embedding': [-8.12729941, -5.24642847, -6.34003029], 'deita_score': 0.25, 'deita_score_computed_with': ['evol_instruction_score', 'evol_response_score'], 'nearest_neighbor_distance': 1.9042812683723933}]
         ```
+
+    Citations:
+
+        ```
+        @misc{liu2024makesgooddataalignment,
+            title={What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning},
+            author={Wei Liu and Weihao Zeng and Keqing He and Yong Jiang and Junxian He},
+            year={2024},
+            eprint={2312.15685},
+            archivePrefix={arXiv},
+            primaryClass={cs.CL},
+            url={https://arxiv.org/abs/2312.15685},
+        }
+        ```
     """
 
     data_budget: RuntimeParameter[int] = Field(

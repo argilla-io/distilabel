@@ -109,6 +109,20 @@ class FaissNearestNeighbour(GlobalStep):
                 use_cache=False,
             )
         ```
+
+    Citations:
+
+        ```
+        @misc{douze2024faisslibrary,
+            title={The Faiss library},
+            author={Matthijs Douze and Alexandr Guzhva and Chengqi Deng and Jeff Johnson and Gergely Szilvasy and Pierre-Emmanuel Mazaré and Maria Lomeli and Lucas Hosseini and Hervé Jégou},
+            year={2024},
+            eprint={2401.08281},
+            archivePrefix={arXiv},
+            primaryClass={cs.LG},
+            url={https://arxiv.org/abs/2401.08281},
+        }
+        ```
     """
 
     device: Optional[RuntimeParameter[Union[int, List[int]]]] = Field(
@@ -167,6 +181,23 @@ class FaissNearestNeighbour(GlobalStep):
         )
         return dataset
 
+    def _save_index(self, dataset: Dataset) -> None:
+        """Save the generated Faiss index as an artifact of the step.
+
+        Args:
+            dataset: the dataset with the `faiss` index built.
+        """
+        self.save_artifact(
+            name="faiss_index",
+            write_function=lambda path: dataset.save_faiss_index(
+                index_name="embedding", file=path / "index.faiss"
+            ),
+            metadata={
+                "num_rows": len(dataset),
+                "embedding_dim": len(dataset[0]["embedding"]),
+            },
+        )
+
     def _search(self, dataset: Dataset) -> Dataset:
         """Search the top `k` nearest neighbours for each row in the dataset.
 
@@ -195,5 +226,6 @@ class FaissNearestNeighbour(GlobalStep):
 
     def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         dataset = self._build_index(inputs)
-        dataset = self._search(dataset)
-        yield dataset.to_list()
+        dataset_with_search_results = self._search(dataset)
+        self._save_index(dataset)
+        yield dataset_with_search_results.to_list()

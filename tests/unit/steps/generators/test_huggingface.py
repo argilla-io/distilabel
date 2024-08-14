@@ -27,6 +27,8 @@ from distilabel.steps.generators.huggingface import (
     LoadDataFromHub,
 )
 
+from tests.unit.pipeline.utils import DummyStep1
+
 DISTILABEL_RUN_SLOW_TESTS = os.getenv("DISTILABEL_RUN_SLOW_TESTS", False)
 
 
@@ -102,7 +104,7 @@ class TestLoadDataFromFileSystem:
 
             loader = LoadDataFromFileSystem(
                 filetype=filetype,
-                data_files=tmpdir,
+                data_files=str(Path(tmpdir) / "*.jsonl"),
             )
             loader.load()
             generator_step_output = next(loader.process())
@@ -125,7 +127,7 @@ class TestLoadDataFromFileSystem:
 
             loader = LoadDataFromFileSystem(
                 filetype=filetype,
-                data_files=tmpdir,
+                data_files=str(Path(tmpdir) / "**/*.jsonl"),
             )
             loader.load()
             generator_step_output = next(loader.process())
@@ -133,17 +135,23 @@ class TestLoadDataFromFileSystem:
             assert isinstance(generator_step_output[1], bool)
             assert len(generator_step_output[0]) == 22
 
-    @pytest.mark.parametrize("load", [True, False])
-    def test_outputs(self, load: bool) -> None:
+    def test_outputs(self) -> None:
         loader = LoadDataFromFileSystem(
             filetype="json",
             data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
         )
-        if load:
-            loader.load()
-            assert loader.outputs == ["type", "function"]
-        else:
-            assert loader.outputs == []
+        loader.load()
+        assert loader.outputs == ["type", "function"]
+
+    def test_loading_in_pipeline(self):
+        with Pipeline():
+            loader = LoadDataFromFileSystem(
+                filetype="json",
+                data_files=str(Path(__file__).parent / "sample_functions.jsonl"),
+            )
+            dummy = DummyStep1(input_mappings={"instruction": "function"})
+            loader >> dummy
+        assert loader.outputs == ["type", "function"]
 
 
 class TestLoadDataFromDisk:

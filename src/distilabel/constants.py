@@ -11,12 +11,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 from typing import Final
 
+# Steps related constants
+DISTILABEL_METADATA_KEY: Final[str] = "distilabel_metadata"
+
+# Pipeline related constants
 STEP_ATTR_NAME: Final[str] = "step"
 INPUT_QUEUE_ATTR_NAME: Final[str] = "input_queue"
 RECEIVES_ROUTED_BATCHES_ATTR_NAME: Final[str] = "receives_routed_batches"
 ROUTING_BATCH_FUNCTION_ATTR_NAME: Final[str] = "routing_batch_function"
 CONVERGENCE_STEP_ATTR_NAME: Final[str] = "convergence_step"
 LAST_BATCH_SENT_FLAG: Final[str] = "last_batch_sent"
+
+# Data paths constants
+STEPS_OUTPUTS_PATH = "steps_outputs"
+STEPS_ARTIFACTS_PATH = "steps_artifacts"
+
+# Distiset related constants
+DISTISET_CONFIG_FOLDER: Final[str] = "distiset_configs"
+DISTISET_ARTIFACTS_FOLDER: Final[str] = "artifacts"
+PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
+PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
+
+
+__all__ = [
+    "STEP_ATTR_NAME",
+    "INPUT_QUEUE_ATTR_NAME",
+    "RECEIVES_ROUTED_BATCHES_ATTR_NAME",
+    "ROUTING_BATCH_FUNCTION_ATTR_NAME",
+    "CONVERGENCE_STEP_ATTR_NAME",
+    "LAST_BATCH_SENT_FLAG",
+    "DISTILABEL_METADATA_KEY",
+]

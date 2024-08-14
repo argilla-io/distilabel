@@ -17,6 +17,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Dict,
     List,
@@ -24,6 +25,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -45,6 +47,13 @@ from distilabel.steps.base import GeneratorStep
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import GeneratorStepOutput
+
+
+T = TypeVar("T")
+
+# To avoid using repo_id in LoadDataFromFileSystem:
+# https://github.com/pydantic/pydantic/discussions/7076#discussioncomment-6699138
+ExcludedField = Annotated[T, Field(exclude=True)]
 
 
 class LoadDataFromHub(GeneratorStep):
@@ -326,6 +335,23 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         # >>> result
         # ([{'type': 'function', 'function':...', False)
         ```
+
+        Load data passing a glob pattern:
+
+        ```python
+        from distilabel.steps import LoadDataFromFileSystem
+
+        loader = LoadDataFromFileSystem(
+            data_files="path/to/dataset/*.jsonl",
+            streaming=True
+        )
+        loader.load()
+
+        # Just like we saw with LoadDataFromDicts, the `process` method will yield batches.
+        result = next(loader.process())
+        # >>> result
+        # ([{'type': 'function', 'function':...', False)
+        ```
     """
 
     data_files: RuntimeParameter[Union[str, Path]] = Field(
@@ -336,6 +362,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         default=None,
         description="The expected filetype. If not provided, it will be inferred from the file extension.",
     )
+    repo_id: ExcludedField[Union[str, None]] = None
 
     def load(self) -> None:
         """Load the dataset from the file/s in disk."""
@@ -369,7 +396,7 @@ class LoadDataFromFileSystem(LoadDataFromHub):
         self.outputs = self._dataset.column_names
 
     @staticmethod
-    def _prepare_data_files(
+    def _prepare_data_files(  # noqa: C901
         data_path: UPath,
     ) -> Tuple[Union[str, Sequence[str], Mapping[str, Union[str, Sequence[str]]]], str]:
         """Prepare the loading process by setting the `data_files` attribute.
@@ -387,9 +414,12 @@ class LoadDataFromFileSystem(LoadDataFromHub):
                 filetype = "json"
             return filetype
 
-        if data_path.is_file():
+        if data_path.is_file() or (
+            len(str(data_path.parent.glob(data_path.name))) >= 1
+        ):
             filetype = get_filetype(data_path)
             data_files = str(data_path)
+
         elif data_path.is_dir():
             file_sequence = []
             file_map = defaultdict(list)
