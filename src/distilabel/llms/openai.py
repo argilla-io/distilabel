@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
@@ -23,7 +23,10 @@ from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOutputType
 
 if TYPE_CHECKING:
-    from openai import AsyncOpenAI
+    from openai import AsyncOpenAI, OpenAI
+    from openai.types import Batch as OpenAIBatch
+
+    from distilabel.steps.tasks.typing import FormattedInput
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
@@ -141,6 +144,7 @@ class OpenAILLM(AsyncLLM):
     )
 
     _api_key_env_var: str = PrivateAttr(_OPENAI_API_KEY_ENV_VAR_NAME)
+    _client: "OpenAI" = PrivateAttr(None)
     _aclient: "AsyncOpenAI" = PrivateAttr(None)
 
     def load(self) -> None:
@@ -160,6 +164,13 @@ class OpenAILLM(AsyncLLM):
                 f"To use `{self.__class__.__name__}` an API key must be provided via `api_key`"
                 f" attribute or runtime parameter, or set the environment variable `{self._api_key_env_var}`."
             )
+
+        self._client = OpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key.get_secret_value(),
+            max_retries=self.max_retries,  # type: ignore
+            timeout=self.timeout,
+        )
 
         self._aclient = AsyncOpenAI(
             base_url=self.base_url,
@@ -279,3 +290,52 @@ class OpenAILLM(AsyncLLM):
                 )
             generations.append(content)
         return generations
+
+    def offline_batch_generate(
+        self,
+        inputs: List["FormattedInput"],
+        num_generations: int = 1,
+        job_id: Union[str, None] = None,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        """Uses the OpenAI batch API to generate `num_generations` responses for the given
+        inputs.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for.
+            num_generations: the number of generations to create per input. Defaults to
+                `1`.
+            job_id: the job ID to use to retrieve the results of the batch. Defaults to
+                `None`.
+
+        Returns:
+            A list of lists of strings containing the generated responses for each input
+            in `inputs`.
+        """
+        if job_id and (batch := self._get_openai_batch(job_id)):
+            if batch.status == "completed":
+                self._retrieve_batch_results(batch)
+
+            if batch.status in ["failed", "expired", "cancelled", "cancelling"]:
+                self._logger.error(  # type: ignore
+                    f"Batch '{job_id}' failed with status '{batch.status}'."
+                )
+                return []
+
+            if batch.status in ["validating", "in_progress", "finalizing"]:
+                # raise something here
+                pass
+
+    def _get_openai_batch(self, batch_id: str) -> Union["OpenAIBatch", None]:
+        batch = None
+        try:
+            batch = self._client.batches.retrieve(batch_id)
+        except Exception as e:
+            self._logger.error(  # type: ignore
+                f"Error while retrieving batch '{batch_id}' from OpenAI: {e}"
+            )
+        return batch
+
+    def _retrieve_batch_results(self, batch: "OpenAIBatch"):
+        assert batch.output_file_id, "No output file ID was found in the batch."
+        _file_response = self._client.files.content(batch.output_file_id)

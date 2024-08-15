@@ -246,6 +246,17 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
             f"Guided generation is not implemented for `{type(self).__name__}`"
         )
 
+    def offline_batch_generate(
+        self,
+        inputs: List["FormattedInput"],
+        num_generations: int = 1,
+        job_id: Union[str, None] = None,
+        **kwargs: Any,
+    ) -> List["GenerateOutput"]:
+        raise NotImplementedError(
+            f"`offline_batch_generate` is not implemented for `{self.__class__.__name__}`"
+        )
+
 
 class AsyncLLM(LLM):
     """Abstract class for asynchronous LLMs, so as to benefit from the async capabilities

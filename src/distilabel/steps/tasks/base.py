@@ -24,6 +24,7 @@ from distilabel.llms.base import LLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import (
     GeneratorStep,
+    GlobalStep,
     Step,
     StepInput,
     _Step,
@@ -271,7 +272,7 @@ class Task(_Task, Step):
 
 
 class GeneratorTask(_Task, GeneratorStep):
-    """GeneratorTask is a class that implements the `_Task` abstract class and adds the
+    """`GeneratorTask` is a class that implements the `_Task` abstract class and adds the
     `GeneratorStep` interface to be used as a step in the pipeline.
 
     Attributes:
@@ -279,6 +280,15 @@ class GeneratorTask(_Task, GeneratorStep):
         group_generations: whether to group the `num_generations` generated per input in
             a list or create a row per generation. Defaults to `False`.
         num_generations: The number of generations to be produced per input.
+    """
+
+    pass
+
+
+class GlobalTask(_Task, GlobalStep):
+    """`GlobalTask` is a class that implements the `_Task` abstract class and adds the
+    `GlobalStep` interface to be used as a step in the pipeline. It's generally used in
+    combination with `LLM`s that can be used for offline batched inference.
     """
 
     pass
