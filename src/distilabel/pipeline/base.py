@@ -250,9 +250,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         # From the steps we will only take into account the name and how many they are,
         # as we will control them in the internal folder
         steps_info = list(self.dag)
-        # NOTE: We could improve the caching mechanism if different steps are exchanged in order for
-        # or 1 out 5 is removed, we could still reuse the results from some of
-        # the steps.
+
         for step in pipeline_dump["steps"]:
             step_info = step["name"]
             for argument, value in sorted(step[STEP_ATTR_NAME].items()):

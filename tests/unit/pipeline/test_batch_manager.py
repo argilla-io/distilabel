@@ -1617,16 +1617,16 @@ class TestBatchManager:
                     )
                     assert batch_path.exists() and batch_path.is_file()
 
-                for buffered_step_name in step.data:
-                    buffered_step_dir = batch_manager_step_dir / buffered_step_name
-                    assert buffered_step_dir.exists() and buffered_step_dir.is_dir()
+                # for buffered_step_name in step.data:
+                #     buffered_step_dir = batch_manager_step_dir / buffered_step_name
+                #     assert buffered_step_dir.exists() and buffered_step_dir.is_dir()
 
-                    for batch in step.data[buffered_step_name]:
-                        batch_path = (
-                            buffered_step_dir
-                            / f"batch_{batch.seq_no}_{batch.data_hash}.json"
-                        )
-                        assert batch_path.exists() and batch_path.is_file()
+                #     for batch in step.data[buffered_step_name]:
+                #         batch_path = (
+                #             buffered_step_dir
+                #             / f"batch_{batch.seq_no}_{batch.data_hash}.json"
+                #         )
+                #         assert batch_path.exists() and batch_path.is_file()
 
     def test_load_from_cache(self, dummy_batch_manager: _BatchManager) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

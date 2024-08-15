@@ -65,6 +65,9 @@ class OtherDummyStep(DummyStep):
 def test_cached_steps() -> None:
     use_cache_per_step = True
     with TemporaryDirectory() as tmp_dir:
+        from pathlib import Path
+
+        tmp_dir = Path.home() / "Downloads/test_pipeline_caching"
 
         def run_pipeline(do_fail: bool = False, use_cache: bool = True):
             with Pipeline(name="test_pipeline_caching", cache_dir=tmp_dir) as pipeline:
@@ -291,10 +294,13 @@ if __name__ == "__main__":
     # Used to run via python while manually testing, to inspect the logs
     print("\n\n test_cached_steps \n\n")
     test_cached_steps()
-    print("\n\n test_cached_steps_changing \n\n")
-    test_cached_steps_changing(False)
-    print("\n\n test_cached_steps_changing with successor \n\n")
-    test_cached_steps_changing(True)
-    print("\n\n test_cached_steps_with_multiple_predecessors \n\n")
-    test_cached_steps_with_multiple_predecessors()
+    # TODO: CONTINUE HERE, RUN THE STEP.
+    # TODO: THE LAST MERGE FROM DEVELOP INTRODUCED A VARIABLE:
+    # send_last_batch_flag WHICH ISN'T TRACKED
+    # print("\n\n test_cached_steps_changing \n\n")
+    # test_cached_steps_changing(False)
+    # print("\n\n test_cached_steps_changing with successor \n\n")
+    # test_cached_steps_changing(True)
+    # print("\n\n test_cached_steps_with_multiple_predecessors \n\n")
+    # test_cached_steps_with_multiple_predecessors()
     ## test_use_cache_per_step()
