@@ -191,6 +191,7 @@ nav:
           - Instruction Backtranslation: "sections/pipeline_samples/papers/instruction_backtranslation.md"
           - Prometheus 2: "sections/pipeline_samples/papers/prometheus.md"
           - UltraFeedback: "sections/pipeline_samples/papers/ultrafeedback.md"
+          - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
   - API Reference:
       - Step:
           - "api/step/index.md"
