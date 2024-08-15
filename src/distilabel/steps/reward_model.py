@@ -181,7 +181,11 @@ class RewardModelScore(Step, CudaDevicePlacementMixin):
     @property
     def inputs(self) -> "StepColumns":
         """Either `response` and `instruction`, or a `conversation` columns."""
-        return []
+        return {
+            "response": False,
+            "instruction": False,
+            "conversation": False,
+        }
 
     @property
     def outputs(self) -> "StepColumns":
