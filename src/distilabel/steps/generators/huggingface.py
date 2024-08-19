@@ -574,7 +574,9 @@ class LoadDataFromDisk(LoadDataFromHub):
                 # TODO: Add FAQ for this case, pointing to the Distiset documentation on configurations.
                 raise ValueError(
                     f"Configuration '{self.config}' not found in the Distiset, available ones"
-                    f" are: {list(ds.keys())}."
+                    f" are: {list(ds.keys())}. Please try changing the `config` parameter to one "
+                    "of the available configurations.\n\n"
+                    f"For more information on Distiset configurations, please visit https://distilabel.argilla.io/dev/sections/how_to_guides/advanced/distiset/#using-the-distiset-dataset-object"
                 )
             ds = ds[self.config]
 
