@@ -69,8 +69,8 @@ class StructuredGeneration(Task):
                     {
                         "instruction": "Create an RPG character",
                         "structured_output": {
-                            "type": "json",
-                            "value": {
+                            "format": "json",
+                            "schema": {
                                 "properties": {
                                     "name": {
                                         "title": "Name",
@@ -105,7 +105,7 @@ class StructuredGeneration(Task):
         )
         ```
 
-        Generate structured output from a regex pattern:
+        Generate structured output from a regex pattern (only works with LLMs that support regex, the providers using outlines):
 
         ```python
         from distilabel.steps.tasks import StructuredGeneration
@@ -126,8 +126,8 @@ class StructuredGeneration(Task):
                     {
                         "instruction": "What's the weather like today in Seattle in Celsius degrees?",
                         "structured_output": {
-                            "type": "regex",
-                            "value": r"(\\d{1,2})°C"
+                            "format": "regex",
+                            "schema": r"(\\d{1,2})°C"
                         },
 
                     }
