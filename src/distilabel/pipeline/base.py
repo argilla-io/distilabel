@@ -50,6 +50,7 @@ from distilabel.constants import (
     STEPS_OUTPUTS_PATH,
 )
 from distilabel.distiset import create_distiset
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.pipeline._dag import DAG
 from distilabel.pipeline.batch import _Batch
@@ -451,10 +452,11 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         for step_name in self.dag:
             step = self.dag.get_step(step_name)[STEP_ATTR_NAME]
             if isinstance(step_name, GeneratorStep):
-                raise ValueError(
+                raise DistilabelUserError(
                     "There is already a `GeneratorStep` in the pipeline, you can either"
                     " pass a `dataset` to the run method, or create a `GeneratorStep` explictly."
-                    f" `GeneratorStep`: {step}"
+                    f" `GeneratorStep`: {step}",
+                    page="sections/how_to_guides/basic/step/#types-of-steps",
                 )
         loader = make_generator_step(dataset)
         self.dag.add_root_step(loader)
@@ -522,9 +524,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             return
 
         if "path" not in storage_parameters:
-            raise ValueError(
+            raise DistilabelUserError(
                 "The 'path' key must be present in the `storage_parameters` dictionary"
-                " if it's not `None`."
+                " if it's not `None`.",
+                page="sections/how_to_guides/advanced/fs_to_pass_data/",
             )
 
         path = storage_parameters.pop("path")

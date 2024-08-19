@@ -33,6 +33,7 @@ from typing import (
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -458,10 +459,11 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for input in self.input_mappings:
             if input not in self.inputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The input column '{input}' doesn't exist in the inputs of the"
                     f" step '{self.name}'. Inputs of the step are: {self.inputs}."
-                    " Please, review the `inputs_mappings` argument of the step."
+                    " Please, review the `inputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
     def verify_outputs_mappings(self) -> None:
@@ -476,10 +478,11 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
 
         for output in self.output_mappings:
             if output not in self.outputs:
-                raise ValueError(
+                raise DistilabelUserError(
                     f"The output column '{output}' doesn't exist in the outputs of the"
                     f" step '{self.name}'. Outputs of the step are: {self.outputs}."
-                    " Please, review the `outputs_mappings` argument of the step."
+                    " Please, review the `outputs_mappings` argument of the step.",
+                    page="sections/how_to_guides/basic/step/#arguments",
                 )
 
     def get_inputs(self) -> Dict[str, bool]:
