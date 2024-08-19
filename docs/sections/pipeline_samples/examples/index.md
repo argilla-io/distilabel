@@ -1,78 +1,96 @@
-# Examples
+---
+hide: toc
+---
+# Pipeline Samples
 
-This section contains different example pipelines that showcase different tasks, maybe you can take inspiration from them.
+- **Tutorials** provide detailed step-by-step explanations and the code used for end-to-end workflows.
+- **Paper implementations** provide reproductions of fundamental papers in the synthetic data domain.
+- **Examples** don't provide explenations but simply show code for different tasks.
 
-### [llama.cpp with `outlines`](#llamacpp-with-outlines)
+## Tutorials
 
-Generate RPG characters following a `pydantic.BaseModel` with `outlines` in `distilabel`.
+<div class="grid cards" markdown>
 
-??? Example "See example"
+-   __Retrieval and reranking models__
 
-    This script makes use of [`LlamaCppLLM`][distilabel.llms.llamacpp.LlamaCppLLM] and the structured output capabilities thanks to [`outlines`](https://outlines-dev.github.io/outlines/welcome/) to generate RPG characters that adhere to a JSON schema.
+    ---
 
-    It makes use of a local model which can be downloaded using curl (explained in the script itself), and can be exchanged with other `LLMs` like [`vLLM`][distilabel.llms.vllm.vLLM].
+    Learn about synthetic data generation for fine-tuning custom retrieval and reranking models.
 
-    ??? Run
+    [:octicons-arrow-right-24: Tutorial](../tutorials/GenerateSentencePair.ipynb)
 
-        ```python
-        python examples/structured_generation_with_outlines.py
-        ```
+</div>
 
-    ```python title="structured_generation_with_outlines.py"
-    --8<-- "examples/structured_generation_with_outlines.py"
-    ```
+## Paper Implementations
+
+<div class="grid cards" markdown>
+
+-   __DEITA__
+
+    ---
+
+    Learn about prompt, response tuning for complexity and quality and LLMs as judges for automatic data selection.
+
+    [:octicons-arrow-right-24: Paper](../papers/deita.md)
+
+-   __Instruction Backtranslation__
+
+    ---
+
+    Learn about automatically labeling human-written text with corresponding instructions.
+
+    [:octicons-arrow-right-24: Paper](../papers/instruction_backtranslation.md)
+
+-   __Prometheus 2__
+
+    ---
+
+    Learn about using open-source models as judges for direct assessment and pair-wise ranking.
+
+    [:octicons-arrow-right-24: Paper](../papers/prometheus.md)
+
+-   __UltraFeedback__
+
+    ---
+
+    Learn about a large-scale, fine-grained, diverse preference dataset, used for training powerful reward and critic models.
+
+    [:octicons-arrow-right-24: Paper](../papers/ultrafeedback.md)
+
+</div>
+
+## Examples
+
+<div class="grid cards" markdown>
+
+-   __Benchmarking with distilabel__
+
+    ---
+
+    Learn about reproducing the Arena Hard benchmark with disitlabel.
+
+    [:octicons-arrow-right-24: Example](./benchmarking_with_distilabel.md)
+
+-   __llama.cpp with outlines__
+
+    ---
+
+    Learn about generating RPG characters following a pydantic.BaseModel with outlines in distilabel.
+
+    [:octicons-arrow-right-24: Example](./llama_cpp_with_outlines.md)
+
+-   __MistralAI with instructor__
+
+    ---
+
+    Learn about answering instructions with knowledge graphs defined as pydantic.BaseModel objects using instructor in distilabel.
+
+    [:octicons-arrow-right-24: Example](../papers/prometheus.md)
 
 
-### [MistralAI with `instructor`](#mistralai-with-instructor)
-
-Answer instructions with knowledge graphs defined as `pydantic.BaseModel` objects using `instructor` in `distilabel`.
-
-??? Example "See example"
-
-    This script makes use of [`MistralLLM`][distilabel.llms.mistral.MistralLLM] and the structured output capabilities thanks to [`instructor`](https://python.useinstructor.com/) to generate knowledge graphs from complex topics.
-
-    This example is translated from this [awesome example](https://python.useinstructor.com/examples/knowledge_graph/) from `instructor` cookbook.
-
-    ??? Run
-
-        ```python
-        python examples/structured_generation_with_instructor.py
-        ```
-
-    ```python title="structured_generation_with_instructor.py"
-    --8<-- "examples/structured_generation_with_instructor.py"
-    ```
-
-    ??? "Visualizing the graphs"
-
-        Want to see how to visualize the graphs? You can test it using the following script. Generate some samples on your own and take a look:
-
-        !!! NOTE
-
-            This example uses graphviz to render the graph, you can install with `pip` in the following way:
-
-            ```console
-            pip install graphviz
-            ```
-
-        ```python
-        python examples/draw_kg.py 2  # You can pass 0,1,2 to visualize each of the samples.
-        ```
-
-        ![Knowledge graph figure](../../../assets/images/sections/examples/knowledge-graph-example.png)
+</div>
 
 
-### [Benchmarking with `distilabel`: Arena Hard](#benchmarking-with-distilabel-arena-hard)
 
-Benchmark LLMs with `distilabel`: reproducing the Arena Hard benchmark.
 
-??? Example "See example"
-
-    The script below first defines both the `ArenaHard` and the `ArenaHardResults` tasks, so as to generate responses for a given collection of prompts/questions with up to two LLMs, and then calculate the results as per the original implementation, respectively. Additionally, the second part of the example builds a `Pipeline` to run the generation on top of the prompts with `InferenceEndpointsLLM` while streaming the rest of the generations from a pre-computed set of GPT-4 generations, and then evaluate one against the other with `OpenAILLM` generating an alternate response, a comparison between the responses, and a result as A>>B, A>B, B>A, B>>A, or tie.
-
-    To run this example you will first need to install the Arena Hard optional dependencies, being `pandas`, `scikit-learn`, and `numpy`.
-
-    ```python title="arena_hard.py"
-    --8<-- "examples/arena_hard.py"
-    ```
 
