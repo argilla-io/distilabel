@@ -235,6 +235,10 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """Unset the global pipeline instance when exiting a pipeline context."""
         _GlobalPipelineManager.set_pipeline(None)
+        self._set_pipeline_name()
+
+    def _set_pipeline_name(self) -> None:
+        """Creates a name for the pipeline if it's the default one (if hasn't been set)."""
         if self.name == _PIPELINE_DEFAULT_NAME:
             self.name = f"pipeline_{'_'.join(self.dag)}"
 
@@ -352,6 +356,13 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         setup_logging(
             log_queue=self._log_queue, filename=str(self._cache_location["log_file"])
         )
+
+        # Set the name of the pipeline if it's the default one. This should be called
+        # if the pipeline is defined within the context manager, and the run is called
+        # outside of it. Is here in the following case:
+        # with Pipeline() as pipeline:
+        #    pipeline.run()
+        self._set_pipeline_name()
 
         # Validate the pipeline DAG to check that all the steps are chainable, there are
         # no missing runtime parameters, batch sizes are correct, etc.
