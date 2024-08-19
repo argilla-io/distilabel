@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import os
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Generator, List, Optional, Union
 
+import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
 from distilabel.llms.base import AsyncLLM
@@ -25,11 +27,11 @@ from distilabel.steps.tasks.typing import FormattedInput, InstructorStructuredOu
 if TYPE_CHECKING:
     from openai import AsyncOpenAI, OpenAI
     from openai.types import Batch as OpenAIBatch
-
-    from distilabel.steps.tasks.typing import FormattedInput
+    from openai.types import FileObject as OpenAIFileObject
 
 
 _OPENAI_API_KEY_ENV_VAR_NAME = "OPENAI_API_KEY"
+_OPENAI_BATCH_API_MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
 
 
 class OpenAILLM(AsyncLLM):
@@ -295,7 +297,14 @@ class OpenAILLM(AsyncLLM):
         self,
         inputs: List["FormattedInput"],
         num_generations: int = 1,
-        job_id: Union[str, None] = None,
+        jobs_ids: Union[List[str], None] = None,
+        max_new_tokens: int = 128,
+        frequency_penalty: float = 0.0,
+        presence_penalty: float = 0.0,
+        temperature: float = 1.0,
+        top_p: float = 1.0,
+        stop: Optional[Union[str, List[str]]] = None,
+        response_format: Optional[str] = None,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
         """Uses the OpenAI batch API to generate `num_generations` responses for the given
@@ -312,19 +321,35 @@ class OpenAILLM(AsyncLLM):
             A list of lists of strings containing the generated responses for each input
             in `inputs`.
         """
-        if job_id and (batch := self._get_openai_batch(job_id)):
-            if batch.status == "completed":
-                self._retrieve_batch_results(batch)
+        # if job_id and (batch := self._get_openai_batch(job_id)):
+        #     if batch.status == "completed":
+        #         self._retrieve_batch_results(batch)
 
-            if batch.status in ["failed", "expired", "cancelled", "cancelling"]:
-                self._logger.error(  # type: ignore
-                    f"Batch '{job_id}' failed with status '{batch.status}'."
-                )
-                return []
+        #     if batch.status in ("failed", "expired", "cancelled", "cancelling"):
+        #         self._logger.error(  # type: ignore
+        #             f"Batch '{job_id}' failed with status '{batch.status}'."
+        #         )
+        #         # raise something here
+        #         return []
 
-            if batch.status in ["validating", "in_progress", "finalizing"]:
-                # raise something here
-                pass
+        #     if batch.status in ("validating", "in_progress", "finalizing"):
+        #         # raise happy exception here
+        #         pass
+
+        generation_kwargs = {
+            "model": self.model,
+            "max_tokens": max_new_tokens,
+            "n": num_generations,
+            "frequency_penalty": frequency_penalty,
+            "presence_penalty": presence_penalty,
+            "temperature": temperature,
+            "top_p": top_p,
+            "stop": stop,
+        }
+
+        _batch_input_files = self._create_batch_files(
+            inputs=inputs, **generation_kwargs
+        )
 
     def _get_openai_batch(self, batch_id: str) -> Union["OpenAIBatch", None]:
         batch = None
@@ -335,6 +360,93 @@ class OpenAILLM(AsyncLLM):
                 f"Error while retrieving batch '{batch_id}' from OpenAI: {e}"
             )
         return batch
+
+    def _create_batch_files(
+        self, inputs: List["FormattedInput"], **kwargs: Any
+    ) -> List["OpenAIFileObject"]:
+        """Creates the necessary input files for the batch API to generate responses. The
+        maximum size of each file so the OpenAI Batch API can process it is 100MB, so we
+        need to split the inputs into multiple files if necessary.
+
+        More information: https://platform.openai.com/docs/api-reference/files/create
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for, optionally
+                including structured output.
+            kwargs: the keyword arguments to use for the generation.
+
+        Returns:
+            The list of file objects created for the OpenAI Batch API.
+        """
+        import openai
+
+        files = []
+        for buffer in self._create_jsonl_buffers(inputs=inputs, **kwargs):
+            try:
+                batch_input_file = self._client.files.create(
+                    file=buffer, purpose="batch"
+                )
+                files.append(batch_input_file)
+            except openai.OpenAIError as e:
+                self._logger.error(  # type: ignore
+                    f"Error while creating batch input file: {e}"
+                )
+                # TODO: stop batch generation? i guess
+        return files
+
+    def _create_jsonl_buffers(
+        self, inputs: List["FormattedInput"], **kwargs: Any
+    ) -> Generator[io.BytesIO, None, None]:
+        """Creates a generator of buffers containing the JSONL formatted inputs to be
+        used by the OpenAI Batch API. The buffers created are of size 100MB or less.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for, optionally
+                including structured output.
+            kwargs: the keyword arguments to use for the generation.
+
+        Yields:
+            A buffer containing the JSONL formatted inputs to be used by the OpenAI Batch
+            API.
+        """
+        buffer = io.BytesIO()
+        buffer_current_size = 0
+        for i, input in enumerate(inputs):
+            # We create the smallest `custom_id` so we don't  increase the size of the file
+            # to much, but we can still sort the results with the order of the inputs.
+            row = self._create_jsonl_row(input=input, custom_id=str(i))
+            row_size = len(row)
+            if row_size + buffer_current_size > _OPENAI_BATCH_API_MAX_FILE_SIZE:
+                buffer.seek(0)
+                yield buffer
+                buffer = io.BytesIO()
+                buffer_current_size = 0
+            buffer.write(row)
+            buffer_current_size += row_size
+
+    def _create_jsonl_row(
+        self, input: "FormattedInput", custom_id: str, **kwargs: Any
+    ) -> bytes:
+        """Creates a JSONL formatted row to be used by the OpenAI Batch API.
+
+        Args:
+            inputs: a list of inputs in chat format to generate responses for, optionally
+                including structured output.
+            custom_id: a custom ID to use for the row.
+            kwargs: the keyword arguments to use for the generation.
+
+        Returns:
+            A JSONL formatted row to be used by the OpenAI Batch API.
+        """
+        # TODO: depending on the format of the input, add `response_format` to the kwargs
+        row = {
+            "custom_id": custom_id,
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "body": {"messages": input, **kwargs},
+        }
+        json_row = orjson.dumps(row)
+        return json_row + b"\n"
 
     def _retrieve_batch_results(self, batch: "OpenAIBatch"):
         assert batch.output_file_id, "No output file ID was found in the batch."

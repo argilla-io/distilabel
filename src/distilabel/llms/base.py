@@ -250,7 +250,7 @@ class LLM(RuntimeParametersMixin, BaseModel, _Serializable, ABC):
         self,
         inputs: List["FormattedInput"],
         num_generations: int = 1,
-        job_id: Union[str, None] = None,
+        jobs_ids: Union[List[str], None] = None,
         **kwargs: Any,
     ) -> List["GenerateOutput"]:
         raise NotImplementedError(
