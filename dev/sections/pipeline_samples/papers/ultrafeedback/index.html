@@ -18,7 +18,7 @@
         <link rel="prev" href="../prometheus/">
       
       
-        <link rel="next" href="../deepseek_prover/">
+        <link rel="next" href="../../examples/benchmarking_with_distilabel/">
       
       
       <link rel="icon" href="../../../../assets/logo.svg">
@@ -55,6 +55,12 @@
       <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../../../css/pandas-dataframe.css">
     
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -349,17 +355,16 @@
     
   
   
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../examples/" class="md-tabs__link">
+        
+  
     
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../examples/" class="md-tabs__link">
-          
   
   Pipeline Samples
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -2870,16 +2875,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     Pipeline Samples
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
@@ -2894,16 +2907,67 @@
   
   
   
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../examples/" class="md-nav__link">
+      <a href="../../tutorials/GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Examples
+    Synthetic data generation for fine-tuning custom retrieval and reranking models
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2936,24 +3000,16 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+            
   
   <span class="md-ellipsis">
     Papers
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_2">
@@ -3123,6 +3179,120 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/benchmarking_with_distilabel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Benchmarking with distilabel
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/llama_cpp_with_outlines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Llama cpp with outlines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/mistralai_with_instructor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MistralAI with instructor
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -4422,15 +4592,15 @@
 <p><a href="https://arxiv.org/abs/2310.01377">UltraFeedback: Boosting Language Models with High-quality Feedback</a> is a paper published by <a href="https://www.openbmb.cn/home">OpenBMB</a> which proposes <code>UltraFeedback</code>, a large-scale, fine-grained, diverse preference dataset, used for training powerful reward models and critic models.</p>
 <p>UltraFeedback collects about 64k prompts from diverse resources (including UltraChat, ShareGPT, Evol-Instruct, TruthfulQA, FalseQA, and FLAN), then they use these prompts to query multiple LLMs (commercial models, Llama models ranging 7B to 70B, and non-Llama models) and generate four different responses for each prompt, resulting in a total of 256k samples i.e. the UltraFeedback will rate four responses on every OpenAI request.</p>
 <p>To collect high-quality preference and textual feedback, they design a fine-grained annotation instruction, which contains four different aspects, namely instruction-following, truthfulness, honesty and helpfulness (even though within the paper they also mention a fifth one named verbalized calibration). Finally, GPT-4 is used to generate the ratings for the generated responses to the given prompt using the previously mentioned aspects.</p>
-<h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
+<h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <p>To replicate the paper we will be using <code>distilabel</code> and a smaller dataset created by the Hugging Face H4 team named <a href="https://huggingface.co/datasets/HuggingFaceH4/instruction-dataset"><code>HuggingFaceH4/instruction-dataset</code></a> for testing purposes.</p>
 <p>Also for testing purposes we will just show how to evaluate the generated responses for a given prompt using a new global aspect named <code>overall-rating</code> defined by Argilla, that computes the average of the four aspects, so as to reduce number of requests to be sent to OpenAI, but note that all the aspects are implemented within <code>distilabel</code> and can be used instead for a more faithful reproduction. Besides that we will generate three responses for each instruction using three LLMs selected from a pool of six: <a href="https://huggingface.co/HuggingFaceH4/zephyr-7b-beta"><code>HuggingFaceH4/zephyr-7b-beta</code></a>, <a href="https://huggingface.co/argilla/notus-7b-v1"><code>argilla/notus-7b-v1</code></a>, <a href="https://huggingface.co/google/gemma-1.1-7b-it"><code>google/gemma-1.1-7b-it</code></a>, <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a>, <a href="https://huggingface.co/HuggingFaceH4/zephyr-7b-gemma-v0.1"><code>HuggingFaceH4/zephyr-7b-gemma-v0.1</code></a> and <a href="https://huggingface.co/mlabonne/UltraMerge-7B"><code>mlabonne/UltraMerge-7B</code></a>.</p>
-<h4 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h4>
+<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
 <p>To replicate UltraFeedback one will need to install <code>distilabel</code> as it follows:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;distilabel[argilla,openai,vllm]&gt;=1.0.0&quot;</span>
 </span></code></pre></div>
 <p>And since we will be using <code>vllm</code> we will need to use a VM with at least 6 NVIDIA GPUs with at least 16GB of memory each to run the text generation, and set the <code>OPENAI_API_KEY</code> environment variable value.</p>
-<h4 id="building-blocks">Building blocks<a class="headerlink" href="#building-blocks" title="Permanent link">&para;</a></h4>
+<h3 id="building-blocks">Building blocks<a class="headerlink" href="#building-blocks" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/hugging_face/#distilabel.steps.LoadDataFromHub"><code>LoadDataFromHub</code></a>: Generator Step to load a dataset from the Hugging Face Hub.</li>
 <li><a class="autorefs autorefs-internal" href="../../../../api/pipeline/routing_batch_function/#distilabel.pipeline.routing_batch_function.sample_n_steps"><code>sample_n_steps</code></a>: Function to create a <code>routing_batch_function</code> that samples <code>n</code> downstream steps for each batch generated by the upstream step. This is the key to replicate the LLM pooling mechanism described in the paper.</li>
@@ -4446,7 +4616,7 @@
 <li><a class="autorefs autorefs-internal" href="../../../../api/step_gallery/columns/#distilabel.steps.columns.keep.KeepColumns"><code>KeepColumns</code></a>: Task to keep the desired columns while removing the not needed ones, as well as defining the order for those.</li>
 <li>(optional) <a class="autorefs autorefs-internal" href="../../../../api/step_gallery/argilla/#distilabel.steps.argilla.preference.PreferenceToArgilla"><code>PreferenceToArgilla</code></a>: Task to optionally push the generated dataset to Argilla to do some further analysis and human annotation.</li>
 </ul>
-<h4 id="code">Code<a class="headerlink" href="#code" title="Permanent link">&para;</a></h4>
+<h3 id="code">Code<a class="headerlink" href="#code" title="Permanent link">&para;</a></h3>
 <p>As mentioned before, we will put the previously mentioned building blocks together to replicate UltraFeedback.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">OpenAILLM</span><span class="p">,</span> <span class="n">vLLM</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">sample_n_steps</span>
@@ -4733,13 +4903,13 @@
         
         
           
-          <a href="../deepseek_prover/" class="md-footer__link md-footer__link--next" aria-label="Next: DeepSeek Prover">
+          <a href="../../examples/benchmarking_with_distilabel/" class="md-footer__link md-footer__link--next" aria-label="Next: Benchmarking with distilabel">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DeepSeek Prover
+                Benchmarking with distilabel
               </div>
             </div>
             <div class="md-footer__button md-icon">

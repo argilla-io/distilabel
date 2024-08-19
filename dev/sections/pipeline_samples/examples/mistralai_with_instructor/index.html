@@ -12,28 +12,28 @@
         <meta name="author" content="Argilla, Inc.">
       
       
-        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/">
+        <link rel="canonical" href="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/mistralai_with_instructor/">
       
       
-        <link rel="prev" href="../examples/">
+        <link rel="prev" href="../llama_cpp_with_outlines/">
       
       
-        <link rel="next" href="deita/">
+        <link rel="next" href="../../papers/deepseek_prover/">
       
       
-      <link rel="icon" href="../../../assets/logo.svg">
+      <link rel="icon" href="../../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
-        <title>Papers - Distilabel Docs</title>
+        <title>MistralAI with instructor - Distilabel Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.3cba04c6.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,11 +52,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+      <link rel="stylesheet" href="../../../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../../../css/pandas-dataframe.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -75,11 +81,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Papers - Distilabel Docs" >
+        <meta  property="og:title"  content="MistralAI with instructor - Distilabel Docs" >
       
         <meta  property="og:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/papers/index.png" >
+        <meta  property="og:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/examples/mistralai_with_instructor.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -87,15 +93,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/papers/" >
+        <meta  property="og:url"  content="https://argilla-io.github.io/distilabel/dev/sections/pipeline_samples/examples/mistralai_with_instructor/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Papers - Distilabel Docs" >
+        <meta  name="twitter:title"  content="MistralAI with instructor - Distilabel Docs" >
       
         <meta  name="twitter:description"  content="Distilabel is an AI Feedback (AIF) framework for building datasets with and for LLMs." >
       
-        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/papers/index.png" >
+        <meta  name="twitter:image"  content="https://argilla-io.github.io/distilabel/dev/assets/images/social/sections/pipeline_samples/examples/mistralai_with_instructor.png" >
       
     
     
@@ -118,7 +124,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#paper-implementations" class="md-skip">
+        <a href="#mistralai-with-instructor" class="md-skip">
           Skip to content
         </a>
       
@@ -136,9 +142,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-header__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -155,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Papers
+              MistralAI with instructor
             
           </span>
         </div>
@@ -279,7 +285,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -298,7 +304,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting_started/installation/" class="md-tabs__link">
+        <a href="../../../getting_started/installation/" class="md-tabs__link">
           
   
   Getting started
@@ -314,7 +320,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../how_to_guides/" class="md-tabs__link">
+      <a href="../../../how_to_guides/" class="md-tabs__link">
         
   
     
@@ -331,7 +337,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../components-gallery/" class="md-tabs__link">
+      <a href="../../../../components-gallery/" class="md-tabs__link">
         
   
     
@@ -349,17 +355,16 @@
     
   
   
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../" class="md-tabs__link">
+        
+  
     
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../examples/" class="md-tabs__link">
-          
   
   Pipeline Samples
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -370,7 +375,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../api/step/" class="md-tabs__link">
+        <a href="../../../../api/step/" class="md-tabs__link">
           
   
   API Reference
@@ -386,7 +391,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../community/" class="md-tabs__link">
+      <a href="../../../community/" class="md-tabs__link">
         
   
     
@@ -409,6 +414,8 @@
           
             
               
+                
+              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -420,9 +427,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
+    <a href="../../../.." title="Distilabel Docs" class="md-nav__button md-logo" aria-label="Distilabel Docs" data-md-component="logo">
       
-  <img src="../../../assets/logo.svg" alt="logo">
+  <img src="../../../../assets/logo.svg" alt="logo">
 
     </a>
     Distilabel Docs
@@ -449,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -509,7 +516,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/installation/" class="md-nav__link">
+      <a href="../../../getting_started/installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -530,7 +537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/quickstart/" class="md-nav__link">
+      <a href="../../../getting_started/quickstart/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -551,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/faq/" class="md-nav__link">
+      <a href="../../../getting_started/faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -596,7 +603,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/" class="md-nav__link ">
+            <a href="../../../how_to_guides/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -684,7 +691,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/basic/step/" class="md-nav__link ">
+            <a href="../../../how_to_guides/basic/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -715,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/step/generator_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -736,7 +743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/step/global_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -782,7 +789,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how_to_guides/basic/task/" class="md-nav__link ">
+            <a href="../../../how_to_guides/basic/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -813,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/task/generator_task/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -842,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/llm/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/llm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -863,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/basic/pipeline/" class="md-nav__link">
+      <a href="../../../how_to_guides/basic/pipeline/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -932,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/distiset/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -953,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/caching/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/caching/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -974,7 +981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/argilla/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -995,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/structured_generation/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/structured_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1016,7 +1023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/pipeline_requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1037,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/cli/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1058,7 +1065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/fs_to_pass_data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1079,7 +1086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/assigning_resources_to_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1100,7 +1107,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/saving_step_generated_artifacts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1121,7 +1128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/serving_an_llm_for_reuse/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1142,7 +1149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
+      <a href="../../../how_to_guides/advanced/scaling_with_ray/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1195,7 +1202,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/" class="md-nav__link ">
+            <a href="../../../../components-gallery/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1243,7 +1250,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/steps/" class="md-nav__link ">
+            <a href="../../../../components-gallery/steps/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1274,7 +1281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1295,7 +1302,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/deitafiltering/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1316,7 +1323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/faissnearestneighbour/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/faissnearestneighbour/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1337,7 +1344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/pushtohub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/pushtohub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1358,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/preferencetoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1379,7 +1386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/textgenerationtoargilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1400,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/expandcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1421,7 +1428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/groupcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1442,7 +1449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/combinecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1463,7 +1470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/keepcolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1484,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/mergecolumns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1505,7 +1512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/embeddinggeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1526,7 +1533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/conversationtemplate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1547,7 +1554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1568,7 +1575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationdpo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1589,7 +1596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formattextgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1610,7 +1617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/formatchatgenerationsft/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1631,7 +1638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/rewardmodelscore/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1652,7 +1659,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/truncatetextcolumn/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1673,7 +1680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdicts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1694,7 +1701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromhub/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1715,7 +1722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromfilesystem/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1736,7 +1743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
+      <a href="../../../../components-gallery/steps/loaddatafromdisk/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1782,7 +1789,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/tasks/" class="md-nav__link ">
+            <a href="../../../../components-gallery/tasks/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1813,7 +1820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1834,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/complexityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1855,7 +1862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1876,7 +1883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexity/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1897,7 +1904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolquality/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolquality/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1918,7 +1925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/genstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/genstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1939,7 +1946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextretrievaldata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1960,7 +1967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateshorttextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1981,7 +1988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatelongtextmatchingdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2002,7 +2009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatetextclassificationdata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2023,7 +2030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/instructionbacktranslation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2044,7 +2051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/magpie/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/magpie/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2065,7 +2072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/prometheuseval/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2086,7 +2093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/qualityscorer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2107,7 +2114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/selfinstruct/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2128,7 +2135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generatesentencepair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2149,7 +2156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/structuredgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2170,7 +2177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/textgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/textgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2191,7 +2198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/chatgeneration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2212,7 +2219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/ultrafeedback/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2233,7 +2240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolinstructgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2254,7 +2261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/evolcomplexitygenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2275,7 +2282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/monolingualtripletgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2296,7 +2303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/bitextretrievalgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2317,7 +2324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/embeddingtaskgenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2338,7 +2345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/magpiegenerator/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/magpiegenerator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2359,7 +2366,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/pairrm/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/pairrm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2380,7 +2387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
+      <a href="../../../../components-gallery/tasks/generateembeddings/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2426,7 +2433,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../components-gallery/llms/" class="md-nav__link ">
+            <a href="../../../../components-gallery/llms/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -2457,7 +2464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2478,7 +2485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/openaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/openaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2499,7 +2506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/clientvllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/clientvllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2520,7 +2527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/anyscalellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anyscalellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2541,7 +2548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/azureopenaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2562,7 +2569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/togetherllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/togetherllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2583,7 +2590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/anthropicllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2604,7 +2611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/coherellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/coherellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2625,7 +2632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/groqllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/groqllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2646,7 +2653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/inferenceendpointsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2667,7 +2674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/litellm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2688,7 +2695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/mistralllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mistralllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2709,7 +2716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/mixtureofagentsllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2730,7 +2737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/ollamallm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/ollamallm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2751,7 +2758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/vertexaillm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vertexaillm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2772,7 +2779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/vllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2793,7 +2800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/transformersllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/transformersllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2814,7 +2821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../components-gallery/llms/llamacppllm/" class="md-nav__link">
+      <a href="../../../../components-gallery/llms/llamacppllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2870,16 +2877,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     Pipeline Samples
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
@@ -2894,16 +2909,202 @@
   
   
   
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../../tutorials/GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Examples
+    Synthetic data generation for fine-tuning custom retrieval and reranking models
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Papers
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Papers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../papers/deita/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DEITA
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../papers/instruction_backtranslation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Instruction Backtranslation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../papers/prometheus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Prometheus 2
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../papers/ultrafeedback/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    UltraFeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2933,32 +3134,24 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
-              
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
   
   <span class="md-ellipsis">
-    Papers
+    Examples
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link md-nav__link--active" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Papers
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2969,11 +3162,11 @@
   
   
     <li class="md-nav__item">
-      <a href="deita/" class="md-nav__link">
+      <a href="../benchmarking_with_distilabel/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    DEITA
+    Benchmarking with distilabel
   </span>
   
 
@@ -2990,11 +3183,11 @@
   
   
     <li class="md-nav__item">
-      <a href="instruction_backtranslation/" class="md-nav__link">
+      <a href="../llama_cpp_with_outlines/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Instruction Backtranslation
+    Llama cpp with outlines
   </span>
   
 
@@ -3008,18 +3201,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="prometheus/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Prometheus 2
+    MistralAI with instructor
   </span>
   
 
       </a>
+      
     </li>
   
 
@@ -3032,28 +3235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="ultrafeedback/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    UltraFeedback
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="deepseek_prover/" class="md-nav__link">
+      <a href="../../papers/deepseek_prover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3146,7 +3328,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/step/" class="md-nav__link ">
+            <a href="../../../../api/step/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3177,7 +3359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/generator_step/" class="md-nav__link">
+      <a href="../../../../api/step/generator_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3198,7 +3380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/global_step/" class="md-nav__link">
+      <a href="../../../../api/step/global_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3219,7 +3401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/decorator/" class="md-nav__link">
+      <a href="../../../../api/step/decorator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3240,7 +3422,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step/resources/" class="md-nav__link">
+      <a href="../../../../api/step/resources/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3301,7 +3483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/argilla/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/argilla/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3322,7 +3504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/hugging_face/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/hugging_face/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3343,7 +3525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/columns/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/columns/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3364,7 +3546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/step_gallery/extra/" class="md-nav__link">
+      <a href="../../../../api/step_gallery/extra/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3418,7 +3600,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/task/" class="md-nav__link ">
+            <a href="../../../../api/task/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3449,7 +3631,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/generator_task/" class="md-nav__link">
+      <a href="../../../../api/task/generator_task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3470,7 +3652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_gallery/" class="md-nav__link">
+      <a href="../../../../api/task_gallery/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3491,7 +3673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task/typing/" class="md-nav__link">
+      <a href="../../../../api/task/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3537,7 +3719,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/llm/" class="md-nav__link ">
+            <a href="../../../../api/llm/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3608,7 +3790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anthropic/" class="md-nav__link">
+      <a href="../../../../api/llm/anthropic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3629,7 +3811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/anyscale/" class="md-nav__link">
+      <a href="../../../../api/llm/anyscale/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3650,7 +3832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/azure/" class="md-nav__link">
+      <a href="../../../../api/llm/azure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3671,7 +3853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/cohere/" class="md-nav__link">
+      <a href="../../../../api/llm/cohere/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3692,7 +3874,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/groq/" class="md-nav__link">
+      <a href="../../../../api/llm/groq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3713,7 +3895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/huggingface/" class="md-nav__link">
+      <a href="../../../../api/llm/huggingface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3734,7 +3916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/litellm/" class="md-nav__link">
+      <a href="../../../../api/llm/litellm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3755,7 +3937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/llamacpp/" class="md-nav__link">
+      <a href="../../../../api/llm/llamacpp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3776,7 +3958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/mistral/" class="md-nav__link">
+      <a href="../../../../api/llm/mistral/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3797,7 +3979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/ollama/" class="md-nav__link">
+      <a href="../../../../api/llm/ollama/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3818,7 +4000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/openai/" class="md-nav__link">
+      <a href="../../../../api/llm/openai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3839,7 +4021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/together/" class="md-nav__link">
+      <a href="../../../../api/llm/together/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3860,7 +4042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vertexai/" class="md-nav__link">
+      <a href="../../../../api/llm/vertexai/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3881,7 +4063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/llm/vllm/" class="md-nav__link">
+      <a href="../../../../api/llm/vllm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3935,7 +4117,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../api/pipeline/" class="md-nav__link ">
+            <a href="../../../../api/pipeline/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -3966,7 +4148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/routing_batch_function/" class="md-nav__link">
+      <a href="../../../../api/pipeline/routing_batch_function/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3987,7 +4169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/typing/" class="md-nav__link">
+      <a href="../../../../api/pipeline/typing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4008,7 +4190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/pipeline/utils/" class="md-nav__link">
+      <a href="../../../../api/pipeline/utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4077,7 +4259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/runtime_parameters/" class="md-nav__link">
+      <a href="../../../../api/mixins/runtime_parameters/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4098,7 +4280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/mixins/requirements/" class="md-nav__link">
+      <a href="../../../../api/mixins/requirements/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4127,7 +4309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/distiset/" class="md-nav__link">
+      <a href="../../../../api/distiset/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4148,7 +4330,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/cli/" class="md-nav__link">
+      <a href="../../../../api/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4193,7 +4375,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../community/" class="md-nav__link ">
+            <a href="../../../community/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -4224,7 +4406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../community/popular_issues/" class="md-nav__link">
+      <a href="../../../community/popular_issues/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -4253,7 +4435,9 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -4278,7 +4462,7 @@
                   
 
   
-    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/papers/index.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/argilla-io/distilabel/edit/main/docs/sections/pipeline_samples/examples/mistralai_with_instructor.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -4286,8 +4470,116 @@
   
 
 
-<h1 id="paper-implementations">Paper Implementations<a class="headerlink" href="#paper-implementations" title="Permanent link">&para;</a></h1>
-<p>Contains some implementations for synthetic data generation papers, using <code>distilabel</code>, providing reproducible pipelines so that anyone can play around with those approaches and customize that to their needs. We strongly believe that better data leads to better models, and synthetic data has proven to be really effective towards improving LLMs, so we aim to bridge the gap between research and practice by providing these implementations.</p>
+<h1 id="mistralai-with-instructor"><a href="#mistralai-with-instructor">MistralAI with <code>instructor</code></a><a class="headerlink" href="#mistralai-with-instructor" title="Permanent link">&para;</a></h1>
+<p>Answer instructions with knowledge graphs defined as <code>pydantic.BaseModel</code> objects using <code>instructor</code> in <code>distilabel</code>.</p>
+<p>This script makes use of <a class="autorefs autorefs-internal" href="../../../../api/llm/mistral/#distilabel.llms.mistral.MistralLLM"><code>MistralLLM</code></a> and the structured output capabilities thanks to <a href="https://python.useinstructor.com/"><code>instructor</code></a> to generate knowledge graphs from complex topics.</p>
+<p>This example is translated from this <a href="https://python.useinstructor.com/examples/knowledge_graph/">awesome example</a> from <code>instructor</code> cookbook.</p>
+<details class="run">
+<summary>Run</summary>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">structured_generation_with_instructor</span><span class="o">.</span><span class="n">py</span>
+</span></code></pre></div>
+</details>
+<div class="language-python highlight"><span class="filename">structured_generation_with_instructor.py</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Copyright 2023-present, Argilla, Inc.</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">#</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># you may not use this file except in compliance with the License.</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># You may obtain a copy of the License at</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">#</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1">#</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># See the License for the specific language governing permissions and</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># limitations under the License.</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">MistralLLM</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="kn">from</span> <span class="nn">distilabel.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">from</span> <span class="nn">distilabel.steps</span> <span class="kn">import</span> <span class="n">LoadDataFromDicts</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">TextGeneration</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="k">class</span> <span class="nc">Edge</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>    <span class="n">source</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    <span class="n">target</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="k">class</span> <span class="nc">KnowledgeGraph</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>    <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Knowledge-Graphs&quot;</span><span class="p">,</span>
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        <span class="s2">&quot;Generate knowledge graphs to answer questions, this type of dataset can be used to &quot;</span>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>        <span class="s2">&quot;steer a model to answer questions with a knowledge graph.&quot;</span>
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>    <span class="p">),</span>
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>    <span class="n">sample_questions</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>        <span class="s2">&quot;Teach me about quantum mechanics&quot;</span><span class="p">,</span>
+</span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>        <span class="s2">&quot;Who is who in The Simpsons family?&quot;</span><span class="p">,</span>
+</span><span id="__span-1-52"><a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>        <span class="s2">&quot;Tell me about the evolution of programming languages&quot;</span><span class="p">,</span>
+</span><span id="__span-1-53"><a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>    <span class="p">]</span>
+</span><span id="__span-1-54"><a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>
+</span><span id="__span-1-55"><a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromDicts</span><span class="p">(</span>
+</span><span id="__span-1-56"><a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;load_instructions&quot;</span><span class="p">,</span>
+</span><span id="__span-1-57"><a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-1-58"><a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>            <span class="p">{</span>
+</span><span id="__span-1-59"><a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>                <span class="s2">&quot;system_prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;You are a knowledge graph expert generator. Help me understand by describing everything as a detailed knowledge graph.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-60"><a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">question</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-1-61"><a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>            <span class="p">}</span>
+</span><span id="__span-1-62"><a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>            <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">sample_questions</span>
+</span><span id="__span-1-63"><a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>        <span class="p">],</span>
+</span><span id="__span-1-64"><a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>    <span class="p">)</span>
+</span><span id="__span-1-65"><a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>
+</span><span id="__span-1-66"><a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>    <span class="n">text_generation</span> <span class="o">=</span> <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-1-67"><a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;knowledge_graph_generation&quot;</span><span class="p">,</span>
+</span><span id="__span-1-68"><a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">MistralLLM</span><span class="p">(</span>
+</span><span id="__span-1-69"><a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;open-mixtral-8x22b&quot;</span><span class="p">,</span> <span class="n">structured_output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">KnowledgeGraph</span><span class="p">}</span>
+</span><span id="__span-1-70"><a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>        <span class="p">),</span>
+</span><span id="__span-1-71"><a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>        <span class="n">input_batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-1-72"><a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>        <span class="n">output_mappings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;generation_model&quot;</span><span class="p">},</span>
+</span><span id="__span-1-73"><a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>    <span class="p">)</span>
+</span><span id="__span-1-74"><a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>    <span class="n">load_dataset</span> <span class="o">&gt;&gt;</span> <span class="n">text_generation</span>
+</span><span id="__span-1-75"><a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>
+</span><span id="__span-1-76"><a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>
+</span><span id="__span-1-77"><a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-78"><a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>    <span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+</span><span id="__span-1-79"><a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-1-80"><a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>            <span class="n">text_generation</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-81"><a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>                <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;generation_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">}}</span>
+</span><span id="__span-1-82"><a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>            <span class="p">}</span>
+</span><span id="__span-1-83"><a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>        <span class="p">},</span>
+</span><span id="__span-1-84"><a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>        <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-1-85"><a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>    <span class="p">)</span>
+</span><span id="__span-1-86"><a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>
+</span><span id="__span-1-87"><a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>    <span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;distilabel-internal-testing/knowledge_graphs&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<details>
+<summary>Visualizing the graphs</summary>
+<p>Want to see how to visualize the graphs? You can test it using the following script. Generate some samples on your own and take a look:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example uses graphviz to render the graph, you can install with <code>pip</code> in the following way:</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">pip install graphviz</span>
+</span></code></pre></div>
+</div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">draw_kg</span><span class="o">.</span><span class="n">py</span> <span class="mi">2</span>  <span class="c1"># You can pass 0,1,2 to visualize each of the samples.</span>
+</span></code></pre></div>
+<p><img alt="Knowledge graph figure" src="../../../../assets/images/sections/examples/knowledge-graph-example.png" /></p>
+</details>
 
 
 
@@ -4302,6 +4594,8 @@
 
   
 
+
+  
 
 
   <form class="md-feedback" name="feedback" hidden>
@@ -4336,7 +4630,7 @@
               
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+Papers+-+/sections/pipeline_samples/papers/" target="_blank" rel="noopener">opening a GitHub issue</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/argilla-io/distilabel/issues/new/?title=[Feedback]+MistralAI%20with%20instructor+-+/sections/pipeline_samples/examples/mistralai_with_instructor/" target="_blank" rel="noopener">opening a GitHub issue</a>.
             </div>
           
         </div>
@@ -4367,10 +4661,12 @@
   
     
       
+        
+      
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../examples/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Examples">
+          <a href="../llama_cpp_with_outlines/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Llama cpp with outlines">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -4380,20 +4676,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Examples
+                Llama cpp with outlines
               </div>
             </div>
           </a>
         
         
           
-          <a href="deita/" class="md-footer__link md-footer__link--next" aria-label="Next: DEITA">
+          <a href="../../papers/deepseek_prover/" class="md-footer__link md-footer__link--next" aria-label="Next: DeepSeek Prover">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DEITA
+                DeepSeek Prover
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4475,12 +4771,12 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "navigation.footer", "navigation.top", "navigation.tracking", "navigation.path", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit", "toc.follow", "search.suggest", "search.highlight", "search.share"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../../javascripts/mathjax.js"></script>
       
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
       

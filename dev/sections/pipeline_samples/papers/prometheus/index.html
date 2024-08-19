@@ -56,6 +56,12 @@
     
       <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
+      <link rel="stylesheet" href="../../../../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../../../../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../../../../css/pandas-dataframe.css">
+    
     <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -349,17 +355,16 @@
     
   
   
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../examples/" class="md-tabs__link">
+        
+  
     
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../examples/" class="md-tabs__link">
-          
   
   Pipeline Samples
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -2870,16 +2875,24 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
-            
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     Pipeline Samples
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
@@ -2894,16 +2907,67 @@
   
   
   
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../examples/" class="md-nav__link">
+      <a href="../../tutorials/GenerateSentencePair/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Examples
+    Synthetic data generation for fine-tuning custom retrieval and reranking models
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2936,24 +3000,16 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
         
           
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+            
   
   <span class="md-ellipsis">
     Papers
   </span>
   
 
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_2">
@@ -3119,6 +3175,120 @@
   
   <span class="md-ellipsis">
     UltraFeedback
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/benchmarking_with_distilabel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Benchmarking with distilabel
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/llama_cpp_with_outlines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Llama cpp with outlines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/mistralai_with_instructor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MistralAI with instructor
   </span>
   
 
@@ -4419,19 +4589,19 @@
 
 
 <h1 id="prometheus-2">Prometheus 2<a class="headerlink" href="#prometheus-2" title="Permanent link">&para;</a></h1>
-<p><a href="https://arxiv.org/pdf/2405.01535">"Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"</a> presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in <a href="https://arxiv.org/abs/2310.08491">"Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"</a>; since GPT-4, as well as other proprietary LLMs, are commonly used to asses the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.</p>
+<p><a href="https://arxiv.org/pdf/2405.01535">"Prometheus 2: An Open Source Language Model Specialized in Evaluating Other Language Models"</a> presents Prometheus 2, a new and more powerful evaluator LLM compared to Prometheus (its predecessor) presented in <a href="https://arxiv.org/abs/2310.08491">"Prometheus: Inducing Fine-grained Evaluation Capability in Language Models"</a>; since GPT-4, as well as other proprietary LLMs, are commonly used to assess the quality of the responses for various LLMs, but there are concerns about transparency, controllability, and affordability, that motivate the need of open-source LLMs specialized in evaluations.</p>
 <p>Existing open evaluator LMs exhibit critical shortcomings:</p>
 <ol>
 <li>They issue scores that significantly diverge from those assigned by humans.</li>
 <li>They lack the flexibility to perform both direct assessment and pairwise ranking, the two most prevalent forms of assessment.</li>
 </ol>
-<p>Additionally, they do not possess the ability to evaluate based on custom evaluation criteria, focusing instead on general attributes like helpfulness and harmlessness. Prometheus 2 is capable of processing both direct assessment and pair-wise ranking formats grouped with a user-defined evaluation criteria.</p>
+<p>Additionally, they do not possess the ability to evaluate based on custom evaluation criteria, focusing instead on general attributes like helpfulness and harmlessness. Prometheus 2 is capable of processing both direct assessment and pair-wise ranking formats grouped with user-defined evaluation criteria.</p>
 <p>Prometheus 2 released two variants:</p>
 <ul>
 <li><a href="https://hf.co/prometheus-eval/prometheus-7b-v2.0"><code>prometheus-eval/prometheus-7b-v2.0</code></a>: fine-tuned on top of <a href="https://hf.co/mistralai/Mistral-7B-Instruct-v0.2"><code>mistralai/Mistral-7B-Instruct-v0.2</code></a></li>
 <li><a href="https://hf.co/prometheus-eval/prometheus-8x7b-v2.0"><code>prometheus-eval/prometheus-8x7b-v2.0</code></a>: fine-tuned on top of <a href="https://hf.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a></li>
 </ul>
-<p>Both models have been fine-tuned for both direct assessment and pairwise ranking tasks i.e. assessing the quality of a single isolated response for a given instruction with or without a reference answer, and assessing the quality of one response against another one for a given instruction with or without a reference answer, respectively.</p>
+<p>Both models have been fine-tuned for both direct assessment and pairwise ranking tasks i.e. assessing the quality of a single isolated response for a given instruction with or without a reference answer and assessing the quality of one response against another one for a given instruction with or without a reference answer, respectively.</p>
 <p>On four direct assessment benchmarks and four pairwise ranking benchmarks, Prometheus 2 scores the highest correlation and agreement with humans and proprietary LM judges among all tested open evaluator LMs. Their models, code, and data are all publicly available at <a href="https://github.com/prometheus-eval/prometheus-eval"><code>prometheus-eval/prometheus-eval</code></a>.</p>
 <h3 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h3>
 <div class="admonition note">
