@@ -25,6 +25,14 @@ hide: toc
 
 <div class="grid cards" markdown>
 
+-   __Deepseek Prover__
+
+    ---
+
+    Learn about an approach to generate mathematical proofs for theorems generated from informal math problems.
+
+    [:octicons-arrow-right-24: Example](../papers/deepseek_prover.md)
+
 -   __DEITA__
 
     ---
