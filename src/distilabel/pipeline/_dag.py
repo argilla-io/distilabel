@@ -374,9 +374,10 @@ class DAG(_Serializable):
             for output in self.get_step(step_name)[STEP_ATTR_NAME].get_outputs()  # type: ignore
         ]
         step_inputs = step.get_inputs()
-        if not all(input in inputs_available_for_step for input in step_inputs):
+        required_inputs = [input for input, required in step_inputs.items() if required]
+        if not all(input in inputs_available_for_step for input in required_inputs):
             raise ValueError(
-                f"Step '{step.name}' requires inputs {step_inputs}, but only the inputs"
+                f"Step '{step.name}' requires inputs {required_inputs}, but only the inputs"
                 f"={inputs_available_for_step} are available, which means that the inputs"
                 f"={list(set(step_inputs) - set(inputs_available_for_step))} are missing or not"
                 " available when the step gets to be executed in the pipeline."

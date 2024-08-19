@@ -7,6 +7,7 @@ site_description: Distilabel is an AI Feedback (AIF) framework for building data
 # Repository
 repo_name: argilla-io/distilabel
 repo_url: https://github.com/argilla-io/distilabel
+edit_uri: edit/main/docs/
 
 extra:
   version:
@@ -180,6 +181,7 @@ nav:
           - Using CLI to explore and re-run existing Pipelines: "sections/how_to_guides/advanced/cli/index.md"
           - Using a file system to pass data of batches between steps: "sections/how_to_guides/advanced/fs_to_pass_data.md"
           - Assigning resources to a step: "sections/how_to_guides/advanced/assigning_resources_to_step.md"
+          - Saving step generated artifacts: "sections/how_to_guides/advanced/saving_step_generated_artifacts.md"
           - Serving an LLM for sharing it between several tasks: "sections/how_to_guides/advanced/serving_an_llm_for_reuse.md"
           - Scaling and distributing a pipeline with Ray: "sections/how_to_guides/advanced/scaling_with_ray.md"
   - Pipeline Samples:
@@ -195,6 +197,7 @@ nav:
           - Benchmarking with distilabel: "sections/pipeline_samples/examples/benchmarking_with_distilabel.md"
           - Llama cpp with outlines: "sections/pipeline_samples/examples/llama_cpp_with_outlines.md"
           - MistralAI with instructor: "sections/pipeline_samples/examples/mistralai_with_instructor.md"
+          - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
   - API Reference:
       - Step:
           - "api/step/index.md"

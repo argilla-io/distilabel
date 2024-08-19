@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
@@ -60,10 +61,17 @@ class _Task(_Step, ABC):
             " of the `distilabel_metadata` dictionary output column"
         ),
     )
+    add_raw_input: RuntimeParameter[bool] = Field(
+        default=True,
+        description=(
+            "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>`"
+            " of the `distilabel_metadata` dictionary column"
+        ),
+    )
     num_generations: RuntimeParameter[int] = Field(
         default=1, description="The number of generations to be produced per input."
     )
-    use_default_structured_output: bool = True
+    use_default_structured_output: bool = False
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
@@ -112,10 +120,12 @@ class _Task(_Step, ABC):
         for output, input in zip(outputs, inputs * len(outputs)):  # type: ignore
             try:
                 formatted_output = self.format_output(output, input)
-                formatted_output = self._maybe_add_raw_output(
+                formatted_output = self._maybe_add_raw_input_output(
                     formatted_output,
                     output,
+                    input,
                     add_raw_output=self.add_raw_output,  # type: ignore
+                    add_raw_input=self.add_raw_input,  # type: ignore
                 )
                 formatted_outputs.append(formatted_output)
             except Exception as e:
@@ -134,24 +144,35 @@ class _Task(_Step, ABC):
         # Create a dictionary with the outputs of the task (every output set to None)
         outputs = {output: None for output in self.outputs}
         outputs["model_name"] = self.llm.model_name  # type: ignore
-        outputs = self._maybe_add_raw_output(
+        outputs = self._maybe_add_raw_input_output(
             outputs,
             output,
+            input,
             add_raw_output=self.add_raw_output,  # type: ignore
+            add_raw_input=self.add_raw_input,  # type: ignore
         )
         return outputs
 
-    def _maybe_add_raw_output(
+    def _maybe_add_raw_input_output(
         self,
         output: Dict[str, Any],
         raw_output: Union[str, None],
+        input: Union[str, None],
         add_raw_output: bool = True,
-    ) -> Dict[str, Any]:
-        """Adds the raw output of the LLM to the output dictionary if `add_raw_output` is True."""
+        add_raw_input: bool = True,
+    ):
+        """Adds the raw output and or the formatted input of the LLM to the output dictionary
+        if `add_raw_output` is True or `add_raw_input` is True.
+        """
+        meta = output.get(DISTILABEL_METADATA_KEY, {})
+
         if add_raw_output:
-            meta = output.get(DISTILABEL_METADATA_KEY, {})
             meta[f"raw_output_{self.name}"] = raw_output
+        if add_raw_input:
+            meta[f"raw_input_{self.name}"] = self.format_input(input)
+        if meta:
             output[DISTILABEL_METADATA_KEY] = meta
+
         return output
 
     def _set_default_structured_output(self) -> None:
@@ -173,14 +194,24 @@ class _Task(_Step, ABC):
             from distilabel.llms import InferenceEndpointsLLM
             from distilabel.llms.base import AsyncLLM
 
+            def check_dependency(module_name: str) -> None:
+                if not importlib.util.find_spec(module_name):
+                    raise ImportError(
+                        f"`{module_name}` is not installed and is needed for the structured generation with this LLM."
+                        f" Please install it using `pip install {module_name}`."
+                    )
+
+            dependency = "outlines"
             structured_output = {"schema": schema}
             # To determine instructor or outlines format
             if not (
                 isinstance(self.llm, AsyncLLM)
                 and not isinstance(self.llm, InferenceEndpointsLLM)
             ):
+                dependency = "instructor"
                 structured_output.update({"format": "json"})
 
+            check_dependency(dependency)
             self.llm.structured_output = structured_output
 
     def get_structured_output(self) -> Union[Dict[str, Any], None]:

@@ -97,7 +97,9 @@ class TestMistralLLM:
         mocked_completion = Mock(
             choices=[Mock(message=Mock(content=" Aenean hendrerit aliquam velit. ..."))]
         )
-        llm._aclient.chat = AsyncMock(return_value=mocked_completion)
+        llm._aclient.chat = Mock(
+            complete_async=AsyncMock(return_value=mocked_completion)
+        )
 
         nest_asyncio.apply()
 

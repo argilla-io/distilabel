@@ -3,17 +3,19 @@
 The [`GeneratorStep`][distilabel.steps.GeneratorStep] is a subclass of [`Step`][distilabel.steps.Step] that is intended to be used as the first step within a [`Pipeline`][distilabel.pipeline.Pipeline], because it doesn't require input and generates data that can be used by other steps. Alternatively, it can also be used as a standalone.
 
 ```python
-from typing import List
+from typing import List, TYPE_CHECKING
 from typing_extensions import override
 
 from distilabel.steps import GeneratorStep
-from distilabel.steps.typing import GeneratorStepOutput
+
+if TYPE_CHECKING:
+    from distilabel.steps.typing import StepColumns, GeneratorStepOutput
 
 class MyGeneratorStep(GeneratorStep):
     instructions: List[str]
 
     @override
-    def process(self, offset: int = 0) -> GeneratorStepOutput:
+    def process(self, offset: int = 0) -> "GeneratorStepOutput":
         if offset:
             self.instructions = self.instructions[offset:]
 
@@ -30,7 +32,7 @@ class MyGeneratorStep(GeneratorStep):
             )
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return ["instruction"]
 ```
 
@@ -57,7 +59,7 @@ next(step.process(offset=1))
 
 We can define a custom generator step by creating a new subclass of the [`GeneratorStep`][distilabel.steps.GeneratorStep] and defining the following:
 
-- `outputs`: is a property that returns a list of strings with the names of the output fields.
+- `outputs`: is a property that returns a list of strings with the names of the output fields or a dictionary in which the keys are the names of the columns and the values are boolean indicating whether the column is required or not.
 
 - `process`: is a method that yields output data and a boolean flag indicating whether that's the last batch to be generated.
 
@@ -73,21 +75,23 @@ We can define a custom generator step by creating a new subclass of the [`Genera
 
 
     ```python
-    from typing import List
+    from typing import List, TYPE_CHECKING
     from typing_extensions import override
 
     from distilabel.steps import GeneratorStep
-    from distilabel.steps.typing import GeneratorStepOutput
+
+    if TYPE_CHECKING:
+        from distilabel.steps.typing import StepColumns, GeneratorStepOutput
 
     class MyGeneratorStep(GeneratorStep):
         instructions: List[str]
 
         @override
-        def process(self, offset: int = 0) -> GeneratorStepOutput:
+        def process(self, offset: int = 0) -> "GeneratorStepOutput":
             ...
 
         @property
-        def outputs(self) -> List[str]:
+        def outputs(self) -> "StepColumns":
             ...
     ```
 
@@ -96,11 +100,14 @@ We can define a custom generator step by creating a new subclass of the [`Genera
     The `@step` decorator will take care of the boilerplate code, and will allow to define the `outputs`, and `process` methods in a more straightforward way. One downside is that it won't let you access the `self` attributes if any, neither set those, so if you need to access or set any attribute, you should go with the first approach of defining the custom [`GeneratorStep`][distilabel.steps.GeneratorStep] subclass.
 
     ```python
+    from typing import TYPE_CHECKING
     from distilabel.steps import step
-    from distilabel.steps.typing import GeneratorStepOutput
+
+    if TYPE_CHECKING:
+        from distilabel.steps.typing import GeneratorStepOutput
 
     @step(outputs=[...], step_type="generator")
-    def CustomGeneratorStep(offset: int = 0) -> GeneratorStepOutput:
+    def CustomGeneratorStep(offset: int = 0) -> "GeneratorStepOutput":
         yield (
             ...,
             True if offset == 10 else False,
