@@ -15,7 +15,7 @@
 import logging
 import os
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger("distilabel.telemetry")
 
 
 def is_running_on_docker_container() -> bool:
