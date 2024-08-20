@@ -33,7 +33,7 @@ from typing import (
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr
 from typing_extensions import Annotated, Self
 
-from distilabel.errors import DistilabelUserError
+from distilabel.errors import DistilabelTypeError, DistilabelUserError
 from distilabel.mixins.requirements import RequirementsMixin
 from distilabel.mixins.runtime_parameters import (
     RuntimeParameter,
@@ -440,9 +440,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         for parameter in self.process_parameters:
             if is_parameter_annotated_with(parameter, _STEP_INPUT_ANNOTATION):
                 if step_input_parameter is not None:
-                    raise TypeError(
+                    raise DistilabelTypeError(
                         f"Step '{self.name}' should have only one parameter with type"
-                        " hint `StepInput`."
+                        " hint `StepInput`.",
+                        page="sections/how_to_guides/basic/step/#defining-custom-steps",
                     )
                 step_input_parameter = parameter
         return step_input_parameter
