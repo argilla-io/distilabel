@@ -57,6 +57,7 @@ from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
+from distilabel.telemetry import _TELEMETRY_CLIENT, TelemetryClient
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
@@ -166,6 +167,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     _output_queue: "Queue[Any]"
     _load_queue: "Queue[Union[StepLoadStatus, None]]"
+    _telemetry_client: TelemetryClient = _TELEMETRY_CLIENT
 
     def __init__(
         self,
@@ -541,6 +543,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         self.dag.add_step(step)
 
+        self._telemetry_client.track_add_step_data(pipeline=self, step=step)
+
     def _add_edge(self, from_step: str, to_step: str) -> None:
         """Add an edge between two steps in the pipeline.
 
@@ -559,6 +563,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             attr=RECEIVES_ROUTED_BATCHES_ATTR_NAME,
             value=routing_batch_function is not None,
         )
+
+        self._telemetry_client.track_add_edge_data(pipeline=self, from_step=from_step, to_step=to_step)
 
     def _is_convergence_step(self, step_name: str) -> None:
         """Checks if a step is a convergence step.
@@ -833,6 +839,8 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                 for step_name in self.dag.get_step_predecessors(batch.step_name):
                     if self._is_step_running(step_name):
                         self._send_last_batch_flag_to_step(step_name)
+
+        self._telemetry_client.track_process_batch_data(pipeline=self, step=self._get_step_from_batch(batch), batch=batch)
 
     def _register_stages_last_batch(self, batch: "_Batch") -> None:
         """Registers the last batch received from a step in the `_stages_last_batch`
@@ -1232,7 +1240,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         )
         self._batch_manager.set_last_batch_sent(batch)  # type: ignore
 
-        step: "_Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+        step: "_Step" = self._get_step_from_batch(batch)
         if not step.is_generator and (step.is_global or self._use_fs_to_pass_data):
             base_path = UPath(self._storage_base_path) / step.name  # type: ignore
             self._logger.debug(
@@ -1349,7 +1357,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         assert self._batch_manager, "Batch manager is not set"
 
         self._batch_manager.register_batch(batch)
-        step: "Step" = self.dag.get_step(batch.step_name)[STEP_ATTR_NAME]
+        step: "Step" = self._get_step_from_batch(batch)
         for successor in self.dag.get_step_successors(step.name):  # type: ignore
             self._batch_manager.add_batch(successor, batch)
 
