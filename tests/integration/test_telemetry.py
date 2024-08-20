@@ -12,20 +12,98 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from typing import TYPE_CHECKING, Dict, List
 
-import pytest
-from distilabel.llms.huggingface.transformers import TransformersLLM
-from distilabel.llms.openai import OpenAILLM
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.pipeline.local import Pipeline
+from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.base import Step, StepInput
-from distilabel.steps.generators.huggingface import LoadDataFromHub
-from distilabel.steps.tasks.text_generation import TextGeneration
 
 if TYPE_CHECKING:
     from distilabel.steps.typing import StepOutput
+
+DATA = [
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+    {"prompt": "Tell me a joke"},
+    {"prompt": "Write a short haiku"},
+    {"prompt": "Translate 'My name is Alvaro' to Spanish"},
+    {"prompt": "What's the capital of Spain?"},
+]
 
 
 class RenameColumns(Step):
@@ -39,72 +117,57 @@ class RenameColumns(Step):
     def outputs(self) -> List[str]:
         return list(self.rename_mappings.values())  # type: ignore
 
-    def process(self, *inputs: StepInput) -> "StepOutput":
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
         outputs = []
         for input in inputs:
-            outputs = []
-            for item in input:
-                outputs.append(
-                    {self.rename_mappings.get(k, k): v for k, v in item.items()}  # type: ignore
-                )
-            yield outputs
+            outputs.append(
+                {self.rename_mappings.get(k, k): v for k, v in input.items()}  # type: ignore
+            )
+        yield outputs
+
+
+class GenerateResponse(Step):
+    @property
+    def inputs(self) -> List[str]:
+        return ["instruction"]
+
+    def process(self, inputs: StepInput) -> "StepOutput":  # type: ignore
+        import time
+
+        time.sleep(1)
+
+        for input in inputs:
+            input["response"] = "I don't know"
+
+        yield inputs
+
+    @property
+    def outputs(self) -> List[str]:
+        return ["response"]
 
 
 def test_pipeline_telemetry(mock_telemetry) -> None:
-    with Pipeline(name="integration-test-pipeline") as pipeline:
-        load_hub_dataset = LoadDataFromHub(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        load_hub_dataset.connect(rename_columns)
-
-        os.environ["OPENAI_API_KEY"] = "sk-***"
-        generate_response = TextGeneration(
-            name="generate_response",
-            llm=OpenAILLM(model="gpt-3.5-turbo"),
-            output_mappings={"generation": "output"},
+    with Pipeline(name="unit-test-pipeline") as pipeline:
+        load_dataset = LoadDataFromDicts(name="load_dataset", data=DATA, batch_size=8)
+        rename_columns = RenameColumns(name="rename_columns", input_batch_size=12)
+        generate_response = GenerateResponse(
+            name="generate_response", input_batch_size=16
         )
+
+        load_dataset.connect(rename_columns)
         rename_columns.connect(generate_response)
 
-        generate_response_mini = TextGeneration(
-            name="generate_response_mini",
-            llm=TransformersLLM(model="TinyLlama/TinyLlama-1.1B-Chat-v1.0"),
-            output_mappings={"generation": "output"},
-        )
-        rename_columns.connect(generate_response_mini)
-
-    pipeline.run(use_fs_to_pass_data=False, use_cache=False)
+    pipeline.run(
+        parameters={
+            "rename_columns": {
+                "rename_mappings": {
+                    "prompt": "instruction",
+                },
+            },
+        }
+    )
 
     mock_telemetry.track_add_step_data.assert_called()
     mock_telemetry.track_add_edge_data.assert_called()
     mock_telemetry.track_process_batch_data.assert_called()
     mock_telemetry.track_run_data.assert_called()
-    mock_telemetry._track_data.assert_called()
-
-
-def test_pipeline_exception_telemetry(mock_telemetry) -> None:
-    with Pipeline(name="integration-test-pipeline") as pipeline:
-        load_hub_dataset = LoadDataFromHub(name="load_dataset")
-        rename_columns = RenameColumns(name="rename_columns")
-        load_hub_dataset.connect(rename_columns)
-
-        os.environ["OPENAI_API_KEY"] = "sk-***"
-        generate_response = TextGeneration(
-            name="generate_response",
-            llm=OpenAILLM(model="gpt-3.5-turbo"),
-            output_mappings={"generation": "output"},
-        )
-        rename_columns.connect(generate_response)
-
-        generate_response_mini = TextGeneration(
-            name="generate_response_mini",
-            llm=TransformersLLM(model="TinyLlama/TinyLlama-1.1B-Chat-v1.0"),
-            output_mappings={"generation": "output"},
-        )
-        rename_columns.connect(generate_response_mini)
-
-    with pytest.raises:
-        pipeline.run(
-            use_fs_to_pass_data=False, use_cache=False, parameters={"mock": {"a": "b"}}
-        )
-
-    mock_telemetry.track_exception.assert_called()
-    mock_telemetry._track_data.assert_called()

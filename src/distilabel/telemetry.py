@@ -14,7 +14,7 @@
 
 import dataclasses
 import platform
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from huggingface_hub.utils import send_telemetry
 
@@ -84,12 +84,20 @@ class TelemetryClient:
 
     def track_run_data(self, pipeline: "BasePipeline", user_agent: dict):
         user_agent["pipeline"] = pipeline.__class__.__name__
+
         self._track_data(topic="run", user_agent=user_agent)
 
-    def track_exception(self, pipeline: "BasePipeline", exception: Exception):
+    def track_exception(
+        self, pipeline: "BasePipeline", exception: Union[Exception, str]
+    ):
         user_agent = {}
+
         user_agent["pipeline"] = pipeline.__class__.__name__
-        user_agent["exception"] = exception.__class__.__name__
+        if isinstance(exception, Exception):
+            user_agent["exception"] = exception.__class__.__name__
+        else:
+            user_agent["exception"] = exception
+
         self._track_data(topic="exception", user_agent=user_agent)
 
     def _track_data(self, topic: str, user_agent: Optional[dict] = None):

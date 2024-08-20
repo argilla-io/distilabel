@@ -14,13 +14,11 @@
 
 import os
 import tempfile
-from typing import TYPE_CHECKING, Generator
+from typing import Generator
+from unittest.mock import MagicMock, patch
 
 import pytest
 from distilabel.telemetry import TelemetryClient
-
-if TYPE_CHECKING:
-    pass
 
 
 @pytest.fixture(autouse=True)
@@ -32,18 +30,23 @@ def temp_cache_dir() -> Generator[None, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def mock_telemetry(mocker) -> "TelemetryClient":
-    # Create a real instance TelemetryClient
-    real_telemetry = TelemetryClient()
-
-    # Create a wrapper to track calls to other methods
-    for attr_name in dir(real_telemetry):
-        attr = getattr(real_telemetry, attr_name)
-        if callable(attr) and not attr_name.startswith("__"):
-            wrapped = mocker.Mock(wraps=attr)
-            setattr(real_telemetry, attr_name, wrapped)
-
-    # Patch the _TELEMETRY_CLIENT to use the real_telemetry
-    mocker.patch("argilla_server.telemetry._TELEMETRY_CLIENT", new=real_telemetry)
-
-    return real_telemetry
+def mock_telemetry():
+    # Patch the entire TelemetryClient class
+    with patch(
+        "distilabel.telemetry._TELEMETRY_CLIENT", autospec=True
+    ) as MockTelemetryClient:
+        # Mock individual methods with wraps to execute the original methods
+        instance = TelemetryClient()
+        mock_instance = MockTelemetryClient
+        mock_instance.track_add_step_data = MagicMock(
+            wraps=instance.track_add_step_data
+        )
+        mock_instance.track_add_edge_data = MagicMock(
+            wraps=instance.track_add_edge_data
+        )
+        mock_instance.track_process_batch_data = MagicMock(
+            wraps=instance.track_process_batch_data
+        )
+        mock_instance.track_run_data = MagicMock(wraps=instance.track_run_data)
+        mock_instance.track_exception = MagicMock(wraps=instance.track_exception)
+        yield mock_instance

@@ -57,7 +57,9 @@ from distilabel.pipeline.batch_manager import _BatchManager
 from distilabel.pipeline.write_buffer import _WriteBuffer
 from distilabel.steps.base import GeneratorStep
 from distilabel.steps.generators.utils import make_generator_step
-from distilabel.telemetry import _TELEMETRY_CLIENT, TelemetryClient
+from distilabel.telemetry import (
+    get_telemetry_client,
+)
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
@@ -167,7 +169,6 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
 
     _output_queue: "Queue[Any]"
     _load_queue: "Queue[Union[StepLoadStatus, None]]"
-    _telemetry_client: TelemetryClient = _TELEMETRY_CLIENT
 
     def __init__(
         self,
@@ -387,7 +388,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             "use_fs_to_pass_data": use_fs_to_pass_data,
             "dataset": True if dataset else False,
         }
-        self._telemetry_client.track_run_data(pipeline=self, user_agent=user_agent)
+        get_telemetry_client().track_run_data(pipeline=self, user_agent=user_agent)
 
         # If the batch manager is not able to generate batches, that means that the loaded
         # `_BatchManager` from cache didn't have any remaining batches to process i.e.
@@ -554,7 +555,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
         """
         self.dag.add_step(step)
 
-        self._telemetry_client.track_add_step_data(pipeline=self, step=step)
+        get_telemetry_client().track_add_step_data(pipeline=self, step=step)
 
     def _add_edge(self, from_step: str, to_step: str) -> None:
         """Add an edge between two steps in the pipeline.
@@ -575,7 +576,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             value=routing_batch_function is not None,
         )
 
-        self._telemetry_client.track_add_edge_data(
+        get_telemetry_client().track_add_edge_data(
             pipeline=self, from_step=from_step, to_step=to_step
         )
 
@@ -853,7 +854,7 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     if self._is_step_running(step_name):
                         self._send_last_batch_flag_to_step(step_name)
 
-        self._telemetry_client.track_process_batch_data(
+        get_telemetry_client().track_process_batch_data(
             pipeline=self, step=self._get_step_from_batch(batch), batch=batch
         )
 

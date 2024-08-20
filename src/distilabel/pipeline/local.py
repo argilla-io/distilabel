@@ -26,6 +26,9 @@ from distilabel.pipeline.base import (
 )
 from distilabel.pipeline.ray import RayPipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper, _StepWrapperException
+from distilabel.telemetry import (
+    get_telemetry_client,
+)
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.ray import script_executed_in_ray_cluster
 
@@ -202,7 +205,7 @@ class Pipeline(BasePipeline):
             self._teardown()
 
             if self._exception:
-                self._telemetry_client.track_exception(self, self._exception)
+                get_telemetry_client().track_exception(self, self._exception)
                 raise self._exception
 
         distiset = create_distiset(

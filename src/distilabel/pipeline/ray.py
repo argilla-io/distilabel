@@ -20,6 +20,9 @@ from distilabel.distiset import create_distiset
 from distilabel.llms.vllm import vLLM
 from distilabel.pipeline.base import BasePipeline
 from distilabel.pipeline.step_wrapper import _StepWrapper
+from distilabel.telemetry import (
+    get_telemetry_client,
+)
 from distilabel.utils.logging import setup_logging, stop_logging
 from distilabel.utils.serialization import TYPE_INFO_KEY
 
@@ -145,7 +148,7 @@ class RayPipeline(BasePipeline):
         self._teardown()
 
         if self._exception:
-            self._telemetry_client.track_exception(self, self._exception)
+            get_telemetry_client().track_exception(self._exception)
             stop_logging()
             raise self._exception
 
