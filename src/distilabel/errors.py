@@ -53,3 +53,9 @@ class DistilabelUserError(DistilabelErrorMixin, ValueError):
     """ValueError that we can redirect to a given page in the documentation."""
 
     pass
+
+
+class DistilabelTypeError(DistilabelErrorMixin, TypeError):
+    """TypeError that we can redirect to a given page in the documentation."""
+
+    pass
