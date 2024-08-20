@@ -14,10 +14,14 @@
 
 import os
 import tempfile
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 
 import pytest
+from distilabel.telemetry import TelemetryClient
 
+if TYPE_CHECKING:
+
+    pass
 
 @pytest.fixture(autouse=True)
 def temp_cache_dir() -> Generator[None, None, None]:
@@ -25,3 +29,20 @@ def temp_cache_dir() -> Generator[None, None, None]:
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.environ["DISTILABEL_CACHE_DIR"] = tmpdirname
         yield
+
+@pytest.fixture(autouse=True)
+def mock_telemetry(mocker) -> "TelemetryClient":
+    # Create a real instance TelemetryClient
+    real_telemetry = TelemetryClient()
+
+    # Create a wrapper to track calls to other methods
+    for attr_name in dir(real_telemetry):
+        attr = getattr(real_telemetry, attr_name)
+        if callable(attr) and not attr_name.startswith("__"):
+            wrapped = mocker.Mock(wraps=attr)
+            setattr(real_telemetry, attr_name, wrapped)
+
+    # Patch the _TELEMETRY_CLIENT to use the real_telemetry
+    mocker.patch("argilla_server.telemetry._TELEMETRY_CLIENT", new=real_telemetry)
+
+    return real_telemetry
