@@ -26,7 +26,7 @@ DATA = [
     {"prompt": "Tell me a joke"},
     {"prompt": "Write a short haiku"},
     {"prompt": "Translate 'My name is Alvaro' to Spanish"},
-    {"prompt": "What's the capital of Spain?"}
+    {"prompt": "What's the capital of Spain?"},
 ] * 10
 
 
