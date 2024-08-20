@@ -187,6 +187,8 @@ nav:
   - Pipeline Samples:
       - "sections/pipeline_samples/examples/index.md"
       - Tutorials:
+          - Generate a preference dataset: "sections/pipeline_samples/tutorials/generate_preference_dataset.ipynb"
+          - Clean an existing dataset: "sections/pipeline_samples/tutorials/clean_existing_dataset.ipynb"
           - Synthetic data generation for fine-tuning custom retrieval and reranking models: "sections/pipeline_samples/tutorials/GenerateSentencePair.ipynb"
       - Papers:
           - DeepSeek Prover: "sections/pipeline_samples/papers/deepseek_prover.md"
