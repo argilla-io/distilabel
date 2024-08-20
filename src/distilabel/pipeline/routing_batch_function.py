@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 from pydantic import BaseModel, PrivateAttr
 from typing_extensions import Self
 
+from distilabel.errors import DistilabelUserError
 from distilabel.utils.serialization import (
     TYPE_INFO_KEY,
     _get_module_attr,
@@ -134,19 +135,21 @@ class RoutingBatchFunction(BaseModel, _Serializable):
             routing batch function.
         """
         if not isinstance(other, list):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"Can only set a `routing_batch_function` for a list of steps. Got: {other}."
                 " Please, review the right-hand side of the `routing_batch_function >> other`"
                 " expression. It should be"
-                " `upstream_step >> routing_batch_function >> [downstream_step_1, dowstream_step_2, ...]`."
+                " `upstream_step >> routing_batch_function >> [downstream_step_1, dowstream_step_2, ...]`.",
+                page="sections/how_to_guides/basic/pipeline/?h=routing#routing-batches-to-specific-downstream-steps",
             )
 
         if not self._step:
-            raise ValueError(
+            raise DistilabelUserError(
                 "Routing batch function doesn't have an upstream step. Cannot connect downstream"
                 " steps before connecting the upstream step. Connect this routing batch"
                 " function to an upstream step using the `>>` operator. For example:"
-                " `upstream_step >> routing_batch_function >> [downstream_step_1, downstream_step_2, ...]`."
+                " `upstream_step >> routing_batch_function >> [downstream_step_1, downstream_step_2, ...]`.",
+                page="sections/how_to_guides/basic/pipeline/?h=routing#routing-batches-to-specific-downstream-steps",
             )
 
         for step in other:

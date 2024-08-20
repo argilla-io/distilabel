@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import Field, PositiveInt
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.base import LLM
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import (
@@ -440,9 +441,10 @@ class Magpie(Task, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpie/",
             )
 
         self.llm.use_magpie_template = True

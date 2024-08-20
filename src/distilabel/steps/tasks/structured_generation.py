@@ -15,6 +15,7 @@
 import warnings
 from typing import Any, Dict, List, Union
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.base import Task
 from distilabel.steps.tasks.typing import StructuredInput
 
@@ -153,8 +154,9 @@ class StructuredGeneration(Task):
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
         if not isinstance(input["instruction"], str):
-            raise ValueError(
-                f"Input `instruction` must be a string. Got: {input['instruction']}."
+            raise DistilabelUserError(
+                f"Input `instruction` must be a string. Got: {input['instruction']}.",
+                page="components-gallery/tasks/structuredgeneration/",
             )
 
         messages = [{"role": "user", "content": input["instruction"]}]

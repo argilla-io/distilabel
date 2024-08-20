@@ -28,6 +28,7 @@ from typing import (
 
 from pydantic import BaseModel
 
+from distilabel.errors import DistilabelUserError
 from distilabel.steps.tasks.structured_outputs.utils import schema_as_dict
 from distilabel.steps.tasks.typing import StructuredOutputType
 
@@ -63,8 +64,9 @@ def _get_logits_processor(framework: Frameworks) -> Tuple[Callable, Callable]:
 
         return JSONLogitsProcessor, RegexLogitsProcessor
 
-    raise ValueError(
-        f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}"
+    raise DistilabelUserError(
+        f"Invalid framework '{framework}'. Must be one of {get_args(Frameworks)}",
+        page="sections/how_to_guides/advanced/structured_generation/",
     )
 
 
@@ -115,4 +117,7 @@ def prepare_guided_output(
     if format == "regex":
         return {"processor": regex_processor(schema, llm)}
 
-    raise ValueError(f"Invalid format '{format}'. Must be either 'json' or 'regex'.")
+    raise DistilabelUserError(
+        f"Invalid format '{format}'. Must be either 'json' or 'regex'.",
+        page="sections/how_to_guides/advanced/structured_generation/",
+    )

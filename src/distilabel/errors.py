@@ -27,15 +27,18 @@ class DistilabelErrorMixin:
         page: An optional error code from PydanticErrorCodes enum.
 
     Examples:
-        >>> raise DistilabelUserError("This is an error message.")
+
+        ```python
+        raise DistilabelUserError("This is an error message.")
         This is an error message.
 
-        >>> raise DistilabelUserError("This is an error message.", page="sections/getting_started/faq/")
+        raise DistilabelUserError("This is an error message.", page="sections/getting_started/faq/")
         This is an error message.
         For further information visit https://distilabel.argilla.io/latest/sections/getting_started/faq/
+        ```
     """
 
-    def __init__(self, message: str, page: Optional[str] = None) -> None:
+    def __init__(self, message: str, *, page: Optional[str] = None) -> None:
         self.message = message
         self.page = page
 
