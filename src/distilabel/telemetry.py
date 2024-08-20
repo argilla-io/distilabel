@@ -13,10 +13,8 @@
 #  limitations under the License.
 
 import dataclasses
-import json
-import logging
 import platform
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from huggingface_hub.utils import send_telemetry
 
@@ -31,13 +29,11 @@ if TYPE_CHECKING:
     from distilabel.steps.base import _Step
 
 
-_LOGGER: logging.Logger = logging.getLogger(__name__)
-
 
 
 @dataclasses.dataclass
 class TelemetryClient:
-    def __post_init__(self, enable_telemetry: bool):
+    def __post_init__(self):
         self._system_info = {
             "system": platform.system(),
             "machine": platform.machine(),
@@ -46,48 +42,60 @@ class TelemetryClient:
             "docker": is_running_on_docker_container(),
         }
 
-        _LOGGER.info("System Info:")
-        _LOGGER.info(f"Context: {json.dumps(self._system_info, indent=2)}")
-        self.enable_telemetry = enable_telemetry
-
     def track_add_step_data(self, pipeline: "BasePipeline", step: "_Step"):
         user_agent = {}
 
-        user_agent["pipeline"] = pipeline.__name__
-        user_agent["step"] = step.__name__
+        user_agent["pipeline"] = pipeline.__class__.__name__
+        user_agent["step"] = step.__class__.__name__
         if hasattr(step, "llm"):
-            user_agent["llm"] = step.llm.__name__
-            topic = "add_task"
+            user_agent["llm"] = step.llm.__class__.__name__
+            user_agent["task"] = step.__class__.__name__
         else:
-            topic = "add_step"
+            user_agent["step"] = step.__class__.__name__
 
-        self.track_data(topic=topic, user_agent=user_agent)
+        if step.is_generator:
+            user_agent["type"] = "generator"
+        elif step.is_global:
+            user_agent["type"] = "global"
+        else:
+            user_agent["type"] = "normal"
+
+        self._track_data(topic="add_step", user_agent=user_agent)
 
     def track_add_edge_data(self, pipeline: "BasePipeline", from_step: "_Step", to_step: "_Step"):
         user_agent = {}
 
-        user_agent["pipeline"] = pipeline.__name__
-        user_agent["from_step"] = from_step.__name__
-        user_agent["to_step"] = to_step.__name__
+        user_agent["pipeline"] = pipeline.__class__.__name__
+        user_agent["from_step"] = from_step.__class__.__name__
+        user_agent["to_step"] = to_step.__class__.__name__
 
-        self.track_data(topic="add_edge", user_agent=user_agent)
+        self._track_data(topic="add_edge", user_agent=user_agent)
 
     def track_process_batch_data(self, pipeline: "BasePipeline", step: "_Step", batch: "_Batch"):
-        user_agent = {
+        user_agent = {}
 
-        }
-        user_agent["pipeline"] = pipeline.__name__
-        user_agent["step"] = step.__name__
+        user_agent["pipeline"] = pipeline.__class__.__name__
+        user_agent["step"] = step.__class__.__name__
         user_agent["batch_size"] = batch.size
 
-        self.track_data(topic="process_batch", user_agent=user_agent)
+        self._track_data(topic="process_batch", user_agent=user_agent)
 
-    def track_data(self, topic: str, user_agent: dict, include_system_info: bool = True):
+    def track_run_data(self, pipeline: "BasePipeline", user_agent: dict):
+        user_agent["pipeline"] = pipeline.__class__.__name__
+        self._track_data(topic="run", user_agent=user_agent)
+
+    def track_exception(self, pipeline: "BasePipeline", exception: Exception):
+        user_agent = {}
+        user_agent["pipeline"] = pipeline.__class__.__name__
+        user_agent["exception"] = exception.__class__.__name__
+        self._track_data(topic="exception", user_agent=user_agent)
+
+    def _track_data(self, topic: str, user_agent: Optional[dict] = None):
         library_name = "distilabel"
         topic = f"{library_name}/{topic}"
 
-        if include_system_info:
-            user_agent.update(self._system_info)
+        user_agent = user_agent or {}
+        user_agent.update(self._system_info)
 
         send_telemetry(topic=topic, library_name=library_name, library_version=__version__, user_agent=user_agent)
 

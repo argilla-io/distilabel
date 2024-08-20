@@ -145,6 +145,7 @@ class RayPipeline(BasePipeline):
         self._teardown()
 
         if self._exception:
+            self._telemetry_client.track_exception(self, self._exception)
             stop_logging()
             raise self._exception
 

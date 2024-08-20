@@ -202,6 +202,7 @@ class Pipeline(BasePipeline):
             self._teardown()
 
             if self._exception:
+                self._telemetry_client.track_exception(self, self._exception)
                 raise self._exception
 
         distiset = create_distiset(
