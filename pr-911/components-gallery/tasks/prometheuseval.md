@@ -9,15 +9,11 @@ Critique and rank the quality of generations from an `LLM` using Prometheus 2.0.
 
 
 `PrometheusEval` is a task created for Prometheus 2.0, covering both the absolute and relative
-    evaluations.
-
-    - The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
-        an LLM for a given instruction.
-    - The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
-        for a given instruction.
-
-    Both evaluations provide the possibility whether to use a reference answer to compare with or not
-    via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
+    evaluations. The absolute evaluation i.e. `mode="absolute"` is used to evaluate a single generation from
+    an LLM for a given instruction. The relative evaluation i.e. `mode="relative"` is used to evaluate two generations from an LLM
+    for a given instruction.
+    Both evaluations provide the possibility of using a reference answer to compare with or withoug
+    the `reference` attribute, and both are based on a score rubric that critiques the generation/s
     based on the following default aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`,
     and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
     `rubric`.
@@ -114,7 +110,7 @@ graph TD
 ### Examples
 
 
-#### 0
+#### Critique and evaluate LLM generation quality using Prometheus 2_0
 ```python
 from distilabel.steps.tasks import PrometheusEval
 from distilabel.llms import vLLM
