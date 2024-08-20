@@ -20,8 +20,8 @@ import pytest
 from distilabel.telemetry import TelemetryClient
 
 if TYPE_CHECKING:
-
     pass
+
 
 @pytest.fixture(autouse=True)
 def temp_cache_dir() -> Generator[None, None, None]:
@@ -29,6 +29,7 @@ def temp_cache_dir() -> Generator[None, None, None]:
     with tempfile.TemporaryDirectory() as tmpdirname:
         os.environ["DISTILABEL_CACHE_DIR"] = tmpdirname
         yield
+
 
 @pytest.fixture(autouse=True)
 def mock_telemetry(mocker) -> "TelemetryClient":

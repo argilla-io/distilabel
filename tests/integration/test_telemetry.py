@@ -71,13 +71,14 @@ def test_pipeline_telemetry(mock_telemetry) -> None:
         )
         rename_columns.connect(generate_response_mini)
 
-    distiset = pipeline.run(use_fs_to_pass_data=False, use_cache=False)
+    pipeline.run(use_fs_to_pass_data=False, use_cache=False)
 
     mock_telemetry.track_add_step_data.assert_called()
     mock_telemetry.track_add_edge_data.assert_called()
     mock_telemetry.track_process_batch_data.assert_called()
     mock_telemetry.track_run_data.assert_called()
     mock_telemetry._track_data.assert_called()
+
 
 def test_pipeline_exception_telemetry(mock_telemetry) -> None:
     with Pipeline(name="integration-test-pipeline") as pipeline:
@@ -100,8 +101,10 @@ def test_pipeline_exception_telemetry(mock_telemetry) -> None:
         )
         rename_columns.connect(generate_response_mini)
 
-    with pytest.raises(Exception):
-        pipeline.run(use_fs_to_pass_data=False, use_cache=False, parameters={"mock": {"a": "b"}})
+    with pytest.raises:
+        pipeline.run(
+            use_fs_to_pass_data=False, use_cache=False, parameters={"mock": {"a": "b"}}
+        )
 
     mock_telemetry.track_exception.assert_called()
     mock_telemetry._track_data.assert_called()

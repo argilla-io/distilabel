@@ -575,7 +575,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
             value=routing_batch_function is not None,
         )
 
-        self._telemetry_client.track_add_edge_data(pipeline=self, from_step=from_step, to_step=to_step)
+        self._telemetry_client.track_add_edge_data(
+            pipeline=self, from_step=from_step, to_step=to_step
+        )
 
     def _is_convergence_step(self, step_name: str) -> None:
         """Checks if a step is a convergence step.
@@ -851,7 +853,9 @@ class BasePipeline(ABC, RequirementsMixin, _Serializable):
                     if self._is_step_running(step_name):
                         self._send_last_batch_flag_to_step(step_name)
 
-        self._telemetry_client.track_process_batch_data(pipeline=self, step=self._get_step_from_batch(batch), batch=batch)
+        self._telemetry_client.track_process_batch_data(
+            pipeline=self, step=self._get_step_from_batch(batch), batch=batch
+        )
 
     def _register_stages_last_batch(self, batch: "_Batch") -> None:
         """Registers the last batch received from a step in the `_stages_last_batch`

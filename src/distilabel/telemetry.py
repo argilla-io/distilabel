@@ -1,16 +1,16 @@
-#  Copyright 2021-present, the Recognai S.L. team.
+# Copyright 2023-present, Argilla, Inc.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import dataclasses
 import platform
@@ -27,8 +27,6 @@ if TYPE_CHECKING:
     from distilabel.pipeline.base import BasePipeline
     from distilabel.pipeline.batch import _Batch
     from distilabel.steps.base import _Step
-
-
 
 
 @dataclasses.dataclass
@@ -62,7 +60,9 @@ class TelemetryClient:
 
         self._track_data(topic="add_step", user_agent=user_agent)
 
-    def track_add_edge_data(self, pipeline: "BasePipeline", from_step: "_Step", to_step: "_Step"):
+    def track_add_edge_data(
+        self, pipeline: "BasePipeline", from_step: "_Step", to_step: "_Step"
+    ):
         user_agent = {}
 
         user_agent["pipeline"] = pipeline.__class__.__name__
@@ -71,7 +71,9 @@ class TelemetryClient:
 
         self._track_data(topic="add_edge", user_agent=user_agent)
 
-    def track_process_batch_data(self, pipeline: "BasePipeline", step: "_Step", batch: "_Batch"):
+    def track_process_batch_data(
+        self, pipeline: "BasePipeline", step: "_Step", batch: "_Batch"
+    ):
         user_agent = {}
 
         user_agent["pipeline"] = pipeline.__class__.__name__
@@ -97,7 +99,12 @@ class TelemetryClient:
         user_agent = user_agent or {}
         user_agent.update(self._system_info)
 
-        send_telemetry(topic=topic, library_name=library_name, library_version=__version__, user_agent=user_agent)
+        send_telemetry(
+            topic=topic,
+            library_name=library_name,
+            library_version=__version__,
+            user_agent=user_agent,
+        )
 
 
 _TELEMETRY_CLIENT = TelemetryClient()
