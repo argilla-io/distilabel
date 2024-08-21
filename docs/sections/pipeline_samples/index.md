@@ -20,7 +20,7 @@ hide: toc
     [:octicons-arrow-right-24: Tutorial](tutorials/generate_preference_dataset.ipynb)
 
 
--   __Clean an existing dataset__
+-   __Clean an existing preference dataset__
 
     ---
 
