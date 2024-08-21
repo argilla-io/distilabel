@@ -43,42 +43,54 @@ class Animal(BaseModel):
 SAMPLE_DATA = [
     [
         {
-            "instruction": "Generate a character from a RPG game.",
+            "instruction": [
+                {"role": "user", "content": "Generate a character from a RPG game."}
+            ],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "Generate an animal from a zoo.",
+            "instruction": [
+                {
+                    "role": "user",
+                    "content": "Generate an animal from a zoo.",
+                }
+            ],
             "structured_output": {
                 "format": "json",
                 "schema": Animal.model_json_schema(),
             },
         },
         {
-            "instruction": "Repeated character",
+            "instruction": [{"role": "user", "content": "Repeated character"}],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "What's the weather like today in Seattle in Celsius degrees?",
+            "instruction": [
+                {
+                    "role": "user",
+                    "content": "What's the weather like today in Seattle in Celsius degrees?",
+                }
+            ],
             "structured_output": {
                 "format": "regex",
                 "schema": "(\\d{1,2})°C",
             },
         },
         {
-            "instruction": "Other character",
+            "instruction": [{"role": "user", "content": "Other character"}],
             "structured_output": {
                 "format": "json",
                 "schema": Character.model_json_schema(),
             },
         },
         {
-            "instruction": "repeated regex",
+            "instruction": [{"role": "user", "content": "repeated regex"}],
             "structured_output": {
                 "format": "regex",
                 "schema": "(\\d{1,2})°C",
@@ -90,6 +102,8 @@ SAMPLE_DATA = [
 
 # Just a mock to avoid loading the model
 class DummyTokenizer:
+    chat_template = None
+
     def __init__(self) -> None:
         pass
 
@@ -201,7 +215,7 @@ class TestClientvLLM:
     ) -> None:
         llm = ClientvLLM(
             base_url="http://localhost:8000/v1",
-            tokenizer="google-bert/bert-base-uncased",
+            tokenizer="distilabel-internal-testing/tiny-random-mistral",
         )
 
         llm.load()
