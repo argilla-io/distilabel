@@ -25,6 +25,55 @@ if TYPE_CHECKING:
 
 
 class URIAL(Task):
+    """Generates a response using a non-instruct fine-tuned model.
+
+    `URIAL` is a pre-defined task that generates a response using a non-instruct fine-tuned
+    model. This task is used to generate a response based on the conversation provided as
+    input.
+
+    Input columns:
+        - instruction (`str`, optional): The instruction to generate a response from.
+        - conversation (`List[Dict[str, str]]`, optional): The conversation to generate
+            a response from (the last message must be from the user).
+
+    Output columns:
+        - generation (`str`): The generated response.
+        - model_name (`str`): The name of the model used to generate the response.
+
+    Categories:
+        - text-generation
+
+    Examples:
+
+        Generate text from an instruction:
+
+        ```python
+        from distilabel.llms import vLLM
+        from distilabel.steps.tasks import URIAL
+
+        step = URIAL(
+            llm=vLLM(
+                model="meta-llama/Meta-Llama-3.1-8B",
+                generation_kwargs={"temperature": 0.7},
+            ),
+        )
+
+        step.load()
+
+        results = next(
+            step.process(inputs=[{"instruction": "What's the most most common type of cloud?"}])
+        )
+        # [
+        #     {
+        #         'instruction': "What's the most most common type of cloud?",
+        #         'generation': 'Clouds are classified into three main types, high, middle, and low. The most common type of cloud is the middle cloud.',
+        #         'distilabel_metadata': {...},
+        #         'model_name': 'meta-llama/Meta-Llama-3.1-8B'
+        #     }
+        # ]
+        ```
+    """
+
     def load(self) -> None:
         """Loads the Jinja2 template for the given `aspect`."""
         super().load()
@@ -65,4 +114,9 @@ class URIAL(Task):
         if output is None:
             return {"generation": None}
 
-        return {"generation": output.split("\n\n# User")[-1]}
+        response = output.split("\n\n# User")[0]
+        if response.startswith("\n\n"):
+            response = response[2:]
+        response = response.strip()
+
+        return {"generation": response}
