@@ -3038,6 +3038,57 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Define the pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load-the-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert-to-a-preference-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Convert to a preference dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4623,6 +4674,57 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Define the pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load-the-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate-the-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate the responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert-to-a-preference-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Convert to a preference dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -4740,7 +4842,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers&amp;gt;=4.0,&amp;lt;5.0&quot;</span> <span class="s2">&quot;torch&amp;gt;=2.0,&amp;lt;3.0&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;transformers&amp;gt;=4.0,&amp;lt;5.0&quot;</span>
 </span></code></pre></div>
 
 </div>
@@ -4820,13 +4922,12 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="load-the-dataset">Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permanent link">&para;</a></h3>
+<p>We will use as source data the <code>argilla/10Kprompts-mini</code> dataset from the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini">Hugging Face Hub</a>.</p>
 <ul>
-<li><strong>Load the dataset</strong>: We will use as source data the <code>argilla/10Kprompts-mini</code> dataset from the <a href="https://huggingface.co/datasets/argilla/10Kprompts-mini">Hugging Face Hub</a>.<ul>
 <li>Component: <code>LoadDataFromHub</code></li>
 <li>Input columns: <code>instruction</code> and <code>topic</code>, the same as in the loaded dataset</li>
 <li>Output columns: <code>instruction</code> and <code>topic</code></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
@@ -4835,26 +4936,40 @@
 <div class="input">
 
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>        <span class="n">repo_id</span><span class="o">=</span> <span class="s2">&quot;argilla/10Kprompts-mini&quot;</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>        <span class="n">repo_id</span><span class="o">=</span> <span class="s2">&quot;argilla/10Kprompts-mini&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="n">num_examples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">load_dataset</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="nb">next</span><span class="p">(</span><span class="n">load_dataset</span><span class="o">.</span><span class="n">process</span><span class="p">())</span>
 </span></code></pre></div>
 
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>([{'instruction': 'How can I create an efficient and robust workflow that utilizes advanced automation techniques to extract targeted data, including customer information, from diverse PDF documents and effortlessly integrate it into a designated Google Sheet? Furthermore, I am interested in establishing a comprehensive and seamless system that promptly activates an SMS notification on my mobile device whenever a new PDF document is uploaded to the Google Sheet, ensuring real-time updates and enhanced accessibility.',
+   'topic': 'Software Development'}],
+ True)</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>
-<p><strong>Generate responses</strong>: We need to generate the responses for the given instructions. We will use two different models available in the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
+<h3 id="generate-responses">Generate responses<a class="headerlink" href="#generate-responses" title="Permanent link">&para;</a></h3>
+<p>We need to generate the responses for the given instructions. We will use two different models available in the Hugging Face Hub through the Serverless Inference API: <a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"><code>meta-llama/Meta-Llama-3-8B-Instruct</code></a> and <a href="https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"><code>mistralai/Mixtral-8x7B-Instruct-v0.1</code></a>. We will also indicate the generation parameters for each model.</p>
 <ul>
 <li>Component: <code>TextGeneration</code> task with LLMs using <code>InferenceEndpointsLLM</code></li>
 <li>Input columns: <code>instruction</code></li>
 <li>Output columns: <code>generation</code>, <code>distilabel_metadata</code>, <code>model_name</code> for each model</li>
 </ul>
 <p>For your use case and to improve the results, you can use any <a href="https://distilabel.argilla.io/latest/components-gallery/llms/">other LLM of your choice</a>.</p>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -4867,30 +4982,47 @@
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="p">)</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="p">),</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="p">)</span>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="p">),</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="p">]</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="p">),</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="p">),</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="p">),</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>        <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="p">),</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="p">]</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">generate_responses</span><span class="p">:</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="n">task</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="nb">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">process</span><span class="p">([{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Which are the top cities in Spain?&quot;</span><span class="p">}])))</span>
 </span></code></pre></div>
 
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+<code>[{'instruction': 'Which are the top cities in Spain?', 'generation': 'Spain is a country with a rich culture, history, and architecture, and it has many great cities to visit. Here are some of the top cities in Spain:\n\n1. **Madrid**: The capital city of Spain, known for its vibrant nightlife, museums, and historic landmarks like the Royal Palace and Prado Museum.\n2. **Barcelona**: The second-largest city in Spain, famous for its modernist architecture, beaches, and iconic landmarks like La Sagrada Família and Park Güell, designed by Antoni Gaudí.\n3. **Valencia**: Located on the Mediterranean coast, Valencia is known for its beautiful beaches, City of Arts and Sciences, and delicious local cuisine, such as paella.\n4. **Seville**: The capital of Andalusia, Seville is famous for its stunning cathedral, Royal Alcázar Palace, and lively flamenco music scene.\n5. **Málaga**: A coastal city in southern Spain, Málaga is known for its rich history, beautiful beaches, and being the birthplace of Pablo Picasso.\n6. **Zaragoza**: Located in the northeastern region of Aragon, Zaragoza is a city with a rich history, known for its Roman ruins, Gothic cathedral, and beautiful parks.\n7. **Granada**: A city in the Andalusian region, Granada is famous for its stunning Alhambra palace and generalife gardens, a UNESCO World Heritage Site.\n8. **Bilbao**: A city in the Basque Country, Bilbao is known for its modern architecture, including the Guggenheim Museum, and its rich cultural heritage.\n9. **Alicante**: A coastal city in the Valencia region, Alicante is famous for its beautiful beaches, historic castle, and lively nightlife.\n10. **San Sebastián**: A city in the Basque Country, San Sebastián is known for its stunning beaches, gastronomic scene, and cultural events like the San Sebastián International Film Festival.\n\nThese are just a few of the many great cities in Spain, each with its own unique character and attractions.', 'distilabel_metadata': {'raw_output_text_generation_0': 'Spain is a country with a rich culture, history, and architecture, and it has many great cities to visit. Here are some of the top cities in Spain:\n\n1. **Madrid**: The capital city of Spain, known for its vibrant nightlife, museums, and historic landmarks like the Royal Palace and Prado Museum.\n2. **Barcelona**: The second-largest city in Spain, famous for its modernist architecture, beaches, and iconic landmarks like La Sagrada Família and Park Güell, designed by Antoni Gaudí.\n3. **Valencia**: Located on the Mediterranean coast, Valencia is known for its beautiful beaches, City of Arts and Sciences, and delicious local cuisine, such as paella.\n4. **Seville**: The capital of Andalusia, Seville is famous for its stunning cathedral, Royal Alcázar Palace, and lively flamenco music scene.\n5. **Málaga**: A coastal city in southern Spain, Málaga is known for its rich history, beautiful beaches, and being the birthplace of Pablo Picasso.\n6. **Zaragoza**: Located in the northeastern region of Aragon, Zaragoza is a city with a rich history, known for its Roman ruins, Gothic cathedral, and beautiful parks.\n7. **Granada**: A city in the Andalusian region, Granada is famous for its stunning Alhambra palace and generalife gardens, a UNESCO World Heritage Site.\n8. **Bilbao**: A city in the Basque Country, Bilbao is known for its modern architecture, including the Guggenheim Museum, and its rich cultural heritage.\n9. **Alicante**: A coastal city in the Valencia region, Alicante is famous for its beautiful beaches, historic castle, and lively nightlife.\n10. **San Sebastián**: A city in the Basque Country, San Sebastián is known for its stunning beaches, gastronomic scene, and cultural events like the San Sebastián International Film Festival.\n\nThese are just a few of the many great cities in Spain, each with its own unique character and attractions.'}, 'model_name': 'meta-llama/Meta-Llama-3-8B-Instruct'}]
+[{'instruction': 'Which are the top cities in Spain?', 'generation': ' Here are some of the top cities in Spain based on various factors such as tourism, culture, history, and quality of life:\n\n1. Madrid: The capital and largest city in Spain, Madrid is known for its vibrant nightlife, world-class museums (such as the Prado Museum and Reina Sofia Museum), stunning parks (such as the Retiro Park), and delicious food.\n\n2. Barcelona: Famous for its unique architecture, Barcelona is home to several UNESCO World Heritage sites designed by Antoni Gaudí, including the Sagrada Familia and Park Güell. The city also boasts beautiful beaches, a lively arts scene, and delicious Catalan cuisine.\n\n3. Valencia: A coastal city located in the east of Spain, Valencia is known for its City of Arts and Sciences, a modern architectural complex that includes a planetarium, opera house, and museum of interactive science. The city is also famous for its paella, a traditional Spanish dish made with rice, vegetables, and seafood.\n\n4. Seville: The capital of Andalusia, Seville is famous for its flamenco dancing, stunning cathedral (the largest Gothic cathedral in the world), and the Alcázar, a beautiful palace made up of a series of rooms and courtyards.\n\n5. Granada: Located in the foothills of the Sierra Nevada mountains, Granada is known for its stunning Alhambra palace, a Moorish fortress that dates back to the 9th century. The city is also famous for its tapas, a traditional Spanish dish that is often served for free with drinks.\n\n6. Bilbao: A city in the Basque Country, Bilbao is famous for its modern architecture, including the Guggenheim Museum, a contemporary art museum designed by Frank Gehry. The city is also known for its pintxos, a type of Basque tapas that are served in bars and restaurants.\n\n7. Málaga: A coastal city in Andalusia, Málaga is known for its beautiful beaches, historic sites (including the Alcazaba and Gibralfaro castles), and the Picasso Museum, which is dedicated to the famous Spanish artist who was born in the city.\n\nThese are just a few of the many wonderful cities in Spain.', 'distilabel_metadata': {'raw_output_text_generation_0': ' Here are some of the top cities in Spain based on various factors such as tourism, culture, history, and quality of life:\n\n1. Madrid: The capital and largest city in Spain, Madrid is known for its vibrant nightlife, world-class museums (such as the Prado Museum and Reina Sofia Museum), stunning parks (such as the Retiro Park), and delicious food.\n\n2. Barcelona: Famous for its unique architecture, Barcelona is home to several UNESCO World Heritage sites designed by Antoni Gaudí, including the Sagrada Familia and Park Güell. The city also boasts beautiful beaches, a lively arts scene, and delicious Catalan cuisine.\n\n3. Valencia: A coastal city located in the east of Spain, Valencia is known for its City of Arts and Sciences, a modern architectural complex that includes a planetarium, opera house, and museum of interactive science. The city is also famous for its paella, a traditional Spanish dish made with rice, vegetables, and seafood.\n\n4. Seville: The capital of Andalusia, Seville is famous for its flamenco dancing, stunning cathedral (the largest Gothic cathedral in the world), and the Alcázar, a beautiful palace made up of a series of rooms and courtyards.\n\n5. Granada: Located in the foothills of the Sierra Nevada mountains, Granada is known for its stunning Alhambra palace, a Moorish fortress that dates back to the 9th century. The city is also famous for its tapas, a traditional Spanish dish that is often served for free with drinks.\n\n6. Bilbao: A city in the Basque Country, Bilbao is famous for its modern architecture, including the Guggenheim Museum, a contemporary art museum designed by Frank Gehry. The city is also known for its pintxos, a type of Basque tapas that are served in bars and restaurants.\n\n7. Málaga: A coastal city in Andalusia, Málaga is known for its beautiful beaches, historic sites (including the Alcazaba and Gibralfaro castles), and the Picasso Museum, which is dedicated to the famous Spanish artist who was born in the city.\n\nThese are just a few of the many wonderful cities in Spain.'}, 'model_name': 'mistralai/Mixtral-8x7B-Instruct-v0.1'}]
+</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="group-the-responses">Group the responses<a class="headerlink" href="#group-the-responses" title="Permanent link">&para;</a></h3>
+<p>The task to evaluate the responses needs as input a list of generations. However, each model response was saved in the generation column of the subsets <code>text_generation_0</code> and <code>text_generation_1</code>. We will combine these two columns into a single column and the <code>default</code> subset.</p>
 <ul>
-<li><strong>Group the responses</strong>: The task to evaluate the responses needs as input a list of generations. However, each model response was saved in the generation column of the subsets <code>text_generation_0</code> and <code>text_generation_1</code>. We will combine these two columns into a single column and the default subset. <ul>
 <li>Component: <code>GroupColumns</code></li>
 <li>Input columns: <code>generation</code> and <code>model_name</code>from <code>text_generation_0</code> and <code>text_generation_1</code></li>
 <li>Output columns: <code>generations</code> and <code>model_names</code></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
@@ -4899,27 +5031,54 @@
 <div class="input">
 
 <div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">group_responses</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">]</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">group_responses</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="p">[</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>            <span class="p">{</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>                <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;Madrid&quot;</span><span class="p">,</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>            <span class="p">},</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="p">],</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="p">[</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>            <span class="p">{</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>                <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">,</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>            <span class="p">}</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>        <span class="p">],</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>    <span class="p">)</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="p">)</span>
 </span></code></pre></div>
 
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>[{'generations': ['Madrid', 'Barcelona'],
+  'model_names': ['meta-llama/Meta-Llama-3-8B-Instruct',
+   'mistralai/Mixtral-8x7B-Instruct-v0.1']}]</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>
-<p><strong>Evaluate the responses</strong>: To build our preference dataset, we need to evaluate the responses generated by the models. We will use <a href="https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct"><code>meta-llama/Meta-Llama-3-70B-Instruct</code></a> for this, applying the <code>UltraFeedback</code> task that judges the responses according to different dimensions (helpfulness, honesty, instruction-following, truthfulness). </p>
+<h3 id="evaluate-the-responses">Evaluate the responses<a class="headerlink" href="#evaluate-the-responses" title="Permanent link">&para;</a></h3>
+<p>To build our preference dataset, we need to evaluate the responses generated by the models. We will use <a href="https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct"><code>meta-llama/Meta-Llama-3-70B-Instruct</code></a> for this, applying the <code>UltraFeedback</code> task that judges the responses according to different dimensions (helpfulness, honesty, instruction-following, truthfulness).</p>
 <ul>
 <li>Component: <code>UltraFeedback</code> task with LLMs using <code>InferenceEndpointsLLM</code></li>
-<li>Input columns: <code>generations</code></li>
+<li>Input columns: <code>instruction</code>, <code>generations</code></li>
 <li>Output columns: <code>ratings</code>, <code>rationales</code>, <code>distilabel_metadata</code>, <code>model_name</code></li>
 </ul>
 <p>For your use case and to improve the results, you can use any <a href="https://distilabel.argilla.io/latest/components-gallery/llms/">other LLM of your choice</a>.</p>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -4932,29 +5091,50 @@
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="p">)</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="p">),</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">),</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="n">evaluate_responses</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="n">evaluate_responses</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="p">[</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>            <span class="p">{</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">,</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>                <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Madrid&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">],</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>            <span class="p">}</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="p">]</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    <span class="p">)</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="p">)</span>
 </span></code></pre></div>
 
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>[{'instruction': "What's the capital of Spain?",
+  'generations': ['Madrid', 'Barcelona'],
+  'ratings': [5, 1],
+  'rationales': ["The answer is correct, directly addressing the question, and is free of hallucinations or unnecessary details. It confidently provides the accurate information, aligning perfectly with the user's intent.",
+   "The answer is incorrect as Barcelona is not the capital of Spain. This introduces a significant inaccuracy, failing to provide helpful information and deviating entirely from the user's intent."],
+  'distilabel_metadata': {'raw_output_ultra_feedback_0': "#### Output for Text 1\nRating: 5 (Excellent)\nRationale: The answer is correct, directly addressing the question, and is free of hallucinations or unnecessary details. It confidently provides the accurate information, aligning perfectly with the user's intent.\n\n#### Output for Text 2\nRating: 1 (Low Quality)\nRationale: The answer is incorrect as Barcelona is not the capital of Spain. This introduces a significant inaccuracy, failing to provide helpful information and deviating entirely from the user's intent."},
+  'model_name': 'meta-llama/Meta-Llama-3-70B-Instruct'}]</code>
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="convert-to-a-preference-dataset">Convert to a preference dataset<a class="headerlink" href="#convert-to-a-preference-dataset" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>(Optional) Convert to a preference dataset</strong>:<ul>
 <li>You can automatically convert it to a preference dataset with the <code>chosen</code> and <code>rejected</code> columns.<ul>
 <li>Component: <code>FormatTextGenerationDPO</code> step</li>
 <li>Input columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
 <li>Output columns: <code>prompt</code>, <code>prompt_id</code>, <code>chosen</code>, <code>chosen_model</code>, <code>chosen_rating</code>, <code>rejected</code>, <code>rejected_model</code>, <code>rejected_rating</code></li>
-</ul>
-</li>
-<li>Or you can use Argilla to manually label the data and convert it to a preference dataset.<ul>
-<li>Component: <code>PreferenceToArgilla</code> step</li>
-<li>Input columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
-<li>Output columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -4964,15 +5144,76 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">format_dpo</span> <span class="o">=</span> <span class="n">FormatTextGenerationDPO</span><span class="p">()</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;</span><span class="p">,</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">format_dpo</span> <span class="o">=</span> <span class="n">FormatTextGenerationDPO</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;showcase-pipeline&quot;</span><span class="p">))</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">format_dpo</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">format_dpo</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="p">[</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>            <span class="p">{</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>                <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the capital of Spain?&quot;</span><span class="p">,</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>                <span class="s2">&quot;generations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Madrid&quot;</span><span class="p">,</span> <span class="s2">&quot;Barcelona&quot;</span><span class="p">],</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                <span class="s2">&quot;generation_models&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>                    <span class="s2">&quot;Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>                    <span class="s2">&quot;Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>                <span class="p">],</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>                <span class="s2">&quot;ratings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>            <span class="p">}</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="p">]</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="p">)</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="p">)</span>
+</span></code></pre></div>
+
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="output_text output_subarea output_execute_result">
+<pre>
+<code>[{'instruction': "What's the capital of Spain?",
+  'generations': ['Madrid', 'Barcelona'],
+  'generation_models': ['Meta-Llama-3-8B-Instruct',
+   'Mixtral-8x7B-Instruct-v0.1'],
+  'ratings': [5, 1],
+  'prompt': "What's the capital of Spain?",
+  'prompt_id': '26174c953df26b3049484e4721102dca6b25d2de9e3aa22aa84f25ed1c798512',
+  'chosen': [{'role': 'user', 'content': "What's the capital of Spain?"},
+   {'role': 'assistant', 'content': 'Madrid'}],
+  'chosen_model': 'Meta-Llama-3-8B-Instruct',
+  'chosen_rating': 5,
+  'rejected': [{'role': 'user', 'content': "What's the capital of Spain?"},
+   {'role': 'assistant', 'content': 'Barcelona'}],
+  'rejected_model': 'Mixtral-8x7B-Instruct-v0.1',
+  'rejected_rating': 1}]</code>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Or you can use Argilla to manually label the data and convert it to a preference dataset.<ul>
+<li>Component: <code>PreferenceToArgilla</code> step</li>
+<li>Input columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
+<li>Output columns: <code>instruction</code>, <code>generations</code>, <code>generation_models</code>, <code>ratings</code></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -4994,52 +5235,52 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate-dataset&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;argilla/10Kprompts-mini&quot;</span><span class="p">)</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">generate_responses</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>            <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>                <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>                <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>                <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="p">)</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>        <span class="p">),</span>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="n">TextGeneration</span><span class="p">(</span>
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>            <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>                <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
-</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>                <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
-</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>                <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>            <span class="p">)</span>
-</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>        <span class="p">),</span>
-</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="p">]</span>
-</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>
-</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>    <span class="n">group_responses</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
-</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
-</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
-</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="p">)</span>
-</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>
-</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>    <span class="n">evaluate_responses</span> <span class="o">=</span> <span class="n">UltraFeedback</span><span class="p">(</span>
-</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;overall-rating&quot;</span><span class="p">,</span>
-</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
-</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
-</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
-</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>        <span class="p">)</span>
-</span><span id="__span-10-34"><a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>    <span class="p">)</span>
-</span><span id="__span-10-35"><a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>
-</span><span id="__span-10-36"><a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>    <span class="n">format_dpo</span> <span class="o">=</span> <span class="n">FormatTextGenerationDPO</span><span class="p">()</span>
-</span><span id="__span-10-37"><a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a>
-</span><span id="__span-10-38"><a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a>    <span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
-</span><span id="__span-10-39"><a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span>
-</span><span id="__span-10-40"><a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a>        <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
-</span><span id="__span-10-41"><a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a>        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;</span><span class="p">,</span>
-</span><span id="__span-10-42"><a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a>        <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
-</span><span id="__span-10-43"><a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a>        <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
-</span><span id="__span-10-44"><a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a>    <span class="p">)</span>
-</span><span id="__span-10-45"><a id="__codelineno-10-45" name="__codelineno-10-45" href="#__codelineno-10-45"></a>
-</span><span id="__span-10-46"><a id="__codelineno-10-46" name="__codelineno-10-46" href="#__codelineno-10-46"></a>    <span class="n">load_dataset</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">generate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">group_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">evaluate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">[</span><span class="n">format_dpo</span><span class="p">,</span> <span class="n">to_argilla</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">with</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;generate-dataset&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline</span><span class="p">:</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">load_dataset</span> <span class="o">=</span> <span class="n">LoadDataFromHub</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">&quot;argilla/10Kprompts-mini&quot;</span><span class="p">)</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">generate_responses</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>            <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>                <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>                <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>                <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>            <span class="p">)</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>        <span class="p">),</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>        <span class="n">TextGeneration</span><span class="p">(</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>            <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>                <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>                <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;mistralai/Mixtral-8x7B-Instruct-v0.1&quot;</span><span class="p">,</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>                <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>            <span class="p">)</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>        <span class="p">),</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    <span class="p">]</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>    <span class="n">group_responses</span> <span class="o">=</span> <span class="n">GroupColumns</span><span class="p">(</span>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>        <span class="n">output_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;generations&quot;</span><span class="p">,</span> <span class="s2">&quot;model_names&quot;</span><span class="p">],</span>
+</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>    <span class="p">)</span>
+</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>
+</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="n">evaluate_responses</span> <span class="o">=</span> <span class="n">UltraFeedback</span><span class="p">(</span>
+</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;overall-rating&quot;</span><span class="p">,</span>
+</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>        <span class="n">llm</span><span class="o">=</span><span class="n">InferenceEndpointsLLM</span><span class="p">(</span>
+</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>            <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-31"><a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>            <span class="n">tokenizer_id</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B-Instruct&quot;</span><span class="p">,</span>
+</span><span id="__span-11-32"><a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>            <span class="n">generation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max_new_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+</span><span id="__span-11-33"><a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>        <span class="p">)</span>
+</span><span id="__span-11-34"><a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a>    <span class="p">)</span>
+</span><span id="__span-11-35"><a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>
+</span><span id="__span-11-36"><a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a>    <span class="n">format_dpo</span> <span class="o">=</span> <span class="n">FormatTextGenerationDPO</span><span class="p">()</span>
+</span><span id="__span-11-37"><a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a>
+</span><span id="__span-11-38"><a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a>    <span class="n">to_argilla</span> <span class="o">=</span> <span class="n">PreferenceToArgilla</span><span class="p">(</span>
+</span><span id="__span-11-39"><a id="__codelineno-11-39" name="__codelineno-11-39" href="#__codelineno-11-39"></a>        <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;preference-dataset&quot;</span><span class="p">,</span>
+</span><span id="__span-11-40"><a id="__codelineno-11-40" name="__codelineno-11-40" href="#__codelineno-11-40"></a>        <span class="n">dataset_workspace</span><span class="o">=</span><span class="s2">&quot;argilla&quot;</span><span class="p">,</span>
+</span><span id="__span-11-41"><a id="__codelineno-11-41" name="__codelineno-11-41" href="#__codelineno-11-41"></a>        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://[your-owner-name]-[your_space_name].hf.space&quot;</span><span class="p">,</span>
+</span><span id="__span-11-42"><a id="__codelineno-11-42" name="__codelineno-11-42" href="#__codelineno-11-42"></a>        <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;[your-api-key]&quot;</span><span class="p">,</span>
+</span><span id="__span-11-43"><a id="__codelineno-11-43" name="__codelineno-11-43" href="#__codelineno-11-43"></a>        <span class="n">num_generations</span><span class="o">=</span><span class="mi">2</span>
+</span><span id="__span-11-44"><a id="__codelineno-11-44" name="__codelineno-11-44" href="#__codelineno-11-44"></a>    <span class="p">)</span>
+</span><span id="__span-11-45"><a id="__codelineno-11-45" name="__codelineno-11-45" href="#__codelineno-11-45"></a>
+</span><span id="__span-11-46"><a id="__codelineno-11-46" name="__codelineno-11-46" href="#__codelineno-11-46"></a>    <span class="n">load_dataset</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">generate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">group_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">evaluate_responses</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="p">[</span><span class="n">format_dpo</span><span class="p">,</span> <span class="n">to_argilla</span><span class="p">]</span>
 </span></code></pre></div>
 
 </div>
@@ -5054,7 +5295,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">distiset</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </span></code></pre></div>
 
 </div>
@@ -5076,7 +5317,7 @@
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;[your-owner-name]/example-preference-dataset&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">distiset</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="s2">&quot;[your-owner-name]/example-preference-dataset&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 
 </div>
@@ -5084,7 +5325,7 @@
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/sdiazlor/example-preference-dataset/embed/viewer/format_text_generation_d_p_o_0/train?row=3" width="100%"></iframe>
+<iframe frameborder="0" height="560px" src="https://huggingface.co/datasets/distilabel-internal-testing/example-generate-preference-dataset/embed/viewer/format_text_generation_d_p_o_0/train" width="100%"></iframe>
 </div>
 </div>
 </div>
