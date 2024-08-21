@@ -44,9 +44,6 @@ if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import StandardInput
 
 
-SamplingParams = None
-
-
 class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
     """`vLLM` library LLM implementation.
 
@@ -176,10 +173,6 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
 
         try:
             from vllm import LLM as _vLLM
-            from vllm import SamplingParams as _SamplingParams
-
-            global SamplingParams
-            SamplingParams = _SamplingParams
         except ImportError as ie:
             raise ImportError(
                 "vLLM is not installed. Please install it using `pip install vllm`."
@@ -318,6 +311,7 @@ class vLLM(LLM, MagpieChatTemplateMixin, CudaDevicePlacementMixin):
         Returns:
             A list of lists of strings containing the generated responses for each input.
         """
+        from vllm import SamplingParams
 
         if extra_sampling_params is None:
             extra_sampling_params = {}
