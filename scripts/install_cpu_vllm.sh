@@ -2,7 +2,7 @@
 
 echo "Installing system build dependencies..."
 sudo apt-get update -y
-sudo apt-get install -y gcc-12 g++-12 libnuma-dev python3-dev
+sudo apt-get install -y gcc-12 g++-12 libnuma-dev python3-dev cmake
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
 echo "Installing Python build dependencies..."
