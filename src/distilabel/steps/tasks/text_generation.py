@@ -192,7 +192,7 @@ class ChatGeneration(Task):
         """The input for the task are the `messages`."""
         return ["messages"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the messages provided
         are already formatted that way i.e. following the OpenAI chat format."""
 
@@ -216,7 +216,7 @@ class ChatGeneration(Task):
         return ["generation", "model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""
