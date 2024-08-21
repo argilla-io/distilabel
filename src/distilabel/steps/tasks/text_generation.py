@@ -13,11 +13,14 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.chat import is_openai_format
+
+if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.typing import StepColumns
 
 
 class TextGeneration(Task):
@@ -78,11 +81,11 @@ class TextGeneration(Task):
     use_system_prompt: bool = True
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""
         return ["instruction"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 

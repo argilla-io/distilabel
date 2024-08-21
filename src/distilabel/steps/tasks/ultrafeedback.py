@@ -12,14 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.resources as importlib_resources
 import re
-import sys
-
-if sys.version_info < (3, 9):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
-
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import orjson
@@ -264,7 +258,7 @@ class UltraFeedback(Task):
         return columns + ["model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `ratings` and `rationales` for
         each of the provided `generations` for the given `instruction`. The `model_name`
@@ -281,12 +275,15 @@ class UltraFeedback(Task):
             `ratings`, and `rationales-for-ratings` for each of the provided `generations` for the
             given `instruction` if the provided aspect is either `helpfulness` or `truthfulness`.
         """
+        assert input is not None, "Input is required to format the output."
+
         if self.aspect in [
             "honesty",
             "instruction-following",
             "overall-rating",
         ]:
             return self._format_ratings_rationales_output(output, input)
+
         return self._format_types_ratings_rationales_output(output, input)
 
     def _format_ratings_rationales_output(
@@ -450,7 +447,7 @@ class UltraFeedback(Task):
 
     def _format_structured_output(
         self, output: str, input: Dict[str, Any]
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         """Parses the structured response, which should correspond to a dictionary
         with either `positive`, or `positive` and `negative` keys.
 

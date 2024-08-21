@@ -46,6 +46,7 @@ from distilabel.steps.tasks.structured_generation import StructuredGeneration
 from distilabel.steps.tasks.text_generation import ChatGeneration, TextGeneration
 from distilabel.steps.tasks.typing import ChatItem, ChatType
 from distilabel.steps.tasks.ultrafeedback import UltraFeedback
+from distilabel.steps.tasks.urial import URIAL
 
 __all__ = [
     "GeneratorTask",
@@ -79,4 +80,5 @@ __all__ = [
     "ChatItem",
     "ChatType",
     "UltraFeedback",
+    "URIAL",
 ]
