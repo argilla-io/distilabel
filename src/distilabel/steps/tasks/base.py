@@ -66,6 +66,7 @@ class _Task(_Step, ABC):
         default=1, description="The number of generations to be produced per input."
     )
     use_default_structured_output: bool = False
+    offline_batch_inference: bool = False
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
