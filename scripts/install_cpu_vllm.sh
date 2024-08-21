@@ -24,5 +24,7 @@ echo "Installing vLLM CPU requirements..."
 uv pip install --system -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 echo "Installing vLLM for CPU..."
+export CMAKE_ARGS="-DPYTHON_EXECUTABLE=$(which python)"
+echo "CMake args: $CMAKE_ARGS"
 VLLM_TARGET_DEVICE=cpu python setup.py install
 echo "Installed!"
