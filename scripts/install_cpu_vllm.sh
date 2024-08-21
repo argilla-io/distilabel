@@ -13,7 +13,7 @@ echo "Checking out to '$latest_tag' tag..."
 git checkout "$latest_tag"
 
 echo "Installing vLLM CPU requirements..."
-uv pip install -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
+uv pip install --system -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 echo "Installing vLLM for CPU..."
 VLLM_TARGET_DEVICE=cpu python setup.py install
