@@ -1,30 +1,36 @@
 #!/bin/bash
 
-echo "Installing system build dependencies..."
+set -e
+
+echo "Updating system and installing build dependencies..."
 sudo apt-get update -y
-sudo apt-get install -y gcc-12 g++-12 libnuma-dev python3-dev cmake
+sudo apt-get install -y gcc-12 g++-12 libnuma-dev cmake
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
+# Get Python version and install development files
+PYTHON_VERSION=$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)
+sudo apt-get install -y python${PYTHON_VERSION}-dev
+
 echo "Installing Python build dependencies..."
-uv pip install --system wheel packaging ninja "setuptools>=49.4.0" numpy
+python -m pip install --upgrade pip
+python -m pip install wheel packaging ninja "setuptools>=49.4.0" numpy
 
 echo "Cloning 'vllm-project/vllm' GitHub repository..."
 git clone https://github.com/vllm-project/vllm.git
-
 cd vllm || exit
 
 git fetch --tags
-
 latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)")
 
 echo "Checking out to '$latest_tag' tag..."
 git checkout "$latest_tag"
 
 echo "Installing vLLM CPU requirements..."
-uv pip install --system -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 echo "Installing vLLM for CPU..."
-export CMAKE_ARGS="-DPYTHON_EXECUTABLE=$(which python)"
+export CMAKE_ARGS="-DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=$(python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON_LIBRARY=$(python -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))")"
 echo "CMake args: $CMAKE_ARGS"
 VLLM_TARGET_DEVICE=cpu python setup.py install
-echo "Installed!"
+
+echo "Installation complete!"
