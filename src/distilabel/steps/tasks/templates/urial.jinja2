@@ -9,7 +9,9 @@ Your responses must not contain any fake, harmful, unethical, racist, sexist, to
 Your response must be socially responsible, and thus you can refuse to answer some controversial topics.
 
 {% for message in messages %}
-# {{ message.role | capitalize }}
+# {{ message.role | capitalize }}:
 
 {{ message.content }}
 {% endfor %}
+
+# Assistant:

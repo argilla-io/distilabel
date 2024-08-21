@@ -50,6 +50,10 @@ class URIAL(Task):
             if "instruction" in input
             else input["conversation"]
         )
+
+        if input["messages"][-1]["role"] != "user":
+            raise ValueError("The last message must be from the user.")
+
         return [{"role": "user", "content": self._template.render(messages=messages)}]
 
     @property
