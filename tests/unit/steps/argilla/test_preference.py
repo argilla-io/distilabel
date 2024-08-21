@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from unittest import mock
 from unittest.mock import patch
 
 import argilla as rg
@@ -23,6 +24,7 @@ from distilabel.steps.argilla.preference import PreferenceToArgilla
 
 @pytest.fixture
 def mock_dataset() -> rg.Dataset:  # type: ignore
+    rg.Argilla._validate_connection = mock.MagicMock()  # type: ignore
     client = rg.Argilla(api_url="<api_url>", api_key="<api_key>")
     return rg.Dataset(
         name="dataset",
