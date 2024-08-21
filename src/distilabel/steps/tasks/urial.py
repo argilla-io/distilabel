@@ -34,7 +34,6 @@ class URIAL(Task):
             / "steps"
             / "tasks"
             / "templates"
-            / "ultrafeedback"
             / "urial.jinja2"
         )
 
@@ -64,5 +63,6 @@ class URIAL(Task):
         self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         if output is None:
-            return {}
-        pass
+            return {"generation": None}
+
+        return {"generation": output.split("\n\n# User")[-1]}
