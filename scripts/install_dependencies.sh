@@ -12,5 +12,5 @@ if [ "${python_version}" != "(3, 12)" ]; then
   uv pip install --system -e .[ray]
 fi
 
-./install_cpu_vllm.sh
+./scripts/install_cpu_vllm.sh
 uv pip install --system git+https://github.com/argilla-io/LLM-Blender.git
