@@ -18,5 +18,13 @@ hide:
 
     [:octicons-arrow-right-24: SentenceTransformerEmbeddings](sentencetransformerembeddings.md){ .bottom }
 
+-   :material-vector-line:{ .lg .middle } __vLLMEmbeddings__
+
+    ---
+
+    `vllm` library implementation for embedding generation.
+
+    [:octicons-arrow-right-24: vLLMEmbeddings](vllmembeddings.md){ .bottom }
+
 
 </div>
