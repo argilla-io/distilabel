@@ -55,6 +55,10 @@ class DummyRuntimeLLM(DummyLLM):
 
 
 class TestTask:
+    def test_model_post_init_raise_valuerror(self) -> None:
+        with pytest.raises(ValueError, match="`DummyTask` task cannot be used"):
+            DummyTask(llm=DummyLLM(), use_offline_batch_generation=True)
+
     def test_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
@@ -562,6 +566,7 @@ class TestTask:
                 "name": "DummyTask",
             },
             "use_default_structured_output": False,
+            "use_offline_batch_generation": False,
         }
 
         with Pipeline(name="unit-test-pipeline") as pipeline:

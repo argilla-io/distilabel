@@ -16,7 +16,7 @@ import importlib
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from typing_extensions import override
 
 from distilabel.constants import DISTILABEL_METADATA_KEY
@@ -73,7 +73,21 @@ class _Task(_Step, ABC):
         default=1, description="The number of generations to be produced per input."
     )
     use_default_structured_output: bool = False
-    offline_batch_inference: bool = False
+    use_offline_batch_generation: bool = False
+
+    _can_be_used_with_offline_batch_generation: bool = PrivateAttr(False)
+
+    def model_post_init(self, __context: Any) -> None:
+        if (
+            self.use_offline_batch_generation
+            and not self._can_be_used_with_offline_batch_generation
+        ):
+            raise ValueError(
+                f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
+                " feature."
+            )
+
+        super().model_post_init(__context)
 
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
