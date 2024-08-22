@@ -111,6 +111,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/step_wrapper/</loc>
+         <lastmod>2024-08-22</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://argilla-io.github.io/distilabel/dev/api/pipeline/typing/</loc>
          <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
