@@ -14,6 +14,7 @@
 
 import importlib
 import importlib.util
+import inspect
 import json
 from typing import (
     Any,
@@ -101,6 +102,13 @@ def prepare_guided_output(
 
     format = structured_output.get("format")
     schema = structured_output.get("schema")
+
+    # If schema not informed (may be forgotten), try infering it
+    if not format:
+        if isinstance(schema, dict) or inspect.isclass(schema):
+            format = "json"
+        elif isinstance(schema, str):
+            format = "regex"
 
     if format == "json":
         return {

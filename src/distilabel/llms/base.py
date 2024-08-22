@@ -428,7 +428,10 @@ class AsyncLLM(LLM):
         # We can deal with json schema or BaseModel, but we need to convert it to a BaseModel
         # for the Instructor client.
         schema = structured_output.get("schema", {})
-        if not issubclass(schema, BaseModel):
+
+        # If there's already a pydantic model, we don't need to do anything,
+        # otherwise, try to obtain one.
+        if not (inspect.isclass(schema) and issubclass(schema, BaseModel)):
             from distilabel.steps.tasks.structured_outputs.utils import (
                 json_schema_to_model,
             )
