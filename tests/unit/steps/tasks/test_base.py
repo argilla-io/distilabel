@@ -49,15 +49,25 @@ class DummyTask(Task):
         return {"output": output, "info_from_input": input["additional_info"]}  # type: ignore
 
 
+class DummyTaskOfflineBatchGeneration(DummyTask):
+    _can_be_used_with_offline_batch_generation = True
+
+
 class DummyRuntimeLLM(DummyLLM):
     runtime_parameter: RuntimeParameter[int]
     runtime_parameter_optional: Optional[RuntimeParameter[int]] = field(default=None)
 
 
 class TestTask:
-    def test_model_post_init_raise_valuerror(self) -> None:
+    def test_model_post_init_raise_valuerror_use_offline_batch_generation(self) -> None:
         with pytest.raises(ValueError, match="`DummyTask` task cannot be used"):
             DummyTask(llm=DummyLLM(), use_offline_batch_generation=True)
+
+    def test_is_global_with_offline_batch_generation(self) -> None:
+        task = DummyTaskOfflineBatchGeneration(
+            llm=DummyLLM(), use_offline_batch_generation=True
+        )
+        assert task.is_global is True
 
     def test_passing_pipeline(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")

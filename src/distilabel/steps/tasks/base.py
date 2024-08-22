@@ -89,6 +89,21 @@ class _Task(_Step, ABC):
 
         super().model_post_init(__context)
 
+    @property
+    def is_global(self) -> bool:
+        """Extends the `is_global` property to return `True` if the task is using the
+        offline batch generation feature, otherwise it returns the value of the parent
+        class property. `offline_batch_generation` requires to receive all the inputs
+        at once, so for the `_BatchManager` this is a global step.
+
+        Returns:
+            Whether the task is a global step or not.
+        """
+        if self.use_offline_batch_generation:
+            return True
+
+        return super().is_global
+
     def load(self) -> None:
         """Loads the LLM via the `LLM.load()` method."""
         super().load()
