@@ -295,7 +295,7 @@ class Task(_Task, Step):
         formatted_inputs = self._format_inputs(inputs)
 
         # `outputs` is a list containing a list of generations per input
-        outputs = self.llm.generate(
+        outputs = self.llm.generate_outputs(
             inputs=formatted_inputs,
             num_generations=self.num_generations,  # type: ignore
             **self.llm.get_generation_kwargs(),  # type: ignore

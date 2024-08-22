@@ -81,6 +81,8 @@ class TextGeneration(Task):
 
     use_system_prompt: bool = True
 
+    _can_be_used_with_offline_batch_generation = True
+
     @property
     def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""

@@ -194,6 +194,15 @@ class OpenAILLM(AsyncLLM):
             if structured_output := result.get("structured_output"):
                 self.structured_output = structured_output
 
+    def unload(self) -> None:
+        """Set clients to `None` as they both contain `thread._RLock` which cannot be pickled
+        in case an exception is raised and has to be handled in the main process"""
+
+        self._client = None  # type: ignore
+        self._aclient = None  # type: ignore
+        self.structured_output = None
+        super().unload()
+
     @property
     def model_name(self) -> str:
         """Returns the model name used for the LLM."""

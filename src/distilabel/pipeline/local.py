@@ -122,7 +122,7 @@ class Pipeline(BasePipeline):
 
     def run(
         self,
-        parameters: Optional[Dict[str, Dict[str, Any]]] = None,
+        parameters: Optional[Dict[Any, Dict[str, Any]]] = None,
         use_cache: bool = True,
         storage_parameters: Optional[Dict[str, Any]] = None,
         use_fs_to_pass_data: bool = False,

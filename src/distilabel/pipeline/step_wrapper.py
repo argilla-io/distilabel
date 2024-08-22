@@ -231,6 +231,7 @@ class _StepWrapper:
                     result = next(step.process_applying_mappings(batch.data[0]))
             except Exception as e:
                 if self.step.is_global:
+                    self.step.unload()
                     raise _StepWrapperException(str(e), self.step, 2, e) from e
 
                 # Impute step outputs columns with `None`
