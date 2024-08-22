@@ -162,6 +162,14 @@ hide:
 
     [:octicons-arrow-right-24: UltraFeedback](ultrafeedback.md){ .bottom }
 
+-   :material-text-box-edit:{ .lg .middle } __URIAL__
+
+    ---
+
+    Generates a response using a non-instruct fine-tuned model.
+
+    [:octicons-arrow-right-24: URIAL](urial.md){ .bottom }
+
 -   :material-dna:{ .lg .middle } __EvolInstructGenerator__
 
     ---
