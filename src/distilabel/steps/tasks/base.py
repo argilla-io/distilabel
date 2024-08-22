@@ -73,15 +73,15 @@ class _Task(_Step, ABC):
         default=1, description="The number of generations to be produced per input."
     )
     use_default_structured_output: bool = False
-    use_offline_batch_generation: bool = False
 
     _can_be_used_with_offline_batch_generation: bool = PrivateAttr(False)
 
     def model_post_init(self, __context: Any) -> None:
         if (
-            self.use_offline_batch_generation
+            self.llm.use_offline_batch_generation
             and not self._can_be_used_with_offline_batch_generation
         ):
+            # TODO: update to DistilabelUserError
             raise ValueError(
                 f"`{self.__class__.__name__}` task cannot be used with offline batch generation"
                 " feature."
@@ -99,7 +99,7 @@ class _Task(_Step, ABC):
         Returns:
             Whether the task is a global step or not.
         """
-        if self.use_offline_batch_generation:
+        if self.llm.use_offline_batch_generation:
             return True
 
         return super().is_global

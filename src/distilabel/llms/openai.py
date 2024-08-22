@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, U
 import orjson
 from pydantic import Field, PrivateAttr, SecretStr, validate_call
 
-from distilabel.exceptions import DistilabelBatchGenerationNotFinishedException
+from distilabel.exceptions import DistilabelOfflineBatchGenerationNotFinishedException
 from distilabel.llms.base import AsyncLLM
 from distilabel.llms.typing import GenerateOutput
 from distilabel.mixins.runtime_parameters import RuntimeParameter
@@ -326,7 +326,6 @@ class OpenAILLM(AsyncLLM):
         self,
         inputs: Union[List["FormattedInput"], None] = None,
         num_generations: int = 1,
-        jobs_ids: Union[Tuple[str], None] = None,
         max_new_tokens: int = 128,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
@@ -335,7 +334,7 @@ class OpenAILLM(AsyncLLM):
         stop: Optional[Union[str, List[str]]] = None,
         response_format: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union[List["GenerateOutput"], Tuple[str]]:
+    ) -> List["GenerateOutput"]:
         """Uses the OpenAI batch API to generate `num_generations` responses for the given
         inputs.
 
@@ -343,50 +342,75 @@ class OpenAILLM(AsyncLLM):
             inputs: a list of inputs in chat format to generate responses for.
             num_generations: the number of generations to create per input. Defaults to
                 `1`.
-            job_id: the job ID to use to retrieve the results of the batch. Defaults to
-                `None`.
+            max_new_tokens: the maximum number of new tokens that the model will generate.
+                Defaults to `128`.
+            frequency_penalty: the repetition penalty to use for the generation. Defaults
+                to `0.0`.
+            presence_penalty: the presence penalty to use for the generation. Defaults to
+                `0.0`.
+            temperature: the temperature to use for the generation. Defaults to `0.1`.
+            top_p: the top-p value to use for the generation. Defaults to `1.0`.
+            stop: a string or a list of strings to use as a stop sequence for the generation.
+                Defaults to `None`.
+            response_format: the format of the response to return. Must be one of
+                "text" or "json". Read the documentation [here](https://platform.openai.com/docs/guides/text-generation/json-mode)
+                for more information on how to use the JSON model from OpenAI. Defaults to `text`.
 
         Returns:
             A list of lists of strings containing the generated responses for each input
-            in `inputs`, or a tuple containing the job ID to retrieve the results from the
-            OpenAI Batch API.
+            in `inputs`.
+
+        Raises:
+            DistilabelOfflineBatchGenerationNotFinishedException: if the batch generation
+                is not finished yet.
+            ValueError: if no job IDs were found to retrieve the results from.
         """
-        if jobs_ids:
-            return self._check_and_get_batch_results(jobs_ids)
+        if self.jobs_ids:
+            return self._check_and_get_batch_results()
 
         if inputs:
-            kwargs = {
-                "model": self.model,
-                "max_tokens": max_new_tokens,
-                "n": num_generations,
-                "frequency_penalty": frequency_penalty,
-                "presence_penalty": presence_penalty,
-                "temperature": temperature,
-                "top_p": top_p,
-                "stop": stop,
-            }
-            return self._create_jobs(inputs=inputs, **kwargs)
+            self.jobs_ids = self._create_jobs(
+                inputs=inputs,
+                **{
+                    "model": self.model,
+                    "max_tokens": max_new_tokens,
+                    "n": num_generations,
+                    "frequency_penalty": frequency_penalty,
+                    "presence_penalty": presence_penalty,
+                    "temperature": temperature,
+                    "top_p": top_p,
+                    "stop": stop,
+                },
+            )
+            raise DistilabelOfflineBatchGenerationNotFinishedException(
+                jobs_ids=self.jobs_ids
+            )
 
-        raise ValueError("Either `inputs` or `jobs_ids` must be provided.")
+        raise ValueError("No `inputs` were provided and no `jobs_ids` were found.")
 
-    def _check_and_get_batch_results(
-        self, jobs_ids: Tuple[str]
-    ) -> List["GenerateOutput"]:
+    def _check_and_get_batch_results(self) -> List["GenerateOutput"]:
         """Checks the status of the batch jobs and retrieves the results from the OpenAI
         Batch API.
 
-        Args:
-            jobs_ids: the job IDs to retrieve the results from.
-
         Returns:
             A list of lists of strings containing the generated responses for each input.
+
+        Raises:
+            ValueError: if no job IDs were found to retrieve the results from.
+            DistilabelOfflineBatchGenerationNotFinishedException: if the batch generation
+                is not finished yet.
         """
+        if not self.jobs_ids:
+            raise ValueError("No job IDs were found to retrieve the results from.")
+
         outputs = []
-        for batch_id in jobs_ids:
+        for batch_id in self.jobs_ids:
             batch = self._get_openai_batch(batch_id)
 
             if batch.status in ("validating", "in_progress", "finalizing"):
-                raise DistilabelBatchGenerationNotFinishedException(jobs_ids=jobs_ids)
+                raise DistilabelOfflineBatchGenerationNotFinishedException(
+                    jobs_ids=self.jobs_ids
+                )
 
             if batch.status in ("failed", "expired", "cancelled", "cancelling"):
                 self._logger.warning(  # type: ignore

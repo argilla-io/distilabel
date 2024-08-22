@@ -28,7 +28,9 @@ class DistilabelGenerationException(DistilabelException):
     pass
 
 
-class DistilabelBatchGenerationNotFinishedException(DistilabelGenerationException):
+class DistilabelOfflineBatchGenerationNotFinishedException(
+    DistilabelGenerationException
+):
     """Exception raised when a batch generation is not finished."""
 
     jobs_ids: Tuple[str]

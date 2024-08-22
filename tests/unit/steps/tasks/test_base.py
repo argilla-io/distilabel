@@ -61,11 +61,11 @@ class DummyRuntimeLLM(DummyLLM):
 class TestTask:
     def test_model_post_init_raise_valuerror_use_offline_batch_generation(self) -> None:
         with pytest.raises(ValueError, match="`DummyTask` task cannot be used"):
-            DummyTask(llm=DummyLLM(), use_offline_batch_generation=True)
+            DummyTask(llm=DummyLLM(use_offline_batch_generation=True))
 
     def test_is_global_with_offline_batch_generation(self) -> None:
         task = DummyTaskOfflineBatchGeneration(
-            llm=DummyLLM(), use_offline_batch_generation=True
+            llm=DummyLLM(use_offline_batch_generation=True)
         )
         assert task.is_global is True
 
@@ -447,6 +447,7 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "use_offline_batch_generation": True,
         }
 
         # 2. Runtime parameters in init
@@ -462,6 +463,7 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "use_offline_batch_generation": True,
         }
 
         # 3. Runtime parameters in init superseded by runtime parameters
@@ -478,6 +480,7 @@ class TestTask:
             "runtime_parameter": False,
             "runtime_parameter_optional": True,
             "generation_kwargs": {},
+            "use_offline_batch_generation": True,
         }
 
     def test_serialization(self) -> None:
@@ -501,6 +504,7 @@ class TestTask:
             "llm": {
                 "generation_kwargs": {},
                 "structured_output": None,
+                "use_offline_batch_generation": False,
                 "type_info": {
                     "module": "tests.unit.conftest",
                     "name": "DummyLLM",
@@ -553,6 +557,12 @@ class TestTask:
                             "keys": [],
                             "name": "generation_kwargs",
                         },
+                        {
+                            "description": "Whether to use the `offline_batch_generate` method to "
+                            "generate the responses.",
+                            "name": "use_offline_batch_generation",
+                            "optional": True,
+                        },
                     ],
                 },
                 {
@@ -576,7 +586,6 @@ class TestTask:
                 "name": "DummyTask",
             },
             "use_default_structured_output": False,
-            "use_offline_batch_generation": False,
         }
 
         with Pipeline(name="unit-test-pipeline") as pipeline:
