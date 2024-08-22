@@ -4221,6 +4221,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../api/pipeline/step_wrapper/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Step Wrapper
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../api/pipeline/utils/" class="md-nav__link">
         
   
@@ -4548,9 +4569,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#0" class="md-nav__link">
+  <a href="#critique-and-evaluate-llm-generation-quality-using-prometheus-2_0" class="md-nav__link">
     <span class="md-ellipsis">
-      0
+      Critique and evaluate LLM generation quality using Prometheus 2_0
     </span>
   </a>
   
@@ -4615,18 +4636,14 @@
 <h1 id="prometheuseval">PrometheusEval<a class="headerlink" href="#prometheuseval" title="Permanent link">&para;</a></h1>
 <p>Critique and rank the quality of generations from an <code>LLM</code> using Prometheus 2.0.</p>
 <p><code>PrometheusEval</code> is a task created for Prometheus 2.0, covering both the absolute and relative
-    evaluations.</p>
-<div class="language-text highlight"><pre><span></span><code>- The absolute evaluation i.e. `mode=&quot;absolute&quot;` is used to evaluate a single generation from
-    an LLM for a given instruction.
-- The relative evaluation i.e. `mode=&quot;relative&quot;` is used to evaluate two generations from an LLM
+    evaluations. The absolute evaluation i.e. <code>mode="absolute"</code> is used to evaluate a single generation from
+    an LLM for a given instruction. The relative evaluation i.e. <code>mode="relative"</code> is used to evaluate two generations from an LLM
     for a given instruction.
-
-Both evaluations provide the possibility whether to use a reference answer to compare with or not
-via the `reference` attribute, and both are based on a score rubric that critiques the generation/s
-based on the following default aspects: `helpfulness`, `harmlessness`, `honesty`, `factual-validity`,
-and `reasoning`, that can be overridden via `rubrics`, and the selected rubric is set via the attribute
-`rubric`.
-</code></pre></div>
+    Both evaluations provide the possibility of using a reference answer to compare with or withoug
+    the <code>reference</code> attribute, and both are based on a score rubric that critiques the generation/s
+    based on the following default aspects: <code>helpfulness</code>, <code>harmlessness</code>, <code>honesty</code>, <code>factual-validity</code>,
+    and <code>reasoning</code>, that can be overridden via <code>rubrics</code>, and the selected rubric is set via the attribute
+    <code>rubric</code>.</p>
 <h3 id="note">Note<a class="headerlink" href="#note" title="Permanent link">&para;</a></h3>
 <p>The <code>PrometheusEval</code> task is better suited and intended to be used with any of the Prometheus 2.0
 models released by Kaist AI, being: https://huggingface.co/prometheus-eval/prometheus-7b-v2.0,
@@ -4709,7 +4726,7 @@ correctly follow the formatting and generate insightful critiques too.</p>
 </li>
 </ul>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<h4 id="0">0<a class="headerlink" href="#0" title="Permanent link">&para;</a></h4>
+<h4 id="critique-and-evaluate-llm-generation-quality-using-prometheus-2_0">Critique and evaluate LLM generation quality using Prometheus 2_0<a class="headerlink" href="#critique-and-evaluate-llm-generation-quality-using-prometheus-2_0" title="Permanent link">&para;</a></h4>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">distilabel.steps.tasks</span> <span class="kn">import</span> <span class="n">PrometheusEval</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">distilabel.llms</span> <span class="kn">import</span> <span class="n">vLLM</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
