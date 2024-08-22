@@ -27142,8 +27142,8 @@ result = next(
             {
                 &quot;instruction&quot;: &quot;Create an RPG character&quot;,
                 &quot;structured_output&quot;: {
-                    &quot;type&quot;: &quot;json&quot;,
-                    &quot;value&quot;: {
+                    &quot;format&quot;: &quot;json&quot;,
+                    &quot;schema&quot;: {
                         &quot;properties&quot;: {
                             &quot;name&quot;: {
                                 &quot;title&quot;: &quot;Name&quot;,
@@ -27178,7 +27178,7 @@ result = next(
 )
 ```
 
-Generate structured output from a regex pattern:
+Generate structured output from a regex pattern (only works with LLMs that support regex, the providers using outlines):
 
 ```python
 from distilabel.steps.tasks import StructuredGeneration
@@ -27199,8 +27199,8 @@ result = next(
             {
                 &quot;instruction&quot;: &quot;What&#39;s the weather like today in Seattle in Celsius degrees?&quot;,
                 &quot;structured_output&quot;: {
-                    &quot;type&quot;: &quot;regex&quot;,
-                    &quot;value&quot;: r&quot;(\d{1,2})°C&quot;
+                    &quot;format&quot;: &quot;regex&quot;,
+                    &quot;schema&quot;: r&quot;(\d{1,2})°C&quot;
                 },
 
             }
@@ -27427,8 +27427,8 @@ result = next(
 </span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">                    {</span>
 </span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">                        &quot;instruction&quot;: &quot;Create an RPG character&quot;,</span>
 </span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">                        &quot;structured_output&quot;: {</span>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">                            &quot;type&quot;: &quot;json&quot;,</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">                            &quot;value&quot;: {</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">                            &quot;format&quot;: &quot;json&quot;,</span>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">                            &quot;schema&quot;: {</span>
 </span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">                                &quot;properties&quot;: {</span>
 </span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">                                    &quot;name&quot;: {</span>
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">                                        &quot;title&quot;: &quot;Name&quot;,</span>
@@ -27463,7 +27463,7 @@ result = next(
 </span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        )</span>
 </span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        ```</span>
 </span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>
-</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">        Generate structured output from a regex pattern:</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">        Generate structured output from a regex pattern (only works with LLMs that support regex, the providers using outlines):</span>
 </span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>
 </span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">        ```python</span>
 </span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="sd">        from distilabel.steps.tasks import StructuredGeneration</span>
@@ -27484,8 +27484,8 @@ result = next(
 </span><span id="__span-0-126"><a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">                    {</span>
 </span><span id="__span-0-127"><a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">                        &quot;instruction&quot;: &quot;What&#39;s the weather like today in Seattle in Celsius degrees?&quot;,</span>
 </span><span id="__span-0-128"><a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="sd">                        &quot;structured_output&quot;: {</span>
-</span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">                            &quot;type&quot;: &quot;regex&quot;,</span>
-</span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="sd">                            &quot;value&quot;: r&quot;(\\d{1,2})°C&quot;</span>
+</span><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">                            &quot;format&quot;: &quot;regex&quot;,</span>
+</span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="sd">                            &quot;schema&quot;: r&quot;(\\d{1,2})°C&quot;</span>
 </span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="sd">                        },</span>
 </span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>
 </span><span id="__span-0-133"><a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="sd">                    }</span>
