@@ -24,6 +24,7 @@ try:
 except ImportError:
     pass
 
+from distilabel.errors import DistilabelUserError
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.base import Step, StepInput
 
@@ -110,7 +111,10 @@ class ArgillaBase(Step, ABC):
                 else {},
             )
         except Exception as e:
-            raise ValueError(f"Failed to initialize the Argilla API: {e}") from e
+            raise DistilabelUserError(
+                f"Failed to initialize the Argilla API: {e}",
+                page="sections/how_to_guides/advanced/argilla/",
+            ) from e
 
     @property
     def _dataset_exists_in_workspace(self) -> bool:
@@ -141,10 +145,11 @@ class ArgillaBase(Step, ABC):
         super().load()
 
         if self.api_url is None or self.api_key is None:
-            raise ValueError(
+            raise DistilabelUserError(
                 "`Argilla` step requires the `api_url` and `api_key` to be provided. Please,"
                 " provide those at step instantiation, via environment variables `ARGILLA_API_URL`"
-                " and `ARGILLA_API_KEY`, or as `Step` runtime parameters via `pipeline.run(parameters={...})`."
+                " and `ARGILLA_API_KEY`, or as `Step` runtime parameters via `pipeline.run(parameters={...})`.",
+                page="sections/how_to_guides/advanced/argilla/",
             )
 
         self._client_init()

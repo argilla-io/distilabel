@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, Union
 
 from pydantic import Field
 
+from distilabel.errors import DistilabelUserError
 from distilabel.llms.mixins.magpie import MagpieChatTemplateMixin
 from distilabel.mixins.runtime_parameters import RuntimeParameter
 from distilabel.steps.tasks.base import GeneratorTask
@@ -228,9 +229,10 @@ class MagpieGenerator(GeneratorTask, MagpieBase):
         super().model_post_init(__context)
 
         if not isinstance(self.llm, MagpieChatTemplateMixin):
-            raise ValueError(
+            raise DistilabelUserError(
                 f"`Magpie` task can only be used with an `LLM` that uses the `MagpieChatTemplateMixin`."
-                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin."
+                f"`{self.llm.__class__.__name__}` doesn't use the aforementioned mixin.",
+                page="components-gallery/tasks/magpiegenerator/",
             )
 
         self.llm.use_magpie_template = True

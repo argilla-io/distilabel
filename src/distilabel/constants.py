@@ -35,6 +35,9 @@ DISTISET_ARTIFACTS_FOLDER: Final[str] = "artifacts"
 PIPELINE_CONFIG_FILENAME: Final[str] = "pipeline.yaml"
 PIPELINE_LOG_FILENAME: Final[str] = "pipeline.log"
 
+# Docs page for the custom errors
+DISTILABEL_DOCS_URL: Final[str] = "https://distilabel.argilla.io/latest/"
+
 
 __all__ = [
     "STEP_ATTR_NAME",

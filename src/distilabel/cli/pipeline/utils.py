@@ -24,6 +24,7 @@ from pydantic import HttpUrl, ValidationError
 from pydantic.type_adapter import TypeAdapter
 
 from distilabel.constants import ROUTING_BATCH_FUNCTION_ATTR_NAME, STEP_ATTR_NAME
+from distilabel.errors import DistilabelUserError
 from distilabel.pipeline.local import Pipeline
 
 if TYPE_CHECKING:
@@ -106,8 +107,9 @@ def get_config_from_url(url: str) -> Dict[str, Any]:
         ValueError: If the file format is not supported.
     """
     if not url.endswith((".json", ".yaml", ".yml")):
-        raise ValueError(
-            f"Unsupported file format for '{url}'. Only JSON and YAML are supported"
+        raise DistilabelUserError(
+            f"Unsupported file format for '{url}'. Only JSON and YAML are supported",
+            page="sections/how_to_guides/basic/pipeline/?h=seriali#serializing-the-pipeline",
         )
     response = _download_remote_file(url)
 
@@ -134,8 +136,9 @@ def get_pipeline_from_url(url: str, pipeline_name: str = "pipeline") -> "BasePip
         ValueError: If the file format is not supported.
     """
     if not url.endswith(".py"):
-        raise ValueError(
-            f"Unsupported file format for '{url}'. It must be a python file."
+        raise DistilabelUserError(
+            f"Unsupported file format for '{url}'. It must be a python file.",
+            page="sections/how_to_guides/advanced/cli/#distilabel-pipeline-run",
         )
     response = _download_remote_file(url)
 
@@ -179,8 +182,9 @@ def get_pipeline(
     elif config_or_script.endswith(".py"):
         script = config_or_script
     else:
-        raise ValueError(
-            "The file must be a valid config file or python script with a pipeline."
+        raise DistilabelUserError(
+            "The file must be a valid config file or python script with a pipeline.",
+            page="sections/how_to_guides/advanced/cli/#distilabel-pipeline-run",
         )
 
     if valid_http_url(config_or_script):
