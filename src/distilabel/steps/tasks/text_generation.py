@@ -13,11 +13,14 @@
 # limitations under the License.
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from distilabel.steps.tasks.base import Task
-from distilabel.steps.tasks.typing import ChatType
 from distilabel.utils.chat import is_openai_format
+
+if TYPE_CHECKING:
+    from distilabel.steps.tasks.typing import ChatType
+    from distilabel.steps.typing import StepColumns
 
 
 class TextGeneration(Task):
@@ -78,11 +81,11 @@ class TextGeneration(Task):
     use_system_prompt: bool = True
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         """The input for the task is the `instruction`."""
         return ["instruction"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the instruction
         is the first interaction from the user within a conversation."""
 
@@ -189,7 +192,7 @@ class ChatGeneration(Task):
         """The input for the task are the `messages`."""
         return ["messages"]
 
-    def format_input(self, input: Dict[str, Any]) -> ChatType:
+    def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """The input is formatted as a `ChatType` assuming that the messages provided
         are already formatted that way i.e. following the OpenAI chat format."""
 
@@ -213,7 +216,7 @@ class ChatGeneration(Task):
         return ["generation", "model_name"]
 
     def format_output(
-        self, output: Union[str, None], input: Dict[str, Any]
+        self, output: Union[str, None], input: Union[Dict[str, Any], None] = None
     ) -> Dict[str, Any]:
         """The output is formatted as a dictionary with the `generation`. The `model_name`
         will be automatically included within the `process` method of `Task`."""

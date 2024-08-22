@@ -93,6 +93,7 @@ class TestEvolQuality:
         assert task.dump() == {
             "name": "task",
             "add_raw_output": True,
+            "add_raw_input": True,
             "input_mappings": task.input_mappings,
             "output_mappings": task.output_mappings,
             "resources": {
@@ -168,6 +169,11 @@ class TestEvolQuality:
                 {
                     "description": "Whether to include the raw output of the LLM in the key `raw_output_<TASK_NAME>` of the `distilabel_metadata` dictionary output column",
                     "name": "add_raw_output",
+                    "optional": True,
+                },
+                {
+                    "description": "Whether to include the raw input of the LLM in the key `raw_input_<TASK_NAME>` of the `distilabel_metadata` dictionary column",
+                    "name": "add_raw_input",
                     "optional": True,
                 },
                 {

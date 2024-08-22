@@ -537,7 +537,7 @@ class ClientvLLM(OpenAILLM, MagpieChatTemplateMixin):
         """Generates `num_generations` responses for each input.
 
         Args:
-            inputs: a list of inputs in chat format to generate responses for.
+            input: a single input in chat format to generate responses for.
             num_generations: the number of generations to create per input. Defaults to
                 `1`.
             max_new_tokens: the maximum number of new tokens that the model will generate.

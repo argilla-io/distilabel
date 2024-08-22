@@ -50,6 +50,7 @@ class TestUltraFeedback:
             aspect="instruction-following",
             llm=UltraFeedbackLLM(),
             use_default_structured_output=False,
+            add_raw_input=False,
         )
         task.load()
 
@@ -74,6 +75,7 @@ class TestUltraFeedback:
             aspect="truthfulness",
             llm=UltraFeedbackLLM(),
             use_default_structured_output=False,
+            add_raw_input=False,
         )
         task.load()
 

@@ -162,7 +162,18 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             input_mappings={"instruction": "prompt"},
         )
-        assert step.get_inputs() == ["prompt"]
+        assert step.get_inputs() == {"prompt": True}
+
+    def test_get_inputs_with_dict(self) -> None:
+        @step(inputs={"instruction": False, "completion": True}, outputs=["score"])
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_inputs() == {
+            "instruction": False,
+            "completion": True,
+        }
 
     def test_get_outputs(self) -> None:
         step = DummyStep(
@@ -170,7 +181,15 @@ class TestStep:
             pipeline=Pipeline(name="unit-test-pipeline"),
             output_mappings={"response": "generation"},
         )
-        assert step.get_outputs() == ["generation"]
+        assert step.get_outputs() == {"generation": True}
+
+    def test_get_outputs_with_dict(self) -> None:
+        @step(outputs={"score": False})
+        def DummyStepWithDict(input: StepInput):
+            pass
+
+        dummy_step_with_dict = DummyStepWithDict()
+        assert dummy_step_with_dict.get_outputs() == {"score": False}
 
     def test_apply_input_mappings(self) -> None:
         step = DummyStep(

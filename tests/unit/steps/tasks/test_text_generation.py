@@ -21,11 +21,8 @@ from tests.unit.conftest import DummyLLM
 
 class TestTextGeneration:
     def test_format_input(self) -> None:
-        pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = TextGeneration(
-            name="task", llm=llm, pipeline=pipeline, use_system_prompt=False
-        )
+        task = TextGeneration(name="task", llm=llm, use_system_prompt=False)
 
         assert task.format_input({"instruction": "test", "system_prompt": "test"}) == [
             {"role": "user", "content": "test"}
@@ -75,7 +72,9 @@ class TestTextGeneration:
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = TextGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = TextGeneration(
+            name="task", llm=llm, pipeline=pipeline, add_raw_input=False
+        )
 
         assert next(task.process([{"instruction": "test"}])) == [
             {
@@ -125,7 +124,9 @@ class TestChatGeneration:
     def test_process(self) -> None:
         pipeline = Pipeline(name="unit-test-pipeline")
         llm = DummyLLM()
-        task = ChatGeneration(name="task", llm=llm, pipeline=pipeline)
+        task = ChatGeneration(
+            name="task", llm=llm, pipeline=pipeline, add_raw_input=False
+        )
 
         assert next(
             task.process(

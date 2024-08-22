@@ -28,7 +28,7 @@ from distilabel.steps.tasks.base import Task
 
 if TYPE_CHECKING:
     from distilabel.steps.tasks.typing import ChatType
-    from distilabel.steps.typing import StepOutput
+    from distilabel.steps.typing import StepColumns, StepOutput
 
 MAGPIE_MULTI_TURN_SYSTEM_PROMPT = (
     "You are a helpful Al assistant. The user will engage in a multi−round conversation"
@@ -448,15 +448,15 @@ class Magpie(Task, MagpieBase):
         self.llm.use_magpie_template = True
 
     @property
-    def inputs(self) -> List[str]:
-        return []
+    def inputs(self) -> "StepColumns":
+        return {"system_prompt": False}
 
     def format_input(self, input: Dict[str, Any]) -> "ChatType":
         """Does nothing."""
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """Either a multi-turn conversation or the instruction generated."""
         if self.only_instruction:
             return ["instruction", "model_name"]

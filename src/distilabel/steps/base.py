@@ -51,7 +51,7 @@ if TYPE_CHECKING:
         DownstreamConnectableSteps,
         UpstreamConnectableSteps,
     )
-    from distilabel.steps.typing import GeneratorStepOutput, StepOutput
+    from distilabel.steps.typing import GeneratorStepOutput, StepColumns, StepOutput
 
 
 DEFAULT_INPUT_BATCH_SIZE = 50
@@ -381,8 +381,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return not self.is_generator and not self.is_global
 
     @property
-    def inputs(self) -> List[str]:
-        """List of strings with the names of the columns that the step needs as input.
+    def inputs(self) -> "StepColumns":
+        """List of strings with the names of the mandatory columns that the step needs as
+        input or dictionary in which the keys are the input columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step needs as input.
@@ -390,9 +392,10 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         """List of strings with the names of the columns that the step will produce as
-        output.
+        output or dictionary in which the keys are the output columns of the step and the
+        values are booleans indicating whether the column is optional or not.
 
         Returns:
             List of strings with the names of the columns that the step will produce as
@@ -479,23 +482,42 @@ class _Step(RuntimeParametersMixin, RequirementsMixin, BaseModel, _Serializable,
                     " Please, review the `outputs_mappings` argument of the step."
                 )
 
-    def get_inputs(self) -> List[str]:
+    def get_inputs(self) -> Dict[str, bool]:
         """Gets the inputs of the step after the `input_mappings`. This method is meant
         to be used to run validations on the inputs of the step.
 
         Returns:
-            The inputs of the step after the `input_mappings`.
+            The inputs of the step after the `input_mappings` and if they are required or
+            not.
         """
-        return [self.input_mappings.get(input, input) for input in self.inputs]
+        if isinstance(self.inputs, list):
+            return {
+                self.input_mappings.get(input, input): True for input in self.inputs
+            }
 
-    def get_outputs(self) -> List[str]:
+        return {
+            self.input_mappings.get(input, input): required
+            for input, required in self.inputs.items()
+        }
+
+    def get_outputs(self) -> Dict[str, bool]:
         """Gets the outputs of the step after the `outputs_mappings`. This method is
         meant to be used to run validations on the outputs of the step.
 
         Returns:
-            The outputs of the step after the `outputs_mappings`.
+            The outputs of the step after the `outputs_mappings` and if they are required
+            or not.
         """
-        return [self.output_mappings.get(output, output) for output in self.outputs]
+        if isinstance(self.outputs, list):
+            return {
+                self.output_mappings.get(output, output): True
+                for output in self.outputs
+            }
+
+        return {
+            self.output_mappings.get(output, output): required
+            for output, required in self.outputs.items()
+        }
 
     def set_pipeline_artifacts_path(self, path: Path) -> None:
         """Sets the `_pipeline_artifacts_path` attribute. This method is meant to be used
@@ -729,9 +751,9 @@ class GlobalStep(Step, ABC):
     """
 
     @property
-    def inputs(self) -> List[str]:
+    def inputs(self) -> "StepColumns":
         return []
 
     @property
-    def outputs(self) -> List[str]:
+    def outputs(self) -> "StepColumns":
         return []
